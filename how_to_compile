@@ -1,0 +1,19 @@
+go get -u github.com/golang/dep/cmd/dep
+
+dep ensure
+
+go build -o 
+
+terraform init -plugin-dir="/home/jkraj/GO/project/src/github.com/terraform-providers/terraform-provider-infoblox/example"
+
+
+provider "infoblox" {
+	host     = "10.196.106.33"
+	username = "admin"
+	password = "infoblox"
+        version = "2.8"
+}
+
+resource "infoblox_network_view" "demo_creation"{
+	networkviewname = "jkraj"
+}
