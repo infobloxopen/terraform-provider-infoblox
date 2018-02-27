@@ -14,11 +14,11 @@ func resourceNetwork() *schema.Resource {
 		Delete: resourceNetworkDelete,
 
 		Schema: map[string]*schema.Schema{
-			"networkviewname": &schema.Schema{
+			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_view_name", nil),
-				Description: "give the nnetviewname you created",
+				Description: "give the net_view_name you created",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -37,15 +37,15 @@ func resourceNetwork() *schema.Resource {
 }
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
-	networkviewname := d.Get("networkviewname").(string)
+	network_view_name := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
-	networkname :=d.Get("network_name").(string)
+	network_name :=d.Get("network_name").(string)
 
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
 
-	nwname, err := objMgr.CreateNetwork(networkviewname, cidr, networkname)
+	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
 	if err != nil {
 		fmt.Errorf("Error creating network")
 	}
@@ -59,16 +59,16 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
-	networkviewname := d.Get("networkviewname").(string)
+	network_view_name := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
 	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-	ref, err := objMgr.GetNetwork(networkviewname, cidr, nil)
+	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
 
 	if err != nil {
 		fmt.Errorf("cant get ")
 	}
-	objMgr.DeleteNetwork(ref.Ref, d.Get("networkviewname").(string))
+	objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
 
 	d.SetId("")
 	return nil

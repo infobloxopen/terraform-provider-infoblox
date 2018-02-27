@@ -3,36 +3,35 @@ package infoblox
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-
 	"github.com/infobloxopen/infoblox-go-client"
 )
 
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"host": &schema.Schema{
+			"server": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HOST", nil),
-				Description: "NIOS IP address",
+				Description: "NIOS IP address. Server IP address",
 			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("USERNAME", nil),
-				Description: "Grid manager username",
+				Description: "User to authenticate ",
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
-				Description: "Grid manager password",
+				Description: "Password to authenticate ",
 			},
 			"wapi_version": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.8"),
-				Description: "which wapi version ro be used",
+				Description: "which wapi version to be used",
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
@@ -45,6 +44,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SSLMODE", "false"),
+				Description: "If set, Infoblox client will permit unverifiable SSL certificates",
 			},
 			"connect_timeout": &schema.Schema{
 				Type:        schema.TypeInt,
@@ -60,9 +60,9 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"infoblox_network":      resourceNetwork(),
-			"infoblox_network_view": resourceNetworkView(),
-			"infoblox_ip_allocation":resourceAllocation(),
+			"infoblox_network":       resourceNetwork(),
+			"infoblox_network_view":  resourceNetworkView(),
+			"infoblox_ip_allocation": resourceAllocation(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -72,7 +72,7 @@ func Provider() terraform.ResourceProvider {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	hostConfig := ibclient.HostConfig{
-		Host:     d.Get("host").(string),
+		Host:     d.Get("server").(string),
 		Port:     d.Get("port").(string),
 		Username: d.Get("username").(string),
 		Password: d.Get("password").(string),

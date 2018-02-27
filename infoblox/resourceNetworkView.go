@@ -14,7 +14,7 @@ func resourceNetworkView() *schema.Resource {
 		Delete: resourceNetworkViewDelete,
 
 		Schema: map[string]*schema.Schema{
-			"networkviewname": &schema.Schema{
+			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_view_name", nil),
@@ -27,11 +27,11 @@ func resourceNetworkView() *schema.Resource {
 func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-	networkviewname, err := objMgr.CreateNetworkView(d.Get("networkviewname").(string))
+	network_view_name, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
 	if err != nil {
 		fmt.Errorf("Failed to create Network View")
 	}
-	d.SetId(networkviewname.Name)
+	d.SetId(network_view_name.Name)
 
 	return nil
 }

@@ -13,7 +13,7 @@ func resourceAllocation() *schema.Resource {
 		Delete: resourceAllocationRelease,
 
 		Schema: map[string]*schema.Schema{
-			"networkviewname": &schema.Schema{
+			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_view_name", nil),
@@ -30,12 +30,12 @@ func resourceAllocation() *schema.Resource {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
 			},
-			"ipaddr": &schema.Schema{
+			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
 			},
-			"macaddr": &schema.Schema{
+			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("macaddr", nil),
@@ -52,39 +52,39 @@ func resourceAllocation() *schema.Resource {
 }
 
 func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
-	networkviewname := d.Get("networkviewname").(string)
-	ipaddr :=d.Get("ipaddr").(string)
+	network_view_name := d.Get("network_view_name").(string)
+	ip_addr :=d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
-	macaddr := d.Get("macaddr").(string)
+	mac_addr := d.Get("mac_addr").(string)
 	vmID := d.Get("vmid").(string)
 	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-	objMgr.AllocateIP(networkviewname, cidr, ipaddr, macaddr, vmID)
-	d.SetId(macaddr)
+	objMgr.AllocateIP(network_view_name, cidr, ip_addr, mac_addr, vmID)
+	d.SetId(mac_addr)
 	return nil
 }
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
-	networkviewname := d.Get("networkviewname").(string)
-	ipaddr :=d.Get("ipaddr").(string)
+	network_view_name := d.Get("network_view_name").(string)
+	ip_addr :=d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
-	macaddr := d.Get("macaddr").(string)
+	mac_addr := d.Get("mac_addr").(string)
 	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-	objMgr.GetFixedAddress(networkviewname, cidr, ipaddr, macaddr)
-	d.SetId(macaddr)
+	objMgr.GetFixedAddress(network_view_name, cidr, ip_addr, mac_addr)
+	d.SetId(mac_addr)
 	return nil
 }
 func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
-	networkviewname := d.Get("networkviewname").(string)
-	ipaddr :=d.Get("ipaddr").(string)
+	network_view_name := d.Get("network_view_name").(string)
+	ip_addr :=d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
-	macaddr := d.Get("macaddr").(string)
+	mac_addr := d.Get("mac_addr").(string)
 	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-	objMgr.ReleaseIP(networkviewname, cidr, ipaddr, macaddr)
+	objMgr.ReleaseIP(network_view_name, cidr, ip_addr, mac_addr)
 	
 	d.SetId("")
 	return nil
