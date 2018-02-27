@@ -34,8 +34,6 @@ fmtcheck:
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
 
-vendor-status:
-	@govendor status
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
