@@ -17,8 +17,8 @@ func resourceNetwork() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_view_name", nil),
-				Description: "give the net_view_name you created",
+				DefaultFunc: schema.EnvDefaultFunc("network_view_name", nil),
+				Description: "Give the network view name  you created",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -30,8 +30,14 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "",
+				Description: "Give the address in cidr format",
 			},
+			"tennant_id": &schema.Schema{
+				Type: schema.TypeString,
+				Optional:true,
+				DefaultFunc: schema.EnvDefaultFunc("tennant_id",nil),
+				Description:"Unique identifier of your instance",
+				},
 		},
 	}
 }
@@ -39,11 +45,11 @@ func resourceNetwork() *schema.Resource {
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	network_view_name := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
-	network_name :=d.Get("network_name").(string)
-
+	network_name := d.Get("network_name").(string)
+	tennant_id := d.Get("tennant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
 
 	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
 	if err != nil {
@@ -61,8 +67,9 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	network_view_name := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
+	tennant_id := d.Get("tennant_id").(string)
 	connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
 	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
 
 	if err != nil {

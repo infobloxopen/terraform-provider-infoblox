@@ -13,31 +13,31 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HOST", nil),
-				Description: "NIOS IP address. Server IP address",
+				Description: "NIOS Server IP address",
 			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("USERNAME", nil),
-				Description: "User to authenticate ",
+				Description: "User to authenticate with Infoblox appliance ",
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PASSWORD", nil),
-				Description: "Password to authenticate ",
+				Description: "Password to authenticate with Infoblox appliance",
 			},
 			"wapi_version": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.8"),
-				Description: "which wapi version to be used",
+				Description: "Infoblox WAPI server version, defaults to v2.8",
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PORT", "443"),
-				Description: "port number used for connection",
+				Description: "Port number used for connection",
 			},
 
 			"sslmode": &schema.Schema{
