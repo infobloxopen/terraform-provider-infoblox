@@ -32,19 +32,20 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.8"),
-				Description: "which wapi version to be used",
+				Description: "Wapi Version of Infoblox appliance defaults to v2.8",
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PORT", "443"),
-				Description: "port number used for connection",
+				Description: "port number used for connection to NIOS",
 			},
 
 			"sslmode": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SSLMODE", "false"),
+				Description:"If set, Infoblox client will permit unverifiable SSL certificates",
 			},
 			"connect_timeout": &schema.Schema{
 				Type:        schema.TypeInt,
@@ -56,7 +57,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("POOL_CONNECTIONS", "10"),
-				Description: "Maximum number of connections to establish to the database. Zero means unlimited.",
+				Description: "Maximum number of connections to establish to the Infoblox appliance. Zero means unlimited.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
