@@ -14,27 +14,31 @@ func resourceNetworkView() *schema.Resource {
 		Delete: resourceNetworkViewDelete,
 
 		Schema: map[string]*schema.Schema{
-			"networkviewname": &schema.Schema{
+			"network_view_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("network_view_name", "default"),
+				Description: "Desired name of the view shown in NIOS appliance",
+			},
+			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_view_name", nil),
-				Description: "The name you want to give to your  network view",
+				DefaultFunc: schema.EnvDefaultFunc("tennant_id", nil),
+				Description: "Unique identifier of your instace in cloud",
 			},
 		},
 	}
 }
 
 func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
-	connector := m.(*ibclient.Connector)
-
-	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
-
-	networkviewname, err := objMgr.CreateNetworkView(d.Get("networkviewname").(string))
-
+	tenant_id := d.Get("tenant_id").(string)
+	Connector := m.(*ibclient.Connector)
+	objMgr := ibclient.NewObjectManager(Connector, "terraform", tenant_id)
+	network_view_name, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
 	if err != nil {
 		fmt.Errorf("Failed to create Network View")
 	}
-	d.SetId(networkviewname.Name)
+	d.SetId(network_view_name.Name)
 
 	return nil
 }
