@@ -36,7 +36,7 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(Connector, "terraform", tenant_id)
 	network_view_name, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
 	if err != nil {
-		fmt.Errorf("Failed to create Network View")
+		fmt.Println("Failed to create Network View")
 	}
 	d.SetId(network_view_name.Name)
 

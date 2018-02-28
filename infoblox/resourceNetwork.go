@@ -53,7 +53,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
 	if err != nil {
-		fmt.Errorf("Error creating network")
+		fmt.Println("Cant Create a network")
 	}
 	d.SetId(nwname.Cidr)
 	return nil
@@ -73,7 +73,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
 
 	if err != nil {
-		fmt.Errorf("cant get ")
+		fmt.Println("Cant Delete")
 	}
 	objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
 
