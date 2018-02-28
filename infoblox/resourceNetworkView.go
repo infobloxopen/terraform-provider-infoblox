@@ -34,22 +34,26 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 	tenant_id := d.Get("tenant_id").(string)
 	Connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(Connector, "terraform", tenant_id)
+
 	network_view_name, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
 	if err != nil {
-		fmt.Println("Failed to create Network View")
+		return fmt.Errorf("Failed to create Network View : %s", err)
 	}
+
 	d.SetId(network_view_name.Name)
 
 	return nil
 }
 func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
+	// Not Supported by Infoblox Go Client for Now
 
 	return nil
 }
 func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
+	// Not Supported by Infoblox Go Client for Now
 	return nil
 }
 func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
-
+	// Not Supported by Infoblox Go Client for Now
 	return nil
 }

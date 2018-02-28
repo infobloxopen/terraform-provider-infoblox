@@ -17,8 +17,8 @@ func resourceNetwork() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_view_name", nil),
-				Description: "Network view name available in Nios Appliance",
+				DefaultFunc: schema.EnvDefaultFunc("network_view_name", "default"),
+				Description: "Network view name available in NIOS Server",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -53,15 +53,30 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
 	if err != nil {
-		fmt.Println("Cant Create a network")
+		return fmt.Errorf("Creation network failed in network view (%s) : %s", network_view_name, err)
 	}
+
 	d.SetId(nwname.Cidr)
+
 	return nil
 }
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+	network_view_name := d.Get("network_view_name").(string)
+	cidr := d.Get("cidr").(string)
+	tenant_id := d.Get("tenant_id").(string)
+	connector := m.(*ibclient.Connector)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
+
+	_, err := objMgr.GetNetwork(network_view_name, cidr, nil)
+	if err != nil {
+		return fmt.Errorf("Getting Network failed from network view (%s) : %s", network_view_name, err)
+	}
+
 	return nil
 }
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
+	//not supported by Infoblox Go Client for now
 	return nil
 }
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
@@ -69,14 +84,19 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	tenant_id := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
+
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
+
 	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
-
 	if err != nil {
-		fmt.Println("Cant Delete")
+		return fmt.Errorf("Getting Network failed from network view(%s) for deletion : %s", network_view_name, err)
 	}
-	objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
 
+	_, err = objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
+	if err != nil {
+		return fmt.Errorf("Deletion of Network failed from network view(%s) for deletion : %s", network_view_name, err)
+	}
 	d.SetId("")
+
 	return nil
 }
