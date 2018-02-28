@@ -14,11 +14,11 @@ func resourceNetwork() *schema.Resource {
 		Delete: resourceNetworkDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"networkviewname": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_view_name", nil),
-				Description: "Give the network view name  you created",
+				DefaultFunc: schema.EnvDefaultFunc("nv_view_name", nil),
+				Description: "give the nnetviewname you created",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -29,29 +29,20 @@ func resourceNetwork() *schema.Resource {
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the address in cidr format",
+				DefaultFunc: schema.EnvDefaultFunc("nv_address", nil),
+				Description: "",
 			},
-			"tennant_id": &schema.Schema{
-				Type: schema.TypeString,
-				Optional:true,
-				DefaultFunc: schema.EnvDefaultFunc("tennant_id",nil),
-				Description:"Unique identifier of your instance",
-				},
 		},
 	}
 }
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
-	network_view_name := d.Get("network_view_name").(string)
-	cidr := d.Get("cidr").(string)
-	network_name := d.Get("network_name").(string)
-	tennant_id := d.Get("tennant_id").(string)
+
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
+	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
 
-	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
+	nwname, err := objMgr.CreateNetwork(d.Get("networkviewname").(string), d.Get("cidr").(string), d.Get("network_name").(string))
 	if err != nil {
 		fmt.Errorf("Error creating network")
 	}
@@ -65,17 +56,16 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
-	network_view_name := d.Get("network_view_name").(string)
-	cidr := d.Get("cidr").(string)
-	tennant_id := d.Get("tennant_id").(string)
 	connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
-	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+
+	ref, err := objMgr.GetNetwork(d.Get("networkviewname").(string), d.Get("cidr").(string), nil)
 
 	if err != nil {
 		fmt.Errorf("cant get ")
 	}
-	objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
+	objMgr.DeleteNetwork(ref.Ref, d.Get("networkviewname").(string))
 
 	d.SetId("")
 	return nil

@@ -3,6 +3,7 @@ package infoblox
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/infobloxopen/infoblox-go-client"
+	"fmt"
 )
 
 func resourceAllocation() *schema.Resource {
@@ -13,11 +14,11 @@ func resourceAllocation() *schema.Resource {
 		Delete: resourceAllocationRelease,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"networkviewname": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_view_name", nil),
-				Description: "Give the created network view name",
+				DefaultFunc: schema.EnvDefaultFunc("nv_view_name", nil),
+				Description: "give the created network view name",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
@@ -28,74 +29,93 @@ func resourceAllocation() *schema.Resource {
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description:"Give the address in cidr format",
+				DefaultFunc: schema.EnvDefaultFunc("nv_address", nil),
 			},
-			"ip_addr": &schema.Schema{
+			"ipaddr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description:"IP address of your instance",
 			},
-			"mac_addr": &schema.Schema{
+			"macaddr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("macaddr", nil),
 				Description: "mac address of your instance",
 			},
-			"vm_id": &schema.Schema{
+			"vmid": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("vmid", nil),
 				Description: "VM name",
 			},
-			"tennant_id": &schema.Schema{
-				Type: schema.TypeString,
-				Optional:true,
-				DefaultFunc: schema.EnvDefaultFunc("tennant_id",nil),
-				Description:"Unique identifier of your instance",
-				},
 		},
 	}
 }
 
 func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
-	network_view_name := d.Get("network_view_name").(string)
-	ip_addr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
-	mac_addr := d.Get("mac_addr").(string)
-	vmID := d.Get("vm_id").(string)
-	tennant_id := d.Get("tennant_id").(string)
+
+	networkviewname := d.Get("networkviewname").(string)
+	cdr := d.Get("cidr").(string)
+	//ipaddr := d.Get("ipaddr").(string)
+	macaddr := d.Get("macaddr").(string)
+	vmID := d.Get("vmid").(string)
+
 	connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
-	objMgr.AllocateIP(network_view_name, cidr, ip_addr, mac_addr, vmID)
-	d.SetId(mac_addr)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+
+	objMgr.AllocateIP(networkviewname, cdr, "", macaddr, vmID)
+	/*ipaddr, err :=
+	if err != nil {
+		fmt.Errorf("ipaddr not allocated")
+
+	}*/
+	d.SetId(macaddr)
+
 	return nil
 }
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
-	network_view_name := d.Get("network_view_name").(string)
-	tennant_id := d.Get("tennant_id").(string)
-	ip_addr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
-	mac_addr := d.Get("mac_addr").(string)
+
+	networkviewname := d.Get("networkviewname").(string)
+	cdr := d.Get("cidr").(string)
+	//ipaddr := d.Get("ipaddr").(string)
+	macaddr := d.Get("macaddr").(string)
+
 	connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
-	objMgr.GetFixedAddress(network_view_name, cidr, ip_addr, mac_addr)
-	d.SetId(mac_addr)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+	objMgr.GetFixedAddress(networkviewname, cdr, "", macaddr)
+	/*ipaddr, err :=
+	if err != nil {
+		fmt.Errorf("ipaddr not got")
+
+	}*/
+	d.SetId(macaddr)
+
 	return nil
 }
 func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
-	network_view_name := d.Get("network_view_name").(string)
-	ip_addr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
-	mac_addr := d.Get("mac_addr").(string)
-	tennant_id := d.Get("tennant_id").(string)
+	networkviewname := d.Get("networkviewname").(string)
+
+	//ipaddr := d.Get("ipaddr").(string)
+	cdr := d.Get("cidr").(string)
+	macaddr := d.Get("macaddr").(string)
+
 	connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tennant_id)
-	objMgr.ReleaseIP(network_view_name, cidr, ip_addr, mac_addr)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", "goclient1")
+	//ip_release,err :=objMgr.ReleaseIP("sai", "10.10.10.0/24", "", "02:0b:39:e1:35:36")
+	
+
+	ipaddr, err := objMgr.ReleaseIP(networkviewname, cdr, "", macaddr)
+		if err != nil {
+			fmt.Errorf("Error during ReleaseIP")
+			fmt.Println(err)
+	}
+	fmt.Println(ipaddr)
 
 	d.SetId("")
 	return nil
