@@ -3,10 +3,12 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
 default: build
 
-build: fmtcheck
+build: deps fmtcheck
 	go install
 	go build -o terraform-provider-infoblox
+
 deps: 
+	@dep ensure
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
@@ -43,5 +45,5 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck  test-compile
+.PHONY: build deps test testacc vet fmt fmtcheck errcheck test-compile
 
