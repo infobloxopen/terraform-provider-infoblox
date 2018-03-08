@@ -53,9 +53,8 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
 	if err != nil {
-		return fmt.Errorf("Creation network failed in network view (%s) : %s", network_view_name, err)
+		return fmt.Errorf("Creation of network failed in network view (%s) : %s", network_view_name, err)
 	}
-
 	d.SetId(nwname.Cidr)
 
 	return nil
@@ -70,7 +69,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.GetNetwork(network_view_name, cidr, nil)
 	if err != nil {
-		return fmt.Errorf("Getting Network failed from network view (%s) : %s", network_view_name, err)
+		return fmt.Errorf("Getting Network from network view (%s) failed : %s", network_view_name, err)
 	}
 
 	return nil
