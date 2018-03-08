@@ -1,9 +1,11 @@
 package infoblox
 
 import (
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/infobloxopen/infoblox-go-client"
+	"strings"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -32,6 +34,9 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.8"),
 				Description: "WAPI Version of Infoblox server defaults to v2.8",
+				ValidateFunc: StringInSlice([]string{"2.1", "2.1.1",
+					"2.1.2", "2.2", "2.2.1", "2.2.2", "2.3", "2.3.1", "2.4", "2.5", "2.6", "2.6.1",
+					"2.7", "2.7.1", "2.8", "2.9"}, false),
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
@@ -91,4 +96,23 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
 
 	return conn, err
+}
+
+func StringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be string", k))
+			return
+		}
+
+		for _, str := range valid {
+			if v == str || (ignoreCase && strings.ToLower(v) == strings.ToLower(str)) {
+				return
+			}
+		}
+
+		es = append(es, fmt.Errorf("expected %s to be one of %v, got %s", k, valid, v))
+		return
+	}
 }

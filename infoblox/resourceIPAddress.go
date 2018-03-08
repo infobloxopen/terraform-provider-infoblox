@@ -37,6 +37,7 @@ func resourceIPAddress() *schema.Resource {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
 				Description: "IP address of your instance in cloud",
+				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
@@ -56,6 +57,13 @@ func resourceIPAddress() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("tenant_id", nil),
 				Description: "Unique identifier of your instance in cloud",
 			},
+			"gateway": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("tenant_id", nil),
+				Description: "gateway ip address of your network block.First IPv4 address",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -68,16 +76,32 @@ func resourceIPAddressRequest(d *schema.ResourceData, m interface{}) error {
 	mac_addr := d.Get("mac_addr").(string)
 	vm_id := d.Get("vm_id").(string)
 	tenant_id := d.Get("tenant_id").(string)
+	gateway := d.Get("gateway").(string)
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
 
-	_, err := objMgr.AllocateIP(network_view_name, cidr, ip_addr, mac_addr, vm_id)
+	// Check whether gateway or ip address already allocated
+	gatewayIp, err := objMgr.GetFixedAddress(network_view_name, cidr, gateway, "")
 	if err != nil {
-		return fmt.Errorf("Error allocating IP from Network(%s) : %s", network_name, err)
+		fmt.Errorf("Get first Ip address failed with error: %s", err)
+	}
+	if gatewayIp == nil {
+		gatewayIp, err = objMgr.AllocateIP(network_view_name, cidr, gateway, "00:00:00:00:00:00", "")
+		if err != nil {
+			fmt.Errorf("Gateway Ip allocation failed with error: %s", err)
+		}
 	}
 
-	d.SetId(mac_addr)
+	ip_addr_obj, err := objMgr.AllocateIP(network_view_name, cidr, ip_addr, mac_addr, vm_id)
+	if err != nil {
+		return fmt.Errorf("Error allocating IP from network(%s): %s", network_name, err)
+	}
+
+	d.Set("gateway", gatewayIp.IPAddress)
+	d.Set("ip_addr", ip_addr_obj.IPAddress)
+	// TODO what happens in case of a VM have 2 network interfaces.
+	d.SetId(vm_id)
 
 	return nil
 }
@@ -94,7 +118,7 @@ func resourceIPAddressGet(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.GetFixedAddress(network_view_name, cidr, ip_addr, mac_addr)
 	if err != nil {
-		return fmt.Errorf("Error getting IP from network (%s) : %s", network_name, err)
+		return fmt.Errorf("Error getting IP from network(%s): %s", network_name, err)
 	}
 
 	return nil
@@ -116,7 +140,7 @@ func resourceIPAddressRelease(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.ReleaseIP(network_view_name, cidr, ip_addr, mac_addr)
 	if err != nil {
-		return fmt.Errorf("Error Releasing IP from network(%s) : %s", network_name, err)
+		return fmt.Errorf("Error Releasing IP from network(%s): %s", network_name, err)
 	}
 
 	d.SetId("")
