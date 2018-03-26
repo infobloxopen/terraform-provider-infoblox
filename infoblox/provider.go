@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -65,9 +66,9 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"infoblox_network":       resourceNetwork(),
-			"infoblox_network_view":  resourceNetworkView(),
-			"infoblox_ip_allocation": resourceIPAllocation(),
+			"infoblox_network":        resourceNetwork(),
+			"infoblox_network_view":   resourceNetworkView(),
+			"infoblox_ip_allocation":  resourceIPAllocation(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -102,6 +103,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	return conn, err
 }
 
+//StringInSlice returns a ValidateFunc which tests if the provided version
+// is of type string and matches the value of element in the slice
 func StringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 		v, ok := i.(string)
@@ -120,6 +123,9 @@ func StringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateFunc {
 		return
 	}
 }
+
+//CheckCloudLicense checks whether the user has applied License to
+//Infoblox Server.
 func CheckCloudLicense(objMgr *ibclient.ObjectManager, licenseType string) (err error) {
 	license, err := objMgr.GetLicense()
 

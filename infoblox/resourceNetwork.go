@@ -24,7 +24,7 @@ func resourceNetwork() *schema.Resource {
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_name", nil),
+				DefaultFunc: schema.EnvDefaultFunc("networkName", nil),
 				Description: "The name of the network.",
 			},
 			"cidr": &schema.Schema{
@@ -36,7 +36,7 @@ func resourceNetwork() *schema.Resource {
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenant_id", nil),
+				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your instance in cloud.",
 			},
 		},
@@ -46,17 +46,17 @@ func resourceNetwork() *schema.Resource {
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning network block Creation", resourceNetworkIDString(d))
 
-	network_view_name := d.Get("network_view_name").(string)
+	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
-	network_name := d.Get("network_name").(string)
-	tenant_id := d.Get("tenant_id").(string)
+	networkName := d.Get("network_name").(string)
+	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	nwname, err := objMgr.CreateNetwork(network_view_name, cidr, network_name)
+	nwname, err := objMgr.CreateNetwork(networkViewName, cidr, networkName)
 	if err != nil {
-		return fmt.Errorf("Creation of network failed in network view (%s) : %s", network_view_name, err)
+		return fmt.Errorf("Creation of network failed in network view (%s) : %s", networkViewName, err)
 	}
 	d.SetId(nwname.Cidr)
 
@@ -66,16 +66,16 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Reading the required network block", resourceNetworkIDString(d))
 
-	network_view_name := d.Get("network_view_name").(string)
+	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
-	tenant_id := d.Get("tenant_id").(string)
+	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	_, err := objMgr.GetNetwork(network_view_name, cidr, nil)
+	_, err := objMgr.GetNetwork(networkViewName, cidr, nil)
 	if err != nil {
-		return fmt.Errorf("Getting Network from network view (%s) failed : %s", network_view_name, err)
+		return fmt.Errorf("Getting Network from network view (%s) failed : %s", networkViewName, err)
 	}
 
 	log.Printf("[DEBUG] %s: Completed reading network block", resourceNetworkIDString(d))
@@ -89,21 +89,21 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Deletion of network block", resourceNetworkIDString(d))
 
-	network_view_name := d.Get("network_view_name").(string)
+	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
-	tenant_id := d.Get("tenant_id").(string)
+	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenant_id)
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	ref, err := objMgr.GetNetwork(network_view_name, cidr, nil)
+	ref, err := objMgr.GetNetwork(networkViewName, cidr, nil)
 	if err != nil {
-		return fmt.Errorf("Getting Network failed from network view(%s) for deletion : %s", network_view_name, err)
+		return fmt.Errorf("Getting Network failed from network view(%s) for deletion : %s", networkViewName, err)
 	}
 
 	_, err = objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
 	if err != nil {
-		return fmt.Errorf("Deletion of Network failed from network view(%s) for deletion : %s", network_view_name, err)
+		return fmt.Errorf("Deletion of Network failed from network view(%s) for deletion : %s", networkViewName, err)
 	}
 	d.SetId("")
 
