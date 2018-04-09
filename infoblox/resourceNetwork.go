@@ -25,19 +25,19 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("networkName", nil),
-				Description: "The name of the network.",
+				Description: "The name of your network block.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the address in cidr format.",
+				Description: "Give the network block in cidr format.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
-				Description: "Unique identifier of your instance in cloud.",
+				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
 	}
@@ -56,9 +56,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	nwname, err := objMgr.CreateNetwork(networkViewName, cidr, networkName)
 	if err != nil {
-		return fmt.Errorf("Creation of network failed in network view (%s) : %s", networkViewName, err)
+		return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 	}
-	d.SetId(nwname.Cidr)
+	d.SetId(nwname.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
 	return nil
@@ -67,15 +67,14 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Reading the required network block", resourceNetworkIDString(d))
 
 	networkViewName := d.Get("network_view_name").(string)
-	cidr := d.Get("cidr").(string)
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	_, err := objMgr.GetNetwork(networkViewName, cidr, nil)
+	_, err := objMgr.GetNetworkwithref(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting Network from network view (%s) failed : %s", networkViewName, err)
+		return fmt.Errorf("Getting Network block from network view (%s) failed : %s", networkViewName, err)
 	}
 
 	log.Printf("[DEBUG] %s: Completed reading network block", resourceNetworkIDString(d))
@@ -90,20 +89,14 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Deletion of network block", resourceNetworkIDString(d))
 
 	networkViewName := d.Get("network_view_name").(string)
-	cidr := d.Get("cidr").(string)
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	ref, err := objMgr.GetNetwork(networkViewName, cidr, nil)
+	_, err := objMgr.DeleteNetwork(d.Id(), d.Get("network_view_name").(string))
 	if err != nil {
-		return fmt.Errorf("Getting Network failed from network view(%s) for deletion : %s", networkViewName, err)
-	}
-
-	_, err = objMgr.DeleteNetwork(ref.Ref, d.Get("network_view_name").(string))
-	if err != nil {
-		return fmt.Errorf("Deletion of Network failed from network view(%s) for deletion : %s", networkViewName, err)
+		return fmt.Errorf("Deletion of Network block failed from network view(%s) for deletion : %s", networkViewName, err)
 	}
 	d.SetId("")
 

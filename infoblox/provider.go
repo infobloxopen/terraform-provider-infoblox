@@ -69,6 +69,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_network":        resourceNetwork(),
 			"infoblox_network_view":   resourceNetworkView(),
 			"infoblox_ip_allocation":  resourceIPAllocation(),
+			"infoblox_ip_association": resourceIPAssociation(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
