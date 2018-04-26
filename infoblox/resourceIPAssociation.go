@@ -82,7 +82,7 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
-	hostRecordObj, err := objMgr.GetHostRecordtWithoutDNS(recordName, networkViewName, cidr, ipAddr)
+	hostRecordObj, err := objMgr.GetHostRecordWithoutDNS(recordName, networkViewName, cidr, ipAddr)
 	if err != nil {
 		return fmt.Errorf("GetHostAddress error from network block(%s):%s", cidr, err)
 	}
