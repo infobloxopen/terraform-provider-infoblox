@@ -10,6 +10,7 @@ Infoblox Provider for Terraform
 ## Building the Provider
 
 clone repository to ```$GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox```
+```
 $ mkdir -p $GOPATH/src/github.com/infobloxopen; cd $GOPATH/src/github.com/infobloxopen
 $ git clone git@github.com:infobloxopen/terraform-provider-infoblox
 ```
