@@ -37,6 +37,6 @@ $ make test
 In order to run the full suite of Acceptance tests, run make testacc.
 
 Note: Acceptance tests create real resources, and often cost money to run.
-
+```
 $ make testacc
-
+```
