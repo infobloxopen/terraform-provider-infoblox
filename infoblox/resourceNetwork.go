@@ -39,6 +39,20 @@ func resourceNetwork() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
+			"reserve_ip": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("reserveIP", 0),
+				Description: "The no of IP's you want to reserve.",
+			},
+			"gateway": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("gateway", nil),
+				Description: "gateway ip address of your network block.By default first 
+				IPv4 address is set as gateway address.",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -49,6 +63,8 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
 	networkName := d.Get("network_name").(string)
+	reserveIP := d.Get("reserve_ip").(int)
+	gateway := d.Get("gateway").(string)
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
@@ -58,6 +74,25 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 	}
+
+	gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
+	if err == nil && gatewayIP != nil {
+		fmt.Printf("Gateway already created")
+	} else if gatewayIP == nil {
+		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
+		if err != nil {
+			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
+		}
+	}
+
+	for i := 1; i <= reserveIP; i++ {
+		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
+		if err != nil {
+			return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
+		}
+	}
+
+	d.Set("gateway", gatewayIP.IPAddress)
 	d.SetId(nwname.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
@@ -115,3 +150,5 @@ func resourceNetworkIDString(d resourceNetworkIDStringInterface) string {
 	}
 	return fmt.Sprintf("infoblox_ip_allocation (ID = %s)", id)
 }
+
+// Check whether gateway or ip address already allocated
