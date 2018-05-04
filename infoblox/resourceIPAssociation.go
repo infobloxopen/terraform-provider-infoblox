@@ -71,7 +71,7 @@ func resourceIPAssociation() *schema.Resource {
 func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
-	resource(d, m)
+  resource(d, m)
 
 	log.Printf("[DEBUG] %s:completing Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return nil
