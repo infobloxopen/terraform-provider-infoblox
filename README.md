@@ -50,6 +50,4 @@ $ make testacc
 * Creation of Network in NIOS appliance
 * Allocation of IP from a Network
 * Association of IP in a Network
-* Reallocation of IP
-* Reassociation of IP
 * Deletion of Network
