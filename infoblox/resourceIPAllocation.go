@@ -58,13 +58,6 @@ func resourceIPAllocation() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
-			"gateway": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
-				Description: "gateway ip address of your network block.First IPv4 address.",
-				Computed:    true,
-			},
 		},
 	}
 }
@@ -83,30 +76,16 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	macAddr := d.Get("mac_addr").(string)
 	vmID := d.Get("vm_id").(string)
 	tenantID := d.Get("tenant_id").(string)
-	gateway := d.Get("gateway").(string)
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
-
-	// Check whether gateway or ip address already allocated
-	gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
-	if err == nil && gatewayIP != nil {
-		fmt.Printf("Gateway alreadt created")
-	} else if gatewayIP == nil {
-		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
-		if err != nil {
-			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
-		}
-	}
 
 	hostrecordObj, err := objMgr.CreateHostRecordWithoutDNS(recordName, networkViewName, cidr, ipAddr, macAddr, vmID)
 	if err != nil {
 		return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
 	}
 
-	d.Set("gateway", gatewayIP.IPAddress)
 	d.Set("ip_addr", hostrecordObj.Ipv4Addrs[0].Ipv4Addr)
-	// TODO what happens in case of a VM have 2 network interfaces.
 	d.SetId(hostrecordObj.Ref)
 
 	log.Printf("[DEBUG] %s:completing Request of IP from required network block", resourceIPAllocationIDString(d))
