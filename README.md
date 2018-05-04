@@ -49,5 +49,5 @@ $ make testacc
 * Creation of Network View in NIOS appliance
 * Creation &  Deletion of Network in NIOS appliance
 * Allocation & Deallocation of IP from a Network
-* Association & Disassociation of IP for a VM
+* Association & Disassociation of IP Address for a VM
 
