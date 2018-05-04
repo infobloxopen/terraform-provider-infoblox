@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+	"strings"
 )
 
 func resourceIPAssociation() *schema.Resource {
@@ -81,6 +82,8 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
+	macAddr = strings.Replace(macAddr, "-", ":", -1)
 
 	hostRecordObj, err := objMgr.GetHostRecordWithoutDNS(recordName, networkViewName, cidr, ipAddr)
 	if err != nil {
@@ -97,6 +100,33 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] %s:update operation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
+
+	networkViewName := d.Get("network_view_name").(string)
+	recordName := d.Get("host_name").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	cidr := d.Get("cidr").(string)
+	macAddr := d.Get("mac_addr").(string)
+	tenantID := d.Get("tenant_id").(string)
+	vmID := d.Get("vm_id").(string)
+
+	connector := m.(*ibclient.Connector)
+
+	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
+	macAddr = strings.Replace(macAddr, "-", ":", -1)
+
+	hostRecordObj, err := objMgr.GetHostRecordWithoutDNS(recordName, networkViewName, cidr, ipAddr)
+	if err != nil {
+		return fmt.Errorf("GetHostAddress error from network block(%s):%s", cidr, err)
+	}
+	_, err = objMgr.UpdateHostRecordWithoutDNS(hostRecordObj.Ref, ipAddr, macAddr, vmID)
+	if err != nil {
+		return fmt.Errorf("UpdateHostAddress error from network block(%s):%s", cidr, err)
+	}
+
+	d.SetId(hostRecordObj.Ref)
+	log.Printf("[DEBUG] %s:completing updation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return nil
 }
 

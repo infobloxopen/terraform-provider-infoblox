@@ -39,6 +39,19 @@ func resourceNetwork() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
+			"reserve_ip": &schema.Schema{
+				Type:        schema.TypeInt,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("tenantID", 1),
+				Description: "The no of IP's you want to reserve.",
+			},
+			"gateway": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
+				Description: "gateway ip address of your network block.First IPv4 address.",
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -49,6 +62,8 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
 	networkName := d.Get("network_name").(string)
+	reserveIP := d.Get("reserve_ip").(int)
+	gateway := d.Get("gateway").(string)
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
@@ -58,6 +73,15 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 	}
+	for i := 1; i <= reserveIP; i++ {
+		gatewayIP, _ := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
+		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
+		if err != nil {
+			return fmt.Errorf("gateway creation in network block failed in network view(%s):%s", networkViewName, err)
+		}
+		d.Set("gateway", gatewayIP.IPAddress)
+	}
+
 	d.SetId(nwname.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
