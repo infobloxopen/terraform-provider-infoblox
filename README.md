@@ -52,4 +52,4 @@ $ make testacc
 * Association of IP in a Network
 * Reallocation of IP
 * Reassociation of IP
-* Deletion of NEtwork
+* Deletion of Network
