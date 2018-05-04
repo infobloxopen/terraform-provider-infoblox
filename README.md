@@ -1,5 +1,7 @@
 # terraform-provider-infoblox
-Infoblox Provider for Terraform
+Infoblox Provider for Terraform <img width="171" alt="capture" src="https://user-images.githubusercontent.com/36291746/39614422-6b653088-4f8d-11e8-83fd-05b18ca974a2.PNG">
+
+
 
 ## Requirments
 
