@@ -5,8 +5,8 @@ Infoblox Provider for Terraform <img width="171" alt="capture" src="https://user
 
 ## Requirments
 
-* [Terraform](https://www.terraform.io/downloads.html) 
-* [Go](https://golang.org/doc/install) 1.9(to build the provider plugin)
+* [Terraform](https://www.terraform.io/downloads.html) 0.11.x
+* [Go](https://golang.org/doc/install) 1.9 (to build the provider plugin)
 * [dep](https://github.com/golang/dep)
 
 ## Building the Provider
