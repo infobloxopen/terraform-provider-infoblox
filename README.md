@@ -45,3 +45,11 @@ Note: Acceptance tests create real resources, and often cost money to run.
 ```
 $ make testacc
 ```
+## Features of Provider
+* Creation of Network View in NIOS appliance
+* Creation of Network in NIOs appliance
+* Allocation of IP from a Network
+* Association of IP in a Network
+* Reallocation of IP
+* Reassociation of IP
+* Deletion of NEtwork
