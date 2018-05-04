@@ -47,7 +47,7 @@ $ make testacc
 ```
 ## Features of Provider
 * Creation of Network View in NIOS appliance
-* Creation of Network in NIOs appliance
+* Creation of Network in NIOS appliance
 * Allocation of IP from a Network
 * Association of IP in a Network
 * Reallocation of IP
