@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/infobloxopen/infoblox-go-client"
 	"strings"
+	"time"
 )
 
 //Provider returns a terraform.ResourceProvider.
@@ -55,7 +56,7 @@ func Provider() terraform.ResourceProvider {
 			"connect_timeout": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("CONNECT_TIMEOUT", "60"),
+				DefaultFunc: schema.EnvDefaultFunc("CONNECT_TIMEOUT", 60),
 				Description: "Maximum wait for connection, in seconds. Zero or not specified means wait indefinitely.",
 			},
 			"pool_connections": &schema.Schema{
@@ -78,6 +79,8 @@ func Provider() terraform.ResourceProvider {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
+	var seconds int64
+	seconds = int64(d.Get("connect_timeout").(int))
 	hostConfig := ibclient.HostConfig{
 		Host:     d.Get("server").(string),
 		Port:     d.Get("port").(string),
@@ -88,7 +91,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	transportConfig := ibclient.TransportConfig{
 		SslVerify:           d.Get("sslmode").(bool),
-		HttpRequestTimeout:  d.Get("connect_timeout").(int),
+		HttpRequestTimeout:  time.Duration(seconds),
 		HttpPoolConnections: d.Get("pool_connections").(int),
 	}
 

@@ -3,9 +3,9 @@ package infoblox
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/infobloxopen/infoblox-go-client"
+	"testing"
 )
 
 func TestAccCreateIP(t *testing.T) {
