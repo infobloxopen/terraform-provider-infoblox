@@ -49,8 +49,7 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("gateway", nil),
-				Description: "gateway ip address of your network block.By default first 
-				IPv4 address is set as gateway address.",
+				Description: "gateway ip address of your network block.By default first IPv4 address is set as gateway address.",
 				Computed:    true,
 			},
 		},
@@ -79,14 +78,14 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if err == nil && gatewayIP != nil {
 		fmt.Printf("Gateway already created")
 	} else if gatewayIP == nil {
-		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
+		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "")
 		if err != nil {
 			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
 		}
 	}
 
 	for i := 1; i <= reserveIP; i++ {
-		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "")
+		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "")
 		if err != nil {
 			return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
 		}

@@ -71,7 +71,7 @@ func resourceIPAssociation() *schema.Resource {
 func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
-  resource(d, m)
+	Resource(d, m)
 
 	log.Printf("[DEBUG] %s:completing Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return nil
@@ -80,7 +80,7 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s:update operation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
-	resource(d, m)
+	Resource(d, m)
 
 	log.Printf("[DEBUG] %s:completing updation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return nil
@@ -127,7 +127,7 @@ func resourceIPAssociationIDString(d resourceIPAssociationIDStringInterface) str
 	return fmt.Sprintf("infoblox_mac_allocation (ID = %s)", id)
 }
 
-func resource(d *schema.ResourceData, m interface{}) error {
+func Resource(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	recordName := d.Get("host_name").(string)
