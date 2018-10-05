@@ -97,13 +97,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	requestBuilder := &ibclient.WapiRequestBuilder{}
 	requestor := &ibclient.WapiHttpRequestor{}
-
 	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-	objMgr := ibclient.NewObjectManager(conn, "infoblox", "terraform-provider-infoblox")
-	err = CheckCloudLicense(objMgr, "cloud")
-	if err != nil {
-		return nil, err
+
+	licenseNocheck := schema.EnvDefaultFunc("LICENSE_NOCHECK", nil)
+
+	if licenseNocheck == nil {
+		objMgr := ibclient.NewObjectManager(conn, "infoblox", "terraform-provider-infoblox")
+		err = CheckCloudLicense(objMgr, "cloud")
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return conn, err
 }
 
