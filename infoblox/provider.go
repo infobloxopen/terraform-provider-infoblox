@@ -99,7 +99,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	requestor := &ibclient.WapiHttpRequestor{}
 
 	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-	objMgr := ibclient.NewObjectManager(conn, "", "")
+	objMgr := ibclient.NewObjectManager(conn, "infoblox", "terraform-provider-infoblox")
 	err = CheckCloudLicense(objMgr, "cloud")
 	if err != nil {
 		return nil, err
