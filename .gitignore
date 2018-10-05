@@ -1,3 +1,5 @@
 vendor
 terraform-provider-infoblox
 example
+*.swp
+
