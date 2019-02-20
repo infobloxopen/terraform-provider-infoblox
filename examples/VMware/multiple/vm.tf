@@ -1,7 +1,7 @@
 provider "vsphere" {
-    vsphere_server = "blr-devlab-vcenter.inblr.infoblox.com"
-    user = "administrator@vcenter.local"
-    password = "Infoblox@123"
+    vsphere_server = "xxx"
+    user = "xxx"
+    password = "xxx"
     allow_unverified_ssl = true
 }
 data"vsphere_datacenter" "dc"{
