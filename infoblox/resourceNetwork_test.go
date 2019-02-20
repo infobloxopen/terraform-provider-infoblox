@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccCreateNetwork(t *testing.T) {
+func TestAccresourceNetwork(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -16,15 +16,15 @@ func TestAccCreateNetwork(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCreateNetwork,
+				Config: testAccresourceNetworkCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "createNetwork.foo", "", "10.0.0.1/24", "test", "demo-network"),
+					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "test", "demo-network"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccUpdateNetwork,
+				Config: testAccresourceNetworkUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "createNetwork.foo", "", "10.0.0.1/24", "test", "demo-network"),
+					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "test", "demo-network"),
 				),
 			},
 		},
@@ -34,13 +34,13 @@ func TestAccCreateNetwork(t *testing.T) {
 func testAccCheckNetworkDestroy(s *terraform.State) error {
 	meta := testAccProvider.Meta()
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "Network" {
+		if rs.Type != "infoblox_network" {
 			continue
 		}
 		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
-		networkName, _ := objMgr.GetNetwork("demo-network", "10.0.0.1/24", nil)
-		if networkName == nil {
+		networkName, _ := objMgr.GetNetwork("demo-network", "10.10.0.0/24", nil)
+		if networkName != nil {
 			return fmt.Errorf("Network not found")
 		}
 
@@ -48,7 +48,7 @@ func testAccCheckNetworkDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCreateNetworkExists(t *testing.T, n string, m interface{}, cidr string, networkViewName string, networkName string) resource.TestCheckFunc {
+func testAccCreateNetworkExists(t *testing.T, n string, cidr string, networkViewName string, networkName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -57,30 +57,30 @@ func testAccCreateNetworkExists(t *testing.T, n string, m interface{}, cidr stri
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID i set")
 		}
-
-		Connector := m.(*ibclient.Connector)
+		meta := testAccProvider.Meta()
+		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
 
 		networkName, _ := objMgr.GetNetwork(networkName, cidr, nil)
-		if networkName == nil {
+		if networkName != nil {
 			return fmt.Errorf("Network not found")
 		}
 		return nil
 	}
 }
 
-var testAccCreateNetwork = fmt.Sprintf(`
-resource "createNetwork" "foo"{
-	networkViewName="test"
-	networkName="demo-network"
-	cidr="10.0.0.1/24"
+var testAccresourceNetworkCreate = fmt.Sprintf(`
+resource "infoblox_network" "foo"{
+	network_view_name="test"
+	network_name="demo-network"
+	cidr="10.10.0.0/24"
 	tenant_id="foo"
 	}`)
 
-var testAccUpdateNetwork = fmt.Sprintf(`
-resource "UpdateNetwork" "foo"{
-	networkViewName="test"
-	networkName="demo-network"
-	cidr="10.0.0.1/24"
+var testAccresourceNetworkUpdate = fmt.Sprintf(`
+resource "infoblox_network" "foo"{
+	network_view_name="test"
+	network_name="demo-network"
+	cidr="10.10.0.0/24"
 	tenant_id="foo"
 	}`)

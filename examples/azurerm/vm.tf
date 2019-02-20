@@ -1,3 +1,9 @@
+provider "azurerm" {
+    subscription_id = "3b9ac093-9baa-421e-8ee2-62f682759ca4"
+    client_id       = "207d5cd7-a7df-406f-8b1a-16ceba2a0d2a"
+    client_secret   = "R60s6BmIXe42VyT+CpgzHxn70SvI+soopWwzWUGuaq8="
+    tenant_id       = "ccf6dc4a-9fe9-4c20-85a6-46d2709e8435"
+}
 # create a resource group if it doesn't exist
 resource "azurerm_resource_group" "terraform" {
     name = "a132terraform"
@@ -51,7 +57,7 @@ resource "azurerm_network_interface" "ni" {
 
 # create virtual machine
 resource "azurerm_virtual_machine" "vm" {
-    name = "${infoblox_ip_allocation.demo_allocation.host_name}"
+    name = "${infoblox_ip_allocation.demo_allocation.vm_name}"
     location = "ukwest"
     resource_group_name = "${azurerm_resource_group.terraform.name}"
     network_interface_ids = ["${azurerm_network_interface.ni.id}"]

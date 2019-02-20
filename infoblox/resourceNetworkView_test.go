@@ -8,28 +8,28 @@ import (
 	"testing"
 )
 
-var testAccCreateNetworkView = fmt.Sprintf(`
-resource "createNetworkView" "foo"{
-	networkViewName="test"
+var testAccresourceNetworkView = fmt.Sprintf(`
+resource "infoblox_network_view" "foo"{
+	network_view_name="test1"
 	tenant_id="foo"
 	}`)
 
-func TestAccCreateNetworkView(t *testing.T) {
+func TestAccresourceNetworkView(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCreateNetworkView,
+				Config: testAccresourceNetworkView,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkViewExists(t, "createNetworkView.foo", "", "test"),
+					testAccCreateNetworkViewExists(t, "infoblox_network_view.foo", "test"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCreateNetworkViewExists(t *testing.T, n string, m interface{}, networkViewName string) resource.TestCheckFunc {
+func testAccCreateNetworkViewExists(t *testing.T, n string, networkViewName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -38,8 +38,8 @@ func testAccCreateNetworkViewExists(t *testing.T, n string, m interface{}, netwo
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID i set")
 		}
-
-		Connector := m.(*ibclient.Connector)
+		meta := testAccProvider.Meta()
+		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
 
 		netview, _ := objMgr.GetNetworkView(networkViewName)
