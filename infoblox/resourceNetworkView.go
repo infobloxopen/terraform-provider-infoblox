@@ -23,7 +23,7 @@ func resourceNetworkView() *schema.Resource {
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("tennant_id", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
@@ -86,5 +86,5 @@ func resourceNetworkViewIDString(d resourceNetworkViewIDStringInterface) string 
 	if id == "" {
 		id = "<new resource>"
 	}
-	return fmt.Sprintf("infoblox_network(ID = %s)", id)
+	return fmt.Sprintf("infoblox_network_view(ID = %s)", id)
 }
