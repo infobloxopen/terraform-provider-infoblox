@@ -1,8 +1,8 @@
-/*resource "infoblox_network_view" "demo_network_view"{
+resource "infoblox_network_view" "demo_network_view"{
   network_view_name="demo1"
   tenant_id="test"
 
-}*/
+}
 resource "infoblox_network" "demo_network"{
   network_view_name="demo1"
   network_name="ex1"
