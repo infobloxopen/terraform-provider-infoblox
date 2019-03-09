@@ -64,7 +64,7 @@ resource "vsphere_virtual_machine" "vm" {
         ipv4_netmask = 24
       }
 
-      ipv4_gateway = "10.10.20.1"//"${infoblox_network.demo_network.gateway}"
+      ipv4_gateway = "${infoblox_network.demo_network.gateway}"
     }
   }
 }
