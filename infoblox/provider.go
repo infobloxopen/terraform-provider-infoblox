@@ -34,8 +34,8 @@ func Provider() terraform.ResourceProvider {
 			"wapi_version": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.10"),
-				Description: "WAPI Version of Infoblox server defaults to v2.10.",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
+				Description: "WAPI Version of Infoblox server defaults to v2.7.",
 				ValidateFunc: StringInSlice([]string{"2.1", "2.1.1",
 					"2.1.2", "2.2", "2.2.1", "2.2.2", "2.3", "2.3.1", "2.4", "2.5", "2.6", "2.6.1",
 					"2.7", "2.7.1", "2.8", "2.9", "2.10", "2.11"}, false),

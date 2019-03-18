@@ -31,7 +31,7 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the network block in cidr format.",
+				Description: "The network block in cidr format.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,

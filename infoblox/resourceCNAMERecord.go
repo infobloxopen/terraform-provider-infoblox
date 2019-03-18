@@ -17,13 +17,13 @@ func resourceCNAMERecord() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
 				Description: "Zone under which record has to be created .",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
 				Description: "Dns View under which the zone has been created .",
 			},

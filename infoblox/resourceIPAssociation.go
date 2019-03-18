@@ -32,13 +32,13 @@ func resourceIPAssociation() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the address in cidr format.",
+				Description: "The address in cidr format.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address of your instance in cloud.",
+				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
@@ -174,9 +174,9 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("GetHostRecord failed from network block(%s):%s", cidr, err)
 		}
-		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, Name)
+		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, name)
 		if err != nil {
-			return fmt.Errorf("UpdateFixedAddress error from network block(%s):%s", cidr, err)
+			return fmt.Errorf("UpdateHost Record error from network block(%s):%s", cidr, err)
 		}
 		d.SetId(hostRecordObj.Ref)
 	} else {

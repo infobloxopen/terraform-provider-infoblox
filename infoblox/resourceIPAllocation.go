@@ -31,31 +31,31 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the address in cidr format.",
+				Description: "The address in cidr format.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
-				Description: "Zone under which record has to be created .",
+				Description: "Zone under which record has to be created.",
 			},
 			"enable_dns": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("enable_dns", nil),
-				Description: "flag that defines if the host reocrd is used for DNS or IPAM Puurposes .",
+				Description: "flag that defines if the host reocrd is used for DNS or IPAM Purposes.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
-				Description: "Dns View under which the zone has been created .",
+				Description: "Dns View under which the zone has been created.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address you want to allocate yourinstance in cloud.If field is not specified , it akes next avaliable ip address",
+				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
@@ -85,7 +85,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	//This is for record Name
-	Name := d.Get("vm_name").(string)
+	record_Name := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
@@ -99,7 +99,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 	ZERO_MACADDR := "00:00:00:00:00:00"
-	name := Name + "." + zone
+	name := record_Name + "." + zone
 
 	if macAddr == "" {
 		macAddr = ZERO_MACADDR
@@ -114,7 +114,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		d.Set("ip_addr", hostAddressObj.Ipv4Addrs[0].Ipv4Addr)
 		d.SetId(hostAddressObj.Ref)
 	} else {
-		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, Name, vmID, vmName)
+		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, record_Name, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
 		}

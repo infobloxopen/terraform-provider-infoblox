@@ -31,25 +31,25 @@ func resourceARecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the address in cidr format.",
+				Description: "The address in cidr format.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
-				Description: "Zone under which record has to be created .",
+				Description: "Zone under which record has to be created.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
-				Description: "Dns View under which the zone has been created .",
+				Description: "Dns View under which the zone has been created.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address you want to allocate yourinstance in cloud.If field is not specified , it akes next avaliable ip address",
+				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"vm_id": &schema.Schema{
@@ -73,7 +73,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	//This is for record Name
-	Name := d.Get("vm_name").(string)
+	record_Name := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	vmID := d.Get("vm_id").(string)
@@ -85,7 +85,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
-	name := Name + "." + zone
+	name := record_Name + "." + zone
 	recordA, err := objMgr.CreateARecord(networkViewName, dnsView, name, cidr, ipAddr, vmID, vmName)
 	if err != nil {
 		return fmt.Errorf("Error creating A Record from network block(%s): %s", cidr, err)
