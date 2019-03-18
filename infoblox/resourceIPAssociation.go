@@ -117,16 +117,17 @@ func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
+	ZERO_MACADDR := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, "00:00:00:00:00:00", vmID, vmName)
+		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, ZERO_MACADDR, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
 		}
 		d.SetId("")
 	} else {
-		_, err := objMgr.UpdateFixedAddress(d.Id(), match_client, "00:00:00:00:00:00", "", "")
+		_, err := objMgr.UpdateFixedAddress(d.Id(), match_client, ZERO_MACADDR, "", "")
 		if err != nil {
 			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
 		}

@@ -67,6 +67,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
+	ZERO_MACADDR := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
 	nwname, err := objMgr.CreateNetwork(networkViewName, cidr, networkName)
@@ -79,7 +80,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if err == nil && gatewayIP != nil {
 		fmt.Printf("Gateway already created")
 	} else if gatewayIP == nil {
-		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "", "")
+		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZERO_MACADDR, "", "", "")
 		if err != nil {
 			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
 		}
