@@ -19,13 +19,13 @@ func resourceCNAMERecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
-				Description: "Zone under which record has to be created .",
+				Description: "Zone under which record has to be created.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
-				Description: "Dns View under which the zone has been created .",
+				Description: "Dns View under which the zone has been created.",
 			},
 			"canonical": &schema.Schema{
 				Type:        schema.TypeString,
@@ -37,7 +37,7 @@ func resourceCNAMERecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("hostName", nil),
-				Description: "The alias name for the record .",
+				Description: "The alias name for the record.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
