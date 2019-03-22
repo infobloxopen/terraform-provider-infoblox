@@ -49,7 +49,7 @@ func resourcePTRRecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
+				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"vm_id": &schema.Schema{
@@ -73,7 +73,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	//This is for record Name
-	record_Name := d.Get("vm_name").(string)
+	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	vmID := d.Get("vm_id").(string)
@@ -84,7 +84,8 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
-	name := record_Name + "." + zone
+	//fqdn
+	name := recordName + "." + zone
 	recordPTR, err := objMgr.CreatePTRRecord(networkViewName, dnsView, name, cidr, ipAddr, vmID, vmName)
 	if err != nil {
 		return fmt.Errorf("Error creating PTR Record from network block(%s): %s", cidr, err)

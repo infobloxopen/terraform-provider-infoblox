@@ -1,8 +1,8 @@
 provider "vsphere" {
-    vsphere_server = "xxx"
-    user = "xxx"
-    password = "xxx"
-    allow_unverified_ssl = true
+   vsphere_server = "xxx"
+   user = "xxx"
+   password = "xxx"
+   allow_unverified_ssl = true
 }
 data"vsphere_datacenter" "dc"{
  name = "Blr-Devlab"

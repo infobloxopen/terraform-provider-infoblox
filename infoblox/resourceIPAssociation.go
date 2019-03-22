@@ -38,7 +38,7 @@ func resourceIPAssociation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
+				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
@@ -107,7 +107,7 @@ func resourceIPAssociationRead(d *schema.ResourceData, m interface{}) error {
 //will be a conflict of resources
 func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Reassociation of IP address in specified network block", resourceIPAssociationIDString(d))
-	match_client := "MAC_ADDRESS"
+	matchClient := "MAC_ADDRESS"
 	ipAddr := d.Get("ip_addr").(string)
 	vmID := d.Get("vm_id").(string)
 	vmName := d.Get("vm_name").(string)
@@ -117,17 +117,17 @@ func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
-	ZERO_MACADDR := "00:00:00:00:00:00"
+	ZeroMacAddr := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, ZERO_MACADDR, vmID, vmName)
+		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, ZeroMacAddr, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
 		}
 		d.SetId("")
 	} else {
-		_, err := objMgr.UpdateFixedAddress(d.Id(), match_client, ZERO_MACADDR, "", "")
+		_, err := objMgr.UpdateFixedAddress(d.Id(), matchClient, ZeroMacAddr, "", "")
 		if err != nil {
 			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
 		}
@@ -152,7 +152,7 @@ func resourceIPAssociationIDString(d resourceIPAssociationIDStringInterface) str
 
 func Resource(d *schema.ResourceData, m interface{}) error {
 
-	match_client := "MAC_ADDRESS"
+	matchClient := "MAC_ADDRESS"
 	networkViewName := d.Get("network_view_name").(string)
 	Name := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -186,7 +186,7 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("GetFixedAddress error from network block(%s):%s", cidr, err)
 		}
 
-		_, err = objMgr.UpdateFixedAddress(fixedAddressObj.Ref, match_client, macAddr, vmID, Name)
+		_, err = objMgr.UpdateFixedAddress(fixedAddressObj.Ref, matchClient, macAddr, vmID, Name)
 		if err != nil {
 			return fmt.Errorf("UpdateFixedAddress error from network block(%s):%s", cidr, err)
 		}

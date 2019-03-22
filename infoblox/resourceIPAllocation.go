@@ -55,7 +55,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
-				Description: "IP address your instance in cloud.For static allocation ,set the field. For dynamic allocation, leave this field empty.",
+				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
@@ -85,7 +85,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	//This is for record Name
-	record_Name := d.Get("vm_name").(string)
+	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
@@ -98,11 +98,12 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 
 	connector := m.(*ibclient.Connector)
-	ZERO_MACADDR := "00:00:00:00:00:00"
-	name := record_Name + "." + zone
+	ZeroMacAddr := "00:00:00:00:00:00"
+	//fqdn
+	name := recordName + "." + zone
 
 	if macAddr == "" {
-		macAddr = ZERO_MACADDR
+		macAddr = ZeroMacAddr
 	}
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
@@ -114,7 +115,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		d.Set("ip_addr", hostAddressObj.Ipv4Addrs[0].Ipv4Addr)
 		d.SetId(hostAddressObj.Ref)
 	} else {
-		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, record_Name, vmID, vmName)
+		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, recordName, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
 		}

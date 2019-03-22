@@ -51,20 +51,20 @@ func resourceCNAMERecord() *schema.Resource {
 func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create CNAME record ", resourceCNAMERecordIDString(d))
 
-	Zone := d.Get("zone").(string)
+	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
-	Canonical := d.Get("canonical").(string) + "." + Zone
-	Alias := d.Get("alias").(string) + "." + Zone
+	canonical := d.Get("canonical").(string) + "." + zone
+	alias := d.Get("alias").(string) + "." + zone
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
-	recordCNAME, err := objMgr.CreateCNAMERecord(Canonical, Alias, dnsView)
+	recordCNAME, err := objMgr.CreateCNAMERecord(canonical, alias, dnsView)
 	if err != nil {
 		return fmt.Errorf("Error creating CNAME Record : %s", err)
 	}
 
-	d.Set("recordName", Alias)
+	d.Set("recordName", alias)
 	d.SetId(recordCNAME.Ref)
 
 	log.Printf("[DEBUG] %s: Creation of CNAME Record complete", resourceCNAMERecordIDString(d))
