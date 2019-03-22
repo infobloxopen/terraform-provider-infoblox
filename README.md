@@ -44,4 +44,7 @@ $ make test
 * Creation &  Deletion of Network in NIOS appliance
 * Allocation & Deallocation of IP from a Network
 * Association & Disassociation of IP Address for a VM
+* Creation and Deletion of A,CNAME,Host and Ptr records.
 
+## Disclaimer
+ To use the provider for DNS purposes , a parent (i.e zone) must be created, The plugin doesn't allow creation of zone. 

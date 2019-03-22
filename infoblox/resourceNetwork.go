@@ -31,7 +31,7 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
-				Description: "Give the network block in cidr format.",
+				Description: "The network block in cidr format.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
@@ -67,6 +67,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
+	ZeroMacAddr := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
 	nwname, err := objMgr.CreateNetwork(networkViewName, cidr, networkName)
@@ -74,18 +75,19 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 	}
 
+	// Check whether gateway or ip address already allocated
 	gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
 	if err == nil && gatewayIP != nil {
 		fmt.Printf("Gateway already created")
 	} else if gatewayIP == nil {
-		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "")
+		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZeroMacAddr, "", "", "")
 		if err != nil {
 			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
 		}
 	}
 
 	for i := 1; i <= reserveIP; i++ {
-		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "")
+		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, "00:00:00:00:00:00", "", "", "")
 		if err != nil {
 			return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
 		}
@@ -130,7 +132,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteNetwork(d.Id(), d.Get("network_view_name").(string))
 	if err != nil {
-		return fmt.Errorf("Deletion of Network block failed from network view(%s) for deletion : %s", networkViewName, err)
+		return fmt.Errorf("Deletion of Network block failed from network view(%s): %s", networkViewName, err)
 	}
 	d.SetId("")
 
@@ -149,5 +151,3 @@ func resourceNetworkIDString(d resourceNetworkIDStringInterface) string {
 	}
 	return fmt.Sprintf("infoblox_ip_allocation (ID = %s)", id)
 }
-
-// Check whether gateway or ip address already allocated

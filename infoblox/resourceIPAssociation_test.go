@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccCreateRecordHost(t *testing.T) {
+func TestAccresourceIPAssociation(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -16,15 +16,15 @@ func TestAccCreateRecordHost(t *testing.T) {
 		CheckDestroy: testAccCheckRecordHostDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCreateRecordHost,
+				Config: testAccresourceIPAssociationCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "createRecordHost.foo", "", "10.0.0.1/24", "10.0.0.2", "test", "demo-network"),
+					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.3", "test", "demo-network"),
 				),
 			},
 			resource.TestStep{
-				Config: testAccUpdateRecordHost,
+				Config: testAccresourceIPAssociationUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "UpdateRecordHost.foo", "", "10.0.0.1/24", "10.0.0.2", "test", "demo-network"),
+					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.3", "test", "demo-network"),
 				),
 			},
 		},
@@ -34,12 +34,12 @@ func TestAccCreateRecordHost(t *testing.T) {
 func testAccCheckRecordHostDestroy(s *terraform.State) error {
 	meta := testAccProvider.Meta()
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "IPAssociation" {
+		if rs.Type != "infoblox_ip_association" {
 			continue
 		}
 		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
-		recordName, _ := objMgr.GetHostRecordWithoutDNS("test-name", "demo", "10.0.0.1/24", "10.0.0.2")
+		recordName, _ := objMgr.GetFixedAddress("test", "10.0.0.0/24", "10.0.0.3", "")
 		if recordName == nil {
 			return fmt.Errorf("record not found")
 		}
@@ -47,7 +47,7 @@ func testAccCheckRecordHostDestroy(s *terraform.State) error {
 	}
 	return nil
 }
-func testAccRecordHostExists(t *testing.T, n string, m interface{}, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
+func testAccRecordHostExists(t *testing.T, n string, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -56,11 +56,11 @@ func testAccRecordHostExists(t *testing.T, n string, m interface{}, cidr string,
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID i set")
 		}
-
-		Connector := m.(*ibclient.Connector)
+		meta := testAccProvider.Meta()
+		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
 
-		recordName, _ := objMgr.GetHostRecordWithoutDNS(recordName, networkViewName, cidr, ipAddr)
+		recordName, _ := objMgr.GetFixedAddress("test", "10.0.0.0/24", "10.0.0.3", "")
 		if recordName == nil {
 			return fmt.Errorf("record not found")
 		}
@@ -69,20 +69,20 @@ func testAccRecordHostExists(t *testing.T, n string, m interface{}, cidr string,
 	}
 }
 
-var testAccCreateRecordHost = fmt.Sprintf(`
-resource "createRecordHost" "foo"{
-	networkViewName="test"
-	recordName="test-name"
-	cidr="10.0.0.1/24"
-	ipAddr="10.0.0.2"
+var testAccresourceIPAssociationCreate = fmt.Sprintf(`
+resource "infoblox_ip_association" "foo"{
+	network_view_name="test"
+	vm_name="test-name"
+	cidr="10.0.0.0/24"
+	ip_addr="10.0.0.3"
 	tenant_id="foo"
 	}`)
 
-var testAccUpdateRecordHost = fmt.Sprintf(`
-resource "UpdateRecordHost" "foo"{
-	networkViewName="test"
-	recordName="test-name"
-	cidr="10.0.0.1/24"
-	ipAddr="10.0.0.2"
+var testAccresourceIPAssociationUpdate = fmt.Sprintf(`
+resource "infoblox_ip_association" "foo"{
+	network_view_name="test"
+	vm_name="test-name"
+	cidr="10.0.0.0/24"
+	ip_addr="10.0.0.3"
 	tenant_id="foo"
 	}`)

@@ -10,6 +10,19 @@ export INFOBLOX_PASSWORD="${password}"
 export INFOBLOX_SERVER="${server}"
 export INFOBLOX_USERNAME="${username}"
 ```
+
+#Using the templates for different combinations.
+
+- For creation of Fixed Address or if you're just using the provider without dns,
+  follow the templates used in fixed address folder
+- For creation of Host Record use the example in Host Record Folder.
+  The enableDns flag in the templates decides if it has to be used or not 
+  for dns purposes
+- Provisioning of Multiple VM's and Creation of A Record's for those multiple
+  VM's is shown in Multiple Folder
+- Example of other records such as A,PTR and CNAME are shown in 
+  infoblox.tf of Fixed Adrress folder
+
 # Running the Resource
 
 - terraform [init](https://www.terraform.io/docs/commands/init.html)

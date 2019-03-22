@@ -1,3 +1,9 @@
+provider "azurerm" {
+    subscription_id = "xxx"
+    client_id       = "xxx"
+    client_secret   = "xxx"
+    tenant_id       = "xxx"
+}
 # create a resource group if it doesn't exist
 resource "azurerm_resource_group" "terraform" {
     name = "a132terraform"
@@ -51,7 +57,7 @@ resource "azurerm_network_interface" "ni" {
 
 # create virtual machine
 resource "azurerm_virtual_machine" "vm" {
-    name = "${infoblox_ip_allocation.demo_allocation.host_name}"
+    name = "${infoblox_ip_allocation.demo_allocation.vm_name}"
     location = "ukwest"
     resource_group_name = "${azurerm_resource_group.terraform.name}"
     network_interface_ids = ["${azurerm_network_interface.ni.id}"]

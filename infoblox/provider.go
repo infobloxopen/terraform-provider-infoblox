@@ -34,11 +34,11 @@ func Provider() terraform.ResourceProvider {
 			"wapi_version": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.8"),
-				Description: "WAPI Version of Infoblox server defaults to v2.8.",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
+				Description: "WAPI Version of Infoblox server defaults to v2.7.",
 				ValidateFunc: StringInSlice([]string{"2.1", "2.1.1",
 					"2.1.2", "2.2", "2.2.1", "2.2.2", "2.3", "2.3.1", "2.4", "2.5", "2.6", "2.6.1",
-					"2.7", "2.7.1", "2.8", "2.9"}, false),
+					"2.7", "2.7.1", "2.8", "2.9", "2.10", "2.11"}, false),
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
@@ -71,6 +71,9 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_network_view":   resourceNetworkView(),
 			"infoblox_ip_allocation":  resourceIPAllocation(),
 			"infoblox_ip_association": resourceIPAssociation(),
+			"infoblox_a_record":       resourceARecord(),
+			"infoblox_cname_record":   resourceCNAMERecord(),
+			"infoblox_ptr_record":     resourcePTRRecord(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -99,7 +102,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	requestor := &ibclient.WapiHttpRequestor{}
 
 	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-	objMgr := ibclient.NewObjectManager(conn, "", "")
+	objMgr := ibclient.NewObjectManager(conn, "terraform", "")
 	err = CheckCloudLicense(objMgr, "cloud")
 	if err != nil {
 		return nil, err
