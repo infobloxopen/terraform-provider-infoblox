@@ -84,10 +84,18 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
+	ea := make(ibclient.EA)
+
+	ea["VM Name"] = vmName
+
+	if vmID != "" {
+		ea["VM ID"] = vmID
+	}
+
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 	// fqdn
 	name := recordName + "." + zone
-	recordA, err := objMgr.CreateARecord(networkViewName, dnsView, name, cidr, ipAddr, vmID, vmName)
+	recordA, err := objMgr.CreateARecord(networkViewName, dnsView, name, cidr, ipAddr, ea)
 	if err != nil {
 		return fmt.Errorf("Error creating A Record from network block(%s): %s", cidr, err)
 	}

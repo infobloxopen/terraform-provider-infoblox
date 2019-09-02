@@ -36,9 +36,6 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
 				Description: "WAPI Version of Infoblox server defaults to v2.7.",
-				ValidateFunc: StringInSlice([]string{"2.1", "2.1.1",
-					"2.1.2", "2.2", "2.2.1", "2.2.2", "2.3", "2.3.1", "2.4", "2.5", "2.6", "2.6.1",
-					"2.7", "2.7.1", "2.8", "2.9", "2.10", "2.11"}, false),
 			},
 			"port": &schema.Schema{
 				Type:        schema.TypeString,
@@ -108,27 +105,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 	return conn, err
-}
-
-//StringInSlice returns a ValidateFunc which tests if the provided version
-// is of type string and matches the value of element in the slice
-func StringInSlice(valid []string, ignoreCase bool) schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (s []string, es []error) {
-		v, ok := i.(string)
-		if !ok {
-			es = append(es, fmt.Errorf("expected type of %s to be string", k))
-			return
-		}
-
-		for _, str := range valid {
-			if v == str || (ignoreCase && strings.ToLower(v) == strings.ToLower(str)) {
-				return
-			}
-		}
-
-		es = append(es, fmt.Errorf("expected %s to be one of %v, got %s", k, valid, v))
-		return
-	}
 }
 
 //CheckCloudLicense checks whether the user has applied License to

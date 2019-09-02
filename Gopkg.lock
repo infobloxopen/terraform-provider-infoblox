@@ -285,12 +285,12 @@
   revision = "683f49123a33db61abfb241b7ac5e4af4dc54d55"
 
 [[projects]]
-  digest = "1:57599833c38cf958533928462f7eb7a28a323ec61bf6eaf020fff06fd0dca4b6"
+  branch = "master"
+  digest = "1:73e988cd7138681a8ad49ca480e6a3fb8dfde73a440e41de13a3d85aa94b86bd"
   name = "github.com/infobloxopen/infoblox-go-client"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7247dee3156a9d790d26ee2e0ea609bd24e844a0"
-  version = "v1.0"
+  revision = "dd50c409ab6dd17d0b479f7d20e17a13d1ede485"
 
 [[projects]]
   digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"

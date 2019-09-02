@@ -2,9 +2,10 @@ package ibclient
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"math/rand"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (

@@ -51,34 +51,6 @@ func testAccPreCheck(t *testing.T) {
 	os.Setenv("INFOBLOX_CLIENT_TIMEOUT", "60")
 }
 
-func TestValidationStringInSlice(t *testing.T) {
-	runTestCases(t, []testCase{
-		{
-			val: "ValidValue",
-			f:   StringInSlice([]string{"ValidValue", "AnotherValidValue"}, true),
-		},
-		{
-			val: "VALIDVALUE",
-			f:   StringInSlice([]string{"ValidValue", "AnotherValidValue"}, true),
-		},
-		{
-			val:         "VALIDVALUE",
-			f:           StringInSlice([]string{"ValidValue", "AnotherValidValue"}, false),
-			expectedErr: regexp.MustCompile("expected [\\w]+ to be one of \\[ValidValue AnotherValidValue\\], got VALIDVALUE"),
-		},
-		{
-			val:         "InvalidValue",
-			f:           StringInSlice([]string{"ValidValue", "AnotherValidValue"}, false),
-			expectedErr: regexp.MustCompile("expected [\\w]+ to be one of \\[ValidValue AnotherValidValue\\], got InvalidValue"),
-		},
-		{
-			val:         1,
-			f:           StringInSlice([]string{"ValidValue", "AnotherValidValue"}, false),
-			expectedErr: regexp.MustCompile("expected type of [\\w]+ to be string"),
-		},
-	})
-}
-
 func runTestCases(t *testing.T, cases []testCase) {
 	matchErr := func(errs []error, r *regexp.Regexp) bool {
 		// err must match one provided

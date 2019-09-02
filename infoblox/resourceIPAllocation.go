@@ -42,7 +42,7 @@ func resourceIPAllocation() *schema.Resource {
 			"enable_dns": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("enable_dns", nil),
+				DefaultFunc: schema.EnvDefaultFunc("enable_dns", false),
 				Description: "flag that defines if the host reocrd is used for DNS or IPAM Purposes.",
 			},
 			"dns_view": &schema.Schema{
@@ -89,9 +89,9 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
-	vmID := d.Get("vm_id").(string)
 	//This is for EA's
 	vmName := d.Get("vm_name").(string)
+	vmID := d.Get("vm_id").(string)
 	tenantID := d.Get("tenant_id").(string)
 	zone := d.Get("zone").(string)
 	enableDns := d.Get("enable_dns").(bool)
@@ -101,21 +101,27 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ZeroMacAddr := "00:00:00:00:00:00"
 	//fqdn
 	name := recordName + "." + zone
-
+	ea := make(ibclient.EA)
+	if vmName != "" {
+		ea["VM Name"] = vmName
+	}
+	if vmID != "" {
+		ea["VM ID"] = vmID
+	}
 	if macAddr == "" {
 		macAddr = ZeroMacAddr
 	}
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		hostAddressObj, err := objMgr.CreateHostRecord(enableDns, name, networkViewName, dnsView, cidr, ipAddr, macAddr, vmID, vmName)
+		hostAddressObj, err := objMgr.CreateHostRecord(enableDns, name, networkViewName, dnsView, cidr, ipAddr, macAddr, ea)
 		if err != nil {
 			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
 		}
 		d.Set("ip_addr", hostAddressObj.Ipv4Addrs[0].Ipv4Addr)
 		d.SetId(hostAddressObj.Ref)
 	} else {
-		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, recordName, vmID, vmName)
+		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, recordName, ea)
 		if err != nil {
 			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
 		}

@@ -39,6 +39,18 @@ func resourceCNAMERecord() *schema.Resource {
 				DefaultFunc: schema.EnvDefaultFunc("hostName", nil),
 				Description: "The alias name for the record.",
 			},
+			"vm_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("vm_name", nil),
+				Description: "The name of the vm.",
+			},
+			"vm_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("vm_id", nil),
+				Description: "Instance id.",
+			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
@@ -56,10 +68,25 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	canonical := d.Get("canonical").(string) + "." + zone
 	alias := d.Get("alias").(string) + "." + zone
 	tenantID := d.Get("tenant_id").(string)
+	vmName := d.Get("vm_name").(string)
+	vmId := d.Get("vm_id").(string)
 	connector := m.(*ibclient.Connector)
 
+	ea := make(ibclient.EA)
+	if vmName == "" {
+		vmName = d.Get("canonical").(string)
+	}
+
+	if vmName != "nil" {
+		ea["VM Name"] = vmName
+	}
+
+	if vmId != "" {
+		ea["VM ID"] = vmId
+	}
+
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
-	recordCNAME, err := objMgr.CreateCNAMERecord(canonical, alias, dnsView)
+	recordCNAME, err := objMgr.CreateCNAMERecord(canonical, alias, dnsView, ea)
 	if err != nil {
 		return fmt.Errorf("Error creating CNAME Record : %s", err)
 	}
