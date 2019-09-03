@@ -168,14 +168,14 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
 	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
 	macAddr = strings.Replace(macAddr, "-", ":", -1)
+	name := Name + "." + zone
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		name := Name + "." + zone
 		hostRecordObj, err := objMgr.GetHostRecord(name, networkViewName, cidr, ipAddr)
 		if err != nil {
 			return fmt.Errorf("GetHostRecord failed from network block(%s):%s", cidr, err)
 		}
-		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, name)
+		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, Name)
 		if err != nil {
 			return fmt.Errorf("UpdateHost Record error from network block(%s):%s", cidr, err)
 		}

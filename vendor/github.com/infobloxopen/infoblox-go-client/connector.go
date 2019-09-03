@@ -12,9 +12,10 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 	"time"
+
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -289,7 +290,7 @@ func (c *Connector) GetObject(obj IBObject, ref string, res interface{}) (err er
 		log.Printf("Cannot unmarshall to check empty value '%s', err: '%s'\n", string(resp), err)
 	}
 
-        var data []interface{}
+	var data []interface{}
 	if resp == nil || (reflect.TypeOf(result) == reflect.TypeOf(data) && len(result.([]interface{})) == 0) {
 		queryParams.forceProxy = true
 		resp, err = c.makeRequest(GET, obj, ref, queryParams)
