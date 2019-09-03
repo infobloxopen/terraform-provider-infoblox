@@ -99,31 +99,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	requestor := &ibclient.WapiHttpRequestor{}
 
 	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-	objMgr := ibclient.NewObjectManager(conn, "terraform", "")
-	err = CheckCloudLicense(objMgr, "cloud")
 	if err != nil {
 		return nil, err
 	}
 	return conn, err
-}
-
-//CheckCloudLicense checks whether the user has applied License to
-//Infoblox Server.
-func CheckCloudLicense(objMgr *ibclient.ObjectManager, licenseType string) (err error) {
-	license, err := objMgr.GetLicense()
-
-	if err != nil {
-		return
-
-	}
-	for _, v := range license {
-		if strings.ToLower(v.Licensetype) == licenseType {
-			if v.ExpirationStatus != "DELETED" && v.ExpirationStatus != "EXPIRED" {
-				return
-			}
-
-		}
-	}
-	err = fmt.Errorf("%s license is not applied/deleted for the grid. Apply the license and try again", licenseType)
-	return
 }
