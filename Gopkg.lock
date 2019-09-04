@@ -568,8 +568,6 @@
     "github.com/hashicorp/terraform/plugin",
     "github.com/hashicorp/terraform/terraform",
     "github.com/infobloxopen/infoblox-go-client",
-    "github.com/sirupsen/logrus",
-    "golang.org/x/net/publicsuffix",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
