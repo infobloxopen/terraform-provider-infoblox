@@ -1,11 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/infobloxopen/infoblox-go-client"
-	"strings"
 	"time"
 )
 
