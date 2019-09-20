@@ -118,7 +118,7 @@ func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	ZeroMacAddr := "00:00:00:00:00:00"
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, ZeroMacAddr, vmID, vmName)
@@ -165,7 +165,7 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
 	macAddr = strings.Replace(macAddr, "-", ":", -1)
 	name := Name + "." + zone
