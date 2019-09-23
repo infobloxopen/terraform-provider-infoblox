@@ -111,7 +111,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if macAddr == "" {
 		macAddr = ZeroMacAddr
 	}
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		hostAddressObj, err := objMgr.CreateHostRecord(enableDns, name, networkViewName, dnsView, cidr, ipAddr, macAddr, ea)
@@ -142,7 +142,7 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		_, err := objMgr.GetHostRecordByRef(d.Id())
@@ -173,7 +173,7 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		hostRecordObj, _ := objMgr.GetHostRecordByRef(d.Id())
@@ -201,7 +201,7 @@ func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		_, err := objMgr.DeleteHostRecord(d.Id())
 		if err != nil {

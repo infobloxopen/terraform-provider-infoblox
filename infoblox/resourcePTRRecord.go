@@ -90,7 +90,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	if vmID != "" {
 		ea["VM ID"] = vmID
 	}
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	//fqdn
 	name := recordName + "." + zone
 	recordPTR, err := objMgr.CreatePTRRecord(networkViewName, dnsView, name, cidr, ipAddr, ea)
@@ -112,7 +112,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
@@ -135,7 +135,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.DeletePTRRecord(d.Id())
 	if err != nil {

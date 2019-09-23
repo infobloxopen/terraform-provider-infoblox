@@ -36,7 +36,7 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 
 	tenantID := d.Get("tenant_id").(string)
 	Connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(Connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
 
 	networkViewName, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
 	if err != nil {
@@ -55,7 +55,7 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 
 	tenantID := d.Get("tenant_id").(string)
 	Connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(Connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
 
 	networkViewName, err := objMgr.GetNetworkView(d.Get("network_view_name").(string))
 	if err != nil {

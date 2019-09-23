@@ -92,7 +92,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 		ea["VM ID"] = vmID
 	}
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	// fqdn
 	name := recordName + "." + zone
 	recordA, err := objMgr.CreateARecord(networkViewName, dnsView, name, cidr, ipAddr, ea)
@@ -114,7 +114,7 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.GetARecordByRef(d.Id())
 	if err != nil {
@@ -137,7 +137,7 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 
-	objMgr := ibclient.NewObjectManager(connector, "terraform", tenantID)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.DeleteARecord(d.Id())
 	if err != nil {
