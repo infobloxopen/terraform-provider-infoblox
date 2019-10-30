@@ -15,6 +15,7 @@ $ git clone git@github.com:infobloxopen/terraform-provider-infoblox
 Enter the provider directory and build the provider.
 ```sh
 $ cd $GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox
+$ export GO111MODULE="on"
 $ make build
 ```
 
@@ -26,6 +27,7 @@ If you wish to work on the provider, you'll first need Go installed on your mach
 
 To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 ```sh
+$ export GO111MODULE="on"
 $ make build
 ...
 $ $GOPATH/bin/terraform-provider-infoblox
