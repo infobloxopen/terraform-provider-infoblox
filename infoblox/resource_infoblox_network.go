@@ -18,37 +18,33 @@ func resourceNetwork() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_view_name", "default"),
+				Default:     "default",
 				Description: "Network view name available in NIOS Server.",
 			},
 			"network_name": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("networkName", nil),
+				Optional:    true,
 				Description: "The name of your network block.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
 				Description: "The network block in cidr format.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 			"reserve_ip": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("reserveIP", 0),
+				Default:     0,
 				Description: "The no of IP's you want to reserve.",
 			},
 			"gateway": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("gateway", nil),
 				Description: "gateway ip address of your network block.By default first IPv4 address is set as gateway address.",
 				Computed:    true,
 			},
@@ -98,7 +94,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(nwname.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
-	return nil
+	return resourceNetworkRead(d, m)
 }
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Reading the required network block", resourceNetworkIDString(d))
@@ -109,17 +105,17 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.GetNetworkwithref(d.Id())
+	obj, err := objMgr.GetNetworkwithref(d.Id())
 	if err != nil {
 		return fmt.Errorf("Getting Network block from network view (%s) failed : %s", networkViewName, err)
 	}
-
+	d.SetId(obj.Ref)
 	log.Printf("[DEBUG] %s: Completed reading network block", resourceNetworkIDString(d))
 	return nil
 }
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
-	//not supported by Infoblox Go Client for now
-	return nil
+
+	return fmt.Errorf("network updation is not supported")
 }
 
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {

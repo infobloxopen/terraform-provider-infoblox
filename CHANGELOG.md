@@ -1,6 +1,5 @@
-# Changelog
 
-## [v1.0.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.0.0) (2019-08-09)
+## [v1.0.0](Unreleased)
 
 [Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/ec354d7410947945fe01f876269ded480f18029d...v1.0.0)
 

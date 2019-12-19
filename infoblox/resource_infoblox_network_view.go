@@ -18,13 +18,12 @@ func resourceNetworkView() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("networkViewName", "default"),
+				Default:     "default",
 				Description: "Desired name of the view shown in NIOS appliance.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tennant_id", nil),
+				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
@@ -47,7 +46,7 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] %s: Completed network view Creation", resourceNetworkViewIDString(d))
 
-	return nil
+	return resourceNetworkViewRead(d, m)
 }
 func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 
@@ -57,23 +56,22 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	Connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
 
-	networkViewName, err := objMgr.GetNetworkView(d.Get("network_view_name").(string))
+	obj, err := objMgr.GetNetworkView(d.Id())
 	if err != nil {
 		return fmt.Errorf("Failed to get Network View : %s", err)
 	}
-
-	d.SetId(networkViewName.Name)
+	d.SetId(obj.Name)
 
 	log.Printf("[DEBUG] %s: got Network View", resourceNetworkViewIDString(d))
 
 	return nil
 }
 func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
-	// Not Supported by Infoblox Go Client for Now
-	return nil
+
+	return fmt.Errorf("network view updation is not supported")
 }
 func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
-	// Not Supported by Infoblox Go Client for Now
+	d.SetId("")
 	return nil
 }
 

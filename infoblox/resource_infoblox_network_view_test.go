@@ -43,7 +43,7 @@ func testAccCreateNetworkViewExists(t *testing.T, n string, networkViewName stri
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
 
 		netview, _ := objMgr.GetNetworkView(networkViewName)
-		if netview == nil {
+		if netview != nil {
 			return fmt.Errorf("Network View not found")
 		}
 		return nil

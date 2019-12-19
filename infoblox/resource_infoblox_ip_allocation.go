@@ -18,62 +18,54 @@ func resourceIPAllocation() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("networkViewName", "default"),
+				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
 			"vm_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("hostName", nil),
 				Description: "The name of the VM.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
 				Description: "The address in cidr format.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
-				Description: "Zone under which record has to be created.",
+				Description: "Zone under which host record has to be created.",
 			},
 			"enable_dns": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("enable_dns", false),
+				Default:     false,
 				Description: "flag that defines if the host reocrd is used for DNS or IPAM Purposes.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
 				Description: "Dns View under which the zone has been created.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
 				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("macaddr", nil),
 				Description: "mac address of your instance in cloud.",
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("vmid", nil),
 				Description: "instance id.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
@@ -129,7 +121,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		d.SetId(fixedAddressObj.Ref)
 	}
 	log.Printf("[DEBUG] %s:completing Request of IP from required network block", resourceIPAllocationIDString(d))
-	return nil
+	return resourceIPAllocationGet(d, m)
 }
 
 func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
@@ -145,15 +137,17 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		_, err := objMgr.GetHostRecordByRef(d.Id())
+		obj, err := objMgr.GetHostRecordByRef(d.Id())
 		if err != nil {
 			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
 		}
+		d.SetId(obj.Ref)
 	} else {
-		_, err := objMgr.GetFixedAddressByRef(d.Id())
+		obj, err := objMgr.GetFixedAddressByRef(d.Id())
 		if err != nil {
 			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
 		}
+		d.SetId(obj.Ref)
 	}
 	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
 	return nil
@@ -178,18 +172,20 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		hostRecordObj, _ := objMgr.GetHostRecordByRef(d.Id())
 		IPAddrObj, _ := objMgr.GetIpAddressFromHostRecord(*hostRecordObj)
-		_, err := objMgr.UpdateHostRecord(d.Id(), IPAddrObj, macAddr, vmID, vmName)
+		obj, err := objMgr.UpdateHostRecord(d.Id(), IPAddrObj, macAddr, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
 		}
+		d.SetId(obj)
 	} else {
-		_, err := objMgr.UpdateFixedAddress(d.Id(), match_client, macAddr, vmID, vmName)
+		obj, err := objMgr.UpdateFixedAddress(d.Id(), match_client, macAddr, vmID, vmName)
 		if err != nil {
 			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
 		}
+		d.SetId(obj.Ref)
 	}
 	log.Printf("[DEBUG] %s: Updation of Parameters of allocated IP complete in the specified network block", resourceIPAllocationIDString(d))
-	return nil
+	return resourceIPAllocationGet(d, m)
 }
 
 func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}) error {

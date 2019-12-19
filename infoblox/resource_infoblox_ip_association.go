@@ -19,56 +19,48 @@ func resourceIPAssociation() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("network_view_name", "default"),
+				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
 			"vm_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("host_name", nil),
 				Description: "The name of the vm.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
 				Description: "The address in cidr format.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
 				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("macaddr", nil),
+				Required:    true,
 				Description: "mac address of your instance in cloud.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
 				Description: "view in which record has to be created.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
 				Description: "zone under which record has been created.",
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("vmid", nil),
 				Description: "instance id.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenant_id", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
@@ -86,7 +78,7 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	Resource(d, m)
 
 	log.Printf("[DEBUG] %s:completing Association of IP address in specified network block", resourceIPAssociationIDString(d))
-	return nil
+	return resourceIPAssociationRead(d, m)
 }
 
 func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
@@ -95,10 +87,34 @@ func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 	Resource(d, m)
 
 	log.Printf("[DEBUG] %s:completing updation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
-	return nil
+	return resourceIPAssociationRead(d, m)
 }
 
 func resourceIPAssociationRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] %s:Reading the required IP from network block", resourceIPAllocationIDString(d))
+
+	tenantID := d.Get("tenant_id").(string)
+	cidr := d.Get("cidr").(string)
+	zone := d.Get("zone").(string)
+	dnsView := d.Get("dns_view").(string)
+	connector := m.(*ibclient.Connector)
+
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
+		obj, err := objMgr.GetHostRecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
+		}
+		d.SetId(obj.Ref)
+	} else {
+		obj, err := objMgr.GetFixedAddressByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
+		}
+		d.SetId(obj.Ref)
+	}
+	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
 	return nil
 }
 

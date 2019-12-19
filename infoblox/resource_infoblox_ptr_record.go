@@ -18,50 +18,44 @@ func resourcePTRRecord() *schema.Resource {
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("networkViewName", "default"),
+				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
 			"vm_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("hostName", nil),
 				Description: "The name of the VM.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("net_address", nil),
 				Description: "The address in cidr format.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
 				Description: "Zone under which record has to be created.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
 				Description: "Dns View under which the zone has been created.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ipaddr", nil),
+				Default:     nil,
 				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("vmid", nil),
 				Description: "instance id.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
@@ -102,7 +96,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(recordPTR.Ref)
 
 	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourceARecordIDString(d))
-	return nil
+	return resourcePTRRecordGet(d, m)
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
@@ -114,18 +108,18 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.GetPTRRecordByRef(d.Id())
+	obj, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
 		return fmt.Errorf("Getting PTR Record from dns view (%s) failed : %s", dnsView, err)
 	}
-
+	d.SetId(obj.Ref)
 	log.Printf("[DEBUG] %s: Completed reading required PTR Record ", resourcePTRRecordIDString(d))
 	return nil
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
-	//not supported by Infoblox Go Client for now
-	return nil
+
+	return fmt.Errorf("updating a PTR record is not supported")
 }
 
 func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {

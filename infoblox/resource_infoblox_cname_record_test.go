@@ -18,13 +18,13 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 			resource.TestStep{
 				Config: testAccresourceCNAMERecordCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default.test", "a.com"),
+					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccresourceCNAMERecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default.test", "a.com"),
+					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
 				),
 			},
 		},
@@ -74,7 +74,7 @@ var testAccresourceCNAMERecordCreate = fmt.Sprintf(`
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
-	dns_view="default.test"
+	dns_view="default"
 	zone="a.com"
 	tenant_id="foo"
 	}`)
@@ -83,7 +83,7 @@ var testAccresourceCNAMERecordUpdate = fmt.Sprintf(`
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
-	dns_view="default.test"
+	dns_view="default"
 	zone="a.com"
 	tenant_id="foo"
 	}`)
