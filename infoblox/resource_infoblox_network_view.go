@@ -17,8 +17,7 @@ func resourceNetworkView() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"network_view_name": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "default",
+				Required:    true,
 				Description: "Desired name of the view shown in NIOS appliance.",
 			},
 			"tenant_id": &schema.Schema{

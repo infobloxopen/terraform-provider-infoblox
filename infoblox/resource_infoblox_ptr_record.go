@@ -38,13 +38,13 @@ func resourcePTRRecord() *schema.Resource {
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
+				Default:     "default",
+				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     nil,
+				Required:    true,
 				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},

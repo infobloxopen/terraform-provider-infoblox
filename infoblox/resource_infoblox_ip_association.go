@@ -34,8 +34,8 @@ func resourceIPAssociation() *schema.Resource {
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
+				Required:    true,
+				Description: "IP address your instance in cloud.",
 				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
