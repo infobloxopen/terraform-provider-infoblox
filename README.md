@@ -4,7 +4,13 @@
 ## Requirements
 * [Terraform](https://www.terraform.io/downloads.html) 0.11.x or greater
 * [Go](https://golang.org/doc/install) 1.12.x (to build the provider plugin)
-* CNA License need to be installed on NIOS
+* CNA License need to be installed on NIOS. If CNA is not installed then following default EA's should be added in NIOS side:
+   * VM Name :: String Type
+   * VM ID :: String Type
+   * Tenant ID :: String Type
+   * CMP Type :: String Type
+   * Cloud API Owned :: List Type (Values True, False)
+   * Network Name :: String Type
 
 ## Building the Provider
 Clone repository to `$GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox`.
