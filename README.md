@@ -9,7 +9,7 @@
    * VM ID :: String Type
    * Tenant ID :: String Type
    * CMP Type :: String Type
-   * Cloud API Owned :: List Type
+   * Cloud API Owned :: List Type (Values True, False)
    * Network Name :: String Type
 
 ## Building the Provider
