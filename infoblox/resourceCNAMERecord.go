@@ -2,9 +2,11 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceCNAMERecord() *schema.Resource {
@@ -65,8 +67,11 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
-	canonical := d.Get("canonical").(string) + "." + zone
-	alias := d.Get("alias").(string) + "." + zone
+	canonical := d.Get("canonical").(string)
+	alias := d.Get("alias").(string)
+	if !strings.Contains(alias, zone) {
+		alias = d.Get("alias").(string) + "." + zone
+	}
 	tenantID := d.Get("tenant_id").(string)
 	vmName := d.Get("vm_name").(string)
 	vmId := d.Get("vm_id").(string)
