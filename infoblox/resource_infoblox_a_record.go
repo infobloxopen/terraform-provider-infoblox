@@ -46,7 +46,6 @@ func resourceARecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud.For static allocation ,set this field with valid IP. For dynamic allocation, leave this field empty.",
-				Computed:    true,
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,

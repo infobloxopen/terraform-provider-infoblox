@@ -36,7 +36,6 @@ func resourceIPAssociation() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud.",
-				Computed:    true,
 			},
 			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
