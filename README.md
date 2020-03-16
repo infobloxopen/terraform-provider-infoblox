@@ -2,7 +2,7 @@
  <img width="171" alt="capture" src="https://user-images.githubusercontent.com/36291746/39614422-6b653088-4f8d-11e8-83fd-05b18ca974a2.PNG">
 
 ## Requirements
-* [Terraform](https://www.terraform.io/downloads.html) 0.11.x or greater
+* [Terraform](https://www.terraform.io/downloads.html) 0.12.x or greater
 * [Go](https://golang.org/doc/install) 1.12.x (to build the provider plugin)
 * CNA License need to be installed on NIOS. If CNA is not installed then following default EA's should be added in NIOS side:
    * VM Name :: String Type
@@ -13,15 +13,13 @@
    * Network Name :: String Type
 
 ## Building the Provider
-Clone repository to `$GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox`.
+Clone repository and enter the provider directory and build the provider.
+
+_**Note:** Ensure you do not clone to $GOPATH/src or below (as was normal prior to Go 1.11)_
+
 ```sh
-$ mkdir -p $GOPATH/src/github.com/infobloxopen; cd $GOPATH/src/github.com/infobloxopen
-$ git clone git@github.com:infobloxopen/terraform-provider-infoblox
-```
-Enter the provider directory and build the provider.
-```sh
-$ cd $GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox
-$ export GO111MODULE="on"
+$ git clone https://github.com/infobloxopen/terraform-provider-infoblox
+$ cd terraform-provider-infoblox
 $ make build
 ```
 
@@ -29,14 +27,13 @@ $ make build
 If you're building the provider, follow the instructions to [install it as a plugin](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin). After the build is complete, copy the `terraform-provider-infoblox` binary into the same path as your terraform binary. After placing it into your plugins directory, run `terraform init` to initialize it.
 
 ## Developing the Provider
-If you wish to work on the provider, you'll first need Go installed on your machine (version 1.9+ is required). You'll also need to correctly setup a `GOPATH`, as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need Go installed on your machine (version 1.12+ is required).
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+To compile the provider, run the following steps:
 ```sh
-$ export GO111MODULE="on"
 $ make build
 ...
-$ $GOPATH/bin/terraform-provider-infoblox
+$ ./terraform-provider-infoblox
 ...
 ```
 To test the provider, you can simply run `make test`.
