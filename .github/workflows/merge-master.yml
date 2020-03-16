@@ -9,15 +9,19 @@ env:
   CGO_ENABLED: "0"
 
 jobs:
+
   tag:
     name: Bump semantic version
     runs-on: [ubuntu-latest]
     steps:
+
     - uses: actions/checkout@v2
+
     - uses: anothrNick/github-tag-action@1.17.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         DEFAULT_BUMP: patch
+        WITH_V: true
 
   build:
     name: Build
