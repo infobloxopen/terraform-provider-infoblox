@@ -1,11 +1,15 @@
 name: Pull Request
+
 on:
   pull_request:
     branches:
     - master
+
 env:
   CGO_ENABLED: "0"
+
 jobs:
+
   build:
     name: Test
     runs-on: ${{ matrix.os }}
@@ -14,15 +18,19 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         go: [1.13.x]
     steps:
+
     - uses: actions/setup-go@v1
       with:
         go-version: ${{ matrix.go }}
       id: go
+
     - uses: actions/checkout@v2
+
     - uses: actions/cache@v1
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+
     - run: go test ./...
