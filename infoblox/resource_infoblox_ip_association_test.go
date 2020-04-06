@@ -18,13 +18,13 @@ func TestAccresourceIPAssociation(t *testing.T) {
 			resource.TestStep{
 				Config: testAccresourceIPAssociationCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.3", "test", "demo-network"),
+					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.2", "default", "demo-network"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccresourceIPAssociationUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.3", "test", "demo-network"),
+					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.22", "default", "demo-network"),
 				),
 			},
 		},
@@ -39,7 +39,7 @@ func testAccCheckRecordHostDestroy(s *terraform.State) error {
 		}
 		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
-		recordName, _ := objMgr.GetFixedAddress("test", "10.0.0.0/24", "10.0.0.3", "")
+		recordName, _ := objMgr.GetFixedAddress("default", "10.0.0.0/24", "10.0.0.2", "")
 		if recordName == nil {
 			return fmt.Errorf("record not found")
 		}
@@ -60,7 +60,7 @@ func testAccRecordHostExists(t *testing.T, n string, cidr string, ipAddr string,
 		Connector := meta.(*ibclient.Connector)
 		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
 
-		recordName, _ := objMgr.GetFixedAddress("test", "10.0.0.0/24", "10.0.0.3", "")
+		recordName, _ := objMgr.GetFixedAddress("default", "10.0.0.0/24", "10.0.0.2", "")
 		if recordName == nil {
 			return fmt.Errorf("record not found")
 		}
@@ -71,18 +71,20 @@ func testAccRecordHostExists(t *testing.T, n string, cidr string, ipAddr string,
 
 var testAccresourceIPAssociationCreate = fmt.Sprintf(`
 resource "infoblox_ip_association" "foo"{
-	network_view_name="test"
+	network_view_name="default"
 	vm_name="test-name"
+	mac_addr="11:22:33:44:55:66"
 	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.3"
+	ip_addr="10.0.0.2"
 	tenant_id="foo"
 	}`)
 
 var testAccresourceIPAssociationUpdate = fmt.Sprintf(`
 resource "infoblox_ip_association" "foo"{
-	network_view_name="test"
+	network_view_name="default"
 	vm_name="test-name"
 	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.3"
+	ip_addr="10.0.0.2"
+	mac_addr="12:22:33:44:55:66"
 	tenant_id="foo"
 	}`)

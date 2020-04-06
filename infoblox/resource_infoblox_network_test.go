@@ -18,13 +18,13 @@ func TestAccresourceNetwork(t *testing.T) {
 			resource.TestStep{
 				Config: testAccresourceNetworkCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "test", "demo-network"),
+					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccresourceNetworkUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "test", "demo-network"),
+					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
 				),
 			},
 		},
@@ -71,7 +71,7 @@ func testAccCreateNetworkExists(t *testing.T, n string, cidr string, networkView
 
 var testAccresourceNetworkCreate = fmt.Sprintf(`
 resource "infoblox_network" "foo"{
-	network_view_name="test"
+	network_view_name="default"
 	network_name="demo-network"
 	cidr="10.10.0.0/24"
 	tenant_id="foo"
@@ -79,7 +79,7 @@ resource "infoblox_network" "foo"{
 
 var testAccresourceNetworkUpdate = fmt.Sprintf(`
 resource "infoblox_network" "foo"{
-	network_view_name="test"
+	network_view_name="default"
 	network_name="demo-network"
 	cidr="10.10.0.0/24"
 	tenant_id="foo"

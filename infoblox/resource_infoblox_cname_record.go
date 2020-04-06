@@ -20,43 +20,32 @@ func resourceCNAMERecord() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("zone", nil),
 				Description: "Zone under which record has to be created.",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("dns_view", nil),
+				Optional:    true,
+				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
 			"canonical": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("canonical", nil),
 				Description: "The Canonical name for the record.",
 			},
 			"alias": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("hostName", nil),
 				Description: "The alias name for the record.",
-			},
-			"vm_name": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("vm_name", nil),
-				Description: "The name of the vm.",
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("vm_id", nil),
 				Description: "Instance id.",
 			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("tenantID", nil),
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
@@ -73,18 +62,12 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 		alias = d.Get("alias").(string) + "." + zone
 	}
 	tenantID := d.Get("tenant_id").(string)
-	vmName := d.Get("vm_name").(string)
 	vmId := d.Get("vm_id").(string)
 	connector := m.(*ibclient.Connector)
 
 	ea := make(ibclient.EA)
-	if vmName == "" {
-		vmName = d.Get("canonical").(string)
-	}
 
-	if vmName != "nil" {
-		ea["VM Name"] = vmName
-	}
+	ea["VM Name"] = canonical
 
 	if vmId != "" {
 		ea["VM ID"] = vmId
@@ -100,7 +83,7 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(recordCNAME.Ref)
 
 	log.Printf("[DEBUG] %s: Creation of CNAME Record complete", resourceCNAMERecordIDString(d))
-	return nil
+	return resourceCNAMERecordGet(d, m)
 }
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
@@ -112,18 +95,18 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.GetCNAMERecordByRef(d.Id())
+	obj, err := objMgr.GetCNAMERecordByRef(d.Id())
 	if err != nil {
 		return fmt.Errorf("Getting CNAME RECORD failed from dns view(%s) : %s", dnsView, err)
 	}
-
+	d.SetId(obj.Ref)
 	log.Printf("[DEBUG] %s: Completed reading required CNAME Record ", resourceCNAMERecordIDString(d))
 	return nil
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
-	//not supported by Infoblox Go Client for now
-	return nil
+
+	return fmt.Errorf("updating CNAME record is not supported")
 }
 
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
