@@ -1,5 +1,5 @@
 
-## 1.0.0(Unreleased)
+## 1.0.0 (Unreleased)
 
 [Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/ec354d7410947945fe01f876269ded480f18029d...v1.0.0)
 
