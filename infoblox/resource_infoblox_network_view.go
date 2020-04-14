@@ -20,6 +20,10 @@ func resourceNetworkView() *schema.Resource {
 				Required:    true,
 				Description: "Desired name of the view shown in NIOS appliance.",
 			},
+			"network_view_ref": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
@@ -47,8 +51,8 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 
 	return resourceNetworkViewRead(d, m)
 }
-func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 
+func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to get network view ", resourceNetworkViewIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)
@@ -60,17 +64,34 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to get Network View : %s", err)
 	}
 	d.SetId(obj.Name)
+	d.Set("network_view_ref", obj.Ref)
 
 	log.Printf("[DEBUG] %s: got Network View", resourceNetworkViewIDString(d))
 
 	return nil
 }
-func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 
+func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 	return fmt.Errorf("network view updation is not supported")
 }
+
 func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] %s: Beginning Deletion of network block", resourceNetworkIDString(d))
+
+	networkViewName := d.Get("network_view_name").(string)
+	networkViewRef := d.Get("network_view_ref").(string)
+	tenantID := d.Get("tenant_id").(string)
+	connector := m.(*ibclient.Connector)
+
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	_, err := objMgr.DeleteNetworkView(networkViewRef)
+	if err != nil {
+		return fmt.Errorf("Deletion of Network view (%s) failed: %s", networkViewName, err)
+	}
 	d.SetId("")
+
+	log.Printf("[DEBUG] %s: Deletion of network block complete", resourceNetworkViewIDString(d))
 	return nil
 }
 
