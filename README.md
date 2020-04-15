@@ -21,7 +21,6 @@ $ git clone git@github.com:infobloxopen/terraform-provider-infoblox
 Enter the provider directory and build the provider.
 ```sh
 $ cd $GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox
-$ export GO111MODULE="on"
 $ make build
 ```
 
