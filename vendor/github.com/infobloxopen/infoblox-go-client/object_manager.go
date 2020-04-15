@@ -8,39 +8,40 @@ import (
 )
 
 type IBObjectManager interface {
-	CreateNetworkView(name string) (*NetworkView, error)
-	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
-	CreateNetwork(netview string, cidr string, name string) (*Network, error)
-	CreateNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
-	GetNetworkView(name string) (*NetworkView, error)
-	GetNetwork(netview string, cidr string, ea EA) (*Network, error)
-	GetNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
 	AllocateIP(netview string, cidr string, ipAddr string, macAddress string, name string, ea EA) (*FixedAddress, error)
 	AllocateNetwork(netview string, cidr string, prefixLen uint, name string) (network *Network, err error)
-	UpdateFixedAddress(fixedAddrRef string, matchclient string, macAddress string, vmID string, vmName string) (*FixedAddress, error)
+	CreateARecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordA, error)
+	CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error)
+	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
+	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
+	CreateHostRecord(enabledns bool, recordName string, netview string, dnsview string, cidr string, ipAddr string, macAddress string, ea EA) (*HostRecord, error)
+	CreateNetwork(netview string, cidr string, name string) (*Network, error)
+	CreateNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
+	CreateNetworkView(name string) (*NetworkView, error)
+	CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error)
+	DeleteARecord(ref string) (string, error)
+	DeleteCNAMERecord(ref string) (string, error)
+	DeleteFixedAddress(ref string) (string, error)
+	DeleteHostRecord(ref string) (string, error)
+	DeleteNetwork(ref string, netview string) (string, error)
+	DeleteNetworkView(ref string) (string, error)
+	DeletePTRRecord(ref string) (string, error)
+	GetARecordByRef(ref string) (*RecordA, error)
+	GetCNAMERecordByRef(ref string) (*RecordA, error)
+	GetEADefinition(name string) (*EADefinition, error)
 	GetFixedAddress(netview string, cidr string, ipAddr string, macAddr string) (*FixedAddress, error)
 	GetFixedAddressByRef(ref string) (*FixedAddress, error)
-	DeleteFixedAddress(ref string) (string, error)
-	ReleaseIP(netview string, cidr string, ipAddr string, macAddr string) (string, error)
-	DeleteNetwork(ref string, netview string) (string, error)
-	GetEADefinition(name string) (*EADefinition, error)
-	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
-	UpdateNetworkViewEA(ref string, addEA EA, removeEA EA) error
-	CreateHostRecord(enabledns bool, recordName string, netview string, dnsview string, cidr string, ipAddr string, macAddress string, ea EA) (*HostRecord, error)
-	GetHostRecordByRef(ref string) (*HostRecord, error)
 	GetHostRecord(recordName string, netview string, cidr string, ipAddr string) (*HostRecord, error)
+	GetHostRecordByRef(ref string) (*HostRecord, error)
 	GetIpAddressFromHostRecord(host HostRecord) (string, error)
-	UpdateHostRecord(hostRref string, ipAddr string, macAddress string, vmID string, vmName string) (string, error)
-	DeleteHostRecord(ref string) (string, error)
-	CreateARecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordA, error)
-	GetARecordByRef(ref string) (*RecordA, error)
-	DeleteARecord(ref string) (string, error)
-	CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error)
-	GetCNAMERecordByRef(ref string) (*RecordA, error)
-	DeleteCNAMERecord(ref string) (string, error)
-	CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error)
+	GetNetwork(netview string, cidr string, ea EA) (*Network, error)
+	GetNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
+	GetNetworkView(name string) (*NetworkView, error)
 	GetPTRRecordByRef(ref string) (*RecordPTR, error)
-	DeletePTRRecord(ref string) (string, error)
+	ReleaseIP(netview string, cidr string, ipAddr string, macAddr string) (string, error)
+	UpdateFixedAddress(fixedAddrRef string, matchclient string, macAddress string, vmID string, vmName string) (*FixedAddress, error)
+	UpdateHostRecord(hostRref string, ipAddr string, macAddress string, vmID string, vmName string) (string, error)
+	UpdateNetworkViewEA(ref string, addEA EA, removeEA EA) error
 }
 
 type ObjectManager struct {
@@ -48,7 +49,6 @@ type ObjectManager struct {
 	cmpType   string
 	tenantID  string
 }
-
 
 func NewObjectManager(connector IBConnector, cmpType string, tenantID string) *ObjectManager {
 	objMgr := new(ObjectManager)
@@ -68,10 +68,10 @@ func (objMgr *ObjectManager) getBasicEA(cloudAPIOwned Bool) EA {
 	return ea
 }
 
-func (objMgr *ObjectManager) extendEA(ea EA) EA{
+func (objMgr *ObjectManager) extendEA(ea EA) EA {
 	eas := objMgr.getBasicEA(true)
-	for k,v :=range ea{
-	eas[k]=v
+	for k, v := range ea {
+		eas[k] = v
 	}
 	return eas
 }
@@ -284,7 +284,7 @@ func (objMgr *ObjectManager) AllocateIP(netview string, cidr string, ipAddr stri
 		Cidr:        cidr,
 		Mac:         macAddress,
 		Name:        name,
-		Ea:         eas})
+		Ea:          eas})
 
 	if ipAddr == "" {
 		fixedAddr.IPAddress = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
@@ -381,7 +381,7 @@ func (objMgr *ObjectManager) UpdateFixedAddress(fixedAddrRef string, matchClient
 		if validateMatchClient(matchClient) {
 			updateFixedAddr.MatchClient = matchClient
 		} else {
-			return nil , fmt.Errorf("wrong value for match_client passed %s \n ", matchClient)
+			return nil, fmt.Errorf("wrong value for match_client passed %s \n ", matchClient)
 		}
 	}
 
@@ -405,6 +405,10 @@ func (objMgr *ObjectManager) DeleteNetwork(ref string, netview string) (string, 
 	}
 
 	return "", nil
+}
+
+func (objMgr *ObjectManager) DeleteNetworkView(ref string) (string, error) {
+	return objMgr.connector.DeleteObject(ref)
 }
 
 func (objMgr *ObjectManager) GetEADefinition(name string) (*EADefinition, error) {
@@ -514,7 +518,6 @@ func (objMgr *ObjectManager) CreateARecord(netview string, dnsview string, recor
 
 	eas := objMgr.extendEA(ea)
 
-
 	recordA := NewRecordA(RecordA{
 		View: dnsview,
 		Name: recordname,
@@ -539,7 +542,7 @@ func (objMgr *ObjectManager) DeleteARecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
-func (objMgr *ObjectManager) CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA)(*RecordCNAME, error) {
+func (objMgr *ObjectManager) CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error) {
 
 	eas := objMgr.extendEA(ea)
 
@@ -547,7 +550,7 @@ func (objMgr *ObjectManager) CreateCNAMERecord(canonical string, recordname stri
 		View:      dnsview,
 		Name:      recordname,
 		Canonical: canonical,
-		Ea: eas})
+		Ea:        eas})
 
 	ref, err := objMgr.connector.CreateObject(recordCNAME)
 	recordCNAME.Ref = ref
@@ -564,11 +567,75 @@ func (objMgr *ObjectManager) DeleteCNAMERecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
+// Creates TXT Record. Use TTL of 0 to inherit TTL from the Zone
+func (objMgr *ObjectManager) CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error) {
+
+	recordTXT := NewRecordTXT(RecordTXT{
+		View: dnsview,
+		Name: recordname,
+		Text: text,
+		TTL:  ttl,
+	})
+
+	ref, err := objMgr.connector.CreateObject(recordTXT)
+	recordTXT.Ref = ref
+	return recordTXT, err
+}
+
+func (objMgr *ObjectManager) GetTXTRecordByRef(ref string) (*RecordTXT, error) {
+	recordTXT := NewRecordTXT(RecordTXT{})
+	err := objMgr.connector.GetObject(recordTXT, ref, &recordTXT)
+	return recordTXT, err
+}
+
+func (objMgr *ObjectManager) GetTXTRecord(name string) (*RecordTXT, error) {
+	if name == "" {
+		return nil, fmt.Errorf("name can not be empty")
+	}
+	var res []RecordTXT
+
+	recordTXT := NewRecordTXT(RecordTXT{Name: name})
+
+	err := objMgr.connector.GetObject(recordTXT, "", &res)
+
+	if err != nil || res == nil || len(res) == 0 {
+		return nil, err
+	}
+
+	return &res[0], nil
+}
+
+func (objMgr *ObjectManager) UpdateTXTRecord(recordname string, text string) (*RecordTXT, error) {
+	var res []RecordTXT
+
+	recordTXT := NewRecordTXT(RecordTXT{Name: recordname})
+
+	err := objMgr.connector.GetObject(recordTXT, "", &res)
+
+	if len(res) == 0 {
+		return nil, nil
+	}
+
+	res[0].Text = text
+
+	res[0].Zone = "" //  set the Zone value to "" as its a non writable field
+
+	_, err = objMgr.connector.UpdateObject(&res[0], res[0].Ref)
+
+	if err != nil || res == nil || len(res) == 0 {
+		return nil, err
+	}
+
+	return &res[0], nil
+}
+
+func (objMgr *ObjectManager) DeleteTXTRecord(ref string) (string, error) {
+	return objMgr.connector.DeleteObject(ref)
+}
+
 func (objMgr *ObjectManager) CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error) {
 
-
 	eas := objMgr.extendEA(ea)
-
 
 	recordPTR := NewRecordPTR(RecordPTR{
 		View:     dnsview,
@@ -676,4 +743,60 @@ func (objMgr *ObjectManager) GetGridInfo() ([]Grid, error) {
 	gridObj := NewGrid(Grid{})
 	err := objMgr.connector.GetObject(gridObj, "", &res)
 	return res, err
+}
+
+// GetZoneAuth returns the authoritatives zones
+func (objMgr *ObjectManager) GetZoneAuth() ([]ZoneAuth, error) {
+	var res []ZoneAuth
+
+	zoneAuth := NewZoneAuth(ZoneAuth{})
+	err := objMgr.connector.GetObject(zoneAuth, "", &res)
+
+	return res, err
+}
+
+// GetZoneDelegated returns the delegated zone
+func (objMgr *ObjectManager) GetZoneDelegated(fqdn string) (*ZoneDelegated, error) {
+	if len(fqdn) == 0 {
+		return nil, nil
+	}
+	var res []ZoneDelegated
+
+	zoneDelegated := NewZoneDelegated(ZoneDelegated{Fqdn: fqdn})
+
+	err := objMgr.connector.GetObject(zoneDelegated, "", &res)
+
+	if err != nil || res == nil || len(res) == 0 {
+		return nil, err
+	}
+
+	return &res[0], nil
+}
+
+// CreateZoneDelegated creates delegated zone
+func (objMgr *ObjectManager) CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error) {
+	zoneDelegated := NewZoneDelegated(ZoneDelegated{
+		Fqdn:       fqdn,
+		DelegateTo: delegate_to})
+
+	ref, err := objMgr.connector.CreateObject(zoneDelegated)
+	zoneDelegated.Ref = ref
+
+	return zoneDelegated, err
+}
+
+// UpdateZoneDelegated updates delegated zone
+func (objMgr *ObjectManager) UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error) {
+	zoneDelegated := NewZoneDelegated(ZoneDelegated{
+		Ref:        ref,
+		DelegateTo: delegate_to})
+
+	refResp, err := objMgr.connector.UpdateObject(zoneDelegated, ref)
+	zoneDelegated.Ref = refResp
+	return zoneDelegated, err
+}
+
+// DeleteZoneDelegated deletes delegated zone
+func (objMgr *ObjectManager) DeleteZoneDelegated(ref string) (string, error) {
+	return objMgr.connector.DeleteObject(ref)
 }

@@ -3,10 +3,15 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=infoblox
 
+.EXPORT_ALL_VARIABLES:
+  TF_SCHEMA_PANIC_ON_ERROR=1
+  GO111MODULE=on
+  GOFLAGS=-mod=vendor
+
 default: build
 
 build:  fmtcheck
-	go build -o terraform-provider-infoblox -mod=vendor
+	go build -o terraform-provider-infoblox
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
