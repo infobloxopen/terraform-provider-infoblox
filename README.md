@@ -13,14 +13,14 @@
    * Network Name :: String Type
 
 ## Building the Provider
-Clone repository to `$GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox`.
+Clone repository to `$GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox`.
 ```sh
-$ mkdir -p $GOPATH/src/github.com/infobloxopen; cd $GOPATH/src/github.com/infobloxopen
-$ git clone git@github.com:infobloxopen/terraform-provider-infoblox
+$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+$ git clone git@github.com:terraform-providers/terraform-provider-infoblox
 ```
 Enter the provider directory and build the provider.
 ```sh
-$ cd $GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox
+$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox
 $ make build
 ```
 
