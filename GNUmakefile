@@ -11,7 +11,7 @@ PKG_NAME=infoblox
 default: build
 
 build:  fmtcheck
-	go build -o terraform-provider-infoblox
+	CGO_ENABLED=0 go build -o terraform-provider-infoblox -mod=vendor
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
