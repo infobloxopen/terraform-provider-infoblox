@@ -32,7 +32,7 @@ The following arguments are supported in the `provider` block:
 
 * The provider only allows to create network views. Deletion of network view's is not supported
 * The provider supports only Create , Read and delete for networks/CIDR's . Updating a network is not supported
-* If the provider is used to allocate IP's to VM's using other provider, please use the 2 resource's `ip_allocation` and `ip_association` blocks. [examples](https://https://github.com/infobloxopen/terraform-provider-infoblox/tree/master/examples) for using Infoblox provider are shown.
+* If the provider is used to allocate IP's to VM's using other provider, please use the 2 resource's `ip_allocation` and `ip_association` blocks. [examples](https://github.com/infobloxopen/terraform-provider-infoblox/tree/master/examples) for using Infoblox provider are shown.
 * Using the `ip_allocation` block , you can either create a Reservation/Fixed address/Host Record. To create host record please look at the ip_allocation resource as to how to create a Host record
 * If the provider is not used with any other provider's, just use the `ip_allocation` block. `ip_allocation` supports complete CRUD operations
 * `ip_association` block is used to update the properties of VM's , If you are not using the provider with other providers to deploy VM and allocate IP from NIOS, ignore this block
