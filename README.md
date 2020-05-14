@@ -40,6 +40,11 @@ To test the provider, you can simply run `make test`.
 ```sh
 $ make test
 ```
+
+In order to run the full suite of acceptance tests `make testacc`.
+```sh
+$ make testacc
+```
 ## Features of Provider
 * Creation of Network View in NIOS appliance
 * Creation & Deletion of Network in NIOS appliance
@@ -49,3 +54,4 @@ $ make test
 
 ## Disclaimer
 To use the provider for DNS purposes, a parent (i.e. zone) must already exist. The plugin does not support the creation of zones.
+while running acceptance tests create a 10.0.0.0/24 network under default network view and create a reservation for 10.0.0.2 IP
