@@ -40,5 +40,5 @@ The following arguments are supported:
 * `dns_view` - (Optional) The view which contains the details of the zone. If not provided , record will be created under default view
 * `zone` - (Optional) The zone in which you want to update a host record
 * `ip_addr` - (Required) - The IP address you want to update in NIOS. Use the Same IP you have passed during IP allocation.
-* `mac_addr` - (Optional) - Updates the actual mac adress when used with another provider
+* `mac_addr` - (Required) - Updates the actual mac adress when used with another provider
 
