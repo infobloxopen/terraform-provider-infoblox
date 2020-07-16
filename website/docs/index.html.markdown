@@ -33,9 +33,9 @@ provider "infoblox"{
 The following arguments are supported in the `provider` block:
 
 * `version` - (Optional) Specify the provider version
-* `username` - (Required) User login details
+* `username` - (Required) Infoblox user name
 * `password` - (Required) Infoblox user password
-* `server` - (Required) Grid master's or CP members IP
+* `server` - (Required) Grid master or CP member IP address
 
 ### Environmental Variables
 
