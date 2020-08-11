@@ -1,6 +1,22 @@
 ## 1.2.0 (Unreleased)
 ## 1.1.0 (August 11, 2020)
 
+**Implemented enhancements:**
+- Added Data Source for Network
+
+**Closed issues:**
+- Error on Apply: "AdmConProtoError: Field is not searchable: configure_for_dns" [\#5](https://github.com/terraform-providers/terraform-provider-infoblox/issues/5)
+- Terraform provider documentation is not accurate on terraform.io website [\#11](https://github.com/terraform-providers/terraform-provider-infoblox/issues/11)
+- Error: rpc error: code = Unavailable desc = transport is closing [\#9](https://github.com/terraform-providers/terraform-provider-infoblox/issues/9)
+- Provider params incorrect [\#7](https://github.com/terraform-providers/terraform-provider-infoblox/issues/7)
+- Any documentation on minimal security required for this provider? [\#4](https://github.com/terraform-providers/terraform-provider-infoblox/issues/4)
+- examples hyperlink not working under website [\#3](https://github.com/terraform-providers/terraform-provider-infoblox/issues/3)
+
+**Merged Pull Requests:**
+- Update to Provider Documentation [\#13](https://github.com/terraform-providers/terraform-provider-infoblox/pull/13)
+- Adding DataSource for Network [\#10](https://github.com/terraform-providers/terraform-provider-infoblox/pull/10)
+- Changes made to ip_association doc, mac_addr from optional to required [\#6](https://github.com/terraform-providers/terraform-provider-infoblox/pull/6)
+
 ## 1.0.0 (April 14, 2020)
 
 [Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/ec354d7410947945fe01f876269ded480f18029d...v1.0.0)
