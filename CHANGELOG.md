@@ -1,6 +1,4 @@
-## 1.2.0 (Unreleased)
-
-## 1.1.0 (August 07, 2020)
+## 1.1.0 (Unreleased)
 
 **Implemented enhancements:**
 - Added Data Source for Network
