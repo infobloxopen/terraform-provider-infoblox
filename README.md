@@ -13,14 +13,14 @@
    * Network Name :: String Type
 
 ## Building the Provider
-Clone repository to `$GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox`.
+Clone repository to `$GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox`.
 ```sh
-$ mkdir -p $GOPATH/src/github.com/infobloxopen; cd $GOPATH/src/github.com/infobloxopen
-$ git clone git@github.com:infobloxopen/terraform-provider-infoblox
+$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+$ git clone git@github.com:terraform-providers/terraform-provider-infoblox
 ```
 Enter the provider directory and build the provider.
 ```sh
-$ cd $GOPATH/src/github.com/infobloxopen/terraform-provider-infoblox
+$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox
 $ export GO111MODULE="on"
 $ make build
 ```
@@ -49,11 +49,15 @@ In order to run the full suite of acceptance tests `make testacc`.
 $ make testacc
 ```
 ## Features of Provider
+### Resource
 * Creation of Network View in NIOS appliance
 * Creation & Deletion of Network in NIOS appliance
 * Allocation & Deallocation of IP from a Network
 * Association & Disassociation of IP Address for a VM
 * Creation and Deletion of A, CNAME, Host, and Ptr records
+
+### Data Source
+* Supports Data Source for Network
 
 ## Disclaimer
 To use the provider for DNS purposes, a parent (i.e. zone) must already exist. The plugin does not support the creation of zones.
