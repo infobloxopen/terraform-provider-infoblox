@@ -146,5 +146,5 @@ func resourceNetworkIDString(d resourceNetworkIDStringInterface) string {
 	if id == "" {
 		id = "<new resource>"
 	}
-	return fmt.Sprintf("infoblox_ip_allocation (ID = %s)", id)
+	return fmt.Sprintf("infoblox_network (ID = %s)", id)
 }
