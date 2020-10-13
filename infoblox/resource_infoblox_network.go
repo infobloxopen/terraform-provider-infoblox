@@ -73,14 +73,17 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// Check whether gateway or ip address already allocated
-	gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
-	if err == nil && gatewayIP != nil {
-		fmt.Printf("Gateway already created")
-	} else if gatewayIP == nil {
-		gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZeroMacAddr, "", ea)
-		if err != nil {
-			return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
+	if gateway != "none" {
+		gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
+		if err == nil && gatewayIP != nil {
+			fmt.Printf("Gateway already created")
+		} else if gatewayIP == nil {
+			gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZeroMacAddr, "", ea)
+			if err != nil {
+				return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
+			}
 		}
+		d.Set("gateway", gatewayIP.IPAddress)
 	}
 
 	for i := 1; i <= reserveIP; i++ {
@@ -90,7 +93,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.Set("gateway", gatewayIP.IPAddress)
 	d.SetId(nwname.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))

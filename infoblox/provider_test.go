@@ -41,7 +41,7 @@ func testAccPreCheck(t *testing.T) {
 	}
 
 	if v := os.Getenv("INFOBLOX_PASSWORD"); v == "" {
-		t.Fatal("INFOBLOX_USERNAME must be set for acceptance tests")
+		t.Fatal("INFOBLOX_PASSWORD must be set for acceptance tests")
 	}
 
 	if v := os.Getenv("INFOBLOX_SERVER"); v == "" {
