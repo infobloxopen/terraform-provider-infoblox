@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccresourceNetwork(t *testing.T) {
@@ -25,6 +26,24 @@ func TestAccresourceNetwork(t *testing.T) {
 				Config: testAccresourceNetworkUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccresourceNetwork_Allocate(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccresourceNetworkAllocate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCreateNetworkExists(t, "infoblox_network.foo0", "10.0.0.0/24", "default", "demo-network"),
+					testAccCreateNetworkExists(t, "infoblox_network.foo1", "10.0.1.0/24", "default", "demo-network"),
 				),
 			},
 		},
@@ -75,6 +94,27 @@ resource "infoblox_network" "foo"{
 	network_name="demo-network"
 	cidr="10.10.0.0/24"
 	tenant_id="foo"
+	}`)
+
+/*
+Right now no infoblox_network_container resource available
+So, before run acceptance test TestAccresourceNetwork_Allocate
+in default network view should be created network container 10.0.0.0/16
+*/
+var testAccresourceNetworkAllocate = fmt.Sprintf(`
+resource "infoblox_network" "foo0"{
+	network_view_name="default"
+	network_name="demo-network"
+	cidr="10.0.0.0/16"
+	tenant_id="foo"
+	allocate_prefix_len=24
+	}
+resource "infoblox_network" "foo1"{
+	network_view_name="default"
+	network_name="demo-network"
+	cidr="10.0.0.0/16"
+	tenant_id="foo"
+	allocate_prefix_len=24
 	}`)
 
 var testAccresourceNetworkUpdate = fmt.Sprintf(`
