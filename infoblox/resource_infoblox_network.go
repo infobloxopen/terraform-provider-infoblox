@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceNetwork() *schema.Resource {
@@ -48,6 +49,12 @@ func resourceNetwork() *schema.Resource {
 				Description: "gateway ip address of your network block.By default first IPv4 address is set as gateway address.",
 				Computed:    true,
 			},
+			"allocate_prefix_len": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Set parameter value>0 to allocate next available network with prefix=value from network container defined by cidr.",
+			},
 		},
 	}
 }
@@ -62,38 +69,48 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	gateway := d.Get("gateway").(string)
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
+	prefixLen := d.Get("allocate_prefix_len").(int)
 
 	ZeroMacAddr := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	ea := make(ibclient.EA)
 
-	nwname, err := objMgr.CreateNetwork(networkViewName, cidr, networkName)
-	if err != nil {
-		return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
+	var network *ibclient.Network
+	var err error
+	if prefixLen > 0 {
+		network, err = objMgr.AllocateNetwork(networkViewName, cidr, uint(prefixLen), networkName)
+		if err != nil {
+			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
+		}
+	} else {
+		network, err = objMgr.CreateNetwork(networkViewName, cidr, networkName)
+		if err != nil {
+			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
+		}
 	}
 
 	// Check whether gateway or ip address already allocated
 	if gateway != "none" {
-		gatewayIP, err := objMgr.GetFixedAddress(networkViewName, cidr, gateway, "")
+		gatewayIP, err := objMgr.GetFixedAddress(networkViewName, network.Cidr, gateway, "")
 		if err == nil && gatewayIP != nil {
 			fmt.Printf("Gateway already created")
 		} else if gatewayIP == nil {
-			gatewayIP, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZeroMacAddr, "", ea)
+			gatewayIP, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, ZeroMacAddr, "", ea)
 			if err != nil {
-				return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", cidr, err)
+				return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", network.Cidr, err)
 			}
 		}
 		d.Set("gateway", gatewayIP.IPAddress)
 	}
 
 	for i := 1; i <= reserveIP; i++ {
-		_, err = objMgr.AllocateIP(networkViewName, cidr, gateway, ZeroMacAddr, "", ea)
+		_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, ZeroMacAddr, "", ea)
 		if err != nil {
 			return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
 		}
 	}
 
-	d.SetId(nwname.Ref)
+	d.SetId(network.Ref)
 
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
 	return resourceNetworkRead(d, m)
