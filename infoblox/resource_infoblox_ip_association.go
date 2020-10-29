@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceIPAssociation() *schema.Resource {
@@ -74,7 +75,9 @@ func resourceIPAssociation() *schema.Resource {
 func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
-	Resource(d, m)
+	if err := Resource(d, m); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] %s:completing Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return resourceIPAssociationRead(d, m)
@@ -83,7 +86,9 @@ func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s:update operation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
-	Resource(d, m)
+	if err := Resource(d, m); err != nil {
+		return err
+	}
 
 	log.Printf("[DEBUG] %s:completing updation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
 	return resourceIPAssociationRead(d, m)
@@ -190,6 +195,9 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("GetHostRecord failed from network block(%s):%s", cidr, err)
 		}
+		if hostRecordObj == nil {
+			return fmt.Errorf("HostRecord %s not found.", name)
+		}
 		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, Name)
 		if err != nil {
 			return fmt.Errorf("UpdateHost Record error from network block(%s):%s", cidr, err)
@@ -199,6 +207,9 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 		fixedAddressObj, err := objMgr.GetFixedAddress(networkViewName, cidr, ipAddr, "")
 		if err != nil {
 			return fmt.Errorf("GetFixedAddress error from network block(%s):%s", cidr, err)
+		}
+		if fixedAddressObj == nil {
+			return fmt.Errorf("FixedAddress %s not found in network %s.", ipAddr, cidr)
 		}
 
 		_, err = objMgr.UpdateFixedAddress(fixedAddressObj.Ref, matchClient, macAddr, vmID, Name)
