@@ -105,16 +105,16 @@ var testAccresourceNetworkAllocate = fmt.Sprintf(`
 resource "infoblox_network" "foo0"{
 	network_view_name="default"
 	network_name="demo-network"
-	cidr="10.0.0.0/16"
 	tenant_id="foo"
 	allocate_prefix_len=24
+	parent_cidr="10.0.0.0/16"
 	}
 resource "infoblox_network" "foo1"{
 	network_view_name="default"
 	network_name="demo-network"
-	cidr="10.0.0.0/16"
 	tenant_id="foo"
 	allocate_prefix_len=24
+	parent_cidr="10.0.0.0/16"
 	}`)
 
 var testAccresourceNetworkUpdate = fmt.Sprintf(`
