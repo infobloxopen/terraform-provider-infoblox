@@ -29,7 +29,8 @@ func resourceNetwork() *schema.Resource {
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: "The network block in cidr format.",
 			},
 			"tenant_id": &schema.Schema{
@@ -53,7 +54,12 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
-				Description: "Set parameter value>0 to allocate next available network with prefix=value from network container defined by cidr.",
+				Description: "Set parameter value>0 to allocate next available network with prefix=value from network container defined by parent_cidr.",
+			},
+			"parent_cidr": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network container block in cidr format to allocate from.",
 			},
 		},
 	}
@@ -64,6 +70,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view_name").(string)
 	cidr := d.Get("cidr").(string)
+	parent_cidr := d.Get("parent_cidr").(string)
 	networkName := d.Get("network_name").(string)
 	reserveIP := d.Get("reserve_ip").(int)
 	gateway := d.Get("gateway").(string)
@@ -77,16 +84,19 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	var network *ibclient.Network
 	var err error
-	if prefixLen > 0 {
-		network, err = objMgr.AllocateNetwork(networkViewName, cidr, uint(prefixLen), networkName)
+	if cidr == "" && parent_cidr != "" && prefixLen > 1 {
+		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName)
 		if err != nil {
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
-	} else {
+		d.Set("cidr", network.Cidr)
+	} else if cidr != "" {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, networkName)
 		if err != nil {
 			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
+	} else {
+		return fmt.Errorf("Creation of network block failed: neither cidr nor parent_cidr with allocate_prefix_len was specified.")
 	}
 
 	// Check whether gateway or ip address already allocated
