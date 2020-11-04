@@ -93,7 +93,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	d.Set("recordName", name)
 	d.SetId(recordPTR.Ref)
 
-	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourceARecordIDString(d))
+	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourcePTRRecordIDString(d))
 	return resourcePTRRecordGet(d, m)
 }
 
