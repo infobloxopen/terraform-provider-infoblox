@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccResourcePTRRecord(t *testing.T) {
@@ -19,6 +20,13 @@ func TestAccResourcePTRRecord(t *testing.T) {
 				Config: testAccresourcePTRRecordCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccPTRRecordExists(t, "infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
+				),
+			},
+			resource.TestStep{
+				Config: testAccresourcePTRRecordAllocate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccPTRRecordExists(t, "infoblox_ptr_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
+					testAccPTRRecordExists(t, "infoblox_ptr_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
 			resource.TestStep{
@@ -72,18 +80,30 @@ func testAccPTRRecordExists(t *testing.T, n string, cidr string, ipAddr string, 
 
 var testAccresourcePTRRecordCreate = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo"{
-	network_view_name="test"
 	vm_name="test-name"
-	dns_view="default"
 	zone="a.com"
-	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.2"
+	tenant_id="foo"
+	}`)
+
+var testAccresourcePTRRecordAllocate = fmt.Sprintf(`
+resource "infoblox_ptr_record" "foo1"{
+	vm_name="test-name"
+	zone="a.com"
+	ip_addr=""
+	cidr="10.0.0.0/24"
+	tenant_id="foo"
+	}
+resource "infoblox_ptr_record" "foo2"{
+	vm_name="test-name"
+	zone="a.com"
+	ip_addr=""
+	cidr="10.0.0.0/24"
 	tenant_id="foo"
 	}`)
 
 var testAccresourcePTRRecordUpdate = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo"{
-	network_view_name="test"
 	vm_name="test-name"
 	dns_view="default"
 	zone="a.com"
