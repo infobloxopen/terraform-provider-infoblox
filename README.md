@@ -1,5 +1,3 @@
-#### NOTE: This Repo is deprecated please use the official provider[https://github.com/terraform-providers/terraform-provider-infoblox] repo to for contributions/Issues/PRs.
-
 # Terraform Provider for Infoblox
  <img width="171" alt="capture" src="https://user-images.githubusercontent.com/36291746/39614422-6b653088-4f8d-11e8-83fd-05b18ca974a2.PNG">
 
@@ -15,9 +13,6 @@
    * Network Name :: String Type
 
 ## Building the Provider
-Clone repository and enter the provider directory and build the provider.
-
-_**Note:** Ensure you do not clone to $GOPATH/src or below (as was normal prior to Go 1.11)_
 
 ```sh
 $ git clone https://github.com/infobloxopen/terraform-provider-infoblox
@@ -48,11 +43,15 @@ In order to run the full suite of acceptance tests `make testacc`.
 $ make testacc
 ```
 ## Features of Provider
+### Resource
 * Creation of Network View in NIOS appliance
 * Creation & Deletion of Network in NIOS appliance
 * Allocation & Deallocation of IP from a Network
 * Association & Disassociation of IP Address for a VM
 * Creation and Deletion of A, CNAME, Host, and Ptr records
+
+### Data Source
+* Supports Data Source for Network
 
 ## Disclaimer
 To use the provider for DNS purposes, a parent (i.e. zone) must already exist. The plugin does not support the creation of zones.

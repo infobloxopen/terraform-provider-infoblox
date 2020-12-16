@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourcePTRRecord() *schema.Resource {
@@ -15,12 +16,6 @@ func resourcePTRRecord() *schema.Resource {
 		Delete: resourcePTRRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "default",
-				Description: "Network view name available in Nios server.",
-			},
 			"vm_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
@@ -28,8 +23,8 @@ func resourcePTRRecord() *schema.Resource {
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The address in cidr format.",
+				Optional:    true,
+				Description: "The network to allocate IP address when the ip_addr field is empty. Network address in cidr format.",
 			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
@@ -45,7 +40,7 @@ func resourcePTRRecord() *schema.Resource {
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
+				Description: "IP address your instance in cloud. For static allocation, set the field with valid IP. For dynamic allocation, leave this field empty and set the cidr field.",
 			},
 			"vm_id": &schema.Schema{
 				Type:        schema.TypeString,
@@ -64,7 +59,6 @@ func resourcePTRRecord() *schema.Resource {
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create PTR record from  required network block", resourcePTRRecordIDString(d))
 
-	networkViewName := d.Get("network_view_name").(string)
 	//This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -83,10 +77,15 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	if vmID != "" {
 		ea["VM ID"] = vmID
 	}
+
+	if ipAddr == "" && cidr == "" {
+		return fmt.Errorf("Error creating PTR record: nether ip_addr nor cidr value provided.")
+	}
+
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	//fqdn
 	name := recordName + "." + zone
-	recordPTR, err := objMgr.CreatePTRRecord(networkViewName, dnsView, name, cidr, ipAddr, ea)
+	recordPTR, err := objMgr.CreatePTRRecord(dnsView, dnsView, name, cidr, ipAddr, ea)
 	if err != nil {
 		return fmt.Errorf("Error creating PTR Record from network block(%s): %s", cidr, err)
 	}
@@ -94,7 +93,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	d.Set("recordName", name)
 	d.SetId(recordPTR.Ref)
 
-	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourceARecordIDString(d))
+	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourcePTRRecordIDString(d))
 	return resourcePTRRecordGet(d, m)
 }
 
