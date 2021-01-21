@@ -85,6 +85,14 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	var network *ibclient.Network
 	var err error
 	if cidr == "" && parent_cidr != "" && prefixLen > 1 {
+		network_container, err := objMgr.GetNetworkContainer(networkViewName, parent_cidr)
+		if network_container == nil {
+			return fmt.Errorf(
+				"Allocation of network block failed in network view (%s) : Parent network container %s not found.",
+				networkViewName, parent_cidr)
+
+		}
+
 		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName)
 		if err != nil {
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
