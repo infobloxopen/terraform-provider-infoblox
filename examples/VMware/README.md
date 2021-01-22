@@ -22,6 +22,14 @@ export INFOBLOX_USERNAME="${username}"
   VM's is shown in Multiple Folder
 - Example of other records such as A,PTR and CNAME are shown in 
   infoblox.tf of Fixed Adrress folder
+- To get next available network from a given parent CIDR of a prefix length use 
+  templates from NextAvailableNetwork.
+
+### Note
+```
+Need to create forward-mapping and reverse-mapping zones manually for creation of DNS records in DNS View.
+A parent network/network container has to be in existence before requesting next available network from it.
+```
 
 # Running the Resource
 
@@ -31,4 +39,4 @@ export INFOBLOX_USERNAME="${username}"
 
 
 # Destroying the Resource
- terraform destroy
+- terraform destroy
