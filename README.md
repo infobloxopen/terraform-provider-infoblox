@@ -49,6 +49,7 @@ $ make testacc
 * Allocation & Deallocation of IP from a Network
 * Association & Disassociation of IP Address for a VM
 * Creation and Deletion of A, CNAME, Host, and Ptr records
+* Allocate Next Available Network from a parent network container
 
 ### Data Source
 * Supports Data Source for Network
