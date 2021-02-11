@@ -6,12 +6,13 @@ PKG_NAME=infoblox
 .EXPORT_ALL_VARIABLES:
   TF_SCHEMA_PANIC_ON_ERROR=1
   GO111MODULE=on
-  GOFLAGS=-mod=vendor
+  #GOFLAGS=-mod=vendor
 
 default: build
 
 build:  fmtcheck
-	CGO_ENABLED=0 go build -o terraform-provider-infoblox -mod=vendor
+	#CGO_ENABLED=0 go build -o terraform-provider-infoblox -mod=vendor
+	CGO_ENABLED=0 go build -o terraform-provider-infoblox
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
