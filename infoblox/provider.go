@@ -3,9 +3,10 @@ package infoblox
 import (
 	"time"
 
+	ibclient "github.com/anagha-infoblox/infoblox-go-client"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	//ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 //Provider returns a terraform.ResourceProvider.
@@ -64,6 +65,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"infoblox_network":        resourceNetwork(),
+			"infoblox_ipv6_network":   resourceIPv6Network(),
 			"infoblox_network_view":   resourceNetworkView(),
 			"infoblox_ip_allocation":  resourceIPAllocation(),
 			"infoblox_ip_association": resourceIPAssociation(),
