@@ -19,6 +19,7 @@ resource "infoblox_network" "ib_network"{
   network_name = "tf-network"
   tenant_id = "tf-AWS-tenant"
   allocate_prefix_len = 24
+  # make sure network container with below CIDR is in place before requesting a network under it
   parent_cidr = "10.0.0.0/16"
   reserve_ip = 2
 }
