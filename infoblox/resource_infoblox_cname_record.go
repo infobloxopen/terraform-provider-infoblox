@@ -20,6 +20,7 @@ func resourceCNAMERecord() *schema.Resource {
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "Zone under which record has to be created.",
 			},
 			"dns_view": &schema.Schema{
@@ -31,11 +32,13 @@ func resourceCNAMERecord() *schema.Resource {
 			"canonical": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The Canonical name for the record.",
 			},
 			"alias": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The alias name for the record.",
 			},
 			"vm_id": &schema.Schema{
@@ -46,6 +49,7 @@ func resourceCNAMERecord() *schema.Resource {
 			"tenant_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
 		},
