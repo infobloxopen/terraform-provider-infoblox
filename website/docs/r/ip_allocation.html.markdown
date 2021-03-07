@@ -34,6 +34,7 @@ The following arguments are supported:
 * `enable_dns` - (optional) A boolean value which either creates or not creates for DNS purposes
 * `ip_addr` - (Optional) If set , a record will be created in NIOS using a passed IP address value. Takes in a string. If no value is given, a next available IP address will be allocated in NIOS
 * `mac_addr` - (Optional) If not set , a reservation will be created in NIOS.
+* `extattrs` - (Optional) A map of extensible attributes as `{"ATTR_NAME" = "ATTR_VALUE"}`
 
 ## Additional Note
 

@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccResourceIPAllocation(t *testing.T) {
@@ -19,12 +20,15 @@ func TestAccResourceIPAllocation(t *testing.T) {
 				Config: testAccresourceIPAllocationCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					resource.TestCheckResourceAttr("infoblox_ip_allocation.foo", "extattrs.Site", "Site1"),
 				),
 			},
 			resource.TestStep{
 				Config: testAccresourceIPAllocationUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					resource.TestCheckResourceAttr("infoblox_ip_allocation.foo", "extattrs.Site", "Site2"),
+					resource.TestCheckResourceAttr("infoblox_ip_allocation.foo", "extattrs.IB Discovery Owned", "Test"),
 				),
 			},
 		},
@@ -76,6 +80,9 @@ resource "infoblox_ip_allocation" "foo"{
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	tenant_id="foo"
+	extattrs = {
+		"Site" = "Site1"
+	}
 	}`)
 
 var testAccresourceIPAllocationUpdate = fmt.Sprintf(`
@@ -85,4 +92,8 @@ resource "infoblox_ip_allocation" "foo"{
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	tenant_id="foo"
+	extattrs = {
+		"Site" = "Site2"
+		"IB Discovery Owned" = "Test"
+	}
 	}`)

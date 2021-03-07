@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceIPAllocation() *schema.Resource {
@@ -68,6 +69,14 @@ func resourceIPAllocation() *schema.Resource {
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
+			"extattrs": &schema.Schema{
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Map of extensible attributes.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -93,6 +102,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ZeroMacAddr := "00:00:00:00:00:00"
 	//fqdn
 	name := recordName + "." + zone
+
 	ea := make(ibclient.EA)
 	if vmName != "" {
 		ea["VM Name"] = vmName
@@ -100,9 +110,17 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if vmID != "" {
 		ea["VM ID"] = vmID
 	}
+
+	if attr, ok := d.GetOk("extattrs"); ok {
+		for k, v := range attr.(map[string]interface{}) {
+			ea[k] = v.(string)
+		}
+	}
+
 	if macAddr == "" {
 		macAddr = ZeroMacAddr
 	}
+
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
@@ -135,27 +153,37 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	var objEA ibclient.EA
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		obj, err := objMgr.GetHostRecordByRef(d.Id())
 		if err != nil {
 			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
 		}
+		objEA = obj.Ea
 		d.SetId(obj.Ref)
 	} else {
 		obj, err := objMgr.GetFixedAddressByRef(d.Id())
 		if err != nil {
 			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
 		}
+		objEA = obj.Ea
 		d.SetId(obj.Ref)
 	}
+
+	ea := make(map[string]string)
+	for k, v := range objEA {
+		if k != "Cloud API Owned" && k != "CMP Type" && k != "Tenant ID" && k != "VM Name" && k != "VM ID" {
+			ea[k] = v.(string)
+		}
+	}
+	d.Set("extattrs", ea)
+
 	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
 	return nil
 }
 
 func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
-
-	match_client := "MAC_ADDRESS"
 
 	log.Printf("[DEBUG] %s: Updating the Parameters of the allocated IP in the specified network block", resourceIPAllocationIDString(d))
 
@@ -167,18 +195,36 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
+	ea := make(ibclient.EA)
+
+	var ea_cloud_api_owner ibclient.Bool = true
+	ea["Cloud API Owned"] = ea_cloud_api_owner
+	ea["CMP Type"] = "Terraform"
+	ea["Tenant ID"] = tenantID
+
+	if vmName != "" {
+		ea["VM Name"] = vmName
+	}
+	if vmID != "" {
+		ea["VM ID"] = vmID
+	}
+
+	if attr, ok := d.GetOk("extattrs"); ok {
+		for k, v := range attr.(map[string]interface{}) {
+			ea[k] = v.(string)
+		}
+	}
+
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		hostRecordObj, _ := objMgr.GetHostRecordByRef(d.Id())
-		IPAddrObj, _ := objMgr.GetIpAddressFromHostRecord(*hostRecordObj)
-		obj, err := objMgr.UpdateHostRecord(d.Id(), IPAddrObj, macAddr, vmID, vmName)
+		ref, err := updateHostRecord(objMgr, connector, d.Id(), macAddr, ea)
 		if err != nil {
 			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
 		}
-		d.SetId(obj)
+		d.SetId(ref)
 	} else {
-		obj, err := objMgr.UpdateFixedAddress(d.Id(), match_client, macAddr, vmID, vmName)
+		obj, err := updateFixedAddress(objMgr, connector, d.Id(), macAddr, ea)
 		if err != nil {
 			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
 		}
@@ -225,4 +271,36 @@ func resourceIPAllocationIDString(d resourceIPAllocationIDStringInterface) strin
 		id = "<new resource>"
 	}
 	return fmt.Sprintf("infoblox_ip_allocation (ID = %s)", id)
+}
+
+func updateHostRecord(objMgr *ibclient.ObjectManager, connector *ibclient.Connector, hostRref string, macAddr string, ea ibclient.EA) (string, error) {
+
+	hostRecordObj, _ := objMgr.GetHostRecordByRef(hostRref)
+	IPAddrObj, _ := objMgr.GetIpAddressFromHostRecord(*hostRecordObj)
+
+	recordHostIpAddr := ibclient.NewHostRecordIpv4Addr(ibclient.HostRecordIpv4Addr{Mac: macAddr, Ipv4Addr: IPAddrObj})
+	recordHostIpAddrSlice := []ibclient.HostRecordIpv4Addr{*recordHostIpAddr}
+	updateHostRecord := ibclient.NewHostRecord(ibclient.HostRecord{Ipv4Addrs: recordHostIpAddrSlice})
+	updateHostRecord.Ea = ea
+
+	ref, err := connector.UpdateObject(updateHostRecord, hostRref)
+
+	return ref, err
+
+}
+
+func updateFixedAddress(objMgr *ibclient.ObjectManager, connector *ibclient.Connector, fixedAddrRef string, macAddress string, ea ibclient.EA) (*ibclient.FixedAddress, error) {
+	updateFixedAddr := ibclient.NewFixedAddress(ibclient.FixedAddress{Ref: fixedAddrRef})
+
+	if len(macAddress) != 0 {
+		updateFixedAddr.Mac = macAddress
+	}
+
+	updateFixedAddr.Ea = ea
+
+	updateFixedAddr.MatchClient = "MAC_ADDRESS"
+
+	refResp, err := connector.UpdateObject(updateFixedAddr, fixedAddrRef)
+	updateFixedAddr.Ref = refResp
+	return updateFixedAddr, err
 }
