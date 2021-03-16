@@ -69,12 +69,28 @@ func resourceIPAllocation() *schema.Resource {
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
-			"extattrs": &schema.Schema{
-				Type:        schema.TypeMap,
+			"extattr": &schema.Schema{
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: "Map of extensible attributes.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"values": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
 				},
 			},
 		},
@@ -90,9 +106,6 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
-	//This is for EA's
-	vmName := d.Get("vm_name").(string)
-	vmID := d.Get("vm_id").(string)
 	tenantID := d.Get("tenant_id").(string)
 	zone := d.Get("zone").(string)
 	enableDns := d.Get("enable_dns").(bool)
@@ -103,19 +116,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	//fqdn
 	name := recordName + "." + zone
 
-	ea := make(ibclient.EA)
-	if vmName != "" {
-		ea["VM Name"] = vmName
-	}
-	if vmID != "" {
-		ea["VM ID"] = vmID
-	}
-
-	if attr, ok := d.GetOk("extattrs"); ok {
-		for k, v := range attr.(map[string]interface{}) {
-			ea[k] = v.(string)
-		}
-	}
+	ea := expandIPAllocationExtAttrs(d)
 
 	if macAddr == "" {
 		macAddr = ZeroMacAddr
@@ -171,13 +172,7 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 		d.SetId(obj.Ref)
 	}
 
-	ea := make(map[string]string)
-	for k, v := range objEA {
-		if k != "Cloud API Owned" && k != "CMP Type" && k != "Tenant ID" && k != "VM Name" && k != "VM ID" {
-			ea[k] = v.(string)
-		}
-	}
-	d.Set("extattrs", ea)
+	d.Set("extattr", flattenIPAllocationExtAttrs(objEA))
 
 	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
 	return nil
@@ -189,31 +184,11 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 
 	macAddr := d.Get("mac_addr").(string)
 	tenantID := d.Get("tenant_id").(string)
-	vmID := d.Get("vm_id").(string)
-	vmName := d.Get("vm_name").(string)
 	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
 	connector := m.(*ibclient.Connector)
 
-	ea := make(ibclient.EA)
-
-	var ea_cloud_api_owner ibclient.Bool = true
-	ea["Cloud API Owned"] = ea_cloud_api_owner
-	ea["CMP Type"] = "Terraform"
-	ea["Tenant ID"] = tenantID
-
-	if vmName != "" {
-		ea["VM Name"] = vmName
-	}
-	if vmID != "" {
-		ea["VM ID"] = vmID
-	}
-
-	if attr, ok := d.GetOk("extattrs"); ok {
-		for k, v := range attr.(map[string]interface{}) {
-			ea[k] = v.(string)
-		}
-	}
+	ea := expandIPAllocationExtAttrs(d)
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
@@ -303,4 +278,67 @@ func updateFixedAddress(objMgr *ibclient.ObjectManager, connector *ibclient.Conn
 	refResp, err := connector.UpdateObject(updateFixedAddr, fixedAddrRef)
 	updateFixedAddr.Ref = refResp
 	return updateFixedAddr, err
+}
+
+func flattenIPAllocationExtAttrs(extAttrs ibclient.EA) []interface{} {
+	var ea []interface{}
+	for k, v := range extAttrs {
+		if k != "Cloud API Owned" && k != "CMP Type" && k != "Tenant ID" && k != "VM Name" && k != "VM ID" {
+			log.Printf("[DEBUG] attrName %s attrValue type %T", k, v)
+			switch v.(type) {
+			case []string:
+				ea = append(ea, map[string]interface{}{
+					"name":   k,
+					"values": v,
+				})
+			default:
+				ea = append(ea, map[string]interface{}{
+					"name":  k,
+					"value": v,
+				})
+			}
+		}
+	}
+	return ea
+}
+
+func expandIPAllocationExtAttrs(d *schema.ResourceData) ibclient.EA {
+
+	ea := make(ibclient.EA)
+
+	var ea_cloud_api_owner ibclient.Bool = true
+	ea["Cloud API Owned"] = ea_cloud_api_owner
+	ea["CMP Type"] = "Terraform"
+
+	if val, ok := d.GetOk("tenant_id"); ok {
+		ea["Tenant ID"] = val
+	}
+
+	if val, ok := d.GetOk("vm_name"); ok {
+		ea["VM Name"] = val
+	}
+
+	if val, ok := d.GetOk("vm_id"); ok {
+		ea["VM ID"] = val
+	}
+
+	attr := d.Get("extattr").(*schema.Set).List()
+
+	for _, v := range attr {
+		extAttrsMap := v.(map[string]interface{})
+		attrName := extAttrsMap["name"].(string)
+
+		attrValue := extAttrsMap["value"].(string)
+		attrValues := extAttrsMap["values"].([]interface{})
+
+		if len(attrValues) > 0 {
+			ea[attrName] = attrValues
+			log.Printf("[DEBUG] attrName %s attrValues %#v", attrName, attrValues)
+		} else {
+			ea[attrName] = attrValue
+			log.Printf("[DEBUG] attrName %s attrValue %s", attrName, attrValue)
+		}
+	}
+
+	return ea
 }
