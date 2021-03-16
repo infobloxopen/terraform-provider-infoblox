@@ -92,8 +92,10 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	comment := d.Get("comment").(string)
 	extensibleAttributesJSON := d.Get("extensible_attributes").(string)
 	extensibleAttributes := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(extensibleAttributesJSON), &extensibleAttributes); err != nil {
-		return fmt.Errorf("Cannot process 'extensible_attributes' field: %s", err.Error())
+	if extensibleAttributesJSON != "" {
+		if err := json.Unmarshal([]byte(extensibleAttributesJSON), &extensibleAttributes); err != nil {
+			return fmt.Errorf("Cannot process 'extensible_attributes' field: %s", err.Error())
+		}
 	}
 
 	ZeroMacAddr := "00:00:00:00:00:00"
