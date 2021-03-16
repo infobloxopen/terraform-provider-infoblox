@@ -6,11 +6,6 @@ resource "infoblox_network" "subnet1"{
   allocate_prefix_len = 24
   parent_cidr = local.parent_cidr
   reserve_ip=3
-
-  extensible_attributes = jsonencode({
-    TestEA1 = "text3"
-    TestEA2 = 7
-  })
 }
 
 resource "infoblox_network" "subnet2"{
@@ -21,13 +16,6 @@ resource "infoblox_network" "subnet2"{
   allocate_prefix_len = 24
   parent_cidr = local.parent_cidr
   reserve_ip=3
-
-  extensible_attributes = jsonencode({
-    Location = "Test loc."
-    Site = "Test site"
-    TestEA1 = ["text1","text2"]
-    TestEA2 = [4,5]
-  })
 }
 
 resource "infoblox_ip_allocation" "alloc1" {
