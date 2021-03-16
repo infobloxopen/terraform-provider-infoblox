@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -61,6 +62,17 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 				Description: "The parent network container block in cidr format to allocate from.",
 			},
+			"comment": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A string describing the network",
+			},
+			"extensible_attributes": &schema.Schema{
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes of the Network, as a map in JSON format",
+			},
 		},
 	}
 }
@@ -77,6 +89,12 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	tenantID := d.Get("tenant_id").(string)
 	connector := m.(*ibclient.Connector)
 	prefixLen := d.Get("allocate_prefix_len").(int)
+	comment := d.Get("comment").(string)
+	extensibleAttributesJSON := d.Get("extensible_attributes").(string)
+	extensibleAttributes := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(extensibleAttributesJSON), &extensibleAttributes); err != nil {
+		return fmt.Errorf("Cannot process 'extensible_attributes' field: %s", err.Error())
+	}
 
 	ZeroMacAddr := "00:00:00:00:00:00"
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
@@ -93,13 +111,13 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 		}
 
-		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName)
+		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName, comment, extensibleAttributes)
 		if err != nil {
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
 		d.Set("cidr", network.Cidr)
 	} else if cidr != "" {
-		network, err = objMgr.CreateNetwork(networkViewName, cidr, networkName)
+		network, err = objMgr.CreateNetwork(networkViewName, cidr, networkName, comment, extensibleAttributes)
 		if err != nil {
 			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
@@ -142,7 +160,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetNetworkwithref(d.Id())
+	obj, err := objMgr.GetNetworkWithRef(d.Id())
 	if err != nil {
 		return fmt.Errorf("Getting Network block from network view (%s) failed : %s", networkViewName, err)
 	}
@@ -164,7 +182,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeleteNetwork(d.Id(), d.Get("network_view_name").(string))
+	_, err := objMgr.DeleteNetwork(d.Id())
 	if err != nil {
 		return fmt.Errorf("Deletion of Network block failed from network view(%s): %s", networkViewName, err)
 	}

@@ -44,14 +44,15 @@ $ make testacc
 ```
 ## Features of Provider
 ### Resource
-* Creation of Network View in NIOS appliance
-* Creation & Deletion of Network in NIOS appliance
-* Allocation & Deallocation of IP from a Network
-* Association & Disassociation of IP Address for a VM
-* Creation and Deletion of A, CNAME, Host, and Ptr records
+* Creation & Deletion of Network View in NIOS appliance
+* Creation & Deletion of IPv4 Network with EAs and comment fields in NIOS appliance
+* Allocation & Deallocation of IPv4 address from an IPv4 Network
+* Association & Disassociation of IPv4 Address for a VM
+* Creation and Deletion of A, CNAME, Host, and PTR records
 
 ### Data Source
-* Supports Data Source for Network
+* Supports Data Source for IPv4 Network
+* Support Data Source for A and CNAME records
 
 ## Disclaimer
 To use the provider for DNS purposes, a parent (i.e. zone) must already exist. The plugin does not support the creation of zones.
