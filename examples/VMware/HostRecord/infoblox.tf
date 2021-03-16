@@ -18,8 +18,9 @@ resource "infoblox_ip_allocation" "demo_allocation"{
   enable_dns=true
   cidr="${infoblox_network.demo_network.cidr}"
   tenant_id="test"  
-  extattrs = {
-    "Site" = "Site1"
+  extattr {
+    name  = "Site" 
+    value = "Site1"
   }
 }
 
