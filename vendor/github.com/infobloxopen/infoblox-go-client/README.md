@@ -48,21 +48,22 @@ This library is compatible with Go 1.2+
 
 ## Supported NIOS operations
 
-   * CreateNetworkView
+   * AllocateNetwork
    * CreateDefaultNetviews
+   * CreateEADefinition
    * CreateNetwork
    * CreateNetworkContainer
-   * GetNetworkView
+   * CreateNetworkView
+   * DeleteNetwork
+   * DeleteNetworkView
+   * GetAllMembers
+   * GetCapacityReport
+   * GetEADefinition
+   * GetFixedAddress
    * GetNetwork
    * GetNetworkContainer
-   * AllocateNetwork
-   * UpdateFixedAddress
-   * GetFixedAddress
-   * ReleaseIP
-   * DeleteNetwork
-   * GetEADefinition
-   * CreateEADefinition
-   * UpdateNetworkViewEA
-   * GetCapacityReport
-   * GetAllMembers
+   * GetNetworkView
    * GetUpgradeStatus (2.7 or above)
+   * ReleaseIP
+   * UpdateFixedAddress
+   * UpdateNetworkViewEA
