@@ -45,7 +45,7 @@ $ make testacc
 ## Features of Provider
 ### Resource
 * Creation & Deletion of Network View in NIOS appliance
-* Creation & Deletion of IPv4 Network with EAs and comment fields in NIOS appliance
+* Creation & Deletion of IPv4 Network with comment field in NIOS appliance
 * Allocation & Deallocation of IPv4 address from an IPv4 Network
 * Association & Disassociation of IPv4 Address for a VM
 * Creation and Deletion of A, CNAME, Host, and PTR records
