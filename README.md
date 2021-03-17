@@ -2,8 +2,8 @@
  <img width="171" alt="capture" src="https://user-images.githubusercontent.com/36291746/39614422-6b653088-4f8d-11e8-83fd-05b18ca974a2.PNG">
 
 ## Requirements
-* [Terraform](https://www.terraform.io/downloads.html) 0.11.x or greater
-* [Go](https://golang.org/doc/install) 1.12.x (to build the provider plugin)
+* [Terraform](https://www.terraform.io/downloads.html) 0.14.x
+* [Go](https://golang.org/doc/install) 1.15.x and 1.16.x (to build the provider plugin)
 * CNA License need to be installed on NIOS. If CNA is not installed then following default EA's should be added in NIOS side:
    * VM Name :: String Type
    * VM ID :: String Type
@@ -24,7 +24,7 @@ $ make build
 If you're building the provider, follow the instructions to [install it as a plugin](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin). After the build is complete, copy the `terraform-provider-infoblox` binary into the same path as your terraform binary. After placing it into your plugins directory, run `terraform init` to initialize it.
 
 ## Developing the Provider
-If you wish to work on the provider, you'll first need Go installed on your machine (version 1.12+ is required).
+If you wish to work on the provider, you'll first need Go installed on your machine (version 1.15.x or 1.16.x is required).
 
 To compile the provider, run the following steps:
 ```sh
@@ -45,7 +45,7 @@ $ make testacc
 ## Features of Provider
 ### Resource
 * Creation & Deletion of Network View in NIOS appliance
-* Creation & Deletion of IPv4 Network with EAs and comment fields in NIOS appliance
+* Creation & Deletion of IPv4 Network with comment field in NIOS appliance
 * Allocation & Deallocation of IPv4 address from an IPv4 Network
 * Association & Disassociation of IPv4 Address for a VM
 * Creation and Deletion of A, CNAME, Host, and PTR records

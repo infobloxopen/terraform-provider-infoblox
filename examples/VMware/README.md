@@ -28,7 +28,7 @@ export INFOBLOX_USERNAME="${username}"
 ### Note
 ```
 Need to create forward-mapping and reverse-mapping zones manually for creation of DNS records in DNS View.
-A parent network/network container has to be in existence before requesting next available network from it.
+A parent network container has to be in existence before requesting next available network from it.
 ```
 
 # Running the Resource

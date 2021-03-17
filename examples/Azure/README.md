@@ -2,10 +2,8 @@
 
 ### Prerequisites
 ```
-export subscription_id="${subscription_id}"
-export client_id="${client_id}"
-export client_secret="${client_secret}"
-export tenant_id="${tenant_id}"
+Install Azure CLI and configure subscription ID, Client ID and Secret.
+
 export INFOBLOX_PASSWORD="${password}"
 export INFOBLOX_SERVER="${server}"
 export INFOBLOX_USERNAME="${username}"
@@ -17,7 +15,7 @@ export INFOBLOX_USERNAME="${username}"
 ### Note
 ```
 Need to create forward-mapping and reverse-mapping zones manually for creation of DNS records in DNS View.
-A parent network/network container has to be in existence before requesting next available network from it.
+A parent network container has to be in existence before requesting next available network from it.
 ```
 
 # Running the Resource
