@@ -3,7 +3,7 @@
 
 ## Requirements
 * [Terraform](https://www.terraform.io/downloads.html) 0.14.x
-* [Go](https://golang.org/doc/install) 1.15.x and 1.16.x (to build the provider plugin)
+* [Go](https://golang.org/doc/install) 1.15.x or 1.16.x (to build the provider plugin)
 * CNA License need to be installed on NIOS. If CNA is not installed then following default EA's should be added in NIOS side:
    * VM Name :: String Type
    * VM ID :: String Type
