@@ -34,6 +34,17 @@ The following arguments are supported:
 * `enable_dns` - (optional) A boolean value which either creates or not creates for DNS purposes
 * `ip_addr` - (Optional) If set , a record will be created in NIOS using a passed IP address value. Takes in a string. If no value is given, a next available IP address will be allocated in NIOS
 * `mac_addr` - (Optional) If not set , a reservation will be created in NIOS.
+* `extattr` - (Optional) An extensible attribute `extattr` block.
+
+---
+
+An extensible attribute `extattr` block supports the following:
+
+* `name` - (Required) The name of the extensible attribute.
+* `value` - (Optional) The value of the attribute, in case of a single value. (Required if `values` is not set)
+* `values` - (Optional) List of values for the attribute, requires `Allow Multiple Values` enabled on the attribute. (Required if `value` is not set)
+
+---
 
 ## Additional Note
 

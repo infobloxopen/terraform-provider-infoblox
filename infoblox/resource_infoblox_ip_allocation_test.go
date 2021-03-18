@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccResourceIPAllocation(t *testing.T) {
@@ -15,16 +16,18 @@ func TestAccResourceIPAllocation(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAllocationCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					resource.TestCheckResourceAttr("infoblox_ip_allocation.foo", "extattr.#", "2"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAllocationUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					resource.TestCheckResourceAttr("infoblox_ip_allocation.foo", "extattr.#", "3"),
 				),
 			},
 		},
@@ -74,8 +77,21 @@ resource "infoblox_ip_allocation" "foo"{
 	network_view_name="default"
 	vm_name="test-name"
 	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.1"
 	tenant_id="foo"
+
+	extattr {
+		name = "Site"
+		value = "Site1"
+	}
+
+	extattr {
+		name = "TestList"
+		values = [
+			"Val1",
+			"Val2"
+			]
+	}
+	
 	}`)
 
 var testAccresourceIPAllocationUpdate = fmt.Sprintf(`
@@ -83,6 +99,25 @@ resource "infoblox_ip_allocation" "foo"{
 	network_view_name="default"
 	vm_name="test-name"
 	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.1"
 	tenant_id="foo"
-	}`)
+
+	extattr {
+		name = "Site"
+		value = "Site2"
+	}
+
+	extattr {
+		name = "TestList"
+		values = [
+			"Val1",
+			"Val2",
+			"Val3"
+			]
+	}
+
+
+	extattr {
+		name = "IB Discovery Owned" 
+		value = "Test"
+	}
+}`)
