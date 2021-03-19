@@ -81,8 +81,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	var seconds int64
-	seconds = int64(d.Get("connect_timeout").(int))
+
+	seconds := int64(d.Get("connect_timeout").(int))
 	hostConfig := ibclient.HostConfig{
 		Host:     d.Get("server").(string),
 		Port:     d.Get("port").(string),
