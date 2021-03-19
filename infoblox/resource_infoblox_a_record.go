@@ -117,7 +117,6 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("updating A record is not supported")
 }
 

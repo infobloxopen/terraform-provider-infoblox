@@ -116,7 +116,6 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("updating a PTR record is not supported")
 }
 

@@ -10,7 +10,6 @@ import (
 )
 
 func TestAccResourceARecord(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -52,7 +51,6 @@ func testAccCheckARecordDestroy(s *terraform.State) error {
 		if recordName != nil {
 			return fmt.Errorf("record not found")
 		}
-
 	}
 	return nil
 }

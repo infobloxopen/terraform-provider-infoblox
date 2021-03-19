@@ -90,7 +90,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf(
 				"Allocation of network block failed in network view (%s) : Parent network container %s not found.",
 				networkViewName, parent_cidr)
-
 		}
 
 		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName)
@@ -133,6 +132,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
 	return resourceNetworkRead(d, m)
 }
+
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Reading the required network block", resourceNetworkIDString(d))
 
@@ -150,8 +150,8 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Completed reading network block", resourceNetworkIDString(d))
 	return nil
 }
-func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 
+func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	return fmt.Errorf("network updation is not supported")
 }
 

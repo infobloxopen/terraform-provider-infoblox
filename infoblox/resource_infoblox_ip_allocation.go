@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceIPAllocation() *schema.Resource {
@@ -125,7 +126,6 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
-
 	log.Printf("[DEBUG] %s:Reading the required IP from network block", resourceIPAllocationIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)
@@ -154,7 +154,6 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
-
 	match_client := "MAC_ADDRESS"
 
 	log.Printf("[DEBUG] %s: Updating the Parameters of the allocated IP in the specified network block", resourceIPAllocationIDString(d))
@@ -189,7 +188,6 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}) error {
-
 	log.Printf("[DEBUG] %s: Beginning Release of an allocated IP in the specified network block", resourceIPAllocationIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)

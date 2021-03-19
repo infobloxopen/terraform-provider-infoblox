@@ -10,7 +10,6 @@ import (
 )
 
 func TestAccresourceIPAssociation(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -44,7 +43,6 @@ func testAccCheckRecordHostDestroy(s *terraform.State) error {
 		if recordName == nil {
 			return fmt.Errorf("record not found")
 		}
-
 	}
 	return nil
 }

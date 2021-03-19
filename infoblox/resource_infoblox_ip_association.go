@@ -171,7 +171,6 @@ func resourceIPAssociationIDString(d resourceIPAssociationIDStringInterface) str
 }
 
 func Resource(d *schema.ResourceData, m interface{}) error {
-
 	matchClient := "MAC_ADDRESS"
 	networkViewName := d.Get("network_view_name").(string)
 	Name := d.Get("vm_name").(string)

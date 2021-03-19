@@ -105,7 +105,6 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("updating CNAME record is not supported")
 }
 

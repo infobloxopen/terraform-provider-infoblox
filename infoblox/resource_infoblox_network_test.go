@@ -11,7 +11,6 @@ import (
 )
 
 func TestAccresourceNetwork(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -34,7 +33,6 @@ func TestAccresourceNetwork(t *testing.T) {
 }
 
 func TestAccresourceNetwork_Allocate(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -52,7 +50,6 @@ func TestAccresourceNetwork_Allocate(t *testing.T) {
 }
 
 func TestAccresourceNetwork_Allocate_Fail(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -78,7 +75,6 @@ func testAccCheckNetworkDestroy(s *terraform.State) error {
 		if networkName != nil {
 			return fmt.Errorf("Network not found")
 		}
-
 	}
 	return nil
 }
