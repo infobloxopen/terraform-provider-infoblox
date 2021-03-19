@@ -2,34 +2,35 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-var testAccresourceNetworkView = fmt.Sprintf(`
+var testAccresourceNetworkView = `
 resource "infoblox_network_view" "foo"{
 	network_view_name="test1"
 	tenant_id="foo"
-	}`)
+	}`
 
 func TestAccresourceNetworkView(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceNetworkView,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkViewExists(t, "infoblox_network_view.foo", "test"),
+					testAccCreateNetworkViewExists("infoblox_network_view.foo", "test"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCreateNetworkViewExists(t *testing.T, n string, networkViewName string) resource.TestCheckFunc {
+func testAccCreateNetworkViewExists(n string, networkViewName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

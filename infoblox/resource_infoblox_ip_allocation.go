@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceIPAllocation() *schema.Resource {
@@ -15,55 +16,55 @@ func resourceIPAllocation() *schema.Resource {
 		Delete: resourceIPAllocationRelease,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
-			"vm_name": &schema.Schema{
+			"vm_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the VM.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The address in cidr format.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Zone under which host record has to be created.",
 			},
-			"enable_dns": &schema.Schema{
+			"enable_dns": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "flag that defines if the host reocrd is used for DNS or IPAM Purposes.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
 				Computed:    true,
 			},
-			"mac_addr": &schema.Schema{
+			"mac_addr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "mac address of your instance in cloud.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
@@ -76,12 +77,12 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to request a next free IP from a required network block", resourceIPAllocationIDString(d))
 
 	networkViewName := d.Get("network_view_name").(string)
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
-	//This is for EA's
+	// This is for EA's
 	vmName := d.Get("vm_name").(string)
 	vmID := d.Get("vm_id").(string)
 	tenantID := d.Get("tenant_id").(string)
@@ -91,7 +92,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 	ZeroMacAddr := "00:00:00:00:00:00"
-	//fqdn
+	// fqdn
 	name := recordName + "." + zone
 	ea := make(ibclient.EA)
 	if vmName != "" {
@@ -125,7 +126,6 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
-
 	log.Printf("[DEBUG] %s:Reading the required IP from network block", resourceIPAllocationIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)
@@ -154,7 +154,6 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
-
 	match_client := "MAC_ADDRESS"
 
 	log.Printf("[DEBUG] %s: Updating the Parameters of the allocated IP in the specified network block", resourceIPAllocationIDString(d))
@@ -189,7 +188,6 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}) error {
-
 	log.Printf("[DEBUG] %s: Beginning Release of an allocated IP in the specified network block", resourceIPAllocationIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)

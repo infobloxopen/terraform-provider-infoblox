@@ -2,9 +2,10 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceNetworkView() *schema.Resource {
@@ -15,16 +16,16 @@ func resourceNetworkView() *schema.Resource {
 		Delete: resourceNetworkViewDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Desired name of the view shown in NIOS appliance.",
 			},
-			"network_view_ref": &schema.Schema{
+			"network_view_ref": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",

@@ -17,47 +17,47 @@ func resourceNetwork() *schema.Resource {
 		Delete: resourceNetworkDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Network view name available in NIOS Server.",
 			},
-			"network_name": &schema.Schema{
+			"network_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of your network block.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "The network block in cidr format.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
-			"reserve_ip": &schema.Schema{
+			"reserve_ip": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
 				Description: "The no of IP's you want to reserve.",
 			},
-			"gateway": &schema.Schema{
+			"gateway": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "gateway ip address of your network block.By default first IPv4 address is set as gateway address.",
 				Computed:    true,
 			},
-			"allocate_prefix_len": &schema.Schema{
+			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
 				Description: "Set parameter value>0 to allocate next available network with prefix=value from network container defined by parent_cidr.",
 			},
-			"parent_cidr": &schema.Schema{
+			"parent_cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent network container block in cidr format to allocate from.",
@@ -104,13 +104,17 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	var network *ibclient.Network
 	var err error
+
+	if cidr == "" && parent_cidr == "" && prefixLen == 0 {
+		return fmt.Errorf("Creation of network block failed: neither cidr nor parent_cidr with allocate_prefix_len was specified.")
+	}
+
 	if cidr == "" && parent_cidr != "" && prefixLen > 1 {
 		network_container, err := objMgr.GetNetworkContainer(networkViewName, parent_cidr)
-		if network_container == nil {
+		if network_container == nil || err != nil {
 			return fmt.Errorf(
 				"Allocation of network block failed in network view (%s) : Parent network container %s not found.",
 				networkViewName, parent_cidr)
-
 		}
 
 		network, err = objMgr.AllocateNetwork(networkViewName, parent_cidr, uint(prefixLen), networkName, comment, extensibleAttributes)
@@ -123,8 +127,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
-	} else {
-		return fmt.Errorf("Creation of network block failed: neither cidr nor parent_cidr with allocate_prefix_len was specified.")
 	}
 
 	// Check whether gateway or ip address already allocated
@@ -153,6 +155,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Creation on network block complete", resourceNetworkIDString(d))
 	return resourceNetworkRead(d, m)
 }
+
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Reading the required network block", resourceNetworkIDString(d))
 
@@ -170,8 +173,8 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Completed reading network block", resourceNetworkIDString(d))
 	return nil
 }
-func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 
+func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	return fmt.Errorf("network updation is not supported")
 }
 

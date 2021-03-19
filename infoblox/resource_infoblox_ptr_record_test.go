@@ -10,29 +10,28 @@ import (
 )
 
 func TestAccResourcePTRRecord(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPTRRecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccPTRRecordExists(t, "infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
+					testAccPTRRecordExists("infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordAllocate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccPTRRecordExists(t, "infoblox_ptr_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
-					testAccPTRRecordExists(t, "infoblox_ptr_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
+					testAccPTRRecordExists("infoblox_ptr_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
+					testAccPTRRecordExists("infoblox_ptr_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccPTRRecordExists(t, "infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
+					testAccPTRRecordExists("infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
 		},
@@ -52,11 +51,10 @@ func testAccCheckPTRRecordDestroy(s *terraform.State) error {
 		if recordName != nil {
 			return fmt.Errorf("record not found")
 		}
-
 	}
 	return nil
 }
-func testAccPTRRecordExists(t *testing.T, n string, cidr string, ipAddr string, networkViewName string, recordName string, dnsView string, zone string) resource.TestCheckFunc {
+func testAccPTRRecordExists(n string, cidr string, ipAddr string, networkViewName string, recordName string, dnsView string, zone string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -78,15 +76,15 @@ func testAccPTRRecordExists(t *testing.T, n string, cidr string, ipAddr string, 
 	}
 }
 
-var testAccresourcePTRRecordCreate = fmt.Sprintf(`
+var testAccresourcePTRRecordCreate = `
 resource "infoblox_ptr_record" "foo"{
 	vm_name="test-name"
 	zone="a.com"
 	ip_addr="10.0.0.2"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourcePTRRecordAllocate = fmt.Sprintf(`
+var testAccresourcePTRRecordAllocate = `
 resource "infoblox_ptr_record" "foo1"{
 	vm_name="test-name"
 	zone="a.com"
@@ -100,9 +98,9 @@ resource "infoblox_ptr_record" "foo2"{
 	ip_addr=""
 	cidr="10.0.0.0/24"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourcePTRRecordUpdate = fmt.Sprintf(`
+var testAccresourcePTRRecordUpdate = `
 resource "infoblox_ptr_record" "foo"{
 	vm_name="test-name"
 	dns_view="default"
@@ -110,4 +108,4 @@ resource "infoblox_ptr_record" "foo"{
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.2"
 	tenant_id="foo"
-	}`)
+	}`

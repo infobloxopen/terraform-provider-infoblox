@@ -19,14 +19,14 @@ func TestAccDataSourceCNameRecord(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceCNameRecordsRead,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "dns_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "zone", "a.com"),
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "fqdn", "test.a.com"),
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "canonical", "test-name"),
-					testCNameRecordEAs(t, "data.infoblox_cname_record.acctest", "eas", expected_eas),
+					testCNameRecordEAs("data.infoblox_cname_record.acctest", "eas", expected_eas),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -34,7 +34,7 @@ func TestAccDataSourceCNameRecord(t *testing.T) {
 	})
 }
 
-func testCNameRecordEAs(t *testing.T, data_source string, eas_field string, expected_EAs map[string]string) resource.TestCheckFunc {
+func testCNameRecordEAs(data_source string, eas_field string, expected_EAs map[string]string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[data_source]
 		if !ok {
@@ -51,7 +51,7 @@ func testCNameRecordEAs(t *testing.T, data_source string, eas_field string, expe
 	}
 }
 
-var testAccDataSourceCNameRecordsRead = fmt.Sprintf(`
+var testAccDataSourceCNameRecordsRead = `
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
@@ -66,4 +66,4 @@ data "infoblox_cname_record" "acctest" {
 	]
 	zone="a.com"
 }
-`)
+`

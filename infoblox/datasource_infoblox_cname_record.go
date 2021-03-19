@@ -12,40 +12,40 @@ func dataSourceCNameRecord() *schema.Resource {
 		Read: dataSourceCNameRecordRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "Zone under which record has been created.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"fqdn": &schema.Schema{
+			"fqdn": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "A record FQDN.",
 			},
-			"canonical": &schema.Schema{
+			"canonical": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "Canonical name.",
 			},
-			"eas": &schema.Schema{
+			"eas": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Description: "Extension attributes",
 			},
-			"first_record": &schema.Schema{
+			"first_record": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,

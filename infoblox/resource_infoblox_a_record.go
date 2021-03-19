@@ -16,38 +16,38 @@ func resourceARecord() *schema.Resource {
 		Delete: resourceARecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vm_name": &schema.Schema{
+			"vm_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the VM.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The network to allocate IP address when the ip_addr field is empty. Network address in cidr format.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Zone under which record has to be created.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud. For static allocation, set the field with valid IP. For dynamic allocation, leave this field empty and set the cidr field.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
@@ -59,12 +59,12 @@ func resourceARecord() *schema.Resource {
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create A record from  required network block", resourceARecordIDString(d))
 
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	vmID := d.Get("vm_id").(string)
-	//This is for vm name
+	// This is for vm name
 	vmName := d.Get("vm_name").(string)
 	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
@@ -99,7 +99,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get A Record", resourceARecordIDString(d))
+	log.Printf("[DEBUG] %s: Beginning to Get A Record", resourceARecordIDString(d))
 
 	dnsView := d.Get("dns_view").(string)
 	tenantID := d.Get("tenant_id").(string)
@@ -117,7 +117,6 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("updating A record is not supported")
 }
 

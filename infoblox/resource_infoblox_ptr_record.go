@@ -16,38 +16,38 @@ func resourcePTRRecord() *schema.Resource {
 		Delete: resourcePTRRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vm_name": &schema.Schema{
+			"vm_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the VM.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The network to allocate IP address when the ip_addr field is empty. Network address in cidr format.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Zone under which record has to be created.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Default:     "default",
 				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud. For static allocation, set the field with valid IP. For dynamic allocation, leave this field empty and set the cidr field.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
@@ -59,7 +59,7 @@ func resourcePTRRecord() *schema.Resource {
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create PTR record from  required network block", resourcePTRRecordIDString(d))
 
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
@@ -83,7 +83,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	//fqdn
+	// fqdn
 	name := recordName + "." + zone
 	recordPTR, err := objMgr.CreatePTRRecord(dnsView, dnsView, name, cidr, ipAddr, ea)
 	if err != nil {
@@ -98,7 +98,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get PTR Record", resourcePTRRecordIDString(d))
+	log.Printf("[DEBUG] %s: Beginning to Get PTR Record", resourcePTRRecordIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)
 	dnsView := d.Get("dns_view").(string)
@@ -116,7 +116,6 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("updating a PTR record is not supported")
 }
 

@@ -17,48 +17,48 @@ func resourceIPAssociation() *schema.Resource {
 		Read:   resourceIPAssociationRead,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
-			"vm_name": &schema.Schema{
+			"vm_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of the vm.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The address in cidr format.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud.",
 			},
-			"mac_addr": &schema.Schema{
+			"mac_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "mac address of your instance in cloud.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "view in which record has to be created.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "zone under which record has been created.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
@@ -67,11 +67,11 @@ func resourceIPAssociation() *schema.Resource {
 	}
 }
 
-//This method has an update call for the reason that,we are creating
-//a reservation which doesnt have the details of the mac address
-//at the beginig and we are using this update call to update the mac address
-//of the record after the VM has been provisined.It is in the create method
-//because for this resource we are doing association instead of allocation.
+// This method has an update call for the reason that,we are creating
+// a reservation which doesnt have the details of the mac address
+// at the beginig and we are using this update call to update the mac address
+// of the record after the VM has been provisined.It is in the create method
+// because for this resource we are doing association instead of allocation.
 func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
@@ -122,9 +122,9 @@ func resourceIPAssociationRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-//we are updating the record with an empty mac address after the vm has been
-//destroyed because if we implement the delete hostrecord method here then there
-//will be a conflict of resources
+// we are updating the record with an empty mac address after the vm has been
+// destroyed because if we implement the delete hostrecord method here then there
+// will be a conflict of resources
 func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Reassociation of IP address in specified network block", resourceIPAssociationIDString(d))
 	matchClient := "MAC_ADDRESS"
@@ -171,7 +171,6 @@ func resourceIPAssociationIDString(d resourceIPAssociationIDStringInterface) str
 }
 
 func Resource(d *schema.ResourceData, m interface{}) error {
-
 	matchClient := "MAC_ADDRESS"
 	networkViewName := d.Get("network_view_name").(string)
 	Name := d.Get("vm_name").(string)
@@ -186,8 +185,8 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
-	macAddr = strings.Replace(macAddr, "-", ":", -1)
+	// conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
+	macAddr = strings.ReplaceAll(macAddr, "-", ":")
 	name := Name + "." + zone
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
