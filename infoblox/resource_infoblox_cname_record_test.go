@@ -15,13 +15,13 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCNAMERecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceCNAMERecordCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceCNAMERecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),

@@ -15,13 +15,13 @@ func TestAccresourceIPAssociation(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckRecordHostDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAssociationCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.2", "default", "demo-network"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAssociationUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.22", "default", "demo-network"),

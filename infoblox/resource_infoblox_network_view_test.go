@@ -20,7 +20,7 @@ func TestAccresourceNetworkView(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceNetworkView,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCreateNetworkViewExists(t, "infoblox_network_view.foo", "test"),

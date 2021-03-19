@@ -12,50 +12,50 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"server": &schema.Schema{
+			"server": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_SERVER", nil),
 				Description: "Infoblox server IP address.",
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_USERNAME", nil),
 				Description: "User to authenticate with Infoblox server.",
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_PASSWORD", nil),
 				Description: "Password to authenticate with Infoblox server.",
 			},
-			"wapi_version": &schema.Schema{
+			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
 				Description: "WAPI Version of Infoblox server defaults to v2.7.",
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PORT", "443"),
 				Description: "Port number used for connection for Infoblox Server.",
 			},
 
-			"sslmode": &schema.Schema{
+			"sslmode": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SSLMODE", "false"),
 				Description: "If set, Infoblox client will permit unverifiable SSL certificates.",
 			},
-			"connect_timeout": &schema.Schema{
+			"connect_timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CONNECT_TIMEOUT", 60),
 				Description: "Maximum wait for connection, in seconds. Zero or not specified means wait indefinitely.",
 			},
-			"pool_connections": &schema.Schema{
+			"pool_connections": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("POOL_CONNECTIONS", "10"),

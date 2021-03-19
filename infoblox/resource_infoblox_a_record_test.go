@@ -15,20 +15,20 @@ func TestAccResourceARecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckARecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceARecordCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordExists(t, "infoblox_a_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceARecordAllocate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordExists(t, "infoblox_a_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
 					testAccARecordExists(t, "infoblox_a_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceARecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordExists(t, "infoblox_a_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),

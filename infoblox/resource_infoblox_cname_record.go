@@ -17,33 +17,33 @@ func resourceCNAMERecord() *schema.Resource {
 		Delete: resourceCNAMERecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Zone under which record has to be created.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
-			"canonical": &schema.Schema{
+			"canonical": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The Canonical name for the record.",
 			},
-			"alias": &schema.Schema{
+			"alias": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The alias name for the record.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",

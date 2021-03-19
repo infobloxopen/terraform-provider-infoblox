@@ -15,20 +15,20 @@ func TestAccResourcePTRRecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckPTRRecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccPTRRecordExists(t, "infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordAllocate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccPTRRecordExists(t, "infoblox_ptr_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
 					testAccPTRRecordExists(t, "infoblox_ptr_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourcePTRRecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccPTRRecordExists(t, "infoblox_ptr_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),

@@ -2,32 +2,33 @@ package infoblox
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func dataSourceNetwork() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetworkRead,
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "default",
 			},
-			"network_name": &schema.Schema{
+			"network_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"gateway": &schema.Schema{
+			"gateway": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

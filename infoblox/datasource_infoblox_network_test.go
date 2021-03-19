@@ -11,7 +11,7 @@ func TestAccDataSourceNetwork(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceNetworkCreate,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_network.acctest", "network_name", "acctest-network"),

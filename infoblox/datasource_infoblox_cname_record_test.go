@@ -19,7 +19,7 @@ func TestAccDataSourceCNameRecord(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceCNameRecordsRead,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "dns_view", "default"),

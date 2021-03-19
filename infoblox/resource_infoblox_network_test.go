@@ -16,13 +16,13 @@ func TestAccresourceNetwork(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceNetworkCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceNetworkUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
@@ -38,7 +38,7 @@ func TestAccresourceNetwork_Allocate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceNetworkAllocate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCreateNetworkExists(t, "infoblox_network.foo0", "10.0.0.0/24", "default", "demo-network"),
@@ -55,7 +55,7 @@ func TestAccresourceNetwork_Allocate_Fail(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccresourceNetworkAllocateFail,
 				ExpectError: regexp.MustCompile(`Allocation of network block failed in network view \(default\) : Parent network container 11.11.0.0/16 not found.`),
 			},

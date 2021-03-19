@@ -16,47 +16,47 @@ func resourceNetwork() *schema.Resource {
 		Delete: resourceNetworkDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Network view name available in NIOS Server.",
 			},
-			"network_name": &schema.Schema{
+			"network_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of your network block.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "The network block in cidr format.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",
 			},
-			"reserve_ip": &schema.Schema{
+			"reserve_ip": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
 				Description: "The no of IP's you want to reserve.",
 			},
-			"gateway": &schema.Schema{
+			"gateway": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "gateway ip address of your network block.By default first IPv4 address is set as gateway address.",
 				Computed:    true,
 			},
-			"allocate_prefix_len": &schema.Schema{
+			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
 				Description: "Set parameter value>0 to allocate next available network with prefix=value from network container defined by parent_cidr.",
 			},
-			"parent_cidr": &schema.Schema{
+			"parent_cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent network container block in cidr format to allocate from.",

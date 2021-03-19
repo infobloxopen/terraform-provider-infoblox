@@ -17,48 +17,48 @@ func resourceIPAssociation() *schema.Resource {
 		Read:   resourceIPAssociationRead,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Network view name available in Nios server.",
 			},
-			"vm_name": &schema.Schema{
+			"vm_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The name of the vm.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The address in cidr format.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address your instance in cloud.",
 			},
-			"mac_addr": &schema.Schema{
+			"mac_addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "mac address of your instance in cloud.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "view in which record has to be created.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "zone under which record has been created.",
 			},
-			"vm_id": &schema.Schema{
+			"vm_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "instance id.",
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Unique identifier of your tenant in cloud.",

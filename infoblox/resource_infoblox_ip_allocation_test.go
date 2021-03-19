@@ -15,13 +15,13 @@ func TestAccResourceIPAllocation(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAllocationCreate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceIPAllocationUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
