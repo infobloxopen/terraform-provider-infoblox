@@ -39,3 +39,5 @@ linters-settings:
     ignore-words:
       - hdinsight
       - exportfs
+  gofmt:
+    simplify: false
