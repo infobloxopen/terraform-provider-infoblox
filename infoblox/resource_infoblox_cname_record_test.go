@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccResourceCNAMERecord(t *testing.T) {
@@ -70,20 +71,20 @@ func testAccCNAMERecordExists(t *testing.T, n string, alias string, canonical st
 	}
 }
 
-var testAccresourceCNAMERecordCreate = fmt.Sprintf(`
+var testAccresourceCNAMERecordCreate = `
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
 	dns_view="default"
 	zone="a.com"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourceCNAMERecordUpdate = fmt.Sprintf(`
+var testAccresourceCNAMERecordUpdate = `
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
 	dns_view="default"
 	zone="a.com"
 	tenant_id="foo"
-	}`)
+	}`

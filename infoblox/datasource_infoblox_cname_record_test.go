@@ -51,7 +51,7 @@ func testCNameRecordEAs(t *testing.T, data_source string, eas_field string, expe
 	}
 }
 
-var testAccDataSourceCNameRecordsRead = fmt.Sprintf(`
+var testAccDataSourceCNameRecordsRead = `
 resource "infoblox_cname_record" "foo"{
 	alias="test"
 	canonical="test-name"
@@ -66,4 +66,4 @@ data "infoblox_cname_record" "acctest" {
 	]
 	zone="a.com"
 }
-`)
+`

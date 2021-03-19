@@ -104,20 +104,20 @@ func testAccCreateNetworkExists(t *testing.T, n string, cidr string, networkView
 	}
 }
 
-var testAccresourceNetworkCreate = fmt.Sprintf(`
+var testAccresourceNetworkCreate = `
 resource "infoblox_network" "foo"{
 	network_view_name="default"
 	network_name="demo-network"
 	cidr="10.10.0.0/24"
 	tenant_id="foo"
-	}`)
+	}`
 
 /*
 Right now no infoblox_network_container resource available
 So, before run acceptance test TestAccresourceNetwork_Allocate
 in default network view should be created network container 10.0.0.0/16
 */
-var testAccresourceNetworkAllocate = fmt.Sprintf(`
+var testAccresourceNetworkAllocate = `
 resource "infoblox_network" "foo0"{
 	network_view_name="default"
 	network_name="demo-network"
@@ -131,22 +131,22 @@ resource "infoblox_network" "foo1"{
 	tenant_id="foo"
 	allocate_prefix_len=24
 	parent_cidr="10.0.0.0/16"
-	}`)
+	}`
 
 /* Network container 11.11.0.0 should NOT exists to pass this test */
-var testAccresourceNetworkAllocateFail = fmt.Sprintf(`
+var testAccresourceNetworkAllocateFail = `
 resource "infoblox_network" "foo0"{
 	network_view_name="default"
 	network_name="demo-network"
 	tenant_id="foo"
 	allocate_prefix_len=24
 	parent_cidr="11.11.0.0/16"
-	}`)
+	}`
 
-var testAccresourceNetworkUpdate = fmt.Sprintf(`
+var testAccresourceNetworkUpdate = `
 resource "infoblox_network" "foo"{
 	network_view_name="default"
 	network_name="demo-network"
 	cidr="10.10.0.0/24"
 	tenant_id="foo"
-	}`)
+	}`

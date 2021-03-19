@@ -51,7 +51,7 @@ func testARecordEAs(t *testing.T, data_source string, eas_field string, expected
 	}
 }
 
-var testAccDataSourceARecordsRead = fmt.Sprintf(`
+var testAccDataSourceARecordsRead = `
 resource "infoblox_a_record" "foo"{
 	network_view_name="test"
 	vm_name="test-name"
@@ -68,4 +68,4 @@ data "infoblox_a_record" "acctest" {
 	]
 	zone="a.com"
 }
-`)
+`

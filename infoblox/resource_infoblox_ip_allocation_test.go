@@ -2,10 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func TestAccResourceIPAllocation(t *testing.T) {
@@ -69,20 +70,20 @@ func testAccIPExists(t *testing.T, n string, cidr string, ipAddr string, network
 	}
 }
 
-var testAccresourceIPAllocationCreate = fmt.Sprintf(`
+var testAccresourceIPAllocationCreate = `
 resource "infoblox_ip_allocation" "foo"{
 	network_view_name="default"
 	vm_name="test-name"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourceIPAllocationUpdate = fmt.Sprintf(`
+var testAccresourceIPAllocationUpdate = `
 resource "infoblox_ip_allocation" "foo"{
 	network_view_name="default"
 	vm_name="test-name"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	tenant_id="foo"
-	}`)
+	}`

@@ -1,9 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccDataSourceNetwork(t *testing.T) {
@@ -22,7 +22,7 @@ func TestAccDataSourceNetwork(t *testing.T) {
 	})
 }
 
-var testAccDataSourceNetworkCreate = fmt.Sprintf(`
+var testAccDataSourceNetworkCreate = `
 resource "infoblox_network" "test_network"{
   network_name      = "acctest-network"
   cidr              = "10.4.20.0/24"
@@ -33,4 +33,4 @@ data "infoblox_network" "acctest" {
   cidr              = infoblox_network.test_network.cidr
   tenant_id         = infoblox_network.test_network.tenant_id
 }
-`)
+`

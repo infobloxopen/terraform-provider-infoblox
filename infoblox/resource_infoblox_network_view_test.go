@@ -2,17 +2,18 @@ package infoblox
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/infobloxopen/infoblox-go-client"
-	"testing"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-var testAccresourceNetworkView = fmt.Sprintf(`
+var testAccresourceNetworkView = `
 resource "infoblox_network_view" "foo"{
 	network_view_name="test1"
 	tenant_id="foo"
-	}`)
+	}`
 
 func TestAccresourceNetworkView(t *testing.T) {
 	resource.Test(t, resource.TestCase{

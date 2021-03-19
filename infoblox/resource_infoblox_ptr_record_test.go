@@ -78,15 +78,15 @@ func testAccPTRRecordExists(t *testing.T, n string, cidr string, ipAddr string, 
 	}
 }
 
-var testAccresourcePTRRecordCreate = fmt.Sprintf(`
+var testAccresourcePTRRecordCreate = `
 resource "infoblox_ptr_record" "foo"{
 	vm_name="test-name"
 	zone="a.com"
 	ip_addr="10.0.0.2"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourcePTRRecordAllocate = fmt.Sprintf(`
+var testAccresourcePTRRecordAllocate = `
 resource "infoblox_ptr_record" "foo1"{
 	vm_name="test-name"
 	zone="a.com"
@@ -100,9 +100,9 @@ resource "infoblox_ptr_record" "foo2"{
 	ip_addr=""
 	cidr="10.0.0.0/24"
 	tenant_id="foo"
-	}`)
+	}`
 
-var testAccresourcePTRRecordUpdate = fmt.Sprintf(`
+var testAccresourcePTRRecordUpdate = `
 resource "infoblox_ptr_record" "foo"{
 	vm_name="test-name"
 	dns_view="default"
@@ -110,4 +110,4 @@ resource "infoblox_ptr_record" "foo"{
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.2"
 	tenant_id="foo"
-	}`)
+	}`
