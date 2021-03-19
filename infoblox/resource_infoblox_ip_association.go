@@ -186,7 +186,7 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 	// conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
-	macAddr = strings.Replace(macAddr, "-", ":", -1)
+	macAddr = strings.ReplaceAll(macAddr, "-", ":")
 	name := Name + "." + zone
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {

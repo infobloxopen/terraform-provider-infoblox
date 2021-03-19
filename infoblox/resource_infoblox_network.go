@@ -84,9 +84,14 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	var network *ibclient.Network
 	var err error
+
+	if cidr == "" && parent_cidr == "" && prefixLen == 0 {
+		return fmt.Errorf("Creation of network block failed: neither cidr nor parent_cidr with allocate_prefix_len was specified.")
+	}
+
 	if cidr == "" && parent_cidr != "" && prefixLen > 1 {
 		network_container, err := objMgr.GetNetworkContainer(networkViewName, parent_cidr)
-		if network_container == nil {
+		if network_container == nil || err != nil {
 			return fmt.Errorf(
 				"Allocation of network block failed in network view (%s) : Parent network container %s not found.",
 				networkViewName, parent_cidr)
@@ -102,8 +107,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
-	} else {
-		return fmt.Errorf("Creation of network block failed: neither cidr nor parent_cidr with allocate_prefix_len was specified.")
 	}
 
 	// Check whether gateway or ip address already allocated
