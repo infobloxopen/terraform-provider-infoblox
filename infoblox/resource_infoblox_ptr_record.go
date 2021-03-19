@@ -98,7 +98,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get PTR Record", resourcePTRRecordIDString(d))
+	log.Printf("[DEBUG] %s: Beginning to Get PTR Record", resourcePTRRecordIDString(d))
 
 	tenantID := d.Get("tenant_id").(string)
 	dnsView := d.Get("dns_view").(string)

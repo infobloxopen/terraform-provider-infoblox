@@ -87,7 +87,7 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get CNAME Record", resourceCNAMERecordIDString(d))
+	log.Printf("[DEBUG] %s: Beginning to Get CNAME Record", resourceCNAMERecordIDString(d))
 
 	dnsView := d.Get("dns_view").(string)
 	tenantID := d.Get("tenant_id").(string)

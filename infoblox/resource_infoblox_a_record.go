@@ -99,7 +99,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get A Record", resourceARecordIDString(d))
+	log.Printf("[DEBUG] %s: Beginning to Get A Record", resourceARecordIDString(d))
 
 	dnsView := d.Get("dns_view").(string)
 	tenantID := d.Get("tenant_id").(string)
