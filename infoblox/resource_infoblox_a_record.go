@@ -59,12 +59,12 @@ func resourceARecord() *schema.Resource {
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create A record from  required network block", resourceARecordIDString(d))
 
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	vmID := d.Get("vm_id").(string)
-	//This is for vm name
+	// This is for vm name
 	vmName := d.Get("vm_name").(string)
 	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)

@@ -67,11 +67,11 @@ func resourceIPAssociation() *schema.Resource {
 	}
 }
 
-//This method has an update call for the reason that,we are creating
-//a reservation which doesnt have the details of the mac address
-//at the beginig and we are using this update call to update the mac address
-//of the record after the VM has been provisined.It is in the create method
-//because for this resource we are doing association instead of allocation.
+// This method has an update call for the reason that,we are creating
+// a reservation which doesnt have the details of the mac address
+// at the beginig and we are using this update call to update the mac address
+// of the record after the VM has been provisined.It is in the create method
+// because for this resource we are doing association instead of allocation.
 func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
 
@@ -122,9 +122,9 @@ func resourceIPAssociationRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-//we are updating the record with an empty mac address after the vm has been
-//destroyed because if we implement the delete hostrecord method here then there
-//will be a conflict of resources
+// we are updating the record with an empty mac address after the vm has been
+// destroyed because if we implement the delete hostrecord method here then there
+// will be a conflict of resources
 func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning Reassociation of IP address in specified network block", resourceIPAssociationIDString(d))
 	matchClient := "MAC_ADDRESS"
@@ -185,7 +185,7 @@ func Resource(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
+	// conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
 	macAddr = strings.Replace(macAddr, "-", ":", -1)
 	name := Name + "." + zone
 

@@ -77,12 +77,12 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to request a next free IP from a required network block", resourceIPAllocationIDString(d))
 
 	networkViewName := d.Get("network_view_name").(string)
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
 	macAddr := d.Get("mac_addr").(string)
-	//This is for EA's
+	// This is for EA's
 	vmName := d.Get("vm_name").(string)
 	vmID := d.Get("vm_id").(string)
 	tenantID := d.Get("tenant_id").(string)
@@ -92,7 +92,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 	ZeroMacAddr := "00:00:00:00:00:00"
-	//fqdn
+	// fqdn
 	name := recordName + "." + zone
 	ea := make(ibclient.EA)
 	if vmName != "" {

@@ -59,7 +59,7 @@ func resourcePTRRecord() *schema.Resource {
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning to create PTR record from  required network block", resourcePTRRecordIDString(d))
 
-	//This is for record Name
+	// This is for record Name
 	recordName := d.Get("vm_name").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	cidr := d.Get("cidr").(string)
@@ -83,7 +83,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	//fqdn
+	// fqdn
 	name := recordName + "." + zone
 	recordPTR, err := objMgr.CreatePTRRecord(dnsView, dnsView, name, cidr, ipAddr, ea)
 	if err != nil {

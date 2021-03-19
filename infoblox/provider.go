@@ -8,7 +8,7 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-//Provider returns a terraform.ResourceProvider.
+// Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
