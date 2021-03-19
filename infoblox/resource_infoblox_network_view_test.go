@@ -23,14 +23,14 @@ func TestAccresourceNetworkView(t *testing.T) {
 			{
 				Config: testAccresourceNetworkView,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkViewExists(t, "infoblox_network_view.foo", "test"),
+					testAccCreateNetworkViewExists("infoblox_network_view.foo", "test"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCreateNetworkViewExists(t *testing.T, n string, networkViewName string) resource.TestCheckFunc {
+func testAccCreateNetworkViewExists(n string, networkViewName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

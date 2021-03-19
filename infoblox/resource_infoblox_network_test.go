@@ -19,13 +19,13 @@ func TestAccresourceNetwork(t *testing.T) {
 			{
 				Config: testAccresourceNetworkCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
+					testAccCreateNetworkExists("infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
 				),
 			},
 			{
 				Config: testAccresourceNetworkUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
+					testAccCreateNetworkExists("infoblox_network.foo", "10.10.0.0/24", "default", "demo-network"),
 				),
 			},
 		},
@@ -41,8 +41,8 @@ func TestAccresourceNetwork_Allocate(t *testing.T) {
 			{
 				Config: testAccresourceNetworkAllocate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCreateNetworkExists(t, "infoblox_network.foo0", "10.0.0.0/24", "default", "demo-network"),
-					testAccCreateNetworkExists(t, "infoblox_network.foo1", "10.0.1.0/24", "default", "demo-network"),
+					testAccCreateNetworkExists("infoblox_network.foo0", "10.0.0.0/24", "default", "demo-network"),
+					testAccCreateNetworkExists("infoblox_network.foo1", "10.0.1.0/24", "default", "demo-network"),
 				),
 			},
 		},
@@ -79,7 +79,7 @@ func testAccCheckNetworkDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCreateNetworkExists(t *testing.T, n string, cidr string, networkViewName string, networkName string) resource.TestCheckFunc {
+func testAccCreateNetworkExists(n string, cidr string, networkViewName string, networkName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

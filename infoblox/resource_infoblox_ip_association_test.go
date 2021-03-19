@@ -18,13 +18,13 @@ func TestAccresourceIPAssociation(t *testing.T) {
 			{
 				Config: testAccresourceIPAssociationCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.2", "default", "demo-network"),
+					testAccRecordHostExists("infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.2", "default", "demo-network"),
 				),
 			},
 			{
 				Config: testAccresourceIPAssociationUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccRecordHostExists(t, "infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.22", "default", "demo-network"),
+					testAccRecordHostExists("infoblox_ip_association.foo", "10.0.0.0/24", "10.0.0.22", "default", "demo-network"),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func testAccCheckRecordHostDestroy(s *terraform.State) error {
 	}
 	return nil
 }
-func testAccRecordHostExists(t *testing.T, n string, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
+func testAccRecordHostExists(n string, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

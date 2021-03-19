@@ -18,13 +18,13 @@ func TestAccResourceIPAllocation(t *testing.T) {
 			{
 				Config: testAccresourceIPAllocationCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					testAccIPExists("infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
 				),
 			},
 			{
 				Config: testAccresourceIPAllocationUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccIPExists(t, "infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
+					testAccIPExists("infoblox_ip_allocation.foo", "10.0.0.1/24", "10.0.0.1", "default", "demo-network"),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 	}
 	return nil
 }
-func testAccIPExists(t *testing.T, n string, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
+func testAccIPExists(n string, cidr string, ipAddr string, networkViewName string, recordName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

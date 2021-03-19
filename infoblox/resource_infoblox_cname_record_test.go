@@ -18,13 +18,13 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 			{
 				Config: testAccresourceCNAMERecordCreate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
+					testAccCNAMERecordExists("infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
 				),
 			},
 			{
 				Config: testAccresourceCNAMERecordUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCNAMERecordExists(t, "infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
+					testAccCNAMERecordExists("infoblox_cname_record.foo", "test", "test-name", "default", "a.com"),
 				),
 			},
 		},
@@ -47,7 +47,7 @@ func testAccCheckCNAMERecordDestroy(s *terraform.State) error {
 	}
 	return nil
 }
-func testAccCNAMERecordExists(t *testing.T, n string, alias string, canonical string, dnsView string, zone string) resource.TestCheckFunc {
+func testAccCNAMERecordExists(n string, alias string, canonical string, dnsView string, zone string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
