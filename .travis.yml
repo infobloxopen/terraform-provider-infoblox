@@ -15,7 +15,7 @@ install:
 
 script:
 - make test
-#- make website-test
+- make website-test
 
 branches:
   only:
