@@ -14,8 +14,8 @@ When applied, data such as _ref and Name will be returned.
 
 ## Example Usage
 
-```hcl
-#create a test network, if network already exists skip this resource block
+```terraform
+
 resource "infoblox_network" "test" {
   network_name = "test"
   cidr         = "10.0.23.0/24"
