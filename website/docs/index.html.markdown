@@ -9,25 +9,24 @@ description: |-
 
 The Infoblox provider is used to interact with Infoblox Grid objects.
 
-## Authentication
+## Usage
 
-The provider allows you to manage Infoblox credentials. The following methods for supplying credentials are supported:
-- Static credentials
-- Environmental variables
+```terraform
+terraform {
+  required_providers {
+    infoblox = {
+      source = "infobloxopen/infoblox"
+      version = "1.1.1"
+    }
+  }
+}
 
-### Static Credentials
-
-Static credentials can be provided in the Infoblox provider block. A typical provider configuration will look like this:
-
-```hcl
-provider "infoblox"{
-  version="~> 1.0"
-  username="infoblox_user"
-  password="infoblox"
-  server="10.0.0.1"
+provider "infoblox" {
+  username = "infoblox_user"
+  password = "infoblox_password"
+  server   = "10.0.0.1"
 }
 ```
-
 #### Argument Reference
 
 The following arguments are supported in the `provider` block:
