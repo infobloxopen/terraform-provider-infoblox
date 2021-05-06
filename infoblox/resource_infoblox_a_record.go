@@ -118,7 +118,40 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return fmt.Errorf("updating A record is not supported")
+	log.Printf("[DEBUG] %s: Begining to Get A Record", resourceARecordIDString(d))
+
+	recordName := d.Get("vm_name").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	cidr := d.Get("cidr").(string)
+	vmID := d.Get("vm_id").(string)
+	//This is for vm name
+	vmName := d.Get("vm_name").(string)
+	zone := d.Get("zone").(string)
+	dnsView := d.Get("dns_view").(string)
+	tenantID := d.Get("tenant_id").(string)
+	connector := m.(*ibclient.Connector)
+
+	ea := make(ibclient.EA)
+
+	ea["VM Name"] = vmName
+
+	if vmID != "" {
+		ea["VM ID"] = vmID
+	}
+
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	name := recordName + "." + zone
+	obj, err := objMgr.UpdateARecord(d.Id(), dnsView, name, cidr, ipAddr, ea)
+
+	if err != nil {
+		return fmt.Errorf("Updating A Record failed!")
+	}
+	d.Set("recordName", name)
+	d.SetId(obj.Ref)
+
+	log.Printf("[DEBUG] %s: Updating A Record complete", resourceARecordIDString(d))
+	return resourceARecordGet(d, m)
 }
 
 func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
