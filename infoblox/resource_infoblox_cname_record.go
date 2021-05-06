@@ -105,8 +105,38 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("[DEBUG] %s: Updating CNAME record ", resourceCNAMERecordIDString(d))
 
-	return fmt.Errorf("updating CNAME record is not supported")
+	zone := d.Get("zone").(string)
+	dnsView := d.Get("dns_view").(string)
+	canonical := d.Get("canonical").(string)
+	alias := d.Get("alias").(string)
+	if !strings.Contains(alias, zone) {
+		alias = d.Get("alias").(string) + "." + zone
+	}
+	tenantID := d.Get("tenant_id").(string)
+	vmId := d.Get("vm_id").(string)
+	connector := m.(*ibclient.Connector)
+
+	ea := make(ibclient.EA)
+
+	ea["VM Name"] = canonical
+
+	if vmId != "" {
+		ea["VM ID"] = vmId
+	}
+
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, dnsView, ea)
+	if err != nil {
+		return fmt.Errorf("Error updating CNAME Record : %s", err)
+	}
+
+	d.Set("recordName", alias)
+	d.SetId(recordCNAME.Ref)
+
+	log.Printf("[DEBUG] %s: Updated CNAME record successfully.", resourceCNAMERecordIDString(d))
+	return resourceCNAMERecordGet(d, m)
 }
 
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
