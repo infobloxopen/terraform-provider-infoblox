@@ -70,6 +70,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_a_record":       resourceARecord(),
 			"infoblox_cname_record":   resourceCNAMERecord(),
 			"infoblox_ptr_record":     resourcePTRRecord(),
+			"infoblox_txt_record":     resourceTXTRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_network":      dataSourceNetwork(),
