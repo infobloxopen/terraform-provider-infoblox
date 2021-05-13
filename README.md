@@ -29,14 +29,13 @@ $ make testacc
 * Once the build is completed, set the `terraform-provider-infoblox` binary file location appropriately in in `dev_overrides`.
 
 ## NIOS Requirements
-* When Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member make sure to enter below EA's in tf files.   
+* Plugin can be used without a CNA license and does not mandate to specify any EAs.
+
+* If Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member attached,make sure to add below mandatory cloud EA's in tf files when using other cloud EAs(like "VM Name", "VM ID", "Network Name").   
    * Tenant ID :: String Type
    * CMP Type :: String Type
    * Cloud API Owned :: List Type (Values True, False)
-   * Network Name :: String Type
-   * VM Name :: String Type
-   * VM ID :: String Type
-
+   
 ## Features of Provider
 ### Resource
 Create, Update and Delete of below resources is supported along with comment and EAs fields.
