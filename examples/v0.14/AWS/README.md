@@ -10,7 +10,10 @@ Install AWS CLI. Use AWS Configure command to configure Access Key ID and Secret
 ```
 
 #Using the templates for below use cases.
+- NetworkContainer     : Create IPv4/IPv6 Network Containers
+- Network              : Create IPv4/IPv6 Network
 - NextAvailableNetwork : Get next available network from a given parent CIDR of a prefix length.
+- AllocationAndAssociation : Assign an IPv4 and IPv6 address to an AWS instance and get its MAC address synced at NIOS
 
 ### Note
 ```

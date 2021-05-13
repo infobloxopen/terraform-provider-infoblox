@@ -66,14 +66,15 @@ func dataSourceCNameRecordRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
-	search_data := ibclient.NewRecordCNAME(
-		ibclient.RecordCNAME{
-			Canonical: canonical,
-			Name:      fqdn,
-			Zone:      zone,
-			View:      dnsView,
-		})
-	err := connector.GetObject(search_data, "", &records)
+	cnRec := ibclient.NewRecordCNAME(ibclient.RecordCNAME{})
+	sf := map[string]string{
+		"canonical": canonical,
+		"name":      fqdn,
+		"zone":      zone,
+		"view":      dnsView,
+	}
+	queryParams := ibclient.NewQueryParams(false, sf)
+	err := connector.GetObject(cnRec, "", queryParams, &records)
 	d.SetId("")
 	if err != nil {
 		return fmt.Errorf("Read CNAME record failed: %s", err)

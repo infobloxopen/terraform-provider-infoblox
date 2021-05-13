@@ -1,4 +1,3 @@
-# Creates next available network from a given parent CIDR in NIOS grid
 terraform {
   # Required providers block for Terraform v0.14.7
   required_providers {
@@ -13,32 +12,61 @@ terraform {
   }
 }
 
+# Create a network container in Infoblox Grid
+resource "infoblox_ipv4_network_container" "IPv4_nw_c" {
+  network_view_name="default"
+
+  cidr = aws_vpc.vpc.cidr_block
+  comment = "tf IPv4 network container"
+  extensible_attributes = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}
+
+resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
+  network_view_name="default"
+
+  cidr = aws_vpc.vpc.ipv6_cidr_block
+  comment = "tf IPv6 network container"
+  extensible_attributes = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}
+
+
 # Allocate a network in Infoblox Grid under provided parent CIDR
-resource "infoblox_network" "ib_network"{
+resource "infoblox_ipv4_network" "ipv4_network"{
   network_view_name = "default"
-  network_name = "tf-network"
-  tenant_id = "tf-AWS-tenant"
+
+  parent_cidr = infoblox_ipv4_network_container.IPv4_nw_c.cidr
   allocate_prefix_len = 24
-  parent_cidr = "20.0.0.0/16"
   reserve_ip = 2
+
+  comment = "tf IPv4 network"
+  extensible_attributes = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Network Name" = "ipv4-tf-network"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
 }
 
-# Allocate IP from network
-resource "infoblox_ip_allocation" "ib_ip_allocation"{
-  network_view_name= "default"
-  vm_name = "tf-ec2-instance"
-  cidr = infoblox_network.ib_network.cidr
-  tenant_id = "tf-AWS-tenant"
-}
-
-# Update Grid with VM data
-resource "infoblox_ip_association" "ib_ip_associate"{
+resource "infoblox_ipv6_network" "ipv6_network"{
   network_view_name = "default"
-  vm_name = infoblox_ip_allocation.ib_ip_allocation.vm_name
-  cidr = infoblox_network.ib_network.cidr
-  mac_addr = aws_network_interface.ni.mac_address
-  ip_addr = infoblox_ip_allocation.ib_ip_allocation.ip_addr
-  vm_id = aws_instance.ec2-instance.id
-  tenant_id = "tf-AWS-tenant"
-}
 
+  parent_cidr = infoblox_ipv6_network_container.IPv6_nw_c.cidr
+  allocate_prefix_len = 64
+  reserve_ipv6 = 3
+
+  comment = "tf IPv6 network"
+  extensible_attributes = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Network Name" = "ipv6-tf-network"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}

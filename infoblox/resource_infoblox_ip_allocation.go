@@ -1,228 +1,500 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
-	"log"
+	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
 func resourceIPAllocation() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIPAllocationRequest,
-		Read:   resourceIPAllocationGet,
-		Update: resourceIPAllocationUpdate,
-		Delete: resourceIPAllocationRelease,
-
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "Network view name available in Nios server.",
+				Description: "Network view name of NIOS server.",
 			},
-			"vm_name": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the VM.",
-			},
-			"cidr": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The address in cidr format.",
-			},
-			"zone": &schema.Schema{
-				Type:        schema.TypeString,
+			"enable_dns": {
+				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Zone under which host record has to be created.",
+				Default:     true,
+				Description: "flag that defines if the host record is to be used for DNS Purposes.",
 			},
-			"enable_dns": &schema.Schema{
+			"enable_dhcp": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "flag that defines if the host reocrd is used for DNS or IPAM Purposes.",
+				Description: "flag that defines if the host record is to be used for IPAM Purposes.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ip_addr": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "IP address your instance in cloud.For static allocation ,set the field with valid IP. For dynamic allocation, leave this field empty.",
-				Computed:    true,
+				Description: "Zone under which host record has to be created.",
 			},
-			"mac_addr": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "mac address of your instance in cloud.",
-			},
-			"vm_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "instance id.",
-			},
-			"tenant_id": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Description: "The address in cidr format.",
+			},
+			"ip_addr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "IP address of cloud instance. Set a valid IP for static allocation and leave empty if dynamically allocated.",
+				Computed:    true,
+			},
+			"mac_addr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "MAC Address of cloud instance.",
+			},
+			"duid": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "DHCP unique identifier for IPv6.",
+			},
+			"host_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The host name",
+			},
+			"comment": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "A description of the IP allocation.",
+			},
+			"extensible_attributes": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes of the network container to be added/updated, as a map in JSON format",
 			},
 		},
 	}
 }
 
-func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning to request a next free IP from a required network block", resourceIPAllocationIDString(d))
-
+func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	networkViewName := d.Get("network_view_name").(string)
-	//This is for record Name
-	recordName := d.Get("vm_name").(string)
-	ipAddr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
-	macAddr := d.Get("mac_addr").(string)
-	//This is for EA's
-	vmName := d.Get("vm_name").(string)
-	vmID := d.Get("vm_id").(string)
-	tenantID := d.Get("tenant_id").(string)
-	zone := d.Get("zone").(string)
-	enableDns := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
+	enableDns := d.Get("enable_dns").(bool)
+	enableDhcp := d.Get("enable_dhcp").(bool)
+	zone := d.Get("zone").(string)
+	hostName := d.Get("host_name").(string)
 
-	connector := m.(*ibclient.Connector)
+	cidr := d.Get("cidr").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	macAddr := d.Get("mac_addr").(string)
+	duid := d.Get("duid").(string)
+
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+		}
+	}
+
 	ZeroMacAddr := "00:00:00:00:00:00"
-	//fqdn
-	name := recordName + "." + zone
-	ea := make(ibclient.EA)
-	if vmName != "" {
-		ea["VM Name"] = vmName
+	connector := m.(*ibclient.Connector)
+
+	var tenantID string
+	for attrName, attrValueInf := range extAttrs {
+		attrValue, _ := attrValueInf.(string)
+		if attrName == "Tenant ID" {
+			tenantID = attrValue
+		}
 	}
-	if vmID != "" {
-		ea["VM ID"] = vmID
+
+	if hostName == "" {
+		return fmt.Errorf("'host_name' is mandatory to be passed for Allocation of IP")
 	}
+
+	var recFQDN string
+	if len(zone) > 0 {
+		recFQDN = hostName + "." + zone
+	} else {
+		recFQDN = hostName
+	}
+
 	if macAddr == "" {
 		macAddr = ZeroMacAddr
 	}
+
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		hostAddressObj, err := objMgr.CreateHostRecord(enableDns, name, networkViewName, dnsView, cidr, ipAddr, macAddr, ea)
-		if err != nil {
-			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
+	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) && enableDns {
+		if isIPv6 {
+			Obj, err := objMgr.CreateHostRecord(
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				networkViewName,
+				dnsView,
+				"", cidr,
+				"", ipAddr,
+				"", duid,
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error in allocating an IPv6 address and creating a host record in cidr %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.Ipv6Addrs[0].Ipv6Addr)
+			d.SetId(Obj.Ref)
+		} else {
+			Obj, err := objMgr.CreateHostRecord(
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				networkViewName,
+				dnsView,
+				cidr, "",
+				ipAddr, "",
+				macAddr, "",
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error in allocating an IPv4 address and creating a host record in cidr %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.Ipv4Addrs[0].Ipv4Addr)
+			d.SetId(Obj.Ref)
 		}
-		d.Set("ip_addr", hostAddressObj.Ipv4Addrs[0].Ipv4Addr)
-		d.SetId(hostAddressObj.Ref)
+
+	} else if enableDhcp || !enableDns {
+		// default value of enableDns is true. When user sets enableDhcp as true and does not pass a enableDns flag
+		enableDns = false
+
+		if isIPv6 {
+			Obj, err := objMgr.CreateHostRecord(
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				networkViewName,
+				dnsView,
+				"", cidr,
+				"", ipAddr,
+				"", duid,
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error in allocating an IPv6 address and creating a host record in cidr %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.Ipv6Addrs[0].Ipv6Addr)
+			d.SetId(Obj.Ref)
+		} else {
+			Obj, err := objMgr.CreateHostRecord(
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				networkViewName,
+				dnsView,
+				cidr, "",
+				ipAddr, "",
+				macAddr, "",
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error in allocating an IPv4 address and creating a host record in cidr %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.Ipv4Addrs[0].Ipv4Addr)
+			d.SetId(Obj.Ref)
+		}
+
 	} else {
-		fixedAddressObj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, macAddr, recordName, ea)
-		if err != nil {
-			return fmt.Errorf("Error allocating IP from network block(%s): %s", cidr, err)
+		if isIPv6 {
+			Obj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, isIPv6, duid, hostName, comment, extAttrs)
+			if err != nil {
+				return fmt.Errorf("Error allocating IP from network block %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.IPv6Address)
+			d.SetId(Obj.Ref)
+		} else {
+			Obj, err := objMgr.AllocateIP(networkViewName, cidr, ipAddr, isIPv6, macAddr, hostName, comment, extAttrs)
+			if err != nil {
+				return fmt.Errorf("Error allocating IP from network block %s: %s", cidr, err.Error())
+			}
+			d.Set("ip_addr", Obj.IPv4Address)
+			d.SetId(Obj.Ref)
 		}
-		d.Set("ip_addr", fixedAddressObj.IPAddress)
-		d.SetId(fixedAddressObj.Ref)
 	}
-	log.Printf("[DEBUG] %s:completing Request of IP from required network block", resourceIPAllocationIDString(d))
-	return resourceIPAllocationGet(d, m)
+	return nil
 }
 
-func resourceIPAllocationGet(d *schema.ResourceData, m interface{}) error {
+func resourceIPAllocationGet(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	log.Printf("[DEBUG] %s:Reading the required IP from network block", resourceIPAllocationIDString(d))
-
-	tenantID := d.Get("tenant_id").(string)
-	cidr := d.Get("cidr").(string)
-	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
+	zone := d.Get("zone").(string)
+	cidr := d.Get("cidr").(string)
 
+	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	for attrName, attrValueInf := range extAttrs {
+		attrValue, _ := attrValueInf.(string)
+		if attrName == "Tenant ID" {
+			tenantID = attrValue
+			break
+		}
+	}
+
+	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		obj, err := objMgr.GetHostRecordByRef(d.Id())
 		if err != nil {
-			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
+			return fmt.Errorf("Error getting IP from network block %s: %s", cidr, err.Error())
 		}
 		d.SetId(obj.Ref)
 	} else {
 		obj, err := objMgr.GetFixedAddressByRef(d.Id())
 		if err != nil {
-			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
+			return fmt.Errorf("Error getting IP from network block %s: %s", cidr, err.Error())
 		}
 		d.SetId(obj.Ref)
 	}
-	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
 	return nil
 }
 
-func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	match_client := "MAC_ADDRESS"
-
-	log.Printf("[DEBUG] %s: Updating the Parameters of the allocated IP in the specified network block", resourceIPAllocationIDString(d))
-
-	macAddr := d.Get("mac_addr").(string)
-	tenantID := d.Get("tenant_id").(string)
-	vmID := d.Get("vm_id").(string)
-	vmName := d.Get("vm_name").(string)
-	zone := d.Get("zone").(string)
+	enableDns := d.Get("enable_dns").(bool)
+	enableDhcp := d.Get("enable_dhcp").(bool)
 	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
+	zone := d.Get("zone").(string)
+	hostName := d.Get("host_name").(string)
 
+	duid := d.Get("duid").(string)
+	macAddr := d.Get("mac_addr").(string)
+
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	for attrName, attrValueInf := range extAttrs {
+		attrValue, _ := attrValueInf.(string)
+		if attrName == "Tenant ID" {
+			tenantID = attrValue
+		}
+	}
+
+	if hostName == "" {
+		return fmt.Errorf("'hostName' is mandatory to be passed for Allocation of IP")
+	}
+
+	var recFQDN string
+	if len(zone) > 0 {
+		recFQDN = hostName + "." + zone
+	} else {
+		recFQDN = hostName
+	}
+
+	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
+	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) && enableDns {
 		hostRecordObj, _ := objMgr.GetHostRecordByRef(d.Id())
-		IPAddrObj, _ := objMgr.GetIpAddressFromHostRecord(*hostRecordObj)
-		obj, err := objMgr.UpdateHostRecord(d.Id(), IPAddrObj, macAddr, vmID, vmName)
-		if err != nil {
-			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
+
+		if isIPv6 {
+			IPAddrObj := hostRecordObj.Ipv6Addr
+			obj, err := objMgr.UpdateHostRecord(
+				d.Id(),
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				"", IPAddrObj,
+				"", duid,
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error updating Host record of IPv6 from network block having reference %s: %s", d.Id(), err.Error())
+			}
+			d.SetId(obj.Ref)
+		} else {
+			IPAddrObj := hostRecordObj.Ipv4Addr
+			obj, err := objMgr.UpdateHostRecord(
+				d.Id(),
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				IPAddrObj, "",
+				macAddr, "",
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error updating Host record of IPv4 from network block having reference %s: %s", d.Id(), err.Error())
+			}
+			d.SetId(obj.Ref)
 		}
-		d.SetId(obj)
+	} else if enableDhcp || !enableDns {
+		hostRecordObj, _ := objMgr.GetHostRecordByRef(d.Id())
+
+		// default value of enableDns is true. When user sets enableDhcp as true and does not pass a enableDns flag
+		enableDns = false
+
+		if isIPv6 {
+			IPAddrObj := hostRecordObj.Ipv6Addr
+			obj, err := objMgr.UpdateHostRecord(
+				d.Id(),
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				"", IPAddrObj,
+				"", duid,
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error updating Host record of IPv6 from network block having reference %s: %s", d.Id(), err.Error())
+			}
+			d.SetId(obj.Ref)
+		} else {
+			IPAddrObj := hostRecordObj.Ipv4Addr
+			obj, err := objMgr.UpdateHostRecord(
+				d.Id(),
+				enableDns,
+				enableDhcp,
+				recFQDN,
+				IPAddrObj, "",
+				macAddr, "",
+				comment,
+				extAttrs, []string{})
+			if err != nil {
+				return fmt.Errorf(
+					"Error updating Host record of IPv4 from network block having reference %s: %s", d.Id(), err.Error())
+			}
+			d.SetId(obj.Ref)
+		}
 	} else {
-		obj, err := objMgr.UpdateFixedAddress(d.Id(), match_client, macAddr, vmID, vmName)
+		var macOrDuid string
+		match_client := "MAC_ADDRESS"
+		if isIPv6 {
+			macOrDuid = duid
+			match_client = ""
+		} else {
+			macOrDuid = macAddr
+		}
+		obj, err := objMgr.UpdateFixedAddress(d.Id(), hostName, match_client, macOrDuid, comment, extAttrs)
 		if err != nil {
-			return fmt.Errorf("Error updating IP from network block having reference (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error updating IP from network block having reference %s: %s", d.Id(), err.Error())
 		}
 		d.SetId(obj.Ref)
 	}
-	log.Printf("[DEBUG] %s: Updation of Parameters of allocated IP complete in the specified network block", resourceIPAllocationIDString(d))
-	return resourceIPAllocationGet(d, m)
+	return nil
 }
 
-func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}) error {
+func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	log.Printf("[DEBUG] %s: Beginning Release of an allocated IP in the specified network block", resourceIPAllocationIDString(d))
-
-	tenantID := d.Get("tenant_id").(string)
-	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
+	zone := d.Get("zone").(string)
+	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	for attrName, attrValue := range extAttrs {
+		if attrName == "Tenant ID" {
+			tenantID = attrValue.(string)
+			break
+		}
+	}
 
+	connector := m.(*ibclient.Connector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
 	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
 		_, err := objMgr.DeleteHostRecord(d.Id())
 		if err != nil {
-			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error Releasing IP from network block having reference %s: %s", d.Id(), err.Error())
 		}
 	} else {
 		_, err := objMgr.DeleteFixedAddress(d.Id())
 		if err != nil {
-			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error Releasing IP from network block having reference %s: %s", d.Id(), err.Error())
 		}
 	}
 	d.SetId("")
 
-	log.Printf("[DEBUG] %s: Finishing Release of allocated IP in the specified network block", resourceIPAllocationIDString(d))
 	return nil
 }
 
-type resourceIPAllocationIDStringInterface interface {
-	Id() string
+// Code snippet for IPv4 IP Allocation
+func resourceIPv4AllocationRequest(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationRequest(d, m, false)
 }
 
-func resourceIPAllocationIDString(d resourceIPAllocationIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
-	}
-	return fmt.Sprintf("infoblox_ip_allocation (ID = %s)", id)
+func resourceIPv4AllocationGet(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationGet(d, m, false)
+}
+
+func resourceIPv4AllocationUpdate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationUpdate(d, m, false)
+}
+
+func resourceIPv4AllocationRelease(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationRelease(d, m, false)
+}
+
+func resourceIPv4Allocation() *schema.Resource {
+	ipv4Allocation := resourceIPAllocation()
+	ipv4Allocation.Create = resourceIPv4AllocationRequest
+	ipv4Allocation.Read = resourceIPv4AllocationGet
+	ipv4Allocation.Update = resourceIPv4AllocationUpdate
+	ipv4Allocation.Delete = resourceIPv4AllocationRelease
+
+	return ipv4Allocation
+}
+
+// Code snippet for IPv6 IP allocation
+func resourceIPv6AllocationRequest(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationRequest(d, m, true)
+}
+
+func resourceIPv6AllocationGet(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationGet(d, m, true)
+}
+
+func resourceIPv6AllocationUpdate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationUpdate(d, m, true)
+}
+
+func resourceIPv6AllocationRelease(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAllocationRelease(d, m, true)
+}
+
+func resourceIPv6Allocation() *schema.Resource {
+	ipv6Allocation := resourceIPAllocation()
+	ipv6Allocation.Create = resourceIPv6AllocationRequest
+	ipv6Allocation.Read = resourceIPv6AllocationGet
+	ipv6Allocation.Update = resourceIPv6AllocationUpdate
+	ipv6Allocation.Delete = resourceIPv6AllocationRelease
+
+	return ipv6Allocation
 }

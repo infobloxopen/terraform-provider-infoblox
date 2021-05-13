@@ -12,7 +12,7 @@ resource "azurerm_virtual_network" "vnet1" {
     resource_group_name = azurerm_resource_group.rg1.name
 
     name = "${local.res_prefix}_vnet1"
-    address_space =  [local.parent_cidr]
+    address_space =  [infoblox_ipv4_network_container.v4nc_1.cidr]
 }
 
 resource "azurerm_subnet" "net1" {
@@ -20,7 +20,7 @@ resource "azurerm_subnet" "net1" {
     virtual_network_name = azurerm_virtual_network.vnet1.name
 
     name = "${local.res_prefix}_net1"
-    address_prefixes =[infoblox_network.subnet1.cidr]
+    address_prefixes =[infoblox_ipv4_network.subnet1.cidr]
 }
 
 resource "azurerm_subnet" "net2" {
@@ -28,7 +28,7 @@ resource "azurerm_subnet" "net2" {
     virtual_network_name = azurerm_virtual_network.vnet1.name
 
     name = "${local.res_prefix}_net2"
-    address_prefixes =[infoblox_network.subnet2.cidr]
+    address_prefixes =[infoblox_ipv4_network.subnet2.cidr]
 }
 
 resource "azurerm_public_ip" "pub_addr1" {
@@ -49,7 +49,7 @@ resource "azurerm_network_interface" "ni1" {
         name = "${local.res_prefix}_ipconfiguration1"
         subnet_id = azurerm_subnet.net1.id
         private_ip_address_allocation = "Static"
-        private_ip_address =infoblox_ip_allocation.alloc1.ip_addr
+        private_ip_address =infoblox_ipv4_allocation.alloc1.ip_addr
 
         public_ip_address_id = azurerm_public_ip.pub_addr1.id
     }
@@ -64,7 +64,7 @@ resource "azurerm_network_interface" "ni2" {
         name = "${local.res_prefix}_ipconfiguration2"
         subnet_id = azurerm_subnet.net2.id
         private_ip_address_allocation = "Static"
-        private_ip_address =infoblox_ip_allocation.alloc2.ip_addr
+        private_ip_address =infoblox_ipv4_allocation.alloc2.ip_addr
     }
 }
 
@@ -72,7 +72,7 @@ resource "azurerm_virtual_machine" "vm1" {
     resource_group_name = azurerm_resource_group.rg1.name
     location = "ukwest"
 
-    name = infoblox_ip_allocation.alloc1.vm_name
+    name = "${local.res_prefix}_vm1"
     network_interface_ids = [azurerm_network_interface.ni1.id, azurerm_network_interface.ni2.id]
     primary_network_interface_id = azurerm_network_interface.ni1.id
     vm_size = "Standard_A6"

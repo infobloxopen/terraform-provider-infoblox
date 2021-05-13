@@ -66,14 +66,16 @@ func dataSourceARecordRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
-	search_data := ibclient.NewRecordA(
-		ibclient.RecordA{
-			Ipv4Addr: ip_addr,
-			Name:     fqdn,
-			Zone:     zone,
-			View:     dnsView,
-		})
-	err := connector.GetObject(search_data, "", &records)
+	aRec := ibclient.NewEmptyRecordA()
+	sf := map[string]string{
+		"ipv4addr": ip_addr,
+		"name":     fqdn,
+		"zone":     zone,
+		"view":     dnsView,
+	}
+	queryParams := ibclient.NewQueryParams(false, sf)
+
+	err := connector.GetObject(aRec, "", queryParams, &records)
 	d.SetId("")
 	if err != nil {
 		return fmt.Errorf("Read A record failed: %s", err)

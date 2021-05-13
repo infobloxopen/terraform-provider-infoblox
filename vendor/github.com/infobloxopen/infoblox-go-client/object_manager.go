@@ -4,59 +4,88 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"net/url"
 	"regexp"
 )
 
 type IBObjectManager interface {
-	AllocateIP(netview string, cidr string, ipAddr string, macAddress string, name string, ea EA) (*FixedAddress, error)
-	AllocateNetwork(netview string, cidr string, prefixLen uint, name string, comment string, ea EA) (network *Network, err error)
+	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddress string, name string, comment string, eas EA) (*FixedAddress, error)
+	AllocateNetwork(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (network *Network, err error)
 	CreateARecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordA, error)
 	CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, error)
 	CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error)
 	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
 	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
-	CreateHostRecord(enabledns bool, recordName string, netview string, dnsview string, cidr string, ipAddr string, macAddress string, ea EA) (*HostRecord, error)
-	CreateNetwork(netview string, cidr string, name string, comment string, ea EA) (*Network, error)
-	CreateNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
+	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, comment string, eas EA, aliases []string) (*HostRecord, error)
+	CreateNetwork(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*Network, error)
+	CreateNetworkContainer(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*NetworkContainer, error)
 	CreateNetworkView(name string) (*NetworkView, error)
 	CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error)
+	CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error)
+	CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error)
 	DeleteARecord(ref string) (string, error)
 	DeleteZoneAuth(ref string) (string, error)
 	DeleteCNAMERecord(ref string) (string, error)
 	DeleteFixedAddress(ref string) (string, error)
 	DeleteHostRecord(ref string) (string, error)
-	DeleteNetwork(ref string, netview string) (string, error)
+	DeleteNetwork(ref string) (string, error)
+	DeleteNetworkContainer(ref string) (string, error)
 	DeleteNetworkView(ref string) (string, error)
 	DeletePTRRecord(ref string) (string, error)
+	DeleteTXTRecord(ref string) (string, error)
+	DeleteZoneDelegated(ref string) (string, error)
 	GetARecordByRef(ref string) (*RecordA, error)
-	GetCNAMERecordByRef(ref string) (*RecordA, error)
+	GetCNAMERecordByRef(ref string) (*RecordCNAME, error)
 	GetEADefinition(name string) (*EADefinition, error)
-	GetFixedAddress(netview string, cidr string, ipAddr string, macAddr string) (*FixedAddress, error)
+	GetFixedAddress(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (*FixedAddress, error)
 	GetFixedAddressByRef(ref string) (*FixedAddress, error)
-	GetHostRecord(recordName string) (*HostRecord, error)
+	GetHostRecord(recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error)
 	GetHostRecordByRef(ref string) (*HostRecord, error)
 	GetIpAddressFromHostRecord(host HostRecord) (string, error)
-	GetNetwork(netview string, cidr string, ea EA) (*Network, error)
-	GetNetworkContainer(netview string, cidr string) (*NetworkContainer, error)
+	GetNetwork(netview string, cidr string, isIPv6 bool, ea EA) (*Network, error)
+	GetNetworkByRef(ref string) (*Network, error)
+	GetNetworkContainer(netview string, cidr string, isIPv6 bool, eaSearch EA) (*NetworkContainer, error)
+	GetNetworkContainerByRef(ref string) (*NetworkContainer, error)
 	GetNetworkView(name string) (*NetworkView, error)
+	GetNetworkViewByRef(ref string) (*NetworkView, error)
 	GetPTRRecordByRef(ref string) (*RecordPTR, error)
 	GetZoneAuthByRef(ref string) (*ZoneAuth, error)
-	ReleaseIP(netview string, cidr string, ipAddr string, macAddr string) (string, error)
-	UpdateFixedAddress(fixedAddrRef string, matchclient string, macAddress string, vmID string, vmName string) (*FixedAddress, error)
-	UpdateHostRecord(hostRref string, ipAddr string, macAddress string, vmID string, vmName string) (string, error)
-	UpdateNetworkViewEA(ref string, addEA EA, removeEA EA) error
+	GetZoneDelegated(fqdn string) (*ZoneDelegated, error)
+	GetCapacityReport(name string) ([]CapacityReport, error)
+	GetUpgradeStatus(statusType string) ([]UpgradeStatus, error)
+	GetAllMembers() ([]Member, error)
+	GetGridInfo() ([]Grid, error)
+	GetGridLicense() ([]License, error)
+	ReleaseIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (string, error)
+	UpdateFixedAddress(fixedAddrRef string, name string, matchclient string, macAddress string, comment string, eas EA) (*FixedAddress, error)
+	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, comment string, eas EA, aliases []string) (*HostRecord, error)
+	UpdateNetwork(ref string, setEas EA, comment string) (*Network, error)
+	UpdateNetworkContainer(ref string, setEas EA, comment string) (*NetworkContainer, error)
+	UpdateNetworkViewEA(ref string, setEas EA) error
+	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
+}
+
+type NotFoundError struct {
+	msg string
+}
+
+func (e *NotFoundError) Error() string {
+	return "not found"
+}
+
+func NewNotFoundError(msg string) *NotFoundError {
+	return &NotFoundError{msg: msg}
 }
 
 type ObjectManager struct {
 	connector IBConnector
 	cmpType   string
 	tenantID  string
-	// If OmitCloudAttrs is true no extra attributes for cloud are set
-	OmitCloudAttrs bool
 }
 
-func NewObjectManager(connector IBConnector, cmpType string, tenantID string) *ObjectManager {
-	objMgr := new(ObjectManager)
+func NewObjectManager(connector IBConnector, cmpType string, tenantID string) IBObjectManager {
+	objMgr := &ObjectManager{}
 
 	objMgr.connector = connector
 	objMgr.cmpType = cmpType
@@ -65,28 +94,11 @@ func NewObjectManager(connector IBConnector, cmpType string, tenantID string) *O
 	return objMgr
 }
 
-func (objMgr *ObjectManager) getBasicEA(cloudAPIOwned Bool) EA {
-	ea := make(EA)
-	if !objMgr.OmitCloudAttrs {
-		ea["Cloud API Owned"] = cloudAPIOwned
-		ea["CMP Type"] = objMgr.cmpType
-		ea["Tenant ID"] = objMgr.tenantID
-	}
-	return ea
-}
-
-func (objMgr *ObjectManager) extendEA(ea EA) EA {
-	eas := objMgr.getBasicEA(true)
-	for k, v := range ea {
-		eas[k] = v
-	}
-	return eas
-}
-
 func (objMgr *ObjectManager) CreateNetworkView(name string) (*NetworkView, error) {
 	networkView := NewNetworkView(NetworkView{
 		Name: name,
-		Ea:   objMgr.getBasicEA(false)})
+		Ea:   make(EA),
+	})
 
 	ref, err := objMgr.connector.CreateObject(networkView)
 	networkView.Ref = ref
@@ -122,14 +134,9 @@ func (objMgr *ObjectManager) CreateDefaultNetviews(globalNetview string, localNe
 	return
 }
 
-func (objMgr *ObjectManager) CreateNetwork(netview string, cidr string, name string, comment string, ea EA) (*Network, error) {
+func (objMgr *ObjectManager) CreateNetwork(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*Network, error) {
+	network := NewNetwork(netview, cidr, isIPv6, comment, eas)
 
-	eas := objMgr.extendEA(ea)
-	network := NewNetwork(netview, cidr, comment, eas)
-
-	if name != "" {
-		network.Ea["Network Name"] = name
-	}
 	ref, err := objMgr.connector.CreateObject(network)
 	if err != nil {
 		return nil, err
@@ -139,53 +146,64 @@ func (objMgr *ObjectManager) CreateNetwork(netview string, cidr string, name str
 	return network, err
 }
 
-func (objMgr *ObjectManager) CreateNetworkContainer(netview string, cidr string) (*NetworkContainer, error) {
-	container := NewNetworkContainer(NetworkContainer{
-		NetviewName: netview,
-		Cidr:        cidr,
-		Ea:          objMgr.getBasicEA(true)})
+func (objMgr *ObjectManager) CreateNetworkContainer(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*NetworkContainer, error) {
+	container := NewNetworkContainer(netview, cidr, isIPv6, comment, eas)
 
 	ref, err := objMgr.connector.CreateObject(container)
-	container.Ref = ref
+	if err != nil {
+		return nil, err
+	}
 
-	return container, err
+	container.Ref = ref
+	return container, nil
 }
 
 func (objMgr *ObjectManager) GetNetworkView(name string) (*NetworkView, error) {
 	var res []NetworkView
 
-	netview := NewNetworkView(NetworkView{Name: name})
+	netview := NewNetworkView(NetworkView{})
+	sf := map[string]string{
+		"name": name,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(netview, "", queryParams, &res)
 
-	err := objMgr.connector.GetObject(netview, "", &res)
-
-	if err != nil || res == nil || len(res) == 0 {
+	if err != nil {
 		return nil, err
+	}
+	if res == nil || len(res) == 0 {
+		return nil, fmt.Errorf("network view '%s' not found", name)
 	}
 
 	return &res[0], nil
 }
 
-func (objMgr *ObjectManager) UpdateNetworkViewEA(ref string, addEA EA, removeEA EA) error {
+func (objMgr *ObjectManager) GetNetworkViewByRef(ref string) (*NetworkView, error) {
+	res := NewNetworkView(NetworkView{})
+	queryParams := NewQueryParams(false, nil)
+	if err := objMgr.connector.GetObject(res, ref, queryParams, &res); err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, fmt.Errorf("network view not found")
+	}
+
+	return res, nil
+}
+
+func (objMgr *ObjectManager) UpdateNetworkViewEA(ref string, setEas EA) error {
 	var res NetworkView
 
 	nv := NetworkView{}
 	nv.returnFields = []string{"extattrs"}
-	err := objMgr.connector.GetObject(&nv, ref, &res)
 
+	err := objMgr.connector.GetObject(
+		&nv, ref, NewQueryParams(false, nil), &res)
 	if err != nil {
 		return err
 	}
 
-	for k, v := range addEA {
-		res.Ea[k] = v
-	}
-
-	for k := range removeEA {
-		_, ok := res.Ea[k]
-		if ok {
-			delete(res.Ea, k)
-		}
-	}
+	res.Ea = setEas
 
 	_, err = objMgr.connector.UpdateObject(&res, ref)
 	return err
@@ -212,65 +230,89 @@ func BuildNetworkFromRef(ref string) (*Network, error) {
 	m := r.FindStringSubmatch(ref)
 
 	if m == nil {
-		return nil, fmt.Errorf("Format not matched")
+		return nil, fmt.Errorf("CIDR format not matched")
 	}
 
-	return &Network{
-		Ref:         ref,
-		NetviewName: m[2],
-		Cidr:        m[1],
-	}, nil
+	newNet := NewNetwork(m[2], m[1], false, "", nil)
+	newNet.Ref = ref
+	return newNet, nil
 }
 
-func (objMgr *ObjectManager) GetNetwork(netview string, cidr string, ea EA) (*Network, error) {
+func (objMgr *ObjectManager) GetNetwork(netview string, cidr string, isIPv6 bool, ea EA) (*Network, error) {
 	if netview != "" && cidr != "" {
 		var res []Network
 
-		network := NewNetwork(netview, cidr, "", ea)
+		network := NewNetwork(netview, cidr, isIPv6, "", ea)
 
-		if cidr != "" {
-			network.Cidr = cidr
-		}
+		network.Cidr = cidr
 
 		if ea != nil && len(ea) > 0 {
 			network.eaSearch = EASearch(ea)
 		}
 
-		err := objMgr.connector.GetObject(network, "", &res)
+		sf := map[string]string{
+			"network_view": netview,
+			"network":      cidr,
+		}
+		queryParams := NewQueryParams(false, sf)
+		err := objMgr.connector.GetObject(network, "", queryParams, &res)
 
 		if err != nil {
 			return nil, err
 		} else if res == nil || len(res) == 0 {
-			return nil, fmt.Errorf("Network with cidr: %s in network view: %s is not found.", cidr, netview)
+			return nil, NewNotFoundError(
+				fmt.Sprintf(
+					"Network with cidr: %s in network view: %s is not found.",
+					cidr, netview))
 		}
 
 		return &res[0], nil
 	} else {
-		err := fmt.Errorf("Both network view and cidr values are required")
+		err := fmt.Errorf("both network view and cidr values are required")
 		return nil, err
 	}
 }
 
-func (objMgr *ObjectManager) GetNetworkWithRef(ref string) (*Network, error) {
-	network := NewNetwork("", "", "", nil)
-	err := objMgr.connector.GetObject(network, ref, &network)
+func (objMgr *ObjectManager) GetNetworkByRef(ref string) (*Network, error) {
+	r := regexp.MustCompile("^ipv6network\\/.+")
+	isIPv6 := r.MatchString(ref)
+
+	network := NewNetwork("", "", isIPv6, "", nil)
+	err := objMgr.connector.GetObject(network, ref, NewQueryParams(false, nil), network)
 	return network, err
 }
 
-func (objMgr *ObjectManager) GetNetworkContainer(netview string, cidr string) (*NetworkContainer, error) {
+// TODO normalize IPv4 and IPv6 addresses
+func (objMgr *ObjectManager) GetNetworkContainer(netview string, cidr string, isIPv6 bool, eaSearch EA) (*NetworkContainer, error) {
 	var res []NetworkContainer
 
-	nwcontainer := NewNetworkContainer(NetworkContainer{
-		NetviewName: netview,
-		Cidr:        cidr})
-
-	err := objMgr.connector.GetObject(nwcontainer, "", &res)
-
-	if err != nil || res == nil || len(res) == 0 {
+	nc := NewNetworkContainer(netview, cidr, isIPv6, "", nil)
+	nc.eaSearch = EASearch(eaSearch)
+	sf := map[string]string{
+		"network_view": netview,
+		"network":      cidr,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(nc, "", queryParams, &res)
+	if err != nil {
 		return nil, err
+	} else if res == nil || len(res) == 0 {
+		return nil, NewNotFoundError("network container not found")
 	}
 
 	return &res[0], nil
+}
+
+func (objMgr *ObjectManager) GetNetworkContainerByRef(ref string) (*NetworkContainer, error) {
+	nc := NewNetworkContainer("", "", false, "", nil)
+
+	err := objMgr.connector.GetObject(
+		nc, ref, NewQueryParams(false, nil), nc)
+	if err != nil {
+		return nil, err
+	}
+
+	return nc, nil
 }
 
 func GetIPAddressFromRef(ref string) string {
@@ -284,64 +326,87 @@ func GetIPAddressFromRef(ref string) string {
 	return ""
 }
 
-func (objMgr *ObjectManager) AllocateIP(netview string, cidr string, ipAddr string, macAddress string, name string, ea EA) (*FixedAddress, error) {
-	if len(macAddress) == 0 {
-		macAddress = MACADDR_ZERO
-	}
+func (objMgr *ObjectManager) AllocateIP(
+	netview string,
+	cidr string,
+	ipAddr string,
+	isIPv6 bool,
+	macOrDuid string,
+	name string,
+	comment string,
+	eas EA) (*FixedAddress, error) {
 
-	eas := objMgr.extendEA(ea)
-
-	fixedAddr := NewFixedAddress(FixedAddress{
-		NetviewName: netview,
-		Cidr:        cidr,
-		Mac:         macAddress,
-		Name:        name,
-		Ea:          eas})
-
-	if ipAddr == "" {
-		fixedAddr.IPAddress = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+	if isIPv6 {
+		if len(macOrDuid) == 0 {
+			return nil, fmt.Errorf("the DUID field cannot be left empty")
+		}
 	} else {
-		fixedAddr.IPAddress = ipAddr
+		if len(macOrDuid) == 0 {
+			macOrDuid = MACADDR_ZERO
+		}
+	}
+	if ipAddr == "" {
+		ipAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+	}
+	fixedAddr := NewFixedAddress(
+		netview, name, ipAddr, cidr, macOrDuid, "", eas, "", isIPv6, comment)
+	ref, err := objMgr.connector.CreateObject(fixedAddr)
+	if err != nil {
+		return nil, err
 	}
 
-	ref, err := objMgr.connector.CreateObject(fixedAddr)
 	fixedAddr.Ref = ref
-	fixedAddr.IPAddress = GetIPAddressFromRef(ref)
+	fixedAddr, err = objMgr.GetFixedAddressByRef(ref)
 
 	return fixedAddr, err
 }
 
-func (objMgr *ObjectManager) AllocateNetwork(netview string, cidr string, prefixLen uint, name string, comment string, ea EA) (network *Network, err error) {
+func (objMgr *ObjectManager) AllocateNetwork(
+	netview string,
+	cidr string,
+	isIPv6 bool,
+	prefixLen uint,
+	comment string,
+	eas EA) (network *Network, err error) {
 
 	network = nil
 	cidr = fmt.Sprintf("func:nextavailablenetwork:%s,%s,%d", cidr, netview, prefixLen)
-	eas := objMgr.extendEA(ea)
-	networkReq := NewNetwork(netview, cidr, comment, eas)
-	if name != "" {
-		networkReq.Ea["Network Name"] = name
-	}
+	networkReq := NewNetwork(netview, cidr, isIPv6, comment, eas)
 
 	ref, err := objMgr.connector.CreateObject(networkReq)
-	if err == nil && len(ref) > 0 {
-		network, err = BuildNetworkFromRef(ref)
+	if err == nil {
+		if isIPv6 {
+			network, err = BuildIPv6NetworkFromRef(ref)
+		} else {
+			network, err = BuildNetworkFromRef(ref)
+		}
 	}
 
 	return
 }
 
-func (objMgr *ObjectManager) GetFixedAddress(netview string, cidr string, ipAddr string, macAddr string) (*FixedAddress, error) {
+func (objMgr *ObjectManager) GetFixedAddress(netview string, cidr string, ipAddr string, isIpv6 bool, macOrDuid string) (*FixedAddress, error) {
 	var res []FixedAddress
 
-	fixedAddr := NewFixedAddress(FixedAddress{
-		NetviewName: netview,
-		Cidr:        cidr,
-		IPAddress:   ipAddr})
-
-	if macAddr != "" {
-		fixedAddr.Mac = macAddr
+	fixedAddr := NewEmptyFixedAddress(isIpv6)
+	sf := map[string]string{
+		"network_view": netview,
+		"network":      cidr,
+	}
+	if isIpv6 {
+		sf["ipv6addr"] = ipAddr
+		if macOrDuid != "" {
+			sf["duid"] = macOrDuid
+		}
+	} else {
+		sf["ipv4addr"] = ipAddr
+		if macOrDuid != "" {
+			sf["mac"] = macOrDuid
+		}
 	}
 
-	err := objMgr.connector.GetObject(fixedAddr, "", &res)
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(fixedAddr, "", queryParams, &res)
 
 	if err != nil || res == nil || len(res) == 0 {
 		return nil, err
@@ -351,8 +416,12 @@ func (objMgr *ObjectManager) GetFixedAddress(netview string, cidr string, ipAddr
 }
 
 func (objMgr *ObjectManager) GetFixedAddressByRef(ref string) (*FixedAddress, error) {
-	fixedAddr := NewFixedAddress(FixedAddress{})
-	err := objMgr.connector.GetObject(fixedAddr, ref, &fixedAddr)
+	r := regexp.MustCompile("^ipv6fixedaddress/.+")
+	isIPv6 := r.MatchString(ref)
+
+	fixedAddr := NewEmptyFixedAddress(isIPv6)
+	err := objMgr.connector.GetObject(
+		fixedAddr, ref, NewQueryParams(false, nil), &fixedAddr)
 	return fixedAddr, err
 }
 
@@ -362,9 +431,14 @@ func (objMgr *ObjectManager) DeleteFixedAddress(ref string) (string, error) {
 
 // validation  for match_client
 func validateMatchClient(value string) bool {
-	match_client := [5]string{"MAC_ADDRESS", "CLIENT_ID", "RESERVED", "CIRCUIT_ID", "REMOTE_ID"}
+	matchClientList := [5]string{
+		"MAC_ADDRESS",
+		"CLIENT_ID",
+		"RESERVED",
+		"CIRCUIT_ID",
+		"REMOTE_ID"}
 
-	for _, val := range match_client {
+	for _, val := range matchClientList {
 		if val == value {
 			return true
 		}
@@ -372,41 +446,45 @@ func validateMatchClient(value string) bool {
 	return false
 }
 
-func (objMgr *ObjectManager) UpdateFixedAddress(fixedAddrRef string, matchClient string, macAddress string, vmID string, vmName string) (*FixedAddress, error) {
-	updateFixedAddr := NewFixedAddress(FixedAddress{Ref: fixedAddrRef})
-
-	if len(macAddress) != 0 {
-		updateFixedAddr.Mac = macAddress
-	}
-
-	ea := objMgr.getBasicEA(true)
-	if vmID != "" {
-		ea["VM ID"] = vmID
-		updateFixedAddr.Ea = ea
-	}
-	if vmName != "" {
-		ea["VM Name"] = vmName
-		updateFixedAddr.Ea = ea
-	}
-	if matchClient != "" {
-		if validateMatchClient(matchClient) {
-			updateFixedAddr.MatchClient = matchClient
-		} else {
+func (objMgr *ObjectManager) UpdateFixedAddress(
+	fixedAddrRef string,
+	name string,
+	matchClient string,
+	macOrDuid string,
+	comment string,
+	eas EA) (*FixedAddress, error) {
+	r := regexp.MustCompile("^ipv6fixedaddress\\/.+")
+	isIPv6 := r.MatchString(fixedAddrRef)
+	if !isIPv6 {
+		if !validateMatchClient(matchClient) {
 			return nil, fmt.Errorf("wrong value for match_client passed %s \n ", matchClient)
 		}
 	}
+	updateFixedAddr := NewFixedAddress(
+		"", name, "", "",
+		macOrDuid, matchClient, eas, fixedAddrRef, isIPv6, comment)
 
 	refResp, err := objMgr.connector.UpdateObject(updateFixedAddr, fixedAddrRef)
 	updateFixedAddr.Ref = refResp
+
 	return updateFixedAddr, err
 }
 
-func (objMgr *ObjectManager) ReleaseIP(netview string, cidr string, ipAddr string, macAddr string) (string, error) {
-	fixAddress, _ := objMgr.GetFixedAddress(netview, cidr, ipAddr, macAddr)
+func (objMgr *ObjectManager) ReleaseIP(netview string, cidr string, ipAddr string, isIpv6 bool, macOrDuid string) (string, error) {
+	fixAddress, _ := objMgr.GetFixedAddress(netview, cidr, ipAddr, isIpv6, macOrDuid)
 	if fixAddress == nil {
 		return "", nil
 	}
 	return objMgr.connector.DeleteObject(fixAddress.Ref)
+}
+
+func (objMgr *ObjectManager) DeleteNetworkContainer(ref string) (string, error) {
+	ncRegExp := regexp.MustCompile("^(ipv6)?networkcontainer\\/.+")
+	if !ncRegExp.MatchString(ref) {
+		return "", fmt.Errorf("'ref' does not reference a network container")
+	}
+
+	return objMgr.connector.DeleteObject(ref)
 }
 
 func (objMgr *ObjectManager) DeleteNetwork(ref string) (string, error) {
@@ -422,7 +500,11 @@ func (objMgr *ObjectManager) GetEADefinition(name string) (*EADefinition, error)
 
 	eadef := NewEADefinition(EADefinition{Name: name})
 
-	err := objMgr.connector.GetObject(eadef, "", &res)
+	sf := map[string]string{
+		"name": name,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(eadef, "", queryParams, &res)
 
 	if err != nil || res == nil || len(res) == 0 {
 		return nil, err
@@ -440,52 +522,102 @@ func (objMgr *ObjectManager) CreateEADefinition(eadef EADefinition) (*EADefiniti
 	return newEadef, err
 }
 
-func (objMgr *ObjectManager) CreateHostRecord(enabledns bool, recordName string, netview string, dnsview string, cidr string, ipAddr string, macAddress string, ea EA) (*HostRecord, error) {
+func BuildIPv6NetworkFromRef(ref string) (*Network, error) {
+	// ipv6network/ZG5zLm5ldHdvcmskODkuMC4wLjAvMjQvMjU:2001%3Adb8%3Aabcd%3A0012%3A%3A0/64/global_view
+	r := regexp.MustCompile(`ipv6network/[^:]+:(([^\/]+)\/\d+)\/(.+)`)
+	m := r.FindStringSubmatch(ref)
 
-	eas := objMgr.extendEA(ea)
-
-	recordHostIpAddr := NewHostRecordIpv4Addr(HostRecordIpv4Addr{Mac: macAddress})
-
-	if ipAddr == "" {
-		recordHostIpAddr.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
-	} else {
-		recordHostIpAddr.Ipv4Addr = ipAddr
+	if m == nil {
+		return nil, fmt.Errorf("CIDR format not matched")
 	}
-	enableDNS := new(bool)
-	*enableDNS = enabledns
-	recordHostIpAddrSlice := []HostRecordIpv4Addr{*recordHostIpAddr}
-	recordHost := NewHostRecord(HostRecord{
-		Name:        recordName,
-		EnableDns:   enableDNS,
-		NetworkView: netview,
-		View:        dnsview,
-		Ipv4Addrs:   recordHostIpAddrSlice,
-		Ea:          eas})
 
+	cidr, err := url.QueryUnescape(m[1])
+	if err != nil {
+		return nil, fmt.Errorf(
+			"cannot extract network CIDR information from the reference '%s': %s",
+			ref, err.Error())
+	}
+
+	if _, _, err = net.ParseCIDR(cidr); err != nil {
+		return nil, fmt.Errorf("CIDR format not matched")
+	}
+
+	newNet := NewNetwork(m[3], cidr, true, "", nil)
+	newNet.Ref = ref
+
+	return newNet, nil
+}
+
+func (objMgr *ObjectManager) CreateHostRecord(
+	enabledns bool,
+	enabledhcp bool,
+	recordName string,
+	netview string,
+	dnsview string,
+	ipv4cidr string,
+	ipv6cidr string,
+	ipv4Addr string,
+	ipv6Addr string,
+	macAddr string,
+	duid string,
+	comment string,
+	eas EA,
+	aliases []string) (*HostRecord, error) {
+
+	if ipv4Addr == "" && ipv4cidr != "" {
+		ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", ipv4cidr, netview)
+	}
+	if ipv6Addr == "" && ipv6cidr != "" {
+		ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", ipv6cidr, netview)
+	}
+	recordHost := NewEmptyHostRecord()
+	recordHostIpv6AddrSlice := []HostRecordIpv6Addr{}
+	recordHostIpv4AddrSlice := []HostRecordIpv4Addr{}
+	if ipv6Addr != "" {
+		recordHostIpv6Addr := NewHostRecordIpv6Addr(ipv6Addr, duid, &enabledhcp, "")
+		recordHostIpv6AddrSlice = []HostRecordIpv6Addr{*recordHostIpv6Addr}
+	}
+	if ipv4Addr != "" {
+		recordHostIpAddr := NewHostRecordIpv4Addr(ipv4Addr, macAddr, &enabledhcp, "")
+
+		recordHostIpv4AddrSlice = []HostRecordIpv4Addr{*recordHostIpAddr}
+	}
+	recordHost = NewHostRecord(
+		netview, recordName, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
+		eas, &enabledns, dnsview, "", "", comment, aliases)
 	ref, err := objMgr.connector.CreateObject(recordHost)
 	if err != nil {
 		return nil, err
 	}
 	recordHost.Ref = ref
-	err = objMgr.connector.GetObject(recordHost, ref, &recordHost)
+	err = objMgr.connector.GetObject(
+		recordHost, ref, NewQueryParams(false, nil), &recordHost)
 	return recordHost, err
 }
 
 func (objMgr *ObjectManager) GetHostRecordByRef(ref string) (*HostRecord, error) {
-	recordHost := NewHostRecord(HostRecord{})
-	err := objMgr.connector.GetObject(recordHost, ref, &recordHost)
+	recordHost := NewEmptyHostRecord()
+	err := objMgr.connector.GetObject(
+		recordHost, ref, NewQueryParams(false, nil), &recordHost)
 	return recordHost, err
 }
 
-func (objMgr *ObjectManager) GetHostRecord(recordName string) (*HostRecord, error) {
+func (objMgr *ObjectManager) GetHostRecord(recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error) {
 	var res []HostRecord
 
-	recordHost := NewHostRecord(HostRecord{})
-	if recordName != "" {
-		recordHost.Name = recordName
-	}
+	recordHost := NewEmptyHostRecord()
 
-	err := objMgr.connector.GetObject(recordHost, "", &res)
+	sf := map[string]string{
+		"name": recordName,
+	}
+	if ipv4addr != "" {
+		sf["ipv4addr"] = ipv4addr
+	}
+	if ipv6addr != "" {
+		sf["ipv6addr"] = ipv6addr
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordHost, "", queryParams, &res)
 
 	if err != nil || res == nil || len(res) == 0 {
 		return nil, err
@@ -495,42 +627,117 @@ func (objMgr *ObjectManager) GetHostRecord(recordName string) (*HostRecord, erro
 }
 
 func (objMgr *ObjectManager) GetIpAddressFromHostRecord(host HostRecord) (string, error) {
-	err := objMgr.connector.GetObject(&host, host.Ref, &host)
+	err := objMgr.connector.GetObject(
+		&host, host.Ref, NewQueryParams(false, nil), &host)
 	return host.Ipv4Addrs[0].Ipv4Addr, err
 }
 
-func (objMgr *ObjectManager) UpdateHostRecord(hostRref string, ipAddr string, macAddress string, vmID string, vmName string) (string, error) {
+func (objMgr *ObjectManager) UpdateHostRecord(
+	hostRref string,
+	enabledns bool,
+	enabledhcp bool,
+	name string,
+	ipv4Addr string,
+	ipv6Addr string,
+	macAddress string,
+	duid string,
+	comment string,
+	eas EA,
+	aliases []string) (*HostRecord, error) {
 
-	recordHostIpAddr := NewHostRecordIpv4Addr(HostRecordIpv4Addr{Mac: macAddress, Ipv4Addr: ipAddr})
-	recordHostIpAddrSlice := []HostRecordIpv4Addr{*recordHostIpAddr}
-	updateHostRecord := NewHostRecord(HostRecord{Ipv4Addrs: recordHostIpAddrSlice})
-
-	ea := objMgr.getBasicEA(true)
-	if vmID != "" {
-		ea["VM ID"] = vmID
-		updateHostRecord.Ea = ea
+	enableDNS := new(bool)
+	*enableDNS = enabledns
+	enableDHCP := new(bool)
+	*enableDHCP = enabledhcp
+	recordHostIpv4AddrSlice := []HostRecordIpv4Addr{}
+	recordHostIpv6AddrSlice := []HostRecordIpv6Addr{}
+	if ipv4Addr != "" {
+		recordHostIpAddr := NewHostRecordIpv4Addr(ipv4Addr, macAddress, enableDHCP, "")
+		recordHostIpv4AddrSlice = []HostRecordIpv4Addr{*recordHostIpAddr}
 	}
-
-	if vmName != "" {
-		ea["VM Name"] = vmName
-		updateHostRecord.Ea = ea
+	if ipv6Addr != "" {
+		recordHostIpAddr := NewHostRecordIpv6Addr(ipv6Addr, duid, enableDHCP, "")
+		recordHostIpv6AddrSlice = []HostRecordIpv6Addr{*recordHostIpAddr}
 	}
+	updateHostRecord := NewHostRecord(
+		"", name, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
+		eas, enableDNS, "", "", hostRref, comment, aliases)
 	ref, err := objMgr.connector.UpdateObject(updateHostRecord, hostRref)
-	return ref, err
+	updateHostRecord.Ref = ref
+	return updateHostRecord, err
 }
 
 func (objMgr *ObjectManager) DeleteHostRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
-func (objMgr *ObjectManager) CreateARecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordA, error) {
+// UpdateNetwork updates comment and EA parameters.
+// EAs which exist will be updated,
+// those which do exist but not in setEas map, will be deleted,
+// EAs which do not exist will be created as new.
+func (objMgr *ObjectManager) UpdateNetwork(
+	ref string,
+	setEas EA,
+	comment string) (*Network, error) {
 
-	eas := objMgr.extendEA(ea)
+	r := regexp.MustCompile("^ipv6network\\/.+")
+	isIPv6 := r.MatchString(ref)
 
-	recordA := NewRecordA(RecordA{
-		View: dnsview,
-		Name: recordname,
-		Ea:   eas})
+	nw := NewNetwork("", "", isIPv6, "", nil)
+	err := objMgr.connector.GetObject(
+		nw, ref, NewQueryParams(false, nil), nw)
+
+	if err != nil {
+		return nil, err
+	}
+
+	nw.Ea = setEas
+	nw.Comment = comment
+
+	newRef, err := objMgr.connector.UpdateObject(nw, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	nw.Ref = newRef
+	return nw, nil
+}
+
+func (objMgr *ObjectManager) UpdateNetworkContainer(
+	ref string,
+	setEas EA,
+	comment string) (*NetworkContainer, error) {
+
+	nc := &NetworkContainer{}
+	nc.returnFields = []string{"extattrs", "comment"}
+
+	err := objMgr.connector.GetObject(
+		nc, ref, NewQueryParams(false, nil), nc)
+	if err != nil {
+		return nil, err
+	}
+
+	nc.Ea = setEas
+	nc.Comment = comment
+
+	reference, err := objMgr.connector.UpdateObject(nc, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	nc.Ref = reference
+	return nc, nil
+}
+
+func (objMgr *ObjectManager) CreateARecord(
+	netview string,
+	dnsview string,
+	recordname string,
+	cidr string,
+	ipAddr string,
+	eas EA) (*RecordA, error) {
+
+	recordA := NewRecordA(dnsview, "", recordname, "", eas, "")
 
 	if ipAddr == "" {
 		recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
@@ -543,17 +750,20 @@ func (objMgr *ObjectManager) CreateARecord(netview string, dnsview string, recor
 }
 
 func (objMgr *ObjectManager) GetARecordByRef(ref string) (*RecordA, error) {
-	recordA := NewRecordA(RecordA{})
-	err := objMgr.connector.GetObject(recordA, ref, &recordA)
+	recordA := NewEmptyRecordA()
+	err := objMgr.connector.GetObject(
+		recordA, ref, NewQueryParams(false, nil), &recordA)
 	return recordA, err
 }
 func (objMgr *ObjectManager) DeleteARecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
-func (objMgr *ObjectManager) CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error) {
-
-	eas := objMgr.extendEA(ea)
+func (objMgr *ObjectManager) CreateCNAMERecord(
+	canonical string,
+	recordname string,
+	dnsview string,
+	eas EA) (*RecordCNAME, error) {
 
 	recordCNAME := NewRecordCNAME(RecordCNAME{
 		View:      dnsview,
@@ -568,7 +778,8 @@ func (objMgr *ObjectManager) CreateCNAMERecord(canonical string, recordname stri
 
 func (objMgr *ObjectManager) GetCNAMERecordByRef(ref string) (*RecordCNAME, error) {
 	recordCNAME := NewRecordCNAME(RecordCNAME{})
-	err := objMgr.connector.GetObject(recordCNAME, ref, &recordCNAME)
+	err := objMgr.connector.GetObject(
+		recordCNAME, ref, NewQueryParams(false, nil), &recordCNAME)
 	return recordCNAME, err
 }
 
@@ -593,7 +804,8 @@ func (objMgr *ObjectManager) CreateTXTRecord(recordname string, text string, ttl
 
 func (objMgr *ObjectManager) GetTXTRecordByRef(ref string) (*RecordTXT, error) {
 	recordTXT := NewRecordTXT(RecordTXT{})
-	err := objMgr.connector.GetObject(recordTXT, ref, &recordTXT)
+	err := objMgr.connector.GetObject(
+		recordTXT, ref, NewQueryParams(false, nil), &recordTXT)
 	return recordTXT, err
 }
 
@@ -603,9 +815,13 @@ func (objMgr *ObjectManager) GetTXTRecord(name string) (*RecordTXT, error) {
 	}
 	var res []RecordTXT
 
-	recordTXT := NewRecordTXT(RecordTXT{Name: name})
+	recordTXT := NewRecordTXT(RecordTXT{})
 
-	err := objMgr.connector.GetObject(recordTXT, "", &res)
+	sf := map[string]string{
+		"name": name,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordTXT, "", queryParams, &res)
 
 	if err != nil || res == nil || len(res) == 0 {
 		return nil, err
@@ -619,7 +835,11 @@ func (objMgr *ObjectManager) UpdateTXTRecord(recordname string, text string) (*R
 
 	recordTXT := NewRecordTXT(RecordTXT{Name: recordname})
 
-	err := objMgr.connector.GetObject(recordTXT, "", &res)
+	sf := map[string]string{
+		"name": recordname,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordTXT, "", queryParams, &res)
 
 	if len(res) == 0 {
 		return nil, nil
@@ -642,9 +862,13 @@ func (objMgr *ObjectManager) DeleteTXTRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
-func (objMgr *ObjectManager) CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error) {
-
-	eas := objMgr.extendEA(ea)
+func (objMgr *ObjectManager) CreatePTRRecord(
+	netview string,
+	dnsview string,
+	recordname string,
+	cidr string,
+	ipAddr string,
+	eas EA) (*RecordPTR, error) {
 
 	recordPTR := NewRecordPTR(RecordPTR{
 		View:     dnsview,
@@ -663,7 +887,8 @@ func (objMgr *ObjectManager) CreatePTRRecord(netview string, dnsview string, rec
 
 func (objMgr *ObjectManager) GetPTRRecordByRef(ref string) (*RecordPTR, error) {
 	recordPTR := NewRecordPTR(RecordPTR{})
-	err := objMgr.connector.GetObject(recordPTR, ref, &recordPTR)
+	err := objMgr.connector.GetObject(
+		recordPTR, ref, NewQueryParams(false, nil), &recordPTR)
 	return recordPTR, err
 }
 
@@ -675,7 +900,7 @@ func (objMgr *ObjectManager) DeletePTRRecord(ref string) (string, error) {
 func (objMgr *ObjectManager) CreateMultiObject(req *MultiRequest) ([]map[string]interface{}, error) {
 
 	conn := objMgr.connector.(*Connector)
-	queryParams := QueryParams{forceProxy: false}
+	queryParams := NewQueryParams(false, nil)
 	res, err := conn.makeRequest(CREATE, req, "", queryParams)
 
 	if err != nil {
@@ -702,8 +927,13 @@ func (objMgr *ObjectManager) GetUpgradeStatus(statusType string) ([]UpgradeStatu
 		msg := fmt.Sprintf("Status type can not be nil")
 		return res, errors.New(msg)
 	}
-	upgradestatus := NewUpgradeStatus(UpgradeStatus{Type: statusType})
-	err := objMgr.connector.GetObject(upgradestatus, "", &res)
+	upgradestatus := NewUpgradeStatus(UpgradeStatus{})
+
+	sf := map[string]string{
+		"type": statusType,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(upgradestatus, "", queryParams, &res)
 
 	return res, err
 }
@@ -713,7 +943,8 @@ func (objMgr *ObjectManager) GetAllMembers() ([]Member, error) {
 	var res []Member
 
 	memberObj := NewMember(Member{})
-	err := objMgr.connector.GetObject(memberObj, "", &res)
+	err := objMgr.connector.GetObject(
+		memberObj, "", NewQueryParams(false, nil), &res)
 	return res, err
 }
 
@@ -721,9 +952,13 @@ func (objMgr *ObjectManager) GetAllMembers() ([]Member, error) {
 func (objMgr *ObjectManager) GetCapacityReport(name string) ([]CapacityReport, error) {
 	var res []CapacityReport
 
-	capacityObj := CapacityReport{Name: name}
-	capacityReport := NewCapcityReport(capacityObj)
-	err := objMgr.connector.GetObject(capacityReport, "", &res)
+	capacityReport := NewCapcityReport(CapacityReport{})
+
+	sf := map[string]string{
+		"name": name,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(capacityReport, "", queryParams, &res)
 	return res, err
 }
 
@@ -732,7 +967,8 @@ func (objMgr *ObjectManager) GetLicense() ([]License, error) {
 	var res []License
 
 	licenseObj := NewLicense(License{})
-	err := objMgr.connector.GetObject(licenseObj, "", &res)
+	err := objMgr.connector.GetObject(
+		licenseObj, "", NewQueryParams(false, nil), &res)
 	return res, err
 }
 
@@ -741,7 +977,8 @@ func (objMgr *ObjectManager) GetGridLicense() ([]License, error) {
 	var res []License
 
 	licenseObj := NewGridLicense(License{})
-	err := objMgr.connector.GetObject(licenseObj, "", &res)
+	err := objMgr.connector.GetObject(
+		licenseObj, "", NewQueryParams(false, nil), &res)
 	return res, err
 }
 
@@ -750,14 +987,15 @@ func (objMgr *ObjectManager) GetGridInfo() ([]Grid, error) {
 	var res []Grid
 
 	gridObj := NewGrid(Grid{})
-	err := objMgr.connector.GetObject(gridObj, "", &res)
+	err := objMgr.connector.GetObject(
+		gridObj, "", NewQueryParams(false, nil), &res)
 	return res, err
 }
 
 // CreateZoneAuth creates zones and subs by passing fqdn
-func (objMgr *ObjectManager) CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, error) {
-
-	eas := objMgr.extendEA(ea)
+func (objMgr *ObjectManager) CreateZoneAuth(
+	fqdn string,
+	eas EA) (*ZoneAuth, error) {
 
 	zoneAuth := NewZoneAuth(ZoneAuth{
 		Fqdn: fqdn,
@@ -769,15 +1007,15 @@ func (objMgr *ObjectManager) CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, erro
 }
 
 // Retreive a authortative zone by ref
-func (objMgr *ObjectManager) GetZoneAuthByRef(ref string) (ZoneAuth, error) {
-	var res ZoneAuth
+func (objMgr *ObjectManager) GetZoneAuthByRef(ref string) (*ZoneAuth, error) {
+	res := NewZoneAuth(ZoneAuth{})
 
 	if ref == "" {
-		return res, nil
+		return nil, fmt.Errorf("empty reference to an object is not allowed")
 	}
-	zoneAuth := NewZoneAuth(ZoneAuth{})
 
-	err := objMgr.connector.GetObject(zoneAuth, ref, &res)
+	err := objMgr.connector.GetObject(
+		res, ref, NewQueryParams(false, nil), res)
 	return res, err
 }
 
@@ -791,7 +1029,8 @@ func (objMgr *ObjectManager) GetZoneAuth() ([]ZoneAuth, error) {
 	var res []ZoneAuth
 
 	zoneAuth := NewZoneAuth(ZoneAuth{})
-	err := objMgr.connector.GetObject(zoneAuth, "", &res)
+	err := objMgr.connector.GetObject(
+		zoneAuth, "", NewQueryParams(false, nil), &res)
 
 	return res, err
 }
@@ -803,9 +1042,13 @@ func (objMgr *ObjectManager) GetZoneDelegated(fqdn string) (*ZoneDelegated, erro
 	}
 	var res []ZoneDelegated
 
-	zoneDelegated := NewZoneDelegated(ZoneDelegated{Fqdn: fqdn})
+	zoneDelegated := NewZoneDelegated(ZoneDelegated{})
 
-	err := objMgr.connector.GetObject(zoneDelegated, "", &res)
+	sf := map[string]string{
+		"fqdn": fqdn,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(zoneDelegated, "", queryParams, &res)
 
 	if err != nil || res == nil || len(res) == 0 {
 		return nil, err
