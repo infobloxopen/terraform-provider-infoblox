@@ -31,11 +31,11 @@ $ make testacc
 ## NIOS Requirements
 * Plugin can be used without a CNA license and does not mandate to specify any EAs.
 
-* If Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member attached,make sure to add below mandatory cloud EA's in tf files when using other cloud EAs(like "VM Name", "VM ID", "Network Name").   
+* If Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member attached. Make sure to have below mandatory EAs in .tf file if non mandatory cloud EAs(like "VM Name", "VM ID", "Network Name") are used.
    * Tenant ID :: String Type
    * CMP Type :: String Type
    * Cloud API Owned :: List Type (Values True, False)
-   
+
 ## Features of Provider
 ### Resource
 Create, Update and Delete of below resources is supported along with comment and EAs fields.
