@@ -9,9 +9,9 @@ import (
 )
 
 var testAccresourceNetworkView = fmt.Sprintf(`
-resource "infoblox_network_view" "foo"{
-	network_view_name="test1"
-	tenant_id="foo"
+	resource "infoblox_network_view" "foo"{
+		network_view_name="test1"
+		tenant_id="foo"
 	}`)
 
 func TestAccresourceNetworkView(t *testing.T) {

@@ -33,6 +33,7 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+/*
 resource "vsphere_virtual_machine" "vm" {
   name             = infoblox_ip_allocation.demo_allocation.vm_name
   resource_pool_id = data.vsphere_resource_pool.pool.id
@@ -72,4 +73,4 @@ resource "vsphere_virtual_machine" "vm" {
     }
   }
 }
-
+*/

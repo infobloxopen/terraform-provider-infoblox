@@ -44,7 +44,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetNetwork(networkViewName, cidr, nil)
+	obj, err := objMgr.GetNetwork(networkViewName, cidr, false, nil)
 	if err != nil {
 		return fmt.Errorf("Getting Network block from network (%s) failed : %s", cidr, err)
 	}
