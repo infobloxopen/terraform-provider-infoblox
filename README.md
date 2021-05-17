@@ -26,12 +26,12 @@ $ make testacc
 ## Using the Provider
 * To use the plugin install v0.14.x [Terraform](https://www.terraform.io/downloads.html)
 * If you're building the provider, follow the instructions to [install it as a plugin](https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers). 
-* Once the build is completed, set the `terraform-provider-infoblox` binary file location appropriately in in `dev_overrides`.
+* Once the build is completed, set the `terraform-provider-infoblox` binary file location appropriately in `dev_overrides`.
 
 ## NIOS Requirements
 * Plugin can be used without a CNA license and does not mandate to specify any EAs.
 
-* If Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member attached. Make sure to have below mandatory EAs in .tf file if non mandatory cloud EAs(like "VM Name", "VM ID", "Network Name") are used.
+* If Cloud Network Automation[CNA] License is installed on NIOS and has a Cloud Platform[CP] member attached. Make sure to have below mandatory EAs in .tf file for creating a cloud object.
    * Tenant ID :: String Type
    * CMP Type :: String Type
    * Cloud API Owned :: List Type (Values True, False)
