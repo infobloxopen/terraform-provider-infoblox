@@ -8,8 +8,6 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-const defaultTenantId = "default_tenant"
-
 //Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
@@ -75,6 +73,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_ipv4_association":       resourceIPv4Association(),
 			"infoblox_ipv6_association":       resourceIPv6Association(),
 			"infoblox_a_record":               resourceARecord(),
+			"infoblox_aaaa_record":            resourceAAAARecord(),
 			"infoblox_cname_record":           resourceCNAMERecord(),
 			"infoblox_ptr_record":             resourcePTRRecord(),
 		},

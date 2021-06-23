@@ -66,7 +66,7 @@ func dataSourceCNameRecordRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(*ibclient.Connector)
 
-	cnRec := ibclient.NewRecordCNAME(ibclient.RecordCNAME{})
+	cnRec := ibclient.NewEmptyRecordCNAME()
 	sf := map[string]string{
 		"canonical": canonical,
 		"name":      fqdn,
