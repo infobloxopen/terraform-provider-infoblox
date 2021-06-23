@@ -66,8 +66,6 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 	tenantIdTfProp, found := d.GetOk("tenant_id")
 	if found {
 		tenantID = tenantIdTfProp.(string)
-	} else {
-		tenantID = defaultTenantId
 	}
 
 	Connector := m.(ibclient.IBConnector)
@@ -106,8 +104,6 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	tenantIdTfProp, found := d.GetOk("tenant_id")
 	if found {
 		tenantID = tenantIdTfProp.(string)
-	} else {
-		tenantID = defaultTenantId
 	}
 
 	Connector := m.(ibclient.IBConnector)
@@ -176,8 +172,6 @@ func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
 	tenantIdTfProp, found := d.GetOk("tenant_id")
 	if found {
 		tenantID = tenantIdTfProp.(string)
-	} else {
-		tenantID = defaultTenantId
 	}
 
 	connector := m.(ibclient.IBConnector)

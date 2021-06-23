@@ -7,24 +7,27 @@ import (
 	"net"
 	"net/url"
 	"regexp"
+	"strings"
 )
 
 type IBObjectManager interface {
 	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddress string, name string, comment string, eas EA) (*FixedAddress, error)
 	AllocateNetwork(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (network *Network, err error)
-	CreateARecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordA, error)
+	CreateARecord(netView string, dnsView string, name string, cidr string, ipAddr string, ttl uint32, useTTL bool, comment string, ea EA) (*RecordA, error)
+	CreateAAAARecord(netView string, dnsView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordAAAA, error)
 	CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, error)
-	CreateCNAMERecord(canonical string, recordname string, dnsview string, ea EA) (*RecordCNAME, error)
+	CreateCNAMERecord(dnsview string, canonical string, recordname string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordCNAME, error)
 	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
 	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
 	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, comment string, eas EA, aliases []string) (*HostRecord, error)
 	CreateNetwork(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*Network, error)
 	CreateNetworkContainer(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*NetworkContainer, error)
 	CreateNetworkView(name string) (*NetworkView, error)
-	CreatePTRRecord(netview string, dnsview string, recordname string, cidr string, ipAddr string, ea EA) (*RecordPTR, error)
+	CreatePTRRecord(networkView string, dnsView string, ptrdname string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordPTR, error)
 	CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error)
 	CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error)
 	DeleteARecord(ref string) (string, error)
+	DeleteAAAARecord(ref string) (string, error)
 	DeleteZoneAuth(ref string) (string, error)
 	DeleteCNAMERecord(ref string) (string, error)
 	DeleteFixedAddress(ref string) (string, error)
@@ -36,6 +39,9 @@ type IBObjectManager interface {
 	DeleteTXTRecord(ref string) (string, error)
 	DeleteZoneDelegated(ref string) (string, error)
 	GetARecordByRef(ref string) (*RecordA, error)
+	GetAAAARecord(dnsview string, recordName string, ipAddr string) (*RecordAAAA, error)
+	GetAAAARecordByRef(ref string) (*RecordAAAA, error)
+	GetCNAMERecord(dnsview string, canonical string, recordName string) (*RecordCNAME, error)
 	GetCNAMERecordByRef(ref string) (*RecordCNAME, error)
 	GetEADefinition(name string) (*EADefinition, error)
 	GetFixedAddress(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (*FixedAddress, error)
@@ -49,6 +55,7 @@ type IBObjectManager interface {
 	GetNetworkContainerByRef(ref string) (*NetworkContainer, error)
 	GetNetworkView(name string) (*NetworkView, error)
 	GetNetworkViewByRef(ref string) (*NetworkView, error)
+	GetPTRRecord(dnsview string, ptrdname string, recordName string, ipAddr string) (*RecordPTR, error)
 	GetPTRRecordByRef(ref string) (*RecordPTR, error)
 	GetZoneAuthByRef(ref string) (*ZoneAuth, error)
 	GetZoneDelegated(fqdn string) (*ZoneDelegated, error)
@@ -58,11 +65,15 @@ type IBObjectManager interface {
 	GetGridInfo() ([]Grid, error)
 	GetGridLicense() ([]License, error)
 	ReleaseIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (string, error)
+	UpdateAAAARecord(ref string, netView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordAAAA, error)
+	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
 	UpdateFixedAddress(fixedAddrRef string, name string, matchclient string, macAddress string, comment string, eas EA) (*FixedAddress, error)
 	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, comment string, eas EA, aliases []string) (*HostRecord, error)
 	UpdateNetwork(ref string, setEas EA, comment string) (*Network, error)
 	UpdateNetworkContainer(ref string, setEas EA, comment string) (*NetworkContainer, error)
 	UpdateNetworkViewEA(ref string, setEas EA) error
+	UpdatePTRRecord(ref string, ptrdname string, name string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordPTR, error)
+	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
 }
 
@@ -730,23 +741,126 @@ func (objMgr *ObjectManager) UpdateNetworkContainer(
 }
 
 func (objMgr *ObjectManager) CreateARecord(
-	netview string,
-	dnsview string,
-	recordname string,
+	netView string,
+	dnsView string,
+	name string,
 	cidr string,
 	ipAddr string,
+	ttl uint32,
+	useTTL bool,
+	comment string,
 	eas EA) (*RecordA, error) {
 
-	recordA := NewRecordA(dnsview, "", recordname, "", eas, "")
+	cleanName := strings.TrimSpace(name)
+	if cleanName == "" || cleanName != name {
+		return nil, fmt.Errorf(
+			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
+	}
+
+	recordA := NewRecordA(dnsView, "", name, "", ttl, useTTL, comment, eas, "")
 
 	if ipAddr == "" {
-		recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+		if cidr == "" {
+			return nil, fmt.Errorf("CIDR must not be empty")
+		}
+		ip, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+		}
+		if ip.To4() == nil {
+			return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+		}
+		if netView == "" {
+			recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s", cidr)
+		} else {
+			recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+		}
 	} else {
+		ip := net.ParseIP(ipAddr)
+		if ip == nil {
+			return nil, fmt.Errorf("'IP address for the record is not valid")
+		}
+		if ip.To4() == nil {
+			return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
+		}
 		recordA.Ipv4Addr = ipAddr
 	}
+
 	ref, err := objMgr.connector.CreateObject(recordA)
-	recordA.Ref = ref
-	return recordA, err
+	if err != nil {
+		return nil, err
+	}
+
+	newRec, err := objMgr.GetARecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
+
+	return newRec, nil
+}
+
+func (objMgr *ObjectManager) UpdateARecord(
+	ref string,
+	name string,
+	ipAddr string,
+	cidr string,
+	netView string,
+	ttl uint32,
+	useTTL bool,
+	comment string,
+	eas EA) (*RecordA, error) {
+
+	cleanName := strings.ToLower(strings.TrimSpace(name))
+	if cleanName == "" || cleanName != name {
+		return nil, fmt.Errorf(
+			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
+	}
+
+	rec, err := objMgr.GetARecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
+	newIpAddr := rec.Ipv4Addr
+	if ipAddr == "" {
+		if cidr != "" {
+			ip, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+			}
+			if ip.To4() == nil {
+				return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+			}
+			if netView == "" {
+				newIpAddr = fmt.Sprintf("func:nextavailableip:%s", cidr)
+			} else {
+				newIpAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+			}
+		}
+		// else: leaving ipv4addr field untouched
+	} else {
+		ip := net.ParseIP(ipAddr)
+		if ip == nil {
+			return nil, fmt.Errorf("'IP address for the record is not valid")
+		}
+		if ip.To4() == nil {
+			return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
+		}
+		newIpAddr = ipAddr
+	}
+	rec = NewRecordA(
+		"", "", name, newIpAddr, ttl, useTTL, comment, eas, ref)
+	ref, err = objMgr.connector.UpdateObject(rec, ref)
+	if err != nil {
+		return nil, err
+	}
+	rec.Ref = ref
+
+	rec, err = objMgr.GetARecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
+
+	return rec, nil
 }
 
 func (objMgr *ObjectManager) GetARecordByRef(ref string) (*RecordA, error) {
@@ -755,29 +869,207 @@ func (objMgr *ObjectManager) GetARecordByRef(ref string) (*RecordA, error) {
 		recordA, ref, NewQueryParams(false, nil), &recordA)
 	return recordA, err
 }
+
 func (objMgr *ObjectManager) DeleteARecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
+func (objMgr *ObjectManager) CreateAAAARecord(
+	netView string,
+	dnsView string,
+	recordName string,
+	cidr string,
+	ipAddr string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	eas EA) (*RecordAAAA, error) {
+
+	cleanName := strings.ToLower(strings.TrimSpace(recordName))
+	if cleanName == "" || cleanName != recordName {
+		return nil, fmt.Errorf(
+			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
+	}
+	recordAAAA := NewRecordAAAA(dnsView, recordName, "", useTtl, ttl, comment, eas, "")
+
+	if ipAddr == "" {
+		if cidr == "" {
+			return nil, fmt.Errorf("CIDR must not be empty")
+		}
+		ipAddress, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+		}
+		if ipAddress.To4() != nil || ipAddress.To16() == nil {
+			return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
+		}
+		if netView == "" {
+			netView = "default"
+		}
+		recordAAAA.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+	} else {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("IP address for the record is not valid")
+		}
+		if ipAddress.To4() != nil || ipAddress.To16() == nil {
+			return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
+		}
+		recordAAAA.Ipv6Addr = ipAddr
+	}
+	ref, err := objMgr.connector.CreateObject(recordAAAA)
+	if err != nil {
+		return nil, err
+	}
+	recordAAAA, err = objMgr.GetAAAARecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
+	return recordAAAA, nil
+}
+
+func (objMgr *ObjectManager) GetAAAARecord(dnsview string, recordName string, ipAddr string) (*RecordAAAA, error) {
+	var res []RecordAAAA
+	recordAAAA := NewEmptyRecordAAAA()
+	if dnsview == "" || recordName == "" || ipAddr == "" {
+		return nil, fmt.Errorf("DNS view, IPv6 address and record name of the record are required to retreive a unique AAAA record")
+	}
+	sf := map[string]string{
+		"view":     dnsview,
+		"name":     recordName,
+		"ipv6addr": ipAddr,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordAAAA, "", queryParams, &res)
+
+	if err != nil {
+		return nil, err
+	} else if res == nil || len(res) == 0 {
+		return nil, NewNotFoundError(
+			fmt.Sprintf(
+				"AAAA record with name '%s' and IPv6 address '%s' in DNS view '%s' is not found",
+				recordName, ipAddr, dnsview))
+	}
+	return &res[0], nil
+}
+
+func (objMgr *ObjectManager) GetAAAARecordByRef(ref string) (*RecordAAAA, error) {
+	recordAAAA := NewEmptyRecordAAAA()
+	err := objMgr.connector.GetObject(
+		recordAAAA, ref, NewQueryParams(false, nil), &recordAAAA)
+	return recordAAAA, err
+}
+
+func (objMgr *ObjectManager) DeleteAAAARecord(ref string) (string, error) {
+	return objMgr.connector.DeleteObject(ref)
+}
+
+func (objMgr *ObjectManager) UpdateAAAARecord(
+	ref string,
+	netView string,
+	recordName string,
+	ipAddr string,
+	cidr string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	setEas EA) (*RecordAAAA, error) {
+
+	cleanName := strings.ToLower(strings.TrimSpace(recordName))
+	if cleanName == "" || cleanName != recordName {
+		return nil, fmt.Errorf(
+			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
+	}
+
+	rec, err := objMgr.GetAAAARecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
+	newIpAddr := rec.Ipv6Addr
+	if ipAddr == "" {
+		if cidr != "" {
+			ipAddress, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+			}
+			if ipAddress.To4() != nil || ipAddress.To16() == nil {
+				return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
+			}
+			if netView == "" {
+				netView = "default"
+			}
+			newIpAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+		}
+	} else {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("IP address for the record is not valid")
+		}
+		if ipAddress.To4() != nil || ipAddress.To16() == nil {
+			return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
+		}
+		newIpAddr = ipAddr
+	}
+	recordAAAA := NewRecordAAAA("", recordName, newIpAddr, useTtl, ttl, comment, setEas, ref)
+	reference, err := objMgr.connector.UpdateObject(recordAAAA, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	recordAAAA, err = objMgr.GetAAAARecordByRef(reference)
+	if err != nil {
+		return nil, err
+	}
+	return recordAAAA, nil
+}
+
 func (objMgr *ObjectManager) CreateCNAMERecord(
+	dnsview string,
 	canonical string,
 	recordname string,
-	dnsview string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
 	eas EA) (*RecordCNAME, error) {
 
-	recordCNAME := NewRecordCNAME(RecordCNAME{
-		View:      dnsview,
-		Name:      recordname,
-		Canonical: canonical,
-		Ea:        eas})
+	if canonical == "" || recordname == "" {
+		return nil, fmt.Errorf("canonical name and record name fields are required to create a CNAME record")
+	}
+	recordCNAME := NewRecordCNAME(dnsview, canonical, recordname, useTtl, ttl, comment, eas, "")
 
 	ref, err := objMgr.connector.CreateObject(recordCNAME)
-	recordCNAME.Ref = ref
+	recordCNAME, err = objMgr.GetCNAMERecordByRef(ref)
 	return recordCNAME, err
 }
 
+func (objMgr *ObjectManager) GetCNAMERecord(dnsview string, canonical string, recordName string) (*RecordCNAME, error) {
+	var res []RecordCNAME
+	recordCNAME := NewEmptyRecordCNAME()
+	if dnsview == "" || canonical == "" || recordName == "" {
+		return nil, fmt.Errorf("DNS view, canonical name and record name of the record are required to retreive a unique CNAME record")
+	}
+	sf := map[string]string{
+		"view":      dnsview,
+		"canonical": canonical,
+		"name":      recordName,
+	}
+
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordCNAME, "", queryParams, &res)
+
+	if err != nil {
+		return nil, err
+	} else if res == nil || len(res) == 0 {
+		return nil, NewNotFoundError(
+			fmt.Sprintf(
+				"CNAME record with name '%s' and canonical name '%s' in DNS view '%s' is not found",
+				recordName, canonical, dnsview))
+	}
+	return &res[0], nil
+}
+
 func (objMgr *ObjectManager) GetCNAMERecordByRef(ref string) (*RecordCNAME, error) {
-	recordCNAME := NewRecordCNAME(RecordCNAME{})
+	recordCNAME := NewEmptyRecordCNAME()
 	err := objMgr.connector.GetObject(
 		recordCNAME, ref, NewQueryParams(false, nil), &recordCNAME)
 	return recordCNAME, err
@@ -785,6 +1077,25 @@ func (objMgr *ObjectManager) GetCNAMERecordByRef(ref string) (*RecordCNAME, erro
 
 func (objMgr *ObjectManager) DeleteCNAMERecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
+}
+
+func (objMgr *ObjectManager) UpdateCNAMERecord(
+	ref string,
+	canonical string,
+	recordName string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	setEas EA) (*RecordCNAME, error) {
+
+	recordCNAME := NewRecordCNAME("", canonical, recordName, useTtl, ttl, comment, setEas, ref)
+	updatedRef, err := objMgr.connector.UpdateObject(recordCNAME, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	recordCNAME, err = objMgr.GetCNAMERecordByRef(updatedRef)
+	return recordCNAME, err
 }
 
 // Creates TXT Record. Use TTL of 0 to inherit TTL from the Zone
@@ -862,31 +1173,100 @@ func (objMgr *ObjectManager) DeleteTXTRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
 
+// TODO check if the respective zone exists before creation of the record
 func (objMgr *ObjectManager) CreatePTRRecord(
-	netview string,
-	dnsview string,
-	recordname string,
+	networkView string,
+	dnsView string,
+	ptrdname string,
+	recordName string,
 	cidr string,
 	ipAddr string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
 	eas EA) (*RecordPTR, error) {
 
-	recordPTR := NewRecordPTR(RecordPTR{
-		View:     dnsview,
-		PtrdName: recordname,
-		Ea:       eas})
+	if ptrdname == "" {
+		return nil, fmt.Errorf("ptrdname is a required field to create a PTR record")
+	}
+	recordPTR := NewRecordPTR(dnsView, ptrdname, &useTtl, ttl, comment, eas)
 
-	if ipAddr == "" {
-		recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+	if ipAddr == "" && cidr != "" && networkView != "" {
+		ipAddress, net, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return nil, err
+		}
+		if ipAddress.To4() != nil {
+			if net.String() != cidr {
+				return nil, fmt.Errorf("%s is an invalid CIDR. Note: leading zeros should be removed if exists", cidr)
+			}
+			recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView)
+		} else {
+			recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView)
+		}
+	} else if ipAddr != "" {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("%s is an invalid IP address", ipAddr)
+		}
+		if ipAddress.To4() != nil {
+			recordPTR.Ipv4Addr = ipAddr
+		} else {
+			recordPTR.Ipv6Addr = ipAddr
+		}
+	} else if recordName != "" {
+		recordPTR.Name = recordName
 	} else {
-		recordPTR.Ipv4Addr = ipAddr
+		return nil, fmt.Errorf("CIDR and network view are required to allocate a next available IP address\n" +
+			"IP address is required to create PTR record in reverse mapping zone\n" +
+			"record name is required to create a record in forwarrd mapping zone")
 	}
 	ref, err := objMgr.connector.CreateObject(recordPTR)
-	recordPTR.Ref = ref
+	if err != nil {
+		return nil, err
+	}
+	recordPTR, err = objMgr.GetPTRRecordByRef(ref)
 	return recordPTR, err
 }
 
+func (objMgr *ObjectManager) GetPTRRecord(dnsview string, ptrdname string, recordName string, ipAddr string) (*RecordPTR, error) {
+	var res []RecordPTR
+	recordPtr := NewEmptyRecordPTR()
+	sf := map[string]string{
+		"view":     dnsview,
+		"ptrdname": ptrdname,
+	}
+	if ipAddr != "" {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("%s is an invalid IP address", ipAddr)
+		}
+		if ipAddress.To4() != nil {
+			sf["ipv4addr"] = ipAddr
+		} else {
+			sf["ipv6addr"] = ipAddr
+		}
+	} else if recordName != "" {
+		sf["name"] = recordName
+	} else {
+		return nil, fmt.Errorf("record name or IP Address of the record has to be passed to get a unique record")
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordPtr, "", queryParams, &res)
+
+	if err != nil {
+		return nil, err
+	} else if res == nil || len(res) == 0 {
+		return nil, NewNotFoundError(
+			fmt.Sprintf(
+				"PTR record with name/IP '%v' and ptrdname '%s' in DNS view '%s' is not found",
+				[]string{recordName, ipAddr}, ptrdname, dnsview))
+	}
+	return &res[0], nil
+}
+
 func (objMgr *ObjectManager) GetPTRRecordByRef(ref string) (*RecordPTR, error) {
-	recordPTR := NewRecordPTR(RecordPTR{})
+	recordPTR := NewEmptyRecordPTR()
 	err := objMgr.connector.GetObject(
 		recordPTR, ref, NewQueryParams(false, nil), &recordPTR)
 	return recordPTR, err
@@ -894,6 +1274,35 @@ func (objMgr *ObjectManager) GetPTRRecordByRef(ref string) (*RecordPTR, error) {
 
 func (objMgr *ObjectManager) DeletePTRRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
+}
+
+func (objMgr *ObjectManager) UpdatePTRRecord(
+	ref string,
+	ptrdname string,
+	name string,
+	ipAddr string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	setEas EA) (*RecordPTR, error) {
+
+	recordPTR := NewRecordPTR("", ptrdname, &useTtl, ttl, comment, setEas)
+	recordPTR.Ref = ref
+	recordPTR.Name = name
+	isIPv6, _ := regexp.MatchString(`^record:ptr/.+.ip6.arpa/.+`, ref)
+
+	if isIPv6 {
+		recordPTR.Ipv6Addr = ipAddr
+	} else {
+		recordPTR.Ipv4Addr = ipAddr
+	}
+	reference, err := objMgr.connector.UpdateObject(recordPTR, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	recordPTR, err = objMgr.GetPTRRecordByRef(reference)
+	return recordPTR, err
 }
 
 // CreateMultiObject unmarshals the result into slice of maps

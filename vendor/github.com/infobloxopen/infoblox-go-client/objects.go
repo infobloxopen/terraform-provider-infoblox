@@ -429,13 +429,17 @@ type RecordA struct {
 	Name     string `json:"name,omitempty"`
 	View     string `json:"view,omitempty"`
 	Zone     string `json:"zone,omitempty"`
+	TTL      uint32 `json:"ttl"`
+	UseTTL   bool   `json:"use_ttl"`
+	Comment  string `json:"comment"`
 	Ea       EA     `json:"extattrs"`
 }
 
 func NewEmptyRecordA() *RecordA {
 	res := &RecordA{}
 	res.objectType = "record:a"
-	res.returnFields = []string{"extattrs", "ipv4addr", "name", "view", "zone"}
+	res.returnFields = []string{
+		"extattrs", "ipv4addr", "name", "view", "zone", "comment", "ttl", "use_ttl"}
 
 	return res
 }
@@ -445,6 +449,9 @@ func NewRecordA(
 	zone string,
 	name string,
 	ipAddr string,
+	ttl uint32,
+	useTTL bool,
+	comment string,
 	eas EA,
 	ref string) *RecordA {
 
@@ -453,6 +460,53 @@ func NewRecordA(
 	res.Zone = zone
 	res.Name = name
 	res.Ipv4Addr = ipAddr
+	res.TTL = ttl
+	res.UseTTL = useTTL
+	res.Comment = comment
+	res.Ea = eas
+	res.Ref = ref
+
+	return res
+}
+
+type RecordAAAA struct {
+	IBBase   `json:"-"`
+	Ref      string `json:"_ref,omitempty"`
+	Ipv6Addr string `json:"ipv6addr,omitempty"`
+	Name     string `json:"name,omitempty"`
+	View     string `json:"view,omitempty"`
+	Zone     string `json:"zone,omitempty"`
+	UseTtl   bool   `json:"use_ttl"`
+	Ttl      uint32 `json:"ttl"`
+	Comment  string `json:"comment"`
+	Ea       EA     `json:"extattrs"`
+}
+
+func NewEmptyRecordAAAA() *RecordAAAA {
+	res := &RecordAAAA{}
+	res.objectType = "record:aaaa"
+	res.returnFields = []string{"extattrs", "ipv6addr", "name", "view", "zone", "use_ttl", "ttl", "comment"}
+
+	return res
+}
+
+func NewRecordAAAA(
+	view string,
+	name string,
+	ipAddr string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	eas EA,
+	ref string) *RecordAAAA {
+
+	res := NewEmptyRecordAAAA()
+	res.View = view
+	res.Name = name
+	res.Ipv6Addr = ipAddr
+	res.UseTtl = useTtl
+	res.Ttl = ttl
+	res.Comment = comment
 	res.Ea = eas
 	res.Ref = ref
 
@@ -463,19 +517,35 @@ type RecordPTR struct {
 	IBBase   `json:"-"`
 	Ref      string `json:"_ref,omitempty"`
 	Ipv4Addr string `json:"ipv4addr,omitempty"`
+	Ipv6Addr string `json:"ipv6addr,omitempty"`
 	Name     string `json:"name,omitempty"`
 	PtrdName string `json:"ptrdname,omitempty"`
 	View     string `json:"view,omitempty"`
 	Zone     string `json:"zone,omitempty"`
 	Ea       EA     `json:"extattrs"`
+	UseTtl   *bool  `json:"use_ttl,omitempty"`
+	Ttl      uint32 `json:"ttl,omitempty"`
+	Comment  string `json:"comment,omitempty"`
 }
 
-func NewRecordPTR(rptr RecordPTR) *RecordPTR {
-	res := rptr
+func NewEmptyRecordPTR() *RecordPTR {
+	res := RecordPTR{}
 	res.objectType = "record:ptr"
-	res.returnFields = []string{"extattrs", "ipv4addr", "ptrdname", "view", "zone"}
+	res.returnFields = []string{"extattrs", "ipv4addr", "ipv6addr", "ptrdname", "view", "zone", "comment", "use_ttl", "ttl"}
 
 	return &res
+}
+
+func NewRecordPTR(dnsView string, ptrdname string, useTtl *bool, ttl uint32, comment string, ea EA) *RecordPTR {
+	res := NewEmptyRecordPTR()
+	res.View = dnsView
+	res.PtrdName = ptrdname
+	res.UseTtl = useTtl
+	res.Ttl = ttl
+	res.Comment = comment
+	res.Ea = ea
+
+	return res
 }
 
 type RecordCNAME struct {
@@ -486,14 +556,39 @@ type RecordCNAME struct {
 	View      string `json:"view,omitempty"`
 	Zone      string `json:"zone,omitempty"`
 	Ea        EA     `json:"extattrs"`
+	Comment   string `json:"comment"`
+	UseTtl    bool   `json:"use_ttl"`
+	Ttl       uint32 `json:"ttl"`
 }
 
-func NewRecordCNAME(rc RecordCNAME) *RecordCNAME {
-	res := rc
+func NewEmptyRecordCNAME() *RecordCNAME {
+	res := &RecordCNAME{}
 	res.objectType = "record:cname"
-	res.returnFields = []string{"extattrs", "canonical", "name", "view", "zone"}
+	res.returnFields = []string{"extattrs", "canonical", "name", "view", "zone", "comment", "ttl", "use_ttl"}
 
-	return &res
+	return res
+}
+
+func NewRecordCNAME(dnsView string,
+	canonical string,
+	recordName string,
+	useTtl bool,
+	ttl uint32,
+	comment string,
+	ea EA,
+	ref string) *RecordCNAME {
+
+	res := NewEmptyRecordCNAME()
+	res.View = dnsView
+	res.Canonical = canonical
+	res.Name = recordName
+	res.UseTtl = useTtl
+	res.Ttl = ttl
+	res.Comment = comment
+	res.Ea = ea
+	res.Ref = ref
+
+	return res
 }
 
 type HostRecordIpv4Addr struct {
@@ -677,6 +772,10 @@ func NewZoneDelegated(za ZoneDelegated) *ZoneDelegated {
 	res.returnFields = []string{"extattrs", "fqdn", "view", "delegate_to"}
 
 	return &res
+}
+
+func (ea EA) Count() int {
+	return len(ea)
 }
 
 func (ea EA) MarshalJSON() ([]byte, error) {

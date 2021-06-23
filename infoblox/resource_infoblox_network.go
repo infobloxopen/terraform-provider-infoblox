@@ -97,7 +97,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	ZeroMacAddr := "00:00:00:00:00:00"
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	ea := make(ibclient.EA)
+	ea := make(map[string]interface{})
 
 	var network *ibclient.Network
 	var err error

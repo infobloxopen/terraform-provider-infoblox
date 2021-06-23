@@ -10,8 +10,6 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-const testNetView = "default"
-
 var resCfgNetworkContainer_create_ipv4 = fmt.Sprintf(`
 resource "infoblox_ipv4_network_container" "nc_1" {
   network_view_name = "%s"
