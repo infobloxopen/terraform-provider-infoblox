@@ -155,8 +155,7 @@ resource "infoblox_ptr_record" "ib_ptr_record_ipv4" {
   dns_view = "default"
 
   # Record in forward mapping zone
-  zone= "vmware.com"
-  record_name = "tf-vmware-ipv4"
+  record_name = "tf-vmware-ipv4.vmware.com"
 
   # Record in reverse mapping zone
   #network_view_name = "default"
@@ -179,8 +178,7 @@ resource "infoblox_ptr_record" "ib_ptr_record_ipv6" {
   dns_view = "default"
 
   # Record in forward mapping zone
-  zone= "vmware.com"
-  record_name = "tf-vmware-ipv6"
+  record_name = "tf-vmware-ipv6.vmware.com"
 
   # Record in reverse mapping zone
   #network_view_name = "default"
