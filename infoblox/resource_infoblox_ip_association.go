@@ -33,6 +33,7 @@ func resourceIPAssociation() *schema.Resource {
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "default",
 				Description: "view in which record has to be created.",
 			},
 			"zone": &schema.Schema{
