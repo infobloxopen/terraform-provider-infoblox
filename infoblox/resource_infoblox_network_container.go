@@ -85,12 +85,9 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	for attrName, attrValueInf := range extAttrs {
-		attrValue, _ := attrValueInf.(string)
-		if attrName == "Tenant ID" {
-			tenantID = attrValue
-			break
-		}
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -117,12 +114,9 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var tenantID string
-	for attrName, attrValueInf := range extAttrs {
-		attrValue, _ := attrValueInf.(string)
-		if attrName == "Tenant ID" {
-			tenantID = attrValue
-			break
-		}
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
 	}
 
 	if cidr == "" || nvName == "" {
@@ -147,20 +141,6 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	d.SetId(nc.Ref)
-
-	nc, err = objMgr.GetNetworkContainerByRef(d.Id())
-	if err != nil {
-		return fmt.Errorf("failed to read the network container: %s", err.Error())
-	}
-
-	easBytes, err := json.Marshal(nc.Ea)
-	if err != nil {
-		return fmt.Errorf(
-			"failed to read the network container's state after an update operation: %s",
-			err.Error())
-	}
-	d.Set("extensible_attributes", string(easBytes))
-	d.Set("comment", nc.Comment)
 
 	return nil
 }
