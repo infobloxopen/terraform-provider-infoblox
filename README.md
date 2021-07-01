@@ -7,10 +7,11 @@ Terraform provider plugin to integrate with Infoblox Network Identity Operating 
 The plugin enables lifecycle management of Infoblox NIOS DDI resources.
 
 The latest version of Infoblox NIOS provider is [v1.1.1](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v1.1.1)
+
 The features in development are available at [`develop`](https://github.com/infobloxopen/terraform-provider-infoblox/tree/develop) branch.
 
 ## NIOS Requirements
-CNA License need to be installed on NIOS. If CNA is not installed then following default EA's should be added in NIOS side manually:
+A Cloud Network Automation [CNA] license needs to be installed on NIOS. If CNA is not installed then following default EAs must be added at the NIOS side manually:
    * Tenant ID :: String Type
    * CMP Type :: String Type
    * Cloud API Owned :: List Type (Values True, False)
@@ -18,7 +19,7 @@ CNA License need to be installed on NIOS. If CNA is not installed then following
    * VM Name :: String Type
    * VM ID :: String Type
 
-## Quick Starts
+## Quick Start
 - [Using the provider](docs/USING.md)
 - [Developing the provider](docs/DEVELOPMENT.md)
 
@@ -28,12 +29,12 @@ The comprehensive documentation of plugin is available at Terraform registry.
 https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs
 
 ## Provider features
-Provider has NIOS DDI resources as Terraform resources and datasources. Below is the consolidated list of the same.
+The provider has NIOS DDI resources as Terraform resources and datasources. Below is the consolidated list of supported resources and data sources:
 ### Resource
 * Network View
 * Network
-* Allocation & Deallocation of IP from a Network
-* Association & Disassociation of IP Address for a VM
+* Allocation & deallocation of an IP address from a Network
+* Association & disassociation of IP Address for a VM
 * A Record
 * PTR Record
 * CNAME Record
