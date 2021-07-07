@@ -16,7 +16,7 @@ func resourceAAAARecord() *schema.Resource {
 		Delete: resourceAAAARecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": {
+			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
@@ -55,7 +55,7 @@ func resourceAAAARecord() *schema.Resource {
 				Optional:    true,
 				Description: "A description about AAAA record.",
 			},
-			"extensible_attributes": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
@@ -74,7 +74,7 @@ func setTFFieldsForRecordAAAA(d *schema.ResourceData, rec *ibclient.RecordAAAA) 
 
 func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 
-	networkView := d.Get("network_view_name").(string)
+	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
@@ -82,11 +82,11 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -132,11 +132,11 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -157,7 +157,10 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 
 func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 
-	networkView := d.Get("network_view_name").(string)
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
@@ -178,11 +181,11 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -225,11 +228,11 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	dnsView := d.Get("dns_view").(string)
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 

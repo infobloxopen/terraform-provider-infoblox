@@ -11,10 +11,10 @@ import (
 
 var testAccresourceIPv4NetworkCreate = fmt.Sprintf(`
 resource "infoblox_ipv4_network" "foo"{
-	network_view_name="default"
+	network_view="default"
 	cidr="10.10.0.0/24"
 	comment = "10.0.0.0/24 network created"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Network Name"= "demo-network"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc."
@@ -26,10 +26,10 @@ resource "infoblox_ipv4_network" "foo"{
 
 var testAccresourceIPv4NetworkUpdate = fmt.Sprintf(`
 resource "infoblox_ipv4_network" "foo"{
-	network_view_name="default"
+	network_view="default"
 	cidr="10.10.0.0/24"
 	comment = "10.0.0.0/24 network updated"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Network Name"= "demo-network"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc. 2"
@@ -41,10 +41,10 @@ resource "infoblox_ipv4_network" "foo"{
 
 var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
 	resource "infoblox_ipv6_network" "foo"{
-		network_view_name="default"
+		network_view="default"
 		cidr="2001:db8:abcd:12::/64"
 		comment = "2001:db8:abcd:12::/64 network created"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"Tenant ID" = "terraform_test_tenant"
 			"Network Name"= "demo-network"
 			Location = "Test loc."
@@ -56,10 +56,10 @@ var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
 
 var testAccresourceIPv6NetworkUpdate = fmt.Sprintf(`
 	resource "infoblox_ipv6_network" "foo"{
-		network_view_name="default"
+		network_view="default"
 		cidr="2001:db8:abcd:12::/64"
 		comment = "2001:db8:abcd:12::/64 network updated"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"Tenant ID" = "terraform_test_tenant"
 			"Network Name"= "demo-network"
 			Location = "Test loc. 2"
@@ -100,7 +100,7 @@ func validateNetwork(
 		expNv := expectedValue.NetviewName
 		if nw.NetviewName != expNv {
 			return fmt.Errorf(
-				"the value of 'network_view_name' field is '%s', but expected '%s'",
+				"the value of 'network_view' field is '%s', but expected '%s'",
 				nw.NetviewName, expNv)
 		}
 
@@ -115,11 +115,11 @@ func validateNetwork(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && nw.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && nw.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil

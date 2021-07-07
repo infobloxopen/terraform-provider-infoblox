@@ -114,7 +114,7 @@ func TestAccResourceARecord(t *testing.T) {
 						ttl = 10
 						dns_view = "nondefault_view"
 						comment = "test comment 1"
-						extensible_attributes = jsonencode({
+						ext_attrs = jsonencode({
 						  "Location" = "New York"
 						  "Site" = "HQ"
 						})

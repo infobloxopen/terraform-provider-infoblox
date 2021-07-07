@@ -3,7 +3,7 @@ resource "infoblox_a_record" "a_record_static1"{
   ip_addr = "192.168.31.31"
   ttl = 10
   comment = "static A-record #1"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Location" = "New York"
     "Site" = "HQ"
   })

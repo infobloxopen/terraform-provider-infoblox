@@ -15,7 +15,7 @@ terraform {
 
 # Create record using an IPv6 Address
 resource "infoblox_aaaa_record" "aaaa_record_1" {
-  network_view_name = "default" 
+  network_view = "default"
   dns_view="default"            
 
   ipv6_addr="2000:01"           # "2000::/64" network MUST exist at NIOS
@@ -23,7 +23,7 @@ resource "infoblox_aaaa_record" "aaaa_record_1" {
   ttl = 3600
 
   comment = "AAAA record created"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -34,14 +34,14 @@ resource "infoblox_aaaa_record" "aaaa_record_1" {
 
 # Create record using an IPv6 CIDR
 resource "infoblox_aaaa_record" "aaaa_record_2" {
-  network_view_name = "non_default" # non_default network view MUST exist at NIOS
+  network_view = "non_default" # non_default network view MUST exist at NIOS
   dns_view="non_default"            # non_default network view MUST exist at NIOS
   cidr = "2000::/64"                # "2000::/64" network MUST exist at NIOS
   fqdn="aaaa_record.aws.com"        # "aws.com" zone MUST exist at NIOS
   ttl = 3600
 
   comment = "AAAA record created"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"

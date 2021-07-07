@@ -44,7 +44,7 @@ func resourceCNAMERecord() *schema.Resource {
 				Optional:    true,
 				Description: "A description about CNAME record.",
 			},
-			"extensible_attributes": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
@@ -60,11 +60,11 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	alias := d.Get("alias").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -97,11 +97,11 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -130,11 +130,11 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	alias := d.Get("alias").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -168,11 +168,11 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	dnsView := d.Get("dns_view").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 

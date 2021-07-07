@@ -15,7 +15,7 @@ resource "infoblox_cname_record" "foo"{
 	canonical="test-canonicalName.a.com"
 	alias="test-aliasname.a.com"
 	comment="CNAME record created"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc"
 		"Site" = "Test site"
@@ -30,7 +30,7 @@ resource "infoblox_cname_record" "foo"{
 	canonical="test-canonicalName.a.com"
 	alias="test-aliasname.a.com"
 	comment="CNAME record updated"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc 2"
 		"Site" = "Test site 2"
@@ -93,11 +93,11 @@ func validateRecordCNAME(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && recCNAME.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && recCNAME.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil
