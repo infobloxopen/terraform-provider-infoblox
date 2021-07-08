@@ -119,7 +119,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						ttl = 155
 						dns_view = "default"
 						comment = "test comment 2"
-						extensible_attributes = jsonencode({
+						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
 						})
