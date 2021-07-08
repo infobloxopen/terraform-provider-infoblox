@@ -1,11 +1,17 @@
 package infoblox
 
 import (
+	"math"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client"
+)
+
+// Common parameters
+const (
+	ttlUndef = math.MinInt32
 )
 
 //Provider returns a terraform.ResourceProvider.

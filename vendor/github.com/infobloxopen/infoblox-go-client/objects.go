@@ -429,8 +429,8 @@ type RecordA struct {
 	Name     string `json:"name,omitempty"`
 	View     string `json:"view,omitempty"`
 	Zone     string `json:"zone,omitempty"`
-	TTL      uint32 `json:"ttl"`
-	UseTTL   bool   `json:"use_ttl"`
+	UseTtl   bool   `json:"use_ttl"`
+	Ttl      uint32 `json:"ttl"`
 	Comment  string `json:"comment"`
 	Ea       EA     `json:"extattrs"`
 }
@@ -460,8 +460,8 @@ func NewRecordA(
 	res.Zone = zone
 	res.Name = name
 	res.Ipv4Addr = ipAddr
-	res.TTL = ttl
-	res.UseTTL = useTTL
+	res.Ttl = ttl
+	res.UseTtl = useTTL
 	res.Comment = comment
 	res.Ea = eas
 	res.Ref = ref
@@ -523,8 +523,8 @@ type RecordPTR struct {
 	View     string `json:"view,omitempty"`
 	Zone     string `json:"zone,omitempty"`
 	Ea       EA     `json:"extattrs"`
-	UseTtl   *bool  `json:"use_ttl,omitempty"`
-	Ttl      uint32 `json:"ttl,omitempty"`
+	UseTtl   bool   `json:"use_ttl"`
+	Ttl      uint32 `json:"ttl"`
 	Comment  string `json:"comment,omitempty"`
 }
 
@@ -536,7 +536,7 @@ func NewEmptyRecordPTR() *RecordPTR {
 	return &res
 }
 
-func NewRecordPTR(dnsView string, ptrdname string, useTtl *bool, ttl uint32, comment string, ea EA) *RecordPTR {
+func NewRecordPTR(dnsView string, ptrdname string, useTtl bool, ttl uint32, comment string, ea EA) *RecordPTR {
 	res := NewEmptyRecordPTR()
 	res.View = dnsView
 	res.PtrdName = ptrdname
@@ -598,7 +598,7 @@ type HostRecordIpv4Addr struct {
 	Mac        string `json:"mac,omitempty"`
 	View       string `json:"view,omitempty"`
 	Cidr       string `json:"network,omitempty"`
-	EnableDHCP *bool  `json:"configure_for_dhcp,omitempty"`
+	EnableDhcp bool   `json:"configure_for_dhcp"`
 }
 
 func NewEmptyHostRecordIpv4Addr() *HostRecordIpv4Addr {
@@ -611,14 +611,14 @@ func NewEmptyHostRecordIpv4Addr() *HostRecordIpv4Addr {
 func NewHostRecordIpv4Addr(
 	ipAddr string,
 	macAddr string,
-	enableDHCP *bool,
+	enableDhcp bool,
 	ref string) *HostRecordIpv4Addr {
 
 	res := NewEmptyHostRecordIpv4Addr()
 	res.Ipv4Addr = ipAddr
 	res.Mac = macAddr
 	res.Ref = ref
-	res.EnableDHCP = enableDHCP
+	res.EnableDhcp = enableDhcp
 
 	return res
 }
@@ -630,7 +630,7 @@ type HostRecordIpv6Addr struct {
 	Duid       string `json:"duid,omitempty"`
 	View       string `json:"view,omitempty"`
 	Cidr       string `json:"network,omitempty"`
-	EnableDHCP *bool  `json:"configure_for_dhcp,omitempty"`
+	EnableDhcp bool   `json:"configure_for_dhcp"`
 }
 
 func NewEmptyHostRecordIpv6Addr() *HostRecordIpv6Addr {
@@ -643,14 +643,14 @@ func NewEmptyHostRecordIpv6Addr() *HostRecordIpv6Addr {
 func NewHostRecordIpv6Addr(
 	ipAddr string,
 	duid string,
-	enableDHCP *bool,
+	enableDhcp bool,
 	ref string) *HostRecordIpv6Addr {
 
 	res := NewEmptyHostRecordIpv6Addr()
 	res.Ipv6Addr = ipAddr
 	res.Duid = duid
 	res.Ref = ref
-	res.EnableDHCP = enableDHCP
+	res.EnableDhcp = enableDhcp
 
 	return res
 }
@@ -665,17 +665,19 @@ type HostRecord struct {
 	Name        string               `json:"name,omitempty"`
 	View        string               `json:"view,omitempty"`
 	Zone        string               `json:"zone,omitempty"`
-	EnableDns   *bool                `json:"configure_for_dns,omitempty"`
+	EnableDns   bool                 `json:"configure_for_dns"`
 	NetworkView string               `json:"network_view,omitempty"`
 	Comment     string               `json:"comment"`
 	Ea          EA                   `json:"extattrs"`
+	UseTtl      bool                 `json:"use_ttl"`
+	Ttl         uint32               `json:"ttl"`
 	Aliases     []string             `json:"aliases,omitempty"`
 }
 
 func NewEmptyHostRecord() *HostRecord {
 	res := &HostRecord{}
 	res.objectType = "record:host"
-	res.returnFields = []string{"extattrs", "ipv4addrs", "ipv6addrs", "name", "view", "zone", "comment", "network_view", "aliases"}
+	res.returnFields = []string{"extattrs", "ipv4addrs", "ipv6addrs", "name", "view", "zone", "comment", "network_view", "aliases", "use_ttl", "ttl"}
 
 	return res
 }
@@ -688,10 +690,12 @@ func NewHostRecord(
 	ipv4AddrList []HostRecordIpv4Addr,
 	ipv6AddrList []HostRecordIpv6Addr,
 	eas EA,
-	enableDNS *bool,
+	enableDNS bool,
 	dnsView string,
 	zone string,
 	ref string,
+	useTtl bool,
+	ttl uint32,
 	comment string,
 	aliases []string) *HostRecord {
 
@@ -707,12 +711,10 @@ func NewHostRecord(
 	res.Ipv6Addr = ipv6Addr
 	res.Ipv4Addrs = ipv4AddrList
 	res.Ipv6Addrs = ipv6AddrList
+	res.UseTtl = useTtl
+	res.Ttl = ttl
 	res.Aliases = aliases
-
-	if enableDNS != nil {
-		res.EnableDns = new(bool)
-		*res.EnableDns = *enableDNS
-	}
+	res.EnableDns = enableDNS
 
 	return res
 }

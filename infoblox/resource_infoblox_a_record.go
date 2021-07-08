@@ -45,6 +45,7 @@ func resourceARecord() *schema.Resource {
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     ttlUndef,
 				Description: "TTL value for the A-record.",
 			},
 			"comment": {
@@ -63,13 +64,6 @@ func resourceARecord() *schema.Resource {
 	}
 }
 
-func setTFFieldsForRecordA(d *schema.ResourceData, rec *ibclient.RecordA) error {
-	d.SetId(rec.Ref)
-	d.Set("ip_addr", rec.Ipv4Addr)
-
-	return nil
-}
-
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
@@ -81,13 +75,14 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTTL := d.GetOk("ttl")
-	if useTTL {
-		tempTTL := tempVal.(int)
-		if tempTTL < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
 		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	comment := d.Get("comment").(string)
@@ -109,11 +104,12 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	newRecord, err := objMgr.CreateARecord(
-		networkView, dnsView, fqdn, cidr, ipAddr, ttl, useTTL, comment, extAttrs)
+		networkView, dnsView, fqdn, cidr, ipAddr, ttl, useTtl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("error creating A-record: %s", err.Error())
 	}
-	return setTFFieldsForRecordA(d, newRecord)
+	d.SetId(newRecord.Ref)
+	return nil
 }
 
 func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
@@ -148,6 +144,10 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+
 	cidr := d.Get("cidr").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -155,28 +155,23 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty.")
 	}
 
-	if d.HasChange("dns_view") {
-		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
-	}
-
-	// If both 'cidr' and 'ip_addr' are unchanged, then nothing to update here,
-	// making them empty to skip the update.
+	// If 'cidr' is unchanged, then making it empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
 	// during every 'update' operation).
-	if !d.HasChange("ip_addr") && !d.HasChange("cidr") {
-		ipAddr = ""
+	if !d.HasChange("cidr") {
 		cidr = ""
 	}
 
 	var ttl uint32
-	tempVal, useTTL := d.GetOk("ttl")
-	if useTTL {
-		tempTTL := tempVal.(int)
-		if tempTTL < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
 		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	comment := d.Get("comment").(string)
@@ -197,13 +192,22 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	// Get the existing IP address
+	if ipAddr == "" && cidr == "" {
+		aRec, err := objMgr.GetARecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("failed getting A-record: %s", err.Error())
+		}
+		ipAddr = aRec.Ipv4Addr
+	}
+
 	rec, err := objMgr.UpdateARecord(
-		d.Id(), fqdn, ipAddr, cidr, networkView, ttl, useTTL, comment, extAttrs)
+		d.Id(), fqdn, ipAddr, cidr, networkView, ttl, useTtl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("error updating A-record: %s", err.Error())
 	}
-
-	return setTFFieldsForRecordA(d, rec)
+	d.SetId(rec.Ref)
+	return nil
 }
 
 func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
