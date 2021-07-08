@@ -1,2 +1,5 @@
 terraform-provider-infoblox
 example
+vendor/
+.terraform/
+*.tfstate*
