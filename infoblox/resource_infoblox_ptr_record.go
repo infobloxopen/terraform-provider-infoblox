@@ -16,7 +16,7 @@ func resourcePTRRecord() *schema.Resource {
 		Delete: resourcePTRRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": {
+			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
@@ -51,7 +51,7 @@ func resourcePTRRecord() *schema.Resource {
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Default:     ttlUndef,
 				Description: "TTL attribute value for the record.",
 			},
 			"comment": {
@@ -60,7 +60,7 @@ func resourcePTRRecord() *schema.Resource {
 				Optional:    true,
 				Description: "A description about PTR record.",
 			},
-			"extensible_attributes": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
@@ -72,7 +72,7 @@ func resourcePTRRecord() *schema.Resource {
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
-	networkView := d.Get("network_view_name").(string)
+	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 
@@ -81,11 +81,11 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	recordName := d.Get("record_name").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -102,13 +102,14 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -135,11 +136,11 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -160,6 +161,10 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
@@ -167,15 +172,22 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	ptrdname := d.Get("ptrdname").(string)
 	recordName := d.Get("record_name").(string)
 
-	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
+	cidr := d.Get("cidr").(string)
+	// If 'cidr' is unchanged, then nothing to update here, making them empty to skip the update.
+	// (This is to prevent record renewal for the case when 'cidr' is
+	// used for IP address allocation, otherwise the address will be changing
+	// during every 'update' operation).
+	if !d.HasChange("cidr") {
+		cidr = ""
+	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -184,27 +196,38 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		tenantID = tempVal.(string)
 	}
 
-	if recordName == "" {
-		if ipAddr == "" && cidr == "" {
-			return fmt.Errorf(
-				"Creation of PTR record failed: 'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
-		}
-	}
-
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), ptrdname, recordName, ipAddr, useTtl, ttl, comment, extAttrs)
+	// Retrive the IP of PTR record.
+	// When IP is allocated using cidr and an empty IP is passed for updation
+	if cidr == "" && ipAddr == "" {
+		recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+		}
+
+		ipv4 := recordPTR.Ipv4Addr
+		ipv6 := recordPTR.Ipv6Addr
+		if len(ipv4) > 0 {
+			ipAddr = ipv4
+		} else {
+			ipAddr = ipv6
+		}
+	}
+
+	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
@@ -217,11 +240,11 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	dnsView := d.Get("dns_view").(string)
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 

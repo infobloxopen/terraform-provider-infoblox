@@ -46,7 +46,7 @@ func resourceAAAARecord() *schema.Resource {
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Default:     ttlUndef,
 				Description: "TTL attribute value for the record.",
 			},
 			"comment": {
@@ -63,13 +63,6 @@ func resourceAAAARecord() *schema.Resource {
 			},
 		},
 	}
-}
-
-func setTFFieldsForRecordAAAA(d *schema.ResourceData, rec *ibclient.RecordAAAA) error {
-	d.SetId(rec.Ref)
-	d.Set("ipv6_addr", rec.Ipv6Addr)
-
-	return nil
 }
 
 func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
@@ -101,13 +94,14 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -126,8 +120,8 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Creation of AAAA Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
-
-	return setTFFieldsForRecordAAAA(d, recordAAAA)
+	d.SetId(recordAAAA.Ref)
+	return nil
 }
 
 func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
@@ -164,13 +158,11 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
-	// If both 'cidr' and 'ipv6_addr' are unchanged, then nothing to update here,
-	// making them empty to skip the update.
+	// If 'cidr' is unchanged, then nothing to update here, making them empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
 	// during every 'update' operation).
-	if !d.HasChange("ipv6_addr") && !d.HasChange("cidr") {
-		ipv6Addr = ""
+	if !d.HasChange("cidr") {
 		cidr = ""
 	}
 
@@ -195,17 +187,27 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	// Get the existing IP address
+	if ipv6Addr == "" && cidr == "" {
+		aaaaRec, err := objMgr.GetAAAARecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Getting AAAA Record with ID: %s failed : %s", d.Id(), err.Error())
+		}
+		ipv6Addr = aaaaRec.Ipv6Addr
+	}
 
 	recordAAAA, err := objMgr.UpdateAAAARecord(
 		d.Id(),
@@ -220,8 +222,8 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Updation of AAAA Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
-
-	return setTFFieldsForRecordAAAA(d, recordAAAA)
+	d.SetId(recordAAAA.Ref)
+	return nil
 }
 
 func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {

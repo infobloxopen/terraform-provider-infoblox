@@ -35,7 +35,7 @@ func resourceCNAMERecord() *schema.Resource {
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Default:     ttlUndef,
 				Description: "TTL attribute value for the record.",
 			},
 			"comment": {
@@ -69,13 +69,14 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	var tenantID string
@@ -139,13 +140,14 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	var tenantID string

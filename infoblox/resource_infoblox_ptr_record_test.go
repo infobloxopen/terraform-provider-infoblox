@@ -15,7 +15,7 @@ resource "infoblox_ptr_record" "foo"{
 	ptrdname="testPtrdName.a.com"
 	record_name="testName.a.com"
 	comment="PTR record created in forward mapping zone"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc"
 		"Site" = "Test site"
@@ -25,12 +25,12 @@ resource "infoblox_ptr_record" "foo"{
 
 var testAccresourceRecordPTRCreate_2 = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo2"{
-	network_view_name="default"
+	network_view="default"
     dns_view="default"
 	ptrdname="testPtrdName2.a.com"
 	ip_addr = "10.0.0.2"
 	comment="PTR record created in reverse mapping zone with IP"
-	extensible_attributes=jsonencode({
+	ext_attrs=jsonencode({
 		"Tenant ID"="terraform_test_tenant"
 		"Location"="Test loc."
 		"Site"="Test site"
@@ -44,7 +44,7 @@ resource "infoblox_ptr_record" "foo"{
 	ptrdname="testPtrdName.a.com"
 	record_name="testName.a.com"
 	comment="PTR record updated in forward mapping zone"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc"
 		"Site" = "Test site"
@@ -54,12 +54,12 @@ resource "infoblox_ptr_record" "foo"{
 
 var testAccresourceRecordPTRUpdate_2 = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo2"{
-	network_view_name = "default"
+	network_view = "default"
 	dns_view="default"
 	ptrdname="testPtrdName2.a.com"
 	ip_addr = "10.0.0.2"
 	comment="PTR record created in reverse mapping zone with IP"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"Tenant ID"="terraform_test_tenant"
 		"Location"="Test loc."
 		"Site"="Test site"
@@ -113,11 +113,11 @@ func validateRecordPTR(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && recPtr.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && recPtr.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil
