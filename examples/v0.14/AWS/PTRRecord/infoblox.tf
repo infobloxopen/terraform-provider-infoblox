@@ -14,11 +14,11 @@ terraform {
 
 # Create a network container in Infoblox Grid
 resource "infoblox_ipv4_network_container" "IPv4_nw_c" {
-  network_view_name="default"
+  network_view="default"
 
   cidr = aws_vpc.vpc.cidr_block
   comment = "tf IPv4 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -28,11 +28,11 @@ resource "infoblox_ipv4_network_container" "IPv4_nw_c" {
 }
 
 resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
-  network_view_name="default"
+  network_view="default"
 
   cidr = aws_vpc.vpc.ipv6_cidr_block
   comment = "tf IPv6 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -44,14 +44,14 @@ resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
 
 # Allocate a network in Infoblox Grid under provided parent CIDR
 resource "infoblox_ipv4_network" "ipv4_network"{
-  network_view_name = "default"
+  network_view = "default"
 
   parent_cidr = infoblox_ipv4_network_container.IPv4_nw_c.cidr
   allocate_prefix_len = 24
   reserve_ip = 2
 
   comment = "tf IPv4 network"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -62,14 +62,14 @@ resource "infoblox_ipv4_network" "ipv4_network"{
 }
 
 resource "infoblox_ipv6_network" "ipv6_network"{
-  network_view_name = "default"
+  network_view = "default"
 
   parent_cidr = infoblox_ipv6_network_container.IPv6_nw_c.cidr
   allocate_prefix_len = 64
   reserve_ipv6 = 3
 
   comment = "tf IPv6 network"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -82,7 +82,7 @@ resource "infoblox_ipv6_network" "ipv6_network"{
 
 # Allocate IP from network
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
-  network_view_name= "default"
+  network_view= "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
   host_name = "test"
 
@@ -93,7 +93,7 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   #enable_dhcp = "false"
   
   comment = "tf IPv4 allocation"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -105,7 +105,7 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
 }
 
 resource "infoblox_ipv6_allocation" "ipv6_allocation" {
-  network_view_name= "default"
+  network_view= "default"
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   duid = "00:00:00:00:00:00:00:00"
   host_name = "test"
@@ -117,7 +117,7 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   #enable_dhcp = "false"
 
   comment = "tf IPv6 allocation"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -131,7 +131,7 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
 
 # Update Grid with VM data
 resource "infoblox_ipv4_association" "ipv4_associate"{
-  network_view_name = "default"
+  network_view = "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
   ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
   mac_addr = aws_network_interface.ni.mac_address
@@ -144,7 +144,7 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   #enable_dhcp = "false"
 
   comment = "tf IPv4 Association"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -157,7 +157,7 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
 }
 
 resource "infoblox_ipv6_association" "ipv6_associate"{
-  network_view_name = "default"
+  network_view = "default"
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
   duid = aws_network_interface.ni.mac_address
@@ -170,7 +170,7 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   #enable_dhcp = "false"
 
   comment = "tf IPv6 Association"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -191,14 +191,14 @@ resource "infoblox_ptr_record" "ib_ptr_record"{
   record_name = "tf-ec2-instance-ipv4.aws.com"
 
   # Record in reverse mapping zone
-  #network_view_name = "default"
+  #network_view = "default"
   #cidr = infoblox_ipv4_network.ipv4_network.cidr
   #ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
 
   ttl = 3600
 
   comment = "PTR record created"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"

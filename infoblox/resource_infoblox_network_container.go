@@ -11,7 +11,7 @@ import (
 func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"network_view_name": {
+			"network_view": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of network view for the network container.",
@@ -27,7 +27,7 @@ func resourceNetworkContainer() *schema.Resource {
 				Optional:    true,
 				Description: "A description of the network container.",
 			},
-			"extensible_attributes": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
@@ -38,15 +38,15 @@ func resourceNetworkContainer() *schema.Resource {
 }
 
 func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-	nvName := d.Get("network_view_name").(string)
+	nvName := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -77,11 +77,11 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 }
 
 func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -103,13 +103,16 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error {
-	nvName := d.Get("network_view_name").(string)
+	nvName := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 	cidr := d.Get("cidr").(string)
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -146,11 +149,11 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string

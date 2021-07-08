@@ -1,3 +1,4 @@
 
-* The Terraform configuration files under `v0.14` path are written and tested on Terraform v0.14 version and are actively maintained.
-* The terraform configuration files under `archived` directory are of older version and are not maintained actively.
+# While using IPv6 Features make sure to consider the following:
+* IPv6 Allocation and Association through Fixed Address/Host Record mandates unique DUID in .tf file.
+* For all the cloud providers(AWS, Azure and VMWare), DUID will be updated with MAC address of the interface in NIOS.

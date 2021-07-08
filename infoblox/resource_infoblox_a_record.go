@@ -18,6 +18,7 @@ func resourceARecord() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "default",
 				Description: "Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty.",
 			},
 			"cidr": {
@@ -52,7 +53,7 @@ func resourceARecord() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the A-record.",
 			},
-			"extensible_attributes": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
@@ -91,11 +92,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -116,11 +117,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -144,6 +145,9 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 	cidr := d.Get("cidr").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -177,11 +181,11 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -203,11 +207,11 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extensible_attributes").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extensible_attributes' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string

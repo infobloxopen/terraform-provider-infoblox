@@ -18,7 +18,7 @@ resource "infoblox_cname_record" "ib_cname_record"{
   ttl = 3600
 
   comment = "CNAME record created"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
     "CMP Type" = "Terraform"
     "Cloud API Owned" = "True"
@@ -26,4 +26,3 @@ resource "infoblox_cname_record" "ib_cname_record"{
     "Site" = "Test site"
   })
 }
-

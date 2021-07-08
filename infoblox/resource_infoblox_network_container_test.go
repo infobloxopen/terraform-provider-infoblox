@@ -12,10 +12,10 @@ import (
 
 var resCfgNetworkContainer_create_ipv4 = fmt.Sprintf(`
 resource "infoblox_ipv4_network_container" "nc_1" {
-  network_view_name = "%s"
+  network_view = "%s"
   cidr = "10.0.0.0/16"
   comment = "10.0.0.0/16 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc."
     Site = "Test site"
@@ -26,10 +26,10 @@ resource "infoblox_ipv4_network_container" "nc_1" {
 
 var resCfgNetworkContainer_update_ipv4 = fmt.Sprintf(`
 resource "infoblox_ipv4_network_container" "nc_1" {
-  network_view_name = "%s"
+  network_view = "%s"
   cidr = "10.0.0.0/16"
   comment = "new 10.0.0.0/16 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc. 2"
     TestEA1 = "text3"
@@ -39,20 +39,20 @@ resource "infoblox_ipv4_network_container" "nc_1" {
 
 var resCfgNetworkContainer_update2_ipv4 = fmt.Sprintf(`
 resource "infoblox_ipv4_network_container" "nc_1" {
-  network_view_name = "%s"
+  network_view = "%s"
   cidr = "10.0.0.0/16"
   comment = ""
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
   })
 }`, testNetView)
 
 var resCfgNetworkContainer_create_ipv6 = fmt.Sprintf(`
 resource "infoblox_ipv6_network_container" "nc_1" {
-  network_view_name = "%s"
+  network_view = "%s"
   cidr = "fc00::/56"
   comment = "fc00::/56 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc."
     Site = "Test site"
@@ -63,10 +63,10 @@ resource "infoblox_ipv6_network_container" "nc_1" {
 
 var resCfgNetworkContainer_update_ipv6 = fmt.Sprintf(`
 resource "infoblox_ipv6_network_container" "nc_1" {
-  network_view_name = "%s"
+  network_view = "%s"
   cidr = "fc00::/56"
   comment = "new comment for fc00::/56 network container"
-  extensible_attributes = jsonencode({
+  ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc. 2"
     TestEA1 = ["text3"]
@@ -107,7 +107,7 @@ func validateNetworkContainer(
 		expNv := expectedValue.NetviewName
 		if nc.NetviewName != expNv {
 			return fmt.Errorf(
-				"the value of 'network_view_name' field is '%s', but expected '%s'",
+				"the value of 'network_view' field is '%s', but expected '%s'",
 				nc.NetviewName, expNv)
 		}
 
@@ -129,11 +129,11 @@ func validateNetworkContainer(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && nc.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && nc.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil
