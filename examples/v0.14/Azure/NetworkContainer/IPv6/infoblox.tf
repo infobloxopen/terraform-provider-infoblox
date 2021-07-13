@@ -33,7 +33,7 @@ resource "infoblox_ipv4_allocation" "alloc1" {
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv4.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -50,7 +50,7 @@ resource "infoblox_ipv4_association" "assoc1"{
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv4.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"  
 
@@ -99,7 +99,7 @@ resource "infoblox_ipv6_allocation" "alloc_reserved" {
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv6.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -115,7 +115,7 @@ resource "infoblox_ipv6_allocation" "alloc2" {
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv6.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -131,11 +131,10 @@ resource "infoblox_ipv6_association" "assoc2"{
   cidr = infoblox_ipv6_allocation.alloc2.cidr
   mac_addr = local.vm_mac_addr
   ip_addr = infoblox_ipv6_allocation.alloc2.ip_addr
-  host_name = "test"
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv6.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
   

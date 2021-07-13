@@ -11,12 +11,12 @@ import (
 
 var testAccresourceIPv4AllocationCreate = fmt.Sprintf(`
 resource "infoblox_ipv4_allocation" "foo"{
-	network_view_name="%s"
-	host_name="testHostName"
+	network_view="%s"
+	fqdn="testHostName.aws.com"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	comment = "10.0.0.1 IP is allocated"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"VM Name" =  "tf-ec2-instance"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc."
@@ -28,12 +28,12 @@ resource "infoblox_ipv4_allocation" "foo"{
 
 var testAccresourceIPv4AllocationUpdate = fmt.Sprintf(`
 resource "infoblox_ipv4_allocation" "foo"{
-	network_view_name="%s"
-	host_name="testHostName"
+	network_view="%s"
+	fqdn="testHostName.aws.com"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	comment = "10.0.0.1 IP is allocated updated"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"VM Name" =  "tf-ec2-instance"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc. updated"
@@ -44,12 +44,12 @@ resource "infoblox_ipv4_allocation" "foo"{
 
 var testAccresourceIPv6AllocationCreate = fmt.Sprintf(`
 	resource "infoblox_ipv6_allocation" "foo"{
-		network_view_name="%s"
+		network_view="%s"
 		cidr="2001:db8:abcd:12::/64"
 		ip_addr="2001:db8:abcd:12::1"
 		duid="11:22:33:44:55:66"
 		comment = "2001:db8:abcd:12::1 IP is allocated"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"VM Name" =  "tf-ec2-instance-ipv6"
 			"Tenant ID" = "terraform_test_tenant"
 			Location = "Test loc."
@@ -61,12 +61,12 @@ var testAccresourceIPv6AllocationCreate = fmt.Sprintf(`
 
 var testAccresourceIPv6AllocationUpdate = fmt.Sprintf(`
 	resource "infoblox_ipv6_allocation" "foo"{
-		network_view_name="%s"
+		network_view="%s"
 		cidr="2001:db8:abcd:12::/64"
 		ip_addr="2001:db8:abcd:12::1"
 		duid="11:22:33:44:55:66"
 		comment = "2001:db8:abcd:12::1 IP is allocated updated"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"VM Name" =  "tf-ec2-instance-ipv6"
 			"Tenant ID" = "terraform_test_tenant"
 			Location = "Test loc. updated"
@@ -106,7 +106,7 @@ func validateIPAllocation(
 		expNv := expectedValue.NetviewName
 		if ipAlloc.NetviewName != expNv {
 			return fmt.Errorf(
-				"the value of 'network_view_name' field is '%s', but expected '%s'",
+				"the value of 'network_view' field is '%s', but expected '%s'",
 				ipAlloc.NetviewName, expNv)
 		}
 
@@ -129,11 +129,11 @@ func validateIPAllocation(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && ipAlloc.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && ipAlloc.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil

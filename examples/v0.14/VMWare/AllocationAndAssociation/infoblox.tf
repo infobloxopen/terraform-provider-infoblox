@@ -60,11 +60,10 @@ resource "infoblox_ipv6_network" "ipv6_network"{
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   network_view= "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
-  host_name = "test"
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv4.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -82,11 +81,10 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   network_view= "default"
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   duid = "00:00:00:00:00:00:00:00"
-  host_name = "test"
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv6.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -106,11 +104,10 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   cidr = infoblox_ipv4_network.ipv4_network.cidr
   ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
   mac_addr = vsphere_virtual_machine.vm_ipv4.network_interface[0].mac_address
-  host_name = "test"
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv4.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
@@ -130,11 +127,10 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
   duid = vsphere_virtual_machine.vm_ipv6.network_interface[0].mac_address
-  host_name = "test"
 
   #Create Host Record with DNS and DHCP flags
   #dns_view="default"
-  #zone="aws.com"
+  #fqdn="testipv6.vmware.com"
   #enable_dns = "false"
   #enable_dhcp = "false"
 
