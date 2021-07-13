@@ -10,8 +10,11 @@ import (
 	"strings"
 )
 
+// Compile-time interface checks
+var _ IBObjectManager = new(ObjectManager)
+
 type IBObjectManager interface {
-	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddress string, name string, comment string, eas EA) (*FixedAddress, error)
+	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macOrDuid string, name string, comment string, eas EA) (*FixedAddress, error)
 	AllocateNetwork(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (network *Network, err error)
 	CreateARecord(netView string, dnsView string, name string, cidr string, ipAddr string, ttl uint32, useTTL bool, comment string, ea EA) (*RecordA, error)
 	CreateAAAARecord(netView string, dnsView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordAAAA, error)
@@ -44,9 +47,9 @@ type IBObjectManager interface {
 	GetCNAMERecord(dnsview string, canonical string, recordName string) (*RecordCNAME, error)
 	GetCNAMERecordByRef(ref string) (*RecordCNAME, error)
 	GetEADefinition(name string) (*EADefinition, error)
-	GetFixedAddress(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (*FixedAddress, error)
+	GetFixedAddress(netview string, cidr string, ipAddr string, isIPv6 bool, macOrDuid string) (*FixedAddress, error)
 	GetFixedAddressByRef(ref string) (*FixedAddress, error)
-	GetHostRecord(recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error)
+	GetHostRecord(netview string, dnsview string, recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error)
 	GetHostRecordByRef(ref string) (*HostRecord, error)
 	GetIpAddressFromHostRecord(host HostRecord) (string, error)
 	GetNetwork(netview string, cidr string, isIPv6 bool, ea EA) (*Network, error)
@@ -67,7 +70,7 @@ type IBObjectManager interface {
 	ReleaseIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (string, error)
 	UpdateAAAARecord(ref string, netView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordAAAA, error)
 	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
-	UpdateFixedAddress(fixedAddrRef string, name string, matchclient string, macAddress string, comment string, eas EA) (*FixedAddress, error)
+	UpdateFixedAddress(fixedAddrRef string, netview string, name string, cidr string, ipAddr string, matchclient string, macOrDuid string, comment string, eas EA) (*FixedAddress, error)
 	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, netview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	UpdateNetwork(ref string, setEas EA, comment string) (*Network, error)
 	UpdateNetworkContainer(ref string, setEas EA, comment string) (*NetworkContainer, error)
@@ -462,12 +465,16 @@ func validateMatchClient(value string) bool {
 
 func (objMgr *ObjectManager) UpdateFixedAddress(
 	fixedAddrRef string,
+	netview string,
 	name string,
+	cidr string,
+	ipAddr string,
 	matchClient string,
 	macOrDuid string,
 	comment string,
 	eas EA) (*FixedAddress, error) {
-	r := regexp.MustCompile("^ipv6fixedaddress\\/.+")
+
+	r := regexp.MustCompile("^ipv6fixedaddress/.+")
 	isIPv6 := r.MatchString(fixedAddrRef)
 	if !isIPv6 {
 		if !validateMatchClient(matchClient) {
@@ -478,10 +485,51 @@ func (objMgr *ObjectManager) UpdateFixedAddress(
 		"", name, "", "",
 		macOrDuid, matchClient, eas, fixedAddrRef, isIPv6, comment)
 
+	if ipAddr == "" {
+		if cidr != "" {
+			ipAddress, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+			}
+			if netview == "" {
+				netview = "default"
+			}
+			if isIPv6 {
+				if ipAddress.To4() != nil || ipAddress.To16() == nil {
+					return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
+				}
+				updateFixedAddr.IPv6Address = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+			} else {
+				if ipAddress.To4() == nil {
+					return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+				}
+				updateFixedAddr.IPv4Address = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+			}
+		}
+	} else {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("IP address for the record is not valid")
+		}
+		if isIPv6 {
+			if ipAddress.To4() != nil || ipAddress.To16() == nil {
+				return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
+			}
+			updateFixedAddr.IPv6Address = ipAddr
+		} else {
+			if ipAddress.To4() == nil {
+				return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
+			}
+			updateFixedAddr.IPv4Address = ipAddr
+		}
+	}
 	refResp, err := objMgr.connector.UpdateObject(updateFixedAddr, fixedAddrRef)
-	updateFixedAddr.Ref = refResp
 
-	return updateFixedAddr, err
+	updateFixedAddr, err = objMgr.GetFixedAddressByRef(refResp)
+	if err != nil {
+		return nil, err
+	}
+	return updateFixedAddr, nil
 }
 
 func (objMgr *ObjectManager) ReleaseIP(netview string, cidr string, ipAddr string, isIpv6 bool, macOrDuid string) (string, error) {
@@ -623,13 +671,19 @@ func (objMgr *ObjectManager) GetHostRecordByRef(ref string) (*HostRecord, error)
 	return recordHost, err
 }
 
-func (objMgr *ObjectManager) GetHostRecord(recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error) {
+func (objMgr *ObjectManager) GetHostRecord(netview string, dnsview string, recordName string, ipv4addr string, ipv6addr string) (*HostRecord, error) {
 	var res []HostRecord
 
 	recordHost := NewEmptyHostRecord()
 
 	sf := map[string]string{
 		"name": recordName,
+	}
+	if netview != "" {
+		sf["network_view"] = netview
+	}
+	if dnsview != "" {
+		sf["view"] = dnsview
 	}
 	if ipv4addr != "" {
 		sf["ipv4addr"] = ipv4addr
@@ -731,7 +785,7 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 		"", name, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
 		eas, enabledns, "", "", hostRref, useTtl, ttl, comment, aliases)
 	ref, err := objMgr.connector.UpdateObject(updateHostRecord, hostRref)
-	updateHostRecord.Ref = ref
+
 	updateHostRecord, err = objMgr.GetHostRecordByRef(ref)
 	if err != nil {
 		return nil, err
@@ -1357,51 +1411,38 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 	recordPTR.Name = name
 	isIPv6, _ := regexp.MatchString(`^record:ptr/.+.ip6.arpa/.+`, ref)
 
-	if isIPv6 {
-		if ipAddr == "" {
-			if cidr != "" {
-				ipAddress, _, err := net.ParseCIDR(cidr)
-				if err != nil {
-					return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
-				}
+	if ipAddr == "" {
+		if cidr != "" {
+			ipAddress, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+			}
+			if netview == "" {
+				netview = "default"
+			}
+			if isIPv6 {
 				if ipAddress.To4() != nil || ipAddress.To16() == nil {
 					return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
 				}
-				if netview == "" {
-					netview = "default"
-				}
 				recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+			} else {
+				if ipAddress.To4() == nil {
+					return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+				}
+				recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
 			}
-		} else {
-			ipAddress := net.ParseIP(ipAddr)
-			if ipAddress == nil {
-				return nil, fmt.Errorf("IP address for the record is not valid")
-			}
+		}
+	} else {
+		ipAddress := net.ParseIP(ipAddr)
+		if ipAddress == nil {
+			return nil, fmt.Errorf("IP address for the record is not valid")
+		}
+		if isIPv6 {
 			if ipAddress.To4() != nil || ipAddress.To16() == nil {
 				return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
 			}
 			recordPTR.Ipv6Addr = ipAddr
-		}
-	} else {
-		if ipAddr == "" {
-			if cidr != "" {
-				ipAddress, _, err := net.ParseCIDR(cidr)
-				if err != nil {
-					return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
-				}
-				if ipAddress.To4() == nil {
-					return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
-				}
-				if netview == "" {
-					netview = "default"
-				}
-				recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
-			}
 		} else {
-			ipAddress := net.ParseIP(ipAddr)
-			if ipAddress == nil {
-				return nil, fmt.Errorf("IP address for the record is not valid")
-			}
 			if ipAddress.To4() == nil {
 				return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
 			}

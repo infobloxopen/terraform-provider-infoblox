@@ -11,12 +11,12 @@ import (
 
 var testAccresourceIPv4AssociationCreate = fmt.Sprintf(`
 resource "infoblox_ipv4_association" "foo"{
-	network_view_name="%s"
+	network_view="%s"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	mac_addr="11:22:33:44:55:66"
 	comment = "10.0.0.1 IP is associated "
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"VM Name" =  "tf-ec2-instance"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc."
@@ -28,12 +28,12 @@ resource "infoblox_ipv4_association" "foo"{
 
 var testAccresourceIPv4AssociationUpdate = fmt.Sprintf(`
 resource "infoblox_ipv4_association" "foo"{
-	network_view_name="%s"
+	network_view="%s"
 	cidr="10.0.0.0/24"
 	ip_addr="10.0.0.1"
 	mac_addr="11:22:33:44:55:66"
 	comment = "10.0.0.1 IP is associated updated"
-	extensible_attributes = jsonencode({
+	ext_attrs = jsonencode({
 		"VM Name" =  "tf-ec2-instance"
 		"Tenant ID" = "terraform_test_tenant"
 		Location = "Test loc. updated"
@@ -44,12 +44,12 @@ resource "infoblox_ipv4_association" "foo"{
 
 var testAccresourceIPv6AssociationCreate = fmt.Sprintf(`
 	resource "infoblox_ipv6_association" "foo"{
-		network_view_name="%s"
+		network_view="%s"
 		cidr="2001:db8:abcd:12::/64"
 		ip_addr="2001:db8:abcd:12::1"
 		duid="11:22:33:44:55:66"
 		comment = "2001:db8:abcd:12::1 IP is associated"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"VM Name" =  "tf-ec2-instance-ipv6"
 			"Tenant ID" = "terraform_test_tenant"
 			Location = "Test loc."
@@ -61,12 +61,12 @@ var testAccresourceIPv6AssociationCreate = fmt.Sprintf(`
 
 var testAccresourceIPv6AssociationUpdate = fmt.Sprintf(`
 	resource "infoblox_ipv6_association" "foo"{
-		network_view_name="%s"
+		network_view="%s"
 		cidr="2001:db8:abcd:12::/64"
 		ip_addr="2001:db8:abcd:12::1"
 		duid="11:22:33:44:55:66"
 		comment = "2001:db8:abcd:12::1 IP is associated updated"
-		extensible_attributes = jsonencode({
+		ext_attrs = jsonencode({
 			"VM Name" =  "tf-ec2-instance-ipv6"
 			"Tenant ID" = "terraform_test_tenant"
 			Location = "Test loc. updated"
@@ -106,7 +106,7 @@ func validateIPAssociation(
 		expNv := expectedValue.NetviewName
 		if ipAsso.NetviewName != expNv {
 			return fmt.Errorf(
-				"the value of 'network_view_name' field is '%s', but expected '%s'",
+				"the value of 'network_view' field is '%s', but expected '%s'",
 				ipAsso.NetviewName, expNv)
 		}
 
@@ -137,11 +137,11 @@ func validateIPAssociation(
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && ipAsso.Ea != nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has 'extensible_attributes' field, but it is not expected to exist", id)
+				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
 		if expectedEAs != nil && ipAsso.Ea == nil {
 			return fmt.Errorf(
-				"the object with ID '%s' has no 'extensible_attributes' field, but it is expected to exist", id)
+				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
 		}
 		if expectedEAs == nil {
 			return nil
