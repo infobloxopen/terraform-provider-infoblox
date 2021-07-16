@@ -17,25 +17,8 @@ resource "infoblox_ipv4_network" "foo"{
 	ext_attrs = jsonencode({
 		"Network Name"= "demo-network"
 		"Tenant ID" = "terraform_test_tenant"
-		Location = "Test loc."
-		Site = "Test site"
-		TestEA1 = ["text1","text2"]
-		TestEA2 = [4,5]
-	  })
-	}`)
-
-var testAccresourceIPv4NetworkUpdate = fmt.Sprintf(`
-resource "infoblox_ipv4_network" "foo"{
-	network_view="default"
-	cidr="10.10.0.0/24"
-	comment = "10.0.0.0/24 network updated"
-	ext_attrs = jsonencode({
-		"Network Name"= "demo-network"
-		"Tenant ID" = "terraform_test_tenant"
-		Location = "Test loc. 2"
-		Site = "Test site"
-		TestEA1 = "text3"
-		TestEA2 = 7
+		"Location" = "Test loc."
+		"Site" = "Test site"
 	  })
 	}`)
 
@@ -47,25 +30,8 @@ var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
 		ext_attrs = jsonencode({
 			"Tenant ID" = "terraform_test_tenant"
 			"Network Name"= "demo-network"
-			Location = "Test loc."
-			Site = "Test site"
-			TestEA1 = ["text1","text2"]
-			TestEA2 = [4,5]
-		})
-	}`)
-
-var testAccresourceIPv6NetworkUpdate = fmt.Sprintf(`
-	resource "infoblox_ipv6_network" "foo"{
-		network_view="default"
-		cidr="2001:db8:abcd:12::/64"
-		comment = "2001:db8:abcd:12::/64 network updated"
-		ext_attrs = jsonencode({
-			"Tenant ID" = "terraform_test_tenant"
-			"Network Name"= "demo-network"
-			Location = "Test loc. 2"
-			Site = "Test site"
-			TestEA1 = ["text3"]
-			TestEA2 = 7
+			"Location" = "Test loc."
+			"Site" = "Test site"
 		})
 	}`)
 
@@ -171,26 +137,6 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 							"Tenant ID":    "terraform_test_tenant",
 							"Location":     "Test loc.",
 							"Site":         "Test site",
-							"TestEA1":      []string{"text1", "text2"},
-							"TestEA2":      []int{4, 5},
-						},
-					},
-				),
-			},
-			{
-				Config: testAccresourceIPv4NetworkUpdate,
-				Check: validateNetwork(
-					"infoblox_ipv4_network.foo",
-					&ibclient.Network{
-						Cidr:    "10.0.0.0/24",
-						Comment: "10.0.0.0/24 network updated",
-						Ea: ibclient.EA{
-							"Network Name": "demo-network",
-							"Tenant ID":    "terraform_test_tenant",
-							"Location":     "Test loc. 2",
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),
@@ -217,26 +163,6 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 							"Tenant ID":    "terraform_test_tenant",
 							"Location":     "Test loc.",
 							"Site":         "Test site",
-							"TestEA1":      []string{"text1", "text2"},
-							"TestEA2":      []int{4, 5},
-						},
-					},
-				),
-			},
-			{
-				Config: testAccresourceIPv6NetworkUpdate,
-				Check: validateNetwork(
-					"infoblox_ipv6_network.foo",
-					&ibclient.Network{
-						Cidr:    "2001:db8:abcd:12::/64",
-						Comment: "2001:db8:abcd:12::/64 network updated",
-						Ea: ibclient.EA{
-							"Network Name": "demo-network",
-							"Tenant ID":    "terraform_test_tenant",
-							"Location":     "Test loc. 2",
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),

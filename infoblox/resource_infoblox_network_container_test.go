@@ -19,8 +19,6 @@ resource "infoblox_ipv4_network_container" "nc_1" {
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc."
     Site = "Test site"
-    TestEA1 = ["text1","text2"]
-    TestEA2 = [4,5]
   })
 }`, testNetView)
 
@@ -56,8 +54,6 @@ resource "infoblox_ipv6_network_container" "nc_1" {
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc."
     Site = "Test site"
-    TestEA1 = ["text1","text2"]
-    TestEA2 = [4,5]
   })
 }`, testNetView)
 
@@ -69,8 +65,6 @@ resource "infoblox_ipv6_network_container" "nc_1" {
   ext_attrs = jsonencode({
 	"Tenant ID" = "terraform_test_tenant"
     Location = "Test loc. 2"
-    TestEA1 = ["text3"]
-    TestEA2 = 7
   })
 }`, testNetView)
 
@@ -161,8 +155,6 @@ func TestAcc_resourceNetworkContainer_ipv4(t *testing.T) {
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
-							"TestEA1":   []string{"text1", "text2"},
-							"TestEA2":   []int{4, 5},
 						},
 					},
 				),
@@ -178,10 +170,6 @@ func TestAcc_resourceNetworkContainer_ipv4(t *testing.T) {
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc. 2",
-
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),
@@ -220,8 +208,6 @@ func TestAcc_resourceNetworkContainer_ipv6(t *testing.T) {
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
-							"TestEA1":   []string{"text1", "text2"},
-							"TestEA2":   []int{4, 5},
 						},
 					},
 				),
@@ -237,10 +223,6 @@ func TestAcc_resourceNetworkContainer_ipv6(t *testing.T) {
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc. 2",
-
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),
