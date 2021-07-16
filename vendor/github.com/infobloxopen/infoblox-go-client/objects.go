@@ -46,15 +46,24 @@ type NetworkView struct {
 	IBBase `json:"-"`
 	Ref    string `json:"_ref,omitempty"`
 	Name   string `json:"name,omitempty"`
+	Comment string `json:"comment"`
 	Ea     EA     `json:"extattrs"`
 }
 
-func NewNetworkView(nv NetworkView) *NetworkView {
-	res := nv
+func NewEmptyNetworkView() *NetworkView {
+	res := &NetworkView{}
 	res.objectType = "networkview"
-	res.returnFields = []string{"extattrs", "name"}
+	res.returnFields = []string{"extattrs", "name", "comment"}
+	return res
+}
 
-	return &res
+func NewNetworkView(name string, comment string, eas EA, ref string) *NetworkView {
+	res := NewEmptyNetworkView()
+	res.Name = name
+	res.Comment = comment
+	res.Ea = eas
+	res.Ref = ref
+	return res
 }
 
 // UpgradeStatus object representation

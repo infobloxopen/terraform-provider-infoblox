@@ -61,16 +61,16 @@ func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.R
 				"'dns_view' does not match: got '%s', expected '%s'",
 				rec.View, expectedRec.View)
 		}
-		if rec.UseTTL != expectedRec.UseTTL {
+		if rec.UseTtl != expectedRec.UseTtl {
 			return fmt.Errorf(
 				"TTL usage does not match: got '%t', expected '%t'",
-				rec.UseTTL, expectedRec.UseTTL)
+				rec.UseTtl, expectedRec.UseTtl)
 		}
-		if rec.UseTTL {
-			if rec.TTL != expectedRec.TTL {
+		if rec.UseTtl {
+			if rec.Ttl != expectedRec.Ttl {
 				return fmt.Errorf(
-					"'ttl' usage does not match: got '%d', expected '%d'",
-					rec.TTL, expectedRec.TTL)
+					"'Ttl' usage does not match: got '%d', expected '%d'",
+					rec.Ttl, expectedRec.Ttl)
 			}
 		}
 		if rec.Comment != expectedRec.Comment {
@@ -99,8 +99,8 @@ func TestAccResourceARecord(t *testing.T) {
 						Ipv4Addr: "10.0.0.2",
 						Name:     "name1.a.com",
 						View:     "default",
-						TTL:      0,
-						UseTTL:   false,
+						Ttl:      0,
+						UseTtl:   false,
 						Comment:  "",
 						Ea:       nil,
 					}),
@@ -124,8 +124,8 @@ func TestAccResourceARecord(t *testing.T) {
 						Ipv4Addr: "192.168.31.31",
 						Name:     "name2.b.com",
 						View:     "nondefault_view",
-						TTL:      10,
-						UseTTL:   true,
+						Ttl:      10,
+						UseTtl:   true,
 						Comment:  "test comment 1",
 						Ea: ibclient.EA{
 							"Location": "New York",
@@ -148,8 +148,8 @@ func TestAccResourceARecord(t *testing.T) {
 						Ipv4Addr: "10.10.0.1",
 						Name:     "name3.c.com",
 						View:     "nondefault_view",
-						TTL:      155,
-						UseTTL:   true,
+						Ttl:      155,
+						UseTtl:   true,
 						Comment:  "test comment 2",
 					}),
 				),
@@ -166,7 +166,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Ipv4Addr: "10.10.0.1",
 						Name:     "name3.c.com",
 						View:     "nondefault_view",
-						UseTTL:   false,
+						UseTtl:   false,
 					}),
 				),
 			},

@@ -9,7 +9,7 @@ terraform {
 }
 
 resource "infoblox_network_view" "TestNetworkView" {
-  network_view = "TestNetworkView"
+  name = "TestNetworkView"
   comment = "New Network View"
   ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"

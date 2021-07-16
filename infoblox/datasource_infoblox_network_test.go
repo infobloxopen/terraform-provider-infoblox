@@ -7,30 +7,27 @@ import (
 )
 
 func TestAccDataSourceNetwork(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDataSourceNetworkCreate,
+				Config: testAccDataSourceNetworkRead,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.infoblox_network.acctest", "network_name", "acctest-network"),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_network.acctest", "cidr", "10.4.20.0/24"),
 				),
 			},
 		},
 	})
 }
 
-var testAccDataSourceNetworkCreate = fmt.Sprintf(`
-resource "infoblox_network" "test_network"{
-  network_name      = "acctest-network"
-  cidr              = "10.4.20.0/24"
-  tenant_id         = "test_tenant_id"
+var testAccDataSourceNetworkRead = fmt.Sprintf(`
+resource "infoblox_ipv4_network" "test_network"{
+  	cidr = "10.4.20.0/24"
 }
 
-data "infoblox_network" "acctest" {
-  cidr              = infoblox_network.test_network.cidr
-  tenant_id         = infoblox_network.test_network.tenant_id
+data "infoblox_ipv4_network" "acctest" {
+	network_view = "default"
+  	cidr = infoblox_ipv4_network.test_network.cidr
 }
 `)

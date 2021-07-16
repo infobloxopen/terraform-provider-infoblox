@@ -16,88 +16,77 @@ func dataSourceARecord() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"dns_view": &schema.Schema{
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Dns View under which the zone has been created.",
+			},
 			"zone": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: "Zone under which record has been created.",
 			},
-			"dns_view": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "Dns View under which the zone has been created.",
-			},
 			"fqdn": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
 				Description: "A record FQDN.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "IP address.",
+				Required:    true,
+				Description: "IP address the A-record points to",
 			},
-			"eas": &schema.Schema{
-				Type:        schema.TypeMap,
+			"ttl": {
+				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: "Extension attributes",
+				Description: "TTL value for the A-record.",
 			},
-			"first_record": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Return first found record. Raise error if set to false and more than one record found.",
+			"comment": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Description of the A-record.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Extensible attributes of the A-record, as a map in JSON format",
 			},
 		},
 	}
 }
 
 func dataSourceARecordRead(d *schema.ResourceData, m interface{}) error {
-	var records []ibclient.RecordA
 
-	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
-	ip_addr := d.Get("ip_addr").(string)
-	first_record := d.Get("first_record").(bool)
+	ipAddr := d.Get("ip_addr").(string)
 
-	connector := m.(*ibclient.Connector)
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	aRec := ibclient.NewEmptyRecordA()
-	sf := map[string]string{
-		"ipv4addr": ip_addr,
-		"name":     fqdn,
-		"zone":     zone,
-		"view":     dnsView,
-	}
-	queryParams := ibclient.NewQueryParams(false, sf)
-
-	err := connector.GetObject(aRec, "", queryParams, &records)
-	d.SetId("")
+	aRec, err := objMgr.GetARecord(dnsView, fqdn, ipAddr)
 	if err != nil {
-		return fmt.Errorf("Read A record failed: %s", err)
+		return fmt.Errorf("failed getting A-record: %s", err.Error())
 	}
-	if len(records) == 0 {
-		return fmt.Errorf("No A record found. view(%s) zone(%s) fqdn(%s) ip_addr(%s)", dnsView, zone, fqdn, ip_addr)
-	}
-	if len(records) > 1 && !first_record {
-		return fmt.Errorf("Expect single record but found %d A records. view(%s) zone(%s) fqdn(%s) ip_addr(%s)", len(records), dnsView, zone, fqdn, ip_addr)
-	}
-	d.Set("ip_addr", records[0].Ipv4Addr)
-	d.Set("zone", records[0].Zone)
-	d.Set("dns_view", records[0].View)
-	d.Set("fqdn", records[0].Name)
 
-	eas := make(map[string]string)
-	for key, value := range records[0].Ea {
-		eas[key] = fmt.Sprintf("%v", value)
+	d.SetId(aRec.Ref)
+	if err := d.Set("zone", aRec.Zone); err != nil {
+		return err
 	}
-	d.Set("eas", eas)
+	if err := d.Set("ttl", aRec.Ttl); err != nil {
+		return err
+	}
+	if err := d.Set("comment", aRec.Comment); err != nil {
+		return err
+	}
 
-	d.SetId(records[0].Ref)
-
+	dsExtAttrsVal := aRec.Ea
+	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
+		return err
+	}
 	return nil
 }

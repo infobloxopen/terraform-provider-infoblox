@@ -43,7 +43,7 @@ resource "infoblox_ptr_record" "foo"{
 	dns_view="default"
 	ptrdname="testPtrdName.a.com"
 	record_name="testName.a.com"
-	comment="PTR record updated in forward mapping zone"
+	comment="PTR record created in forward mapping zone"
 	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc"

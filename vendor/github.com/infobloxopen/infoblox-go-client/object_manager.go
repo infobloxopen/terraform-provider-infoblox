@@ -25,7 +25,7 @@ type IBObjectManager interface {
 	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	CreateNetwork(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*Network, error)
 	CreateNetworkContainer(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*NetworkContainer, error)
-	CreateNetworkView(name string) (*NetworkView, error)
+	CreateNetworkView(name string, comment string, setEas EA) (*NetworkView, error)
 	CreatePTRRecord(networkView string, dnsView string, ptrdname string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordPTR, error)
 	CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error)
 	CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error)
@@ -42,6 +42,7 @@ type IBObjectManager interface {
 	DeleteTXTRecord(ref string) (string, error)
 	DeleteZoneDelegated(ref string) (string, error)
 	GetARecordByRef(ref string) (*RecordA, error)
+	GetARecord(dnsview string, recordName string, ipAddr string) (*RecordA, error)
 	GetAAAARecord(dnsview string, recordName string, ipAddr string) (*RecordAAAA, error)
 	GetAAAARecordByRef(ref string) (*RecordAAAA, error)
 	GetCNAMERecord(dnsview string, canonical string, recordName string) (*RecordCNAME, error)
@@ -74,7 +75,7 @@ type IBObjectManager interface {
 	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, netview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	UpdateNetwork(ref string, setEas EA, comment string) (*Network, error)
 	UpdateNetworkContainer(ref string, setEas EA, comment string) (*NetworkContainer, error)
-	UpdateNetworkViewEA(ref string, setEas EA) error
+	UpdateNetworkView(ref string, name string, comment string, setEas EA) (*NetworkView, error)
 	UpdatePTRRecord(ref string, netview string, ptrdname string, name string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordPTR, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
@@ -108,11 +109,8 @@ func NewObjectManager(connector IBConnector, cmpType string, tenantID string) IB
 	return objMgr
 }
 
-func (objMgr *ObjectManager) CreateNetworkView(name string) (*NetworkView, error) {
-	networkView := NewNetworkView(NetworkView{
-		Name: name,
-		Ea:   make(EA),
-	})
+func (objMgr *ObjectManager) CreateNetworkView(name string, comment string, setEas EA) (*NetworkView, error) {
+	networkView := NewNetworkView(name, comment, setEas, "")
 
 	ref, err := objMgr.connector.CreateObject(networkView)
 	networkView.Ref = ref
@@ -126,7 +124,7 @@ func (objMgr *ObjectManager) makeNetworkView(netviewName string) (netviewRef str
 		return
 	}
 	if netviewObj == nil {
-		if netviewObj, err = objMgr.CreateNetworkView(netviewName); err != nil {
+		if netviewObj, err = objMgr.CreateNetworkView(netviewName, "", nil); err != nil {
 			return
 		}
 	}
@@ -175,7 +173,7 @@ func (objMgr *ObjectManager) CreateNetworkContainer(netview string, cidr string,
 func (objMgr *ObjectManager) GetNetworkView(name string) (*NetworkView, error) {
 	var res []NetworkView
 
-	netview := NewNetworkView(NetworkView{})
+	netview := NewEmptyNetworkView()
 	sf := map[string]string{
 		"name": name,
 	}
@@ -193,7 +191,7 @@ func (objMgr *ObjectManager) GetNetworkView(name string) (*NetworkView, error) {
 }
 
 func (objMgr *ObjectManager) GetNetworkViewByRef(ref string) (*NetworkView, error) {
-	res := NewNetworkView(NetworkView{})
+	res := NewEmptyNetworkView()
 	queryParams := NewQueryParams(false, nil)
 	if err := objMgr.connector.GetObject(res, ref, queryParams, &res); err != nil {
 		return nil, err
@@ -205,22 +203,25 @@ func (objMgr *ObjectManager) GetNetworkViewByRef(ref string) (*NetworkView, erro
 	return res, nil
 }
 
-func (objMgr *ObjectManager) UpdateNetworkViewEA(ref string, setEas EA) error {
-	var res NetworkView
+func (objMgr *ObjectManager) UpdateNetworkView(ref string, name string, comment string, setEas EA) (*NetworkView, error) {
 
-	nv := NetworkView{}
-	nv.returnFields = []string{"extattrs"}
+	nv := NewEmptyNetworkView()
 
 	err := objMgr.connector.GetObject(
-		&nv, ref, NewQueryParams(false, nil), &res)
+		nv, ref, NewQueryParams(false, nil), nv)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	if name != "" {
+		nv.Name = name
+	}
+        nv.Comment = comment
+	nv.Ea = setEas
 
-	res.Ea = setEas
+	updatedRef, err := objMgr.connector.UpdateObject(nv, ref)
+	nv.Ref = updatedRef
 
-	_, err = objMgr.connector.UpdateObject(&res, ref)
-	return err
+	return nv, err
 }
 
 func BuildNetworkViewFromRef(ref string) *NetworkView {
@@ -976,6 +977,31 @@ func (objMgr *ObjectManager) UpdateARecord(
 	}
 
 	return rec, nil
+}
+
+func (objMgr *ObjectManager) GetARecord(dnsview string, recordName string, ipAddr string) (*RecordA, error) {
+	var res []RecordA
+	recordA := NewEmptyRecordA()
+	if dnsview == "" || recordName == "" || ipAddr == "" {
+		return nil, fmt.Errorf("DNS view, IPv4 address and record name of the record are required to retreive a unique A record")
+	}
+	sf := map[string]string{
+		"view":     dnsview,
+		"name":     recordName,
+		"ipv4addr": ipAddr,
+	}
+	queryParams := NewQueryParams(false, sf)
+	err := objMgr.connector.GetObject(recordA, "", queryParams, &res)
+
+	if err != nil {
+		return nil, err
+	} else if res == nil || len(res) == 0 {
+		return nil, NewNotFoundError(
+			fmt.Sprintf(
+				"A record with name '%s' and IPv4 address '%s' in DNS view '%s' is not found",
+				recordName, ipAddr, dnsview))
+	}
+	return &res[0], nil
 }
 
 func (objMgr *ObjectManager) GetARecordByRef(ref string) (*RecordA, error) {
