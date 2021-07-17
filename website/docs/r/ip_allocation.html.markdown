@@ -5,20 +5,19 @@ description: |-
   Reserves an IP from a network in NIOS.
 ---
 
-
 # infoblox\_ip\_allocation
 
-Reserves an IP from a network in NIOS .
+Reserves an IP from a network in NIOS.
 
-When applied, a next free availabe ip will be Reserved. Additional constraints, such as zone,dns view , mac address can also be configured. The same resource can be used to create Fixed address or Host Record. To create Host record, the zone and dns view parameters need to be specified. 
+When applied, the next free availabe IP will be reserved. Additional constraints, such as `zone`, `dns_view`, and `mac_addr` can also be configured. The same resource can be used to create fixed address or host record. To create host record, the `zone` and `dns_view` parameters need to be specified. 
 
 ## Example Usage
 
-```hcl
-resource "infoblox_ip_allocation" "demo_allocation"{
-  vm_name="terraform-demo1"
-  cidr="10.0.0.0/24"
-  tenant_id="test"
+```terraform
+resource "infoblox_ip_allocation" "demo_allocation" {
+  vm_name   = "terraform-demo1"
+  cidr      = "10.0.0.0/24"
+  tenant_id = "test"
 }
 ```
 ## Argument Reference
@@ -28,7 +27,7 @@ The following arguments are supported:
 * `network_view_name` - (Optional) Unless specified the resource Reserves the IP under default network view
 * `vm_name` - (Required) A name you want to associate with the IP address.
 * `cidr` - (Required) The network block in cidr format
-* `tenant_id` - (Required) Links the network  to a tenant
+* `tenant_id` - (Required) Links the network  to a tenant. For on-premise solutions, this can be any value.
 * `dns_view` - (Optional) The view which contains the details of the zone.If not provided , record will be created under default view
 * `zone` - (Optional) The zone in which you want to create a host record
 * `enable_dns` - (optional) A boolean value which either creates or not creates for DNS purposes
@@ -37,4 +36,4 @@ The following arguments are supported:
 
 ## Additional Note
 
-Dont set the mac address if you are integrating with cloud providers to deploy a Vm and use Infoblox to give the IP address.
+Don't set the MAC address if you are integrating with cloud providers to deploy a VM and use Infoblox to give the IP address.
