@@ -9,75 +9,9 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client"
 )
 
-var testAccresourceIPv4AllocationCreate = fmt.Sprintf(`
-resource "infoblox_ipv4_allocation" "foo"{
-	network_view="%s"
-	fqdn="testHostName.aws.com"
-	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.1"
-	comment = "10.0.0.1 IP is allocated"
-	ext_attrs = jsonencode({
-		"VM Name" =  "tf-ec2-instance"
-		"Tenant ID" = "terraform_test_tenant"
-		Location = "Test loc."
-		Site = "Test site"
-		TestEA1 = ["text1","text2"]
-		TestEA2 = [4,5]
-	  })
-	}`, testNetView)
-
-var testAccresourceIPv4AllocationUpdate = fmt.Sprintf(`
-resource "infoblox_ipv4_allocation" "foo"{
-	network_view="%s"
-	fqdn="testHostName.aws.com"
-	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.1"
-	comment = "10.0.0.1 IP is allocated updated"
-	ext_attrs = jsonencode({
-		"VM Name" =  "tf-ec2-instance"
-		"Tenant ID" = "terraform_test_tenant"
-		Location = "Test loc. updated"
-		TestEA1 = "text3"
-		TestEA2 = 7
-	  })
-	}`, testNetView)
-
-var testAccresourceIPv6AllocationCreate = fmt.Sprintf(`
-	resource "infoblox_ipv6_allocation" "foo"{
-		network_view="%s"
-		cidr="2001:db8:abcd:12::/64"
-		ip_addr="2001:db8:abcd:12::1"
-		duid="11:22:33:44:55:66"
-		comment = "2001:db8:abcd:12::1 IP is allocated"
-		ext_attrs = jsonencode({
-			"VM Name" =  "tf-ec2-instance-ipv6"
-			"Tenant ID" = "terraform_test_tenant"
-			Location = "Test loc."
-			Site = "Test site"
-			TestEA1 = ["text1","text2"]
-			TestEA2 = [4,5]
-		  })
-		}`, testNetView)
-
-var testAccresourceIPv6AllocationUpdate = fmt.Sprintf(`
-	resource "infoblox_ipv6_allocation" "foo"{
-		network_view="%s"
-		cidr="2001:db8:abcd:12::/64"
-		ip_addr="2001:db8:abcd:12::1"
-		duid="11:22:33:44:55:66"
-		comment = "2001:db8:abcd:12::1 IP is allocated updated"
-		ext_attrs = jsonencode({
-			"VM Name" =  "tf-ec2-instance-ipv6"
-			"Tenant ID" = "terraform_test_tenant"
-			Location = "Test loc. updated"
-			TestEA1 = "text3"
-			TestEA2 = 7
-		  })
-		}`, testNetView)
-
 func validateIPAllocation(
 	resourceName string,
-	expectedValue *ibclient.FixedAddress) resource.TestCheckFunc {
+	expectedValue *ibclient.HostRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		res, found := s.RootModule().Resources[resourceName]
 		if !found {
@@ -94,7 +28,7 @@ func validateIPAllocation(
 			connector,
 			"terraform_test",
 			"terraform_test_tenant")
-		ipAlloc, err := objMgr.GetFixedAddressByRef(id)
+		ipAlloc, err := objMgr.GetHostRecordByRef(id)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
@@ -103,11 +37,18 @@ func validateIPAllocation(
 				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
 			}
 		}
-		expNv := expectedValue.NetviewName
-		if ipAlloc.NetviewName != expNv {
+		expNv := expectedValue.NetworkView
+		if ipAlloc.NetworkView != expNv {
 			return fmt.Errorf(
 				"the value of 'network_view' field is '%s', but expected '%s'",
-				ipAlloc.NetviewName, expNv)
+				ipAlloc.NetworkView, expNv)
+		}
+
+		expFqdn := expectedValue.Name
+		if ipAlloc.Name != expFqdn {
+			return fmt.Errorf(
+				"the value of 'fqdn' field is '%s', but expected '%s'",
+				ipAlloc.Name, expFqdn)
 		}
 
 		expComment := expectedValue.Comment
@@ -115,14 +56,6 @@ func validateIPAllocation(
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
 				ipAlloc.Comment, expComment)
-		}
-
-		expIPv4Address := expectedValue.IPv4Address
-		expIPv6Address := expectedValue.IPv6Address
-		if ipAlloc.IPv4Address != expIPv4Address || ipAlloc.IPv6Address != expIPv6Address {
-			return fmt.Errorf(
-				"the value of 'IPv4Address' field is '%s', but expected '%s'or 'IPv6Address' field is '%s', but expected %s",
-				ipAlloc.IPv4Address, expIPv4Address, ipAlloc.IPv6Address, expIPv6Address)
 		}
 
 		// the rest is about extensible attributes
@@ -150,41 +83,35 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccresourceIPv4AllocationCreate,
+				Config: fmt.Sprintf(`
+				resource "infoblox_ipv4_allocation" "foo"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostname.aws.com"
+					cidr="10.0.0.0/24"
+					ip_addr="10.0.0.1"
+					enable_dns = "true"
+					comment = "10.0.0.1 IP is allocated"
+					ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						"VM Name" =  "tf-ec2-instance"
+						"Location" = "Test loc."
+						"Site" = "Test site"
+					  })
+					}`),
 				Check: validateIPAllocation(
 					"infoblox_ipv4_allocation.foo",
-					&ibclient.FixedAddress{
-						NetviewName: testNetView,
-						Cidr:        "10.0.0.0/24",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "testhostname.aws.com",
+						Ipv4Addr:    "10.0.0.1",
 						Comment:     "10.0.0.1 IP is allocated",
-						IPv4Address: "10.0.0.1",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
-							"TestEA1":   []string{"text1", "text2"},
-							"TestEA2":   []int{4, 5},
-						},
-					},
-				),
-			},
-			{
-				Config: testAccresourceIPv4AllocationUpdate,
-				Check: validateIPAllocation(
-					"infoblox_ipv4_allocation.foo",
-					&ibclient.FixedAddress{
-						NetviewName: testNetView,
-						Cidr:        "10.0.0.0/24",
-						Comment:     "10.0.0.1 IP is allocated updated",
-						IPv4Address: "10.0.0.1",
-						Ea: ibclient.EA{
-							"Tenant ID": "terraform_test_tenant",
-							"VM Name":   "tf-ec2-instance",
-							"Location":  "Test loc. updated",
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),
@@ -200,43 +127,34 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccresourceIPv6AllocationCreate,
+				Config: fmt.Sprintf(`
+				resource "infoblox_ipv6_allocation" "foo2"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameipv6.aws.com"
+					ip_addr="2001:db8:abcd:12::1"
+					duid="11:22:33:44:55:66"
+					comment = "2001:db8:abcd:12::1 IP is allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance-ipv6"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Test site"
+					  })
+					}`),
 				Check: validateIPAllocation(
-					"infoblox_ipv6_allocation.foo",
-					&ibclient.FixedAddress{
-						NetviewName: testNetView,
-						Cidr:        "2001:db8:abcd:12::/64",
+					"infoblox_ipv6_allocation.foo2",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "testhostnameipv6.aws.com",
+						Ipv6Addr:    "2001:db8:abcd:12::1",
 						Comment:     "2001:db8:abcd:12::1 IP is allocated",
-						IPv6Address: "2001:db8:abcd:12::1",
-						Duid:        "11:22:33:44:55:66",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance-ipv6",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
-							"TestEA1":   []string{"text1", "text2"},
-							"TestEA2":   []int{4, 5},
-						},
-					},
-				),
-			},
-			{
-				Config: testAccresourceIPv6AllocationUpdate,
-				Check: validateIPAllocation(
-					"infoblox_ipv6_allocation.foo",
-					&ibclient.FixedAddress{
-						NetviewName: testNetView,
-						Cidr:        "2001:db8:abcd:12::/64",
-						Comment:     "2001:db8:abcd:12::1 IP is allocated updated",
-						IPv6Address: "2001:db8:abcd:12::1",
-						Duid:        "11:22:33:44:55:66",
-						Ea: ibclient.EA{
-							"Tenant ID": "terraform_test_tenant",
-							"VM Name":   "tf-ec2-instance-ipv6",
-							"Location":  "Test loc. updated",
-							// lists which contain ony one element are reduced by NIOS to a single-value element
-							"TestEA1": "text3",
-							"TestEA2": 7,
 						},
 					},
 				),
@@ -255,7 +173,7 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 		if rs.Type != "infoblox_ipv4_allocation" && rs.Type != "infoblox_ipv6_allocation" {
 			continue
 		}
-		res, err := objMgr.GetFixedAddressByRef(rs.Primary.ID)
+		res, err := objMgr.GetHostRecordByRef(rs.Primary.ID)
 		if err != nil {
 			if isNotFoundError(err) {
 				continue

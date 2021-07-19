@@ -91,13 +91,13 @@ func TestAccResourceARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo"{
-						fqdn = "name1.a.com"
+						fqdn = "name1.aws.com"
 						ip_addr = "10.0.0.2"
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo", &ibclient.RecordA{
 						Ipv4Addr: "10.0.0.2",
-						Name:     "name1.a.com",
+						Name:     "name1.aws.com",
 						View:     "default",
 						Ttl:      0,
 						UseTtl:   false,
@@ -109,7 +109,7 @@ func TestAccResourceARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo2"{
-						fqdn = "name2.b.com"
+						fqdn = "name2.aws.com"
 						ip_addr = "192.168.31.31"
 						ttl = 10
 						dns_view = "nondefault_view"
@@ -122,7 +122,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "192.168.31.31",
-						Name:     "name2.b.com",
+						Name:     "name2.aws.com",
 						View:     "nondefault_view",
 						Ttl:      10,
 						UseTtl:   true,
@@ -137,7 +137,7 @@ func TestAccResourceARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo2"{
-						fqdn = "name3.c.com"
+						fqdn = "name3.aws.com"
 						ip_addr = "10.10.0.1"
 						ttl = 155
 						dns_view = "nondefault_view"
@@ -146,7 +146,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "10.10.0.1",
-						Name:     "name3.c.com",
+						Name:     "name3.aws.com",
 						View:     "nondefault_view",
 						Ttl:      155,
 						UseTtl:   true,
@@ -157,14 +157,14 @@ func TestAccResourceARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo2"{
-						fqdn = "name3.c.com"
+						fqdn = "name3.aws.com"
 						ip_addr = "10.10.0.1"
 						dns_view = "nondefault_view"
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "10.10.0.1",
-						Name:     "name3.c.com",
+						Name:     "name3.aws.com",
 						View:     "nondefault_view",
 						UseTtl:   false,
 					}),

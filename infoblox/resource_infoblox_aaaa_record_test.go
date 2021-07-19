@@ -84,7 +84,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_aaaa_record" "foo"{
-						fqdn = "name1.a.com"
+						fqdn = "name1.aws.com"
 						ipv6_addr = "2000::1"
 						dns_view = "default"
 						comment = "test comment 1"
@@ -98,7 +98,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo", &ibclient.RecordAAAA{
 						Ipv6Addr: "2000::1",
-						Name:     "name1.a.com",
+						Name:     "name1.aws.com",
 						View:     "default",
 						Ttl:      0,
 						Comment:  "test comment 1",
@@ -114,7 +114,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_aaaa_record" "foo2"{
-						fqdn = "name3.a.com"
+						fqdn = "name3.aws.com"
 						ipv6_addr = "2000::3"
 						ttl = 155
 						dns_view = "default"
@@ -127,7 +127,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
 						Ipv6Addr: "2000::3",
-						Name:     "name3.a.com",
+						Name:     "name3.aws.com",
 						View:     "default",
 						Ttl:      155,
 						Comment:  "test comment 2",

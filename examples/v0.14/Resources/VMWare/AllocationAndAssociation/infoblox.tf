@@ -62,10 +62,10 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   cidr = infoblox_ipv4_network.ipv4_network.cidr
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv4.vmware.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv4.vmware.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv4 allocation"
   ext_attrs = jsonencode({
@@ -83,10 +83,10 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   duid = "00:00:00:00:00:00:00:00"
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv6.vmware.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv6.vmware.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv6 allocation"
   ext_attrs = jsonencode({
@@ -106,10 +106,10 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   mac_addr = vsphere_virtual_machine.vm_ipv4.network_interface[0].mac_address
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv4.vmware.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv4.vmware.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv4 Association"
   ext_attrs = jsonencode({
@@ -129,10 +129,10 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   duid = vsphere_virtual_machine.vm_ipv6.network_interface[0].mac_address
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv6.vmware.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv6.vmware.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv6 Association"
   ext_attrs = jsonencode({
