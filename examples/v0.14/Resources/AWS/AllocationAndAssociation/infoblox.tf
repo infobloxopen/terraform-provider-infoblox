@@ -78,10 +78,10 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   cidr = infoblox_ipv4_network.ipv4_network.cidr
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv4.aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv4.aws.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
   
   comment = "tf IPv4 allocation"
   ext_attrs = jsonencode({
@@ -99,10 +99,10 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   duid = "00:00:00:00:00:00:00:00"
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv6.aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv6.aws.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv6 allocation"
   ext_attrs = jsonencode({
@@ -123,10 +123,10 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   mac_addr = aws_network_interface.ni.mac_address
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv4.aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv4.aws.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv4 Association"
   ext_attrs = jsonencode({
@@ -146,10 +146,10 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   duid = aws_network_interface.ni.mac_address
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv6.aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  dns_view="default"
+  fqdn="testipv6.aws.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   comment = "tf IPv6 Association"
   ext_attrs = jsonencode({
@@ -163,45 +163,28 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
 }
 
 /*
-Below are the examples for Allocation through host and fixed address record creation.
-The same pattern follows for Association and IPv6 address.
-
+Below are the examples for Allocation through host record creation.
+The same pattern follows for IPv6 Allocation, IPv4 and IPv6 Association.
 # Allocate with default network and dns views
 # Create Host record with default dns flag enabled
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   ip_addr = "10.0.0.11"
   fqdn="test.aws.com"
 }
-
 # Allocate with default network and dns views
 # Create Host record with dns flag and dhcp flag disabled
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   ip_addr = "10.0.0.11"
   fqdn="test.aws.com"
-
   enable_dns = "false"
   enable_dhcp = "false"
 } 
-
 # Allocate with default network and dns views
 # Create Host record with dns flag and dhcp flag enabled
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   ip_addr = "10.0.0.11"
   fqdn="test.aws.com"
-
   enable_dns = "true"
   enable_dhcp = "true"
 } 
-
-# Allocate with default network and dns views
-# Create Fixed Address record with ip address
-resource "infoblox_ipv4_allocation" "ipv4_allocation"{
-  ip_addr = "10.0.0.11"
-}
-
-# Allocate with default network and dns views
-# Create Fixed Address record with cidr
-resource "infoblox_ipv4_allocation" "ipv4_allocation"{
-  cidr = "10.0.0.0/24"
-}
 */

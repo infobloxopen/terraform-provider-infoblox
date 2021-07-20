@@ -58,7 +58,7 @@ func resourceIPAllocation() *schema.Resource {
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "The host name for Host Record in FQDN format.",
 			},
 			"ttl": {
@@ -93,7 +93,7 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}, isIPv6 b
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("'ipAddr' or 'cidr' mandatory for allocation through Host/Fixed Address Record creation")
+		return fmt.Errorf("'ipAddr' or 'cidr' mandatory for allocation through Host Address Record creation")
 	}
 	duid := d.Get("duid").(string)
 	macAddr := d.Get("mac_addr").(string)
@@ -130,116 +130,51 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}, isIPv6 b
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// host record would get created when fqdn is given along with enableDns and enableDhcp flags.
 	// enableDns and enableDhcp flags used to create host record with respective flags.
-	// fixed address record would get created when no fqdn is provided with false values set
-	// enableDns and enableDhcp flags.
-	if fqdn != "" && enableDns {
-		if isIPv6 {
-			hostRec, err := objMgr.CreateHostRecord(
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				dnsView,
-				"", cidr,
-				"", ipAddr,
-				"", duid,
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error in allocating IPv6 address and creating a host record err: %s", err.Error())
-			}
-			d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
-			d.SetId(hostRec.Ref)
-		} else {
-			hostRec, err := objMgr.CreateHostRecord(
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				dnsView,
-				cidr, "",
-				ipAddr, "",
-				macAddr, "",
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error in allocating IPv4 address and creating a host record err: %s", err.Error())
-			}
-			d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
-			d.SetId(hostRec.Ref)
+	// By default enableDns is true.
+	if isIPv6 {
+		hostRec, err := objMgr.CreateHostRecord(
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			dnsView,
+			"", cidr,
+			"", ipAddr,
+			"", duid,
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
+		if err != nil {
+			return fmt.Errorf(
+				"Error in creating a host record err: %s", err.Error())
 		}
-
-	} else if fqdn != "" && enableDhcp || !enableDns {
-		// default value of enableDns is true. When user sets enableDhcp as true and does not pass a enableDns flag
-		enableDns = false
-		if isIPv6 {
-			hostRec, err := objMgr.CreateHostRecord(
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				dnsView,
-				"", cidr,
-				"", ipAddr,
-				"", duid,
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error in allocating IPv6 address and creating a host record err: %s", err.Error())
-			}
-			d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
-			d.SetId(hostRec.Ref)
-		} else {
-			hostRec, err := objMgr.CreateHostRecord(
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				dnsView,
-				cidr, "",
-				ipAddr, "",
-				macAddr, "",
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error in allocating IPv4 address and creating a host record err: %s", err.Error())
-			}
-			d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
-			d.SetId(hostRec.Ref)
-		}
+		d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
+		d.SetId(hostRec.Ref)
 	} else {
-		if isIPv6 {
-			fixedAddress, err := objMgr.AllocateIP(networkView, cidr, ipAddr, isIPv6, duid, fqdn, comment, extAttrs)
-			if err != nil {
-				return fmt.Errorf("Error allocating IP through Fixed Address error: %s", err.Error())
-			}
-			d.Set("ip_addr", fixedAddress.IPv6Address)
-			d.SetId(fixedAddress.Ref)
-		} else {
-			fixedAddress, err := objMgr.AllocateIP(networkView, cidr, ipAddr, isIPv6, macAddr, fqdn, comment, extAttrs)
-			if err != nil {
-				return fmt.Errorf("Error allocating IP through Fixed Address error: %s", err.Error())
-			}
-			d.Set("ip_addr", fixedAddress.IPv4Address)
-			d.SetId(fixedAddress.Ref)
+		hostRec, err := objMgr.CreateHostRecord(
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			dnsView,
+			cidr, "",
+			ipAddr, "",
+			macAddr, "",
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
+		if err != nil {
+			return fmt.Errorf(
+				"Error in creating a host record err: %s", err.Error())
 		}
+		d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
+		d.SetId(hostRec.Ref)
 	}
 	return nil
 }
 
 func resourceIPAllocationGet(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
-	fqdn := d.Get("fqdn").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -256,19 +191,12 @@ func resourceIPAllocationGet(d *schema.ResourceData, m interface{}, isIPv6 bool)
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if fqdn != "" {
-		hostRec, err := objMgr.GetHostRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error getting IP with ID: %s failed : %s", d.Id(), err.Error())
-		}
-		d.SetId(hostRec.Ref)
-	} else {
-		fixedAddress, err := objMgr.GetFixedAddressByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error getting IP with ID: %s failed : %s", d.Id(), err.Error())
-		}
-		d.SetId(fixedAddress.Ref)
+	hostRec, err := objMgr.GetHostRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("Error getting Host record with ID: %s failed : %s", d.Id(), err.Error())
 	}
+	d.SetId(hostRec.Ref)
+
 	return nil
 }
 
@@ -327,132 +255,55 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}, isIPv6 bo
 	// Retrive the IP of Host or Fixed Address record.
 	// When IP is allocated using cidr and an empty IP is passed for updation
 	if cidr == "" && ipAddr == "" {
-		if fqdn != "" {
-			hostRecObj, err := objMgr.GetHostRecordByRef(d.Id())
-			if err != nil {
-				return fmt.Errorf("Error getting IP with ID: %s failed : %s", d.Id(), err.Error())
-			}
-			if isIPv6 {
-				ipAddr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
-			} else {
-				ipAddr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
-			}
-
-		} else {
-			fixedAddress, err := objMgr.GetFixedAddressByRef(d.Id())
-			if err != nil {
-				return fmt.Errorf("Error getting IP with ID: %s failed : %s", d.Id(), err.Error())
-			}
-			if isIPv6 {
-				ipAddr = fixedAddress.IPv6Address
-			} else {
-				ipAddr = fixedAddress.IPv4Address
-			}
+		hostRecObj, err := objMgr.GetHostRecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Error getting Host Record with ID: %s failed : %s", d.Id(), err.Error())
 		}
-
+		if isIPv6 {
+			ipAddr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
+		} else {
+			ipAddr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
+		}
 	}
 
-	if fqdn != "" && enableDns {
-		if isIPv6 {
-			hostRec, err := objMgr.UpdateHostRecord(
-				d.Id(),
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				"", cidr,
-				"", ipAddr,
-				"", duid,
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error updating IPv6 Host record with ID %s: %s", d.Id(), err.Error())
-			}
-			d.SetId(hostRec.Ref)
-			d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
-		} else {
-			hostRec, err := objMgr.UpdateHostRecord(
-				d.Id(),
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				cidr, "",
-				ipAddr, "",
-				macAddr, "",
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error updating IPv4 Host record with ID %s: %s", d.Id(), err.Error())
-			}
-			d.SetId(hostRec.Ref)
-			d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
+	if isIPv6 {
+		hostRec, err := objMgr.UpdateHostRecord(
+			d.Id(),
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			"", cidr,
+			"", ipAddr,
+			"", duid,
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
+		if err != nil {
+			return fmt.Errorf(
+				"Error updating IPv6 Host record with ID %s: %s", d.Id(), err.Error())
 		}
-	} else if enableDhcp || !enableDns {
-		// change default value of enableDns to false, when user sets enableDhcp but not pass a enableDns flag
-		enableDns = false
-
-		if isIPv6 {
-			hostRec, err := objMgr.UpdateHostRecord(
-				d.Id(),
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				"", cidr,
-				"", ipAddr,
-				"", duid,
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error updating IPv6 Host record with ID %s: %s", d.Id(), err.Error())
-			}
-			d.SetId(hostRec.Ref)
-			d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
-		} else {
-			hostRec, err := objMgr.UpdateHostRecord(
-				d.Id(),
-				enableDns,
-				enableDhcp,
-				fqdn,
-				networkView,
-				cidr, "",
-				ipAddr, "",
-				macAddr, "",
-				useTtl, ttl,
-				comment,
-				extAttrs, []string{})
-			if err != nil {
-				return fmt.Errorf(
-					"Error updating IPv4 Host record with ID %s: %s", d.Id(), err.Error())
-			}
-			d.SetId(hostRec.Ref)
-			d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
-		}
+		d.SetId(hostRec.Ref)
+		d.Set("ip_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
 	} else {
-		match_client := "MAC_ADDRESS"
-		if isIPv6 {
-			match_client = ""
-			fixedAddress, err := objMgr.UpdateFixedAddress(d.Id(), networkView, fqdn, cidr, ipAddr, match_client, duid, comment, extAttrs)
-			if err != nil {
-				return fmt.Errorf("Error updating IP wit ID %s error: %s", d.Id(), err.Error())
-			}
-			d.Set("ip_addr", fixedAddress.IPv6Address)
-			d.SetId(fixedAddress.Ref)
-		} else {
-			fixedAddress, err := objMgr.UpdateFixedAddress(d.Id(), networkView, fqdn, cidr, ipAddr, match_client, duid, comment, extAttrs)
-			if err != nil {
-				return fmt.Errorf("Error updating IP wit ID %s error: %s", d.Id(), err.Error())
-			}
-			d.Set("ip_addr", fixedAddress.IPv6Address)
-			d.SetId(fixedAddress.Ref)
+		hostRec, err := objMgr.UpdateHostRecord(
+			d.Id(),
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			cidr, "",
+			ipAddr, "",
+			macAddr, "",
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
+		if err != nil {
+			return fmt.Errorf(
+				"Error updating IPv4 Host record with ID %s: %s", d.Id(), err.Error())
 		}
+		d.SetId(hostRec.Ref)
+		d.Set("ip_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
 	}
 	return nil
 }
@@ -464,7 +315,6 @@ func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}, isIPv6 b
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
-	fqdn := d.Get("fqdn").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -480,19 +330,12 @@ func resourceIPAllocationRelease(d *schema.ResourceData, m interface{}, isIPv6 b
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if fqdn != "" {
-		_, err := objMgr.DeleteHostRecord(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error Releasing IP with ID %s: %s", d.Id(), err.Error())
-		}
-	} else {
-		_, err := objMgr.DeleteFixedAddress(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error Releasing IP with ID %s: %s", d.Id(), err.Error())
-		}
+	_, err := objMgr.DeleteHostRecord(d.Id())
+	if err != nil {
+		return fmt.Errorf("Error Releasing IP with ID %s: %s", d.Id(), err.Error())
 	}
-	d.SetId("")
 
+	d.SetId("")
 	return nil
 }
 

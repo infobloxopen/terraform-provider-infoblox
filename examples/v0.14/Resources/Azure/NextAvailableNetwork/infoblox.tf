@@ -50,10 +50,10 @@ resource "infoblox_ipv4_allocation" "alloc1" {
   cidr=infoblox_ipv4_network.subnet1.cidr
 
   #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #fqdn="testipv4.vmware.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"  
+  dns_view="default"
+  fqdn="testipv4.vmware.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
 
   ext_attrs = jsonencode({
     "Tenant ID" = local.tenant_id
