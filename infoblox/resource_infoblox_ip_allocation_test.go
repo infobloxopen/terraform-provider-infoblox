@@ -87,7 +87,7 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 				resource "infoblox_ipv4_allocation" "foo"{
 					network_view="default"
 					dns_view = "default"
-					fqdn="testhostname.aws.com"
+					fqdn="testhostname.test.com"
 					cidr="10.0.0.0/24"
 					ip_addr="10.0.0.1"
 					enable_dns = "true"
@@ -104,7 +104,7 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostname.aws.com",
+						Name:        "testhostname.test.com",
 						Ipv4Addr:    "10.0.0.1",
 						Comment:     "10.0.0.1 IP is allocated",
 						Ea: ibclient.EA{
@@ -131,7 +131,7 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 				resource "infoblox_ipv6_allocation" "foo2"{
 					network_view="default"
 					dns_view = "default"
-					fqdn="testhostnameipv6.aws.com"
+					fqdn="testhostnameipv6.test.com"
 					ip_addr="2001:db8:abcd:12::1"
 					duid="11:22:33:44:55:66"
 					comment = "2001:db8:abcd:12::1 IP is allocated"
@@ -147,7 +147,7 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostnameipv6.aws.com",
+						Name:        "testhostnameipv6.test.com",
 						Ipv6Addr:    "2001:db8:abcd:12::1",
 						Comment:     "2001:db8:abcd:12::1 IP is allocated",
 						Ea: ibclient.EA{

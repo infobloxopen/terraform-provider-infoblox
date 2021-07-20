@@ -12,8 +12,8 @@ import (
 var testAccresourceRecordPTRCreate = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo"{
     dns_view="default"
-	ptrdname="testPtrdName.aws.com"
-	record_name="testName.aws.com"
+	ptrdname="testPtrdName.test.com"
+	record_name="testName.test.com"
 	comment="PTR record created in forward mapping zone"
 	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
@@ -27,7 +27,7 @@ var testAccresourceRecordPTRCreate_2 = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo2"{
 	network_view="default"
     dns_view="default"
-	ptrdname="testPtrdName2.aws.com"
+	ptrdname="testPtrdName2.test.com"
 	ip_addr = "10.0.0.2"
 	comment="PTR record created in reverse mapping zone with IP"
 	ext_attrs=jsonencode({
@@ -41,8 +41,8 @@ resource "infoblox_ptr_record" "foo2"{
 var testAccresourceRecordPTRUpdate = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo"{
 	dns_view="default"
-	ptrdname="testPtrdName.aws.com"
-	record_name="testName.aws.com"
+	ptrdname="testPtrdName.test.com"
+	record_name="testName.test.com"
 	comment="PTR record created in forward mapping zone"
 	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
@@ -56,7 +56,7 @@ var testAccresourceRecordPTRUpdate_2 = fmt.Sprintf(`
 resource "infoblox_ptr_record" "foo2"{
 	network_view = "default"
 	dns_view="default"
-	ptrdname="testPtrdName2.aws.com"
+	ptrdname="testPtrdName2.test.com"
 	ip_addr = "10.0.0.2"
 	comment="PTR record created in reverse mapping zone with IP"
 	ext_attrs = jsonencode({
@@ -163,9 +163,9 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName.aws.com",
+						PtrdName: "testPtrdName.test.com",
 						Name:     "testName",
-						Zone:     "aws.com",
+						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -182,9 +182,9 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName.aws.com",
+						PtrdName: "testPtrdName.test.com",
 						Name:     "testName",
-						Zone:     "aws.com",
+						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -201,7 +201,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName2.aws.com",
+						PtrdName: "testPtrdName2.test.com",
 						Ipv4Addr: "10.0.0.2",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{
@@ -219,7 +219,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName2.aws.com",
+						PtrdName: "testPtrdName2.test.com",
 						Ipv4Addr: "10.0.0.2",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{

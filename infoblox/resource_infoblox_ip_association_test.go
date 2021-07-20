@@ -128,7 +128,7 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 				Config: fmt.Sprintf(`
 				resource "infoblox_ipv4_allocation" "foo"{
 					network_view="default"
-					fqdn="testhostname.aws.com"
+					fqdn="testhostname.test.com"
 					ip_addr="10.0.0.12"
 					enable_dns = "true"
 					comment = "10.0.0.12 IP is allocated"
@@ -160,7 +160,7 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostname.aws.com",
+						Name:        "testhostname.test.com",
 						Ipv4Addr:    "10.0.0.12",
 						Comment:     "10.0.0.12 IP is associated",
 						Ea: ibclient.EA{
@@ -186,7 +186,7 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 				Config: fmt.Sprintf(`
 				resource "infoblox_ipv6_allocation" "ipv6_allocation" {
 					network_view= "default"
-					fqdn="testhostnameipv6.aws.com"
+					fqdn="testhostnameipv6.test.com"
 					ip_addr = "2001:db8:abcd:12::10"
 					duid = "00:00:00:00:00:00:00:10"
 					comment = "tf IPv6 allocation"
@@ -217,7 +217,7 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostnameipv6.aws.com",
+						Name:        "testhostnameipv6.test.com",
 						Ipv6Addr:    "2001:db8:abcd:12::10",
 						Comment:     "2001:db8:abcd:12::10 IP is associated",
 						Ea: ibclient.EA{

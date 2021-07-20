@@ -16,9 +16,9 @@ func TestAccDataSourceCNameRecord(t *testing.T) {
 				Config: testAccDataSourceCNameRecordsRead,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "dns_view", "default"),
-					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "zone", "aws.com"),
-					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "alias", "test.aws.com"),
-					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "canonical", "test-name.aws.com"),
+					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "zone", "test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "alias", "test.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_cname_record.acctest", "canonical", "test-name.test.com"),
 				),
 			},
 		},
@@ -29,8 +29,8 @@ var testAccDataSourceCNameRecordsRead = fmt.Sprintf(`
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	
-	alias="test.aws.com"
-	canonical="test-name.aws.com"	
+	alias="test.test.com"
+	canonical="test-name.test.com"	
   }
 
 data "infoblox_cname_record" "acctest" {
