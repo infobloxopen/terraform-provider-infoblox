@@ -12,8 +12,8 @@ import (
 var testAccresourceCNAMERecordCreate = fmt.Sprintf(`
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
-	canonical="test-canonicalName.aws.com"
-	alias="test-aliasname.aws.com"
+	canonical="test-canonicalName.test.com"
+	alias="test-aliasname.test.com"
 	comment="CNAME record created"
 	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
@@ -27,8 +27,8 @@ resource "infoblox_cname_record" "foo"{
 var testAccresourceCNAMERecordUpdate = fmt.Sprintf(`
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
-	canonical="test-canonicalName.aws.com"
-	alias="test-aliasname.aws.com"
+	canonical="test-canonicalName.test.com"
+	alias="test-aliasname.test.com"
 	comment="CNAME record updated"
 	ext_attrs = jsonencode({
 		"Tenant ID" = "terraform_test_tenant"
@@ -119,9 +119,9 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 					"infoblox_cname_record.foo",
 					&ibclient.RecordCNAME{
 						View:      "default",
-						Canonical: "test-canonicalName.aws.com",
-						Name:      "test-aliasname.aws.com",
-						Zone:      "aws.com",
+						Canonical: "test-canonicalName.test.com",
+						Name:      "test-aliasname.test.com",
+						Zone:      "test.com",
 						Comment:   "CNAME record created",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -138,9 +138,9 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 					"infoblox_cname_record.foo",
 					&ibclient.RecordCNAME{
 						View:      "default",
-						Canonical: "test-canonicalName.aws.com",
-						Name:      "test-aliasname.aws.com",
-						Zone:      "aws.com",
+						Canonical: "test-canonicalName.test.com",
+						Name:      "test-aliasname.test.com",
+						Zone:      "test.com",
 						Comment:   "CNAME record updated",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",

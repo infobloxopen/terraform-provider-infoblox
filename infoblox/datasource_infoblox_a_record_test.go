@@ -16,8 +16,8 @@ func TestAccDataSourceARecord(t *testing.T) {
 				Config: testAccDataSourceARecordsRead,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "dns_view", "default"),
-					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "zone", "aws.com"),
-					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "fqdn", "test-name.aws.com"),
+					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "zone", "test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "fqdn", "test-name.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "ip_addr", "10.0.0.20"),
 				),
 			},
@@ -28,7 +28,7 @@ func TestAccDataSourceARecord(t *testing.T) {
 var testAccDataSourceARecordsRead = fmt.Sprintf(`
 resource "infoblox_a_record" "foo"{
 	dns_view="default"
-	fqdn="test-name.aws.com"
+	fqdn="test-name.test.com"
 	ip_addr="10.0.0.20"
 }
 
