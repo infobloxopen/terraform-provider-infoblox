@@ -3,8 +3,9 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceARecord() *schema.Resource {

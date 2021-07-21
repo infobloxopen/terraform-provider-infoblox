@@ -27,7 +27,7 @@ type IBObjectManager interface {
 	CreateNetworkContainer(netview string, cidr string, isIPv6 bool, comment string, eas EA) (*NetworkContainer, error)
 	CreateNetworkView(name string, comment string, setEas EA) (*NetworkView, error)
 	CreatePTRRecord(networkView string, dnsView string, ptrdname string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordPTR, error)
-	CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error)
+	CreateTXTRecord(recordname string, text string, ttl uint, dnsview string) (*RecordTXT, error)
 	CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error)
 	DeleteARecord(ref string) (string, error)
 	DeleteAAAARecord(ref string) (string, error)
@@ -212,10 +212,11 @@ func (objMgr *ObjectManager) UpdateNetworkView(ref string, name string, comment 
 	if err != nil {
 		return nil, err
 	}
-	if name != "" {
-		nv.Name = name
+	cleanName := strings.TrimSpace(name)
+	if cleanName != "" {
+		nv.Name = cleanName
 	}
-        nv.Comment = comment
+    nv.Comment = comment
 	nv.Ea = setEas
 
 	updatedRef, err := objMgr.connector.UpdateObject(nv, ref)
@@ -1240,13 +1241,13 @@ func (objMgr *ObjectManager) UpdateCNAMERecord(
 }
 
 // Creates TXT Record. Use TTL of 0 to inherit TTL from the Zone
-func (objMgr *ObjectManager) CreateTXTRecord(recordname string, text string, ttl int, dnsview string) (*RecordTXT, error) {
+func (objMgr *ObjectManager) CreateTXTRecord(recordname string, text string, ttl uint, dnsview string) (*RecordTXT, error) {
 
 	recordTXT := NewRecordTXT(RecordTXT{
 		View: dnsview,
 		Name: recordname,
 		Text: text,
-		TTL:  ttl,
+		Ttl:  ttl,
 	})
 
 	ref, err := objMgr.connector.CreateObject(recordTXT)
@@ -1380,6 +1381,7 @@ func (objMgr *ObjectManager) GetPTRRecord(dnsview string, ptrdname string, recor
 		"view":     dnsview,
 		"ptrdname": ptrdname,
 	}
+	cleanName := strings.TrimSpace(recordName)
 	if ipAddr != "" {
 		ipAddress := net.ParseIP(ipAddr)
 		if ipAddress == nil {
@@ -1390,8 +1392,8 @@ func (objMgr *ObjectManager) GetPTRRecord(dnsview string, ptrdname string, recor
 		} else {
 			sf["ipv6addr"] = ipAddr
 		}
-	} else if recordName != "" {
-		sf["name"] = recordName
+	} else if cleanName != "" {
+		sf["name"] = cleanName
 	} else {
 		return nil, fmt.Errorf("record name or IP Address of the record has to be passed to get a unique record")
 	}
