@@ -32,6 +32,7 @@ type TransportConfig struct {
 	certPool            *x509.CertPool
 	HttpRequestTimeout  time.Duration // in seconds
 	HttpPoolConnections int
+	ProxyUrl            *url.URL
 }
 
 func NewTransportConfig(sslVerify string, httpRequestTimeout int, httpPoolConnections int) (cfg TransportConfig) {
@@ -132,6 +133,11 @@ func (whr *WapiHttpRequestor) Init(cfg TransportConfig) {
 			RootCAs:       cfg.certPool,
 			Renegotiation: tls.RenegotiateOnceAsClient},
 		MaxIdleConnsPerHost: cfg.HttpPoolConnections,
+		Proxy: http.ProxyFromEnvironment,
+	}
+
+	if cfg.ProxyUrl != nil {
+		tr.Proxy = http.ProxyURL(cfg.ProxyUrl)
 	}
 
 	// All users of cookiejar should import "golang.org/x/net/publicsuffix"
