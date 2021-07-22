@@ -1,11 +1,17 @@
 package infoblox
 
 import (
+	"math"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+)
+
+// Common parameters
+const (
+	ttlUndef = math.MinInt32
 )
 
 //Provider returns a terraform.ResourceProvider.
@@ -63,16 +69,22 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"infoblox_network":        resourceNetwork(),
-			"infoblox_network_view":   resourceNetworkView(),
-			"infoblox_ip_allocation":  resourceIPAllocation(),
-			"infoblox_ip_association": resourceIPAssociation(),
-			"infoblox_a_record":       resourceARecord(),
-			"infoblox_cname_record":   resourceCNAMERecord(),
-			"infoblox_ptr_record":     resourcePTRRecord(),
+			"infoblox_network_view":           resourceNetworkView(),
+			"infoblox_ipv4_network_container": resourceIPv4NetworkContainer(),
+			"infoblox_ipv6_network_container": resourceIPv6NetworkContainer(),
+			"infoblox_ipv4_network":           resourceIPv4Network(),
+			"infoblox_ipv6_network":           resourceIPv6Network(),
+			"infoblox_ipv4_allocation":        resourceIPv4Allocation(),
+			"infoblox_ipv6_allocation":        resourceIPv6Allocation(),
+			"infoblox_ipv4_association":       resourceIPv4Association(),
+			"infoblox_ipv6_association":       resourceIPv6Association(),
+			"infoblox_a_record":               resourceARecord(),
+			"infoblox_aaaa_record":            resourceAAAARecord(),
+			"infoblox_cname_record":           resourceCNAMERecord(),
+			"infoblox_ptr_record":             resourcePTRRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"infoblox_network":      dataSourceNetwork(),
+			"infoblox_ipv4_network": dataSourceIPv4Network(),
 			"infoblox_a_record":     dataSourceARecord(),
 			"infoblox_cname_record": dataSourceCNameRecord(),
 		},

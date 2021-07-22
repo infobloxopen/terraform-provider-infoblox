@@ -1,4 +1,4 @@
- <a href="https://www.infoblox.com">
+<a href="https://www.infoblox.com">
     <img src="https://avatars.githubusercontent.com/u/8064882?s=400&u=3b245589302c409aff2ce2ba26d95e6df6cfe342&v=4" alt="Infoblox logo" title="Infoblox" align="right" height="50" />
 </a> 
  
@@ -40,6 +40,7 @@ The provider has NIOS DDI resources as Terraform resources and datasources. Belo
 * CNAME Record
 
 ### Data Source
-* Network
+Data Sources for below records are supported.
+* IPv4 Network
 * A Record
 * CNAME Record

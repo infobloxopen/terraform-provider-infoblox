@@ -1,12 +1,11 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceCNAMERecord() *schema.Resource {
@@ -17,11 +16,6 @@ func resourceCNAMERecord() *schema.Resource {
 		Delete: resourceCNAMERecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"zone": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Zone under which record has to be created.",
-			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -31,111 +25,170 @@ func resourceCNAMERecord() *schema.Resource {
 			"canonical": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The Canonical name for the record.",
+				Description: "The Canonical name in FQDN format.",
 			},
 			"alias": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The alias name for the record.",
+				Description: "The alias name in FQDN format.",
 			},
-			"vm_id": &schema.Schema{
-				Type:        schema.TypeString,
+			"ttl": {
+				Type:        schema.TypeInt,
 				Optional:    true,
-				Description: "Instance id.",
+				Default:     ttlUndef,
+				Description: "TTL attribute value for the record.",
 			},
-			"tenant_id": &schema.Schema{
+			"comment": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Default:     "",
+				Optional:    true,
+				Description: "A description about CNAME record.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes of CNAME record, as a map in JSON format",
 			},
 		},
 	}
 }
 func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning to create CNAME record ", resourceCNAMERecordIDString(d))
 
-	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
 	canonical := d.Get("canonical").(string)
 	alias := d.Get("alias").(string)
-	if !strings.Contains(alias, zone) {
-		alias = d.Get("alias").(string) + "." + zone
-	}
-	tenantID := d.Get("tenant_id").(string)
-	vmId := d.Get("vm_id").(string)
-	connector := m.(*ibclient.Connector)
 
-	ea := make(ibclient.EA)
-
-	ea["VM Name"] = canonical
-
-	if vmId != "" {
-		ea["VM ID"] = vmId
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
 	}
 
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	recordCNAME, err := objMgr.CreateCNAMERecord(canonical, alias, dnsView, ea)
+
+	recordCNAME, err := objMgr.CreateCNAMERecord(dnsView, canonical, alias, useTtl, ttl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Error creating CNAME Record : %s", err)
+		return fmt.Errorf("Creation of CNAME Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
 
-	d.Set("recordName", alias)
 	d.SetId(recordCNAME.Ref)
-
-	log.Printf("[DEBUG] %s: Creation of CNAME Record complete", resourceCNAMERecordIDString(d))
-	return resourceCNAMERecordGet(d, m)
+	return nil
 }
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get CNAME Record", resourceCNAMERecordIDString(d))
 
-	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
 
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetCNAMERecordByRef(d.Id())
+	recordCNAME, err := objMgr.GetCNAMERecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting CNAME RECORD failed from dns view(%s) : %s", dnsView, err)
+		return fmt.Errorf("Getting CNAME Record with ID: %s failed : %s", d.Id(), err.Error())
 	}
-	d.SetId(obj.Ref)
-	log.Printf("[DEBUG] %s: Completed reading required CNAME Record ", resourceCNAMERecordIDString(d))
+	d.SetId(recordCNAME.Ref)
 	return nil
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return fmt.Errorf("updating CNAME record is not supported")
+	dnsView := d.Get("dns_view").(string)
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+	canonical := d.Get("canonical").(string)
+	alias := d.Get("alias").(string)
+
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, useTtl, ttl, comment, extAttrs)
+	if err != nil {
+		return fmt.Errorf("Updation of CNAME Record under %s DNS View failed : %s", dnsView, err.Error())
+	}
+
+	d.SetId(recordCNAME.Ref)
+	return nil
+
 }
 
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Deletion of CNAME Record", resourceCNAMERecordIDString(d))
 
 	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
 
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.DeleteCNAMERecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of CNAME Record failed with %s from dns view %s", dnsView, err)
+		return fmt.Errorf("Deletion of CNAME Record from dns view %s failed : %s", dnsView, err.Error())
 	}
 	d.SetId("")
-
-	log.Printf("[DEBUG] %s: Deletion of CNAME Record complete", resourceCNAMERecordIDString(d))
 	return nil
-}
-
-type resourceCNAMERecordIDStringInterface interface {
-	Id() string
-}
-
-func resourceCNAMERecordIDString(d resourceCNAMERecordIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
-	}
-	return fmt.Sprintf("infoblox_cname_record (ID = %s)", id)
 }

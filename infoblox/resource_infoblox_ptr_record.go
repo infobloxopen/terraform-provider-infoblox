@@ -1,11 +1,11 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourcePTRRecord() *schema.Resource {
@@ -16,20 +16,21 @@ func resourcePTRRecord() *schema.Resource {
 		Delete: resourcePTRRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vm_name": &schema.Schema{
+			"network_view": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the VM.",
+				Optional:    true,
+				Default:     "default",
+				Description: "Network view name of NIOS server.",
 			},
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The network to allocate IP address when the ip_addr field is empty. Network address in cidr format.",
+				Description: "The network address in cidr format under which record has to be created.",
 			},
-			"zone": &schema.Schema{
+			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Zone under which record has to be created.",
+				Optional:    true,
+				Description: "IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. If to be dynamically allocated set cidr field",
 			},
 			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
@@ -37,116 +38,228 @@ func resourcePTRRecord() *schema.Resource {
 				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ip_addr": &schema.Schema{
+			"ptrdname": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "IP address your instance in cloud. For static allocation, set the field with valid IP. For dynamic allocation, leave this field empty and set the cidr field.",
+				Description: "The domain name in FQDN to which the record should point to.",
 			},
-			"vm_id": &schema.Schema{
+			"record_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "instance id.",
+				Description: "The name of the DNS PTR record in FQDN format",
 			},
-			"tenant_id": &schema.Schema{
+			"ttl": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     ttlUndef,
+				Description: "TTL attribute value for the record.",
+			},
+			"comment": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Default:     "",
+				Optional:    true,
+				Description: "A description about PTR record.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes of PTR record to be added/updated, as a map in JSON format",
 			},
 		},
 	}
 }
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning to create PTR record from  required network block", resourcePTRRecordIDString(d))
 
-	//This is for record Name
-	recordName := d.Get("vm_name").(string)
-	ipAddr := d.Get("ip_addr").(string)
+	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
-	vmID := d.Get("vm_id").(string)
-	vmName := d.Get("vm_name").(string)
-	zone := d.Get("zone").(string)
+	ipAddr := d.Get("ip_addr").(string)
+
 	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
+	ptrdname := d.Get("ptrdname").(string)
+	recordName := d.Get("record_name").(string)
 
-	ea := make(ibclient.EA)
-
-	ea["VM Name"] = vmName
-
-	if vmID != "" {
-		ea["VM ID"] = vmID
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
 	}
 
-	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("Error creating PTR record: nether ip_addr nor cidr value provided.")
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
 	}
 
+	if recordName == "" {
+		if ipAddr == "" && cidr == "" {
+			return fmt.Errorf(
+				"Creation of PTR record failed: 'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
+		}
+	}
+
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	//fqdn
-	name := recordName + "." + zone
-	recordPTR, err := objMgr.CreatePTRRecord(dnsView, dnsView, name, cidr, ipAddr, ea)
+
+	recordPTR, err := objMgr.CreatePTRRecord(
+		networkView,
+		dnsView,
+		ptrdname,
+		recordName,
+		cidr,
+		ipAddr,
+		useTtl,
+		ttl,
+		comment,
+		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Error creating PTR Record from network block(%s): %s", cidr, err)
+		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
 
-	d.Set("recordName", name)
 	d.SetId(recordPTR.Ref)
-
-	log.Printf("[DEBUG] %s: Creation of PTR Record complete", resourcePTRRecordIDString(d))
-	return resourcePTRRecordGet(d, m)
+	return nil
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get PTR Record", resourcePTRRecordIDString(d))
 
-	tenantID := d.Get("tenant_id").(string)
-	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
 
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetPTRRecordByRef(d.Id())
+	recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting PTR Record from dns view (%s) failed : %s", dnsView, err)
+		return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
 	}
-	d.SetId(obj.Ref)
-	log.Printf("[DEBUG] %s: Completed reading required PTR Record ", resourcePTRRecordIDString(d))
+	d.SetId(recordPTR.Ref)
 	return nil
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return fmt.Errorf("updating a PTR record is not supported")
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
+	dnsView := d.Get("dns_view").(string)
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+	ptrdname := d.Get("ptrdname").(string)
+	recordName := d.Get("record_name").(string)
+
+	ipAddr := d.Get("ip_addr").(string)
+	cidr := d.Get("cidr").(string)
+	// If 'cidr' is unchanged, then nothing to update here, making them empty to skip the update.
+	// (This is to prevent record renewal for the case when 'cidr' is
+	// used for IP address allocation, otherwise the address will be changing
+	// during every 'update' operation).
+	if !d.HasChange("cidr") {
+		cidr = ""
+	}
+
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	// Retrive the IP of PTR record.
+	// When IP is allocated using cidr and an empty IP is passed for updation
+	if cidr == "" && ipAddr == "" {
+		recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+		}
+
+		ipv4 := recordPTR.Ipv4Addr
+		ipv6 := recordPTR.Ipv6Addr
+		if len(ipv4) > 0 {
+			ipAddr = ipv4
+		} else {
+			ipAddr = ipv6
+		}
+	}
+
+	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, extAttrs)
+	if err != nil {
+		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
+	}
+
+	d.SetId(recordPTRUpdated.Ref)
+	return nil
 }
 
 func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Deletion of PTR Record", resourcePTRRecordIDString(d))
 
-	tenantID := d.Get("tenant_id").(string)
 	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
 
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.DeletePTRRecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of PTR Record failed from dns view(%s) : %s", dnsView, err)
+		return fmt.Errorf("Deletion of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
 	d.SetId("")
-
-	log.Printf("[DEBUG] %s: Deletion of PTR Record complete", resourcePTRRecordIDString(d))
 	return nil
-}
-
-type resourcePTRRecordIDStringInterface interface {
-	Id() string
-}
-
-func resourcePTRRecordIDString(d resourcePTRRecordIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
-	}
-	return fmt.Sprintf("infoblox_ptr_record (ID = %s)", id)
 }

@@ -1,10 +1,11 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/infobloxopen/infoblox-go-client"
-	"log"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceNetworkView() *schema.Resource {
@@ -15,94 +16,129 @@ func resourceNetworkView() *schema.Resource {
 		Delete: resourceNetworkViewDelete,
 
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Desired name of the view shown in NIOS appliance.",
 			},
-			"network_view_ref": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"tenant_id": &schema.Schema{
+			"comment": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Default:     "",
+				Optional:    true,
+				Description: "A description of the IP allocation.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes of the network container to be added/updated, as a map in JSON format",
 			},
 		},
 	}
 }
 
 func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning network view Creation", resourceNetworkViewIDString(d))
 
-	tenantID := d.Get("tenant_id").(string)
-	Connector := m.(*ibclient.Connector)
-	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
+	networkView := d.Get("name").(string)
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
 
-	networkViewName, err := objMgr.CreateNetworkView(d.Get("network_view_name").(string))
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	nv, err := objMgr.CreateNetworkView(networkView, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("Failed to create Network View : %s", err)
 	}
-
-	d.SetId(networkViewName.Name)
-
-	log.Printf("[DEBUG] %s: Completed network view Creation", resourceNetworkViewIDString(d))
-
-	return resourceNetworkViewRead(d, m)
+	d.SetId(nv.Ref)
+	return nil
 }
 
 func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning to get network view ", resourceNetworkViewIDString(d))
 
-	tenantID := d.Get("tenant_id").(string)
-	Connector := m.(*ibclient.Connector)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	Connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetNetworkView(d.Id())
+	obj, err := objMgr.GetNetworkViewByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Failed to get Network View : %s", err)
+		return fmt.Errorf("Failed to get Network View : %s", err.Error())
 	}
-	d.SetId(obj.Name)
-	d.Set("network_view_ref", obj.Ref)
 
-	log.Printf("[DEBUG] %s: got Network View", resourceNetworkViewIDString(d))
-
+	d.SetId(obj.Ref)
 	return nil
 }
 
 func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
-	return fmt.Errorf("network view updation is not supported")
-}
-
-func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Deletion of network block", resourceNetworkIDString(d))
-
-	networkViewName := d.Get("network_view_name").(string)
-	networkViewRef := d.Get("network_view_ref").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
-
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-
-	_, err := objMgr.DeleteNetworkView(networkViewRef)
-	if err != nil {
-		return fmt.Errorf("Deletion of Network view (%s) failed: %s", networkViewName, err)
+	networkView := d.Get("name").(string)
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
 	}
-	d.SetId("")
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
 
-	log.Printf("[DEBUG] %s: Deletion of network block complete", resourceNetworkViewIDString(d))
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	nv, err := objMgr.UpdateNetworkView(d.Id(), networkView, comment, extAttrs)
+	if err != nil {
+		return fmt.Errorf("Failed to update Network View : %s", err.Error())
+	}
+	d.SetId(nv.Ref)
 	return nil
 }
 
-type resourceNetworkViewIDStringInterface interface {
-	Id() string
-}
-
-func resourceNetworkViewIDString(d resourceNetworkViewIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
+func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
+	if d.HasChange("name") {
+		return fmt.Errorf("changing the value of 'networkView' field is not recommended")
 	}
-	return fmt.Sprintf("infoblox_network_view(ID = %s)", id)
+	networkView := d.Get("name").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	_, err := objMgr.DeleteNetworkView(d.Id())
+	if err != nil {
+		return fmt.Errorf("Deletion of Network view %s failed: %s", networkView, err.Error())
+	}
+
+	return nil
 }

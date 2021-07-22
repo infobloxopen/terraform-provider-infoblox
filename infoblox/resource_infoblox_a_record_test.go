@@ -6,38 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
-
-func TestAccResourceARecord(t *testing.T) {
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckARecordDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccresourceARecordCreate,
-				Check: resource.ComposeTestCheckFunc(
-					testAccARecordExists(t, "infoblox_a_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
-				),
-			},
-			resource.TestStep{
-				Config: testAccresourceARecordAllocate,
-				Check: resource.ComposeTestCheckFunc(
-					testAccARecordExists(t, "infoblox_a_record.foo1", "10.0.0.0/24", "10.0.0.1", "test", "demo-network", "default", "a.com"),
-					testAccARecordExists(t, "infoblox_a_record.foo2", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
-				),
-			},
-			resource.TestStep{
-				Config: testAccresourceARecordUpdate,
-				Check: resource.ComposeTestCheckFunc(
-					testAccARecordExists(t, "infoblox_a_record.foo", "10.0.0.0/24", "10.0.0.2", "test", "demo-network", "default", "a.com"),
-				),
-			},
-		},
-	})
-}
 
 func testAccCheckARecordDestroy(s *terraform.State) error {
 	meta := testAccProvider.Meta()
@@ -46,68 +16,160 @@ func testAccCheckARecordDestroy(s *terraform.State) error {
 		if rs.Type != "resource_a_record" {
 			continue
 		}
-		Connector := meta.(*ibclient.Connector)
-		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
-		recordName, _ := objMgr.GetARecordByRef(rs.Primary.ID)
-		if recordName != nil {
+		connector := meta.(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
+		rec, _ := objMgr.GetARecordByRef(rs.Primary.ID)
+		if rec != nil {
 			return fmt.Errorf("record not found")
 		}
 
 	}
 	return nil
 }
-func testAccARecordExists(t *testing.T, n string, cidr string, ipAddr string, networkViewName string, recordName string, dnsView string, zone string) resource.TestCheckFunc {
+
+func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.RecordA) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found:%s", n)
+		res, found := s.RootModule().Resources[resPath]
+		if !found {
+			return fmt.Errorf("Not found: %s", resPath)
 		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID i set")
+		if res.Primary.ID == "" {
+			return fmt.Errorf("ID is not set")
 		}
 		meta := testAccProvider.Meta()
-		Connector := meta.(*ibclient.Connector)
-		objMgr := ibclient.NewObjectManager(Connector, "terraform_test", "test")
+		connector := meta.(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		recordName, _ := objMgr.GetARecordByRef(rs.Primary.ID)
-		if recordName == nil {
+		rec, _ := objMgr.GetARecordByRef(res.Primary.ID)
+		if rec == nil {
 			return fmt.Errorf("record not found")
 		}
 
-		return nil
+		if rec.Name != expectedRec.Name {
+			return fmt.Errorf(
+				"'fqdn' does not match: got '%s', expected '%s'",
+				rec.Name,
+				expectedRec.Name)
+		}
+		if rec.Ipv4Addr != expectedRec.Ipv4Addr {
+			return fmt.Errorf(
+				"'ipv4address' does not match: got '%s', expected '%s'",
+				rec.Ipv4Addr, expectedRec.Ipv4Addr)
+		}
+		if rec.View != expectedRec.View {
+			return fmt.Errorf(
+				"'dns_view' does not match: got '%s', expected '%s'",
+				rec.View, expectedRec.View)
+		}
+		if rec.UseTtl != expectedRec.UseTtl {
+			return fmt.Errorf(
+				"TTL usage does not match: got '%t', expected '%t'",
+				rec.UseTtl, expectedRec.UseTtl)
+		}
+		if rec.UseTtl {
+			if rec.Ttl != expectedRec.Ttl {
+				return fmt.Errorf(
+					"'Ttl' usage does not match: got '%d', expected '%d'",
+					rec.Ttl, expectedRec.Ttl)
+			}
+		}
+		if rec.Comment != expectedRec.Comment {
+			return fmt.Errorf(
+				"'comment' does not match: got '%s', expected '%s'",
+				rec.Comment, expectedRec.Comment)
+		}
+		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
 
-var testAccresourceARecordCreate = fmt.Sprintf(`
-resource "infoblox_a_record" "foo"{
-	vm_name="test-name"
-	zone="a.com"
-	ip_addr="10.0.0.2"
-	tenant_id="foo"
-	}`)
-
-var testAccresourceARecordAllocate = fmt.Sprintf(`
-resource "infoblox_a_record" "foo1"{
-	vm_name="test-name"
-	zone="a.com"
-	ip_addr=""
-	cidr="10.0.0.0/24"
-	tenant_id="foo"
-	}
-resource "infoblox_a_record" "foo2"{
-	vm_name="test-name"
-	zone="a.com"
-	ip_addr=""
-	cidr="10.0.0.0/24"
-	tenant_id="foo"
-	}`)
-
-var testAccresourceARecordUpdate = fmt.Sprintf(`
-resource "infoblox_a_record" "foo"{
-	vm_name="test-name"
-	dns_view="default"
-	zone="a.com"
-	cidr="10.0.0.0/24"
-	ip_addr="10.0.0.2"
-	tenant_id="foo"
-	}`)
+func TestAccResourceARecord(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckARecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo"{
+						fqdn = "name1.test.com"
+						ip_addr = "10.0.0.2"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo", &ibclient.RecordA{
+						Ipv4Addr: "10.0.0.2",
+						Name:     "name1.test.com",
+						View:     "default",
+						Ttl:      0,
+						UseTtl:   false,
+						Comment:  "",
+						Ea:       nil,
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name2.test.com"
+						ip_addr = "192.168.31.31"
+						ttl = 10
+						dns_view = "nondefault_view"
+						comment = "test comment 1"
+						ext_attrs = jsonencode({
+						  "Location" = "New York"
+						  "Site" = "HQ"
+						})
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
+						Ipv4Addr: "192.168.31.31",
+						Name:     "name2.test.com",
+						View:     "nondefault_view",
+						Ttl:      10,
+						UseTtl:   true,
+						Comment:  "test comment 1",
+						Ea: ibclient.EA{
+							"Location": "New York",
+							"Site":     "HQ",
+						},
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+						ip_addr = "10.10.0.1"
+						ttl = 155
+						dns_view = "nondefault_view"
+						comment = "test comment 2"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
+						Ipv4Addr: "10.10.0.1",
+						Name:     "name3.test.com",
+						View:     "nondefault_view",
+						Ttl:      155,
+						UseTtl:   true,
+						Comment:  "test comment 2",
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+						ip_addr = "10.10.0.1"
+						dns_view = "nondefault_view"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
+						Ipv4Addr: "10.10.0.1",
+						Name:     "name3.test.com",
+						View:     "nondefault_view",
+						UseTtl:   false,
+					}),
+				),
+			},
+		},
+	})
+}

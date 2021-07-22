@@ -1,67 +1,83 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceIPAssociation() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceIPAssociationCreate,
-		Update: resourceIPAssociationUpdate,
-		Delete: resourceIPAssociationDelete,
-		Read:   resourceIPAssociationRead,
-
 		Schema: map[string]*schema.Schema{
-			"network_view_name": &schema.Schema{
+			"network_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "Network view name available in Nios server.",
+				Description: "Network view name of NIOS server.",
 			},
-			"vm_name": &schema.Schema{
+			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The name of the vm.",
+				Default:     "default",
+				Description: "view in which record has to be created.",
 			},
-			"cidr": &schema.Schema{
+			"enable_dns": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "flag that defines if the host record is to be used for DNS Purposes",
+			},
+			"enable_dhcp": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "flag that defines if the host record is to be used for IPAM Purposes.",
+			},
+			"cidr": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "The address in cidr format.",
 			},
 			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "IP address your instance in cloud.",
+				Description: "IP address of cloud instance.",
 			},
 			"mac_addr": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "mac address of your instance in cloud.",
+				Optional:    true,
+				Description: "mac address of cloud instance.",
 			},
-			"dns_view": &schema.Schema{
+			"duid": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "view in which record has to be created.",
+				Description: "DHCP unique identifier for IPv6.",
 			},
-			"zone": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "zone under which record has been created.",
-			},
-			"vm_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "instance id.",
-			},
-			"tenant_id": &schema.Schema{
+			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Description: "The host name for Host Record in FQDN format.",
+			},
+			"ttl": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "TTL attribute value for the record.",
+			},
+			"comment": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "A description of the IP association.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "The Extensible attributes for IP Association, as a map in JSON format",
 			},
 		},
 	}
@@ -70,153 +86,293 @@ func resourceIPAssociation() *schema.Resource {
 //This method has an update call for the reason that,we are creating
 //a reservation which doesnt have the details of the mac address
 //at the beginig and we are using this update call to update the mac address
-//of the record after the VM has been provisined.It is in the create method
+//of the record after the VM has been provisined. It is in the create method
 //because for this resource we are doing association instead of allocation.
-func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Association of IP address in specified network block", resourceIPAssociationIDString(d))
+func resourceIPAssociationCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	if err := Resource(d, m); err != nil {
+	if err := Resource(d, m, isIPv6); err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] %s:completing Association of IP address in specified network block", resourceIPAssociationIDString(d))
-	return resourceIPAssociationRead(d, m)
+	return nil
 }
 
-func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s:update operation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
+func resourceIPAssociationUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	if err := Resource(d, m); err != nil {
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'networkView' field is not allowed")
+	}
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+
+	if err := Resource(d, m, isIPv6); err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] %s:completing updation on Association of IP address in specified network block", resourceIPAssociationIDString(d))
-	return resourceIPAssociationRead(d, m)
+	return nil
 }
 
 func resourceIPAssociationRead(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s:Reading the required IP from network block", resourceIPAllocationIDString(d))
 
-	tenantID := d.Get("tenant_id").(string)
-	cidr := d.Get("cidr").(string)
-	zone := d.Get("zone").(string)
-	dnsView := d.Get("dns_view").(string)
-	connector := m.(*ibclient.Connector)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
 
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		obj, err := objMgr.GetHostRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
-		}
-		d.SetId(obj.Ref)
-	} else {
-		obj, err := objMgr.GetFixedAddressByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("Error getting IP from network block(%s): %s", cidr, err)
-		}
-		d.SetId(obj.Ref)
+	hostRec, err := objMgr.GetHostRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("Error getting Allocated HostRecord with ID: %s failed : %s",
+			d.Id(), err.Error())
 	}
-	log.Printf("[DEBUG] %s: Completed Reading IP from the network block", resourceIPAllocationIDString(d))
+	d.SetId(hostRec.Ref)
 	return nil
 }
 
 //we are updating the record with an empty mac address after the vm has been
 //destroyed because if we implement the delete hostrecord method here then there
 //will be a conflict of resources
-func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Reassociation of IP address in specified network block", resourceIPAssociationIDString(d))
-	matchClient := "MAC_ADDRESS"
-	ipAddr := d.Get("ip_addr").(string)
-	vmID := d.Get("vm_id").(string)
-	vmName := d.Get("vm_name").(string)
-	tenantID := d.Get("tenant_id").(string)
-	zone := d.Get("zone").(string)
-	dnsView := d.Get("dns_view").(string)
+func resourceIPAssociationDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-	connector := m.(*ibclient.Connector)
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'networkView' field is not allowed")
+	}
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+	enableDns := d.Get("enable_dns").(bool)
+	enableDhcp := d.Get("enable_dhcp").(bool)
+	fqdn := d.Get("fqdn").(string)
+	cidr := d.Get("cidr").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	duid := d.Get("duid").(string)
+
+	var ttl uint32
+	tempVal, useTtl := d.GetOk("ttl")
+	if useTtl {
+		tempTtl := tempVal.(int)
+		if tempTtl < 0 {
+			return fmt.Errorf("TTL value must be 0 or higher")
+		}
+		ttl = uint32(tempTtl)
+	}
+
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
 
 	ZeroMacAddr := "00:00:00:00:00:00"
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		_, err := objMgr.UpdateHostRecord(d.Id(), ipAddr, ZeroMacAddr, vmID, vmName)
+	if isIPv6 {
+		hostRec, err := objMgr.UpdateHostRecord(
+			d.Id(),
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			"", cidr,
+			"", ipAddr,
+			"", duid,
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
 		if err != nil {
-			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error updating Host record with ID %s: %s", d.Id(), err.Error())
 		}
-		d.SetId("")
+		d.SetId(hostRec.Ref)
 	} else {
-		_, err := objMgr.UpdateFixedAddress(d.Id(), matchClient, ZeroMacAddr, "", "")
+		hostRec, err := objMgr.UpdateHostRecord(
+			d.Id(),
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			cidr, "",
+			ipAddr, "",
+			ZeroMacAddr, "",
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
 		if err != nil {
-			return fmt.Errorf("Error Releasing IP from network block having reference (%s): %s", d.Id(), err)
+			return fmt.Errorf("Error updating Host record with ID %s: %s", d.Id(), err.Error())
 		}
-		d.SetId("")
+		d.SetId(hostRec.Ref)
 	}
-	log.Printf("[DEBUG] %s: Finishing Release of allocated IP in specified network block", resourceIPAssociationIDString(d))
-
 	return nil
 }
 
-type resourceIPAssociationIDStringInterface interface {
-	Id() string
-}
+func Resource(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 
-func resourceIPAssociationIDString(d resourceIPAssociationIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
-	}
-	return fmt.Sprintf("infoblox_mac_allocation (ID = %s)", id)
-}
-
-func Resource(d *schema.ResourceData, m interface{}) error {
-
-	matchClient := "MAC_ADDRESS"
-	networkViewName := d.Get("network_view_name").(string)
-	Name := d.Get("vm_name").(string)
-	ipAddr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
-	macAddr := d.Get("mac_addr").(string)
-	tenantID := d.Get("tenant_id").(string)
-	vmID := d.Get("vm_id").(string)
-	zone := d.Get("zone").(string)
+	networkView := d.Get("network_view").(string)
 	dnsView := d.Get("dns_view").(string)
+	enableDhcp := d.Get("enable_dhcp").(bool)
+	enableDns := d.Get("enable_dns").(bool)
+	// dnsView made empty so that searching of host record to be done at IPAM end
+	if !enableDns {
+		dnsView = ""
+	}
 
-	connector := m.(*ibclient.Connector)
-
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	fqdn := d.Get("fqdn").(string)
+	cidr := d.Get("cidr").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	macAddr := d.Get("mac_addr").(string)
 	//conversion from bit reversed EUI-48 format to hexadecimal EUI-48 format
 	macAddr = strings.Replace(macAddr, "-", ":", -1)
-	name := Name + "." + zone
+	duid := d.Get("duid").(string)
 
-	if (zone != "" || len(zone) != 0) && (dnsView != "" || len(dnsView) != 0) {
-		hostRecordObj, err := objMgr.GetHostRecord(name, networkViewName, cidr, ipAddr)
+	var ttl uint32
+	tempVal, useTtl := d.GetOk("ttl")
+	if useTtl {
+		tempTtl := tempVal.(int)
+		if tempTtl < 0 {
+			return fmt.Errorf("TTL value must be 0 or higher")
+		}
+		ttl = uint32(tempTtl)
+	}
+	comment := d.Get("comment").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	if isIPv6 {
+		hostRecordObj, err := objMgr.GetHostRecord(networkView, dnsView, fqdn, "", ipAddr)
 		if err != nil {
-			return fmt.Errorf("GetHostRecord failed from network block(%s):%s", cidr, err)
+			return fmt.Errorf("Failed to get HostRecord for 'fqdn': %s and 'IP':%s in"+
+				"'network view': %s and 'dns view':%s. Error:%s",
+				fqdn, ipAddr, networkView, dnsView, err.Error())
 		}
 		if hostRecordObj == nil {
-			return fmt.Errorf("HostRecord %s not found.", name)
+			return fmt.Errorf("HostRecord %s not found.", fqdn)
 		}
-		_, err = objMgr.UpdateHostRecord(hostRecordObj.Ref, ipAddr, macAddr, vmID, Name)
+		hostRec, err := objMgr.UpdateHostRecord(
+			hostRecordObj.Ref,
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			"", cidr,
+			"", ipAddr,
+			"", duid,
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
 		if err != nil {
-			return fmt.Errorf("UpdateHost Record error from network block(%s):%s", cidr, err)
+			return fmt.Errorf("UpdateHost Record failed with ID %s: %s", d.Id(), err.Error())
 		}
-		d.SetId(hostRecordObj.Ref)
+		d.SetId(hostRec.Ref)
 	} else {
-		fixedAddressObj, err := objMgr.GetFixedAddress(networkViewName, cidr, ipAddr, "")
+		hostRecordObj, err := objMgr.GetHostRecord(networkView, dnsView, fqdn, ipAddr, "")
 		if err != nil {
-			return fmt.Errorf("GetFixedAddress error from network block(%s):%s", cidr, err)
+			return fmt.Errorf("Failed to get HostRecord for 'fqdn': %s and 'IP':%s in"+
+				"'network view': %s and 'dns view':%s. Error:%s",
+				fqdn, ipAddr, networkView, dnsView, err.Error())
 		}
-		if fixedAddressObj == nil {
-			return fmt.Errorf("FixedAddress %s not found in network %s.", ipAddr, cidr)
+		if hostRecordObj == nil {
+			return fmt.Errorf("HostRecord %s not found.", fqdn)
 		}
-
-		_, err = objMgr.UpdateFixedAddress(fixedAddressObj.Ref, matchClient, macAddr, vmID, Name)
+		hostRec, err := objMgr.UpdateHostRecord(
+			hostRecordObj.Ref,
+			enableDns,
+			enableDhcp,
+			fqdn,
+			networkView,
+			cidr, "",
+			ipAddr, "",
+			macAddr, "",
+			useTtl, ttl,
+			comment,
+			extAttrs, []string{})
 		if err != nil {
-			return fmt.Errorf("UpdateFixedAddress error from network block(%s):%s", cidr, err)
+			return fmt.Errorf("UpdateHost Record failed with ID %s: %s", d.Id(), err.Error())
 		}
-		d.SetId(fixedAddressObj.Ref)
+		d.SetId(hostRec.Ref)
 	}
 	return nil
+}
+
+// Code snippet for IPv4 IP Association
+func resourceIPv4AssociationCreate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationCreate(d, m, false)
+}
+
+func resourceIPv4AssociationGet(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationRead(d, m)
+}
+
+func resourceIPv4AssociationUpdate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationUpdate(d, m, false)
+}
+
+func resourceIPv4AssociationDelete(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationDelete(d, m, false)
+}
+
+func resourceIPv4Association() *schema.Resource {
+	ipv4Association := resourceIPAssociation()
+	ipv4Association.Create = resourceIPv4AssociationCreate
+	ipv4Association.Read = resourceIPv4AssociationGet
+	ipv4Association.Update = resourceIPv4AssociationUpdate
+	ipv4Association.Delete = resourceIPv4AssociationDelete
+
+	return ipv4Association
+}
+
+// Code snippet for IPv6 IP Association
+func resourceIPv6AssociationCreate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationCreate(d, m, true)
+}
+
+func resourceIPv6AssociationRead(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationRead(d, m)
+}
+
+func resourceIPv6AssociationUpdate(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationUpdate(d, m, true)
+}
+
+func resourceIPv6AssociationDelete(d *schema.ResourceData, m interface{}) error {
+	return resourceIPAssociationDelete(d, m, true)
+}
+
+func resourceIPv6Association() *schema.Resource {
+	ipv6Association := resourceIPAssociation()
+	ipv6Association.Create = resourceIPv6AssociationCreate
+	ipv6Association.Read = resourceIPv6AssociationRead
+	ipv6Association.Update = resourceIPv6AssociationUpdate
+	ipv6Association.Delete = resourceIPv6AssociationDelete
+
+	return ipv6Association
 }

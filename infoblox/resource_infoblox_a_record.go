@@ -1,11 +1,11 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceARecord() *schema.Resource {
@@ -16,138 +16,223 @@ func resourceARecord() *schema.Resource {
 		Delete: resourceARecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vm_name": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The name of the VM.",
-			},
-			"cidr": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The network to allocate IP address when the ip_addr field is empty. Network address in cidr format.",
-			},
-			"zone": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Zone under which record has to be created.",
-			},
-			"dns_view": &schema.Schema{
+			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "Dns View under which the zone has been created.",
+				Description: "Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty.",
 			},
-			"ip_addr": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "IP address your instance in cloud. For static allocation, set the field with valid IP. For dynamic allocation, leave this field empty and set the cidr field.",
-			},
-			"vm_id": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "instance id.",
+				Description: "Network to allocate an IP address from, when the 'ip_addr' field is empty (dynamic allocation). The address is in CIDR format. For static allocation, leave this field empty.",
 			},
-			"tenant_id": &schema.Schema{
+			"dns_view": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "DNS view which the zone does exist within.",
+			},
+			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Unique identifier of your tenant in cloud.",
+				Description: "FQDN for the A-record.",
+			},
+			"ip_addr": {
+				Type:        schema.TypeString,
+				Optional:    true, // making this optional because of possible dynalmic IP allocation (CIDR)
+				Description: "IP address to associate with the A-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
+			},
+			"ttl": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     ttlUndef,
+				Description: "TTL value for the A-record.",
+			},
+			"comment": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "Description of the A-record.",
+			},
+			"ext_attrs": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				Description: "Extensible attributes of the A-record to be added/updated, as a map in JSON format",
 			},
 		},
 	}
 }
 
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning to create A record from  required network block", resourceARecordIDString(d))
-
-	//This is for record Name
-	recordName := d.Get("vm_name").(string)
-	ipAddr := d.Get("ip_addr").(string)
+	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
-	vmID := d.Get("vm_id").(string)
-	//This is for vm name
-	vmName := d.Get("vm_name").(string)
-	zone := d.Get("zone").(string)
 	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
-
-	ea := make(ibclient.EA)
-
-	ea["VM Name"] = vmName
-
-	if vmID != "" {
-		ea["VM ID"] = vmID
-	}
-
+	fqdn := d.Get("fqdn").(string)
+	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("Error creating A record: nether ip_addr nor cidr value provided.")
+		return fmt.Errorf("error creating A-record: 'ip_addr' is empty and either 'cidr' or 'network_view' values are absent.")
 	}
 
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	comment := d.Get("comment").(string)
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	// fqdn
-	name := recordName + "." + zone
-	recordA, err := objMgr.CreateARecord(dnsView, dnsView, name, cidr, ipAddr, ea)
+
+	newRecord, err := objMgr.CreateARecord(
+		networkView, dnsView, fqdn, cidr, ipAddr, ttl, useTtl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Error creating A Record from network block(%s): %s", cidr, err)
+		return fmt.Errorf("error creating A-record: %s", err.Error())
 	}
-
-	d.Set("recordName", name)
-	d.SetId(recordA.Ref)
-
-	log.Printf("[DEBUG] %s: Creation of A Record complete", resourceARecordIDString(d))
-	return resourceARecordGet(d, m)
+	d.SetId(newRecord.Ref)
+	return nil
 }
 
 func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Begining to Get A Record", resourceARecordIDString(d))
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
+	}
 
-	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
-
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	obj, err := objMgr.GetARecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting A record failed from dns view (%s) : %s", dnsView, err)
+		return fmt.Errorf("failed getting A-record: %s", err.Error())
 	}
+
 	d.SetId(obj.Ref)
-	log.Printf("[DEBUG] %s: Completed reading required A Record ", resourceARecordIDString(d))
+
 	return nil
 }
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
 
-	return fmt.Errorf("updating A record is not supported")
+	cidr := d.Get("cidr").(string)
+	fqdn := d.Get("fqdn").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	if ipAddr == "" && cidr == "" {
+		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty.")
+	}
+
+	// If 'cidr' is unchanged, then making it empty to skip the update.
+	// (This is to prevent record renewal for the case when 'cidr' is
+	// used for IP address allocation, otherwise the address will be changing
+	// during every 'update' operation).
+	if !d.HasChange("cidr") {
+		cidr = ""
+	}
+
+	var ttl uint32
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
+	}
+
+	comment := d.Get("comment").(string)
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	// Get the existing IP address
+	if ipAddr == "" && cidr == "" {
+		aRec, err := objMgr.GetARecordByRef(d.Id())
+		if err != nil {
+			return fmt.Errorf("failed getting A-record: %s", err.Error())
+		}
+		ipAddr = aRec.Ipv4Addr
+	}
+
+	rec, err := objMgr.UpdateARecord(
+		d.Id(), fqdn, ipAddr, cidr, networkView, ttl, useTtl, comment, extAttrs)
+	if err != nil {
+		return fmt.Errorf("error updating A-record: %s", err.Error())
+	}
+	d.SetId(rec.Ref)
+	return nil
 }
 
 func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("[DEBUG] %s: Beginning Deletion of A Record", resourceARecordIDString(d))
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+	var tenantID string
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
+	}
 
-	dnsView := d.Get("dns_view").(string)
-	tenantID := d.Get("tenant_id").(string)
-	connector := m.(*ibclient.Connector)
-
+	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	_, err := objMgr.DeleteARecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of A Record failed from dns view(%s) : %s", dnsView, err)
+		return fmt.Errorf("deletion of A-record failed: %s", err.Error())
 	}
 	d.SetId("")
 
-	log.Printf("[DEBUG] %s: Deletion of A Record complete", resourceARecordIDString(d))
 	return nil
-}
-
-type resourceARecordIDStringInterface interface {
-	Id() string
-}
-
-func resourceARecordIDString(d resourceARecordIDStringInterface) string {
-	id := d.Id()
-	if id == "" {
-		id = "<new resource>"
-	}
-	return fmt.Sprintf("infoblox_a_record (ID = %s)", id)
 }

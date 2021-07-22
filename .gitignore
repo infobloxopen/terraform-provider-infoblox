@@ -1,2 +1,2 @@
-terraform-provider-infoblox
-example
+build-output/
+.idea/
