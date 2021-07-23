@@ -11,47 +11,52 @@ To use the published plugin available in the Terraform Registry:
   * Configure it with the proper credentials.
 Terraform installs the specified version of the plugin when a `terraform init` is run.
 
-Below is a sample block. Refer to the official documentation for more information https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs .
-
-### Using it in Terraform v0.14
 Specify the plugin version in the .tf file as follows:
-```
-terraform {
-  required_providers {
-    infoblox = {
-      source = “infobloxopen/infoblox”
-      version = ">= 2.0.0"
+  ```
+    terraform {
+      required_providers {
+        infoblox = {
+          source = “infobloxopen/infoblox”
+          version = ">= 2.0.0"
+        }
+      }
     }
-  }
-}
-provider "infoblox" {
-  # Configuration options
-}
-```
+
+    provider "infoblox" {
+      # Configuration options
+    }
+  ```
 
 Configure the credentials as environment variables as follows:
-```
-$ export INFOBLOX_SERVER=nios_ip-addr_or_hostname
-$ export INFOBLOX_USERNAME=nios_username_on_the_server
-$ export INFOBLOX_PASSWORD=appropriate_nios_password
-```
+  ```
+    $ export INFOBLOX_SERVER=nios_ip-addr_or_hostname
+    $ export INFOBLOX_USERNAME=nios_username_on_the_server
+    $ export INFOBLOX_PASSWORD=appropriate_nios_password
+  ```
+
+Refer to the official documentation for more information https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs .
 
 ## Building a Binary from the GitHub Source Code and Using it
-To build the binary from the source code available in the GitHub repository, you must set up the environment, clone the code, and build it. Then, place the generated binary at an appropriate location and write suitable terraform configuration files to run. To build, complete the following steps::
+To build and use the binary from the source code available in the GitHub repository you must, 
+- Set up the environment, clone the code, and build it.
+- Place the generated binary at an appropriate location and write suitable terraform configuration files to run. 
+
+Complete the follwing steps to build and use the binary:
 * Install and set up Golang  version 1.16 or later from:
   `https://golang.org/doc/install`
 * Install Terraform CLI v0.14.x from:  
   `https://www.terraform.io/downloads.html`
 * Clone the repo and build it as follows:
-```
-  $ cd `go env GOPATH`/src
-  $ mkdir -p github.com/infobloxopen
-  $ cd github.com/infobloxopen
-  $ git clone https://github.com/infobloxopen/terraform-provider-infoblox
-  $ cd terraform-provider-infoblox
-  $ make build
-```  
-* To install the resulting binary as a plugin, follow the instructions on page:
-```
-  https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers
-```
+  ```
+    $ cd `go env GOPATH`/src
+    $ mkdir -p github.com/infobloxopen
+    $ cd github.com/infobloxopen
+    $ git clone https://github.com/infobloxopen/terraform-provider-infoblox
+    $ cd terraform-provider-infoblox
+    $ make build
+  ```  
+
+To install the resulting binary as a plugin, follow the instructions on page:
+  ```
+    https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers
+  ```

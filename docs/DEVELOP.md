@@ -7,31 +7,32 @@ Working at code level requires you  to set up the environment, clone the code, b
 Golang and Terraform installed in the system are basic requirements to build and test the plugin.
 
 * Install and set up Golang  version 1.16 or later from:
-    `https://golang.org/doc/install`
-* Install Terraform CLI v0.14.x from: 
-    `https://www.terraform.io/downloads.html`
+  `https://golang.org/doc/install`
+* Install Terraform CLI v0.14.x from:  
+  `https://www.terraform.io/downloads.html`
 * Clone the repo and build it as follows:
-```
+  ```
     $ cd `go env GOPATH`/src
     $ mkdir -p github.com/infobloxopen
     $ cd github.com/infobloxopen
     $ git clone https://github.com/infobloxopen/terraform-provider-infoblox
     $ cd terraform-provider-infoblox
     $ make build
-```    
+  ```  
+  
 * To install the resulting binary as a plugin, follow the instructions on page:
-    `https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers`
+  `https://www.terraform.io/docs/cli/config/config-file.html#development-overrides-for-provider-developers`
 
 ## Testing the Provider
 To run the full suite of acceptance tests, run the following commands:
-```
-$ export INFOBLOX_SERVER=some_ip-addr_or_hostname
-$ export INFOBLOX_USERNAME=some_username_on_the_server
-$ export INFOBLOX_PASSWORD=appropriate_password
-$ export TF_ACC=true # without this only unit tests (not acceptance tests) run
-$ make test
-$ make testacc
-```
+    ```
+        $ export INFOBLOX_SERVER=some_ip-addr_or_hostname
+        $ export INFOBLOX_USERNAME=some_username_on_the_server
+        $ export INFOBLOX_PASSWORD=appropriate_password
+        $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
+        $ make test
+        $ make testacc
+    ```
 
 Refer to the comments included in the code for running the tests, and make sure that the mentioned conditions are met. 
 For example, you may have to create objects such as DNS zones and views before running the tests.

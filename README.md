@@ -13,7 +13,7 @@ The features and bug fixes under development will be available in the [`develop`
 ## Provider Features
 The provider plugin has NIOS DDI resources represented as Terraform resources and data sources. The consolidated list of supported resources and data sources is as follows:
 
-Resources:
+### Resources:
 * Network view
 * Network container
 * Network
@@ -28,7 +28,7 @@ Resources:
 All of the above resources are supported with `comment` and `ext_attr` fields.
 DNS records have the `ttl` field support.
 
-Data Sources:
+### Data Sources:
 * IPv4 Network
 * A record
 * CNAME record
