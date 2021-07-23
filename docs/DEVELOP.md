@@ -25,14 +25,14 @@ Golang and Terraform installed in the system are basic requirements to build and
 
 ## Testing the Provider
 To run the full suite of acceptance tests, run the following commands:
-    ```
-        $ export INFOBLOX_SERVER=some_ip-addr_or_hostname
-        $ export INFOBLOX_USERNAME=some_username_on_the_server
-        $ export INFOBLOX_PASSWORD=appropriate_password
-        $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
-        $ make test
-        $ make testacc
-    ```
+  ```
+    $ export INFOBLOX_SERVER=some_ip-addr_or_hostname
+    $ export INFOBLOX_USERNAME=some_username_on_the_server
+    $ export INFOBLOX_PASSWORD=appropriate_password
+    $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
+    $ make test
+    $ make testacc
+  ```
 
 Refer to the comments included in the code for running the tests, and make sure that the mentioned conditions are met. 
 For example, you may have to create objects such as DNS zones and views before running the tests.
