@@ -6,11 +6,6 @@ There are two ways of getting the plugin and using it:
 * Build from GitHub repository source code: This way is suitable for those who want to introduce some customizations or get the latest features under development, which are not in the official plugin yet.
 
 ## Getting it from the Terraform Official Registry
-To use the published plugin available in the Terraform Registry:
-  * Specify the version of the plugin
-  * Configure it with the proper credentials.
-Terraform installs the specified version of the plugin when a `terraform init` is run.
-
 Specify the plugin version in the .tf file as follows:
   ```
     terraform {
@@ -34,14 +29,12 @@ Configure the credentials as environment variables as follows:
     $ export INFOBLOX_PASSWORD=appropriate_nios_password
   ```
 
+Terraform installs the specified version of the plugin when a `terraform init` is run.
+
 Refer to the official documentation for more information https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs .
 
 ## Building a Binary from the GitHub Source Code and Using it
-To build and use the binary from the source code available in the GitHub repository you must, 
-- Set up the environment, clone the code, and build it.
-- Place the generated binary at an appropriate location and write suitable terraform configuration files to run. 
-
-Complete the follwing steps to build and use the binary:
+Complete the follwing steps to build the binary:
 * Install and set up Golang  version 1.16 or later from:
   `https://golang.org/doc/install`
 * Install Terraform CLI v0.14.x from:  
