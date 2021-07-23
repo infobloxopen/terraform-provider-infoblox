@@ -68,7 +68,6 @@ func resourceNetwork() *schema.Resource {
 }
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	networkViewName := d.Get("network_view").(string)
 	parentCidr := d.Get("parent_cidr").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
@@ -101,25 +100,27 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 
 	var network *ibclient.Network
 	var err error
-	if cidr == "" && parentCidr != "" && prefixLen > 1 {
-		_, err := objMgr.GetNetworkContainer(networkViewName, parentCidr, isIPv6, nil)
-		if err != nil {
-			return fmt.Errorf(
-				"Allocation of network block within network container '%s' under network view '%s' failed: %s", parentCidr, networkViewName, err.Error())
-		}
+	if cidr == "" {
+		if parentCidr != "" && prefixLen > 1 {
+			_, err := objMgr.GetNetworkContainer(networkViewName, parentCidr, isIPv6, nil)
+			if err != nil {
+				return fmt.Errorf(
+					"Allocation of network block within network container '%s' under network view '%s' failed: %s", parentCidr, networkViewName, err.Error())
+			}
 
-		network, err = objMgr.AllocateNetwork(networkViewName, parentCidr, isIPv6, uint(prefixLen), comment, extAttrs)
-		if err != nil {
-			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
+			network, err = objMgr.AllocateNetwork(networkViewName, parentCidr, isIPv6, uint(prefixLen), comment, extAttrs)
+			if err != nil {
+				return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
+			}
+			d.Set("cidr", network.Cidr)
+		} else {
+			return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
 		}
-		d.Set("cidr", network.Cidr)
-	} else if cidr != "" {
+	} else {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
 			return fmt.Errorf("Creation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
-	} else {
-		return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
 	}
 
 	if isIPv6 {
@@ -153,14 +154,11 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 				return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
 			}
 		}
-
 	}
 	d.SetId(network.Ref)
 	return nil
 }
-
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
-
 	networkViewName := d.Get("network_view").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -188,7 +186,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(obj.Ref)
 	return nil
 }
-
+func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")

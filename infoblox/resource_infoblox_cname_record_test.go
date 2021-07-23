@@ -9,7 +9,7 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-var testAccresourceCNAMERecordCreate = fmt.Sprintf(`
+var testAccresourceCNAMERecordCreate = `
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	canonical="test-canonicalName.test.com"
@@ -22,9 +22,9 @@ resource "infoblox_cname_record" "foo"{
 		"TestEA1"=["text1","text2"]
 	  })
 
-}`)
+}`
 
-var testAccresourceCNAMERecordUpdate = fmt.Sprintf(`
+var testAccresourceCNAMERecordUpdate = `
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	canonical="test-canonicalName.test.com"
@@ -37,7 +37,7 @@ resource "infoblox_cname_record" "foo"{
 		"TestEA1"="text3"
 	  })
 
-}`)
+}`
 
 func validateRecordCNAME(
 	resourceName string,
@@ -113,7 +113,7 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCNAMERecordDestroy,
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccresourceCNAMERecordCreate,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",
@@ -132,7 +132,7 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 					},
 				),
 			},
-			{
+			resource.TestStep{
 				Config: testAccresourceCNAMERecordUpdate,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",

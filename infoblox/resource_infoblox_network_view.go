@@ -38,7 +38,6 @@ func resourceNetworkView() *schema.Resource {
 }
 
 func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("name").(string)
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
@@ -65,7 +64,6 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {

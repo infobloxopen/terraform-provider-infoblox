@@ -175,7 +175,6 @@ func resourceIPAllocationRequest(d *schema.ResourceData, m interface{}, isIPv6 b
 }
 
 func resourceIPAllocationGet(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -252,7 +251,7 @@ func resourceIPAllocationUpdate(d *schema.ResourceData, m interface{}, isIPv6 bo
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Retrive the IP of Host or Fixed Address record.
+	// Retrieve the IP of Host or Fixed Address record.
 	// When IP is allocated using cidr and an empty IP is passed for updation
 	if cidr == "" && ipAddr == "" {
 		hostRecObj, err := objMgr.GetHostRecordByRef(d.Id())

@@ -125,7 +125,7 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 		CheckDestroy: testAccCheckIPAssociationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				resource "infoblox_ipv4_allocation" "foo"{
 					network_view="default"
 					fqdn="testhostname.test.com"
@@ -154,7 +154,7 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					})
-				}	`),
+				}	`,
 				Check: validateIPAssociation(
 					"infoblox_ipv4_association.foo",
 					&ibclient.HostRecord{
@@ -183,7 +183,7 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 		CheckDestroy: testAccCheckIPAssociationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				resource "infoblox_ipv6_allocation" "ipv6_allocation" {
 					network_view= "default"
 					fqdn="testhostnameipv6.test.com"
@@ -211,7 +211,7 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					  })
-					}`),
+					}`,
 				Check: validateIPAssociation(
 					"infoblox_ipv6_association.foo2",
 					&ibclient.HostRecord{

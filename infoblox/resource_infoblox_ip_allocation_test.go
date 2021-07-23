@@ -83,7 +83,7 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				resource "infoblox_ipv4_allocation" "foo"{
 					network_view="default"
 					dns_view = "default"
@@ -98,7 +98,7 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					  })
-					}`),
+					}`,
 				Check: validateIPAllocation(
 					"infoblox_ipv4_allocation.foo",
 					&ibclient.HostRecord{
@@ -127,7 +127,7 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				resource "infoblox_ipv6_allocation" "foo2"{
 					network_view="default"
 					dns_view = "default"
@@ -141,7 +141,7 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
-					}`),
+					}`,
 				Check: validateIPAllocation(
 					"infoblox_ipv6_allocation.foo2",
 					&ibclient.HostRecord{

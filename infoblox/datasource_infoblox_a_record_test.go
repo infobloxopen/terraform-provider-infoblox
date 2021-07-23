@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -12,7 +11,7 @@ func TestAccDataSourceARecord(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			{
+			resource.TestStep{
 				Config: testAccDataSourceARecordsRead,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_a_record.acctest", "dns_view", "default"),
@@ -25,7 +24,7 @@ func TestAccDataSourceARecord(t *testing.T) {
 	})
 }
 
-var testAccDataSourceARecordsRead = fmt.Sprintf(`
+var testAccDataSourceARecordsRead = `
 resource "infoblox_a_record" "foo"{
 	dns_view="default"
 	fqdn="test-name.test.com"

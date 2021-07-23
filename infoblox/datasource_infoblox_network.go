@@ -38,7 +38,6 @@ func dataSourceIPv4Network() *schema.Resource {
 }
 
 func dataSourceIPv4NetworkRead(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 

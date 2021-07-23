@@ -22,12 +22,12 @@ func resourceCNAMERecord() *schema.Resource {
 				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
-			"canonical": {
+			"canonical": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The Canonical name in FQDN format.",
 			},
-			"alias": {
+			"alias": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The alias name in FQDN format.",
@@ -54,7 +54,6 @@ func resourceCNAMERecord() *schema.Resource {
 	}
 }
 func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	canonical := d.Get("canonical").(string)
 	alias := d.Get("alias").(string)
@@ -97,7 +96,6 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -122,7 +120,6 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
@@ -164,11 +161,9 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(recordCNAME.Ref)
 	return nil
-
 }
 
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})

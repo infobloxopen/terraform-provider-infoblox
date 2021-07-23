@@ -12,7 +12,7 @@ func dataSourceCNameRecord() *schema.Resource {
 		Read: dataSourceCNameRecordRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -56,7 +56,6 @@ func dataSourceCNameRecord() *schema.Resource {
 }
 
 func dataSourceCNameRecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	canonical := d.Get("canonical").(string)
 	alias := d.Get("alias").(string)

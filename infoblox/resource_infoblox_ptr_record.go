@@ -22,7 +22,7 @@ func resourcePTRRecord() *schema.Resource {
 				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
-			"cidr": {
+			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The network address in cidr format under which record has to be created.",
@@ -32,7 +32,7 @@ func resourcePTRRecord() *schema.Resource {
 				Optional:    true,
 				Description: "IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. If to be dynamically allocated set cidr field",
 			},
-			"dns_view": {
+			"dns_view": &schema.Schema{
 				Type:        schema.TypeString,
 				Default:     "default",
 				Optional:    true,
@@ -71,7 +71,6 @@ func resourcePTRRecord() *schema.Resource {
 }
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -135,7 +134,6 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -160,7 +158,6 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
@@ -210,7 +207,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Retrive the IP of PTR record.
+	// Retrieve the IP of PTR record.
 	// When IP is allocated using cidr and an empty IP is passed for updation
 	if cidr == "" && ipAddr == "" {
 		recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
@@ -237,7 +234,6 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)

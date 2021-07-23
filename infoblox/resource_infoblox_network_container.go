@@ -176,9 +176,9 @@ func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error
 }
 
 // TODO: implement this after infoblox-go-client refactoring
-//func resourceNetworkContainerExists(d *schema.ResourceData, m interface{}, isIPv6 bool) (bool, error) {
-//	return false, nil
-//}
+// func resourceNetworkContainerExists(d *schema.ResourceData, m interface{}, isIPv6 bool) (bool, error) {
+//	 return false, nil
+// }
 
 func resourceIPv4NetworkContainerCreate(d *schema.ResourceData, m interface{}) error {
 	return resourceNetworkContainerCreate(d, m, false)
@@ -196,17 +196,12 @@ func resourceIPv4NetworkContainerDelete(d *schema.ResourceData, m interface{}) e
 	return resourceNetworkContainerDelete(d, m)
 }
 
-//func resourceIPv4NetworkContainerExists(d *schema.ResourceData, m interface{}) (bool, error) {
-//	return resourceNetworkContainerExists(d, m, false)
-//}
-
 func resourceIPv4NetworkContainer() *schema.Resource {
 	nc := resourceNetworkContainer()
 	nc.Create = resourceIPv4NetworkContainerCreate
 	nc.Read = resourceIPv4NetworkContainerRead
 	nc.Update = resourceIPv4NetworkContainerUpdate
 	nc.Delete = resourceIPv4NetworkContainerDelete
-	//nc.Exists = resourceIPv4NetworkContainerExists
 
 	return nc
 }
@@ -227,17 +222,12 @@ func resourceIPv6NetworkContainerDelete(d *schema.ResourceData, m interface{}) e
 	return resourceNetworkContainerDelete(d, m)
 }
 
-//func resourceIPv6NetworkContainerExists(d *schema.ResourceData, m interface{}) (bool, error) {
-//	return resourceNetworkContainerExists(d, m, true)
-//}
-
 func resourceIPv6NetworkContainer() *schema.Resource {
 	nc := resourceNetworkContainer()
 	nc.Create = resourceIPv6NetworkContainerCreate
 	nc.Read = resourceIPv6NetworkContainerRead
 	nc.Update = resourceIPv6NetworkContainerUpdate
 	nc.Delete = resourceIPv6NetworkContainerDelete
-	//nc.Exists = resourceIPv6NetworkContainerExists
 
 	return nc
 }

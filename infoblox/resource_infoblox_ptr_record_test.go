@@ -9,7 +9,7 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-var testAccresourceRecordPTRCreate = fmt.Sprintf(`
+var testAccresourceRecordPTRCreate = `
 resource "infoblox_ptr_record" "foo"{
     dns_view="default"
 	ptrdname="testPtrdName.test.com"
@@ -21,9 +21,9 @@ resource "infoblox_ptr_record" "foo"{
 		"Site" = "Test site"
 		"TestEA1"=["text1","text2"]
 	  })
-}`)
+}`
 
-var testAccresourceRecordPTRCreate_2 = fmt.Sprintf(`
+var testAccresourceRecordPTRCreate_2 = `
 resource "infoblox_ptr_record" "foo2"{
 	network_view="default"
     dns_view="default"
@@ -36,9 +36,9 @@ resource "infoblox_ptr_record" "foo2"{
 		"Site"="Test site"
 		"TestEA1"=["text1","text2"]
 	  })
-}`)
+}`
 
-var testAccresourceRecordPTRUpdate = fmt.Sprintf(`
+var testAccresourceRecordPTRUpdate = `
 resource "infoblox_ptr_record" "foo"{
 	dns_view="default"
 	ptrdname="testPtrdName.test.com"
@@ -50,9 +50,9 @@ resource "infoblox_ptr_record" "foo"{
 		"Site" = "Test site"
 		"TestEA1" = ["text1","text2"]
 	  })
-}`)
+}`
 
-var testAccresourceRecordPTRUpdate_2 = fmt.Sprintf(`
+var testAccresourceRecordPTRUpdate_2 = `
 resource "infoblox_ptr_record" "foo2"{
 	network_view = "default"
 	dns_view="default"
@@ -65,7 +65,7 @@ resource "infoblox_ptr_record" "foo2"{
 		"Site"="Test site"
 		"TestEA1"=["text1","text2"]
 	  })
-}`)
+}`
 
 func validateRecordPTR(
 	resourceName string,

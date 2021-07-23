@@ -12,7 +12,7 @@ func dataSourceARecord() *schema.Resource {
 		Read: dataSourceARecordRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -26,12 +26,12 @@ func dataSourceARecord() *schema.Resource {
 				Computed:    true,
 				Description: "Zone under which record has been created.",
 			},
-			"fqdn": {
+			"fqdn": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "A record FQDN.",
 			},
-			"ip_addr": {
+			"ip_addr": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address the A-record points to",
@@ -56,7 +56,6 @@ func dataSourceARecord() *schema.Resource {
 }
 
 func dataSourceARecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)

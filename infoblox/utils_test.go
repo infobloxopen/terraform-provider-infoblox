@@ -25,7 +25,7 @@ func isNotFoundError(err error) bool {
 	}
 
 	// TODO: uncomment when infoblox-go-client will handle NotFoundError separately.
-	//return false
+	// return false
 
 	errText := err.Error()
 	for _, text := range NotFoundTexts {
@@ -143,7 +143,6 @@ func validateEAs(actualEAs, expectedEAs map[string]interface{}) error {
 						"the value for extensible attribute '%v' is '%v' but expected to be '%v'",
 						eaKey, actEaVal, expEaVal)
 				}
-				return nil
 			}
 			return nil
 		default:

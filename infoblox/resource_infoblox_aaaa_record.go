@@ -66,7 +66,6 @@ func resourceAAAARecord() *schema.Resource {
 }
 
 func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
@@ -125,7 +124,6 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -150,7 +148,6 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
@@ -227,7 +224,6 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)

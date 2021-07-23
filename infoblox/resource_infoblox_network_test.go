@@ -9,7 +9,7 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-var testAccresourceIPv4NetworkCreate = fmt.Sprintf(`
+var testAccresourceIPv4NetworkCreate = `
 resource "infoblox_ipv4_network" "foo"{
 	network_view="default"
 	cidr="10.10.0.0/24"
@@ -20,9 +20,9 @@ resource "infoblox_ipv4_network" "foo"{
 		"Location" = "Test loc."
 		"Site" = "Test site"
 	  })
-	}`)
+	}`
 
-var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
+var testAccresourceIPv6NetworkCreate = `
 	resource "infoblox_ipv6_network" "foo"{
 		network_view="default"
 		cidr="2001:db8:abcd:12::/64"
@@ -33,7 +33,7 @@ var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
 			"Location" = "Test loc."
 			"Site" = "Test site"
 		})
-	}`)
+	}`
 
 func validateNetwork(
 	resourceName string,

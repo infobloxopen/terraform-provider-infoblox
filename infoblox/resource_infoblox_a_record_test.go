@@ -88,11 +88,11 @@ func TestAccResourceARecord(t *testing.T) {
 		CheckDestroy: testAccCheckARecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_a_record" "foo"{
 						fqdn = "name1.test.com"
 						ip_addr = "10.0.0.2"
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo", &ibclient.RecordA{
 						Ipv4Addr: "10.0.0.2",
@@ -106,7 +106,7 @@ func TestAccResourceARecord(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name2.test.com"
 						ip_addr = "192.168.31.31"
@@ -117,7 +117,7 @@ func TestAccResourceARecord(t *testing.T) {
 						  "Location" = "New York"
 						  "Site" = "HQ"
 						})
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "192.168.31.31",
@@ -134,14 +134,14 @@ func TestAccResourceARecord(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.1"
 						ttl = 155
 						dns_view = "nondefault_view"
 						comment = "test comment 2"
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "10.10.0.1",
@@ -154,12 +154,12 @@ func TestAccResourceARecord(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.1"
 						dns_view = "nondefault_view"
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
 						Ipv4Addr: "10.10.0.1",

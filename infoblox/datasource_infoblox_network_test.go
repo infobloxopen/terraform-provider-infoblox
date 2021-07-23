@@ -21,7 +21,7 @@ func TestAccDataSourceNetwork(t *testing.T) {
 	})
 }
 
-var testAccDataSourceNetworkRead = fmt.Sprintf(`
+var testAccDataSourceNetworkRead = `
 resource "infoblox_ipv4_network" "test_network"{
   	cidr = "10.4.20.0/24"
 }

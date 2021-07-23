@@ -22,7 +22,6 @@ func testAccCheckNetworkViewRecordDestroy(s *terraform.State) error {
 		if rec != nil {
 			return fmt.Errorf("record not found")
 		}
-
 	}
 	return nil
 }
@@ -67,7 +66,7 @@ func TestAccResourceNetworkView(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkViewRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "test comment 1"
@@ -77,7 +76,7 @@ func TestAccResourceNetworkView(t *testing.T) {
 							"Site"="Test site"
 							"TestEA1"=["text1","text2"]
 						})
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccNetworkViewCompare(t, "infoblox_network_view.foo", &ibclient.NetworkView{
 						Name:    "testNetworkView",

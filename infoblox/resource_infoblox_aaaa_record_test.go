@@ -22,7 +22,6 @@ func testAccCheckAAAARecordDestroy(s *terraform.State) error {
 		if rec != nil {
 			return fmt.Errorf("record not found")
 		}
-
 	}
 	return nil
 }
@@ -82,7 +81,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 		CheckDestroy: testAccCheckAAAARecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_aaaa_record" "foo"{
 						fqdn = "name1.test.com"
 						ipv6_addr = "2000::1"
@@ -94,7 +93,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 							"Site"="Test site"
 							"TestEA1"=["text1","text2"]
 						})
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo", &ibclient.RecordAAAA{
 						Ipv6Addr: "2000::1",
@@ -112,7 +111,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "infoblox_aaaa_record" "foo2"{
 						fqdn = "name3.test.com"
 						ipv6_addr = "2000::3"
@@ -123,7 +122,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
 						})
-					}`),
+					}`,
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
 						Ipv6Addr: "2000::3",
