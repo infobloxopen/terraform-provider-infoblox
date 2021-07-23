@@ -35,6 +35,8 @@ The following arguments are supported:
 * `tenant_id` - (Required) Links the network  to a tenant
 * `reserve_ip` - (optional) reserves the number of Ip's for later use. Takes an `int` value
 * `gateway` - (Optional) give the IP you want to reserve for gateway, by default the first IP gets reserved for gateway
+* `allocate_prefix_len` - (Optional) Set parameter value>0 to allocate next available network with prefix=value from network container defined by parent_cidr
+* `parent_cidr` (Optional) The parent network container in cidr format. Used to allocate next available network.
 
 ## Note
 
