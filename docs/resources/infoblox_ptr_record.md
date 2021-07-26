@@ -16,11 +16,11 @@ Terraform's point of view. Consider the table of the attributes:
 | Attribute | Required/optional | Description | Example |
 | --- | --- | --- | --- |
 | ptrdname | required | The domain name in FQDN to which the record should point to. | host1.example.com |
-| ip_address | see the description | IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. For dynamic allocation, leave this field empty and set the 'cidr' field. | 82.50.36.8 |
-cidr | see the description | The network address, in CIDR format, under which the record has to be created. | 10.3.128.0/20 |
+| ip_address | required for static allocation, see the description | IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. For dynamic allocation, leave this field empty and set the 'cidr' field. This field should be left empty in case PTR-record is to be created in a forward-mapping zone.| 82.50.36.8 |
+cidr | required for dynamic allocation, see the description | The network address, in CIDR format, under which the record has to be created. | 10.3.128.0/20 |
 network_view | see the description | Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty. | tenant 16 |
 dns_view | optional | DNS view which the zone does exist within. | district-4 |
-record_name | see the description | The domain name in FQDN, actual name of the record. | service1.zone21.org |
+record_name | see the description | The domain name in FQDN, actual name of the record. For creating a PTR-record in a forward-mapping zone. | service1.zone21.org |
 
 ## Example
 

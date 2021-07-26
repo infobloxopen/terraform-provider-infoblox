@@ -16,8 +16,8 @@ Its attributes are:
 | dns_view       | optional | DNS view to create DNS resource records associated with the IP address. If omitted, the value ‘default’ is used. Makes sense only if ‘enable_dns’ is ‘true’. | internal_network |
 | enable_dns     | optional | A flag that specifies whether it is needed to create DNS records associated with the resource. The default value is ‘true’. | true |
 | enable_dhcp    | optional | A flag that specifies whether to enable DHCP-related functionality for this resource. The default value is ‘false’. | false |
-| cidr            | see the description | The network block (in CIDR format) where to allocate an IP address from. Used for dynamic allocation; in this case ‘ip_addr’ attribute is empty or omitted. | 10.4.3.128/20 2a00:1148::/32 |
-| ip_addr         | see the description | An IP address to be allocated (marked as ‘Used’). For static allocation, in which case the ‘cidr’ attribute has to be empty or omitted. | 10.4.3.138 |
+| cidr            | required for dynamic allocation, see the description | The network block (in CIDR format) where to allocate an IP address from. Used for dynamic allocation; in this case ‘ip_addr’ attribute is empty or omitted. | 10.4.3.128/20 2a00:1148::/32 |
+| ip_addr         | required for static allocation, see the description | An IP address to be allocated (marked as ‘Used’). For static allocation, in which case the ‘cidr’ attribute has to be empty or omitted. | 10.4.3.138 |
 | mac_addr       | optional        | Only for IPv4. The MAC address to associate the IP address with. The default value is ‘00:00:00:00:00:00’. | 02:42:97:87:70:f9 |
 | duid            | optional        | Only for IPv6. DHCPv6 Unique Identifier (DUID) of the address object. The default value is empty. | 0c:c0:84:d3:03:00:09:12 | 
 | ttl             | optional        | The same as for DNS-related resources. This attribute’s value makes sense only when ‘enable_dns’ is ‘true’. If omitted, the value of this attribute is the same as for the parent zone of the DNS records for the resource. | 3600 |
