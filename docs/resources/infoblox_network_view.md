@@ -9,22 +9,20 @@ same requirements as for the same attribute in WAPI.
 To create a network view, you should use the following resource block in
 terraform file (TF file):
 
-`
-resource "infoblox_network_view" "nv1" {
-  name = "network view 1"
-  comment = "this is an example of network view"
-  ext_attrs = jsonencode({
-    "Site" = "Nevada"
-  })
-}
-`
+    resource "infoblox_network_view" "nv1" {
+      name = "network view 1"
+      comment = "this is an example of network view"
+      ext_attrs = jsonencode({
+        "Site" = "Nevada"
+      })
+    }
+
 Once the network view is created, you may change 'comment' and
 'ext_attrs' (even remove them, or leave empty) but 'name' cannot be
 changed. The minimal resource block to create a network view looks like
 this:
 
-`
-resource "infoblox_network_view" "nv1" {
-  name = "network view 1"
-}
-`
+
+    resource "infoblox_network_view" "nv1" {
+      name = "network view 1"
+    }
