@@ -1,6 +1,6 @@
 # Infoblox IPAM Driver for Terraform
 
-Here is the list of resources supported by the plugin:
+There are resources for the following objects, supported by the plugin:
 
 -   Network view
 -   Network container
