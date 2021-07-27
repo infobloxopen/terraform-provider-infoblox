@@ -19,8 +19,17 @@ Its attributes are:
 | cidr            | required for dynamic allocation, see the description | The network block (in CIDR format) where to allocate an IP address from. Used for dynamic allocation; in this case ‘ip_addr’ attribute is empty or omitted. | 10.4.3.128/20 2a00:1148::/32 |
 | ip_addr         | required for static allocation, see the description | An IP address to be allocated (marked as ‘Used’). For static allocation, in which case the ‘cidr’ attribute has to be empty or omitted. | 10.4.3.138 |
 | mac_addr       | optional        | Only for IPv4. The MAC address to associate the IP address with. The default value is ‘00:00:00:00:00:00’. | 02:42:97:87:70:f9 |
-| duid            | optional        | Only for IPv6. DHCPv6 Unique Identifier (DUID) of the address object. The default value is empty. | 0c:c0:84:d3:03:00:09:12 | 
+| duid            | required        | Only for IPv6. DHCPv6 Unique Identifier (DUID) of the address object. | 0c:c0:84:d3:03:00:09:12 | 
 | ttl             | optional        | The same as for DNS-related resources. This attribute’s value makes sense only when ‘enable_dns’ is ‘true’. If omitted, the value of this attribute is the same as for the parent zone of the DNS records for the resource. | 3600 |
+
+> **Warning! If a host record with enable_dns = true
+> has a name as FQDN, and then a user does an update
+> making enable_dns = false, then the name of the host
+> record MUST be changed to the form of just a name,
+> without the zone part. Example: test.example.com -> test**
+
+> **Note: Currently there is no support for multiple
+> IP addresses for a host record.**
 
 ## Example
 
@@ -40,6 +49,7 @@ Its attributes are:
       cidr="2a00:1148::/64" # this is to allocate
                             # an IP address from the given network block
       fqdn="honeypot-vm.edge.example.com"
+      duid = "0c:c0:84:d3:03:00:09:12"
       enable_dns = "false"
       enable_dhcp = "false"
       comment = "A honeypot VM for malicious queries."
