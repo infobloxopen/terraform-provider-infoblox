@@ -24,9 +24,9 @@ Specify the plugin version in the .tf file as follows:
 
 Configure the credentials as environment variables as follows:
   ```
-    $ export INFOBLOX_SERVER=nios_ip-addr_or_hostname
-    $ export INFOBLOX_USERNAME=nios_username_on_the_server
-    $ export INFOBLOX_PASSWORD=appropriate_nios_password
+    $ export INFOBLOX_SERVER=<nios_ip-addr> or <hostname>
+    $ export INFOBLOX_USERNAME=<nios_username>
+    $ export INFOBLOX_PASSWORD=<nios_password>
   ```
 
 Terraform installs the specified version of the plugin when a `terraform init` is run.
