@@ -8,11 +8,10 @@ IPv4 or IPv6.
 
 A network container has attributes:
 
--   network_view - which network view to create the network container
-    within; 'default' value is used when the attribute is omitted
--   cidr - which network block to use for the network container, in CIDR
-    notation; it is an error to use IPv4 CIDR for IPv6 network container
-    and vice versa.
+| Attribute | Required/optional | Description | Example |
+| --- | --- | --- | --- |
+| network_view | required | which network view to create the network container within; 'default' value is used when the attribute is omitted | ext_org_temporary |
+| cidr | required | which network block to use for the network container, in CIDR notation; it is an error to use IPv4 CIDR for IPv6 network container and vice versa. | 2001:db8::/64 |
 
 Both attributes are mandatory and cannot be changed (by UPDATE
 operation) once the network container is created.
