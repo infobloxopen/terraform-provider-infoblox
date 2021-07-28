@@ -6,7 +6,7 @@
 This is a provider plugin for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plugin enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.0.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.0.0)
+The latest version of Infoblox provider is [v2.0.1](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.0.1)
 
 The features and bug fixes under development will be available in the [`develop`]((https://github.com/infobloxopen/terraform-provider-infoblox/tree/develop)) branch.
 
@@ -37,8 +37,8 @@ All of the above data sources are supported with `comment` and `ext_attr` fields
 DNS records have the `ttl` field support.
 
 ## Quick Start
-- [Getting the provider plugin](docs/GETTING.md)
-- [Developing on the provider plugin](docs/DEVELOP.md)
+- [Getting the provider plugin](GETTING.md)
+- [Developing on the provider plugin](DEVELOP.md)
 
 ## Documentation
 The comprehensive documentation of plugin is available at Terraform registry.
@@ -46,7 +46,7 @@ The comprehensive documentation of plugin is available at Terraform registry.
 https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs
 
 ## NIOS Requirements
-* Plugin (from v2.0.0 onwards) can be used without a Cloud Network Automation (CNA) license on NIOS Grid. 
+* Plugin (from v2.0.1 onwards) can be used without a Cloud Network Automation (CNA) license on NIOS Grid. 
 * If a CNA license is installed, cloud objects can be created and tracked on the Cloud tab in NIOS Grid Master(GM).
 
 ## Terraform Configuration file requirements
