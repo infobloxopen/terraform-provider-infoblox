@@ -2,7 +2,7 @@ terraform {
   # Required providers block for Terraform v0.14.7
   required_providers {
     infoblox = {
-      source  = "terraform-providers/infoblox"
+      source  = "infobloxopen/infoblox"
       version = ">=2.0"
     }
   }
