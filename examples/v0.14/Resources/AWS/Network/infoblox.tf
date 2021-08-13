@@ -6,8 +6,8 @@ terraform {
       version = "~> 3.0"
     }
     infoblox = {
-      source  = "terraform-providers/infoblox"
-      version = ">= 1.0"
+      source = "infobloxopen/infoblox"
+      version = ">=2.0"
     }
   }
 }
