@@ -8,7 +8,6 @@ The plugin enables lifecycle management of Infoblox NIOS DDI resources.
 
 The latest version of Infoblox provider is [v2.0.1](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.0.1)
 
-The features and bug fixes under development will be available in the [`develop`]((https://github.com/infobloxopen/terraform-provider-infoblox/tree/develop)) branch.
 
 ## Provider Features
 The provider plugin has NIOS DDI resources represented as Terraform resources and data sources. The consolidated list of supported resources and data sources is as follows:
