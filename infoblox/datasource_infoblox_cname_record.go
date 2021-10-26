@@ -3,7 +3,7 @@ package infoblox
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -12,26 +12,26 @@ func dataSourceCNameRecord() *schema.Resource {
 		Read: dataSourceCNameRecordRead,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"canonical": &schema.Schema{
+			"canonical": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The Canonical name in FQDN format.",
 			},
-			"alias": &schema.Schema{
+			"alias": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The alias name in FQDN format.",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Zone under which record has been created.",

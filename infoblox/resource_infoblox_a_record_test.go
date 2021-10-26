@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -31,7 +31,7 @@ func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.R
 	return func(s *terraform.State) error {
 		res, found := s.RootModule().Resources[resPath]
 		if !found {
-			return fmt.Errorf("Not found: %s", resPath)
+			return fmt.Errorf("not found: %s", resPath)
 		}
 		if res.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")

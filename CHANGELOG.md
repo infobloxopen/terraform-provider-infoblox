@@ -1,8 +1,27 @@
 # Changelog
 
-## [v1.0.6](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.0.6) (2021-04-23)
+## [v2.0.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.0.1) (2021-07-27)
 
-[Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/v1.1.1...v1.0.6)
+**List of changes since 1.0.6 release:**
+
+- Existing resources have been changed:
+  - Extensible attributes and comments are introduced
+  - Some fields are removed, use Extensible Attributes instead.
+  - IPv6 version of resources added
+- New resources:
+  - Network container (infoblox_ipv4_network_container, infoblox_ipv6_network_container)
+  - Network view (infoblox_network_view)
+  - AAAA-record (infoblox_aaa_record)
+- Data sources: extensible attributes and comments are introduced
+  - infoblox_a_record
+  - infoblox_cname_record
+  - infoblox_ipv4_network
+- New features:
+  - IP address auto-allocation feature
+  - Ability to update a resource, in addition to 'create', 'read' and 'delete' operations.
+  - All the resources have 'comment' and 'ext_attrs' fields.
+  - DNS-related fields have 'ttl' field. TTL=0 means TTL inherited from the parent zone.
+- Examples of how to integrate with different cloud environments
 
 ## [v1.1.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.1.1) (2021-04-23)
 
@@ -36,14 +55,9 @@
 - Check that parent exists before network allocation. [\#83](https://github.com/infobloxopen/terraform-provider-infoblox/pull/83) ([AliaksandrDziarkach](https://github.com/AliaksandrDziarkach))
 - Migration from terraform providers to our own repository [\#78](https://github.com/infobloxopen/terraform-provider-infoblox/pull/78) ([AvRajath](https://github.com/AvRajath))
 
-## [v1.1.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.1.0) (2020-08-11)
+## [v1.0.6](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.0.6) (2021-04-23)
 
-[Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/v1.0.5...v1.1.0)
-
-**Closed issues:**
-
-- Terraform provider documentation is not accurate on terraform.io website [\#76](https://github.com/infobloxopen/terraform-provider-infoblox/issues/76)
-- change the package in main .go [\#75](https://github.com/infobloxopen/terraform-provider-infoblox/issues/75)
+[Full Changelog](https://github.com/infobloxopen/terraform-provider-infoblox/compare/v1.1.1...v1.0.6)
 
 ## [v1.0.5](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v1.0.5) (2020-05-15)
 

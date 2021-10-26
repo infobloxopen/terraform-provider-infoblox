@@ -49,7 +49,7 @@ func NewTransportConfig(sslVerify string, httpRequestTimeout int, httpPoolConnec
 			return
 		}
 		if !caPool.AppendCertsFromPEM(cert) {
-			err = fmt.Errorf("Cannot append certificate from file '%s'", sslVerify)
+			err = fmt.Errorf("cannot append certificate from file '%s'", sslVerify)
 			return
 		}
 		cfg.certPool = caPool
@@ -133,7 +133,7 @@ func (whr *WapiHttpRequestor) Init(cfg TransportConfig) {
 			RootCAs:       cfg.certPool,
 			Renegotiation: tls.RenegotiateOnceAsClient},
 		MaxIdleConnsPerHost: cfg.HttpPoolConnections,
-		Proxy: http.ProxyFromEnvironment,
+		Proxy:               http.ProxyFromEnvironment,
 	}
 
 	if cfg.ProxyUrl != nil {
@@ -262,11 +262,17 @@ func (wrb *WapiRequestBuilder) BuildRequest(t RequestType, obj IBObject, ref str
 func (c *Connector) makeRequest(t RequestType, obj IBObject, ref string, queryParams *QueryParams) (res []byte, err error) {
 	var req *http.Request
 	req, err = c.RequestBuilder.BuildRequest(t, obj, ref, queryParams)
+	if err != nil {
+		return
+	}
 	res, err = c.Requestor.SendRequest(req)
 	if err != nil {
 		/* Forcing the request to redirect to Grid Master by making forcedProxy=true */
 		queryParams.forceProxy = true
 		req, err = c.RequestBuilder.BuildRequest(t, obj, ref, queryParams)
+		if err != nil {
+			return
+		}
 		res, err = c.Requestor.SendRequest(req)
 	}
 
@@ -284,7 +290,7 @@ func (c *Connector) CreateObject(obj IBObject) (ref string, err error) {
 
 	err = json.Unmarshal(resp, &ref)
 	if err != nil {
-		log.Printf("Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
+		log.Printf("cannot unmarshall '%s', err: '%s'\n", string(resp), err)
 		return
 	}
 
@@ -297,11 +303,14 @@ func (c *Connector) GetObject(
 	queryParams *QueryParams, res interface{}) (err error) {
 
 	resp, err := c.makeRequest(GET, obj, ref, queryParams)
+	if err != nil {
+		return
+	}
 	//to check empty underlying value of interface
 	var result interface{}
 	err = json.Unmarshal(resp, &result)
 	if err != nil {
-		log.Printf("Cannot unmarshall to check empty value '%s', err: '%s'\n", string(resp), err)
+		log.Printf("cannot unmarshall to check empty value '%s': '%s'\n", string(resp), err)
 	}
 
 	var data []interface{}
@@ -312,14 +321,16 @@ func (c *Connector) GetObject(
 	if err != nil {
 		log.Printf("GetObject request error: '%s'\n", err)
 	}
-	if len(resp) == 0 {
-		return
-	}
 	err = json.Unmarshal(resp, res)
 	if err != nil {
-		log.Printf("Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
+		log.Printf("cannot unmarshall '%s', err: '%s'\n", string(resp), err)
 		return
 	}
+
+	if string(resp) == "[]" {
+		return NewNotFoundError("not found")
+	}
+
 	return
 }
 
@@ -334,7 +345,7 @@ func (c *Connector) DeleteObject(ref string) (refRes string, err error) {
 
 	err = json.Unmarshal(resp, &refRes)
 	if err != nil {
-		log.Printf("Cannot unmarshall '%s', err: '%s'\n", string(resp), err)
+		log.Printf("cannot unmarshall '%s': '%s'\n", string(resp), err)
 		return
 	}
 
@@ -346,13 +357,13 @@ func (c *Connector) UpdateObject(obj IBObject, ref string) (refRes string, err e
 	refRes = ""
 	resp, err := c.makeRequest(UPDATE, obj, ref, queryParams)
 	if err != nil {
-		log.Printf("Failed to update object %s: %s", obj.ObjectType(), err)
+		log.Printf("failed to update object %s: %s", obj.ObjectType(), err)
 		return
 	}
 
 	err = json.Unmarshal(resp, &refRes)
 	if err != nil {
-		log.Printf("Cannot unmarshall update object response'%s', err: '%s'\n", string(resp), err)
+		log.Printf("cannot unmarshall update object response'%s', err: '%s'\n", string(resp), err)
 		return
 	}
 	return

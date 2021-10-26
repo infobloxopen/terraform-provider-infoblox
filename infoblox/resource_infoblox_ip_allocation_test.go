@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -23,18 +23,22 @@ func validateIPAllocation(
 			return fmt.Errorf("ID is not set")
 		}
 
+		internalId, ref, err := getAltIdFields(id)
+		if err != nil {
+			return err
+		}
 		connector := testAccProvider.Meta().(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(
 			connector,
 			"terraform_test",
 			"terraform_test_tenant")
-		ipAlloc, err := objMgr.GetHostRecordByRef(id)
+		ipAlloc, err := objMgr.SearchHostRecordByAltId(internalId, ref, eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
 					return nil
 				}
-				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+				return fmt.Errorf("object with reference '%s' not found, but expected to exist", ref)
 			}
 		}
 		expNv := expectedValue.NetworkView
@@ -76,37 +80,37 @@ func validateIPAllocation(
 	}
 }
 
-func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
+func TestAcc_resourceIPAllocation(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPAllocationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "infoblox_ipv4_allocation" "foo"{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
-					fqdn="testhostname.test.com"
-					cidr="10.0.0.0/24"
-					ip_addr="10.0.0.1"
-					enable_dns = "true"
-					comment = "10.0.0.1 IP is allocated"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "IPv4 and IPv6 are allocated"
 					ext_attrs = jsonencode({
-						"Tenant ID" = "terraform_test_tenant"
 						"VM Name" =  "tf-ec2-instance"
-						"Location" = "Test loc."
-						"Site" = "Test site"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Test site"
 					  })
-					}`),
+					}`,
 				Check: validateIPAllocation(
-					"infoblox_ipv4_allocation.foo",
+					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostname.test.com",
+						Name:        "testhostnameip.test.com",
+						Ipv6Addr:    "2001:db8:abcd:12::1",
 						Ipv4Addr:    "10.0.0.1",
-						Comment:     "10.0.0.1 IP is allocated",
+						Comment:     "IPv4 and IPv6 are allocated",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -116,43 +120,66 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 					},
 				),
 			},
-		},
-	})
-}
-
-func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIPAllocationDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "infoblox_ipv6_allocation" "foo2"{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
-					fqdn="testhostnameipv6.test.com"
-					ip_addr="2001:db8:abcd:12::1"
-					duid="11:22:33:44:55:66"
-					comment = "2001:db8:abcd:12::1 IP is allocated"
+					fqdn="testhostnameip2.test.com"
+					ipv6_addr="2001:db8:abcd:12::2"
+					ipv4_addr="10.0.0.2"
+					comment = "IPv4 and IPv6 are allocated"
 					ext_attrs = jsonencode({
-						"VM Name" =  "tf-ec2-instance-ipv6"
+						"VM Name" =  "tf-ec2-instance"
 						"Tenant ID" = "terraform_test_tenant"
 						Location = "Test loc."
 						Site = "Test site"
 					  })
-					}`),
+					}`,
 				Check: validateIPAllocation(
-					"infoblox_ipv6_allocation.foo2",
+					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
 						View:        "default",
-						Name:        "testhostnameipv6.test.com",
-						Ipv6Addr:    "2001:db8:abcd:12::1",
-						Comment:     "2001:db8:abcd:12::1 IP is allocated",
+						Name:        "testhostnameip2.test.com",
+						Ipv6Addr:    "2001:db8:abcd:12::2",
+						Ipv4Addr:    "10.0.0.2",
+						Comment:     "IPv4 and IPv6 are allocated",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
-							"VM Name":   "tf-ec2-instance-ipv6",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip2.test.com"
+					ipv4_addr="10.0.0.2"
+					comment = "IPv4 and IPv6 are allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Test site"
+					  })
+					}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "testhostnameip2.test.com",
+						Ipv4Addr:    "10.0.0.2",
+						Comment:     "IPv4 and IPv6 are allocated",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
 						},
@@ -170,10 +197,14 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 		"terraform_test",
 		"terraform_test_tenant")
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "infoblox_ipv4_allocation" && rs.Type != "infoblox_ipv6_allocation" {
+		if rs.Type != "infoblox_ip_allocation" {
 			continue
 		}
-		res, err := objMgr.GetHostRecordByRef(rs.Primary.ID)
+		_, ref, err := getAltIdFields(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+		res, err := objMgr.GetHostRecordByRef(ref)
 		if err != nil {
 			if isNotFoundError(err) {
 				continue

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -75,6 +75,10 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	cidr := d.Get("cidr").(string)
 	reserveIP := d.Get("reserve_ip").(int)
 	reserveIPv6 := d.Get("reserve_ipv6").(int)
+	if reserveIPv6 > 255 || reserveIPv6 < 0 {
+		return fmt.Errorf("reserve_ipv6 value must be in range 0..255")
+	}
+
 	gateway := d.Get("gateway").(string)
 
 	comment := d.Get("comment").(string)
@@ -123,11 +127,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	}
 
 	if isIPv6 {
-		// We need Zeroduid since AWS mandates first 3 IPv6 addresses to be reserved
-		Zeroduid := "00"
 		for i := 1; i <= reserveIPv6; i++ {
-			Zeroduid += ":00"
-			_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, Zeroduid, "", comment, ea)
+			reserved_duid := fmt.Sprintf("00:%.2x", i)
+			_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, reserved_duid, "", comment, ea)
 			if err != nil {
 				return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
 			}
@@ -158,6 +160,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	d.SetId(network.Ref)
 	return nil
 }
+
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view").(string)
