@@ -114,6 +114,27 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   })
 }
 
+resource "infoblox_ip_allocation" "ip_allocation" {
+  network_view= "default"
+  ipv4_cidr = infoblox_ipv4_network.ipv4_network.cidr
+  ipv6_cidr = infoblox_ipv6_network.ipv6_network.cidr
+  duid = "00:00:00:00:00:00:00:01"
+
+  #Create Host Record with DNS and DHCP flags
+  dns_view="default"
+  fqdn="testip.example.com"
+  enable_dns = "false"
+  enable_dhcp = "false"
+
+  comment = "tf IPv4 and IPv6 allocation"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Network Name" = "tf-network"
+    "VM Name" =  "tf-ec2-instance"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}
 
 # Update Grid with VM data
 resource "infoblox_ipv4_association" "ipv4_associate"{

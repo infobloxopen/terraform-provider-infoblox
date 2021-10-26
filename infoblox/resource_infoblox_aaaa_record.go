@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -22,23 +22,24 @@ func resourceAAAARecord() *schema.Resource {
 				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The network address in cidr format under which record has to be created.",
 			},
-			"ipv6_addr": &schema.Schema{
+			"ipv6_addr": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "IPv6 address for record creation. Set the field with valid IP for static allocation. If to be dynamically allocated set cidr field",
 			},
-			"fqdn": &schema.Schema{
+			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the AAAA record in FQDN format.",
@@ -90,7 +91,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	if ipv6Addr == "" && cidr == "" {
 		return fmt.Errorf(
-			"Creation of AAAA record failed: 'ipv6_addr' or 'cidr' are mandatory")
+			"creation of AAAA record failed: 'ipv6_addr' or 'cidr' are mandatory")
 	}
 
 	var ttl uint32
@@ -118,7 +119,10 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Creation of AAAA Record under %s DNS View failed : %s", dnsView, err.Error())
+		return fmt.Errorf("creation of AAAA Record under %s DNS View failed: %s", dnsView, err.Error())
+	}
+	if err = d.Set("ipv6_addr", recordAAAA.Ipv6Addr); err != nil {
+		return err
 	}
 	d.SetId(recordAAAA.Ref)
 	return nil
@@ -143,7 +147,10 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 
 	recordAAAA, err := objMgr.GetAAAARecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting AAAA Record with ID: %s failed : %s", d.Id(), err.Error())
+		return fmt.Errorf("getting AAAA Record with ID: %s failed: %s", d.Id(), err.Error())
+	}
+	if err = d.Set("ipv6_addr", recordAAAA.Ipv6Addr); err != nil {
+		return err
 	}
 	d.SetId(recordAAAA.Ref)
 	return nil
@@ -204,7 +211,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if ipv6Addr == "" && cidr == "" {
 		aaaaRec, err := objMgr.GetAAAARecordByRef(d.Id())
 		if err != nil {
-			return fmt.Errorf("Getting AAAA Record with ID: %s failed : %s", d.Id(), err.Error())
+			return fmt.Errorf("getting AAAA Record with ID: %s failed: %s", d.Id(), err.Error())
 		}
 		ipv6Addr = aaaaRec.Ipv6Addr
 	}
@@ -220,7 +227,10 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Updation of AAAA Record under %s DNS View failed : %s", dnsView, err.Error())
+		return fmt.Errorf("updation of AAAA Record under %s DNS View failed: %s", dnsView, err.Error())
+	}
+	if err = d.Set("ipv6_addr", recordAAAA.Ipv6Addr); err != nil {
+		return err
 	}
 	d.SetId(recordAAAA.Ref)
 	return nil
@@ -248,7 +258,7 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteAAAARecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of AAAA Record from dns view %s failed : %s", dnsView, err.Error())
+		return fmt.Errorf("deletion of AAAA Record from dns view %s failed: %s", dnsView, err.Error())
 	}
 	d.SetId("")
 	return nil

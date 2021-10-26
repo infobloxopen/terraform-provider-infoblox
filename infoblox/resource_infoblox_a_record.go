@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -40,6 +40,7 @@ func resourceARecord() *schema.Resource {
 			},
 			"ip_addr": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true, // making this optional because of possible dynalmic IP allocation (CIDR)
 				Description: "IP address to associate with the A-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
 			},
@@ -72,7 +73,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("error creating A-record: 'ip_addr' is empty and either 'cidr' or 'network_view' values are absent.")
+		return fmt.Errorf("error creating A-record: 'ip_addr' is empty and either 'cidr' or 'network_view' values are absent")
 	}
 
 	var ttl uint32
@@ -109,7 +110,12 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error creating A-record: %s", err.Error())
 	}
+	if err = d.Set("ip_addr", newRecord.Ipv4Addr); err != nil {
+		return err
+	}
+
 	d.SetId(newRecord.Ref)
+
 	return nil
 }
 
@@ -135,6 +141,10 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting A-record: %s", err.Error())
 	}
 
+	if err = d.Set("ip_addr", obj.Ipv4Addr); err != nil {
+		return err
+	}
+
 	d.SetId(obj.Ref)
 
 	return nil
@@ -153,7 +163,7 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty.")
+		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty")
 	}
 
 	// If 'cidr' is unchanged, then making it empty to skip the update.
@@ -207,7 +217,12 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error updating A-record: %s", err.Error())
 	}
+	if err = d.Set("ip_addr", rec.Ipv4Addr); err != nil {
+		return err
+	}
+
 	d.SetId(rec.Ref)
+
 	return nil
 }
 

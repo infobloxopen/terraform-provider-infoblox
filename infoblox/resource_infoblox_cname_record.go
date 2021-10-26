@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -16,18 +16,18 @@ func resourceCNAMERecord() *schema.Resource {
 		Delete: resourceCNAMERecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
 				Description: "Dns View under which the zone has been created.",
 			},
-			"canonical": &schema.Schema{
+			"canonical": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The Canonical name in FQDN format.",
 			},
-			"alias": &schema.Schema{
+			"alias": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The alias name in FQDN format.",
@@ -89,7 +89,7 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	recordCNAME, err := objMgr.CreateCNAMERecord(dnsView, canonical, alias, useTtl, ttl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Creation of CNAME Record under %s DNS View failed : %s", dnsView, err.Error())
+		return fmt.Errorf("creation of CNAME Record under %s DNS View failed: %s", dnsView, err.Error())
 	}
 
 	d.SetId(recordCNAME.Ref)
@@ -115,7 +115,7 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 
 	recordCNAME, err := objMgr.GetCNAMERecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting CNAME Record with ID: %s failed : %s", d.Id(), err.Error())
+		return fmt.Errorf("getting CNAME Record with ID: %s failed: %s", d.Id(), err.Error())
 	}
 	d.SetId(recordCNAME.Ref)
 	return nil
@@ -159,7 +159,7 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, useTtl, ttl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Updation of CNAME Record under %s DNS View failed : %s", dnsView, err.Error())
+		return fmt.Errorf("updation of CNAME Record under %s DNS View failed: %s", dnsView, err.Error())
 	}
 
 	d.SetId(recordCNAME.Ref)
@@ -187,7 +187,7 @@ func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteCNAMERecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of CNAME Record from dns view %s failed : %s", dnsView, err.Error())
+		return fmt.Errorf("deletion of CNAME Record from dns view %s failed: %s", dnsView, err.Error())
 	}
 	d.SetId("")
 	return nil

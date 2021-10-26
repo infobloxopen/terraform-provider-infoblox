@@ -4,10 +4,54 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
+
+func validateIPAssociationIpV4Addr(a, e *ibclient.HostRecordIpv4Addr) error {
+	if e == nil {
+		if a != nil {
+			return fmt.Errorf("IPv4 address at a host record is expected to be empty")
+		}
+		return nil
+	}
+
+	if a == nil {
+		return fmt.Errorf("IPv4 address at a host record is expected to be non-empty")
+	}
+
+	if a.Ipv4Addr != e.Ipv4Addr || a.EnableDhcp != e.EnableDhcp || a.Mac != e.Mac {
+		return fmt.Errorf(
+			"IPv4 address at a host record is not the same as expected;"+
+				" actual: '%+v'; expected: '%+v'",
+			a, e)
+	}
+
+	return nil
+}
+
+func validateIPAssociationIpV6Addr(a, e *ibclient.HostRecordIpv6Addr) error {
+	if e == nil {
+		if a != nil {
+			return fmt.Errorf("IPv6 address at a host record is expected to be empty")
+		}
+		return nil
+	}
+
+	if a == nil {
+		return fmt.Errorf("IPv6 address at a host record is expected to be non-empty")
+	}
+
+	if a.Ipv6Addr != e.Ipv6Addr || a.EnableDhcp != e.EnableDhcp || a.Duid != e.Duid {
+		return fmt.Errorf(
+			"IPv6 address at a host record is not the same as expected;"+
+				" actual: '%+v'; expected: '%+v'",
+			a, e)
+	}
+
+	return nil
+}
 
 func validateIPAssociation(
 	resourceName string,
@@ -28,7 +72,13 @@ func validateIPAssociation(
 			connector,
 			"terraform_test",
 			"terraform_test_tenant")
-		ipAsso, err := objMgr.GetHostRecordByRef(id)
+
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("internal ID is not set")
+		}
+
+		hostRec, err := objMgr.SearchHostRecordByAltId(internalId, "", eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
@@ -37,60 +87,59 @@ func validateIPAssociation(
 				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
 			}
 		}
-		expNv := expectedValue.NetworkView
-		if ipAsso.NetworkView != expNv {
-			return fmt.Errorf(
-				"the value of 'network_view' field is '%s', but expected '%s'",
-				ipAsso.NetworkView, expNv)
-		}
 
-		expFqdn := expectedValue.Name
-		if ipAsso.Name != expFqdn {
-			return fmt.Errorf(
-				"the value of 'fqdn' field is '%s', but expected '%s'",
-				ipAsso.Name, expFqdn)
-		}
-
-		expComment := expectedValue.Comment
-		if ipAsso.Comment != expComment {
-			return fmt.Errorf(
-				"the value of 'comment' field is '%s', but expected '%s'",
-				ipAsso.Comment, expComment)
-		}
-
-		/*
-			expIPv4Address := expectedValue.IPv4Addr
-			expIPv6Address := expectedValue.IPv6Addr
-			if ipAsso.IPv4Addr != expIPv4Address || ipAsso.IPv6Addr != expIPv6Address {
-				return fmt.Errorf(
-					"the value of 'IPv4Address' field is '%s', but expected '%s' or the value of 'IPv6Address' field is '%s', but expected '%s' ",
-					ipAsso.IPv4Addr, expIPv4Address, ipAsso.IPv6Addr, expIPv6Address)
+		var (
+			internalIdEaVal string
+			recIpV4Addr     *ibclient.HostRecordIpv4Addr
+			recIpV6Addr     *ibclient.HostRecordIpv6Addr
+		)
+		if hostRec.Ea != nil {
+			if tempVal, found := hostRec.Ea[eaNameForInternalId]; found {
+				if tempStrVal, ok := tempVal.(string); ok {
+					internalIdEaVal = tempStrVal
+				}
 			}
 
-			expMACAddress := expectedValue.Ipv4Addrs[0].Mac
-			expDUID := expectedValue.Ipv6Addrs[0].Duid
-			if ipAsso.Ipv4Addrs[0].Mac != expMACAddress || ipAsso.Ipv6Addrs[0].Duid != expDUID {
-				return fmt.Errorf(
-					"the value of 'IPv4Address' field is '%s', but expected '%s' or the value of 'IPv6Address' field is '%s', but expected '%s' ",
-					ipAsso.IPv4Addr, expIPv4Address, ipAsso.IPv6Addr, expIPv6Address)
-			}
-		*/
-
-		// the rest is about extensible attributes
-		expectedEAs := expectedValue.Ea
-		if expectedEAs == nil && ipAsso.Ea != nil {
-			return fmt.Errorf(
-				"the object with ID '%s' has 'ext_attrs' field, but it is not expected to exist", id)
 		}
-		if expectedEAs != nil && ipAsso.Ea == nil {
-			return fmt.Errorf(
-				"the object with ID '%s' has no 'ext_attrs' field, but it is expected to exist", id)
-		}
-		if expectedEAs == nil {
-			return nil
+		if internalIdEaVal == "" {
+			return fmt.Errorf("internal ID EA not set")
 		}
 
-		return validateEAs(ipAsso.Ea, expectedEAs)
+		if internalIdEaVal != internalId {
+			return fmt.Errorf(
+				"internal ID in EA (%s differs from expected one (%s)",
+				internalIdEaVal, internalId)
+		}
+
+		if len(hostRec.Ipv4Addrs) > 0 {
+			recIpV4Addr = &hostRec.Ipv4Addrs[0]
+		}
+		if len(hostRec.Ipv6Addrs) > 0 {
+			recIpV6Addr = &hostRec.Ipv6Addrs[0]
+		}
+
+		var (
+			expIpv4Addr *ibclient.HostRecordIpv4Addr
+			expIpv6Addr *ibclient.HostRecordIpv6Addr
+		)
+
+		if len(expectedValue.Ipv4Addrs) > 0 {
+			expIpv4Addr = &expectedValue.Ipv4Addrs[0]
+		}
+		err = validateIPAssociationIpV4Addr(recIpV4Addr, expIpv4Addr)
+		if err != nil {
+			return err
+		}
+
+		if len(expectedValue.Ipv6Addrs) > 0 {
+			expIpv6Addr = &expectedValue.Ipv6Addrs[0]
+		}
+		err = validateIPAssociationIpV6Addr(recIpV6Addr, expIpv6Addr)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 }
 
@@ -101,35 +150,37 @@ func testAccCheckIPAssociationDestroy(s *terraform.State) error {
 		"terraform_test",
 		"terraform_test_tenant")
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "infoblox_ipv4_association" && rs.Type != "infoblox_ipv6_association" {
+		if rs.Type != "infoblox_ip_association" {
 			continue
 		}
-		res, err := objMgr.GetHostRecordByRef(rs.Primary.ID)
+		internalId := rs.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("internal ID is not set")
+		}
+
+		hostRec, err := objMgr.SearchHostRecordByAltId(internalId, "", eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				continue
 			}
 			return err
 		}
-		if res != nil {
-			return fmt.Errorf("object with ID '%s' remains", rs.Primary.ID)
+		if hostRec != nil {
+			return fmt.Errorf("object with ID '%s' remains", internalId)
 		}
 	}
 	return nil
 }
 
-func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIPAssociationDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-				resource "infoblox_ipv4_allocation" "foo"{
+func TestAcc_resourceipAssociation(t *testing.T) {
+	config1 := `
+				resource infoblox_ipv4_network "net1" {
+    				cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ip_allocation" "foo"{
 					network_view="default"
 					fqdn="testhostname.test.com"
-					ip_addr="10.0.0.12"
+					ipv4_addr="10.0.0.12"
 					enable_dns = "true"
 					comment = "10.0.0.12 IP is allocated"
 					ext_attrs = jsonencode({
@@ -139,95 +190,93 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 						"Site" = "Test site"
 					})
 				}
-				
-				resource "infoblox_ipv4_association" "foo"{
+
+				resource "infoblox_ip_association" "foo"{
+                  internal_id = infoblox_ip_allocation.foo.internal_id
+				  enable_dhcp = true
+				  mac_addr = "11:22:33:44:55:66"
+				}`
+	expName1 := "infoblox_ip_association.foo"
+	expContent1 := ibclient.NewHostRecord(
+		"default",
+		"testhostname.test.com",
+		"", "",
+		[]ibclient.HostRecordIpv4Addr{
+			*ibclient.NewHostRecordIpv4Addr(
+				"10.0.0.12",
+				"11:22:33:44:55:66",
+				true, "")},
+		[]ibclient.HostRecordIpv6Addr{},
+		nil,
+		true, "default",
+		"test.com", "",
+		false, 0,
+		"10.0.0.12 IP is allocated",
+		[]string{})
+
+	config2 := `
+				resource infoblox_ipv4_network "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource infoblox_ipv6_network "net2" {
+					cidr = "2001::/56"
+				}
+				resource "infoblox_ip_allocation" "foo"{
 					network_view="default"
-					dns_view = "default"
-					fqdn=infoblox_ipv4_allocation.foo.fqdn
-					ip_addr=infoblox_ipv4_allocation.foo.ip_addr
-				    mac_addr = "11:22:33:44:55:66"
-					enable_dns = "true"
-					comment = "10.0.0.12 IP is associated"
+					fqdn="testhostname.test.com"
+					ipv4_addr="10.0.0.12"
+					ipv6_addr="2001::10"
+					enable_dns = "false"
+					comment = "10.0.0.12 IP is allocated"
+					ttl=0
 					ext_attrs = jsonencode({
 						"Tenant ID" = "terraform_test_tenant"
 						"VM Name" =  "tf-ec2-instance"
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					})
-				}	`),
-				Check: validateIPAssociation(
-					"infoblox_ipv4_association.foo",
-					&ibclient.HostRecord{
-						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostname.test.com",
-						Ipv4Addr:    "10.0.0.12",
-						Comment:     "10.0.0.12 IP is associated",
-						Ea: ibclient.EA{
-							"Tenant ID": "terraform_test_tenant",
-							"VM Name":   "tf-ec2-instance",
-							"Location":  "Test loc.",
-							"Site":      "Test site",
-						},
-					},
-				),
-			},
-		},
-	})
-}
+				}
+	
+				resource "infoblox_ip_association" "foo"{
+	              enable_dhcp = true
+				  mac_addr = "11:22:33:44:55:66"
+				  duid = "22:44:66"
+	              internal_id = infoblox_ip_allocation.foo.internal_id
+				}`
+	expName2 := "infoblox_ip_association.foo"
+	expContent2 := ibclient.NewHostRecord(
+		"default",
+		"testhostname.test.com",
+		"", "",
+		[]ibclient.HostRecordIpv4Addr{
+			*ibclient.NewHostRecordIpv4Addr(
+				"10.0.0.12",
+				"11:22:33:44:55:66",
+				true, "")},
+		[]ibclient.HostRecordIpv6Addr{
+			*ibclient.NewHostRecordIpv6Addr(
+				"2001::10",
+				"22:44:66",
+				true, "")},
+		nil,
+		false, "default",
+		"", "",
+		true, 0,
+		"10.0.0.12 IP is allocated",
+		[]string{})
 
-func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckIPAssociationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "infoblox_ipv6_allocation" "ipv6_allocation" {
-					network_view= "default"
-					fqdn="testhostnameipv6.test.com"
-					ip_addr = "2001:db8:abcd:12::10"
-					duid = "00:00:00:00:00:00:00:10"
-					comment = "tf IPv6 allocation"
-					ext_attrs = jsonencode({
-					  "Tenant ID" = "tf-plugin"
-					  "Network Name" = "ipv6-tf-network"
-					  "VM Name" =  "tf-ec2-instance-ipv6"
-					  "Location" = "Test loc."
-					  "Site" = "Test site"
-					})
-				  }
-
-				resource "infoblox_ipv6_association" "foo2"{
-					network_view="default"
-					fqdn=infoblox_ipv6_allocation.ipv6_allocation.fqdn
-					ip_addr=infoblox_ipv6_allocation.ipv6_allocation.ip_addr
-					duid="11:22:33:44:55:66"
-					comment = "2001:db8:abcd:12::10 IP is associated"
-					ext_attrs = jsonencode({
-						"VM Name" =  "tf-ec2-instance-ipv6"
-						"Tenant ID" = "terraform_test_tenant"
-						"Location" = "Test loc."
-						"Site" = "Test site"
-					  })
-					}`),
-				Check: validateIPAssociation(
-					"infoblox_ipv6_association.foo2",
-					&ibclient.HostRecord{
-						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostnameipv6.test.com",
-						Ipv6Addr:    "2001:db8:abcd:12::10",
-						Comment:     "2001:db8:abcd:12::10 IP is associated",
-						Ea: ibclient.EA{
-							"Tenant ID": "terraform_test_tenant",
-							"VM Name":   "tf-ec2-instance-ipv6",
-							"Location":  "Test loc.",
-							"Site":      "Test site",
-						},
-					},
-				),
+				Config: fmt.Sprintf(config1),
+				Check:  validateIPAssociation(expName1, expContent1),
+			},
+			{
+				Config: fmt.Sprintf(config2),
+				Check:  validateIPAssociation(expName2, expContent2),
 			},
 		},
 	})

@@ -3,7 +3,7 @@ package infoblox
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -11,15 +11,15 @@ func dataSourceIPv4Network() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceIPv4NetworkRead,
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"network_view": &schema.Schema{
+			"network_view": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

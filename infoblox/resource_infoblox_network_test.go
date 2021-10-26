@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -26,6 +26,7 @@ var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
 	resource "infoblox_ipv6_network" "foo"{
 		network_view="default"
 		cidr="2001:db8:abcd:12::/64"
+                reserve_ipv6 = 10
 		comment = "2001:db8:abcd:12::/64 network created"
 		ext_attrs = jsonencode({
 			"Tenant ID" = "terraform_test_tenant"

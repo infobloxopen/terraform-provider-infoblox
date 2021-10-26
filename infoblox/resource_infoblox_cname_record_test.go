@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -113,7 +113,7 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCNAMERecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccresourceCNAMERecordCreate,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",
@@ -132,7 +132,7 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 					},
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccresourceCNAMERecordUpdate,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",
