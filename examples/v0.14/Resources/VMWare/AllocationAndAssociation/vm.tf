@@ -109,3 +109,48 @@ resource "vsphere_virtual_machine" "vm_ipv6" {
     }
   }
 }
+
+resource "vsphere_virtual_machine" "vm_ip_v4_v6" {
+  name             = lookup(jsondecode(infoblox_ip_allocation.ip_allocation.extensible_attributes), "VM Name")
+  resource_pool_id = data.vsphere_resource_pool.pool.id
+  datastore_id     = data.vsphere_datastore.datastore.id
+  wait_for_guest_net_timeout = 0
+  #wait_for_guest_ip_timeout  = 5
+  num_cpus = 2
+  memory   = 1024
+  guest_id = data.vsphere_virtual_machine.template.guest_id
+  scsi_type = data.vsphere_virtual_machine.template.scsi_type
+
+  network_interface {
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  }
+
+  disk {
+    label            = "disk0"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    eagerly_scrub    = data.vsphere_virtual_machine.template.disks.0.eagerly_scrub
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  }
+
+  clone {
+    template_uuid = data.vsphere_virtual_machine.template.id
+
+    customize {
+      linux_options {
+        host_name = "terraform-test1"
+        domain    = "test.internal"
+      }
+
+      network_interface {
+        ipv4_address = infoblox_ip_allocation.ip_allocation.allocated_ipv4_addr
+        ipv4_netmask = 24
+        ipv6_address = infoblox_ip_allocation.ip_allocation.allocated_ipv6_addr
+        ipv6_netmask = 64
+      }
+
+     ipv4_gateway = infoblox_ipv4_network.ipv4_network.gateway
+     ipv6_gateway = infoblox_ipv6_network.ipv6_network.gateway
+    }
+  }
+}

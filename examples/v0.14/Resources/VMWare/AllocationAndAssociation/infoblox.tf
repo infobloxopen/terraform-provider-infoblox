@@ -72,8 +72,8 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
     "Tenant ID" = "tf-plugin"
     "Network Name" = "ipv4-tf-network"
     "VM Name" =  "tf-vmware-ipv4"
-    Location = "Test loc."
-    Site = "Test site"
+    "Location" = "Test loc."
+    "Site" = "Test site"
   })
 }
 
@@ -93,8 +93,28 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
     "Tenant ID" = "tf-plugin"
     "Network Name" = "ipv6-tf-network"
     "VM Name" = "tf-vmware-ipv6"
-    Location = "Test loc."
-    Site = "Test site"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}
+
+resource "infoblox_ip_allocation" "ip_allocation" {
+  network_view= "default"
+  ipv4_cidr = infoblox_ipv4_network.ipv4_network.cidr
+  ipv6_cidr = infoblox_ipv6_network.ipv6_network.cidr
+
+  #Create Host Record with DNS flags
+  dns_view="default"
+  fqdn="testip.example.com"
+  enable_dns = "false"
+
+  comment = "tf IPv4 and IPv6 allocation"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Network Name" = "tf-network"
+    "VM Name" =  "tf-vmware-ipv4-ipv6"
+    "Location" = "Test loc."
+    "Site" = "Test site"
   })
 }
 
@@ -143,4 +163,12 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
     Location = "Test loc."
     Site = "Test site"
   })
+}
+
+resource "infoblox_ip_association" "ip_associate"{
+  mac_addr = vsphere_virtual_machine.vm_ip_v4_v6.network_interface[0].mac_address
+  duid = vsphere_virtual_machine.vm_ip_v4_v6.network_interface[0].mac_address
+  internal_id = infoblox_ip_allocation.ip_allocation.internal_id
+  #Update Host Record with DHCP flags
+  enable_dhcp = "false"
 }
