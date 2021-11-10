@@ -368,7 +368,7 @@ func resourceIPv6AssociationDelete(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceIPv6AssociationInit() *schema.Resource {
-	ipv6Association := resourceIpAssociation()
+	ipv6Association := resourceIpAssoc()
 	ipv6Association.Create = resourceIPv6AssociationCreate
 	ipv6Association.Read = resourceIPv6AssociationRead
 	ipv6Association.Update = resourceIPv6AssociationUpdate

@@ -301,11 +301,12 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		ttl = uint32(tempTTL)
 	} else if tempTTL == ttlUndef {
 		tempTTL = 0
-		useTtl = true
+		useTtl = false
 	} else {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
+	enableDns := d.Get("enable_dns").(bool)
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -358,13 +359,18 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	enableDhcp := recIpV4Addr != nil && recIpV4Addr.EnableDhcp
-	if !enableDhcp {
+	if enableDhcp {
+		macAddr = recIpV4Addr.Mac
+	} else {
 		enableDhcp = recIpV6Addr != nil && recIpV6Addr.EnableDhcp
+		if enableDhcp {
+			duid = recIpV6Addr.Duid
+		}
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(
 		hostRecObj.Ref,
-		hostRecObj.EnableDns,
+		enableDns,
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
