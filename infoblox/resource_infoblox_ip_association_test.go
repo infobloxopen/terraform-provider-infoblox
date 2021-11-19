@@ -177,7 +177,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 				resource infoblox_ipv4_network "net1" {
     				cidr = "10.0.0.0/24"
 				}
-				resource "infoblox_ip_allocation" "foo"{
+				resource "infoblox_ip_allocation" "foo" {
 					network_view="default"
 					fqdn="testhostname.test.com"
 					ipv4_addr="10.0.0.12"
@@ -189,9 +189,10 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					})
+					depends_on = [infoblox_ipv4_network.net1]
 				}
 
-				resource "infoblox_ip_association" "foo"{
+				resource "infoblox_ip_association" "foo" {
                   internal_id = infoblox_ip_allocation.foo.internal_id
 				  enable_dhcp = true
 				  mac_addr = "11:22:33:44:55:66"
@@ -221,7 +222,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 				resource infoblox_ipv6_network "net2" {
 					cidr = "2001::/56"
 				}
-				resource "infoblox_ip_allocation" "foo"{
+				resource "infoblox_ip_allocation" "foo" {
 					network_view="default"
 					fqdn="testhostname.test.com"
 					ipv4_addr="10.0.0.12"
@@ -235,9 +236,10 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"Location" = "Test loc."
 						"Site" = "Test site"
 					})
+					depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
 				}
 	
-				resource "infoblox_ip_association" "foo"{
+				resource "infoblox_ip_association" "foo" {
 	              enable_dhcp = true
 				  mac_addr = "11:22:33:44:55:66"
 				  duid = "22:44:66"
@@ -245,6 +247,109 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 				}`
 	expName2 := "infoblox_ip_association.foo"
 	expContent2 := ibclient.NewHostRecord(
+		"default",
+		"testhostname.test.com",
+		"", "",
+		[]ibclient.HostRecordIpv4Addr{
+			*ibclient.NewHostRecordIpv4Addr(
+				"10.0.0.12",
+				"11:22:33:44:55:66",
+				true, "")},
+		[]ibclient.HostRecordIpv6Addr{
+			*ibclient.NewHostRecordIpv6Addr(
+				"2001::10",
+				"22:44:66",
+				true, "")},
+		nil,
+		false, "default",
+		"", "",
+		true, 0,
+		"10.0.0.12 IP is allocated",
+		[]string{})
+
+	config3 := `
+				resource infoblox_ipv4_network "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource infoblox_ipv6_network "net2" {
+					cidr = "2001::/56"
+				}
+				resource "infoblox_ip_allocation" "foo" {
+					network_view="default"
+					fqdn="testhostname.test.com"
+					ipv4_addr="10.0.0.12"
+					ipv6_addr="2001::10"
+					enable_dns = "false"
+					comment = "10.0.0.12 IP is allocated"
+					ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						"VM Name" =  "tf-ec2-instance"
+						"Location" = "Test loc."
+						"Site" = "Test site"
+					})
+					depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+				}
+	
+				resource "infoblox_ip_association" "foo" {
+	              enable_dhcp = true
+				  mac_addr = "11:22:33:44:55:66"
+				  duid = "22:44:66"
+	              internal_id = infoblox_ip_allocation.foo.internal_id
+				}`
+	expName3 := "infoblox_ip_association.foo"
+	expContent3 := ibclient.NewHostRecord(
+		"default",
+		"testhostname.test.com",
+		"", "",
+		[]ibclient.HostRecordIpv4Addr{
+			*ibclient.NewHostRecordIpv4Addr(
+				"10.0.0.12",
+				"11:22:33:44:55:66",
+				true, "")},
+		[]ibclient.HostRecordIpv6Addr{
+			*ibclient.NewHostRecordIpv6Addr(
+				"2001::10",
+				"22:44:66",
+				true, "")},
+		nil,
+		false, "default",
+		"", "",
+		false, 0,
+		"10.0.0.12 IP is allocated",
+		[]string{})
+
+	config4 := `
+				resource infoblox_ipv4_network "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource infoblox_ipv6_network "net2" {
+					cidr = "2001::/56"
+				}
+				resource "infoblox_ip_allocation" "foo" {
+					network_view="default"
+					fqdn="testhostname.test.com"
+					ipv4_addr="10.0.0.12"
+					ipv6_addr="2001::10"
+					enable_dns = "false"
+					comment = "10.0.0.12 IP is allocated"
+					ttl=10
+					ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						"VM Name" =  "tf-ec2-instance"
+						"Location" = "Test loc."
+						"Site" = "Test site"
+					})
+					depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+				}
+	
+				resource "infoblox_ip_association" "foo" {
+	              enable_dhcp = true
+				  mac_addr = "11:22:33:44:55:66"
+				  duid = "22:44:66"
+	              internal_id = infoblox_ip_allocation.foo.internal_id
+				}`
+	expName4 := "infoblox_ip_association.foo"
+	expContent4 := ibclient.NewHostRecord(
 		"default",
 		"testhostname.test.com",
 		"", "",
@@ -277,6 +382,14 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			{
 				Config: fmt.Sprintf(config2),
 				Check:  validateIPAssociation(expName2, expContent2),
+			},
+			{
+				Config: fmt.Sprintf(config3),
+				Check:  validateIPAssociation(expName3, expContent3),
+			},
+			{
+				Config: fmt.Sprintf(config4),
+				Check:  validateIPAssociation(expName4, expContent4),
 			},
 		},
 	})
