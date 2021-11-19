@@ -124,6 +124,9 @@ func getHTTPResponseError(resp *http.Response) error {
 	content, _ := ioutil.ReadAll(resp.Body)
 	msg := fmt.Sprintf("WAPI request error: %d('%s')\nContents:\n%s\n", resp.StatusCode, resp.Status, content)
 	log.Printf(msg)
+	if resp.StatusCode == http.StatusNotFound {
+		return NewNotFoundError(msg)
+	}
 	return errors.New(msg)
 }
 

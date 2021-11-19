@@ -76,4 +76,3 @@ func (objMgr *ObjectManager) UpdateTXTRecord(recordname string, text string) (*R
 func (objMgr *ObjectManager) DeleteTXTRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
-

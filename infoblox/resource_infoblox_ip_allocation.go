@@ -358,14 +358,14 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		recIpV6Addr = &hostRecObj.Ipv6Addrs[0]
 	}
 
-	enableDhcp := recIpV4Addr != nil && recIpV4Addr.EnableDhcp
-	if enableDhcp {
+	enableDhcp := false
+	if enableDhcpV4 := recIpV4Addr != nil && recIpV4Addr.EnableDhcp; enableDhcpV4 {
 		macAddr = recIpV4Addr.Mac
-	} else {
-		enableDhcp = recIpV6Addr != nil && recIpV6Addr.EnableDhcp
-		if enableDhcp {
-			duid = recIpV6Addr.Duid
-		}
+		enableDhcp = true
+	}
+	if enableDhcpV6 := recIpV6Addr != nil && recIpV6Addr.EnableDhcp; enableDhcpV6 {
+		duid = recIpV6Addr.Duid
+		enableDhcp = true
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(
@@ -426,6 +426,10 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		tenantID = tempVal.(string)
 	}
 
+	if d.Id() == "" {
+		log.Printf("WARNING: getting an error while determining ID of the resource to be cleanned up (probably non-existent resource, continuing): ): %s", err)
+		return nil
+	}
 	_, ref, err := getAltIdFields(d.Id())
 	if err != nil {
 		return err

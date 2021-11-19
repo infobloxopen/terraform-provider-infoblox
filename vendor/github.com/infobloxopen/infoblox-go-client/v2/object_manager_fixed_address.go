@@ -164,4 +164,3 @@ func (objMgr *ObjectManager) ReleaseIP(netview string, cidr string, ipAddr strin
 func (objMgr *ObjectManager) DeleteFixedAddress(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
-

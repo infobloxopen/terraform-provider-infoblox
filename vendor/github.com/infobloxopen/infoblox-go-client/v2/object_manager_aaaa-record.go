@@ -154,4 +154,3 @@ func (objMgr *ObjectManager) UpdateAAAARecord(
 	}
 	return recordAAAA, nil
 }
-

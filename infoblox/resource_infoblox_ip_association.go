@@ -160,8 +160,8 @@ func resourceIpAssociationCreateUpdateCommon(
 		hostRec.Ea, []string{})
 	if err != nil {
 		return fmt.Errorf(
-			"failed to update the host record with ID '%s': %s",
-			d.Id(), err.Error())
+			"failed to update the resource with ID '%s' (host record with internal ID '%s'): %s",
+			d.Id(), internalId, err.Error())
 	}
 
 	if d.Id() == "" {

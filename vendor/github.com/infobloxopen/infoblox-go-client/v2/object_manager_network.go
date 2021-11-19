@@ -120,4 +120,3 @@ func (objMgr *ObjectManager) UpdateNetwork(
 func (objMgr *ObjectManager) DeleteNetwork(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
-
