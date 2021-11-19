@@ -177,4 +177,3 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 	recordPTR, err = objMgr.GetPTRRecordByRef(reference)
 	return recordPTR, err
 }
-

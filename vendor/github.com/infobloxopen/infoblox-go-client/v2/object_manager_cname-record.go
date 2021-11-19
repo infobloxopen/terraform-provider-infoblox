@@ -76,4 +76,3 @@ func (objMgr *ObjectManager) UpdateCNAMERecord(
 	recordCNAME, err = objMgr.GetCNAMERecordByRef(updatedRef)
 	return recordCNAME, err
 }
-

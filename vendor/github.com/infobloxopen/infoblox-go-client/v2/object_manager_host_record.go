@@ -168,7 +168,6 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 	recordHostIpv4AddrSlice := []HostRecordIpv4Addr{}
 	recordHostIpv6AddrSlice := []HostRecordIpv6Addr{}
 
-
 	enableDhcpv4 := false
 	enableDhcpv6 := false
 	if ipv6Addr != "" {
@@ -254,4 +253,3 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 func (objMgr *ObjectManager) DeleteHostRecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
-

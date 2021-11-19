@@ -164,4 +164,3 @@ func (objMgr *ObjectManager) GetARecordByRef(ref string) (*RecordA, error) {
 func (objMgr *ObjectManager) DeleteARecord(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
 }
-

@@ -101,4 +101,3 @@ func BuildIPv6NetworkFromRef(ref string) (*Network, error) {
 
 	return newNet, nil
 }
-
