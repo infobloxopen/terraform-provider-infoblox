@@ -17,17 +17,17 @@ func resourceTXTRecord() *schema.Resource {
 		Delete: resourceTXTRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the TXT record.",
 			},
-			"text": &schema.Schema{
+			"text": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The text for the record to contain.",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
@@ -92,7 +92,6 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(*ibclient.Connector)
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	// fqdn
 
 	recordTXT, err := objMgr.CreateTXTRecord(
 		recordName,
@@ -109,7 +108,7 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(recordTXT.Ref)
 
 	log.Printf("[DEBUG] %s: Creation of TXT Record complete", resourceTXTRecordIDString(d))
-	return resourceTXTRecordGet(d, m)
+	return nil
 }
 
 func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
