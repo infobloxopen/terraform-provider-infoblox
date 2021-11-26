@@ -17,7 +17,7 @@ import (
 // Common parameters
 const (
 	ttlUndef            = math.MinInt32
-	eaNameForInternalId = "_terraform_internal_id"
+	eaNameForInternalId = "Terraform Internal ID"
 	altIdSeparator      = "|"
 )
 
