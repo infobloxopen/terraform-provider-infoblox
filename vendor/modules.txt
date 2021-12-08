@@ -146,7 +146,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/plugin
 github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211119055343-741a1cd7c839
+# github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211119055343-741a1cd7c839 => ../infoblox-go-client
 ## explicit
 github.com/infobloxopen/infoblox-go-client/v2
 # github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
@@ -382,3 +382,4 @@ google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
 google.golang.org/protobuf/types/pluginpb
+# github.com/infobloxopen/infoblox-go-client/v2 => ../infoblox-go-client

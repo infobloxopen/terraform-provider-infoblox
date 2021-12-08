@@ -2,6 +2,8 @@ module github.com/infobloxopen/terraform-provider-infoblox
 
 go 1.15
 
+replace github.com/infobloxopen/infoblox-go-client/v2 => ../infoblox-go-client
+
 require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.3

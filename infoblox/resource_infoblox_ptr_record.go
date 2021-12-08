@@ -210,7 +210,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		ttl = uint32(tempTTL)
 	} else if tempTTL == ttlUndef {
 		tempTTL = 0
-		useTtl = true
+		useTtl = false
 	} else {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}

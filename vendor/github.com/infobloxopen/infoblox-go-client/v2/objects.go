@@ -540,7 +540,7 @@ type RecordPTR struct {
 func NewEmptyRecordPTR() *RecordPTR {
 	res := RecordPTR{}
 	res.objectType = "record:ptr"
-	res.returnFields = []string{"extattrs", "ipv4addr", "ipv6addr", "ptrdname", "view", "zone", "comment", "use_ttl", "ttl"}
+	res.returnFields = []string{"extattrs", "ipv4addr", "ipv6addr", "name", "ptrdname", "view", "zone", "comment", "use_ttl", "ttl"}
 
 	return &res
 }

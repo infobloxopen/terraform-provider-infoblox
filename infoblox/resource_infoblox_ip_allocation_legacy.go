@@ -111,7 +111,7 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 		ttl = uint32(tempTTL)
 	} else if tempTTL == ttlUndef {
 		tempTTL = 0
-		useTtl = true
+		useTtl = false
 	} else {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
@@ -241,7 +241,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		ttl = uint32(tempTTL)
 	} else if tempTTL == ttlUndef {
 		tempTTL = 0
-		useTtl = true
+		useTtl = false
 	} else {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}

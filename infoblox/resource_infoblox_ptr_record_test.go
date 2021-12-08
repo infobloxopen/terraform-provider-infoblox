@@ -168,7 +168,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					&ibclient.RecordPTR{
 						View:     "default",
 						PtrdName: "testPtrdName.test.com",
-						Name:     "testName",
+						Name:     "testname.test.com",
 						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
 						Ea: ibclient.EA{
@@ -199,7 +199,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					&ibclient.RecordPTR{
 						View:     "default",
 						PtrdName: "testPtrdName2.test.com",
-						Name:     "testName2",
+						Name:     "testname2.test.com",
 						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
 						Ea: ibclient.EA{
@@ -232,6 +232,8 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 						View:     "default",
 						PtrdName: "testPtrdName2.test.com",
 						Ipv4Addr: "10.0.0.2",
+						Name:     "2.0.0.10.in-addr.arpa",
+						Zone:     "0.0.10.in-addr.arpa",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -263,6 +265,8 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 						View:     "default",
 						PtrdName: "testPtrdName3.test.com",
 						Ipv4Addr: "10.0.0.3",
+						Name:     "3.0.0.10.in-addr.arpa",
+						Zone:     "0.0.10.in-addr.arpa",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -292,6 +296,8 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 						View:     "default",
 						PtrdName: "testPtrdName3.test.com",
 						Ipv4Addr: "10.0.0.4",
+						Name:     "4.0.0.10.in-addr.arpa",
+						Zone:     "0.0.10.in-addr.arpa",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
