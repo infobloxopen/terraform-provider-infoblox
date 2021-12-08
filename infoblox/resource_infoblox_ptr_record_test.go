@@ -9,64 +9,6 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-var testAccresourceRecordPTRCreate = fmt.Sprintf(`
-resource "infoblox_ptr_record" "foo"{
-    dns_view="default"
-	ptrdname="testPtrdName.test.com"
-	record_name="testName.test.com"
-	comment="PTR record created in forward mapping zone"
-	ext_attrs = jsonencode({
-		"Tenant ID" = "terraform_test_tenant"
-		"Location" = "Test loc"
-		"Site" = "Test site"
-		"TestEA1"=["text1","text2"]
-	  })
-}`)
-
-var testAccresourceRecordPTRCreate_2 = fmt.Sprintf(`
-resource "infoblox_ptr_record" "foo2"{
-	network_view="default"
-    dns_view="default"
-	ptrdname="testPtrdName2.test.com"
-	ip_addr = "10.0.0.2"
-	comment="PTR record created in reverse mapping zone with IP"
-	ext_attrs=jsonencode({
-		"Tenant ID"="terraform_test_tenant"
-		"Location"="Test loc."
-		"Site"="Test site"
-		"TestEA1"=["text1","text2"]
-	  })
-}`)
-
-var testAccresourceRecordPTRUpdate = fmt.Sprintf(`
-resource "infoblox_ptr_record" "foo"{
-	dns_view="default"
-	ptrdname="testPtrdName.test.com"
-	record_name="testName.test.com"
-	comment="PTR record created in forward mapping zone"
-	ext_attrs = jsonencode({
-		"Tenant ID" = "terraform_test_tenant"
-		"Location" = "Test loc"
-		"Site" = "Test site"
-		"TestEA1" = ["text1","text2"]
-	  })
-}`)
-
-var testAccresourceRecordPTRUpdate_2 = fmt.Sprintf(`
-resource "infoblox_ptr_record" "foo2"{
-	network_view = "default"
-	dns_view="default"
-	ptrdname="testPtrdName2.test.com"
-	ip_addr = "10.0.0.2"
-	comment="PTR record created in reverse mapping zone with IP"
-	ext_attrs = jsonencode({
-		"Tenant ID"="terraform_test_tenant"
-		"Location"="Test loc."
-		"Site"="Test site"
-		"TestEA1"=["text1","text2"]
-	  })
-}`)
-
 func validateRecordPTR(
 	resourceName string,
 	expectedValue *ibclient.RecordPTR) resource.TestCheckFunc {
@@ -107,6 +49,56 @@ func validateRecordPTR(
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
 				recPtr.Comment, expComment)
+		}
+
+		expName := expectedValue.Name
+		if recPtr.Name != expName {
+			return fmt.Errorf(
+				"the value of 'name' field is '%s', but expected '%s'",
+				recPtr.Name, expName)
+		}
+
+		expUseTtl := expectedValue.UseTtl
+		if recPtr.UseTtl != expUseTtl {
+			return fmt.Errorf(
+				"the value of 'use_ttl' field is '%t', but expected '%t'",
+				recPtr.UseTtl, expUseTtl)
+		}
+		if expUseTtl {
+			expTtl := expectedValue.Ttl
+			if recPtr.Ttl != expTtl {
+				return fmt.Errorf(
+					"the value of 'ttl' field is '%d', but expected '%d'",
+					recPtr.Ttl, expTtl)
+			}
+		}
+
+		expView := expectedValue.View
+		if recPtr.View != expView {
+			return fmt.Errorf(
+				"the value of 'view' field is '%s', but expected '%s'",
+				recPtr.View, expView)
+		}
+
+		expZone := expectedValue.Zone
+		if recPtr.Zone != expZone {
+			return fmt.Errorf(
+				"the value of 'zone' field is '%s', but expected '%s'",
+				recPtr.Zone, expZone)
+		}
+
+		expIpv4Addr := expectedValue.Ipv4Addr
+		if recPtr.Ipv4Addr != expIpv4Addr {
+			return fmt.Errorf(
+				"the value of 'ipv4addr' field is '%s', but expected '%s'",
+				recPtr.Ipv4Addr, expIpv4Addr)
+		}
+
+		expIpv6Addr := expectedValue.Ipv6Addr
+		if recPtr.Ipv6Addr != expIpv6Addr {
+			return fmt.Errorf(
+				"the value of 'ipv6addr' field is '%s', but expected '%s'",
+				recPtr.Ipv6Addr, expIpv6Addr)
 		}
 
 		// the rest is about extensible attributes
@@ -158,7 +150,19 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 		CheckDestroy: testAccCheckRecordPTRDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccresourceRecordPTRCreate,
+				Config: `
+					resource "infoblox_ptr_record" "foo"{
+						dns_view="default"
+						ptrdname="testPtrdName.test.com"
+						record_name="testName.test.com"
+						comment="PTR record created in forward mapping zone"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc"
+							"Site" = "Test site"
+							"TestEA1"=["text1","text2"]
+						  })
+					}`,
 				Check: validateRecordPTR(
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
@@ -177,18 +181,30 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccresourceRecordPTRUpdate,
+				Config: `
+					resource "infoblox_ptr_record" "foo"{
+						dns_view="default"
+						ptrdname="testPtrdName2.test.com"
+						record_name="testName2.test.com"
+						comment="PTR record created in forward mapping zone"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc2"
+							"Site" = "Test site"
+							"TestEA1" = ["text1","text2"]
+						  })
+					}`,
 				Check: validateRecordPTR(
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName.test.com",
-						Name:     "testName",
+						PtrdName: "testPtrdName2.test.com",
+						Name:     "testName2",
 						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
-							"Location":  "Test loc",
+							"Location":  "Test loc2",
 							"Site":      "Test site",
 							"TestEA1":   []string{"text1", "text2"},
 						},
@@ -196,7 +212,20 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccresourceRecordPTRCreate_2,
+				Config: `
+					resource "infoblox_ptr_record" "foo2"{
+						network_view="default"
+						dns_view="default"
+						ptrdname="testPtrdName2.test.com"
+						ip_addr = "10.0.0.2"
+						comment="PTR record created in reverse mapping zone with IP"
+						ext_attrs=jsonencode({
+							"Tenant ID"="terraform_test_tenant"
+							"Location"="Test loc."
+							"Site"="Test site"
+							"TestEA1"=["text1","text2"]
+						  })
+					}`,
 				Check: validateRecordPTR(
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
@@ -214,18 +243,60 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccresourceRecordPTRUpdate_2,
+				Config: `
+					resource "infoblox_ptr_record" "foo2"{
+						network_view = "default"
+						dns_view="default"
+						ptrdname="testPtrdName3.test.com"
+						ip_addr = "10.0.0.3"
+						comment="PTR record created in reverse mapping zone with IP"
+						ext_attrs = jsonencode({
+							"Tenant ID"="terraform_test_tenant"
+							"Location"="Test loc."
+							"Site"="Test site2"
+							"TestEA1"=["text1","text2"]
+						  })
+					}`,
 				Check: validateRecordPTR(
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName2.test.com",
-						Ipv4Addr: "10.0.0.2",
+						PtrdName: "testPtrdName3.test.com",
+						Ipv4Addr: "10.0.0.3",
 						Comment:  "PTR record created in reverse mapping zone with IP",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc.",
-							"Site":      "Test site",
+							"Site":      "Test site2",
+							"TestEA1":   []string{"text1", "text2"},
+						},
+					},
+				),
+			},
+			{
+				Config: `
+					resource "infoblox_ptr_record" "foo2"{
+						ptrdname="testPtrdName3.test.com"
+						record_name = "4.0.0.10.in-addr.arpa"
+						comment="PTR record created in reverse mapping zone with IP"
+						ext_attrs = jsonencode({
+							"Tenant ID"="terraform_test_tenant"
+							"Location"="Test loc."
+							"Site"="Test site2"
+							"TestEA1"=["text1","text2"]
+						  })
+					}`,
+				Check: validateRecordPTR(
+					"infoblox_ptr_record.foo2",
+					&ibclient.RecordPTR{
+						View:     "default",
+						PtrdName: "testPtrdName3.test.com",
+						Ipv4Addr: "10.0.0.4",
+						Comment:  "PTR record created in reverse mapping zone with IP",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Location":  "Test loc.",
+							"Site":      "Test site2",
 							"TestEA1":   []string{"text1", "text2"},
 						},
 					},
