@@ -25,7 +25,9 @@ func (objMgr *ObjectManager) CreatePTRRecord(
 	}
 	recordPTR := NewRecordPTR(dnsView, ptrdname, useTtl, ttl, comment, eas)
 
-	if ipAddr == "" && cidr != "" {
+	if recordName != "" {
+		recordPTR.Name = recordName
+	} else if ipAddr == "" && cidr != "" {
 		if networkView == "" {
 			networkView = "default"
 		}
@@ -51,8 +53,6 @@ func (objMgr *ObjectManager) CreatePTRRecord(
 		} else {
 			recordPTR.Ipv6Addr = ipAddr
 		}
-	} else if recordName != "" {
-		recordPTR.Name = recordName
 	} else {
 		return nil, fmt.Errorf("CIDR and network view are required to allocate a next available IP address\n" +
 			"IP address is required to create PTR record in reverse mapping zone\n" +
@@ -131,42 +131,44 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 	recordPTR.Name = name
 	isIPv6, _ := regexp.MatchString(`^record:ptr/.+.ip6.arpa/.+`, ref)
 
-	if ipAddr == "" {
-		if cidr != "" {
-			ipAddress, _, err := net.ParseCIDR(cidr)
-			if err != nil {
-				return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+	if name == "" {
+		if ipAddr == "" {
+			if cidr != "" {
+				ipAddress, _, err := net.ParseCIDR(cidr)
+				if err != nil {
+					return nil, fmt.Errorf("cannot parse CIDR value: %s", err.Error())
+				}
+				if netview == "" {
+					netview = "default"
+				}
+				if isIPv6 {
+					if ipAddress.To4() != nil || ipAddress.To16() == nil {
+						return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
+					}
+					recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+				} else {
+					if ipAddress.To4() == nil {
+						return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+					}
+					recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+				}
 			}
-			if netview == "" {
-				netview = "default"
+		} else {
+			ipAddress := net.ParseIP(ipAddr)
+			if ipAddress == nil {
+				return nil, fmt.Errorf("IP address for the record is not valid")
 			}
 			if isIPv6 {
 				if ipAddress.To4() != nil || ipAddress.To16() == nil {
-					return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
+					return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
 				}
-				recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+				recordPTR.Ipv6Addr = ipAddr
 			} else {
 				if ipAddress.To4() == nil {
-					return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
+					return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
 				}
-				recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+				recordPTR.Ipv4Addr = ipAddr
 			}
-		}
-	} else {
-		ipAddress := net.ParseIP(ipAddr)
-		if ipAddress == nil {
-			return nil, fmt.Errorf("IP address for the record is not valid")
-		}
-		if isIPv6 {
-			if ipAddress.To4() != nil || ipAddress.To16() == nil {
-				return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
-			}
-			recordPTR.Ipv6Addr = ipAddr
-		} else {
-			if ipAddress.To4() == nil {
-				return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
-			}
-			recordPTR.Ipv4Addr = ipAddr
 		}
 	}
 	reference, err := objMgr.connector.UpdateObject(recordPTR, ref)
