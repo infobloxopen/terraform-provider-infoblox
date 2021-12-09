@@ -15,9 +15,14 @@ func (objMgr *ObjectManager) CreateCNAMERecord(
 		return nil, fmt.Errorf("canonical name and record name fields are required to create a CNAME record")
 	}
 	recordCNAME := NewRecordCNAME(dnsview, canonical, recordname, useTtl, ttl, comment, eas, "")
-
+	if err != nil {
+		return nil, err
+	}
 	ref, err := objMgr.connector.CreateObject(recordCNAME)
 	recordCNAME, err = objMgr.GetCNAMERecordByRef(ref)
+	if err != nil {
+		return nil, err
+	}
 	return recordCNAME, err
 }
 
