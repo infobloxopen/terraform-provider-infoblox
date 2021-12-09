@@ -17,13 +17,13 @@ func (objMgr *ObjectManager) CreateCNAMERecord(
 	recordCNAME := NewRecordCNAME(dnsview, canonical, recordname, useTtl, ttl, comment, eas, "")
 
 	ref, err := objMgr.connector.CreateObject(recordCNAME)
-        if err != nil {
-                return nil, err
-        }
+	if err != nil {
+		return nil, err
+	}
 	recordCNAME, err = objMgr.GetCNAMERecordByRef(ref)
-        if err != nil {
-                return nil, err
-        }
+	if err != nil {
+		return nil, err
+	}
 	return recordCNAME, err
 }
 
