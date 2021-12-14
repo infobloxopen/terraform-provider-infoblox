@@ -170,10 +170,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if tempTTL >= 0 {
 		useTtl = true
 		ttl = uint32(tempTTL)
-	} else if tempTTL == ttlUndef {
-		ttl = 0
-		useTtl = false
-	} else {
+	} else if tempTTL != ttlUndef {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
@@ -299,10 +296,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	if tempTTL >= 0 {
 		useTtl = true
 		ttl = uint32(tempTTL)
-	} else if tempTTL == ttlUndef {
-		tempTTL = 0
-		useTtl = false
-	} else {
+	} else if tempTTL != ttlUndef {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
