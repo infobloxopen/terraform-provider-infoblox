@@ -353,13 +353,15 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	enableDhcp := false
-	if enableDhcpV4 := recIpV4Addr != nil && recIpV4Addr.EnableDhcp; enableDhcpV4 {
+
+	if recIpV4Addr != nil {
 		macAddr = recIpV4Addr.Mac
-		enableDhcp = true
+		enableDhcp = recIpV4Addr.EnableDhcp
 	}
-	if enableDhcpV6 := recIpV6Addr != nil && recIpV6Addr.EnableDhcp; enableDhcpV6 {
+
+	if recIpV6Addr != nil {
 		duid = recIpV6Addr.Duid
-		enableDhcp = true
+		enableDhcp = recIpV6Addr.EnableDhcp
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(

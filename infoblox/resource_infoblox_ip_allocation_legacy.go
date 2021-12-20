@@ -240,7 +240,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		useTtl = true
 		ttl = uint32(tempTTL)
 	} else if tempTTL == ttlUndef {
-		tempTTL = 0
+		ttl = 0
 		useTtl = false
 	} else {
 		return fmt.Errorf("TTL value must be 0 or higher")
