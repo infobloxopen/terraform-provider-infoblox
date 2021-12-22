@@ -159,13 +159,14 @@ func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	duid := d.Get("duid").(string)
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	comment := d.Get("comment").(string)
@@ -243,14 +244,16 @@ func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 b
 	duid := d.Get("duid").(string)
 
 	var ttl uint32
-	tempVal, useTtl := d.GetOk("ttl")
-	if useTtl {
-		tempTtl := tempVal.(int)
-		if tempTtl < 0 {
-			return fmt.Errorf("TTL value must be 0 or higher")
-		}
-		ttl = uint32(tempTtl)
+	useTtl := false
+	tempVal := d.Get("ttl")
+	tempTTL := tempVal.(int)
+	if tempTTL >= 0 {
+		useTtl = true
+		ttl = uint32(tempTTL)
+	} else if tempTTL != ttlUndef {
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
+
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
