@@ -176,6 +176,114 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 	})
 }
 
+func TestAcc_resourceipAssociation_ipv4_2(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIPAssocDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					resource infoblox_ipv4_network "net1" {
+					  cidr = "10.3.0.0/24"
+					}
+					
+					resource infoblox_ipv4_allocation "alloc1" {
+					  fqdn = "host1.test.com"
+					  ip_addr = "10.3.0.5"
+					  ttl = 10
+					  
+					  depends_on = [infoblox_ipv4_network.net1]
+					}
+					
+					resource infoblox_ipv4_association "assoc1" {
+					  mac_addr = "01:23:91:af:0c:bf"
+					  ip_addr = infoblox_ipv4_allocation.alloc1.ip_addr
+					  fqdn = infoblox_ipv4_allocation.alloc1.fqdn
+					  ttl = infoblox_ipv4_allocation.alloc1.ttl
+					}`,
+				Check: validateIPAssoc(
+					"infoblox_ipv4_association.assoc1",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "host1.test.com",
+						Ipv4Addr:    "10.3.0.5",
+						Ttl:         10,
+						UseTtl:      true,
+						Ea:          ibclient.EA{},
+					},
+				),
+			},
+			{
+				Config: `
+					resource infoblox_ipv4_network "net1" {
+					  cidr = "10.3.0.0/24"
+					}
+					
+					resource infoblox_ipv4_allocation "alloc1" {
+					  fqdn = "host1.test.com"
+					  ip_addr = "10.3.0.5"
+					  ttl = 0
+					  
+					  depends_on = [infoblox_ipv4_network.net1]
+					}
+					
+					resource infoblox_ipv4_association "assoc1" {
+					  mac_addr = "01:23:91:af:0c:bf"
+					  ip_addr = infoblox_ipv4_allocation.alloc1.ip_addr
+					  fqdn = infoblox_ipv4_allocation.alloc1.fqdn
+					  ttl = infoblox_ipv4_allocation.alloc1.ttl
+					}`,
+				Check: validateIPAssoc(
+					"infoblox_ipv4_association.assoc1",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "host1.test.com",
+						Ipv4Addr:    "10.3.0.5",
+						Ttl:         0,
+						UseTtl:      true,
+						Ea:          ibclient.EA{},
+					},
+				),
+			},
+			{
+				Config: `
+					resource infoblox_ipv4_network "net1" {
+					  cidr = "10.3.0.0/24"
+					}
+					
+					resource infoblox_ipv4_allocation "alloc1" {
+					  fqdn = "host1.test.com"
+					  ip_addr = "10.3.0.5"
+					  
+					  depends_on = [infoblox_ipv4_network.net1]
+					}
+					
+					resource infoblox_ipv4_association "assoc1" {
+					  mac_addr = "01:23:91:af:0c:bf"
+					  ip_addr = infoblox_ipv4_allocation.alloc1.ip_addr
+					  fqdn = infoblox_ipv4_allocation.alloc1.fqdn
+					  ttl = infoblox_ipv4_allocation.alloc1.ttl
+					}`,
+				Check: validateIPAssoc(
+					"infoblox_ipv4_association.assoc1",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						Name:        "host1.test.com",
+						Ipv4Addr:    "10.3.0.5",
+						Ttl:         0,
+						UseTtl:      false,
+						Ea:          ibclient.EA{},
+					},
+				),
+			},
+		},
+	})
+}
+
 func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
