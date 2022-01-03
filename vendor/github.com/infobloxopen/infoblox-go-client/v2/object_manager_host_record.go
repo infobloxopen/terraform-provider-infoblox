@@ -91,12 +91,12 @@ func (objMgr *ObjectManager) SearchHostRecordByAltId(
 	if recordHost.Ref != "" {
 		return recordHost, nil
 	}
-	recordHost.eaSearch = map[string]interface{}{
-		eaNameForInternalId: internalId,
+	sf := map[string]string{
+		fmt.Sprintf("*%s", eaNameForInternalId): internalId,
 	}
 
 	res := make([]HostRecord, 0)
-	err := objMgr.connector.GetObject(recordHost, "", NewQueryParams(false, nil), &res)
+	err := objMgr.connector.GetObject(recordHost, "", NewQueryParams(false, sf), &res)
 
 	if err != nil {
 		return nil, err
