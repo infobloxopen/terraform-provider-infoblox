@@ -64,7 +64,7 @@ func resourceIpAssoc() *schema.Resource {
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Default:     ttlUndef,
 				Description: "TTL attribute value for the record.",
 			},
 			"comment": {
