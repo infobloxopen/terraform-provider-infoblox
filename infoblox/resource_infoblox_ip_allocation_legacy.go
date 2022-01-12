@@ -28,12 +28,6 @@ func resourceIPAlloc() *schema.Resource {
 				Default:     true,
 				Description: "flag that defines if the host record is to be used for DNS Purposes.",
 			},
-			"enable_dhcp": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "flag that defines if the host record is to be used for IPAM Purposes.",
-			},
 			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -45,16 +39,6 @@ func resourceIPAlloc() *schema.Resource {
 				Description: "IP address of cloud instance." +
 					"Set a valid IP for static allocation and leave empty if dynamically allocated.",
 				Computed: true,
-			},
-			"mac_addr": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "MAC Address of cloud instance.",
-			},
-			"duid": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "DHCP unique identifier for IPv6.",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
@@ -87,19 +71,12 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 	networkView := d.Get("network_view").(string)
 	dnsView := d.Get("dns_view").(string)
 	enableDns := d.Get("enable_dns").(bool)
-	enableDhcp := d.Get("enable_dhcp").(bool)
 	fqdn := d.Get("fqdn").(string)
 
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
 		return fmt.Errorf("'ipAddr' or 'cidr' mandatory for allocation through Host Address Record creation")
-	}
-	duid := d.Get("duid").(string)
-	macAddr := d.Get("mac_addr").(string)
-	ZeroMacAddr := "00:00:00:00:00:00"
-	if macAddr == "" {
-		macAddr = ZeroMacAddr
 	}
 
 	var ttl uint32
@@ -135,13 +112,13 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 	if isIPv6 {
 		hostRec, err := objMgr.CreateHostRecord(
 			enableDns,
-			enableDhcp,
+			false,
 			fqdn,
 			networkView,
 			dnsView,
 			"", cidr,
 			"", ipAddr,
-			"", duid,
+			"", "",
 			useTtl, ttl,
 			comment,
 			extAttrs, []string{})
@@ -156,13 +133,13 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 	} else {
 		hostRec, err := objMgr.CreateHostRecord(
 			enableDns,
-			enableDhcp,
+			false,
 			fqdn,
 			networkView,
 			dnsView,
 			cidr, "",
 			ipAddr, "",
-			macAddr, "",
+			"", "",
 			useTtl, ttl,
 			comment,
 			extAttrs, []string{})
@@ -213,7 +190,6 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 	enableDns := d.Get("enable_dns").(bool)
-	enableDhcp := d.Get("enable_dhcp").(bool)
 	fqdn := d.Get("fqdn").(string)
 
 	cidr := d.Get("cidr").(string)
@@ -225,9 +201,6 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	if !d.HasChange("cidr") {
 		cidr = ""
 	}
-
-	duid := d.Get("duid").(string)
-	macAddr := d.Get("mac_addr").(string)
 
 	var ttl uint32
 	useTtl := false
@@ -256,17 +229,39 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	var (
+		recIpV4Addr   *ibclient.HostRecordIpv4Addr
+		recIpV6Addr   *ibclient.HostRecordIpv6Addr
+		macAddr, duid string
+	)
+
 	// Retrive the IP of Host or Fixed Address record.
 	// When IP is allocated using cidr and an empty IP is passed for updation
+	hostRecObj, err := objMgr.GetHostRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("error while getting the host record with ID '%s': %s", d.Id(), err.Error())
+	}
+	if len(hostRecObj.Ipv4Addrs) > 0 {
+		recIpV4Addr = &hostRecObj.Ipv4Addrs[0]
+	}
+	if len(hostRecObj.Ipv6Addrs) > 0 {
+		recIpV6Addr = &hostRecObj.Ipv6Addrs[0]
+	}
+
+	enableDhcp := false
+	if recIpV4Addr != nil {
+		macAddr = recIpV4Addr.Mac
+		enableDhcp = recIpV4Addr.EnableDhcp
+	} else if recIpV6Addr != nil {
+		duid = recIpV6Addr.Duid
+		enableDhcp = recIpV6Addr.EnableDhcp
+	}
+
 	if cidr == "" && ipAddr == "" {
-		hostRecObj, err := objMgr.GetHostRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("error while getting the host record with ID '%s': %s", d.Id(), err.Error())
-		}
 		if isIPv6 {
-			ipAddr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
+			ipAddr = recIpV6Addr.Ipv6Addr
 		} else {
-			ipAddr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
+			ipAddr = recIpV4Addr.Ipv4Addr
 		}
 	}
 
