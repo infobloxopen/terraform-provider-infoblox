@@ -3,7 +3,7 @@ resource "infoblox_ipv4_network" "external_ipv4_pool" {
   comment = "the pool to allocate external IPv4 addresses"
   cidr = local.external_ipv4_pool
   reserve_ip = local.external_ipv4_pool_reserve_ip
-//  gateway = local.external_ipv4_pool_gateway
+  gateway = local.external_ipv4_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "external network pool 1"
     "Location" = "DMZ perimeter"
@@ -15,7 +15,7 @@ resource "infoblox_ipv6_network" "external_ipv6_pool" {
   comment = "the pool to allocate external IPv6 addresses"
   cidr = local.external_ipv6_pool
   reserve_ip = local.external_ipv4_pool_reserve_ip
-//  gateway = local.external_ipv6_pool_gateway
+  gateway = local.external_ipv6_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "external network pool 2"
   })

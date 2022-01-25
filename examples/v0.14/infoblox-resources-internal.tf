@@ -3,7 +3,7 @@ resource "infoblox_ipv4_network" "internal_ipv4_pool" {
   comment = "the pool to allocate internal IPv4 addresses"
   cidr = local.internal_ipv4_pool
   reserve_ip = local.internal_ipv4_pool_reserve_ip
-//  gateway = local.internal_ipv4_pool_gateway
+  gateway = local.internal_ipv4_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "internal network pool 1"
   })
@@ -14,7 +14,7 @@ resource "infoblox_ipv6_network" "internal_ipv6_pool" {
   comment = "the pool to allocate internal IPv6 addresses"
   cidr = local.internal_ipv6_pool
   reserve_ip = local.internal_ipv4_pool_reserve_ip
-//  gateway = local.internal_ipv6_pool_gateway
+  gateway = local.internal_ipv6_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "internal network pool 2"
   })
