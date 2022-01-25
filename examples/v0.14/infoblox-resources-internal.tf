@@ -1,37 +1,29 @@
-resource "infoblox_network_view" "internal" {
-  name = "${nios_name_prefix} internal network view"
-  comment = "network view which contains data for serving internal requests"
-  ext_attrs = jsonencode({
-    Location = "The whole Internet"
-  })
-}
-
 resource "infoblox_ipv4_network" "internal_ipv4_pool" {
-  network_view = infoblox_network_view.internal.name
+  network_view = local.internal_netview_name
   comment = "the pool to allocate internal IPv4 addresses"
   cidr = local.internal_ipv4_pool
   reserve_ip = local.internal_ipv4_pool_reserve_ip
-  gateway = local.internal_ipv4_pool_gateway
+//  gateway = local.internal_ipv4_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "internal network pool 1"
   })
 }
 
 resource "infoblox_ipv6_network" "internal_ipv6_pool" {
-  network_view = infoblox_network_view.internal.name
+  network_view = local.internal_netview_name
   comment = "the pool to allocate internal IPv6 addresses"
   cidr = local.internal_ipv6_pool
   reserve_ip = local.internal_ipv4_pool_reserve_ip
-  gateway = local.internal_ipv6_pool_gateway
+//  gateway = local.internal_ipv6_pool_gateway
   ext_attrs = jsonencode({
     "Network Name" = "internal network pool 2"
   })
 }
 
 resource "infoblox_ip_allocation" "internal_ip_allocation_reception_1" {
-  network_view = infoblox_network_view.internal.name
-  fqdn = "reception-1.${default_internal_dns_zone}"
-  dns_view = "default" // If the name is "default" then may be omitted.
+  network_view = local.internal_netview_name
+  fqdn = "reception-1.${local.default_internal_dns_zone}"
+  dns_view = local.internal_default_dnsview
   enable_dns = true // It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
@@ -45,9 +37,9 @@ resource "infoblox_ip_association" "internal_ip_association_reception_1" {
 }
 
 resource "infoblox_ip_allocation" "internal_ip_allocation_reception_2" {
-  network_view = infoblox_network_view.internal.name
-  fqdn = "reception-2.${default_internal_dns_zone}"
-  dns_view = "default" // If the name is "default" then may be omitted.
+  network_view = local.internal_netview_name
+  fqdn = "reception-2.${local.default_internal_dns_zone}"
+  dns_view = local.internal_default_dnsview
   enable_dns = true // It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
@@ -61,9 +53,9 @@ resource "infoblox_ip_association" "internal_ip_association_reception_2" {
 }
 
 resource "infoblox_ip_allocation" "internal_ip_allocation_user_1" {
-  network_view = infoblox_network_view.internal.name
-  fqdn = "user-1.${default_internal_dns_zone}"
-  dns_view = "default" // If the name is "default" then may be omitted.
+  network_view = local.internal_netview_name
+  fqdn = "user-1.${local.default_internal_dns_zone}"
+  dns_view = local.internal_default_dnsview
   enable_dns = true // It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
@@ -77,9 +69,9 @@ resource "infoblox_ip_association" "internal_ip_association_user_1" {
 }
 
 resource "infoblox_ip_allocation" "internal_ip_allocation_user_2" {
-  network_view = infoblox_network_view.internal.name
-  fqdn = "user-2.${default_internal_dns_zone}"
-  dns_view = "default" // If the name is "default" then may be omitted.
+  network_view = local.internal_netview_name
+  fqdn = "user-2.${local.default_internal_dns_zone}"
+  dns_view = local.internal_default_dnsview
   enable_dns = true // It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
@@ -93,6 +85,7 @@ resource "infoblox_ip_association" "internal_ip_association_user_2" {
 }
 
 resource "infoblox_a_record" "websrv_addr_rec" {
-  vm_name = local.internal_web_server
+  dns_view = local.internal_default_dnsview
+  fqdn = local.internal_web_server
   ip_addr = local.internal_web_server_ipv4_addr
 }
