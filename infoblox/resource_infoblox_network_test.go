@@ -13,6 +13,8 @@ var testAccresourceIPv4NetworkCreate = fmt.Sprintf(`
 resource "infoblox_ipv4_network" "foo"{
 	network_view="default"
 	cidr="10.10.0.0/24"
+    reserve_ip = 5
+    gateway = "10.10.0.250"
 	comment = "10.0.0.0/24 network created"
 	ext_attrs = jsonencode({
 		"Network Name"= "demo-network"
