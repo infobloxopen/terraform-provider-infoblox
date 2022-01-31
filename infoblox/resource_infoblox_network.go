@@ -51,6 +51,7 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 				Description: "Gateway's IP address of the network. By default, the first IP address is set as gateway address; if the value is 'none' then the network has no gateway.",
 				Computed:    true,
+				// TODO: implement full support for this field
 			},
 			"comment": {
 				Type:        schema.TypeString,
@@ -200,7 +201,13 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(obj.Ref)
 	return nil
 }
-func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
+
+	defer func() {
+		if err != nil {
+			d.Partial(true)
+		}
+	}()
 
 	networkViewName := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
@@ -212,13 +219,16 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("reserve_ip") {
 		return fmt.Errorf("changing the value of 'reserve_ip' field is not allowed")
 	}
+	if d.HasChange("reserve_ipv6") {
+		return fmt.Errorf("changing the value of 'reserve_ipv6' field is not allowed")
+	}
 	if d.HasChange("gateway") {
 		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
 	}
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+		if err = json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
 			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
@@ -240,8 +250,6 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	if commentFieldFound {
 		comment = commentVal.(string)
 	}
-
-	var err error
 
 	Network, err = objMgr.UpdateNetwork(d.Id(), extAttrs, comment)
 	if err != nil {
