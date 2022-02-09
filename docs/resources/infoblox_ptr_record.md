@@ -1,44 +1,51 @@
-# PTR-record
+# PTR-record Resource
 
-PTR records can be created in forward and reverse mapping zones.
+The `infoblox_ptr_record` resource allows you to create PTR-records in forward- and reverse-mapping zones. In case of reverse-mapping zone, the PTR-record maps IP addresses with domain names.
 
-When a PTR record is created in forward mapping zones we need both
-'ptrdname' and 'record_name'. Respective forward mapping zone has to be
-in place at the appropriate DNS view.
+The following list describes the parameters you can define for the `infoblox_ptr_record` resource block:
 
-When a PTR record is created in a reverse mapping zone it maps between
-IP addresses and domain name; in other words, which domain name
-corresponds to the given IP address. The attributes for the resource
-are: network_view, cidr, ip_address, dns_view, ptrdname,
-record_name, ttl. 'ptrdname' is required, others are optional from
-Terraform's point of view. Consider the table of the attributes:
+* `ptrdname`: required, specifies the domain name in the FQDN format to which the record should point to. Example: `host1.example.com`.
+* `ip_addr`: required only for static allocation, specifies the IPv4 or IPv6 address for record creation. Example: `82.50.36.8`.
+    * For allocating a static IP address, specify a valid IP address.
+    * For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
+* `cidr`: required only for dynamic allocation, specifies the network address in CIDR format, under which the record must be created. For static allocation, do not use this field. Instead, define the `ip_addr` field. Example: `10.3.128.0/20`.
+* `network_view`: required only for dynamic allocation, specifies the network view to use when allocating an IP address from a network dynamically. For static allocation, do not use this field. Example: `netview1`.
+* `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the default DNS view is considered. Example: `external_dnsview`.
+* `ttl`: optional, time to live value for the PTR-record. The parameter does not have a default value. If you do not specify a value, the TTL value is inherited from Grid DNS properties. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `10`.
+* `record_name`: required only in case of forward-mapping zones, the domain name in FQDN; actual name of the record. Example: `service1.zone21.org`.
+* `comment`: optional, describes the PTR-record. Example: `some unknown host`.
+* `ext_attrs`: optional, a set of NIOS extensible attributes that are attached to the PTR-record. Example: `jsonencode({})`.
 
-| Attribute | Required/optional | Description | Example |
-| --- | --- | --- | --- |
-| ptrdname | required | The domain name in FQDN to which the record should point to. | host1.example.com |
-| ip_address | required for static allocation, see the description | IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. For dynamic allocation, leave this field empty and set the 'cidr' field. This field should be left empty in case PTR-record is to be created in a forward-mapping zone.| 82.50.36.8 |
-cidr | required for dynamic allocation, see the description | The network address, in CIDR format, under which the record has to be created. | 10.3.128.0/20 |
-network_view | see the description | Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty. | tenant 16 |
-dns_view | optional | DNS view which the zone does exist within. | district-4 |
-record_name | see the description | The domain name in FQDN, actual name of the record. For creating a PTR-record in a forward-mapping zone. | service1.zone21.org |
+-> When creating the PTR-record in a forward-mapping zone, `ptrdname` and `record_name` parameters are required, and `network_view` is optional. The corresponding forward-mapping zone must have been already created at the appropriate DNS view.
 
-## Example
+-> When creating the PTR-record in a reverse-mapping zone, the combination of `ptrdname`, `ip_addr`, and `network_view` parameters, or `ptrdname`, `cidr`, and `network_view` parameters is required.
 
-    resource "infoblox_ptr_record" "ptr_rr_1" {
-      ptrdname = "vm1.test.com"
-      dns_view = "default" # the same as omitting it
-    
-      # Record in forward mapping zone
-      record_name = "vm1.test.com"
-    
-      # Record in reverse mapping zone
-    
-      # network_view = "default" # we can comment it out,
-                                 # because this is the default value.
-    
-      # ip_addr is not defined, thus cidr is required.
-      cidr = "10.2.3.0/24" # an IP address will be allocated.
-    
-      comment = "PTR record 1"
-      ext_attrs = jsonencode({}) # Just an example of an empty EA set.
-    }
+### Example of the PTR-record Resource
+
+```hcl
+resource "infoblox_ptr_record" "ptr_rr_1" {
+  ptrdname = "vm1.test.com"
+  dns_view = "default" # the same as omitting it
+
+  # Record in forward mapping zone
+  record_name = "vm1.test.com"
+
+  # Record in reverse mapping zone
+
+  # network_view = "default" # we can comment it out,
+                             # because this is the default value.
+
+  # ip_addr is not defined, thus cidr is required.
+  cidr = "infoblox_ipv4_network.ipv4_network.cidr" # an IPv4 address will be allocated.
+  # an IPv6 address will be allocated. 
+  # cidr = "infoblox_ipv6_network.ipv6_network.cidr" 
+
+  comment = "PTR record 1"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Cloud API Owned" = "True"
+    "CMP Type"= "VMware"
+    "Site" = "Nevada" 
+  }) 
+}
+```

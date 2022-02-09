@@ -1,56 +1,105 @@
-# IP address allocation
+# IP Allocation Resource
 
-'infoblox_ipv4_allocation' and 'infoblox_ipv6_allocation' resources
-allow allocation of the next available IP address from a specified
-network block. Creation of an 'infoblox_*_allocation' resource
-actually creates a NIOS Host record, with an IP address assigned to it;
-the IP address is thereby marked as 'used' in appropriate network block.
-The IP address may be specified directly in the resource's definition,
-or allocated automatically (using special form 'func:nextavailableip').
-Its attributes are:
+The `infoblox_ip_allocation` resource allows allocation of a new IP address from a network that already exists as a NIOS object. The IP address can be allocated statically by specifying an address or dynamically as the next available IP address from the specified IPv4 and/or IPv6 network blocks.
+The allocation is done by creating a Host record in NIOS with an IPv4 address, an IPv6 address, or both assigned to the record. The allocated IP address is marked as ‘used’ in the appropriate network block.
 
-| Attribute | Required/optional | Description | Example |
-| --- | --- | --- | --- |
-| fqdn | required | Specifies a domain name of a host which an IP address is to be allocated for. In FQDN format. A VM name in a cloud environment usually may be used as such a host name. | ip-12-34-56-78.us-west-2.compute.internal | 
-| network_view | optional | Network view to get the specified network block from. If not specified, ‘default’ network view is used. | dmz_netview |
-| dns_view       | optional | DNS view to create DNS resource records associated with the IP address. If omitted, the value ‘default’ is used. Makes sense only if ‘enable_dns’ is ‘true’. | internal_network |
-| enable_dns     | optional | A flag that specifies whether it is needed to create DNS records associated with the resource. The default value is ‘true’. | true |
-| enable_dhcp    | optional | A flag that specifies whether to enable DHCP-related functionality for this resource. The default value is ‘false’. | false |
-| cidr            | required for dynamic allocation, see the description | The network block (in CIDR format) where to allocate an IP address from. Used for dynamic allocation; in this case ‘ip_addr’ attribute is empty or omitted. | 10.4.3.128/20 2a00:1148::/32 |
-| ip_addr         | required for static allocation, see the description | An IP address to be allocated (marked as ‘Used’). For static allocation, in which case the ‘cidr’ attribute has to be empty or omitted. | 10.4.3.138 |
-| mac_addr       | optional        | Only for IPv4. The MAC address to associate the IP address with. The default value is ‘00:00:00:00:00:00’. | 02:42:97:87:70:f9 |
-| duid            | required        | Only for IPv6. DHCPv6 Unique Identifier (DUID) of the address object. | 0c:c0:84:d3:03:00:09:12 | 
-| ttl             | optional        | The same as for DNS-related resources. This attribute’s value makes sense only when ‘enable_dns’ is ‘true’. If omitted, the value of this attribute is the same as for the parent zone of the DNS records for the resource. | 3600 |
+-> As a prerequisite for creation of Host records using the `infoblox_ip_allocation` and `infoblox_ip_association` resources, you must create the extensible attribute `Terraform Internal ID` of string type in Infoblox NIOS Grid Manager. For steps, refer to the [Infoblox NIOS Documentation] (https://docs.infoblox.com/display/ILP/NIOS).
 
-> **Warning! If a host record with enable_dns = true
-> has a name as FQDN, and then a user does an update
-> making enable_dns = false, then the name of the host
-> record MUST be changed to the form of just a name,
-> without the zone part. Example: test.example.com -> test**
+The following list describes the parameters you can define in the `infoblox_ip_allocation` resource block:
 
-> **Note: Currently there is no support for multiple
-> IP addresses for a host record.**
+* `fqdn`: required, specifies the name (in FQDN format) of a host with which an IP address needs to be allocated.
+  In a cloud environment, a VM name could be used as a host name. Example: ` ip-12-34-56-78.us-west-2.compute.internal`.
+* `network_view`: optional, specifies the network view from which to get the specified network block.
+  If a value is not specified, the default network view configured in NIOS is used. Example: `dmz_netview`.
+* `dns_view`: optional, specifies the DNS view in which to create the DNS resource records that are associated with the IP address. If a value is not specified, the default DNS view configured in NIOS is used. This parameter is relevant only if `enable_dns` is set to `true`. Example: `external`.
+* `enable_dns`: optional, a flag that specifies whether DNS records associated with the resource must be created. The default value is `true`.
+* `ipv4_cidr`: required only for dynamic allocation, specifies the IPv4 network block (in CIDR format) from where to allocate an IP address. Use this parameter only when `ipv4_addr` is not specified. Example: `10.0.0.0/24`.
+* `ipv6_cidr`: required only for dynamic allocation, specifies the IPv6 network block (in CIDR format) from where to allocate an IP address. Use this parameter only when `ipv6_addr` is not specified. Example: `2000:1148::/32`.
+* `ipv4_addr`: required only for static allocation, specifies an IPv4 address to allocate. Use this parameter only when `ipv4_cidr` is not specified. The allocated IP address will be marked as ‘Used’ in NIOS Grid Manager. Example: `10.0.0.10`.
+* `ipv6_addr`: required only for static allocation, specifies an IPv6 address to allocate. Use this parameter only when `ipv6_cidr` is not specified. The allocated IP address will be marked as ‘Used’ in NIOS Grid Manager. Example: `2000:1148::10`.
+* `ttl`: optional, specifies the time to live value for the DNS record. This parameter is relevant only when `enable_dns` is set to `true`. If a value is not specified, the value is inherited from the parent zone of the DNS records for this resource. Example: `3600`.
+* `comment`: optional, human readable description of the resource. Example: `Front-end cloud node`.
+* `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the NIOS resource. An extensible attribute must be a JSON map translated into a string value. Example:
+```
+jsonencode({
+  "Tenant ID" = "tf-plugin"
+  "Location" = "Test loc."
+  "Site" = "Test site"
+})
+```
 
-## Example
+-> For a Host record with its name in FQDN format and the `enable_dns` flag enabled, if you disable the flag, you must remove the zone part from the record name and only keep the host name.
+For example: `hostname1.zone.com` must be changed to `hostname1`.
 
-    resource "infoblox_ipv4_allocation" "alloc1" {
-      network_view="edge"
-      cidr="172.30.11.0/24 # this is to allocate
-                           # an IP address from the given network block
-      dns_view="default" # may be commented out
-      fqdn="honeypot-vm.edge.example.com"
-      enable_dns = "false"
-      enable_dhcp = "false"
-      comment = "A honeypot VM for malicious queries."
-    }
-    
-    resource "infoblox_ipv6_allocation" "alloc2" {
-      network_view="edge"
-      cidr="2a00:1148::/64" # this is to allocate
-                            # an IP address from the given network block
-      fqdn="honeypot-vm.edge.example.com"
-      duid = "0c:c0:84:d3:03:00:09:12"
-      enable_dns = "false"
-      enable_dhcp = "false"
-      comment = "A honeypot VM for malicious queries."
-    }
+When you use the `infoblox_ip_allocation` resource block to allocate or deallocate a static IP address from a Host record, you must configure appropriate dependencies so that workflows run in the correct order. In the following example, dependencies have been configured for network view and the extensible attribute, `Network Name`:
+
+```hcl
+resource "infoblox_ip_allocation" "ip_allocation" {
+  network_view = infoblox_ipv6_network.ipv6_network.network_view
+  ipv4_addr = "10.0.0.32"
+  ipv6_addr = "2001:1890:1959:2710::32"
+
+  #Create Host Record with DNS flags
+  dns_view="default"
+  fqdn="testipv4v6"
+  enable_dns = "false"
+
+  ext_attrs = jsonencode({
+    "Tenant ID" = "tf-plugin"
+    "Network Name" = lookup(jsondecode(infoblox_ipv4_network.ipv4_network.ext_attrs), "Network Name")
+    "VM Name" = "tf-vmware-ipv4-ipv61"
+    "Location" = "Test loc."
+    "Site" = "Test site"
+  })
+}
+```
+
+When you perform a create or an update operation using this allocation resource, the following read-only parameters are computed:
+
+* `internal_id`: an ID generated by Terraform for the created resource. This ID is referenced by the `infoblox_ip_association` resource to identify the NIOS object created by the allocation resource.
+
+-> As this is a read-only field, you must not configure it as part of a resource block in a .tf file, or edit its value in the Terraform .state file.
+
+* `allocated_ipv4_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv4 CIDR. If you allocated a static IP address, this value is the IP address that you specified in the `ipv4_addr` field. You can reference this field for the IP address when using other resources. Example:
+```hcl
+resource "infoblox_ip_aloocation" "allocation1" {
+  ipv4_cidr = infoblox_ipv4_network.cidr
+  fqdn = local.vm_name
+}
+# You can add a reference for the IP address as follows: infoblox_ip_allocation.allocation1.allocated_ipv4_addr
+```
+
+* `allocated_ipv6_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv6 CIDR. If you allocated a static IP address, this value is the IP address that you specified `ipv6_addr` field.
+  You can reference this field for the IP address when using other resources. See the previous description for an example.
+
+### Example of the Resource Block
+
+```hcl
+resource "infoblox_ip_allocation" "ipv4v6" {
+  ipv4_cidr = infoblox_ipv4_network.cidr
+  ipv6_addr = "2001:1890:1959:2710::32"
+
+  #Create Host Record with DNS flags
+  fqdn="testipv4v6"
+  enable_dns = "false"
+
+  }
+
+
+resource "infoblox_ip_allocation" "ip_allocation" {
+  ipv4_addr = "20.0.0.10"
+  ipv6_addr = "2000::10"    
+
+  fqdn="testipNew.example.com"
+  enable_dns = "true"  
+
+  comment = "tf IPv4 and ipv6 allocation"
+  ext_attrs = jsonencode({
+     "Tenant ID" = "tf-plugin"
+      "Network Name" = "tf-network"
+      "VM Name" =  "tf-ec2-instance"
+      "Location" = "Test loc2."
+      "Site" = "Test site"
+  })
+}
+```
