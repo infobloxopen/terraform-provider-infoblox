@@ -1,6 +1,8 @@
 # IPv4 Network Resource
 
-The `infoblox_ipv4_network` resource enables you to perform create, update, and delete operations on IPv4 networks. Network resources support the next available network feature by using the `allocate_prefix_len` parameter from the list the below.
+The `infoblox_ipv4_network` resource enables you to perform create, update and delete operations
+on IPv4 networks. Network resources support the next available network feature by using
+the `allocate_prefix_len` parameter from the list below.
 
 The following list describes the parameters you can define in a network resource block:
 

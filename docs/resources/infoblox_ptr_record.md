@@ -1,15 +1,15 @@
 # PTR-record Resource
 
-The `infoblox_ptr_record` resource allows you to create PTR-records in forward- and reverse-mapping zones. In case of reverse-mapping zone, the PTR-record maps IP addresses with domain names.
+The `infoblox_ptr_record` resource allows you to create PTR-records in forward-mapping and reverse-mapping zones. In case of reverse-mapping zone, the PTR-record maps IP addresses with domain names.
 
 The following list describes the parameters you can define for the `infoblox_ptr_record` resource block:
 
 * `ptrdname`: required, specifies the domain name in the FQDN format to which the record should point to. Example: `host1.example.com`.
-* `ip_addr`: required only for static allocation, specifies the IPv4 or IPv6 address for record creation. Example: `82.50.36.8`.
+* `ip_addr`: required only for static allocation, specifies the IPv4 or IPv6 address for record creation in reverse-mapping zone. Example: `82.50.36.8`.
     * For allocating a static IP address, specify a valid IP address.
     * For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
 * `cidr`: required only for dynamic allocation, specifies the network address in CIDR format, under which the record must be created. For static allocation, do not use this field. Instead, define the `ip_addr` field. Example: `10.3.128.0/20`.
-* `network_view`: required only for dynamic allocation, specifies the network view to use when allocating an IP address from a network dynamically. For static allocation, do not use this field. Example: `netview1`.
+* `network_view`: required only for dynamic allocation, specifies the network view to use when **allocating** an IP address from a network dynamically. For static allocation, do not use this field. Example: `netview1`.
 * `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the default DNS view is considered. Example: `external_dnsview`.
 * `ttl`: optional, time to live value for the PTR-record. The parameter does not have a default value. If you do not specify a value, the TTL value is inherited from Grid DNS properties. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `10`.
 * `record_name`: required only in case of forward-mapping zones, the domain name in FQDN; actual name of the record. Example: `service1.zone21.org`.

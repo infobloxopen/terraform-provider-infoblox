@@ -5,7 +5,7 @@ The `infoblox_aaaa_record` resource associates a domain name with an IPv6 addres
 The following list describes the parameters you can define in the resource block of the record:
 
 * `fqdn`: required, specifies the fully qualified domain name for which you want to assign the IP address to. Example: `host43.zone12.org`
-* `network_view`: optional, specifies the Network view to use when allocating an IP address from a network dynamically. For static allocation, do not use this field. Example: `networkview1`
+* `network_view`: optional, specifies the Network view to use when **allocating** an IP address from a network dynamically. For static allocation, do not use this field. Example: `networkview1`
 * `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the default DNS view is considered. Example: `dns_view_1`
 * `ttl`: optional, specifies the time to live value for the record. There is no default value for this parameter. If you do not specify a value, the TTL value is inherited from Grid DNS properties. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `600`
 * `comment`: optional, describes the record. Example: `static record #1`

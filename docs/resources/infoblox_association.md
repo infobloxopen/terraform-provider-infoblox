@@ -12,7 +12,7 @@ The following list describes the parameters you can define in the `infoblox_ip_a
 
 * `duid`: required only if the Host record has an IPv6 address, applies only for IPv6 addresses. It specifies the DHCPv6 Unique Identifier (DUID) of the address object. The default is an empty string. Example: `34:df:37:1a:d9:7f` (The DUID could be the same type of value as the MAC address of a network interface).
 
-!> If the Host record contains of an IPv6 address, you must enter a value in this field. Otherwise, NIOS returns an error when the association resource is created.
+!> If the Host record contains an IPv6 address, you must enter a value in this field. Otherwise, NIOS returns an error when the association resource is created.
 
 -> Currently, for a Host record with both IPv4 and IPv6 addresses, you can disable or enable DHCP for both the address types at the same time using the Terraform plug-in. If you want to disable DHCP for any one of the addresses when the flag is enabled (`enable_dhcp = "true"`), in the `infoblox_ip_association` resource block, comment out `mac_addr` to disable only the IPv4 address, or comment out `duid` to disable only the IPv6 address. If you want to enable DHCP for any one of the addresses when the flag is disabled (`enable_dhcp = "false"`), in the `infoblox_ip_association` resource block, set `enable_dhcp = "true"`, then comment out `mac_addr` to keep only the IPv6 address, or comment out the `duid` to keep only the IPv4 address. This causes the MAC address or DUID to be disassociated from the Host record at the NIOS side.
 
