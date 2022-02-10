@@ -208,6 +208,8 @@ github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211213023950-a7b7f78419
 github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211213023950-a7b7f78419e2/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
 github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211223082453-65ce67cf7cce h1:fjRpxdsZ0j5uurjFFb/voYCkp9Qfhe7L7zlRAKCYMG0=
 github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211223082453-65ce67cf7cce/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
+github.com/infobloxopen/infoblox-go-client/v2 v2.1.1 h1:NYnXOngwW4xMIgUz4bKJ1Ygsmq5K0OOdUEkuLlkR1Ag=
+github.com/infobloxopen/infoblox-go-client/v2 v2.1.1/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
