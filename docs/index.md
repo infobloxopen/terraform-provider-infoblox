@@ -16,8 +16,12 @@ There are resources for the following objects, supported by the plugin:
 Network container and network resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
 IP address allocation and IP address association with a network host
-(ex. VM in a cloud environment); they have two versions as well: IPv4
-and IPv6.
+(ex. VM in a cloud environment); they have three versions: IPv4
+and IPv6 separately, and IPv4/IPv6 combined.
+
+The recommendation is to avoid using separate IPv4 and IPv6 versions of
+IP allocation and IP association resources.
+This recommendation does not relate to network container and network-related resources.
 
 To work with DNS records a user must ensure that appropriate DNS zones
 exist on the NIOS side, because currently the plugin does not support
