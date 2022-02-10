@@ -1,5 +1,16 @@
 # Changelog
 
+## [v2.1.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.1.0) (2022-02-10)
+
+- Moved to Terraform Plugin SDK v2
+- Allocation/Association resources reworked:
+  - new resources added: infoblox_ipv_allocation and infoblox_ip_association;
+    both IPv4 and IPv6 addresses may be allocated within a single resource in one go.
+  - infoblox_ipv4_allocation, infoblox_ipv6_allocation, infoblox_ipv4_association and infoblox_ipv6_association
+    are deprecated and unsupported from now on.
+- Improvements in infoblox_ipv4_network and infoblox_ipv6_network resources: IP address reservation reworked.
+- Numerous bugfixes
+
 ## [v2.0.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.0.1) (2021-07-27)
 
 **List of changes since 1.0.6 release:**

@@ -4,23 +4,33 @@ Infoblox Go Client Release Notes
 
 .. contents:: Topics
 
+v2.1.1
+======
+
+This is just a bugfix release.
+
 v2.1.0
 ======
+
 Release Summary
 ---------------
+
 - Enhancements in Host Record functionality
 - Code refinements
 
 Minor Changes
 -------------
+
 - `SearchHostRecordByAltId` function to search Host Record By alternative ID from terraform.
 - The code for every record has been seperated and added under a new file.
 
 
 v2.0.0
 ======
+
 Release Summary
 ---------------
+
 Create, Update, Delete and Get operation on below records are being added or enhanced.
 
 - Network View with comment and EAs
@@ -38,10 +48,12 @@ Create, Update, Delete and Get operation on below records are being added or enh
 
 Minor Changes
 -------------
+
 - Added default value of network view in AllocateIP, CreateHostRecord and CreatePTRRecord Function
 
 Bugfixes
 -------------
+
 - IPv6 Support `#86 <https://github.com/infobloxopen/infoblox-go-client/issues/86>`_
 - Possibility to UPDATE a CNAME entry `#110 <https://github.com/infobloxopen/infoblox-go-client/issues/110>`_
 - Feature Request: Ability to add comments `#116 <https://github.com/infobloxopen/infoblox-go-client/issues/116>`_
