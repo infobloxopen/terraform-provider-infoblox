@@ -8,7 +8,7 @@ The following list describes the parameters you can define in a network resource
 * `cidr`: required only if `parent_cidr` is not set, specifies the network block to use for the network, in CIDR notation; do not use the IPv4 CIDR for IPv6 network and vice versa.
 * `parent_cidr`: required only if `cidr` is not set, specifies the network container from which the network must be dynamically allocated; the network container must exist in the NIOS database, but not necessarily as a Terraform resource.
 * `allocate_prefix_len`: required only if `parent_cidr` is set, defines the length of the network part of the address for a network that should be allocated from a network container, which in turn is determined by `parent_cidr`.
-* `gateway`: optional, represents the IP address of the gateway within the network block; if you do not specify an address, by default, the first IP address is set as the gateway address. For more information, see [Limitations] (#limitations).
+* `gateway`: optional, represents the IP address of the gateway within the network block; if a gateway IP address is configured, it will be displayed as "IPv4 Reservation".
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network.
 * `reserve_ip`: optional, specifies the number of IPv4 addresses that you want to reserve in the IPv4 network; the default value is 0.
 
@@ -35,7 +35,7 @@ resource "infoblox_ipv4_network" "nw1" {
     "Tenant ID" = "tf-plugin"
     "Cloud API Owned" = "True"
     "CMP Type"= "VMware"
-    "Site" = "Nevada" 
+    "Site" = "Nevada"
   })
 }
 
@@ -48,7 +48,7 @@ resource "infoblox_ipv4_network" "nw2" {
     "Tenant ID" = "tf-plugin"
     "Cloud API Owned" = "True"
     "CMP Type"= "VMware"
-     "Custom EA 1" = "category 14"
+    "Custom EA 1" = "category 14"
   })
 }
 ```

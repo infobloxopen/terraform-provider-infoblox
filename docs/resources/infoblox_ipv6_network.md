@@ -8,7 +8,7 @@ The following list describes the parameters you can define in a network resource
 * `cidr`: required only if `parent_cidr` is not set, specifies the network block to use for the network, in CIDR notation; do not use the IPv4 CIDR for IPv6 network and vice versa.
 * `parent_cidr`: required only if `cidr` is not set, specifies the network container from which the network must be dynamically allocated; the network container must exist in the NIOS database, but not necessarily as a Terraform resource.
 * `allocate_prefix_len`: required only if `parent_cidr` is set, defines the length of the network part of the address for a network that should be allocated from a network container, which in turn is determined by `parent_cidr`.
-* `gateway`: optional, represents the IP address of the gateway within the network block; if you do not specify an address, by default, the first IP address is set as the gateway address. For more information, see [Limitations] (#limitations).
+* `gateway`: optional, represents the IP address of the gateway within the network block; if a gateway IP address is configured, it will be displayed as "IPv6 Fixed Address".
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network.
 * `reserve_ipv6`: optional, specifies the number of IPv6 addresses that you want to reserve in the IPv6 network. The default value is 0.
 
@@ -66,7 +66,7 @@ resource "infoblox_ipv6_network" "nw3" {
   // we want to create a network with /64 hosts
   allocate_prefix_len = 64
 
-     // inside the network container "2a00:1148::/32"
+  // inside the network container "2a00:1148::/32"
   parent_cidr = "2a00:1148::/32"
 
   // in 'default' network view
