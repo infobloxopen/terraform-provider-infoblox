@@ -43,11 +43,11 @@ func (obj *IBBase) EaSearch() EASearch {
 }
 
 type NetworkView struct {
-	IBBase `json:"-"`
-	Ref    string `json:"_ref,omitempty"`
-	Name   string `json:"name,omitempty"`
+	IBBase  `json:"-"`
+	Ref     string `json:"_ref,omitempty"`
+	Name    string `json:"name,omitempty"`
 	Comment string `json:"comment"`
-	Ea     EA     `json:"extattrs"`
+	Ea      EA     `json:"extattrs"`
 }
 
 func NewEmptyNetworkView() *NetworkView {
@@ -534,13 +534,13 @@ type RecordPTR struct {
 	Ea       EA     `json:"extattrs"`
 	UseTtl   bool   `json:"use_ttl"`
 	Ttl      uint32 `json:"ttl"`
-	Comment  string `json:"comment,omitempty"`
+	Comment  string `json:"comment"`
 }
 
 func NewEmptyRecordPTR() *RecordPTR {
 	res := RecordPTR{}
 	res.objectType = "record:ptr"
-	res.returnFields = []string{"extattrs", "ipv4addr", "ipv6addr", "ptrdname", "view", "zone", "comment", "use_ttl", "ttl"}
+	res.returnFields = []string{"extattrs", "ipv4addr", "ipv6addr", "name", "ptrdname", "view", "zone", "comment", "use_ttl", "ttl"}
 
 	return &res
 }
@@ -574,6 +574,7 @@ func NewEmptyRecordCNAME() *RecordCNAME {
 	res := &RecordCNAME{}
 	res.objectType = "record:cname"
 	res.returnFields = []string{"extattrs", "canonical", "name", "view", "zone", "comment", "ttl", "use_ttl"}
+
 	return res
 }
 
@@ -603,7 +604,7 @@ type HostRecordIpv4Addr struct {
 	IBBase     `json:"-"`
 	Ipv4Addr   string `json:"ipv4addr,omitempty"`
 	Ref        string `json:"_ref,omitempty"`
-	Mac        string `json:"mac,omitempty"`
+	Mac        string `json:"mac"`
 	View       string `json:"view,omitempty"`
 	Cidr       string `json:"network,omitempty"`
 	EnableDhcp bool   `json:"configure_for_dhcp"`
@@ -635,7 +636,7 @@ type HostRecordIpv6Addr struct {
 	IBBase     `json:"-"`
 	Ipv6Addr   string `json:"ipv6addr,omitempty"`
 	Ref        string `json:"_ref,omitempty"`
-	Duid       string `json:"duid,omitempty"`
+	Duid       string `json:"duid"`
 	View       string `json:"view,omitempty"`
 	Cidr       string `json:"network,omitempty"`
 	EnableDhcp bool   `json:"configure_for_dhcp"`
@@ -667,9 +668,9 @@ type HostRecord struct {
 	IBBase      `json:"-"`
 	Ref         string               `json:"_ref,omitempty"`
 	Ipv4Addr    string               `json:"ipv4addr,omitempty"`
-	Ipv4Addrs   []HostRecordIpv4Addr `json:"ipv4addrs,omitempty"`
+	Ipv4Addrs   []HostRecordIpv4Addr `json:"ipv4addrs"`
 	Ipv6Addr    string               `json:"ipv6addr,omitempty"`
-	Ipv6Addrs   []HostRecordIpv6Addr `json:"ipv6addrs,omitempty"`
+	Ipv6Addrs   []HostRecordIpv6Addr `json:"ipv6addrs"`
 	Name        string               `json:"name,omitempty"`
 	View        string               `json:"view,omitempty"`
 	Zone        string               `json:"zone,omitempty"`
@@ -685,7 +686,7 @@ type HostRecord struct {
 func NewEmptyHostRecord() *HostRecord {
 	res := &HostRecord{}
 	res.objectType = "record:host"
-	res.returnFields = []string{"extattrs", "ipv4addrs", "ipv6addrs", "name", "view", "zone", "comment", "network_view", "aliases", "use_ttl", "ttl"}
+	res.returnFields = []string{"extattrs", "ipv4addrs", "ipv6addrs", "name", "view", "zone", "comment", "network_view", "aliases", "use_ttl", "ttl", "configure_for_dns"}
 
 	return res
 }
@@ -735,8 +736,8 @@ type RecordTXT struct {
 	Ttl    uint   `json:"ttl,omitempty"`
 	View   string `json:"view,omitempty"`
 	Zone   string `json:"zone,omitempty"`
-	Ea     EA     `json:"extattrs,omitempty"`
-	UseTtl bool   `json:"use_ttl,omitempty"`
+	Ea     EA     `json:"extattrs"`
+	UseTtl bool   `json:"use_ttl"`
 }
 
 func NewRecordTXT(rt RecordTXT) *RecordTXT {

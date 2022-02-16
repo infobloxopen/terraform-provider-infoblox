@@ -2,38 +2,13 @@ package infoblox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
-
-var testAccresourceIPv4NetworkCreate = fmt.Sprintf(`
-resource "infoblox_ipv4_network" "foo"{
-	network_view="default"
-	cidr="10.10.0.0/24"
-	comment = "10.0.0.0/24 network created"
-	ext_attrs = jsonencode({
-		"Network Name"= "demo-network"
-		"Tenant ID" = "terraform_test_tenant"
-		"Location" = "Test loc."
-		"Site" = "Test site"
-	  })
-	}`)
-
-var testAccresourceIPv6NetworkCreate = fmt.Sprintf(`
-	resource "infoblox_ipv6_network" "foo"{
-		network_view="default"
-		cidr="2001:db8:abcd:12::/64"
-		comment = "2001:db8:abcd:12::/64 network created"
-		ext_attrs = jsonencode({
-			"Tenant ID" = "terraform_test_tenant"
-			"Network Name"= "demo-network"
-			"Location" = "Test loc."
-			"Site" = "Test site"
-		})
-	}`)
 
 func validateNetwork(
 	resourceName string,
@@ -119,6 +94,8 @@ func testAccCheckNetworkDestroy(s *terraform.State) error {
 	return nil
 }
 
+var updateNotAllowedErrorRegexp = regexp.MustCompile("changing the value of '.+' field is not allowed")
+
 func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -126,7 +103,20 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccresourceIPv4NetworkCreate,
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = jsonencode({
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  })
+						}`,
 				Check: validateNetwork(
 					"infoblox_ipv4_network.foo",
 					&ibclient.Network{
@@ -141,6 +131,76 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 					},
 				),
 			},
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 6
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = jsonencode({
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  })
+						}`,
+				ExpectError: updateNotAllowedErrorRegexp,
+			},
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 6
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = jsonencode({
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  })
+						}`,
+				// double-check that the next update (with the same changes) returns an error as well
+				// (in case the field to be updated is 'computed' and the main code do not clear it to the previous state)
+				ExpectError: updateNotAllowedErrorRegexp,
+			},
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.251"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = jsonencode({
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  })
+						}`,
+				ExpectError: updateNotAllowedErrorRegexp,
+			},
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.251"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = jsonencode({
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  })
+						}`,
+				ExpectError: updateNotAllowedErrorRegexp,
+			},
 		},
 	})
 }
@@ -152,7 +212,19 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccresourceIPv6NetworkCreate,
+				Config: `
+					resource "infoblox_ipv6_network" "foo"{
+						network_view="default"
+						cidr="2001:db8:abcd:12::/64"
+						reserve_ipv6 = 10
+						comment = "2001:db8:abcd:12::/64 network created"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+							"Network Name"= "demo-network"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						})
+					}`,
 				Check: validateNetwork(
 					"infoblox_ipv6_network.foo",
 					&ibclient.Network{
@@ -166,6 +238,38 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 						},
 					},
 				),
+			},
+			{
+				Config: `
+					resource "infoblox_ipv6_network" "foo"{
+						network_view="default"
+						cidr="2001:db8:abcd:12::/64"
+						reserve_ipv6 = 11
+						comment = "2001:db8:abcd:12::/64 network created"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+							"Network Name"= "demo-network"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						})
+					}`,
+				ExpectError: updateNotAllowedErrorRegexp,
+			},
+			{
+				Config: `
+					resource "infoblox_ipv6_network" "foo"{
+						network_view="default"
+						cidr="2001:db8:abcd:12::/64"
+						reserve_ipv6 = 11
+						comment = "2001:db8:abcd:12::/64 network created"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+							"Network Name"= "demo-network"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						})
+					}`,
+				ExpectError: updateNotAllowedErrorRegexp,
 			},
 		},
 	})

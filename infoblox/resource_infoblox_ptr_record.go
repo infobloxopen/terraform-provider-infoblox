@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -22,30 +22,32 @@ func resourcePTRRecord() *schema.Resource {
 				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The network address in cidr format under which record has to be created.",
 			},
-			"ip_addr": &schema.Schema{
+			"ip_addr": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
 				Description: "IPv4/IPv6 address for record creation. Set the field with valid IP for static allocation. If to be dynamically allocated set cidr field",
 			},
-			"dns_view": &schema.Schema{
+			"dns_view": {
 				Type:        schema.TypeString,
 				Default:     "default",
 				Optional:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"ptrdname": &schema.Schema{
+			"ptrdname": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The domain name in FQDN to which the record should point to.",
 			},
-			"record_name": &schema.Schema{
+			"record_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "",
 				Description: "The name of the DNS PTR record in FQDN format",
 			},
 			"ttl": {
@@ -130,6 +132,9 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
 
+	if err = d.Set("ip_addr", recordPTR.Ipv4Addr); err != nil {
+		return err
+	}
 	d.SetId(recordPTR.Ref)
 	return nil
 }
@@ -232,6 +237,9 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
 
+	if err = d.Set("ip_addr", recordPTRUpdated.Ipv4Addr); err != nil {
+		return err
+	}
 	d.SetId(recordPTRUpdated.Ref)
 	return nil
 }

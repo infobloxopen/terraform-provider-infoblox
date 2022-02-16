@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -49,8 +49,9 @@ func resourceNetwork() *schema.Resource {
 			"gateway": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Gateways's IP address of your network block. By default first IPv4 address is set as gateway address.",
+				Description: "Gateway's IP address of the network. By default, the first IP address is set as gateway address; if the value is 'none' then the network has no gateway.",
 				Computed:    true,
+				// TODO: implement full support for this field
 			},
 			"comment": {
 				Type:        schema.TypeString,
@@ -73,8 +74,12 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	parentCidr := d.Get("parent_cidr").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
-	reserveIP := d.Get("reserve_ip").(int)
+	reserveIPv4 := d.Get("reserve_ip").(int)
 	reserveIPv6 := d.Get("reserve_ipv6").(int)
+	if reserveIPv6 > 255 || reserveIPv6 < 0 {
+		return fmt.Errorf("reserve_ipv6 value must be in range 0..255")
+	}
+
 	gateway := d.Get("gateway").(string)
 
 	comment := d.Get("comment").(string)
@@ -97,7 +102,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	ZeroMacAddr := "00:00:00:00:00:00"
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	ea := make(map[string]interface{})
 
 	var network *ibclient.Network
 	var err error
@@ -122,42 +126,52 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
 	}
 
+	autoAllocateGateway := gateway == ""
+
+	if !autoAllocateGateway && gateway != "none" {
+		_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, ZeroMacAddr, "", "", nil)
+		if err != nil {
+			return fmt.Errorf(
+				"reservation of the IP address '%s' in network block '%s' from network view '%s' failed: %s",
+				gateway, network.Cidr, networkViewName, err.Error())
+		}
+	}
+
 	if isIPv6 {
-		// We need Zeroduid since AWS mandates first 3 IPv6 addresses to be reserved
-		Zeroduid := "00"
 		for i := 1; i <= reserveIPv6; i++ {
-			Zeroduid += ":00"
-			_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, Zeroduid, "", comment, ea)
+			reservedDuid := fmt.Sprintf("00:%.2x", i)
+			newAddr, err := objMgr.AllocateIP(
+				networkViewName, network.Cidr, "", isIPv6, reservedDuid, "", "", nil)
 			if err != nil {
-				return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
+				return fmt.Errorf(
+					"reservation in network block '%s' from network view '%s' failed: %s",
+					network.Cidr, networkViewName, err.Error())
+			}
+			if autoAllocateGateway && i == 1 {
+				gateway = newAddr.IPv4Address
 			}
 		}
 	} else {
-		// Check whether gateway or ip address already allocated
-		if gateway != "none" {
-			gatewayIP, err := objMgr.GetFixedAddress(networkViewName, network.Cidr, gateway, false, "")
-			if err == nil && gatewayIP != nil {
-				fmt.Printf("Gateway already created")
-			} else if gatewayIP == nil {
-				gatewayIP, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, ZeroMacAddr, "", comment, ea)
-				if err != nil {
-					return fmt.Errorf("Gateway Creation failed in network block(%s) error: %s", network.Cidr, err)
-				}
-			}
-			d.Set("gateway", gatewayIP.IPv4Address)
-		}
-
-		for i := 1; i <= reserveIP; i++ {
-			_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, ZeroMacAddr, "", comment, ea)
+		for i := 1; i <= reserveIPv4; i++ {
+			newAddr, err := objMgr.AllocateIP(
+				networkViewName, network.Cidr, "", isIPv6, ZeroMacAddr, "", "", nil)
 			if err != nil {
-				return fmt.Errorf("Reservation in network block failed in network view(%s):%s", networkViewName, err)
+				return fmt.Errorf(
+					"reservation in network block '%s' from network view '%s' failed: %s",
+					network.Cidr, networkViewName, err.Error())
+			}
+			if autoAllocateGateway && i == 1 {
+				gateway = newAddr.IPv4Address
 			}
 		}
-
 	}
+
+	d.Set("gateway", gateway)
 	d.SetId(network.Ref)
+
 	return nil
 }
+
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	networkViewName := d.Get("network_view").(string)
@@ -187,16 +201,34 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(obj.Ref)
 	return nil
 }
-func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
+
+	defer func() {
+		if err != nil {
+			d.Partial(true)
+		}
+	}()
 
 	networkViewName := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
+	if d.HasChange("cidr") {
+		return fmt.Errorf("changing the value of 'cidr' field is not allowed")
+	}
+	if d.HasChange("reserve_ip") {
+		return fmt.Errorf("changing the value of 'reserve_ip' field is not allowed")
+	}
+	if d.HasChange("reserve_ipv6") {
+		return fmt.Errorf("changing the value of 'reserve_ipv6' field is not allowed")
+	}
+	if d.HasChange("gateway") {
+		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
+	}
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+		if err = json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
 			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
@@ -218,8 +250,6 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	if commentFieldFound {
 		comment = commentVal.(string)
 	}
-
-	var err error
 
 	Network, err = objMgr.UpdateNetwork(d.Id(), extAttrs, comment)
 	if err != nil {

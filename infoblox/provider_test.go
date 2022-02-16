@@ -1,14 +1,14 @@
 package infoblox
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 type testCase struct {
@@ -18,21 +18,21 @@ type testCase struct {
 }
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"infoblox": testAccProvider,
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ = Provider()
 }
 
 func testAccPreCheck(t *testing.T) {
@@ -48,7 +48,7 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("INFOBLOX_SERVER must be set for acceptance tests")
 	}
 
-	os.Setenv("INFOBLOX_CLIENT_TIMEOUT", "60")
+	_ = os.Setenv("INFOBLOX_CLIENT_TIMEOUT", "60")
 }
 
 func runTestCases(t *testing.T, cases []testCase) {
