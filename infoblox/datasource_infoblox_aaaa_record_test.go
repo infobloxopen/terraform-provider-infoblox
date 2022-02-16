@@ -32,7 +32,7 @@ resource "infoblox_aaaa_record" "foo"{
 	ipv6_addr="2000::20"
 }
 
-data "infoblox_a_record" "acctest" {
+data "infoblox_aaaa_record" "acctest" {
 	dns_view="default"
 	fqdn=infoblox_aaaa_record.foo.fqdn
 	ipv6_addr=infoblox_aaaa_record.foo.ipv6_addr
