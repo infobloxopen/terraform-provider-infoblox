@@ -70,7 +70,7 @@ func Provider() *schema.Provider {
 			},
 			"password": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_PASSWORD", nil),
 				Description: "Password to authenticate with Infoblox server.",
 			},
@@ -137,6 +137,13 @@ func Provider() *schema.Provider {
 func providerConfigure(
 	ctx context.Context,
 	d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+
+	if d.Get("password") == "" {
+		return nil, diag.Diagnostics{diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Export the required INFOBLOX_PASSWORD environment variable to set the password.",
+		}}
+	}
 
 	seconds := int64(d.Get("connect_timeout").(int))
 	hostConfig := ibclient.HostConfig{
