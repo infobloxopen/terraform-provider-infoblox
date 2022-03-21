@@ -94,11 +94,11 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	recordTXT, err := objMgr.CreateTXTRecord(
+		dnsView,
 		recordName,
 		text,
-		dnsView,
-		useTtl,
 		ttl,
+		useTtl,
 		comment,
 		extAttrs)
 	if err != nil {
@@ -183,7 +183,7 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordTXTUpdated, err := objMgr.UpdateTXTRecord(d.Id(), recordName, text, useTtl, ttl, comment, extAttrs)
+	recordTXTUpdated, err := objMgr.UpdateTXTRecord(d.Id(), recordName, text, ttl, useTtl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("Updating of TXT Record from dns view %s failed : %s", dnsView, err.Error())
 	}
