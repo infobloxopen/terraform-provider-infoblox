@@ -204,6 +204,7 @@ func Provider() *schema.Provider {
 			"infoblox_aaaa_record":            resourceAAAARecord(),
 			"infoblox_cname_record":           resourceCNAMERecord(),
 			"infoblox_ptr_record":             resourcePTRRecord(),
+			"infoblox_zone_delegated":         resourceZoneDelegated(),
 			"infoblox_txt_record":             resourceTXTRecord(),
 			"infoblox_mx_record":              resourceMXRecord(),
 			"infoblox_srv_record":             resourceSRVRecord(),
