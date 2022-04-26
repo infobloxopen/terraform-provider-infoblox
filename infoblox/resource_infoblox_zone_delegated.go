@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -43,7 +45,7 @@ func resourceNameServer() *schema.Schema {
 			Schema: map[string]*schema.Schema{
 				"address": {
 					Type:        schema.TypeString,
-					Required:    true,
+					Computed:    true,
 					Description: "IP of Name Server",
 				},
 				"name": {
@@ -54,6 +56,27 @@ func resourceNameServer() *schema.Schema {
 			},
 		},
 	}
+}
+
+func computeDelegations(delegations []interface{}) ([]ibclient.NameServer, []map[string]interface{}, error) {
+
+	var nameServers []ibclient.NameServer
+	computedDelegations := make([]map[string]interface{}, 0)
+	for _, delegation := range delegations {
+		var ns ibclient.NameServer
+		var delegationMap = delegation.(map[string]interface{})
+		ns.Name = delegationMap["name"].(string)
+		lookupHosts, err := net.LookupHost(delegationMap["name"].(string))
+		if err != nil {
+			return nil, nil, fmt.Errorf("Failed to resolve delegate_to: %s", err.Error())
+		}
+		sort.Strings(lookupHosts)
+		ns.Address = lookupHosts[0]
+		delegationMap["address"] = ns.Address
+		nameServers = append(nameServers, ns)
+		computedDelegations = append(computedDelegations, delegationMap)
+	}
+	return nameServers, computedDelegations, nil
 }
 
 func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
@@ -69,14 +92,11 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 
 	delegatedFQDN := d.Get("fqdn").(string)
 
-	var nameServers []ibclient.NameServer
 	delegations := d.Get("delegate_to").(*schema.Set).List()
-	for _, delegation := range delegations {
-		var ns ibclient.NameServer
-		var delegationMap = delegation.(map[string]interface{})
-		ns.Address = delegationMap["address"].(string)
-		ns.Name = delegationMap["name"].(string)
-		nameServers = append(nameServers, ns)
+
+	nameServers, computedDelegations, err := computeDelegations(delegations)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -94,6 +114,8 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error creating Zone Delegated: %s", err)
 	}
+
+	d.Set("delegate_to", computedDelegations)
 
 	d.SetId(zoneDelegated.Ref)
 
@@ -158,14 +180,11 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	var nameServers []ibclient.NameServer
 	delegations := d.Get("delegate_to").(*schema.Set).List()
-	for _, delegation := range delegations {
-		var ns ibclient.NameServer
-		var delegationMap = delegation.(map[string]interface{})
-		ns.Address = delegationMap["address"].(string)
-		ns.Name = delegationMap["name"].(string)
-		nameServers = append(nameServers, ns)
+
+	nameServers, computedDelegations, err := computeDelegations(delegations)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -181,6 +200,8 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Updating of Zone Delegated failed : %s", err.Error())
 	}
+
+	d.Set("delegate_to", computedDelegations)
 
 	d.SetId(zoneDelegatedUpdated.Ref)
 	return nil
