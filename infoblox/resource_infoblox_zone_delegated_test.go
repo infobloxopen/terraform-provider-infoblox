@@ -2,6 +2,8 @@ package infoblox
 
 import (
 	"fmt"
+	"net"
+	"sort"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -39,6 +41,13 @@ func testAccZoneDelegatedCompare(t *testing.T, resPath string, expectedRec *ibcl
 		connector := meta.(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
+		lookupHosts, err := net.LookupHost(expectedRec.Nameserver)
+		if err != nil {
+			return fmt.Errorf("Failed to resolve delegate_to: %s", err.Error())
+		}
+		sort.Strings(lookupHosts)
+		expectedRec.Addresses = append(expectedRec.Addresses, ibclient.ZoneNameServer{Address: lookupHosts[0]})
+
 		rec, _ := objMgr.GetZoneDelegatedByRef(res.Primary.ID)
 		if rec == nil {
 			return fmt.Errorf("record not found")
@@ -75,15 +84,13 @@ func TestAccResourceZoneDelegated(t *testing.T) {
 						resource "infoblox_zone_delegated" "foo"{
 							fqdn="subdomain.test.com"
 							delegate_to {
-								address = "1.2.3.4"
-								name = "dns.test.com"
+								name = "ns2.infoblox.com"
 							}
 							}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccZoneDelegatedCompare(t, "infoblox_zone_delegated.foo", &ibclient.RecordNS{
 						Name:       "subdomain.test.com",
-						Addresses:  []ibclient.ZoneNameServer{ibclient.ZoneNameServer{Address: "1.2.3.4"}},
-						Nameserver: "dns.test.com",
+						Nameserver: "ns2.infoblox.com",
 					}),
 				),
 			},

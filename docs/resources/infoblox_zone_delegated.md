@@ -7,9 +7,12 @@ The following list describes the parameters you can define in the `infoblox_zone
 ## Argument Reference
 * `fqdn`: (Required) The subdomain name to be delegated
 * `delegate_to`: (Required) Nested block(s)s for the delegated name servers
-    * `address`: (Required) The IP address of the name server
     * `name`: (Required) The FQDN of the name server
 * `ext_attrs`: (Optional) A set of NIOS extensible attributes that are attached to the record, using jsonencode. Currently only "Tenant ID" is supported
+
+## Attribute Reference
+* `delegate_to`:
+    * `address`: The computed IP address for each delegated name server
 
 ## Example Usage
 
@@ -19,12 +22,10 @@ resource "infoblox_zone_delegated" "subdomain" {
   fqdn = "subdomain.test.com"
 
   delegate_to {
-    address = "205.251.197.208"
     name = "ns-1488.awsdns-58.org"
   }
 
   delegate_to {
-    address = "205.251.199.242"
     name = "ns-2034.awsdns-62.co.uk"
   }
 
