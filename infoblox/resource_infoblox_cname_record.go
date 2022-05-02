@@ -15,6 +15,10 @@ func resourceCNAMERecord() *schema.Resource {
 		Update: resourceCNAMERecordUpdate,
 		Delete: resourceCNAMERecordDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
 				Type:        schema.TypeString,

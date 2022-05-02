@@ -14,6 +14,9 @@ func resourceAAAARecord() *schema.Resource {
 		Read:   resourceAAAARecordGet,
 		Update: resourceAAAARecordUpdate,
 		Delete: resourceAAAARecordDelete,
+		Importer: &schema.ResourceImporter{
+			State: passState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
