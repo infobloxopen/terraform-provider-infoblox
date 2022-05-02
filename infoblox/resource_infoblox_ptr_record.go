@@ -15,6 +15,10 @@ func resourcePTRRecord() *schema.Resource {
 		Update: resourcePTRRecordUpdate,
 		Delete: resourcePTRRecordDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: passState,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,

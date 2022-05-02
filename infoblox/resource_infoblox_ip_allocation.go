@@ -16,6 +16,11 @@ func resourceIPAllocation() *schema.Resource {
 		Read:   resourceAllocationGet,
 		Update: resourceAllocationUpdate,
 		Delete: resourceAllocationRelease,
+
+		Importer: &schema.ResourceImporter{
+			State: passState,
+		},
+		
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,

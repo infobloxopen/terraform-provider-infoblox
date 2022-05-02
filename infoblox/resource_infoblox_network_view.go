@@ -14,6 +14,9 @@ func resourceNetworkView() *schema.Resource {
 		Read:   resourceNetworkViewRead,
 		Update: resourceNetworkViewUpdate,
 		Delete: resourceNetworkViewDelete,
+		Importer: &schema.ResourceImporter{
+			State: passState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {

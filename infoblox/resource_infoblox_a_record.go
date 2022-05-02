@@ -15,6 +15,10 @@ func resourceARecord() *schema.Resource {
 		Update: resourceARecordUpdate,
 		Delete: resourceARecordDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: passState,
+		},
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -250,4 +254,8 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func passState(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	return []*schema.ResourceData{d}, nil
 }
