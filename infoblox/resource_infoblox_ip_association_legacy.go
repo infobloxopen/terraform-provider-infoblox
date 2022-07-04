@@ -15,7 +15,7 @@ func resourceIpAssoc() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: passState,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,

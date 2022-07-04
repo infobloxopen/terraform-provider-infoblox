@@ -15,7 +15,7 @@ func resourceIpAssociation() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: passState,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"mac_addr": {
 				Type:        schema.TypeString,

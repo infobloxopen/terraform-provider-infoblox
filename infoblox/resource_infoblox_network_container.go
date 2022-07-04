@@ -10,7 +10,7 @@ import (
 
 func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
-		
+
 		Importer: &schema.ResourceImporter{
 			State: passState,
 		},
