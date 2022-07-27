@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -21,36 +21,74 @@ const (
 	altIdSeparator      = "|"
 )
 
-func generateInternalId() string {
-	return uuid.NewString()
+type internalResourceId struct {
+	value uuid.UUID
 }
 
-func generateAltId(internalId string, ref string) string {
+func (id *internalResourceId) Equal(id2 *internalResourceId) bool {
+	if id2 == nil {
+		panic("the argument must not be nil")
+	}
+	return id.value.String() == id2.value.String()
+}
+
+func (id *internalResourceId) String() string {
+	return id.value.String()
+}
+
+// Returns a pointer to parsed internal resource ID, nil otherwise.
+func newInternalResourceIdFromString(id string) *internalResourceId {
+	newUUID, err := uuid.Parse(id)
+	if err != nil {
+		return nil
+	}
+
+	return &internalResourceId{value: newUUID}
+}
+
+func generateInternalId() *internalResourceId {
+	uuid, err := uuid.NewRandom()
+	if err != nil {
+		panic(err)
+	}
+	return &internalResourceId{value: uuid}
+}
+
+func isValidInternalId(internalId string) bool {
+	_, err := uuid.Parse(internalId)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func generateAltId(internalId *internalResourceId, ref string) string {
+	if internalId == nil {
+		panic("the argument must not be nil")
+	}
 	return fmt.Sprintf(
 		"%s%s%s",
-		internalId, altIdSeparator, ref)
+		internalId.String(), altIdSeparator, ref)
 }
 
-func getAltIdFields(altId string) (
-	internalId string, ref string, err error) {
-
+// valid = true:
+//   - exactly 2 parts found
+//   - ... and separated by the delimiter
+//   - ... and the 1st one is a valid internal ID
+//   - ... and the 2nd one is not empty
+func getAltIdFields(altId string) (internalId *internalResourceId, ref string, valid bool) {
 	idParts := strings.SplitN(altId, altIdSeparator, 2)
-	if len(idParts) != 2 {
-		err = fmt.Errorf("invalid internal ID for host record: '%s'", altId)
-		return
+	switch len(idParts) {
+	case 1:
+		internalId = newInternalResourceIdFromString(idParts[0])
+	case 2:
+		internalId = newInternalResourceIdFromString(idParts[0])
+		ref = idParts[1]
+		valid = internalId != nil && ref != ""
 	}
 
-	internalId = idParts[0]
-	ref = idParts[1]
 	return
-}
-
-func renewAltId(oldAltId string, newRef string) (string, error) {
-	internalId, _, err := getAltIdFields(oldAltId)
-	if err != nil {
-		return "", err
-	}
-	return generateAltId(internalId, newRef), nil
 }
 
 func Provider() *schema.Provider {
@@ -134,9 +172,7 @@ func Provider() *schema.Provider {
 
 }
 
-func providerConfigure(
-	ctx context.Context,
-	d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 
 	if d.Get("password") == "" {
 		return nil, diag.Diagnostics{diag.Diagnostic{
@@ -147,11 +183,14 @@ func providerConfigure(
 
 	seconds := int64(d.Get("connect_timeout").(int))
 	hostConfig := ibclient.HostConfig{
-		Host:     d.Get("server").(string),
-		Port:     d.Get("port").(string),
+		Host:    d.Get("server").(string),
+		Port:    d.Get("port").(string),
+		Version: d.Get("wapi_version").(string),
+	}
+
+	authConfig := ibclient.AuthConfig{
 		Username: d.Get("username").(string),
 		Password: d.Get("password").(string),
-		Version:  d.Get("wapi_version").(string),
 	}
 
 	transportConfig := ibclient.TransportConfig{
@@ -163,9 +202,13 @@ func providerConfigure(
 	requestBuilder := &ibclient.WapiRequestBuilder{}
 	requestor := &ibclient.WapiHttpRequestor{}
 
-	conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
+	conn, err := ibclient.NewConnector(hostConfig, authConfig, transportConfig, requestBuilder, requestor)
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
 	}
 	return conn, nil
+}
+
+func stateImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	return []*schema.ResourceData{d}, nil
 }

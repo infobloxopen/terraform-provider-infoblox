@@ -322,6 +322,57 @@ func NewNetworkContainer(netview, cidr string, isIPv6 bool, comment string, ea E
 	return &nc
 }
 
+type NetworkContainerNextAvailable struct {
+	IBBase  `json:"-"`
+	Network *NetworkContainerNextAvailableInfo `json:"network"`
+	Comment string                             `json:"comment"`
+	Ea      EA                                 `json:"extattrs"`
+}
+
+type NetworkContainerNextAvailableInfo struct {
+	Function     string            `json:"_object_function"`
+	ResultField  string            `json:"_result_field"`
+	Object       string            `json:"_object"`
+	ObjectParams map[string]string `json:"_object_parameters"`
+	Params       map[string]uint   `json:"_parameters"`
+	NetviewName  string            `json:"network_view,omitempty"`
+}
+
+func NewNetworkContainerNextAvailableInfo(netview, cidr string, prefixLen uint, isIPv6 bool) *NetworkContainerNextAvailableInfo {
+	containerInfo := NetworkContainerNextAvailableInfo{
+		Function:     "next_available_network",
+		ResultField:  "networks",
+		ObjectParams: map[string]string{"network": cidr},
+		Params:       map[string]uint{"cidr": prefixLen},
+		NetviewName:  netview,
+	}
+
+	if isIPv6 {
+		containerInfo.Object = "ipv6networkcontainer"
+	} else {
+		containerInfo.Object = "networkcontainer"
+	}
+
+	return &containerInfo
+}
+
+func NewNetworkContainerNextAvailable(ncav *NetworkContainerNextAvailableInfo, isIPv6 bool, comment string, ea EA) *NetworkContainerNextAvailable {
+	nc := &NetworkContainerNextAvailable{
+		Network: ncav,
+		Ea:      ea,
+		Comment: comment,
+	}
+
+	if isIPv6 {
+		nc.objectType = "ipv6networkcontainer"
+	} else {
+		nc.objectType = "networkcontainer"
+	}
+	nc.returnFields = []string{"extattrs", "network", "network_view", "comment"}
+
+	return nc
+}
+
 type FixedAddress struct {
 	IBBase      `json:"-"`
 	Ref         string `json:"_ref,omitempty"`
@@ -729,23 +780,47 @@ func NewHostRecord(
 }
 
 type RecordTXT struct {
-	IBBase `json:"-"`
-	Ref    string `json:"_ref,omitempty"`
-	Name   string `json:"name,omitempty"`
-	Text   string `json:"text,omitempty"`
-	Ttl    uint   `json:"ttl,omitempty"`
-	View   string `json:"view,omitempty"`
-	Zone   string `json:"zone,omitempty"`
-	Ea     EA     `json:"extattrs"`
-	UseTtl bool   `json:"use_ttl"`
+	IBBase  `json:"-"`
+	View    string `json:"view,omitempty"`
+	Zone    string `json:"zone,omitempty"`
+	Ref     string `json:"_ref,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Text    string `json:"text,omitempty"`
+	Ttl     uint32 `json:"ttl"`
+	UseTtl  bool   `json:"use_ttl"`
+	Comment string `json:"comment"`
+	Ea      EA     `json:"extattrs"`
 }
 
-func NewRecordTXT(rt RecordTXT) *RecordTXT {
-	res := rt
+func NewEmptyRecordTXT() *RecordTXT {
+	res := RecordTXT{}
 	res.objectType = "record:txt"
-	res.returnFields = []string{"extattrs", "name", "text", "view", "zone", "ttl", "use_ttl"}
+	res.returnFields = []string{"view", "zone", "name", "text", "ttl", "use_ttl", "comment", "extattrs"}
 
 	return &res
+}
+
+func NewRecordTXT(
+	dnsview string,
+	zone string,
+	recordname string,
+	text string,
+	ttl uint32,
+	useTtl bool,
+	comment string,
+	eas EA) *RecordTXT {
+
+	res := NewEmptyRecordTXT()
+	res.View = dnsview
+	res.Zone = zone
+	res.Name = recordname
+	res.Text = text
+	res.Ttl = ttl
+	res.UseTtl = useTtl
+	res.Comment = comment
+	res.Ea = eas
+
+	return res
 }
 
 type ZoneAuth struct {

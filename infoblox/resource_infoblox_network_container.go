@@ -10,9 +10,8 @@ import (
 
 func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
-		
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -102,6 +101,32 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to retrieve network container: %s", err.Error())
 	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	if err = d.Set("network_view", obj.NetviewName); err != nil {
+		return err
+	}
+
+	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return err
+	}
+
 	d.SetId(obj.Ref)
 
 	return nil

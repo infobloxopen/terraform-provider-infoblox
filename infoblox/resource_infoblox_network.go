@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
-
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -74,7 +74,6 @@ func resourceNetwork() *schema.Resource {
 }
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	networkViewName := d.Get("network_view").(string)
 	parentCidr := d.Get("parent_cidr").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
@@ -178,7 +177,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 }
 
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
-
 	networkViewName := d.Get("network_view").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -201,13 +199,41 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetNetworkByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting Network block from network view (%s) failed : %s", networkViewName, err)
+		return fmt.Errorf("getting Network block from network view (%s) failed : %s", networkViewName, err)
 	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	if obj.NetviewName != "" {
+		if err = d.Set("network_view", obj.NetviewName); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return err
+	}
+
 	d.SetId(obj.Ref)
+
 	return nil
 }
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
-
 	defer func() {
 		if err != nil {
 			d.Partial(true)
@@ -262,6 +288,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	}
 
 	d.SetId(Network.Ref)
+
 	return nil
 }
 
@@ -291,6 +318,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Deletion of Network block failed from network view(%s): %s", networkViewName, err)
 	}
 	d.SetId("")
+
 	return nil
 }
 

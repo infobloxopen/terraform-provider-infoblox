@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -16,7 +17,7 @@ func resourceARecord() *schema.Resource {
 		Delete: resourceARecordDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -149,6 +150,39 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return err
+	}
+
 	d.SetId(obj.Ref)
 
 	return nil
@@ -254,8 +288,4 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
-}
-
-func passState(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, nil
 }

@@ -76,6 +76,30 @@ func (objMgr *ObjectManager) UpdateNetworkContainer(
 	return nc, nil
 }
 
+func (objMgr *ObjectManager) AllocateNetworkContainer(
+	netview string,
+	cidr string,
+	isIPv6 bool,
+	prefixLen uint,
+	comment string,
+	eas EA) (*NetworkContainer, error) {
+
+	containerInfo := NewNetworkContainerNextAvailableInfo(netview, cidr, prefixLen, isIPv6)
+	container := NewNetworkContainerNextAvailable(containerInfo, isIPv6, comment, eas)
+
+	ref, err := objMgr.connector.CreateObject(container)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if isIPv6 {
+		return BuildIPv6NetworkContainerFromRef(ref)
+	} else {
+		return BuildNetworkContainerFromRef(ref)
+	}
+}
+
 func (objMgr *ObjectManager) DeleteNetworkContainer(ref string) (string, error) {
 	ncRegExp := regexp.MustCompile("^(ipv6)?networkcontainer\\/.+")
 	if !ncRegExp.MatchString(ref) {

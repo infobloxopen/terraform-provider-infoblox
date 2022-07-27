@@ -3,17 +3,18 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceIPAlloc() *schema.Resource {
 	return &schema.Resource{
-
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -157,11 +158,11 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 		}
 		d.SetId(hostRec.Ref)
 	}
+
 	return nil
 }
 
 func resourceIPAllocGet(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -313,6 +314,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -344,6 +346,7 @@ func resourceIPAllocRelease(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 	}
 
 	d.SetId("")
+
 	return nil
 }
 

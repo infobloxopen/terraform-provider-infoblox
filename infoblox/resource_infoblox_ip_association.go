@@ -6,16 +6,16 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func resourceIpAssociation() *schema.Resource {
 	return &schema.Resource{
-
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"mac_addr": {
 				Type:        schema.TypeString,
@@ -42,6 +42,7 @@ func resourceIpAssociation() *schema.Resource {
 	}
 }
 
+// TODO: add validation of values (extra spaces, format, etc)
 func resourceIpAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("internal_id") {
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
@@ -51,25 +52,110 @@ func resourceIpAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
+	var (
+		err                                                          error
+		hostRec                                                      *ibclient.HostRecord
+		duid, macAddr                                                string
+		duidActual, macAddrActual                                    string
+		enableDhcp                                                   bool
+		enableDhcpActual, enableDhcpActualIpv4, enableDhcpActualIpv6 bool
+		importOp                                                     bool
+	)
+
 	objMgr := ibclient.NewObjectManager(
 		m.(ibclient.IBConnector), "Terraform", "")
 
-	internalId := d.Get("internal_id").(string)
-	if internalId == "" {
+	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
+	if internalId == nil {
 		return fmt.Errorf("internal_id field must not be empty")
 	}
 
-	_, err := objMgr.SearchHostRecordByAltId(internalId, "", eaNameForInternalId)
-	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return fmt.Errorf(
-				"error getting the allocated host record with ID '%s': %s",
-				d.Id(), err.Error())
-		}
-		log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
-		d.SetId("")
-		return nil
+	if strings.TrimSpace(d.Id()) == "" {
+		// for the case of importing a resource and passing its ID as an empty string
+		// TODO: may we suppose this ID is never empty?
+		return fmt.Errorf("requested resource ID must not be empty")
 	}
+	internalIdRequested, ref, _ := getAltIdFields(d.Id())
+
+	if ref != "" {
+		return fmt.Errorf("resource ID '%s' has an invalid format for this resource type", d.Id())
+	}
+
+	if macAddrVal, ok := d.GetOk("mac_addr"); ok {
+		macAddr = macAddrVal.(string)
+	}
+
+	if duidVal, ok := d.GetOk("duid"); ok {
+		duid = duidVal.(string)
+	}
+
+	if internalIdRequested != nil {
+		if internalId.Equal(internalIdRequested) {
+			// The case when, by a mistake, a user (for an 'import' operation) requests the ID which
+			// corresponds to 'allocation' resource for this 'association' resource.
+			return fmt.Errorf("wrong ID '%s' specified", d.Id())
+
+			// Not handling this case may lead to an error message about a 'not found' resource,
+			// which may be confusing.
+		}
+
+		// reading already existing resource, already managed by Terraform
+		hostRec, err = objMgr.SearchHostRecordByAltId(internalId.String(), "", eaNameForInternalId)
+		if err != nil {
+			if _, ok := err.(*ibclient.NotFoundError); !ok {
+				return fmt.Errorf(
+					"error getting the allocated host record with ID '%s': %s",
+					d.Id(), err.Error())
+			}
+			log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
+			d.SetId("")
+			return nil
+		}
+	} else {
+		// importing a resource, to be managed by Terraform
+		importOp = true
+		hostRec, err = objMgr.SearchHostRecordByAltId("", d.Id(), eaNameForInternalId)
+		if err != nil {
+			if _, ok := err.(*ibclient.NotFoundError); !ok {
+				return fmt.Errorf(
+					"error getting the host record by reference '%s': %s",
+					ref, err.Error())
+			}
+			log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
+			// TODO: implement logging in case of an error returned, for all similar places as well
+			d.SetId("")
+			return nil
+		}
+	}
+
+	if hostRec.Ipv6Addrs != nil && len(hostRec.Ipv6Addrs) > 0 {
+		if len(hostRec.Ipv6Addrs) > 1 {
+			return fmt.Errorf("association with multiple IP addresses are not supported")
+		}
+
+		enableDhcpActualIpv6 = hostRec.Ipv6Addrs[0].EnableDhcp
+		duidActual = hostRec.Ipv6Addrs[0].Duid
+	}
+
+	if hostRec.Ipv4Addrs != nil && len(hostRec.Ipv4Addrs) > 0 {
+		if len(hostRec.Ipv4Addrs) > 1 {
+			return fmt.Errorf("association with multiple IP addresses are not supported")
+		}
+
+		enableDhcpActualIpv4 = hostRec.Ipv4Addrs[0].EnableDhcp
+		macAddrActual = hostRec.Ipv4Addrs[0].Mac
+	}
+
+	enableDhcpActual = enableDhcpActualIpv4 || enableDhcpActualIpv6
+
+	if importOp {
+		if duid != duidActual || macAddr != macAddrActual || enableDhcp != enableDhcpActual {
+			return fmt.Errorf("one of the resource properties is not equal to appropriate NIOS object's value")
+		}
+	}
+	d.Set("duid", duidActual)
+	d.Set("mac_addr", macAddrActual)
+	d.Set("enable_dhcp", enableDhcpActual)
 
 	return nil
 }
@@ -80,6 +166,7 @@ func resourceIpAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId("")
+
 	return nil
 }
 
@@ -111,13 +198,13 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
 
-	internalId := d.Get("internal_id").(string)
-	if internalId == "" {
+	internalIdStr := d.Get("internal_id").(string)
+	if internalIdStr == "" {
 		return fmt.Errorf("internal_id field must not be empty")
 	}
 	enableDhcp := d.Get("enable_dhcp").(bool)
 
-	hostRec, err := objMgr.SearchHostRecordByAltId(internalId, "", eaNameForInternalId)
+	hostRec, err := objMgr.SearchHostRecordByAltId(internalIdStr, "", eaNameForInternalId)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return fmt.Errorf(
@@ -166,11 +253,12 @@ func resourceIpAssociationCreateUpdateCommon(
 	if err != nil {
 		return fmt.Errorf(
 			"failed to update the resource with ID '%s' (host record with internal ID '%s'): %s",
-			d.Id(), internalId, err.Error())
+			d.Id(), internalIdStr, err.Error())
 	}
 
+	// Generate an ID for a newly created resource.
 	if d.Id() == "" {
-		d.SetId(generateInternalId())
+		d.SetId(generateInternalId().String())
 	}
 
 	return nil

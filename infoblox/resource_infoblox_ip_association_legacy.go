@@ -11,11 +11,10 @@ import (
 
 func resourceIpAssoc() *schema.Resource {
 	return &schema.Resource{
-
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -94,7 +93,6 @@ func resourceIpAssoc() *schema.Resource {
 //of the record after the VM has been provisined. It is in the create method
 //because for this resource we are doing association instead of allocation.
 func resourceIpAssocCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	if err := resourceIpAssocCreateUpdate(d, m, isIPv6); err != nil {
 		return err
 	}
@@ -103,7 +101,6 @@ func resourceIpAssocCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 }
 
 func resourceIpAssocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'networkView' field is not allowed")
 	}
@@ -119,7 +116,6 @@ func resourceIpAssocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 }
 
 func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -141,6 +137,7 @@ func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
 			d.Id(), err.Error())
 	}
 	d.SetId(hostRec.Ref)
+
 	return nil
 }
 
@@ -148,7 +145,6 @@ func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
 //destroyed because if we implement the delete hostrecord method here then there
 //will be a conflict of resources
 func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'networkView' field is not allowed")
@@ -226,11 +222,11 @@ func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		}
 		d.SetId(hostRec.Ref)
 	}
+
 	return nil
 }
 
 func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
-
 	networkView := d.Get("network_view").(string)
 	dnsView := d.Get("dns_view").(string)
 	enableDhcp := d.Get("enable_dhcp").(bool)
@@ -328,6 +324,7 @@ func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 b
 		}
 		d.SetId(hostRec.Ref)
 	}
+
 	return nil
 }
 

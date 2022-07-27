@@ -85,16 +85,16 @@ func validateIPAllocation(
 			return fmt.Errorf("ID is not set")
 		}
 
-		internalId, ref, err := getAltIdFields(id)
-		if err != nil {
-			return err
+		internalId, ref, valid := getAltIdFields(id)
+		if !valid {
+			return fmt.Errorf("resource ID '%s' has an invalid format", id)
 		}
 		connector := testAccProvider.Meta().(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(
 			connector,
 			"terraform_test",
 			"terraform_test_tenant")
-		ipAlloc, err := objMgr.SearchHostRecordByAltId(internalId, ref, eaNameForInternalId)
+		ipAlloc, err := objMgr.SearchHostRecordByAltId(internalId.String(), ref, eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
@@ -312,6 +312,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 			},
 			{
 				Config: `
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					enable_dns = "false"
@@ -324,7 +327,8 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
-					}`,
+					depends_on = [infoblox_ipv4_network.net1]
+				}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
@@ -357,9 +361,9 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 		if rs.Type != "infoblox_ip_allocation" {
 			continue
 		}
-		_, ref, err := getAltIdFields(rs.Primary.ID)
-		if err != nil {
-			return err
+		_, ref, valid := getAltIdFields(rs.Primary.ID)
+		if !valid {
+			return fmt.Errorf("resource ID '%s' has an invalid format", rs.Primary.ID)
 		}
 		res, err := objMgr.GetHostRecordByRef(ref)
 		if err != nil {

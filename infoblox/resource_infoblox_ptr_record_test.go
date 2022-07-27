@@ -153,8 +153,8 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				Config: `
 					resource "infoblox_ptr_record" "foo"{
 						dns_view="default"
-						ptrdname="testPtrdName.test.com"
-						record_name="testName.test.com"
+						ptrdname="testptrdname.test.com"
+						record_name="testname.test.com"
 						comment="PTR record created in forward mapping zone"
 						ext_attrs = jsonencode({
 							"Tenant ID" = "terraform_test_tenant"
@@ -167,7 +167,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName.test.com",
+						PtrdName: "testptrdname.test.com",
 						Name:     "testname.test.com",
 						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
@@ -184,8 +184,8 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				Config: `
 					resource "infoblox_ptr_record" "foo"{
 						dns_view="default"
-						ptrdname="testPtrdName2.test.com"
-						record_name="testName2.test.com"
+						ptrdname="testptrdname2.test.com"
+						record_name="testname2.test.com"
 						comment="PTR record created in forward mapping zone"
 						ext_attrs = jsonencode({
 							"Tenant ID" = "terraform_test_tenant"
@@ -198,7 +198,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName2.test.com",
+						PtrdName: "testptrdname2.test.com",
 						Name:     "testname2.test.com",
 						Zone:     "test.com",
 						Comment:  "PTR record created in forward mapping zone",
@@ -216,7 +216,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					resource "infoblox_ptr_record" "foo2"{
 						network_view="default"
 						dns_view="default"
-						ptrdname="testPtrdName2.test.com"
+						ptrdname="testptrdname2.test.com"
 						ip_addr = "10.0.0.2"
 						comment="PTR record created in reverse mapping zone with IP"
 						ext_attrs=jsonencode({
@@ -230,7 +230,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName2.test.com",
+						PtrdName: "testptrdname2.test.com",
 						Ipv4Addr: "10.0.0.2",
 						Name:     "2.0.0.10.in-addr.arpa",
 						Zone:     "0.0.10.in-addr.arpa",
@@ -249,7 +249,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					resource "infoblox_ptr_record" "foo2"{
 						network_view = "default"
 						dns_view="default"
-						ptrdname="testPtrdName3.test.com"
+						ptrdname="testptrdname3.test.com"
 						ip_addr = "10.0.0.3"
 						comment="PTR record created in reverse mapping zone with IP"
 						ext_attrs = jsonencode({
@@ -263,7 +263,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					"infoblox_ptr_record.foo2",
 					&ibclient.RecordPTR{
 						View:     "default",
-						PtrdName: "testPtrdName3.test.com",
+						PtrdName: "testptrdname3.test.com",
 						Ipv4Addr: "10.0.0.3",
 						Name:     "3.0.0.10.in-addr.arpa",
 						Zone:     "0.0.10.in-addr.arpa",
@@ -278,6 +278,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				),
 			},
 			{
+				// TODO: implement a requirement of lower-case FQDNs
 				Config: `
 					resource "infoblox_ptr_record" "foo2"{
 						ptrdname="testPtrdName3.test.com"
