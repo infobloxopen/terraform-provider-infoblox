@@ -202,14 +202,8 @@ github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpO
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211119055343-741a1cd7c839 h1:Rf5/dA/cYaWMKltfRK6xssVyJK0bUllK6F5CbsSn1Tk=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211119055343-741a1cd7c839/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211213023950-a7b7f78419e2 h1:PRu5l3XfNaHFCtSq8TptwsCNiPp68G6wyECuPXzpFx0=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211213023950-a7b7f78419e2/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211223082453-65ce67cf7cce h1:fjRpxdsZ0j5uurjFFb/voYCkp9Qfhe7L7zlRAKCYMG0=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1-0.20211223082453-65ce67cf7cce/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1 h1:NYnXOngwW4xMIgUz4bKJ1Ygsmq5K0OOdUEkuLlkR1Ag=
-github.com/infobloxopen/infoblox-go-client/v2 v2.1.1/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
+github.com/infobloxopen/infoblox-go-client/v2 v2.1.2-0.20220727224704-88a5ba602dbf h1:/4CHlCAQbzdED7T6YZ1ht7uQ8HNBR+eeR5hW44+du54=
+github.com/infobloxopen/infoblox-go-client/v2 v2.1.2-0.20220727224704-88a5ba602dbf/go.mod h1:+lznx4ASBSUZ2i6qwlgyn0v3eKDxBHNU5aRJzghAFbw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=

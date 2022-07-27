@@ -296,7 +296,6 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 					network_view= "default"
 					fqdn="testhostnameipv6.test.com"
 					ip_addr = "2001:db8:abcd:12::10"
-					duid = "00:00:00:00:00:00:00:10"
 					comment = "tf IPv6 allocation"
 					ext_attrs = jsonencode({
 					  "Tenant ID" = "tf-plugin"

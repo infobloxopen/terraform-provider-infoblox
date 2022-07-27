@@ -133,7 +133,6 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 					dns_view = "default"
 					fqdn="testhostnameipv6.test.com"
 					ip_addr="2001:db8:abcd:12::1"
-					duid="11:22:33:44:55:66"
 					comment = "2001:db8:abcd:12::1 IP is allocated"
 					ext_attrs = jsonencode({
 						"VM Name" =  "tf-ec2-instance-ipv6"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -15,7 +16,7 @@ func resourceNetworkView() *schema.Resource {
 		Update: resourceNetworkViewUpdate,
 		Delete: resourceNetworkViewDelete,
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -64,6 +65,7 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to create Network View : %s", err)
 	}
 	d.SetId(nv.Ref)
+
 	return nil
 }
 
@@ -90,6 +92,7 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId(obj.Ref)
+
 	return nil
 }
 
@@ -115,6 +118,7 @@ func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to update Network View : %s", err.Error())
 	}
 	d.SetId(nv.Ref)
+
 	return nil
 }
 

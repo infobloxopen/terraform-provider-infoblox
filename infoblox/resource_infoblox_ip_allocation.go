@@ -4,13 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 // Code snipper for IP (IPv4 and IPv6) Allocation
 func resourceIPAllocation() *schema.Resource {
+	// TODO: move towards context-aware equivalents of these fields, as these are deprecated.
 	return &schema.Resource{
 		Create: resourceAllocationRequest,
 		Read:   resourceAllocationGet,
@@ -18,27 +21,27 @@ func resourceIPAllocation() *schema.Resource {
 		Delete: resourceAllocationRelease,
 
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
-		
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "Network view name of NIOS server.",
+				Description: "network view name on NIOS server.",
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "Dns View under which the zone has been created.",
+				Description: "DNS view under which the zone has been created.",
 			},
 			"enable_dns": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
-				Description: "flag that defines if the host record is to be used for DNS Purposes.",
+				Description: "flag that defines if the host record is to be used for DNS purposes.",
 			},
 			"ipv4_cidr": {
 				Type:        schema.TypeString,
@@ -111,18 +114,10 @@ func resourceIPAllocation() *schema.Resource {
 	}
 }
 
-func getAndRenewHostRecAltId(
-	d *schema.ResourceData, m interface{}) (
-
-	hostRec *ibclient.HostRecord, err error) {
-
-	internalId, ref, err := getAltIdFields(d.Id())
-	if err != nil {
-		return nil, err
-	}
-
+func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}) (hostRec *ibclient.HostRecord, err error) {
+	internalId, ref, _ := getAltIdFields(d.Id())
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
-	hostRec, err = objMgr.SearchHostRecordByAltId(internalId, ref, eaNameForInternalId)
+	hostRec, err = objMgr.SearchHostRecordByAltId(internalId.String(), ref, eaNameForInternalId)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return nil, fmt.Errorf(
@@ -130,15 +125,31 @@ func getAndRenewHostRecAltId(
 				d.Id(), err.Error())
 		}
 		log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
+
+		// TODO: implement logging in case of an error returned, for all similar places as well
 		d.SetId("")
 		return nil, nil
 	}
-	if ref != hostRec.Ref {
-		newAltId, err := renewAltId(d.Id(), hostRec.Ref)
-		if err != nil {
-			return nil, nil
+
+	if internalId == nil {
+		if hostRec.Ea != nil {
+			rawValue, found := hostRec.Ea[eaNameForInternalId]
+			if found {
+				stringVal, ok := rawValue.(string)
+				// TODO: do we need this after changing internalId's implementation?
+				if ok && isValidInternalId(stringVal) {
+					internalId = newInternalResourceIdFromString(stringVal)
+					d.SetId(generateAltId(internalId, hostRec.Ref))
+				}
+			}
 		}
-		d.SetId(newAltId)
+
+		if internalId == nil {
+			internalId = generateInternalId()
+		}
+	} else if ref != hostRec.Ref {
+		internalId, _, _ := getAltIdFields(d.Id())
+		d.SetId(generateAltId(internalId, hostRec.Ref))
 	}
 
 	return
@@ -197,7 +208,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	internalId := generateInternalId()
-	extAttrs[eaNameForInternalId] = internalId
+	extAttrs[eaNameForInternalId] = internalId.String()
 
 	// enableDns and enableDhcp flags used to create host record with respective flags.
 	// By default enableDns is true.
@@ -216,47 +227,139 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error while creating a host record: %s", err.Error())
 	}
+
 	if hostRec.Ipv6Addrs == nil || len(hostRec.Ipv6Addrs) < 1 {
 		d.Set("allocated_ipv6_addr", "")
 	} else {
 		d.Set("allocated_ipv6_addr", hostRec.Ipv6Addrs[0].Ipv6Addr)
 	}
+
 	if hostRec.Ipv4Addrs == nil || len(hostRec.Ipv4Addrs) < 1 {
 		d.Set("allocated_ipv4_addr", "")
 	} else {
 		d.Set("allocated_ipv4_addr", hostRec.Ipv4Addrs[0].Ipv4Addr)
 	}
+
 	d.SetId(generateAltId(internalId, hostRec.Ref))
-	d.Set("internal_id", internalId)
+	d.Set("internal_id", internalId.String())
 
 	return nil
 }
 
+// TODO: implement validation of an existing resource definition upon import:
+//       field's values in the definition MUST be the same as at the object that
+//       NIOS returns, because the opposite may be a sign of a misconfiguration.
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
-	hostRecObj, err := getAndRenewHostRecAltId(d, m)
-	if err != nil || hostRecObj == nil {
+	obj, err := getAndRenewHostRecAltId(d, m)
+
+	// TODO: returning a nil object instead of 'not found' error type is not a good way,
+	//       need to reconsider this.
+	if err != nil || obj == nil {
 		return err
 	}
 
-	if hostRecObj.Ipv6Addrs == nil || len(hostRecObj.Ipv6Addrs) < 1 {
+	internalId, _, valid := getAltIdFields(d.Id())
+	if !valid {
+		if internalId == nil {
+			return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
+		}
+		internalId = generateInternalId()
+	}
+
+	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
 		d.Set("allocated_ipv6_addr", "")
 	} else {
-		d.Set("allocated_ipv6_addr", hostRecObj.Ipv6Addrs[0].Ipv6Addr)
+		d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr)
+		if !valid {
+			d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr)
+		}
 	}
-	if hostRecObj.Ipv4Addrs == nil || len(hostRecObj.Ipv4Addrs) < 1 {
+	if obj.Ipv4Addrs == nil || len(obj.Ipv4Addrs) < 1 {
 		d.Set("allocated_ipv4_addr", "")
 	} else {
-		d.Set("allocated_ipv4_addr", hostRecObj.Ipv4Addrs[0].Ipv4Addr)
+		d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr)
+		if !valid {
+			d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr)
+		}
 	}
 
-	internalId, _, err := getAltIdFields(d.Id())
-	if err != nil {
+	delete(obj.Ea, eaNameForInternalId)
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
 
-	d.Set("internal_id", internalId)
+	if strings.TrimSpace(obj.View) != "" {
+		if err = d.Set("dns_view", obj.View); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("network_view", obj.NetworkView); err != nil {
+		return err
+	}
+
+	if err = d.Set("enable_dns", obj.EnableDns); err != nil {
+		return err
+	}
+
+	if obj.EnableDns {
+		// if enable_dns = false then updating fqdn leads
+		// to constantly updating fqdn, which is truncated by NIOS to just one component.
+		if err = d.Set("fqdn", obj.Name); err != nil {
+			return err
+		}
+	}
+
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return err
+	}
+
+	d.Set("internal_id", internalId.String())
+	d.SetId(generateAltId(internalId, obj.Ref))
 
 	return nil
+}
+
+// returns false if enable_dns was changed and this change is not acceptable
+func dnsViewChangeValid(d *schema.ResourceData) bool {
+	enableDns := d.Get("enable_dns").(bool)
+	if !d.HasChange("dns_view") {
+		return true
+	}
+	dnsView := d.Get("dns_view").(string)
+
+	// The cases for acceptable changes:
+	// - enableDns = true && old-value = "" && new value = "default" (initialization)
+	// - enableDns = false && strings.TrimSpace(enableDns) = "" (enableDns = true -> false)
+	if enableDns {
+		oldVal, newVal := d.GetChange("dns_view")
+		if oldVal.(string) == "" && newVal.(string) == "default" {
+			return true
+		}
+	} else {
+		if strings.TrimSpace(dnsView) == "" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
@@ -322,7 +425,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Retrive the IP of Host or Fixed Address record.
+	// Retrieve the IP of Host or Fixed Address record.
 	// When IP is allocated using cidr and an empty IP is passed for updation
 	needIpv4Addr := ipv4Cidr == "" && ipv4Addr == ""
 	needIpv6Addr := ipv6Cidr == "" && ipv6Addr == ""
@@ -330,21 +433,21 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		macAddr, duid string
 	)
 	if needIpv4Addr || needIpv6Addr {
-		if _, ipv4_cidrFlag := d.GetOk("ipv4_cidr"); ipv4_cidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
+		if _, ipv4CidrFlag := d.GetOk("ipv4_cidr"); ipv4CidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
 			ipv4Addr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
 			macAddr = hostRecObj.Ipv4Addrs[0].Mac
 		}
-		if _, ipv6_cidrFlag := d.GetOk("ipv6_cidr"); ipv6_cidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
+		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
 			ipv6Addr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
 			duid = hostRecObj.Ipv6Addrs[0].Duid
 		}
 	}
 
-	internalId, _, err := getAltIdFields(d.Id())
-	if err != nil {
-		return err
+	internalId, _, valid := getAltIdFields(d.Id())
+	if !valid {
+		return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
 	}
-	extAttrs[eaNameForInternalId] = internalId
+	extAttrs[eaNameForInternalId] = internalId.String()
 
 	var (
 		recIpV4Addr *ibclient.HostRecordIpv4Addr
@@ -398,7 +501,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		d.Set("allocated_ipv4_addr", hostRecObj.Ipv4Addrs[0].Ipv4Addr)
 	}
 
-	d.Set("internal_id", internalId)
+	d.Set("internal_id", internalId.String())
 
 	return nil
 }
@@ -431,9 +534,9 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		log.Printf("WARNING: getting an error while determining ID of the resource to be cleanned up (probably non-existent resource, continuing): ): %s", err)
 		return nil
 	}
-	_, ref, err := getAltIdFields(d.Id())
-	if err != nil {
-		return err
+	_, ref, valid := getAltIdFields(d.Id())
+	if !valid {
+		return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -443,5 +546,6 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error while releasing the IP address with ID '%s': %s", d.Id(), err.Error())
 	}
 	d.SetId("")
+
 	return nil
 }

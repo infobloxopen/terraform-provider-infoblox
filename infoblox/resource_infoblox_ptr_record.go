@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -16,7 +17,7 @@ func resourcePTRRecord() *schema.Resource {
 		Delete: resourcePTRRecordDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: passState,
+			State: stateImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -77,7 +78,6 @@ func resourcePTRRecord() *schema.Resource {
 }
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
@@ -140,11 +140,11 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(recordPTR.Ref)
+
 	return nil
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
-
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -160,16 +160,59 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
+	obj, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+		return fmt.Errorf("getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
 	}
-	d.SetId(recordPTR.Ref)
+
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
+	}
+
+	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
+		return err
+	}
+
+	cidr := d.Get("cidr").(string)
+	ipAddr := d.Get("ip_addr").(string)
+	if cidr == "" && ipAddr == "" {
+		// update only if no automatic allocation was requested
+		if err = d.Set("record_name", obj.Name); err != nil {
+			return err
+		}
+	}
+
+	d.SetId(obj.Ref)
+
 	return nil
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
@@ -245,11 +288,11 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(recordPTRUpdated.Ref)
+
 	return nil
 }
 
 func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
@@ -273,5 +316,6 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Deletion of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
 	d.SetId("")
+
 	return nil
 }
