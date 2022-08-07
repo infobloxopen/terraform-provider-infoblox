@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -21,6 +22,16 @@ const (
 	altIdSeparator      = "|"
 )
 
+// Internal ID represents an immutable ID during resource's lifecycle.
+// NIOS object's reference may get changed, sometimes this is a problem:
+//   when more than one TF resources have the same NIOS WAPI object as a backend,
+//   changing reference to the object invalidates the old reference,
+//   which needs to be changed for all appropriate TF resources.
+//   Doing this is problematic.
+//   An example of such resources: a pair of infoblox_ipvX_allocation/infoblox_ipvX_association.
+//   They both must relate to a single host record on NIOS side.
+// Important requirement: the text representing an internal ID must not contain '|' sign,
+//   or in general: the sign (or a sequence of) which is defined by altIdSeparator constant.
 type internalResourceId struct {
 	value uuid.UUID
 }
@@ -40,6 +51,9 @@ func (id *internalResourceId) String() string {
 func newInternalResourceIdFromString(id string) *internalResourceId {
 	newUUID, err := uuid.Parse(id)
 	if err != nil {
+		log.Error(context.Background(), "cannot parse internal ID", map[string]interface{}{
+			"internal ID": id,
+			"error":       err.Error()})
 		return nil
 	}
 
@@ -54,6 +68,8 @@ func generateInternalId() *internalResourceId {
 	return &internalResourceId{value: uuid}
 }
 
+// A separate function to abstract from the nature of internal ID,
+// from particular format.
 func isValidInternalId(internalId string) bool {
 	_, err := uuid.Parse(internalId)
 	if err != nil {
@@ -72,7 +88,7 @@ func generateAltId(internalId *internalResourceId, ref string) string {
 		internalId.String(), altIdSeparator, ref)
 }
 
-// valid = true:
+// valid == true if:
 //   - exactly 2 parts found
 //   - ... and separated by the delimiter
 //   - ... and the 1st one is a valid internal ID
