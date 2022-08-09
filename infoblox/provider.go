@@ -94,7 +94,7 @@ func generateAltId(internalId *internalResourceId, ref string) string {
 //   - ... and the 1st one is a valid internal ID
 //   - ... and the 2nd one is not empty
 func getAltIdFields(altId string) (internalId *internalResourceId, ref string, valid bool) {
-	idParts := strings.SplitN(altId, altIdSeparator, 2)
+	idParts := strings.Split(altId, altIdSeparator)
 	switch len(idParts) {
 	case 1:
 		internalId = newInternalResourceIdFromString(idParts[0])
