@@ -115,42 +115,71 @@ func resourceIPAllocation() *schema.Resource {
 }
 
 func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}) (hostRec *ibclient.HostRecord, err error) {
-	internalId, ref, _ := getAltIdFields(d.Id())
-	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
-	hostRec, err = objMgr.SearchHostRecordByAltId(internalId.String(), ref, eaNameForInternalId)
-	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return nil, fmt.Errorf(
-				"error getting the allocated host record with ID '%s': %s",
-				d.Id(), err.Error())
-		}
-		log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
+	var (
+		ref        string
+		internalId *internalResourceId
+	)
 
-		// TODO: implement logging in case of an error returned, for all similar places as well
-		d.SetId("")
-		return nil, nil
+	if internalIdFromProp, found := d.GetOk("internal_id"); found {
+		if tempVal, ok := internalIdFromProp.(string); !ok {
+			return nil, fmt.Errorf("cannot convert internal_id field into a text value")
+		} else {
+			internalId = newInternalResourceIdFromString(tempVal)
+		}
+	} else {
+		internalId, ref = getAltIdFields(d.Id())
+	}
+
+	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
+	if internalId.String() != "" {
+		hostRec, err = objMgr.SearchHostRecordByAltId(internalId.String(), ref, eaNameForInternalId)
+		if err != nil {
+			if _, ok := err.(*ibclient.NotFoundError); !ok {
+				return nil, fmt.Errorf(
+					"error getting the allocated host record with ID '%s': %s",
+					d.Id(), err.Error())
+			}
+			log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
+
+			// TODO: implement logging in case of an error returned, for all similar places as well
+			d.SetId("")
+			return nil, nil
+		}
+		if hostRec.Ref != ref {
+			d.SetId(generateAltId(internalId, hostRec.Ref))
+		}
+
+		return
+	}
+
+	// If we are here then we must import a resource.
+	if ref == "" {
+		return nil, fmt.Errorf("reference for an object to be imported must not be empty")
+	}
+
+	hostRec, err = objMgr.GetHostRecordByRef(ref)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error getting the host record by the reference '%s': %s",
+			ref, err.Error())
+	}
+
+	if hostRec.Ea != nil {
+		// let's try to search for a previously generated ID
+		rawValue, found := hostRec.Ea[eaNameForInternalId]
+		if found {
+			stringVal, ok := rawValue.(string)
+			if ok && isValidInternalId(stringVal) {
+				internalId = newInternalResourceIdFromString(stringVal)
+				d.SetId(generateAltId(internalId, hostRec.Ref))
+			}
+		}
 	}
 
 	if internalId == nil {
-		if hostRec.Ea != nil {
-			rawValue, found := hostRec.Ea[eaNameForInternalId]
-			if found {
-				stringVal, ok := rawValue.(string)
-				// TODO: do we need this after changing internalId's implementation?
-				if ok && isValidInternalId(stringVal) {
-					internalId = newInternalResourceIdFromString(stringVal)
-					d.SetId(generateAltId(internalId, hostRec.Ref))
-				}
-			}
-		}
-
-		if internalId == nil {
-			internalId = generateInternalId()
-		}
-	} else if ref != hostRec.Ref {
-		internalId, _, _ := getAltIdFields(d.Id())
-		d.SetId(generateAltId(internalId, hostRec.Ref))
+		internalId = generateInternalId()
 	}
+	d.SetId(generateAltId(internalId, hostRec.Ref))
 
 	return
 }
@@ -251,26 +280,19 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 //       NIOS returns, because the opposite may be a sign of a misconfiguration.
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	obj, err := getAndRenewHostRecAltId(d, m)
-
 	// TODO: returning a nil object instead of 'not found' error type is not a good way,
 	//       need to reconsider this.
 	if err != nil || obj == nil {
 		return err
 	}
 
-	internalId, _, valid := getAltIdFields(d.Id())
-	if !valid {
-		if internalId == nil {
-			return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
-		}
-		internalId = generateInternalId()
-	}
+	internalId, _ := getAltIdFields(d.Id())
 
 	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
 		d.Set("allocated_ipv6_addr", "")
 	} else {
 		d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr)
-		if !valid {
+		if _, found := d.GetOk("ipv6_cidr"); !found {
 			d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr)
 		}
 	}
@@ -278,7 +300,7 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		d.Set("allocated_ipv4_addr", "")
 	} else {
 		d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr)
-		if !valid {
+		if _, found := d.GetOk("ipv4_cidr"); !found {
 			d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr)
 		}
 	}
@@ -337,6 +359,7 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
+// TODO: do we need it?
 // returns false if enable_dns was changed and this change is not acceptable
 func dnsViewChangeValid(d *schema.ResourceData) bool {
 	enableDns := d.Get("enable_dns").(bool)
@@ -443,8 +466,8 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	internalId, _, valid := getAltIdFields(d.Id())
-	if !valid {
+	internalId, _ := getAltIdFields(d.Id())
+	if internalId == nil {
 		return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
 	}
 	extAttrs[eaNameForInternalId] = internalId.String()
@@ -534,8 +557,8 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		log.Printf("WARNING: getting an error while determining ID of the resource to be cleanned up (probably non-existent resource, continuing): ): %s", err)
 		return nil
 	}
-	_, ref, valid := getAltIdFields(d.Id())
-	if !valid {
+	_, ref := getAltIdFields(d.Id())
+	if ref == "" {
 		return fmt.Errorf("resource ID '%s' has an invalid format", d.Id())
 	}
 

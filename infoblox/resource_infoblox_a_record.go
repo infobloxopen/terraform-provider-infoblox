@@ -24,7 +24,6 @@ func resourceARecord() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
 				Description: "Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty.",
 			},
 			"cidr": {
@@ -73,6 +72,9 @@ func resourceARecord() *schema.Resource {
 
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
+	if networkView == "" {
+		networkView = "default"
+	}
 	cidr := d.Get("cidr").(string)
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)

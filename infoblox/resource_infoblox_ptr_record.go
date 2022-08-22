@@ -24,7 +24,6 @@ func resourcePTRRecord() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
 			"cidr": {
@@ -79,6 +78,10 @@ func resourcePTRRecord() *schema.Resource {
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
+	if networkView == "" {
+		networkView = "default"
+	}
+
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 
@@ -198,13 +201,14 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	cidr := d.Get("cidr").(string)
-	ipAddr := d.Get("ip_addr").(string)
-	if cidr == "" && ipAddr == "" {
-		// update only if no automatic allocation was requested
-		if err = d.Set("record_name", obj.Name); err != nil {
-			return err
-		}
+	var ipAddr string
+	if obj.Ipv4Addr != "" {
+		ipAddr = obj.Ipv4Addr
+	} else {
+		ipAddr = obj.Ipv6Addr
+	}
+	if err = d.Set("ip_addr", ipAddr); err != nil {
+		return err
 	}
 
 	d.SetId(obj.Ref)

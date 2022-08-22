@@ -197,7 +197,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						})
 						depends_on = [infoblox_ipv4_network.net1]
 					}
-	
+
 					resource "infoblox_ip_association" "foo" {
 					  internal_id = infoblox_ip_allocation.foo.internal_id
 					  enable_dhcp = true

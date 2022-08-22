@@ -19,8 +19,7 @@ func resourceNetwork() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
-				Description: "Network view name available in NIOS Server.",
+				Description: "Network view name available in NIOS Server ('default' if not specified).",
 			},
 			"parent_cidr": {
 				Type:        schema.TypeString,
@@ -30,7 +29,6 @@ func resourceNetwork() *schema.Resource {
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
 				Description: "Set the parameter's value > 0 to allocate next available network with corresponding prefix length from the network container defined by 'parent_cidr'",
 			},
 			"cidr": {
@@ -42,13 +40,11 @@ func resourceNetwork() *schema.Resource {
 			"reserve_ip": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
 				Description: "The number of IP's you want to reserve in IPv4 Network.",
 			},
 			"reserve_ipv6": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
 				Description: "The number of IP's you want to reserve in IPv6 Network",
 			},
 			"gateway": {
@@ -75,6 +71,9 @@ func resourceNetwork() *schema.Resource {
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	networkViewName := d.Get("network_view").(string)
+	if networkViewName == "" {
+		networkViewName = "default"
+	}
 	parentCidr := d.Get("parent_cidr").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
