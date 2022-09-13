@@ -37,7 +37,7 @@ func resourceZoneAuth() *schema.Resource {
 			"comment": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Description of this Authoritative Zone",
+				Description: "Description of this Authoritative Zone; max 256 characters",
 			},
 			"soa_default_ttl": {
 				Type:        schema.TypeInt,

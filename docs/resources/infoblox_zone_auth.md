@@ -9,7 +9,7 @@ The following list describes the parameters you can define in the resource block
 * `fqdn`: required, specifies the fully qualified domain name for the DNS zone. Example: `prod123.example.com`
 * `ns_group`: required, name of Nameserver Group in Infoblox; will create NS records
 * `restart_if_needed`: optional, restart the member service if necessary for changes to take effect
-* `comment`: required, description of this Authoritative Zone
+* `comment`: required, description of this Authoritative Zone; max 256 characters
 * `soa_default_ttl`: optional, Time To Live (TTL) of the SOA record, in seconds; default `3600`
 * `soa_expire`: optional, time in seconds for secondary servers to stop answering about the zone because the data is stale; default `2419200` (1 week)
 * `soa_negative_ttl`: optional, time in seconds for secondary servers to cache data for 'Does Not Respond' responses; default `900`
