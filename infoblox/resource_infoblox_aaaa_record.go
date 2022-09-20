@@ -56,14 +56,14 @@ func resourceAAAARecord() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "A description about AAAA record.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "The Extensible attributes of AAAA record to be added/updated, as a map in JSON format",
 			},
 		},

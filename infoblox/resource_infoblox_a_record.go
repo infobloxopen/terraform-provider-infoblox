@@ -46,7 +46,7 @@ func resourceARecord() *schema.Resource {
 			"ip_addr": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Optional:    true, // making this optional because of possible dynalmic IP allocation (CIDR)
+				Optional:    true, // making this optional because of possible dynamic IP allocation (CIDR)
 				Description: "IP address to associate with the A-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
 			},
 			"ttl": {
@@ -57,14 +57,14 @@ func resourceARecord() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "Description of the A-record.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "Extensible attributes of the A-record to be added/updated, as a map in JSON format",
 			},
 		},

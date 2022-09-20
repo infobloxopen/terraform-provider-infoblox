@@ -45,14 +45,14 @@ func resourceCNAMERecord() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "A description about CNAME record.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "The Extensible attributes of CNAME record, as a map in JSON format",
 			},
 		},

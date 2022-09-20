@@ -30,6 +30,7 @@ func resourceNetwork() *schema.Resource {
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     0,
 				Description: "Set the parameter's value > 0 to allocate next available network with corresponding prefix length from the network container defined by 'parent_cidr'",
 			},
 			"cidr": {
@@ -41,11 +42,13 @@ func resourceNetwork() *schema.Resource {
 			"reserve_ip": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     0,
 				Description: "The number of IP's you want to reserve in IPv4 Network.",
 			},
 			"reserve_ipv6": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     0,
 				Description: "The number of IP's you want to reserve in IPv6 Network",
 			},
 			"gateway": {

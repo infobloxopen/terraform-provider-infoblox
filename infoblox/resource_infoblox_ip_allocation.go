@@ -92,14 +92,14 @@ func resourceIPAllocation() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "A description of IP address allocation.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "The extensible attributes for IP address allocation, as a map in JSON format",
 			},
 			"internal_id": {
