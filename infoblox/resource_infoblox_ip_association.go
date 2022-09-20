@@ -35,8 +35,8 @@ func resourceIpAssociation() *schema.Resource {
 			},
 			"internal_id": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "This value must point to the ID of the appropriate allocation resource.",
+				Optional:    true,
+				Description: "This value must point to the ID of the appropriate allocation resource. Required on resource creation.",
 			},
 		},
 	}
@@ -62,23 +62,9 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 		importOp                                                     bool
 	)
 
-	objMgr := ibclient.NewObjectManager(
-		m.(ibclient.IBConnector), "Terraform", "")
-
-	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
-	if internalId == nil {
-		return fmt.Errorf("internal_id field must not be empty")
-	}
-
-	if strings.TrimSpace(d.Id()) == "" {
-		// for the case of importing a resource and passing its ID as an empty string
-		// TODO: may we suppose this ID is never empty?
-		return fmt.Errorf("requested resource ID must not be empty")
-	}
-	internalIdRequested, ref, _ := getAltIdFields(d.Id())
-
-	if ref != "" {
-		return fmt.Errorf("resource ID '%s' has an invalid format for this resource type", d.Id())
+	hostRec, err = getAndRenewHostRecAltId(d, m)
+	if err != nil {
+		return err
 	}
 
 	if macAddrVal, ok := d.GetOk("mac_addr"); ok {
@@ -87,45 +73,6 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 
 	if duidVal, ok := d.GetOk("duid"); ok {
 		duid = duidVal.(string)
-	}
-
-	if internalIdRequested != nil {
-		if internalId.Equal(internalIdRequested) {
-			// The case when, by a mistake, a user (for an 'import' operation) requests the ID which
-			// corresponds to 'allocation' resource for this 'association' resource.
-			return fmt.Errorf("wrong ID '%s' specified", d.Id())
-
-			// Not handling this case may lead to an error message about a 'not found' resource,
-			// which may be confusing.
-		}
-
-		// reading already existing resource, already managed by Terraform
-		hostRec, err = objMgr.SearchHostRecordByAltId(internalId.String(), "", eaNameForInternalId)
-		if err != nil {
-			if _, ok := err.(*ibclient.NotFoundError); !ok {
-				return fmt.Errorf(
-					"error getting the allocated host record with ID '%s': %s",
-					d.Id(), err.Error())
-			}
-			log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
-			d.SetId("")
-			return nil
-		}
-	} else {
-		// importing a resource, to be managed by Terraform
-		importOp = true
-		hostRec, err = objMgr.SearchHostRecordByAltId("", d.Id(), eaNameForInternalId)
-		if err != nil {
-			if _, ok := err.(*ibclient.NotFoundError); !ok {
-				return fmt.Errorf(
-					"error getting the host record by reference '%s': %s",
-					ref, err.Error())
-			}
-			log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
-			// TODO: implement logging in case of an error returned, for all similar places as well
-			d.SetId("")
-			return nil
-		}
 	}
 
 	if hostRec.Ipv6Addrs != nil && len(hostRec.Ipv6Addrs) > 0 {

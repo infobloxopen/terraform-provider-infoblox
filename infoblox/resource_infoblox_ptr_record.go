@@ -194,17 +194,24 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		if err = d.Set("network_view", "default"); err != nil {
+			return err
+		}
+	}
+
 	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
 		return err
 	}
 
-	cidr := d.Get("cidr").(string)
-	ipAddr := d.Get("ip_addr").(string)
-	if cidr == "" && ipAddr == "" {
-		// update only if no automatic allocation was requested
-		if err = d.Set("record_name", obj.Name); err != nil {
-			return err
-		}
+	var ipAddr string
+	if obj.Ipv4Addr != "" {
+		ipAddr = obj.Ipv4Addr
+	} else {
+		ipAddr = obj.Ipv6Addr
+	}
+	if err = d.Set("ip_addr", ipAddr); err != nil {
+		return err
 	}
 
 	d.SetId(obj.Ref)

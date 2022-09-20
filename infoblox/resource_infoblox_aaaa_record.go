@@ -56,14 +56,14 @@ func resourceAAAARecord() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "A description about AAAA record.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
 				Optional:    true,
+				Default:     "",
 				Description: "The Extensible attributes of AAAA record to be added/updated, as a map in JSON format",
 			},
 		},
@@ -154,6 +154,12 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 	if err = d.Set("ipv6_addr", obj.Ipv6Addr); err != nil {
 		return err
+	}
+
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		if err = d.Set("network_view", "default"); err != nil {
+			return err
+		}
 	}
 
 	ttl := int(obj.Ttl)

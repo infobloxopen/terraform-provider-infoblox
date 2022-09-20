@@ -49,3 +49,32 @@ There are data sources for the following objects:
 - A-record
 - CNAME-record
 - IPv4 Network
+
+## Importing existing resources
+
+There is a possibility to import existing resources, enabling them to be managed by Terraform.
+As of now, there is a limitation: you have to write full resource's definition yourself.
+
+In general, the process of importing an existing resource looks like this:
+
+- write a new Terraform file (ex. a-record-imported.tf) with the content:
+  ```
+  resource "infoblox_a_record" "a_rec_1_imported" {
+    fqdn = "rec-a-1.imported.test.com"
+    ip_addr = "192.168.1.2"
+    ttl = 10
+    comment = "A-record to be imported"
+    ext_attrs = jsonencode({
+      "Location" = "New office"
+    })
+  }
+  ```
+- get a reference for the resource you want to import (ex. by using `curl` tool)
+- issue a command of the form `terraform import RESOURCE_TYPE.RESOURCE_NAME RESOURCE_REFERENCE`.
+  Example: `terraform import infoblox_a_record.a_rec_1_imported record:a/ZG5zLmJpbmRfYSQuX2RlZmF1bHQub3JnLmV4YW1wbGUsc3RhdGljMSwxLjIuMy40:rec-a-1.imported.test.com/default`
+
+Please, note that if some of resource's properties (supported by the Infoblox provider plugin) is not defined or
+is empty for the object on NIOS side, then appropriate resource's property must be empty or not defined.
+Otherwise, you will get a difference in the resource's actual state and resource's description you specified,
+and thus you will get a resource's update performed on the next `terraform apply` command invocation,
+which will actually set the value of the property to the one which you defined (ex. empty value).

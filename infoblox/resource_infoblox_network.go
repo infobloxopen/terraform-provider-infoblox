@@ -223,6 +223,10 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 		if err = d.Set("network_view", obj.NetviewName); err != nil {
 			return err
 		}
+	} else {
+		if err = d.Set("network_view", "default"); err != nil {
+			return err
+		}
 	}
 
 	if err = d.Set("cidr", obj.Cidr); err != nil {

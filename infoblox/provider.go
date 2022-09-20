@@ -40,10 +40,16 @@ func (id *internalResourceId) Equal(id2 *internalResourceId) bool {
 	if id2 == nil {
 		panic("the argument must not be nil")
 	}
+	if id == nil {
+		return false
+	}
 	return id.value.String() == id2.value.String()
 }
 
 func (id *internalResourceId) String() string {
+	if id == nil {
+		return ""
+	}
 	return id.value.String()
 }
 
@@ -88,20 +94,22 @@ func generateAltId(internalId *internalResourceId, ref string) string {
 		internalId.String(), altIdSeparator, ref)
 }
 
-// valid == true if:
-//   - exactly 2 parts found
-//   - ... and separated by the delimiter
-//   - ... and the 1st one is a valid internal ID
-//   - ... and the 2nd one is not empty
-func getAltIdFields(altId string) (internalId *internalResourceId, ref string, valid bool) {
+func getAltIdFields(altId string) (internalId *internalResourceId, ref string) {
 	idParts := strings.Split(altId, altIdSeparator)
 	switch len(idParts) {
 	case 1:
-		internalId = newInternalResourceIdFromString(idParts[0])
+		if isValidInternalId(idParts[0]) {
+			internalId = newInternalResourceIdFromString(idParts[0])
+		} else {
+			ref = strings.TrimSpace(idParts[0])
+		}
 	case 2:
-		internalId = newInternalResourceIdFromString(idParts[0])
-		ref = idParts[1]
-		valid = internalId != nil && ref != ""
+		if isValidInternalId(idParts[0]) {
+			internalId = newInternalResourceIdFromString(idParts[0])
+			ref = strings.TrimSpace(idParts[1])
+		} else {
+			ref = strings.TrimSpace(idParts[0])
+		}
 	}
 
 	return
@@ -189,7 +197,6 @@ func Provider() *schema.Provider {
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
-
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {

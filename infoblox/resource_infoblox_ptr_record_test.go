@@ -281,6 +281,7 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				// TODO: implement a requirement of lower-case FQDNs
 				Config: `
 					resource "infoblox_ptr_record" "foo2"{
+						network_view = "default"
 						ptrdname="testPtrdName3.test.com"
 						record_name = "4.0.0.10.in-addr.arpa"
 						comment="PTR record created in reverse mapping zone with IP"
