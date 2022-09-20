@@ -23,6 +23,7 @@ func resourceAAAARecord() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
 			"dns_view": {
@@ -71,9 +72,6 @@ func resourceAAAARecord() *schema.Resource {
 
 func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
-	if networkView == "" {
-		networkView = "default"
-	}
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
@@ -156,6 +154,12 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 	if err = d.Set("ipv6_addr", obj.Ipv6Addr); err != nil {
 		return err
+	}
+
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		if err = d.Set("network_view", "default"); err != nil {
+			return err
+		}
 	}
 
 	ttl := int(obj.Ttl)

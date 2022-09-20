@@ -193,7 +193,6 @@ func Provider() *schema.Provider {
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
-
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {

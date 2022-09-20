@@ -24,6 +24,7 @@ func resourcePTRRecord() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "default",
 				Description: "Network view name of NIOS server.",
 			},
 			"cidr": {
@@ -78,10 +79,6 @@ func resourcePTRRecord() *schema.Resource {
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
-	if networkView == "" {
-		networkView = "default"
-	}
-
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 
@@ -195,6 +192,12 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	if err = d.Set("dns_view", obj.View); err != nil {
 		return err
+	}
+
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		if err = d.Set("network_view", "default"); err != nil {
+			return err
+		}
 	}
 
 	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
