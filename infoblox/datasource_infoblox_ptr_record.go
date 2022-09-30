@@ -27,7 +27,7 @@ func dataSourcePtrRecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
-				Description: "The name of the DNS PTR record in FQDN format",
+				Description: "The name of the DNS PTR-record in FQDN format",
 			},
 			"ip_addr": {
 				Type:        schema.TypeString,

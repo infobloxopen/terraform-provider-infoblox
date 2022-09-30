@@ -1,4 +1,4 @@
-# A-record Datasource
+# A-record Data Source
 
 Use the `infoblox_a_record` data source to retrieve the following information for an A-record, which is managed by a NIOS server:
 
