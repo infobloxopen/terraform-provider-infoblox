@@ -47,8 +47,12 @@ may be no explicit note in the appropriate clauses.
 There are data sources for the following objects:
 
 - A-record
+- AAAA-record
 - CNAME-record
+- PTR-record
 - IPv4 Network
+- IPv4 Network Container
+- Network View
 
 ## Importing existing resources
 
