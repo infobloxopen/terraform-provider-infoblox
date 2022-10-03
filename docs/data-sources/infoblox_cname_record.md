@@ -15,7 +15,7 @@ The following list describes the parameters you must define in an `infoblox_cnam
 * `canonical`: the canonical name of the record in the FQDN format.
 * `alias`: the alias name of the record in the FQDN format.
 
-### Example of the CNAME-record Datasource Block
+### Example of the CNAME-record Data Source Block
 
 ```hcl
 data "infoblox_cname_record" "foo"{

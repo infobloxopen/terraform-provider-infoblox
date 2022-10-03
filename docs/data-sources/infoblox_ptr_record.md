@@ -18,7 +18,7 @@ The following list describes the parameters you must define in an `infoblox_ptr_
 * `record_name`: the name of the DNS PTR-record in FQDN format; may be used instead of an IP-address. Example: 1.0.0.10.in-addr.arpa.
 * `ptrdname`: the fully qualified domain name which PTR-record points to.
 
-### Example of the PTR-record Datasource Block
+### Example of the PTR-record Data Source Block
 
 This example defines a data source of type `infoblox_ptr_record` and the name "vip_host", which is configured in a Terraform file.
 You can reference this resource and retrieve information about it. For example,

@@ -16,7 +16,7 @@ The following list describes the parameters you must define in an `infoblox_aaaa
 * `ipv6_addr`: the IPv6 address associated with the AAAA-record.
 * `fqdn`: the fully qualified domain name which the IP address is assigned to.
 
-### Example of the AAAA-record Datasource Block
+### Example of the AAAA-record Data Source Block
 
 This example defines a data source of type `infoblox_aaaa_record` and the name "vip_host", which is configured in a Terraform file.
 You can reference this resource and retrieve information about it. For example,
