@@ -1,4 +1,4 @@
-# IPv4 Network Datasource
+# IPv4 Network Data Source
 
 The data source `infoblox_ipv4_network` for the network object allows you to get the following parameters for an IPv4 network resource:
 
@@ -16,5 +16,13 @@ To get information about a network, you must specify a combination of the networ
 data "infoblox_ipv4_network" "nearby_network" {
   network_view = "default"
   cidr = "192.168.128.0/20"
+}
+
+output "comment" {
+  value = data.infoblox_ipv4_network.nearby_network.comment
+}
+
+output "ext_attrs" {
+  value = data.infoblox_ipv4_network.nearby_network.ext_attrs
 }
 ```

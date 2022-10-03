@@ -1,4 +1,4 @@
-# CNAME-record Datasource
+# CNAME-record Data Source
 
 Use the `infoblox_cname_record` data resource for the CNAME object to retrieve the following information for CNAME records:
 
@@ -15,12 +15,28 @@ The following list describes the parameters you must define in an `infoblox_cnam
 * `canonical`: the canonical name of the record in the FQDN format.
 * `alias`: the alias name of the record in the FQDN format.
 
-### Example of the CNAME-record Datasource Block
+### Example of the CNAME-record Data Source Block
 
 ```hcl
 data "infoblox_cname_record" "foo"{
   dns_view="default"
   alias="foo.test.com"
   canonical="main.test.com"
+}
+
+output "ttl" {
+  value = data.infoblox_cname_record.foo.ttl
+}
+
+output "zone" {
+  value = data.infoblox_cname_record.foo.zone
+}
+
+output "comment" {
+  value = data.infoblox_cname_record.foo.comment
+}
+
+output "ext_attrs" {
+  value = data.infoblox_cname_record.foo.ext_attrs
 }
 ```

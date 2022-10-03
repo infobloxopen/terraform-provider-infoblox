@@ -1,4 +1,4 @@
-# A-record Datasource
+# A-record Data Source
 
 Use the `infoblox_a_record` data source to retrieve the following information for an A-record, which is managed by a NIOS server:
 
@@ -15,7 +15,7 @@ The following list describes the parameters you must define in an `infoblox_a_re
 * `ip_addr`: the IPv4 address associated with the A-record.
 * `fqdn`: the fully qualified domain name to which the IP address is assigned.
 
-### Example of the A-record Datasource Block
+### Example of the A-record Data Source Block
 
 This example defines a data source of type `infoblox_a_record` and the name "vip_host", which is configured in a Terraform file. You can reference this resource and retrieve information about it. For example, `data.infoblox_a_record.vip_host.comment` returns a text as is a comment for the A-record.
 
