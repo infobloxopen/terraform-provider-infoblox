@@ -67,12 +67,19 @@ func (objMgr *ObjectManager) UpdateNetworkContainer(
 	nc.Ea = setEas
 	nc.Comment = comment
 
+	// Network view is not allowed to be updated,
+	// thus making its name empty (will not appear among data which we update).
+	netViewSaved := nc.NetviewName
+	nc.NetviewName = ""
+
 	reference, err := objMgr.connector.UpdateObject(nc, ref)
 	if err != nil {
 		return nil, err
 	}
 
 	nc.Ref = reference
+	nc.NetviewName = netViewSaved
+
 	return nc, nil
 }
 

@@ -118,11 +118,45 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordCNAME, err := objMgr.GetCNAMERecordByRef(d.Id())
+	obj, err := objMgr.GetCNAMERecordByRef(d.Id())
 	if err != nil {
 		return fmt.Errorf("getting CNAME Record with ID: %s failed: %s", d.Id(), err.Error())
 	}
-	d.SetId(recordCNAME.Ref)
+
+	if err = d.Set("alias", obj.Name); err != nil {
+		return err
+	}
+	if err = d.Set("canonical", obj.Canonical); err != nil {
+		return err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
 
 	return nil
 }

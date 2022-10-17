@@ -42,13 +42,13 @@ func resourceNetwork() *schema.Resource {
 			"reserve_ip": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Computed:    true,
 				Description: "The number of IP's you want to reserve in IPv4 Network.",
 			},
 			"reserve_ipv6": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     0,
+				Computed:    true,
 				Description: "The number of IP's you want to reserve in IPv6 Network",
 			},
 			"gateway": {
@@ -288,7 +288,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 
 	Network, err = objMgr.UpdateNetwork(d.Id(), extAttrs, comment)
 	if err != nil {
-		return fmt.Errorf("Updation of IPv4 Network under network view '%s' failed: '%s'", networkViewName, err.Error())
+		return fmt.Errorf("Updation of IP Network under network view '%s' failed: '%s'", networkViewName, err.Error())
 	}
 
 	d.SetId(Network.Ref)

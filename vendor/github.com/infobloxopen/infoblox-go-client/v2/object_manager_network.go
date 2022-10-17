@@ -108,12 +108,19 @@ func (objMgr *ObjectManager) UpdateNetwork(
 	nw.Ea = setEas
 	nw.Comment = comment
 
+	// Network view is not allowed to be updated,
+	// thus making its name empty (will not appear among data which we update).
+	netViewSaved := nw.NetviewName
+	nw.NetviewName = ""
+
 	newRef, err := objMgr.connector.UpdateObject(nw, ref)
 	if err != nil {
 		return nil, err
 	}
 
 	nw.Ref = newRef
+	nw.NetviewName = netViewSaved
+
 	return nw, nil
 }
 

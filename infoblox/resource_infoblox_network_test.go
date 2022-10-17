@@ -120,8 +120,9 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 				Check: validateNetwork(
 					"infoblox_ipv4_network.foo",
 					&ibclient.Network{
-						Cidr:    "10.0.0.0/24",
-						Comment: "10.0.0.0/24 network created",
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/24",
+						Comment:     "10.0.0.0/24 network created",
 						Ea: ibclient.EA{
 							"Network Name": "demo-network",
 							"Tenant ID":    "terraform_test_tenant",
@@ -228,8 +229,9 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 				Check: validateNetwork(
 					"infoblox_ipv6_network.foo",
 					&ibclient.Network{
-						Cidr:    "2001:db8:abcd:12::/64",
-						Comment: "2001:db8:abcd:12::/64 network created",
+						NetviewName: "default",
+						Cidr:        "2001:db8:abcd:12::/64",
+						Comment:     "2001:db8:abcd:12::/64 network created",
 						Ea: ibclient.EA{
 							"Network Name": "demo-network",
 							"Tenant ID":    "terraform_test_tenant",
