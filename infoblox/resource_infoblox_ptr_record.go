@@ -51,8 +51,8 @@ func resourcePTRRecord() *schema.Resource {
 			},
 			"record_name": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
-				Default:     "",
 				Description: "The name of the DNS PTR record in FQDN format",
 			},
 			"ttl": {
@@ -139,6 +139,9 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("ip_addr", recordPTR.Ipv4Addr); err != nil {
 		return err
 	}
+	if err = d.Set("record_name", recordPTR.Name); err != nil {
+		return err
+	}
 	d.SetId(recordPTR.Ref)
 
 	return nil
@@ -211,6 +214,9 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		ipAddr = obj.Ipv6Addr
 	}
 	if err = d.Set("ip_addr", ipAddr); err != nil {
+		return err
+	}
+	if err = d.Set("record_name", obj.Name); err != nil {
 		return err
 	}
 
@@ -292,6 +298,9 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err = d.Set("ip_addr", recordPTRUpdated.Ipv4Addr); err != nil {
+		return err
+	}
+	if err = d.Set("record_name", recordPTRUpdated.Name); err != nil {
 		return err
 	}
 	d.SetId(recordPTRUpdated.Ref)
