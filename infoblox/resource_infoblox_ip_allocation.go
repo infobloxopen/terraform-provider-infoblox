@@ -114,7 +114,7 @@ func resourceIPAllocation() *schema.Resource {
 	}
 }
 
-func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}) (hostRec *ibclient.HostRecord, err error) {
+func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}, updateId bool) (hostRec *ibclient.HostRecord, err error) {
 	var (
 		ref        string
 		internalId *internalResourceId
@@ -145,7 +145,7 @@ func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}) (hostRec *ib
 			d.SetId("")
 			return nil, nil
 		}
-		if hostRec.Ref != ref {
+		if hostRec.Ref != ref && updateId {
 			d.SetId(generateAltId(internalId, hostRec.Ref))
 		}
 
@@ -179,7 +179,11 @@ func getAndRenewHostRecAltId(d *schema.ResourceData, m interface{}) (hostRec *ib
 	if internalId == nil {
 		internalId = generateInternalId()
 	}
-	d.SetId(generateAltId(internalId, hostRec.Ref))
+	d.Set("internal_id", internalId.String())
+
+	if updateId {
+		d.SetId(generateAltId(internalId, hostRec.Ref))
+	}
 
 	return
 }
@@ -279,7 +283,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 //       field's values in the definition MUST be the same as at the object that
 //       NIOS returns, because the opposite may be a sign of a misconfiguration.
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
-	obj, err := getAndRenewHostRecAltId(d, m)
+	obj, err := getAndRenewHostRecAltId(d, m, true)
 	// TODO: returning a nil object instead of 'not found' error type is not a good way,
 	//       need to reconsider this.
 	if err != nil || obj == nil {
@@ -353,7 +357,6 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("internal_id", internalId.String())
 	d.SetId(generateAltId(internalId, obj.Ref))
 
 	return nil
@@ -388,7 +391,7 @@ func dnsViewChangeValid(d *schema.ResourceData) bool {
 func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	var err error
 
-	hostRecObj, err := getAndRenewHostRecAltId(d, m)
+	hostRecObj, err := getAndRenewHostRecAltId(d, m, true)
 	if err != nil || hostRecObj == nil {
 		return err
 	}
@@ -530,7 +533,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
-	_, err := getAndRenewHostRecAltId(d, m)
+	_, err := getAndRenewHostRecAltId(d, m, true)
 	if err != nil {
 		return err
 	}
