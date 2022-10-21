@@ -62,7 +62,7 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 		importOp                                                     bool
 	)
 
-	hostRec, err = getAndRenewHostRecAltId(d, m)
+	hostRec, err = getAndRenewHostRecAltId(d, m, false)
 	if err != nil {
 		return err
 	}
