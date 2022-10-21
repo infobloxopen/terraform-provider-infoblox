@@ -136,7 +136,15 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
 
-	if err = d.Set("ip_addr", recordPTR.Ipv4Addr); err != nil {
+	// After reading a newly created object, IP address will be
+	// set even if it is not specified directly in the configuration of the resource,
+	if recordPTR.Ipv4Addr != "" {
+		ipAddr = recordPTR.Ipv4Addr
+	} else {
+		ipAddr = recordPTR.Ipv6Addr
+	}
+
+	if err = d.Set("ip_addr", ipAddr); err != nil {
 		return err
 	}
 	if err = d.Set("record_name", recordPTR.Name); err != nil {
