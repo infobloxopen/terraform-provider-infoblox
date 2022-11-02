@@ -11,10 +11,6 @@ import (
 
 func resourceIpAssoc() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
-
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -124,7 +120,7 @@ func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -179,7 +175,7 @@ func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -264,7 +260,7 @@ func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 b
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 

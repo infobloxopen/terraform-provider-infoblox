@@ -10,9 +10,7 @@ import (
 
 func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -57,7 +55,7 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
-		if attrName == "Tenant ID" {
+		if attrName == eaNameForTenantId {
 			tenantID = attrValue
 			break
 		}
@@ -90,7 +88,7 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -148,7 +146,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -190,7 +188,7 @@ func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
-		if attrName == "Tenant ID" {
+		if attrName == eaNameForTenantId {
 			tenantID = attrValue
 			break
 		}

@@ -16,9 +16,7 @@ func resourceARecord() *schema.Resource {
 		Update: resourceARecordUpdate,
 		Delete: resourceARecordDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -103,7 +101,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -133,7 +131,7 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -240,7 +238,7 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -279,7 +277,7 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	tempVal, found := extAttrs["Tenant ID"]
+	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}

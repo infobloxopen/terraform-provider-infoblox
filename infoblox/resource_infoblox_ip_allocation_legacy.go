@@ -11,10 +11,6 @@ import (
 
 func resourceIPAlloc() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
-
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -106,7 +102,7 @@ func resourceIPAllocRequest(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -171,7 +167,7 @@ func resourceIPAllocGet(d *schema.ResourceData, m interface{}, isIPv6 bool) erro
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -228,7 +224,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -333,7 +329,7 @@ func resourceIPAllocRelease(d *schema.ResourceData, m interface{}, isIPv6 bool) 
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
