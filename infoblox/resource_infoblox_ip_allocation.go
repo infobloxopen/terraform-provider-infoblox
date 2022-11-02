@@ -19,7 +19,9 @@ func resourceIPAllocation() *schema.Resource {
 		Update: resourceAllocationUpdate,
 		Delete: resourceAllocationRelease,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: ipAllocationImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -563,4 +565,21 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	internalId := newInternalResourceIdFromString(d.Id())
+	if internalId == nil {
+		return nil, fmt.Errorf("ID value provided is not in a proper format")
+	}
+
+	d.SetId(internalId.String())
+	if err := d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
+	if _, err := getOrFindHostRec(d, m); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }

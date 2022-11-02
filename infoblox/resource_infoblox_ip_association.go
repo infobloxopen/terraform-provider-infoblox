@@ -11,7 +11,9 @@ import (
 
 func resourceIpAssociation() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: ipAssociationImporter,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"mac_addr": {
@@ -213,4 +215,21 @@ func resourceIpAssociationInit() *schema.Resource {
 	association.Delete = resourceIpAssociationDelete
 
 	return association
+}
+
+func ipAssociationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	internalId := newInternalResourceIdFromString(d.Id())
+	if internalId == nil {
+		return nil, fmt.Errorf("ID value provided is not in a proper format")
+	}
+
+	d.SetId(internalId.String())
+	if err := d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
+	if _, err := getOrFindHostRec(d, m); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }
