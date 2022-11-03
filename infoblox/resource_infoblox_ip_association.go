@@ -2,7 +2,6 @@ package infoblox
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -13,7 +12,7 @@ import (
 func resourceIpAssociation() *schema.Resource {
 	return &schema.Resource{
 		Importer: &schema.ResourceImporter{
-			State: stateImporter,
+			State: ipAssociationImporter,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -38,6 +37,11 @@ func resourceIpAssociation() *schema.Resource {
 				Optional:    true,
 				Description: "This value must point to the ID of the appropriate allocation resource. Required on resource creation.",
 			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
@@ -53,26 +57,17 @@ func resourceIpAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 	var (
-		err                                                          error
-		hostRec                                                      *ibclient.HostRecord
-		duid, macAddr                                                string
-		duidActual, macAddrActual                                    string
-		enableDhcp                                                   bool
-		enableDhcpActual, enableDhcpActualIpv4, enableDhcpActualIpv6 bool
-		importOp                                                     bool
+		err                       error
+		hostRec                   *ibclient.HostRecord
+		duidActual, macAddrActual string
+		enableDhcpActual          bool
+		enableDhcpActualIpv4      bool
+		enableDhcpActualIpv6      bool
 	)
 
-	hostRec, err = getAndRenewHostRecAltId(d, m, false)
+	hostRec, err = getOrFindHostRec(d, m)
 	if err != nil {
 		return err
-	}
-
-	if macAddrVal, ok := d.GetOk("mac_addr"); ok {
-		macAddr = macAddrVal.(string)
-	}
-
-	if duidVal, ok := d.GetOk("duid"); ok {
-		duid = duidVal.(string)
 	}
 
 	if hostRec.Ipv6Addrs != nil && len(hostRec.Ipv6Addrs) > 0 {
@@ -95,19 +90,24 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 
 	enableDhcpActual = enableDhcpActualIpv4 || enableDhcpActualIpv6
 
-	if importOp {
-		if duid != duidActual || macAddr != macAddrActual || enableDhcp != enableDhcpActual {
-			return fmt.Errorf("one of the resource properties is not equal to appropriate NIOS object's value")
-		}
+	if err = d.Set("ref", hostRec.Ref); err != nil {
+		return err
 	}
-	d.Set("duid", duidActual)
-	d.Set("mac_addr", macAddrActual)
-	d.Set("enable_dhcp", enableDhcpActual)
+	if err = d.Set("duid", duidActual); err != nil {
+		return err
+	}
+	if err = d.Set("mac_addr", macAddrActual); err != nil {
+		return err
+	}
+	if err = d.Set("enable_dhcp", enableDhcpActual); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func resourceIpAssociationDelete(d *schema.ResourceData, m interface{}) error {
+	// TODO: process carefully the case: the host record is already deleted
 	if err := resourceIpAssociationCreateUpdateCommon(d, m, "00:00:00:00:00:00", ""); err != nil {
 		return err
 	}
@@ -136,6 +136,7 @@ func resourceIpAssociationCreateUpdateCommon(
 	d *schema.ResourceData, m interface{}, mac string, duid string) (err error) {
 
 	var (
+		hostRec     *ibclient.HostRecord
 		recIpV4Addr *ibclient.HostRecordIpv4Addr
 		recIpV6Addr *ibclient.HostRecordIpv6Addr
 		ipV4Addr    string
@@ -143,25 +144,16 @@ func resourceIpAssociationCreateUpdateCommon(
 		tenantId    string
 	)
 
-	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
+	hostRec, err = getOrFindHostRec(d, m)
+	if err != nil {
+		return err
+	}
 
 	internalIdStr := d.Get("internal_id").(string)
 	if internalIdStr == "" {
 		return fmt.Errorf("internal_id field must not be empty")
 	}
 	enableDhcp := d.Get("enable_dhcp").(bool)
-
-	hostRec, err := objMgr.SearchHostRecordByAltId(internalIdStr, "", eaNameForInternalId)
-	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return fmt.Errorf(
-				"error getting the allocated host record with ID '%s': %s",
-				d.Id(), err.Error())
-		}
-		log.Printf("resource with the ID '%s' has been lost, removing it", d.Id())
-		d.SetId("")
-		return nil
-	}
 
 	if len(hostRec.Ipv4Addrs) > 0 {
 		recIpV4Addr = &hostRec.Ipv4Addrs[0]
@@ -175,14 +167,14 @@ func resourceIpAssociationCreateUpdateCommon(
 	mac = strings.Replace(mac, "-", ":", -1)
 
 	if hostRec.Ea != nil {
-		if tempVal, found := hostRec.Ea["Tenant ID"]; found {
+		if tempVal, found := hostRec.Ea[eaNameForTenantId]; found {
 			if tempStrVal, ok := tempVal.(string); ok {
 				tenantId = tempStrVal
 			}
 		}
 
 	}
-	objMgr = ibclient.NewObjectManager(
+	objMgr := ibclient.NewObjectManager(
 		m.(ibclient.IBConnector), "Terraform", tenantId)
 
 	_, err = objMgr.UpdateHostRecord(
@@ -203,6 +195,10 @@ func resourceIpAssociationCreateUpdateCommon(
 			d.Id(), internalIdStr, err.Error())
 	}
 
+	if err = d.Set("ref", hostRec.Ref); err != nil {
+		return err
+	}
+
 	// Generate an ID for a newly created resource.
 	if d.Id() == "" {
 		d.SetId(generateInternalId().String())
@@ -219,4 +215,21 @@ func resourceIpAssociationInit() *schema.Resource {
 	association.Delete = resourceIpAssociationDelete
 
 	return association
+}
+
+func ipAssociationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	internalId := newInternalResourceIdFromString(d.Id())
+	if internalId == nil {
+		return nil, fmt.Errorf("ID value provided is not in a proper format")
+	}
+
+	d.SetId(internalId.String())
+	if err := d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
+	if _, err := getOrFindHostRec(d, m); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }

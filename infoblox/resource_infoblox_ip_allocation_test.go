@@ -85,8 +85,13 @@ func validateIPAllocation(
 			return fmt.Errorf("ID is not set")
 		}
 
-		internalId, ref := getAltIdFields(id)
-		if internalId == nil || ref == "" {
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
+		internalId := newInternalResourceIdFromString(id)
+		if internalId == nil {
 			return fmt.Errorf("resource ID '%s' has an invalid format", id)
 		}
 		connector := testAccProvider.Meta().(ibclient.IBConnector)
@@ -100,7 +105,7 @@ func validateIPAllocation(
 				if expectedValue == nil {
 					return nil
 				}
-				return fmt.Errorf("object with reference '%s' not found, but expected to exist", ref)
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
 			}
 		}
 		expNv := expectedValue.NetworkView
@@ -361,9 +366,9 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 		if rs.Type != "infoblox_ip_allocation" {
 			continue
 		}
-		_, ref := getAltIdFields(rs.Primary.ID)
-		if ref == "" {
-			return fmt.Errorf("resource ID '%s' has an invalid format", rs.Primary.ID)
+		ref, found := rs.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("resource with ID '%s' has no NIOS object reference", rs.Primary.ID)
 		}
 		res, err := objMgr.GetHostRecordByRef(ref)
 		if err != nil {

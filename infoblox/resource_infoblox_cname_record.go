@@ -16,9 +16,7 @@ func resourceCNAMERecord() *schema.Resource {
 		Update: resourceCNAMERecordUpdate,
 		Delete: resourceCNAMERecordDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -85,7 +83,7 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -112,7 +110,7 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
@@ -190,7 +188,7 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
@@ -217,7 +215,7 @@ func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)

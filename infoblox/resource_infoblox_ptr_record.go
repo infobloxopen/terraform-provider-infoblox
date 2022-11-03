@@ -16,9 +16,7 @@ func resourcePTRRecord() *schema.Resource {
 		Update: resourcePTRRecordUpdate,
 		Delete: resourcePTRRecordDelete,
 
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -96,7 +94,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -164,7 +162,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -265,7 +263,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -328,7 +326,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 

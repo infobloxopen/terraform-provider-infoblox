@@ -19,6 +19,7 @@ import (
 const (
 	ttlUndef            = math.MinInt32
 	eaNameForInternalId = "Terraform Internal ID"
+	eaNameForTenantId   = "Tenant ID"
 	altIdSeparator      = "|"
 )
 
@@ -229,13 +230,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	requestBuilder := &ibclient.WapiRequestBuilder{}
 	requestor := &ibclient.WapiHttpRequestor{}
 
+	// TODO: reconsider. For the case when there is a need to keep more data than just a go-client's Connector.
 	conn, err := ibclient.NewConnector(hostConfig, authConfig, transportConfig, requestBuilder, requestor)
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
 	}
 	return conn, nil
-}
-
-func stateImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, nil
 }

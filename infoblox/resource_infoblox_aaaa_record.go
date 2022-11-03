@@ -11,13 +11,11 @@ import (
 
 func resourceAAAARecord() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAAAARecordCreate,
-		Read:   resourceAAAARecordGet,
-		Update: resourceAAAARecordUpdate,
-		Delete: resourceAAAARecordDelete,
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
+		Create:   resourceAAAARecordCreate,
+		Read:     resourceAAAARecordGet,
+		Update:   resourceAAAARecordUpdate,
+		Delete:   resourceAAAARecordDelete,
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -88,7 +86,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -141,7 +139,7 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -232,7 +230,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -292,7 +290,7 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 

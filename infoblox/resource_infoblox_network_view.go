@@ -11,13 +11,11 @@ import (
 
 func resourceNetworkView() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkViewCreate,
-		Read:   resourceNetworkViewRead,
-		Update: resourceNetworkViewUpdate,
-		Delete: resourceNetworkViewDelete,
-		Importer: &schema.ResourceImporter{
-			State: stateImporter,
-		},
+		Create:   resourceNetworkViewCreate,
+		Read:     resourceNetworkViewRead,
+		Update:   resourceNetworkViewUpdate,
+		Delete:   resourceNetworkViewDelete,
+		Importer: &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -53,7 +51,7 @@ func resourceNetworkViewCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -79,7 +77,7 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -107,7 +105,7 @@ func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -135,7 +133,7 @@ func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	var tenantID string
-	if tempVal, ok := extAttrs["Tenant ID"]; ok {
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
