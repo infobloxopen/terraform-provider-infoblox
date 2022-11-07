@@ -484,6 +484,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
+		hostRecObj.View,
 		ipv4Cidr, ipv6Cidr,
 		ipv4Addr, ipv6Addr,
 		macAddr, duid,

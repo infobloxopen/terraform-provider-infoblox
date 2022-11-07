@@ -185,6 +185,7 @@ func resourceIPAllocGet(d *schema.ResourceData, m interface{}, isIPv6 bool) erro
 
 func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	networkView := d.Get("network_view").(string)
+	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
@@ -274,6 +275,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			"", cidr,
 			"", ipAddr,
 			"", duid,
@@ -295,6 +297,7 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			cidr, "",
 			ipAddr, "",
 			macAddr, "",
