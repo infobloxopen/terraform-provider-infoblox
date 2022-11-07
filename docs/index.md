@@ -12,6 +12,7 @@ There are resources for the following objects, supported by the plugin:
 -   PTR-record
 -   CNAME-record
 -   Host record
+-   Zone delegated
 
 Network container and network resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
