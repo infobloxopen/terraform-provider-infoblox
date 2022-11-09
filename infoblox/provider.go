@@ -21,6 +21,9 @@ const (
 	eaNameForInternalId = "Terraform Internal ID"
 	eaNameForTenantId   = "Tenant ID"
 	altIdSeparator      = "|"
+
+	defaultDNSView = "default"
+	defaultNetView = "default"
 )
 
 // Internal ID represents an immutable ID during resource's lifecycle.

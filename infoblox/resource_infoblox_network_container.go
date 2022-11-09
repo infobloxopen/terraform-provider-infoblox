@@ -16,7 +16,7 @@ func resourceNetworkContainer() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "The name of network view for the network container.",
 			},
 			"cidr": {

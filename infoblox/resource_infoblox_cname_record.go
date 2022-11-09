@@ -22,7 +22,7 @@ func resourceCNAMERecord() *schema.Resource {
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Description: "Dns View under which the zone has been created.",
 			},
 			"canonical": {

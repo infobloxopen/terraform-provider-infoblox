@@ -27,13 +27,13 @@ func resourceIPAllocation() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "network view name on NIOS server.",
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Description: "DNS view under which the zone has been created.",
 			},
 			"enable_dns": {

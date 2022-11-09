@@ -14,7 +14,7 @@ func dataSourcePtrRecord() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
 				Type:        schema.TypeString,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Optional:    true,
 				Description: "DNS view which the record's zone belongs to.",
 			},

@@ -17,7 +17,7 @@ func resourceNetwork() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "Network view name available in NIOS Server.",
 			},
 			"parent_cidr": {
@@ -222,7 +222,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	} else {
-		if err = d.Set("network_view", "default"); err != nil {
+		if err = d.Set("network_view", defaultNetView); err != nil {
 			return err
 		}
 	}

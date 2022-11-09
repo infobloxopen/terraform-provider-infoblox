@@ -482,6 +482,23 @@ func NewUserProfile(userprofile UserProfile) *UserProfile {
 	return &res
 }
 
+type DNSView struct {
+	IBBase      `json:"-"`
+	Ref         string `json:"_ref"`
+	Name        string `json:"name"`
+	NetworkView string `json:"network_view"`
+	Comment     string `json:"comment"`
+	Ea          EA     `json:"extattrs"`
+}
+
+func NewEmptyDNSView() *DNSView {
+	res := &DNSView{}
+	res.objectType = "view"
+	res.returnFields = []string{"extattrs", "name", "network_view", "comment"}
+
+	return res
+}
+
 type RecordA struct {
 	IBBase   `json:"-"`
 	Ref      string `json:"_ref,omitempty"`
