@@ -156,7 +156,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 					network.Cidr, networkViewName, err.Error())
 			}
 			if autoAllocateGateway && i == 1 {
-				gateway = newAddr.IPv4Address
+				gateway = newAddr.IPv6Address
 			}
 		}
 	} else {
