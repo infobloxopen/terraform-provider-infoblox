@@ -352,6 +352,42 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					},
 				),
 			},
+			{
+				Config: `
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip2.test.com"
+					ipv4_addr="10.0.0.2"
+					comment = "IPv4 and IPv6 are allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Test site"
+					  })
+					}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        "default",
+						EnableDns:   true,
+						Name:        "testhostnameip2.test.com",
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+						Comment:     "IPv4 and IPv6 are allocated",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
 		},
 	})
 }

@@ -12,7 +12,7 @@ type NotFoundError struct {
 }
 
 func (e *NotFoundError) Error() string {
-	return "not found"
+	return e.msg
 }
 
 func NewNotFoundError(msg string) *NotFoundError {
