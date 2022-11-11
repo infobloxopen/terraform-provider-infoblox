@@ -3,10 +3,16 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+)
+
+var (
+	networkIPv4Regexp = regexp.MustCompile("^network/.+")
+	networkIPv6Regexp = regexp.MustCompile("^ipv6network/.+")
 )
 
 func resourceNetwork() *schema.Resource {
@@ -17,7 +23,7 @@ func resourceNetwork() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "Network view name available in NIOS Server.",
 			},
 			"parent_cidr": {
@@ -150,7 +156,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 					network.Cidr, networkViewName, err.Error())
 			}
 			if autoAllocateGateway && i == 1 {
-				gateway = newAddr.IPv4Address
+				gateway = newAddr.IPv6Address
 			}
 		}
 	} else {
@@ -222,7 +228,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	} else {
-		if err = d.Set("network_view", "default"); err != nil {
+		if err = d.Set("network_view", defaultNetView); err != nil {
 			return err
 		}
 	}
@@ -331,7 +337,7 @@ func resourceIPv4NetworkCreate(d *schema.ResourceData, m interface{}) error {
 func resourceIPv4Network() *schema.Resource {
 	nw := resourceNetwork()
 	nw.Create = resourceIPv4NetworkCreate
-	nw.Read = resourceNetworkRead
+	nw.Read = resourceIPv4NetworkRead
 	nw.Update = resourceNetworkUpdate
 	nw.Delete = resourceNetworkDelete
 
@@ -345,9 +351,27 @@ func resourceIPv6NetworkCreate(d *schema.ResourceData, m interface{}) error {
 func resourceIPv6Network() *schema.Resource {
 	nw := resourceNetwork()
 	nw.Create = resourceIPv6NetworkCreate
-	nw.Read = resourceNetworkRead
+	nw.Read = resourceIPv6NetworkRead
 	nw.Update = resourceNetworkUpdate
 	nw.Delete = resourceNetworkDelete
 
 	return nw
+}
+
+func resourceIPv4NetworkRead(d *schema.ResourceData, m interface{}) error {
+	ref := d.Id()
+	if !networkIPv4Regexp.MatchString(ref) {
+		return fmt.Errorf("reference '%s' for 'network' object has an invalid format", ref)
+	}
+
+	return resourceNetworkRead(d, m)
+}
+
+func resourceIPv6NetworkRead(d *schema.ResourceData, m interface{}) error {
+	ref := d.Id()
+	if !networkIPv6Regexp.MatchString(ref) {
+		return fmt.Errorf("reference '%s' for 'ipv6network' object has an invalid format", ref)
+	}
+
+	return resourceNetworkRead(d, m)
 }

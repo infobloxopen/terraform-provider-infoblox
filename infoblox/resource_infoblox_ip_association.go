@@ -183,6 +183,7 @@ func resourceIpAssociationCreateUpdateCommon(
 		enableDhcp,
 		hostRec.Name,
 		hostRec.NetworkView,
+		hostRec.View,
 		"", "",
 		ipV4Addr, ipV6Addr,
 		mac, duid,

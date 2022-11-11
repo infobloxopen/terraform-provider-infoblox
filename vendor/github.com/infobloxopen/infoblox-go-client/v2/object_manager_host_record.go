@@ -155,6 +155,7 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 	enableDhcp bool,
 	name string,
 	netView string,
+	dnsView string,
 	ipv4cidr string,
 	ipv6cidr string,
 	ipv4Addr string,
@@ -237,9 +238,12 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 		recordHostIpAddr := NewHostRecordIpv6Addr(ipv6Addr, duid, enableDhcpv6, "")
 		recordHostIpv6AddrSlice = []HostRecordIpv6Addr{*recordHostIpAddr}
 	}
+	if !enabledns {
+		dnsView = ""
+	}
 	updateHostRecord := NewHostRecord(
 		"", name, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
-		eas, enabledns, "", "", hostRref, useTtl, ttl, comment, aliases)
+		eas, enabledns, dnsView, "", hostRref, useTtl, ttl, comment, aliases)
 	ref, err := objMgr.connector.UpdateObject(updateHostRecord, hostRref)
 	if err != nil {
 		return nil, err

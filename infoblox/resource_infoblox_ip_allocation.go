@@ -27,13 +27,13 @@ func resourceIPAllocation() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "network view name on NIOS server.",
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Description: "DNS view under which the zone has been created.",
 			},
 			"enable_dns": {
@@ -484,6 +484,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
+		hostRecObj.View,
 		ipv4Cidr, ipv6Cidr,
 		ipv4Addr, ipv6Addr,
 		macAddr, duid,

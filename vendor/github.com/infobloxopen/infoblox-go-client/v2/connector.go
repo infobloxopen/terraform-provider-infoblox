@@ -132,7 +132,6 @@ func getHTTPResponseError(resp *http.Response) error {
 	defer resp.Body.Close()
 	content, _ := ioutil.ReadAll(resp.Body)
 	msg := fmt.Sprintf("WAPI request error: %d('%s')\nContents:\n%s\n", resp.StatusCode, resp.Status, content)
-	log.Printf(msg)
 	if resp.StatusCode == http.StatusNotFound {
 		return NewNotFoundError(msg)
 	}
@@ -296,7 +295,7 @@ func (wrb *WapiRequestBuilder) BuildRequest(t RequestType, obj IBObject, ref str
 
 	req, err = http.NewRequest(t.toMethod(), urlStr, bytes.NewBuffer(bodyStr))
 	if err != nil {
-		log.Printf("err1: '%s'", err)
+		log.Printf("cannot build request: '%s'", err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")

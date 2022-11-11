@@ -10,6 +10,7 @@ import (
 var _ IBObjectManager = new(ObjectManager)
 
 type IBObjectManager interface {
+	GetDNSView(name string) (*DNSView, error)
 	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macOrDuid string, name string, comment string, eas EA) (*FixedAddress, error)
 	AllocateNetwork(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (network *Network, err error)
 	AllocateNetworkContainer(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (netContainer *NetworkContainer, err error)
@@ -72,7 +73,7 @@ type IBObjectManager interface {
 	UpdateAAAARecord(ref string, netView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordAAAA, error)
 	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
 	UpdateFixedAddress(fixedAddrRef string, netview string, name string, cidr string, ipAddr string, matchclient string, macOrDuid string, comment string, eas EA) (*FixedAddress, error)
-	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, netview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
+	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, netview string, dnsView string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	UpdateNetwork(ref string, setEas EA, comment string) (*Network, error)
 	UpdateNetworkContainer(ref string, setEas EA, comment string) (*NetworkContainer, error)
 	UpdateNetworkView(ref string, name string, comment string, setEas EA) (*NetworkView, error)

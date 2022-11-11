@@ -15,13 +15,13 @@ func resourceIpAssoc() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "Network view name of NIOS server.",
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Description: "view in which record has to be created.",
 			},
 			"enable_dns": {
@@ -142,6 +142,7 @@ func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
 //will be a conflict of resources
 func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	networkView := d.Get("network_view").(string)
+	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'networkView' field is not allowed")
 	}
@@ -190,6 +191,7 @@ func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			"", cidr,
 			"", ipAddr,
 			"", duid,
@@ -207,6 +209,7 @@ func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			cidr, "",
 			ipAddr, "",
 			ZeroMacAddr, "",
@@ -283,6 +286,7 @@ func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 b
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			"", cidr,
 			"", ipAddr,
 			"", duid,
@@ -309,6 +313,7 @@ func resourceIpAssocCreateUpdate(d *schema.ResourceData, m interface{}, isIPv6 b
 			enableDhcp,
 			fqdn,
 			networkView,
+			dnsView,
 			cidr, "",
 			ipAddr, "",
 			macAddr, "",

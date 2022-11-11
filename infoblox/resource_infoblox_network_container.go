@@ -3,9 +3,15 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+)
+
+var (
+	netContainerIPv4Regexp = regexp.MustCompile("^networkcontainer/.+")
+	netContainerIPv6Regexp = regexp.MustCompile("^ipv6networkcontainer/.+")
 )
 
 func resourceNetworkContainer() *schema.Resource {
@@ -16,7 +22,7 @@ func resourceNetworkContainer() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "The name of network view for the network container.",
 			},
 			"cidr": {
@@ -214,6 +220,11 @@ func resourceIPv4NetworkContainerCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceIPv4NetworkContainerRead(d *schema.ResourceData, m interface{}) error {
+	ref := d.Id()
+	if !netContainerIPv4Regexp.MatchString(ref) {
+		return fmt.Errorf("reference '%s' for 'networkcontainer' object has an invalid format", ref)
+	}
+
 	return resourceNetworkContainerRead(d, m)
 }
 
@@ -245,6 +256,11 @@ func resourceIPv6NetworkContainerCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceIPv6NetworkContainerRead(d *schema.ResourceData, m interface{}) error {
+	ref := d.Id()
+	if !netContainerIPv6Regexp.MatchString(ref) {
+		return fmt.Errorf("reference '%s' for 'ipv6networkcontainer' object has an invalid format", ref)
+	}
+
 	return resourceNetworkContainerRead(d, m)
 }
 
