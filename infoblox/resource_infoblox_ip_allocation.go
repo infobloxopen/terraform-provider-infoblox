@@ -385,7 +385,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
 		return fmt.Errorf(
-			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option from 'false' to 'true'")
+			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
 	}
 	if d.HasChange("internal_id") {
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
