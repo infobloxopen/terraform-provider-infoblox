@@ -311,7 +311,15 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
 
-	if err = d.Set("ip_addr", recordPTRUpdated.Ipv4Addr); err != nil {
+	// After reading a newly created object, IP address will be
+	// set even if it is not specified directly in the configuration of the resource,
+	if recordPTRUpdated.Ipv4Addr != "" {
+		ipAddr = recordPTRUpdated.Ipv4Addr
+	} else {
+		ipAddr = recordPTRUpdated.Ipv6Addr
+	}
+
+	if err = d.Set("ip_addr", ipAddr); err != nil {
 		return err
 	}
 	if err = d.Set("record_name", recordPTRUpdated.Name); err != nil {
