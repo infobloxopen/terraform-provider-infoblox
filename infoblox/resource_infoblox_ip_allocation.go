@@ -380,8 +380,12 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
-	if d.HasChange("dns_view") {
-		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+
+	enableDns := d.Get("enable_dns").(bool)
+	dnsView := d.Get("dns_view").(string)
+	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
+		return fmt.Errorf(
+			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
 	}
 	if d.HasChange("internal_id") {
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
@@ -418,7 +422,6 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
-	enableDns := d.Get("enable_dns").(bool)
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -484,7 +487,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
-		hostRecObj.View,
+		dnsView,
 		ipv4Cidr, ipv6Cidr,
 		ipv4Addr, ipv6Addr,
 		macAddr, duid,
