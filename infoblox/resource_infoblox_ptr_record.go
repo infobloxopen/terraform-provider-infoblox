@@ -136,6 +136,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsView, err.Error())
 	}
+	d.SetId(recordPTR.Ref)
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
@@ -151,7 +152,6 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("record_name", recordPTR.Name); err != nil {
 		return err
 	}
-	d.SetId(recordPTR.Ref)
 
 	return nil
 }
@@ -240,6 +240,34 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevNetView, _ := d.GetChange("network_view")
+			prevDNSView, _ := d.GetChange("dns_view")
+			prevPtrDName, _ := d.GetChange("ptrdname")
+			prevName, _ := d.GetChange("record_name")
+			prevIPAddr, _ := d.GetChange("ip_addr")
+			prevCIDR, _ := d.GetChange("cidr")
+			prevTTL, _ := d.GetChange("ttl")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("network_view", prevNetView.(string))
+			_ = d.Set("dns_view", prevDNSView.(string))
+			_ = d.Set("ptrdname", prevPtrDName.(string))
+			_ = d.Set("record_name", prevName.(string))
+			_ = d.Set("ip_addr", prevIPAddr.(string))
+			_ = d.Set("cidr", prevCIDR.(string))
+			_ = d.Set("ttl", prevTTL.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
+
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
@@ -310,6 +338,8 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
 	}
+	updateSuccessful = true
+	d.SetId(recordPTRUpdated.Ref)
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
@@ -325,7 +355,6 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("record_name", recordPTRUpdated.Name); err != nil {
 		return err
 	}
-	d.SetId(recordPTRUpdated.Ref)
 
 	return nil
 }

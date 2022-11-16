@@ -75,7 +75,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 		networkView = defaultNetView
 	}
 	cidr := d.Get("cidr").(string)
-	dnsView := d.Get("dns_view").(string)
+	dnsViewName := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
@@ -112,15 +112,26 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	newRecord, err := objMgr.CreateARecord(
-		networkView, dnsView, fqdn, cidr, ipAddr, ttl, useTtl, comment, extAttrs)
+		networkView, dnsViewName, fqdn, cidr, ipAddr, ttl, useTtl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("error creating A-record: %s", err.Error())
 	}
+	d.SetId(newRecord.Ref)
+
 	if err = d.Set("ip_addr", newRecord.Ipv4Addr); err != nil {
 		return err
 	}
-
-	d.SetId(newRecord.Ref)
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		dnsViewObj, err := objMgr.GetDNSView(dnsViewName)
+		if err != nil {
+			return fmt.Errorf(
+				"error while retrieving information about DNS view '%s': %s",
+				dnsViewName, err)
+		}
+		if err = d.Set("network_view", dnsViewObj.NetworkView); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -201,6 +212,31 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevNetView, _ := d.GetChange("network_view")
+			prevDNSView, _ := d.GetChange("dns_view")
+			prevFQDN, _ := d.GetChange("fqdn")
+			prevIPAddr, _ := d.GetChange("ip_addr")
+			prevCIDR, _ := d.GetChange("cidr")
+			prevTTL, _ := d.GetChange("ttl")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("network_view", prevNetView.(string))
+			_ = d.Set("dns_view", prevDNSView.(string))
+			_ = d.Set("fqdn", prevFQDN.(string))
+			_ = d.Set("ip_addr", prevIPAddr.(string))
+			_ = d.Set("cidr", prevCIDR.(string))
+			_ = d.Set("ttl", prevTTL.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
 	networkView := d.Get("network_view").(string)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
@@ -267,11 +303,12 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error updating A-record: %s", err.Error())
 	}
+	updateSuccessful = true
+	d.SetId(rec.Ref)
+
 	if err = d.Set("ip_addr", rec.Ipv4Addr); err != nil {
 		return err
 	}
-
-	d.SetId(rec.Ref)
 
 	return nil
 }

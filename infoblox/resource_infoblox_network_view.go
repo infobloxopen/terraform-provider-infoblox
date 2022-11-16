@@ -95,6 +95,22 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevName, _ := d.GetChange("name")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("name", prevName.(string))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
+
 	networkView := d.Get("name").(string)
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
@@ -115,6 +131,7 @@ func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Failed to update Network View : %s", err.Error())
 	}
+	updateSuccessful = true
 	d.SetId(nv.Ref)
 
 	return nil
