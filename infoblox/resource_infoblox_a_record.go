@@ -227,6 +227,8 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevComment, _ := d.GetChange("comment")
 			prevEa, _ := d.GetChange("ext_attrs")
 
+			// TODO: move to the new Terraform plugin framework and
+			// process all the errors instead of ignoring them here.
 			_ = d.Set("network_view", prevNetView.(string))
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("fqdn", prevFQDN.(string))
