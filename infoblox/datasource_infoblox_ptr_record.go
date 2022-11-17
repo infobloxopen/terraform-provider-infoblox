@@ -82,6 +82,19 @@ func dataSourcePtrRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	if err := d.Set("record_name", ptrRecord.Name); err != nil {
+		return err
+	}
+
+	if ptrRecord.Ipv4Addr != "" {
+		ipAddr = ptrRecord.Ipv4Addr
+	} else {
+		ipAddr = ptrRecord.Ipv6Addr
+	}
+	if err := d.Set("ip_addr", ipAddr); err != nil {
+		return err
+	}
+
 	dsExtAttrsVal := ptrRecord.Ea
 	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
 	if err != nil {

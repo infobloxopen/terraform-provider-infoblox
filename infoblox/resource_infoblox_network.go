@@ -133,6 +133,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	} else {
 		return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
 	}
+	d.SetId(network.Ref)
 
 	autoAllocateGateway := gateway == ""
 
@@ -175,7 +176,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	}
 
 	d.Set("gateway", gateway)
-	d.SetId(network.Ref)
 
 	return nil
 }
@@ -242,9 +242,33 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
+	var updateSuccessful bool
 	defer func() {
-		if err != nil {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
 			d.Partial(true)
+
+			prevNetView, _ := d.GetChange("network_view")
+			prevCIDR, _ := d.GetChange("cidr")
+			prevParCIDR, _ := d.GetChange("parent_cidr")
+			prevGW, _ := d.GetChange("gateway")
+			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
+			prevResIPv4, _ := d.GetChange("reserve_ip")
+			prevResIPv6, _ := d.GetChange("reserve_ipv6")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("network_view", prevNetView.(string))
+			_ = d.Set("cidr", prevCIDR.(string))
+			_ = d.Set("parent_cidr", prevParCIDR.(string))
+			_ = d.Set("gateway", prevGW.(string))
+			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
+			_ = d.Set("reserve_ip", prevResIPv4.(int))
+			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
 
@@ -294,7 +318,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	if err != nil {
 		return fmt.Errorf("Updation of IP Network under network view '%s' failed: '%s'", networkViewName, err.Error())
 	}
-
+	updateSuccessful = true
 	d.SetId(Network.Ref)
 
 	return nil

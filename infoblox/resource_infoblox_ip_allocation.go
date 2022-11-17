@@ -103,7 +103,6 @@ func resourceIPAllocation() *schema.Resource {
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 				Description: "Internal ID of an object at NIOS side," +
 					" used by Infoblox Terraform plugin to search for a NIOS's object" +
@@ -154,18 +153,7 @@ func getOrFindHostRec(d *schema.ResourceData, m interface{}) (
 
 	// TODO: use proper Tenant ID
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
-	hostRec, err = objMgr.SearchHostRecordByAltId(actualIntId.String(), ref, eaNameForInternalId)
-	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return nil, fmt.Errorf("error getting the allocated host record with ID '%s': %s", d.Id(), err.Error())
-		}
-
-		return nil, ibclient.NewNotFoundError(
-			fmt.Sprintf(
-				"the resource with ID '%s' has been removed from the Terraform state because the underlying object on NIOS side was lost", d.Id()))
-	}
-
-	return
+	return objMgr.SearchHostRecordByAltId(actualIntId.String(), ref, eaNameForInternalId)
 }
 
 func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
@@ -241,6 +229,15 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error while creating a host record: %s", err.Error())
 	}
+	d.SetId(internalId.String())
+	if err = d.Set("ref", hostRec.Ref); err != nil {
+		return err
+	}
+
+	// For compatibility reason. This field should be deprecated in the future.
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 
 	if hostRec.Ipv6Addrs == nil || len(hostRec.Ipv6Addrs) < 1 {
 		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
@@ -262,28 +259,20 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.SetId(internalId.String())
-
-	// For compatibility reason. This field should be deprecated in the future.
-	if err = d.Set("internal_id", internalId.String()); err != nil {
-		return err
-	}
-
-	hostRec, err = getOrFindHostRec(d, m)
-	if err != nil {
-		return err
-	}
-
-	if err = d.Set("ref", hostRec.Ref); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	obj, err := getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
@@ -371,9 +360,49 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error) {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevNetView, _ := d.GetChange("network_view")
+			prevDNSView, _ := d.GetChange("dns_view")
+			prevFQDN, _ := d.GetChange("fqdn")
+			prevIPv4Addr, _ := d.GetChange("ipv4_addr")
+			prevIPv6Addr, _ := d.GetChange("ipv6_addr")
+			prevIPv4CIDR, _ := d.GetChange("ipv4_cidr")
+			prevIPv6CIDR, _ := d.GetChange("ipv6_cidr")
+			prevEnableDNS, _ := d.GetChange("enable_dns")
+			prevTTL, _ := d.GetChange("ttl")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("network_view", prevNetView.(string))
+			_ = d.Set("dns_view", prevDNSView.(string))
+			_ = d.Set("fqdn", prevFQDN.(string))
+			_ = d.Set("ipv4_addr", prevIPv4Addr.(string))
+			_ = d.Set("ipv6_addr", prevIPv6Addr.(string))
+			_ = d.Set("ipv4_cidr", prevIPv4CIDR.(string))
+			_ = d.Set("ipv6_cidr", prevIPv6CIDR.(string))
+			_ = d.Set("enable_dns", prevEnableDNS.(bool))
+			_ = d.Set("ttl", prevTTL.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
+
 	hostRecObj, err := getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
@@ -498,6 +527,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf(
 			"error while updating IP addresses of the host record with ID '%s': %s", d.Id(), err.Error())
 	}
+	updateSuccessful = true
 	if err = d.Set("ref", hostRecObj.Ref); err != nil {
 		return err
 	}
@@ -554,7 +584,7 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		// the corresponding NIOS object doesn't exist anyway.
 		// TODO: re-align this with ip_association.
 		log.Warningf(
-			"unsuccessfull attempt to delete a host record for the resource ID '%s': the object cannot be found; nevertheless, the resource is to be deleted anyway", d.Id())
+			"unsuccessfull attempt to delete a host record for the resource ID '%s': the object cannot be found; nevertheless, the resource is still to be deleted from Terraform state", d.Id())
 		d.SetId("")
 
 		return nil

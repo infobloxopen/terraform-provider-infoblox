@@ -160,6 +160,28 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevDNSView, _ := d.GetChange("dns_view")
+			prevCanonical, _ := d.GetChange("canonical")
+			prevAlias, _ := d.GetChange("alias")
+			prevTTL, _ := d.GetChange("ttl")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("dns_view", prevDNSView.(string))
+			_ = d.Set("canonical", prevCanonical.(string))
+			_ = d.Set("alias", prevAlias.(string))
+			_ = d.Set("ttl", prevTTL.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
+
 	dnsView := d.Get("dns_view").(string)
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
@@ -198,6 +220,7 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("updation of CNAME Record under %s DNS View failed: %s", dnsView, err.Error())
 	}
+	updateSuccessful = true
 
 	d.SetId(recordCNAME.Ref)
 
