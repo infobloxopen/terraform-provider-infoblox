@@ -76,7 +76,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
-	dnsView := d.Get("dns_view").(string)
+	dnsViewName := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 
 	comment := d.Get("comment").(string)
@@ -114,7 +114,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	recordAAAA, err := objMgr.CreateAAAARecord(
 		networkView,
-		dnsView,
+		dnsViewName,
 		fqdn,
 		cidr,
 		ipv6Addr,
@@ -123,12 +123,23 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("creation of AAAA Record under %s DNS View failed: %s", dnsView, err.Error())
+		return fmt.Errorf("creation of AAAA Record under %s DNS View failed: %s", dnsViewName, err.Error())
 	}
 	d.SetId(recordAAAA.Ref)
 
 	if err = d.Set("ipv6_addr", recordAAAA.Ipv6Addr); err != nil {
 		return err
+	}
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		dnsViewObj, err := objMgr.GetDNSView(dnsViewName)
+		if err != nil {
+			return fmt.Errorf(
+				"error while retrieving information about DNS view '%s': %s",
+				dnsViewName, err)
+		}
+		if err = d.Set("network_view", dnsViewObj.NetworkView); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -83,7 +83,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	ipAddr := d.Get("ip_addr").(string)
 
-	dnsView := d.Get("dns_view").(string)
+	dnsViewName := d.Get("dns_view").(string)
 	ptrdname := d.Get("ptrdname").(string)
 	recordName := d.Get("record_name").(string)
 
@@ -124,7 +124,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	recordPTR, err := objMgr.CreatePTRRecord(
 		networkView,
-		dnsView,
+		dnsViewName,
 		ptrdname,
 		recordName,
 		cidr,
@@ -134,7 +134,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsView, err.Error())
+		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsViewName, err.Error())
 	}
 	d.SetId(recordPTR.Ref)
 
@@ -151,6 +151,17 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	if err = d.Set("record_name", recordPTR.Name); err != nil {
 		return err
+	}
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		dnsViewObj, err := objMgr.GetDNSView(dnsViewName)
+		if err != nil {
+			return fmt.Errorf(
+				"error while retrieving information about DNS view '%s': %s",
+				dnsViewName, err)
+		}
+		if err = d.Set("network_view", dnsViewObj.NetworkView); err != nil {
+			return err
+		}
 	}
 
 	return nil
