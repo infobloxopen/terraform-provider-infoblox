@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -33,7 +33,7 @@ func resourceIPAllocation() *schema.Resource {
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     defaultDNSView,
+				Computed:    true,
 				Description: "DNS view under which the zone has been created.",
 			},
 			"enable_dns": {
@@ -323,10 +323,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if strings.TrimSpace(obj.View) != "" {
-		if err = d.Set("dns_view", obj.View); err != nil {
-			return err
-		}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
 	}
 
 	if err = d.Set("network_view", obj.NetworkView); err != nil {
@@ -337,12 +335,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if obj.EnableDns {
-		// if enable_dns = false then updating fqdn leads
-		// to constantly updating fqdn, which is truncated by NIOS to just one component.
-		if err = d.Set("fqdn", obj.Name); err != nil {
-			return err
-		}
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return err
 	}
 
 	ttl := int(obj.Ttl)
@@ -406,20 +400,28 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		return err
 	}
 
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
 
-	enableDns := d.Get("enable_dns").(bool)
+	enableDNS := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
+	fqdn := d.Get("fqdn").(string)
 	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
 		return fmt.Errorf(
 			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
 	}
-	if d.HasChange("internal_id") {
-		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	if enableDNS {
+		if dnsView == disabledDNSView {
+			return fmt.Errorf("a valid DNS view's name MUST be defined ('dns_view' property) once 'enable_dns' has been changed from 'false' to 'true'")
+		}
+		if !strings.ContainsRune(fqdn, '.') {
+			return fmt.Errorf("'fqdn' value must be an FQDN without a trailing dot")
+		}
 	}
-	fqdn := d.Get("fqdn").(string)
 
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
@@ -512,7 +514,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 
 	hostRecObj, err = objMgr.UpdateHostRecord(
 		hostRecObj.Ref,
-		enableDns,
+		enableDNS,
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
@@ -525,10 +527,16 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		extAttrs, []string{})
 	if err != nil {
 		return fmt.Errorf(
-			"error while updating IP addresses of the host record with ID '%s': %s", d.Id(), err.Error())
+			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())
 	}
 	updateSuccessful = true
 	if err = d.Set("ref", hostRecObj.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("dns_view", hostRecObj.View); err != nil {
+		return err
+	}
+	if err = d.Set("fqdn", hostRecObj.Name); err != nil {
 		return err
 	}
 

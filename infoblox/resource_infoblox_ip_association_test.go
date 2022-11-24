@@ -232,7 +232,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 					}
 					resource "infoblox_ip_allocation" "foo" {
 						network_view="default"
-						fqdn="testhostname.test.com"
+						fqdn="testhostname"
 						ipv4_addr="10.0.0.12"
 						ipv6_addr="2001::10"
 						enable_dns = "false"

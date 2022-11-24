@@ -22,8 +22,9 @@ const (
 	eaNameForTenantId   = "Tenant ID"
 	altIdSeparator      = "|"
 
-	defaultDNSView = "default"
-	defaultNetView = "default"
+	defaultDNSView  = "default"
+	disabledDNSView = "  "
+	defaultNetView  = "default"
 )
 
 // Internal ID represents an immutable ID during resource's lifecycle.

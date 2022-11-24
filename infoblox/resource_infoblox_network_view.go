@@ -19,15 +19,16 @@ func resourceNetworkView() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Desired name of the view shown in NIOS appliance.",
+				Type:     schema.TypeString,
+				Required: true,
+				Description: "Specifies the desired name of the network view as shown in the NIOS appliance." +
+					" The name has the same requirements as the corresponding parameter in WAPI.",
 			},
 			"comment": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
-				Description: "A description of the IP allocation.",
+				Description: "A description of the network view.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
@@ -90,6 +91,24 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId(obj.Ref)
+	if err = d.Set("name", obj.Name); err != nil {
+		return err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
