@@ -47,6 +47,6 @@ resource "infoblox_aaaa_record" "aaaa_record_dynamic1"{
   # dns_view = "default"
 
   # appropriate network MUST exist in the network view
-  cidr = "infoblox_ipv6_network.ipv6_network.cidr"
+  cidr = infoblox_ipv6_network.ipv6_network.cidr
 }
 ```

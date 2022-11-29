@@ -42,6 +42,10 @@ additionally DNS-related records have 'ttl' attribute. They are all
 optional. In this document, a resource's description implies that there
 may be no explicit note in the appropriate clauses.
 
+Please note that anywhere in the documents about this plugin, the default DNS view or the default network view means: a view with the name `default`.
+Usually, this is the name for the view which is marked as the default view on NIOS side, but this may be overridden.
+But the plugin does use the name `default` for the view, despite which view is marked as the default on NIOS side.
+
 ## Data sources
 
 There are data sources for the following objects:
