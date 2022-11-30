@@ -43,3 +43,9 @@ resource "infoblox_ptr_record" "ptr5" {
     "Location" = "the main office"
   })
 }
+
+// PTR-record in a forward-mapping zone
+resource "infoblox_ptr_record" "ptr6_forward" {
+  ptrdname = "example1.org"
+  record_name = "www.example1.org"
+}
