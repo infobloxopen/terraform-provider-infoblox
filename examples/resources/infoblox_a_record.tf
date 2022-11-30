@@ -19,8 +19,8 @@ resource "infoblox_a_record" "a_rec2" {
 // all the parameters for a dynamic A-record
 resource "infoblox_a_record" "a_rec3" {
   fqdn = "dynamic1.example2.org"
-  cidr = "10.1.0.0/24" // the network  must exist, you may use the example for infoblox_ipv4_network resource.
-  network_view = "nondefault_netview" // not necessarily in the same network view as the DNS view resides in.
+  cidr = infoblox_ipv4_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv4_network resource.
+  network_view = infoblox_ipv4_network.net2.network_view // not necessarily in the same network view as the DNS view resides in.
   comment = "example dynamic A-record a_rec3"
   dns_view = "nondefault_dnsview1"
   ttl = 0 // 0 = disable caching
