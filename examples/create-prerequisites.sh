@@ -24,8 +24,15 @@ curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone
 echo
 
 for view in default default.nondefault_netview nondefault_dnsview1 nondefault_dnsview2; do
-  for zone in 10.0.0.0/8 2002:1f93::/64; do
-    curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"view\":\"${view}\",\"fqdn\":\"${zone}\"}"
+  for zone in 2002:1f93::/64; do
+    curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"view\":\"${view}\",\"fqdn\":\"${zone}\",\"zone_format\":\"IPV6\"}"
+    echo
+  done
+done
+
+for view in default default.nondefault_netview nondefault_dnsview1 nondefault_dnsview2; do
+  for zone in 10.0.0.0/8; do
+    curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"view\":\"${view}\",\"fqdn\":\"${zone}\",\"zone_format\":\"IPV4\"}"
     echo
   done
 done
