@@ -5,7 +5,7 @@ resource "infoblox_ipv6_network_container" "v6net_c1" {
 
 // full set of parameters for statically allocated IPv6 network container
 resource "infoblox_ipv6_network_container" "v6net_c2" {
-  cidr = "2002:1f93:0:2::/96" // we may allocate the same IP address range but in another network view
+  cidr = "2002:1f93:0:2::/96"
   network_view = "nondefault_netview"
   comment = "new generation network segment"
   ext_attrs = jsonencode({
