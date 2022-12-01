@@ -70,11 +70,17 @@ func dataSourceAAAARecordRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("zone", aaaaRec.Zone); err != nil {
 		return err
 	}
+
+	var ttl int
 	if aaaaRec.UseTtl {
-		if err := d.Set("ttl", aaaaRec.Ttl); err != nil {
-			return err
-		}
+		ttl = int(aaaaRec.Ttl)
+	} else {
+		ttl = int(ttlUndef)
 	}
+	if err := d.Set("ttl", ttl); err != nil {
+		return err
+	}
+
 	if err := d.Set("comment", aaaaRec.Comment); err != nil {
 		return err
 	}
