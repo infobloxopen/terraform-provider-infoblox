@@ -35,3 +35,5 @@ the server's address and port number. Other settings can be altered by editing t
 
 The examples are written in the way that they can be used all together or partially. In the latter case, not all the prerequisites are required.
 'provider.tf' file contains credentials to access NIOS server to run the examples on. You have to change appropriate values to those which correspond to your server.
+
+To run examples for data sources, run the examples for resources first.
