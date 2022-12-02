@@ -36,9 +36,9 @@ resource "infoblox_ptr_record" "ptr_rr_1" {
                              # because this is the default value.
 
   # ip_addr is not defined, thus cidr is required.
-  cidr = "infoblox_ipv4_network.ipv4_network.cidr" # an IPv4 address will be allocated.
+  cidr = infoblox_ipv4_network.ipv4_network.cidr # an IPv4 address will be allocated.
   # an IPv6 address will be allocated. 
-  # cidr = "infoblox_ipv6_network.ipv6_network.cidr" 
+  # cidr = infoblox_ipv6_network.ipv6_network.cidr"
 
   comment = "PTR record 1"
   ext_attrs = jsonencode({
