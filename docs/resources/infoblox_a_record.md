@@ -55,7 +55,7 @@ resource "infoblox_a_record" "a_record_dynamic1"{
   dns_view = "nondefault_view" # corresponding DNS view MUST exist
 
   # appropriate network MUST exist in the network view
-  cidr = "infoblox_ipv4_network.ipv4_network.cidr"
+  cidr = infoblox_ipv4_network.ipv4_network.cidr
 }
 
 resource "infoblox_a_record" "a_record_dynamic2"{
@@ -65,6 +65,6 @@ resource "infoblox_a_record" "a_record_dynamic2"{
   # not specifying explicitly means using the default DNS view
   # dns_view = "default"
   # appropriate network MUST exist in the network view
-  cidr = "infoblox_ipv4_network.ipv4_network.cidr"
+  cidr = infoblox_ipv4_network.ipv4_network.cidr
 }
 ```

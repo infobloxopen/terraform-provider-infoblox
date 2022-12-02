@@ -11,7 +11,7 @@ Specify the plugin version in the .tf file as follows:
     terraform {
       required_providers {
         infoblox = {
-          source = “infobloxopen/infoblox”
+          source = "infobloxopen/infoblox"
           version = ">= 2.0.1"
         }
       }
