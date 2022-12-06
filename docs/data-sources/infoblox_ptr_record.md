@@ -1,22 +1,22 @@
 # PTR-record Data Source
 
-Use the `infoblox_ptr_record` data source to retrieve the following information for an PTR-record, which is managed by a NIOS server:
+Use the data source to retrieve the following information for a PTR-record from the corresponding object in NIOS:
 
-* `ttl`: the time to live value of the record, in seconds. Example: `1800`.
+* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
 * `comment`: the description of the record. This is a regular comment. Example: `manager's PC`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as a JSON map. Example: `{“Owner”: “State Library”, “Expires”: “never”}`.
+* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as a JSON map. Example: `{"Owner”: "State Library”, "Expires”: "never”}`.
 
-To get information about a PTR-record, specify a combination of the DNS view,
-IPv4/IPv6 address that the record points from and the FQDN that corresponds to the IP address.
-Instead of an IP-address you may specify a record's name in FQDN format.
-For example, instead of IP-address 10.0.0.1 you may specify record's name 1.0.0.10.in-addr.arpa.
+To get information about an PTR-record, specify a combination of the DNS view, IPv4 address that the record points to
+or the record name in FQDN format, and the FQDN that corresponds to the IP address.
 
 The following list describes the parameters you must define in an `infoblox_ptr_record` data source block:
 
-* `dns_view`: the DNS view in which appropriate reverse zone exists. If a value is not specified, the DNS view with the name "default" is considered.
-* `ip_addr`: the IP address associated with the PTR-record, either IPv4 or IPv6.
-* `record_name`: the name of the DNS PTR-record in FQDN format; may be used instead of an IP-address. Example: 1.0.0.10.in-addr.arpa. Either 'record_name' or 'ip_addr' is required.
-* `ptrdname`: the fully qualified domain name which PTR-record points to.
+* `dns_view`: optional, Specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
+* `ip_addr`: required only if record_name is not set; specifies the IPv4 or IPv6 address associated with the PTR-record. 
+  If both `ip_addr` and `record_name` are set, `ip_addr` takes precedence.
+* `record_name`: required only if ip_addr is not set; specifies the name of the PTR-record in FQDN format,
+  which can be used instead of an IP address. Example: `1.0.0.10.in-addr.arpa`.
+* `ptrdname`: required; specifies the fully qualified domain name that the PTR-record points to.
 
 ### Example of the PTR-record Data Source Block
 
