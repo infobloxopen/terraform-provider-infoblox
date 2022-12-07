@@ -35,8 +35,8 @@ jobs:
         uses: hashicorp/ghaction-import-gpg@v2.1.0
         env:
           # These secrets will need to be configured for the repository:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
