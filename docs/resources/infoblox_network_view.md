@@ -11,6 +11,7 @@ The following list describes the parameters you can define in the `infoblox_netw
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network view.
 
 !>  Once the network view is created, you cannot change the `name` parameter.
+
 You can modify or even remove the `comment` and ext_attrs `parameters` from
 the resource block.
 

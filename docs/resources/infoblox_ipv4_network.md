@@ -15,6 +15,7 @@ The following list describes the parameters you can define in a `infoblox_ipv4_n
 * `reserve_ip`: optional, specifies the number of IPv4 addresses that you want to reserve in the IPv4 network. The default value is 0
 
 !> Once a network object is created, the `reserve_ip` and `gateway` fields cannot be edited.
+
 !> IP addresses that are reserved by setting the `reserve_ip` field are used for network maintenance by the cloud providers. Therefore, Infoblox does not recommend using these IP addresses for other purposes.
 
 ### Examples of an IPv4 Network Block

@@ -15,6 +15,7 @@ The following list describes the parameters you can define in a `infoblox_ipv6_n
 * `reserve_ipv6`: optional, specifies the number of IPv6 addresses that you want to reserve in the IPv6 network. The default value is 0
 
 !> Once a network object is created, the `reserve_ipv6` and `gateway` fields cannot be edited.
+
 !> IP addresses that are reserved by setting the `reserve_ipv6` field are used for network maintenance by the cloud providers. Therefore, Infoblox does not recommend using these IP addresses for other purposes.
 
 ### Examples of an IPv6 Network Block
