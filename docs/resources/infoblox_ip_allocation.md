@@ -17,9 +17,12 @@ The following list describes the parameters you can define in the `infoblox_ip_a
 * `network_view`: optional, specifies the network view from which to get the specified network block.
   If a value is not specified, the name `default` is set as the network view. Example: `dmz_netview`.
 * `dns_view`: optional, specifies the DNS view in which to create the DNS
-  resource records that are associated with the IP address. If a value is not specified, the name `default` is set as the DNS view.
-  This parameter is relevant only if `enable_dns` is set to `true`. If `enable_dns` is set to `false`,
-  the `dns_view` parameter MUST be removed from the resource block. Example: `external`.
+  resource records that are associated with the IP address.
+  * If `enable_dns` is set to `true`, you must configure this parameter.
+  * If `enable_dns` is set to `false`, you must remove this parameter from the resource block.
+
+  For more information, see the description of the enable_dns parameter.
+  Example: `external`.
 * `enable_dns`: optional, a flag that specifies whether DNS records associated with the resource must be created. The default value is `true`.
   When you update the enable_dns parameter, consider the following points:
   * If you set the parameter to `false` when **creating** a resource, you must not specify the `dns_view` parameter.
@@ -45,7 +48,7 @@ The following list describes the parameters you can define in the `infoblox_ip_a
   The default value is an empty string. If you specify both `ipv6_addr` and `ipv6_cidr`, then the `ipv6_addr` address is allocated and `ipv6_cidr` is ignored.
   Example: `2000:1148::10`.
 * `ttl`: optional, specifies the 'time to live' value for the DNS record. This parameter is relevant only when `enable_dns` is set to `true`.
-  If a value is not specified, the value is inherited from the parent zone of the DNS records for this resource. Example: `3600`.
+  If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS records for this resource. Example: `3600`.
 * `comment`: optional, specifies the human-readable description of the resource. Example: `Front-end cloud node`.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the NIOS resource.
   An extensible attribute must be a JSON map translated into a string value. Example:

@@ -6,7 +6,7 @@ The following list describes the parameters you can define in the `infoblox_cnam
 
 * `alias`: required, specifies the alias name in the FQDN format. Example: `alias1.example.com`.
 * `canonical`: required, specifies the canonical name in the FQDN format. Example: `main.example.com`.
-* `ttl`: optional, specifies the "time to live" value for the CNAME-record. There is no default value for this parameter. If you do not specify a value, the TTL value is inherited from Grid DNS properties. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `3600`.
+* `ttl`: optional, specifies the "time to live" value for the CNAME-record. There is no default value for this parameter. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `3600`.
 * `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is set as the DNS view. Example: `dns_view_1`.
 * `comment`: optional, describes the CNAME-record. Example: `an example CNAME-record`.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the CNAME-record. Example: `jsonencode({})`.

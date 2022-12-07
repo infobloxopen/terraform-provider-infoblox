@@ -1,10 +1,21 @@
 # Changelog
 
+## [v2.2.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.2.0) (2022-12-07)
+- New feature: ability to import resources from existing NIOS objects
+- New Data sources:
+  - infoblox_aaaa_record
+  - infoblox_ptr_record
+  - infoblox_network_view
+  - infoblox_ipv4_network_container
+- Allocation/Association resources have been reworked
+- Examples are reorganized
+- Numerous bugfixes
+
 ## [v2.1.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.1.0) (2022-02-10)
 
 - Moved to Terraform Plugin SDK v2
 - Allocation/Association resources reworked:
-  - new resources added: infoblox_ipv_allocation and infoblox_ip_association;
+  - new resources added: infoblox_ip_allocation and infoblox_ip_association;
     both IPv4 and IPv6 addresses may be allocated within a single resource in one go.
   - infoblox_ipv4_allocation, infoblox_ipv6_allocation, infoblox_ipv4_association and infoblox_ipv6_association
     are deprecated and unsupported from now on.
