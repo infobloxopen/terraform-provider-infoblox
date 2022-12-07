@@ -29,14 +29,17 @@ const (
 
 // Internal ID represents an immutable ID during resource's lifecycle.
 // NIOS object's reference may get changed, sometimes this is a problem:
-//   when more than one TF resources have the same NIOS WAPI object as a backend,
-//   changing reference to the object invalidates the old reference,
-//   which needs to be changed for all appropriate TF resources.
-//   Doing this is problematic.
-//   An example of such resources: a pair of infoblox_ipvX_allocation/infoblox_ipvX_association.
-//   They both must relate to a single host record on NIOS side.
+//
+//	when more than one TF resources have the same NIOS WAPI object as a backend,
+//	changing reference to the object invalidates the old reference,
+//	which needs to be changed for all appropriate TF resources.
+//	Doing this is problematic.
+//	An example of such resources: a pair of infoblox_ipvX_allocation/infoblox_ipvX_association.
+//	They both must relate to a single host record on NIOS side.
+//
 // Important requirement: the text representing an internal ID must not contain '|' sign,
-//   or in general: the sign (or a sequence of) which is defined by altIdSeparator constant.
+//
+//	or in general: the sign (or a sequence of) which is defined by altIdSeparator constant.
 type internalResourceId struct {
 	value uuid.UUID
 }

@@ -23,7 +23,7 @@ The following list describes the parameters you can define in the IP address all
 * `enable_dns`: optional, a flag that specifies whether DNS records associated with the resource must be created. The default value is `true`.
 * `cidr`: required only for dynamic allocation, specifies the network block (in CIDR format) from where to allocate an IP address. For static allocation, do not use this field. Example: `2a00:1148::/64`.
 * `ip_addr`: required only for static allocation, specifies an IP address that should be allocated (marked as ‘Used’ in NIOS Grid Manager). For dynamic allocation, do not use this field. Example: `2a00:1148::1af4`.
-* `ttl`: optional, specifies the time to live value for the DNS record. This parameter is relevant only when `enable_dns` is to `true`. If a value is not specified, the value is same as that of the parent zone of the DNS records for this resource. Example: `3600`.
+* `ttl`: optional, specifies the "time to live" value for the DNS record. This parameter is relevant only when `enable_dns` is to `true`. If a value is not specified, the value is same as that of the parent zone of the DNS records for this resource. Example: `3600`.
 * `comment`: optional, describes the resource. Example: `QA cloud instance`.
 * `ext_attrs`: optional, set of NIOS extensible attributes that are attached to the resource.
 

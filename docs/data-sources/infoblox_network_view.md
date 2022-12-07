@@ -1,10 +1,9 @@
 # Network View Data Source
 
-The data source `infoblox_network_view` allows you to get the following
-parameters for a network view resource from the corresponding NIOS object:
+Use the data source to retrieve the following information for a network view resource from the corresponding object in NIOS:
 
-* `comment`: a description of the network container. This is a regular comment. Example: `From the outside`.
-* `ext_attrs`: a set of extensible attributes, if any. The content is formatted as a JSON map. Example: `{"Administrator": "jsw@telecom.ca"}`.
+* `comment`: a description of the network view. This is a regular comment. Example: `From the outside`.
+* `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as a JSON map. Example: `{"Administrator": "jsw@telecom.ca"}`.
 
 To get information about a network view, you must specify a name of the network view.
 
@@ -15,11 +14,11 @@ data "infoblox_network_view" "inet_nv" {
   name = "inet_visible_nv"
 }
 
-output "ext_attrs" {
+output "inet_nv_ext_attrs" {
   value = data.infoblox_network_view.inet_nv.ext_attrs
 }
 
-output "comment" {
+output "inet_nv_comment" {
   value = data.infoblox_network_view.inet_nv.comment
 }
 ```

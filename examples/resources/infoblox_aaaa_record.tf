@@ -16,7 +16,7 @@ resource "infoblox_aaaa_record" "aaaa_rec2" {
   })
 }
 
-// all the parameters for a dynamic A-record
+// all the parameters for a dynamic AAAA-record
 resource "infoblox_aaaa_record" "aaaa_rec3" {
   fqdn = "dynamic1.example2.org"
   cidr = infoblox_ipv6_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv6_network resource.
