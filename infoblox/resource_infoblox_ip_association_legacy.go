@@ -83,11 +83,11 @@ func resourceIpAssoc() *schema.Resource {
 	}
 }
 
-//This method has an update call for the reason that,we are creating
-//a reservation which doesnt have the details of the mac address
-//at the beginig and we are using this update call to update the mac address
-//of the record after the VM has been provisined. It is in the create method
-//because for this resource we are doing association instead of allocation.
+// This method has an update call for the reason that,we are creating
+// a reservation which doesnt have the details of the mac address
+// at the beginig and we are using this update call to update the mac address
+// of the record after the VM has been provisined. It is in the create method
+// because for this resource we are doing association instead of allocation.
 func resourceIpAssocCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	if err := resourceIpAssocCreateUpdate(d, m, isIPv6); err != nil {
 		return err
@@ -137,9 +137,9 @@ func resourceIpAssocRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-//we are updating the record with an empty mac address after the vm has been
-//destroyed because if we implement the delete hostrecord method here then there
-//will be a conflict of resources
+// we are updating the record with an empty mac address after the vm has been
+// destroyed because if we implement the delete hostrecord method here then there
+// will be a conflict of resources
 func resourceIpAssocDelete(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
 	networkView := d.Get("network_view").(string)
 	dnsView := d.Get("dns_view").(string)
