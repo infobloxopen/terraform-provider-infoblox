@@ -18,6 +18,12 @@ func resourceZoneAuth() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
+			"dns_view": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "Dns View under which the zone has been created",
+			},
 			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -69,6 +75,12 @@ func resourceZoneAuth() *schema.Resource {
 				Optional:    true,
 				Description: "Interval in seconds for secondary servers to wait before recontacting primary server about the zone after failure",
 			},
+			"zone_format": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "FORWARD",
+				Description: "Format of the zone: FORWARD, IPV4, IPV6",
+			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
@@ -82,6 +94,7 @@ func resourceZoneAuth() *schema.Resource {
 // CRUD FUNCTIONS
 
 func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
+	dnsview := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	nsGroup := d.Get("ns_group").(string)
 	restartIfNeeded := d.Get("restart_if_needed").(bool)
@@ -91,6 +104,7 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	soaNegativeTtl := d.Get("soa_negative_ttl").(int)
 	soaRefresh := d.Get("soa_refresh").(int)
 	soaRetry := d.Get("soa_retry").(int)
+	zoneFormat := d.Get("zone_format").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -109,7 +123,8 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	newZone, err := objMgr.CreateZoneAuth(
-		fqdn, nsGroup, restartIfNeeded, comment, soaDefaultTtl, soaExpire, soaNegativeTtl, soaRefresh, soaRetry, extAttrs)
+		dnsview, fqdn, nsGroup, restartIfNeeded, comment,
+		soaDefaultTtl, soaExpire, soaNegativeTtl, soaRefresh, soaRetry, zoneFormat, extAttrs)
 	if err != nil {
 		return fmt.Errorf("error creating Zone Auth: %s", err.Error())
 	}
@@ -149,10 +164,48 @@ func resourceZoneAuthGet(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
+	dnsview := d.Get("dns_view").(string)
+	// fqdn := d.Get("fqdn").(string)  CANNOT BE UPDATED IN WAPI
+	nsGroup := d.Get("ns_group").(string)
+	restartIfNeeded := d.Get("restart_if_needed").(bool)
+	comment := d.Get("comment").(string)
+	soaDefaultTtl := d.Get("soa_default_ttl").(int)
+	soaExpire := d.Get("soa_expire").(int)
+	soaNegativeTtl := d.Get("soa_negative_ttl").(int)
+	soaRefresh := d.Get("soa_refresh").(int)
+	soaRetry := d.Get("soa_retry").(int)
+	// zoneFormat := d.Get("zone_format").(string)  CANNOT BE UPDATED IN WAPI
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		}
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs["Tenant ID"]
+	if found {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	updatedZone, err := objMgr.UpdateZoneAuth(
+		d.Id(), dnsview, nsGroup, restartIfNeeded, comment,
+		soaDefaultTtl, soaExpire, soaNegativeTtl, soaRefresh, soaRetry, extAttrs)
+	if err != nil {
+		return fmt.Errorf("error creating Zone Auth: %s", err.Error())
+	}
+
+	d.SetId(updatedZone.Ref)
+
 	return nil
 }
 
 func resourceZoneAuthDelete(d *schema.ResourceData, m interface{}) error {
+	dnsview := d.Get("dns_view").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
@@ -171,7 +224,7 @@ func resourceZoneAuthDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteZoneAuth(d.Id())
 	if err != nil {
-		return fmt.Errorf("deletion of Zone Auth failed : %s", err.Error())
+		return fmt.Errorf("deletion of Zone Auth from dns view %s failed: %s", dnsview, err.Error())
 	}
 	d.SetId("")
 
