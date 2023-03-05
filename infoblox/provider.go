@@ -194,6 +194,7 @@ func Provider() *schema.Provider {
 			"infoblox_cname_record":           resourceCNAMERecord(),
 			"infoblox_ptr_record":             resourcePTRRecord(),
 			"infoblox_txt_record":             resourceTXTRecord(),
+			"infoblox_mx_record":              resourceMXRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -204,6 +205,7 @@ func Provider() *schema.Provider {
 			"infoblox_cname_record":           dataSourceCNameRecord(),
 			"infoblox_ptr_record":             dataSourcePtrRecord(),
 			"infoblox_txt_record":             dataSourceTXTRecord(),
+			"infoblox_mx_record":              dataSourceMXRecord(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
