@@ -59,11 +59,12 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
+	mx := d.Get("mail_exchanger").(string)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	mxRec, err := objMgr.GetMXRecord(dnsView, fqdn)
+	mxRec, err := objMgr.GetMXRecord(dnsView, fqdn, mx)
 	if err != nil {
 		return fmt.Errorf("failed getting MX-Record: %s", err.Error())
 	}

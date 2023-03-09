@@ -36,5 +36,6 @@ resource "infoblox_mx_record" "foo" {
 data "infoblox_mx_record" "acctest" {
 	dns_view="default"
 	fqdn=infoblox_mx_record.foo.fqdn
+	mail_exchager=infoblox_mx_record.foo.mail_exchanger
 }
 `)
