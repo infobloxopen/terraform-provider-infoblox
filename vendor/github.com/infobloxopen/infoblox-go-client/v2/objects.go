@@ -796,6 +796,66 @@ func NewHostRecord(
 	return res
 }
 
+type RecordMX struct {
+	IBBase     `json:"-"`
+	Ref        string `json:"_ref,omitempty"`
+	View       string `json:"view,omitempty"`
+	Fqdn       string `json:"name,omitempty"`
+	MX         string `json:"mail_exchanger,omitempty"`
+	Preference uint32 `json:"preference"`
+	Ttl        uint32 `json:"ttl"`
+	UseTtl     bool   `json:"use_ttl"`
+	Comment    string `json:"comment"`
+	Ea         EA     `json:"extattrs"`
+}
+
+func NewEmptyRecordMX() *RecordMX {
+	res := &RecordMX{}
+	res.objectType = "record:mx"
+	res.returnFields = []string{"mail_exchanger", "view", "name", "preference", "ttl", "use_ttl", "comment", "extattrs"}
+
+	return res
+}
+
+func NewRecordMX(rm RecordMX) *RecordMX {
+	res := rm
+	res.objectType = "record:mx"
+	res.returnFields = []string{"mail_exchanger", "view", "name", "preference", "ttl", "use_ttl", "comment", "extattrs"}
+
+	return &res
+}
+
+type RecordSRV struct {
+	IBBase   `json:"-"`
+	Ref      string `json:"_ref,omitempty"`
+	View     string `json:"view,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Priority uint32 `json:"priority"`
+	Weight   uint32 `json:"weight"`
+	Port     uint32 `json:"port"`
+	Target   string `json:"target,omitempty"`
+	Ttl      uint32 `json:"ttl"`
+	UseTtl   bool   `json:"use_ttl"`
+	Comment  string `json:"comment"`
+	Ea       EA     `json:"extattrs"`
+}
+
+func NewEmptyRecordSRV() *RecordSRV {
+	res := RecordSRV{}
+	res.objectType = "record:srv"
+	res.returnFields = []string{"name", "view", "priority", "weight", "port", "target", "ttl", "use_ttl", "comment", "extattrs"}
+
+	return &res
+}
+
+func NewRecordSRV(rv RecordSRV) *RecordSRV {
+	res := rv
+	res.objectType = "record:srv"
+	res.returnFields = []string{"name", "view", "priority", "weight", "port", "target", "ttl", "use_ttl", "comment", "extattrs"}
+
+	return &res
+}
+
 type RecordTXT struct {
 	IBBase  `json:"-"`
 	View    string `json:"view,omitempty"`
