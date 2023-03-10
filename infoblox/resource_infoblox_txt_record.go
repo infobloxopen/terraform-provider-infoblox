@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"regexp"
-
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -46,7 +44,7 @@ func resourceTXTRecord() *schema.Resource {
 				Default:     "",
 				Description: "Description of the TXT-record.",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
@@ -59,20 +57,11 @@ func resourceTXTRecord() *schema.Resource {
 func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
-
-	fqdnPattern := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
-
-	if dnsView == "" {
-		dnsView = defaultDNSView
-	}
-
-	valid, _ := regexp.MatchString(fqdnPattern, fqdn)
-
-	if !valid {
-		return fmt.Errorf("'fqdn is not in valid format'")
-	}
-
 	text := d.Get("text").(string)
+	if text == "" {
+		return fmt.Errorf("empty 'text' value is not allowed")
+	}
+
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -86,11 +75,11 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -106,24 +95,20 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	newRecord, err := objMgr.CreateTXTRecord(dnsView, fqdn, text, ttl, useTtl, comment, extAttrs)
 
 	if err != nil {
-		return fmt.Errorf("error creating TXT-Record: %s", err.Error())
+		return fmt.Errorf("error creating TXT-Record: %s", err)
 	}
 
 	d.SetId(newRecord.Ref)
-
-	if err = d.Set("text", newRecord.Text); err != nil {
-		return err
-	}
 
 	return nil
 }
 
 func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -137,7 +122,7 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetTXTRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("failed getting TXT-Record: %s", err.Error())
+		return fmt.Errorf("failed getting TXT-Record: %s", err)
 	}
 
 	if err = d.Set("text", obj.Text); err != nil {
@@ -153,13 +138,12 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if obj.Ea != nil && len(obj.Ea) > 0 {
-
 		eaMap := (map[string]interface{})(obj.Ea)
 		ea, err := json.Marshal(eaMap)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("extattrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
 			return err
 		}
 	}
@@ -193,25 +177,24 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevTEXT, _ := d.GetChange("text")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
-			prevEa, _ := d.GetChange("extattrs")
+			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("fqdn", prevFQDN.(string))
 			_ = d.Set("text", prevTEXT.(string))
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("extattrs", prevEa.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
 
 	text := d.Get("text").(string)
-	fqdn := d.Get("fqdn").(string)
-	fqdnPattern := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
-
-	valid, _ := regexp.MatchString(fqdnPattern, fqdn)
-	if !valid {
-		return fmt.Errorf("fqdn not in valid format")
+	if text == "" {
+		return fmt.Errorf("empty 'text' value is not allowed")
 	}
+
+	fqdn := d.Get("fqdn").(string)
+
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -224,11 +207,11 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
 		}
 	}
 
@@ -240,27 +223,10 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	//Get the existing text value
-	if text == "" {
-		txtRec, err := objMgr.GetTXTRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting TXT-Record: %s", err.Error())
-		}
-		text = txtRec.Text
-	}
-
-	if fqdn == "" {
-		txtRec, err := objMgr.GetTXTRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting TXT-Record: %s", err.Error())
-		}
-		fqdn = txtRec.Name
-	}
-
 	rec, err := objMgr.UpdateTXTRecord(
 		d.Id(), fqdn, text, ttl, useTtl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("error updating TXT-Record: %s", err.Error())
+		return fmt.Errorf("error updating TXT-Record: %s", err)
 	}
 	updateSuccessful = true
 	d.SetId(rec.Ref)
@@ -269,11 +235,11 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -286,7 +252,7 @@ func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteTXTRecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("deletion of TXT-Record failed: %s", err.Error())
+		return fmt.Errorf("deletion of TXT-Record failed: %s", err)
 	}
 	d.SetId("")
 

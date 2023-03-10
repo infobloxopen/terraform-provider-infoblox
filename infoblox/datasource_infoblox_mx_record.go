@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -28,7 +29,7 @@ func dataSourceMXRecord() *schema.Resource {
 			},
 			"mail_exchanger": {
 				Type:        schema.TypeString,
-				Computed:    true,
+				Required:    true,
 				Description: "A record used to specify mail server.",
 			},
 			"preference": {
@@ -46,7 +47,7 @@ func dataSourceMXRecord() *schema.Resource {
 				Computed:    true,
 				Description: "Description of the TXT-Record.",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Extensible attributes of the TXT-record, as a map in JSON format.",
@@ -64,31 +65,38 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	mxRec, err := objMgr.GetMXRecord(dnsView, fqdn, mx)
+	obj, err := objMgr.GetMXRecord(dnsView, fqdn, mx)
 	if err != nil {
-		return fmt.Errorf("failed getting MX-Record: %s", err.Error())
+		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
-	d.SetId(mxRec.ref)
-	if err := d.Set("mail_exchanger", mxRec.MX); err != nil {
-		return err
+
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
 	}
-	if err := d.Set("preference", mxRec.Priority); err != nil {
-		return err
-	}
-	if err := d.Set("ttl", mxRec.Ttl); err != nil {
-		return err
-	}
-	if err := d.Set("comment", mxRec.Comment); err != nil {
+	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	dsExtAttrsVal := mxRec.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
-	if err != nil {
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
-	if err := d.Set("extattrs", string(dsExtAttrs)); err != nil {
+	if err = d.Set("preference", obj.Preference); err != nil {
 		return err
 	}
+	d.SetId(obj.Ref)
+
 	return nil
 }

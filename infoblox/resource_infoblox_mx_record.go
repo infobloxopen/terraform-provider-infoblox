@@ -3,8 +3,6 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
@@ -28,7 +26,7 @@ func resourceMXRecord() *schema.Resource {
 			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "FQDN for the MX Record.",
+				Description: "FQDN for the MX-record.",
 			},
 			"mail_exchanger": {
 				Type:        schema.TypeString,
@@ -38,11 +36,12 @@ func resourceMXRecord() *schema.Resource {
 			"preference": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Configures the preference (0-65535) for this MX record.",
+				Description: "Configures the preference (0-65535) for this MX-record.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Default:     ttlUndef,
 				Description: "TTL value for the MX-record.",
 			},
 			"comment": {
@@ -51,7 +50,7 @@ func resourceMXRecord() *schema.Resource {
 				Default:     "",
 				Description: "Description of the MX-Record.",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
@@ -63,38 +62,26 @@ func resourceMXRecord() *schema.Resource {
 
 func resourceMXRecordCreate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
+
 	fqdn := d.Get("fqdn").(string)
-	fqdnPattern := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
-
-	if dnsView == "" {
-		dnsView = defaultDNSView
-	}
-
-	valid, _ := regexp.MatchString(fqdnPattern, fqdn)
-	if !valid {
-		return fmt.Errorf("'fqdn' is not in valid format")
+	if fqdn == "" {
+		return fmt.Errorf("'fqdn' must not be empty")
 	}
 
 	mx := d.Get("mail_exchanger").(string)
-
 	if mx == "" {
 		return fmt.Errorf("'mail_exchanger' must not be empty")
 	}
 
-	var priority uint32
-	tempPref := d.Get("preference")
-	tempPriority := tempPref.(int)
-
-	if tempPriority >= 0 || tempPriority < 65535 {
-		priority = uint32(tempPriority)
-	} else if tempPriority < 0 || tempPriority > 65535 {
-		return fmt.Errorf("'preference' ranges between 0 to 65535")
+	tempInt := d.Get("preference").(int)
+	if err := ibclient.CheckIntRange("preference", tempInt, 0, 65535); err != nil {
+		return err
 	}
+	preference := uint32(tempInt)
 
 	var ttl uint32
 	useTtl := false
-	tempVal := d.Get("ttl")
-	tempTTL := tempVal.(int)
+	tempTTL := d.Get("ttl").(int)
 	if tempTTL >= 0 {
 		useTtl = true
 		ttl = uint32(tempTTL)
@@ -104,11 +91,11 @@ func resourceMXRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -120,10 +107,9 @@ func resourceMXRecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newRecord, err := objMgr.CreateMXRecord(dnsView, fqdn, mx, priority, ttl, useTtl, comment, extAttrs)
-
+	newRecord, err := objMgr.CreateMXRecord(dnsView, fqdn, mx, preference, ttl, useTtl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("error creating MX-record: %s", err.Error())
+		return fmt.Errorf("error creating MX-record: %s", err)
 	}
 	d.SetId(newRecord.Ref)
 
@@ -132,11 +118,11 @@ func resourceMXRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -150,7 +136,7 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetMXRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("failed getting MX-Record: %s", err.Error())
+		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
 
 	ttl := int(obj.Ttl)
@@ -169,7 +155,7 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		if err = d.Set("extattrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
 			return err
 		}
 	}
@@ -185,7 +171,7 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("mail_exchanger", obj.MX); err != nil {
 		return err
 	}
-	if err = d.Set("preference", obj.Priority); err != nil {
+	if err = d.Set("preference", obj.Preference); err != nil {
 		return err
 	}
 	d.SetId(obj.Ref)
@@ -207,7 +193,7 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevPriority, _ := d.GetChange("preference")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
-			prevEa, _ := d.GetChange("extattrs")
+			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("fqdn", prevFQDN.(string))
@@ -215,29 +201,19 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("preference", prevPriority.(uint32))
 			_ = d.Set("ttl", prevTTL.(uint32))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("extattrs", prevEa.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
 
-	fqdn := d.Get("fqdn").(string)
 	dnsView := d.Get("dns_view").(string)
+	fqdn := d.Get("fqdn").(string)
 	mx := d.Get("mail_exchanger").(string)
-	fqdnPattern := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
 
-	valid, _ := regexp.MatchString(fqdnPattern, fqdn)
-	if !valid {
-		return fmt.Errorf("'fqdn' not in valid format")
+	tempInt := d.Get("preference").(int)
+	if err := ibclient.CheckIntRange("preference", tempInt, 0, 65535); err != nil {
+		return err
 	}
-
-	var priority uint32
-	tempPref := d.Get("preference")
-	tempPriority := tempPref.(int)
-
-	if tempPriority >= 0 || tempPriority < 65535 {
-		priority = uint32(tempPriority)
-	} else if tempPriority < 0 || tempPriority > 65535 {
-		return fmt.Errorf("'preference' ranges between 0 to 65535")
-	}
+	preference := uint32(tempInt)
 
 	var ttl uint32
 	useTtl := false
@@ -251,11 +227,11 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -267,35 +243,10 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	//Get the existing mail_exchanger
-	if mx == "" {
-		mxRec, err := objMgr.GetMXRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting MX-record: %s", err.Error())
-		}
-		mx = mxRec.MX
-	}
-
-	if fqdn == "" {
-		mxRec, err := objMgr.GetMXRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting MX-Record: %s", err.Error())
-		}
-		fqdn = mxRec.Fqdn
-	}
-
-	if dnsView == "" {
-		mxRec, err := objMgr.GetMXRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting MX-Record: %s", err.Error())
-		}
-		dnsView = mxRec.View
-	}
-
 	rec, err := objMgr.UpdateMXRecord(
-		d.Id(), dnsView, fqdn, mx, ttl, useTtl, comment, priority, extAttrs)
+		d.Id(), dnsView, fqdn, mx, preference, ttl, useTtl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("error updating MX-Record: %s", err.Error())
+		return fmt.Errorf("error updating MX-Record: %s", err)
 	}
 	updateSuccessful = true
 	d.SetId(rec.Ref)
@@ -304,11 +255,11 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMXRecordDelete(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -321,7 +272,7 @@ func resourceMXRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteMXRecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("deletion of MX-Record failed: %s", err.Error())
+		return fmt.Errorf("deletion of MX-Record failed: %s", err)
 	}
 	d.SetId("")
 

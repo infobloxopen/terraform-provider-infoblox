@@ -64,10 +64,10 @@ func testAccMXRecordCompare(t *testing.T, resPath string, expectedRec *ibclient.
 				rec.MX, expectedRec.MX)
 		}
 
-		if rec.Priority != expectedRec.Priority {
+		if rec.Preference != expectedRec.Preference {
 			return fmt.Errorf(
 				"'priority' does not match: got '%d', expected '%d'",
-				rec.Priority, expectedRec.Priority)
+				rec.Preference, expectedRec.Preference)
 		}
 
 		if rec.UseTtl != expectedRec.UseTtl {
@@ -106,14 +106,14 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo", &ibclient.RecordMX{
-						Fqdn:     "name1.test.com",
-						MX:       "sample.mx1.com",
-						Priority: 25,
-						View:     "default",
-						Ttl:      0,
-						UseTtl:   false,
-						Comment:  "",
-						Ea:       nil,
+						View:       "default",
+						Fqdn:       "name1.test.com",
+						MX:         "sample.mx1.com",
+						Preference: 25,
+						Ttl:        0,
+						UseTtl:     false,
+						Comment:    "",
+						Ea:         nil,
 					}),
 				),
 			},
@@ -126,20 +126,20 @@ func TestAccResourceMXRecord(t *testing.T) {
 						ttl = 300
 						dns_view = "nondefault_view"
 						comment = "test comment 1"
-						extattrs = jsonencode({
+						ext_attrs = jsonencode({
 							"Location" = "Los Angeles"
 							"Site" = "HQ"
 						}) 
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo1", &ibclient.RecordMX{
-						Fqdn:     "name2.test.com",
-						MX:       "sample.mx1.com",
-						Priority: 30,
-						View:     "nondefault_view",
-						Ttl:      300,
-						UseTtl:   true,
-						Comment:  "test comment 1",
+						Fqdn:       "name2.test.com",
+						MX:         "sample.mx2.com",
+						Preference: 30,
+						View:       "nondefault_view",
+						Ttl:        300,
+						UseTtl:     true,
+						Comment:    "test comment 1",
 						Ea: ibclient.EA{
 							"Location": "Los Angeles",
 							"Site":     "HQ",
@@ -159,30 +159,30 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo2", &ibclient.RecordMX{
-						Fqdn:     "name3.test.com",
-						MX:       "sample.mx3.com",
-						Priority: 35,
-						View:     "nondefault_view",
-						Ttl:      150,
-						UseTtl:   true,
-						Comment:  "test comment 2",
+						Fqdn:       "name3.test.com",
+						MX:         "sample.mx3.com",
+						Preference: 35,
+						View:       "nondefault_view",
+						Ttl:        150,
+						UseTtl:     true,
+						Comment:    "test comment 2",
 					}),
 				),
 			},
 			{
 				Config: fmt.Sprintf(`
-					resource "infoblox_a_record" "foo3"{
+					resource "infoblox_mx_record" "foo3"{
 						fqdn = "name3.test.com"
 						dns_view = "nondefault_view"
 						mail_exchanger = "sample.mx3.com"
-						preference = 20
+						preference = 35
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo3", &ibclient.RecordMX{
-						Fqdn:     "name3.test.com",
-						View:     "nondefault_view",
-						MX:       "sample.mx3.com",
-						Priority: 20,
+						Fqdn:       "name3.test.com",
+						View:       "nondefault_view",
+						MX:         "sample.mx3.com",
+						Preference: 35,
 					}),
 				),
 			},

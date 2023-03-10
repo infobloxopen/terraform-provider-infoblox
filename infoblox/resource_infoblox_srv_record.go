@@ -3,9 +3,6 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
@@ -29,40 +26,41 @@ func resourceSRVRecord() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Combination of service name, protocol name and zone name",
+				Description: "Combination of service's name, protocol's name and zone's name",
 			},
 			"priority": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Configures the priority (0-65535) for this SRV record.",
+				Description: "Configures the priority (0..65535) for this SRV-record.",
 			},
 			"weight": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Configures weight of the SRV record, valid values (0-65535).",
+				Description: "Configures weight of the SRV-record, valid values are 0..65535.",
 			},
 			"port": {
 				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "Configures port (0-65535) for this SRV record.",
+				Description: "Configures port number (0..65535) for this SRV-record.",
 			},
 			"target": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Provides service for domain name in the SRV record.",
+				Description: "Provides service for domain name in the SRV-record.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Description: "TTL value for the SRV record.",
+				Default:     ttlUndef,
+				Description: "TTL value for the SRV-record.",
 			},
 			"comment": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
-				Description: "Description of the SRV record",
+				Description: "Description of the SRV-record",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
@@ -74,68 +72,14 @@ func resourceSRVRecord() *schema.Resource {
 
 func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
+
+	// the next group of parameters will be validated inside ibclient.CreateSRVRecord()
 	name := d.Get("name").(string)
-
-	if dnsView == "" {
-		dnsView = defaultDNSView
-	}
-
-	nameSplit := strings.SplitN(name, ".", 3)
-
-	if len(nameSplit) < 3 {
-		return fmt.Errorf("SRV Record format: _service._proto.domainName")
-	} else {
-		serviceRegex := `^_[a-z]+$`
-		validService, _ := regexp.MatchString(serviceRegex, nameSplit[0])
-
-		protocolRegex := `^_[a-z0-9-]+$`
-		validProtocol, _ := regexp.MatchString(protocolRegex, nameSplit[1])
-
-		domainRegexp := regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
-		validDomainName := domainRegexp.MatchString(nameSplit[2])
-
-		if !(validService && validProtocol && validDomainName) {
-			return fmt.Errorf("'name' valid format: _service._proto.domainName")
-		}
-	}
-
-	var priority uint32
-	tempPref := d.Get("priority")
-	tempPriority := tempPref.(int)
-
-	if tempPriority >= 0 || tempPriority < 65535 {
-		priority = uint32(tempPriority)
-	} else if tempPriority < 0 || tempPriority > 65535 {
-		return fmt.Errorf("'priority' ranges between 0 and 65535")
-	}
-
-	var weight uint32
-	tempWt := d.Get("weight")
-	tempWeight := tempWt.(int)
-
-	if tempWeight >= 0 || tempWeight < 65535 {
-		weight = uint32(tempWeight)
-	} else if tempWeight < 0 || tempWeight > 65535 {
-		return fmt.Errorf("'weight' ranges between 0 and 65535")
-	}
-
-	var port uint32
-	tempPt := d.Get("port")
-	tempPort := tempPt.(int)
-
-	if tempPort > 0 || tempPort < 65535 {
-		port = uint32(tempPort)
-	} else if tempPort > 65535 {
-		return fmt.Errorf("'port' value must be below 65535")
-	}
-
+	priority := d.Get("priority").(int)
+	weight := d.Get("weight").(int)
+	port := d.Get("port").(int)
 	target := d.Get("target").(string)
-	targetRegex := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
-	valid_tg, _ := regexp.MatchString(targetRegex, target)
 
-	if !valid_tg {
-		return fmt.Errorf("'target' is not in valid format")
-	}
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -149,11 +93,11 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -165,7 +109,8 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newRecord, err := objMgr.CreateSRVRecord(dnsView, name, priority, weight, port, target, ttl, useTtl, comment, extAttrs)
+	newRecord, err := objMgr.CreateSRVRecord(
+		dnsView, name, uint32(priority), uint32(weight), uint32(port), target, ttl, useTtl, comment, extAttrs)
 
 	if err != nil {
 		return fmt.Errorf("error creating SRV-record: %s", err.Error())
@@ -177,11 +122,11 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string
@@ -214,7 +159,7 @@ func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		if err = d.Set("extattrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
 			return err
 		}
 	}
@@ -260,7 +205,7 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevTarget, _ := d.GetChange("target")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
-			prevEa, _ := d.GetChange("extattrs")
+			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("name", prevName.(string))
@@ -270,67 +215,17 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("target", prevTarget.(string))
 			_ = d.Set("ttl", prevTTL.(uint32))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("extattrs", prevEa.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
 
+	// the next group of parameters will be validated inside ibclient.UpdateSRVRecord()
 	name := d.Get("name").(string)
-	nameSplit := strings.SplitN(name, ".", 3)
-
-	if len(nameSplit) < 3 {
-		return fmt.Errorf("SRV Record format: _service._proto.domainName")
-	} else {
-		serviceRegex := `^_[a-z]+$`
-		validService, _ := regexp.MatchString(serviceRegex, nameSplit[0])
-
-		protocolRegex := `^_[a-z0-9-]+$`
-		validProtocol, _ := regexp.MatchString(protocolRegex, nameSplit[1])
-
-		domainRegexp := regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
-		validDomainName := domainRegexp.MatchString(nameSplit[2])
-
-		if !(validService && validProtocol && validDomainName) {
-			return fmt.Errorf("'name' valid format: _service._proto.domainName")
-		}
-	}
-
-	var priority uint32
-	tempPref := d.Get("priority")
-	tempPriority := tempPref.(int)
-
-	if tempPriority >= 0 || tempPriority < 65535 {
-		priority = uint32(tempPriority)
-	} else if tempPriority < 0 || tempPriority > 65535 {
-		return fmt.Errorf("'priority' ranges between 0 and 65535")
-	}
-
-	var weight uint32
-	tempWt := d.Get("weight")
-	tempWeight := tempWt.(int)
-
-	if tempWeight >= 0 || tempWeight < 65535 {
-		weight = uint32(tempWeight)
-	} else if tempWeight < 0 || tempWeight > 65535 {
-		return fmt.Errorf("'weight' ranges between 0 and 65535")
-	}
-
-	var port uint32
-	tempPt := d.Get("port")
-	tempPort := tempPt.(int)
-
-	if tempPort > 0 || tempPort < 65535 {
-		port = uint32(tempPort)
-	} else if tempPort > 65535 {
-		return fmt.Errorf("'port' value must be below 65535")
-	}
-
+	priority := d.Get("priority").(int)
+	weight := d.Get("weight").(int)
+	port := d.Get("port").(int)
 	target := d.Get("target").(string)
-	targetRegex := `^[a-z]+\.[a-z0-9-]+\.[a-z]+$`
-	valid_tg, _ := regexp.MatchString(targetRegex, target)
 
-	if !valid_tg {
-		return fmt.Errorf("'target' is not in valid format")
-	}
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -344,11 +239,11 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 
@@ -360,25 +255,8 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	//Get the existing target
-	if target == "" {
-		srvRec, err := objMgr.GetSRVRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting SRV-Record: %s", err.Error())
-		}
-		target = srvRec.Target
-	}
-	// Get the existing name
-	if name == "" {
-		srvRec, err := objMgr.GetSRVRecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting SRV-Record: %s", err.Error())
-		}
-		name = srvRec.Name
-	}
-
 	rec, err := objMgr.UpdateSRVRecord(
-		d.Id(), name, priority, weight, port, target, ttl, useTtl, comment, extAttrs)
+		d.Id(), name, uint32(priority), uint32(weight), uint32(port), target, ttl, useTtl, comment, extAttrs)
 	if err != nil {
 		return fmt.Errorf("error updating SRV-Record: %s", err.Error())
 	}
@@ -389,11 +267,11 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
-	extAttrJSON := d.Get("extattrs").(string)
+	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
 		}
 	}
 	var tenantID string

@@ -109,7 +109,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_srv_record" "foo"{
-						name = "_sip._tcp.example1.com"
+						name = "_sip._tcp.host1.test.com"
 						priority = 50
 						weight = 30
 						port = 80
@@ -117,40 +117,36 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo", &ibclient.RecordSRV{
-						Name:     "_sip._tcp.example1.com",
+						View:     "default",
+						Name:     "_sip._tcp.host1.test.com",
 						Priority: 50,
 						Weight:   30,
 						Port:     80,
 						Target:   "sample.target1.com",
-						View:     "default",
-						Ttl:      0,
-						UseTtl:   false,
-						Comment:  "",
-						Ea:       nil,
 					}),
 				),
 			},
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_srv_record" "foo1" {
-						name = "_sip._udp.example2.com"
+						dns_view = "nondefault_view"
+						name = "_sip._udp.host2.test.com"
 						priority = 60
 						weight = 40
 						port = 36
 						target = "sample.target2.com"
 						ttl = 300 //300s
-						dns_view = "nondefault_view"
 						comment = "test comment 1"
-						extattrs = jsonencode({
+						ext_attrs = jsonencode({
 							"Location" = "France"
 							"Site" = "DHQ"
 						})
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo1", &ibclient.RecordSRV{
-						Name:     "_sip._udp.example2.com",
-						Priority: 60,
 						View:     "nondefault_view",
+						Name:     "_sip._udp.host2.test.com",
+						Priority: 60,
 						Weight:   40,
 						Port:     36,
 						Target:   "sample.target2.com",
@@ -167,46 +163,85 @@ func TestAccResourceSRVRecord(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_srv_record" "foo2"{
-						name = "_http._tcp.demo.example3.com"
-						priority = 100
 						dns_view = "nondefault_view"
+						name = "_http._tcp.demo.host3.test.com"
+						priority = 100
 						weight = 50
 						port = 88
 						target = "sample.target3.com"
 						ttl = 140
 						comment = "test comment 2"
+						ext_attrs = jsonencode({
+							"Site" = "DHQ"
+						})
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
-						Name:     "_http._tcp.demo.example3.com",
-						Priority: 100,
 						View:     "nondefault_view",
+						Name:     "_http._tcp.demo.host3.test.com",
+						Priority: 100,
 						Weight:   50,
 						Port:     88,
 						Target:   "sample.target3.com",
 						Ttl:      140,
+						UseTtl:   true,
 						Comment:  "test comment 2",
+						Ea: ibclient.EA{
+							"Site": "DHQ",
+						},
 					}),
 				),
 			},
 			{
 				Config: fmt.Sprintf(`
-					resource "infoblox_srv_record" "foo3"{
-						name = "_http._udp.demo.example3.com"
+					resource "infoblox_srv_record" "foo2"{
 						dns_view = "nondefault_view"
-						priority = 120
-						weight = 80
-						port = 8080
-						target = "demo.target3.com"
+						name = "_http._tcp.demo.host4.test.com"
+						priority = 101
+						weight = 51
+						port = 89
+						target = "sample.target4.com"
+						ttl = 141
+						comment = "test comment 3"
+						ext_attrs = jsonencode({
+							"Site" = "None"
+						})
 					}`),
 				Check: resource.ComposeTestCheckFunc(
-					testAccSRVRecordCompare(t, "infoblox_srv_record.foo3", &ibclient.RecordSRV{
-						Name:     "_http._udp.demo.example3.com",
+					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
 						View:     "nondefault_view",
-						Priority: 120,
-						Weight:   80,
-						Port:     8080,
-						Target:   "demo.target3.com",
+						Name:     "_http._tcp.demo.host4.test.com",
+						Priority: 101,
+						Weight:   51,
+						Port:     89,
+						Target:   "sample.target4.com",
+						Ttl:      141,
+						UseTtl:   true,
+						Comment:  "test comment 3",
+						Ea: ibclient.EA{
+							"Site": "None",
+						},
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101
+						weight = 51
+						port = 89
+						target = "sample.target4.com"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
+						View:     "nondefault_view",
+						Name:     "_customservice._newcoolproto.demo.host4.test.com",
+						Priority: 101,
+						Weight:   51,
+						Port:     89,
+						Target:   "sample.target4.com",
 					}),
 				),
 			},

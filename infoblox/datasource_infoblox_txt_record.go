@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -46,7 +47,7 @@ func dataSourceTXTRecord() *schema.Resource {
 				Computed:    true,
 				Description: "Description of the TXT-Record.",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Extensible attributes of the TXT-record, as a map in JSON format.",
@@ -56,36 +57,49 @@ func dataSourceTXTRecord() *schema.Resource {
 }
 
 func dataSourceTXTRecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	txtRec, err := objMgr.GetTXTRecord(dnsView, fqdn)
+	obj, err := objMgr.GetTXTRecord(dnsView, fqdn)
 	if err != nil {
-		return fmt.Errorf("failed getting TXT-Record: %s", err.Error())
+		return fmt.Errorf("failed getting TXT-Record: %s", err)
 	}
 
-	d.SetId(txtRec.Ref)
-	if err := d.Set("zone", txtRec.Zone); err != nil {
-		return err
-	}
-	if err := d.Set("ttl", txtRec.Ttl); err != nil {
-		return err
-	}
-	if err := d.Set("comment", txtRec.Comment); err != nil {
+	if err = d.Set("text", obj.Text); err != nil {
 		return err
 	}
 
-	dsExtAttrsVal := txtRec.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
-	if err != nil {
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
-	if err := d.Set("extattrs", string(dsExtAttrs)); err != nil {
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap := (map[string]interface{})(obj.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
+
+	if err = d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
+
 	return nil
 }

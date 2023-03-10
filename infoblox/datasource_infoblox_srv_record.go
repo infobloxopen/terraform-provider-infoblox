@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,12 +40,12 @@ func dataSourceSRVRecord() *schema.Resource {
 			},
 			"port": {
 				Type:        schema.TypeInt,
-				Computed:    true,
+				Required:    true,
 				Description: "Configures port (0-65535) for this SRV record.",
 			},
 			"target": {
 				Type:        schema.TypeString,
-				Computed:    true,
+				Required:    true,
 				Description: "Provides service for domain name in the SRV record.",
 			},
 			"ttl": {
@@ -57,7 +58,7 @@ func dataSourceSRVRecord() *schema.Resource {
 				Computed:    true,
 				Description: "Description of the SRV record.",
 			},
-			"extattrs": {
+			"ext_attrs": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Extensible attributes of the SRV-record to be added/updated, as a map in JSON format.",
@@ -67,16 +68,21 @@ func dataSourceSRVRecord() *schema.Resource {
 }
 
 func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	name := d.Get("name").(string)
+	target := d.Get("target").(string)
+	tempPortVal := d.Get("port").(int)
+	if err := ibclient.CheckIntRange("port", tempPortVal, 0, 65535); err != nil {
+		return err
+	}
+	port := uint32(tempPortVal)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	srvRec, err := objMgr.GetSRVRecord(dnsView, name)
+	srvRec, err := objMgr.GetSRVRecord(dnsView, name, target, port)
 	if err != nil {
-		return fmt.Errorf("failed getting SRV-Record: %s", err.Error())
+		return fmt.Errorf("failed getting SRV-Record: %s", err)
 	}
 	d.SetId(srvRec.Ref)
 	if err := d.Set("priority", srvRec.Priority); err != nil {
@@ -85,26 +91,31 @@ func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("weight", srvRec.Weight); err != nil {
 		return err
 	}
-	if err := d.Set("port", srvRec.Port); err != nil {
+
+	ttl := int(srvRec.Ttl)
+	if !srvRec.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
-	if err := d.Set("target", srvRec.Target); err != nil {
-		return err
-	}
-	if err := d.Set("ttl", srvRec.Ttl); err != nil {
-		return err
-	}
+
 	if err := d.Set("comment", srvRec.Comment); err != nil {
 		return err
 	}
 
-	dsExtAttrsVal := srvRec.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
-	if err != nil {
-		return err
+	if srvRec.Ea != nil && len(srvRec.Ea) > 0 {
+		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+		//       (avoiding additional layer of keys ("value" key)
+		eaMap := (map[string]interface{})(srvRec.Ea)
+		ea, err := json.Marshal(eaMap)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", string(ea)); err != nil {
+			return err
+		}
 	}
-	if err := d.Set("extattrs", string(dsExtAttrs)); err != nil {
-		return err
-	}
+
 	return nil
 }

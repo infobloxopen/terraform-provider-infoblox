@@ -96,13 +96,9 @@ func TestAccResourceTXTRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo", &ibclient.RecordTXT{
-						Text:    "this is a sample text",
-						Name:    "name1.test.com",
-						View:    "default",
-						Ttl:     0,
-						UseTtl:  false,
-						Comment: "",
-						Ea:      nil,
+						View: "default",
+						Name: "name1.test.com",
+						Text: "this is a sample text",
 					}),
 				),
 			},
@@ -114,7 +110,7 @@ func TestAccResourceTXTRecord(t *testing.T) {
 						ttl = 200
 						dns_view = "nondefault_view"
 						comment = "test comment"
-						extattrs = jsonencode({
+						ext_attrs = jsonencode({
 						  "Location" = "California"
 						  "Site" = "HQ"
 						})
@@ -138,10 +134,10 @@ func TestAccResourceTXTRecord(t *testing.T) {
 				Config: fmt.Sprintf(`
 					resource "infoblox_txt_record" "foo2" {
 						fqdn = "name3.test.com"
-                                                text = "this is a text record"
-                                                ttl = 150
-                                                dns_view = "nondefault_view"
-                                                comment = "test comment 2"
+						text = "this is a text record"
+						ttl = 150
+						dns_view = "nondefault_view"
+						comment = "test comment 2"
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
@@ -151,22 +147,6 @@ func TestAccResourceTXTRecord(t *testing.T) {
 						Ttl:     150,
 						UseTtl:  true,
 						Comment: "test comment 2",
-					}),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_txt_record" "foo2"{
-						fqdn = "name3.test.com"
-						text = ""
-						dns_view = "nondefault_view"
-					}`),
-				Check: resource.ComposeTestCheckFunc(
-					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
-						Text:   "",
-						Name:   "name3.test.com",
-						View:   "nondefault_view",
-						UseTtl: false,
 					}),
 				),
 			},
