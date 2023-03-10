@@ -5,6 +5,9 @@ import (
 	"net"
 	"net/url"
 	"regexp"
+	"strings"
+
+	"golang.org/x/net/idna"
 )
 
 type NotFoundError struct {
@@ -140,4 +143,59 @@ func BuildIPv6NetworkFromRef(ref string) (*Network, error) {
 	newNet.Ref = ref
 
 	return newNet, nil
+}
+
+const dnsLabelFormat = "[a-z0-9]+(([a-z0-9-]*[a-z0-9]+))?"
+
+// ValidateDomainName return an error if the domain name does not conform to standards.
+// The domain name may be in Unicode format (internationalized domain name)
+func ValidateDomainName(name string) error {
+	domainRegexpTemplate := fmt.Sprintf("^(?i)%s(\\.%s)*\\.?$", dnsLabelFormat, dnsLabelFormat)
+	domainRegexp := regexp.MustCompile(domainRegexpTemplate)
+
+	_, err := idna.ToASCII(name)
+	if err != nil {
+		return err
+	}
+
+	if !domainRegexp.MatchString(name) {
+		return fmt.Errorf("the name '%s' is not a valid domain name", name)
+	}
+
+	return nil
+}
+
+// ValidateSrvRecName return an error if the record's name does not conform to standards.
+func ValidateSrvRecName(name string) error {
+	const protoLabelFormat = "[a-z0-9]+"
+
+	const errorMsgFormat = "SRV-record's name '%s' does not conform to standards"
+	var (
+		srvNamePartRegExp  = regexp.MustCompile(fmt.Sprintf("^_%s", dnsLabelFormat))
+		srvProtoPartRegExp = regexp.MustCompile(fmt.Sprintf("^_%s", protoLabelFormat))
+	)
+
+	nameParts := strings.SplitN(name, ".", 3)
+	if len(nameParts) != 3 {
+		return fmt.Errorf(errorMsgFormat, name)
+	}
+	if !srvNamePartRegExp.MatchString(nameParts[0]) {
+		return fmt.Errorf(errorMsgFormat, name)
+	}
+	if !srvProtoPartRegExp.MatchString(nameParts[1]) {
+		return fmt.Errorf(errorMsgFormat, name)
+	}
+	if err := ValidateDomainName(nameParts[2]); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CheckIntRange(name string, value int, min int, max int) error {
+	if value < min || value > max {
+		return fmt.Errorf("'%s' must be integer and must be in the range from 0 to 65535 inclusively", name)
+	}
+
+	return nil
 }

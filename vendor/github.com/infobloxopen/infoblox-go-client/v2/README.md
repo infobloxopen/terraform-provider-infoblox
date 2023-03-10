@@ -33,31 +33,35 @@ This library is compatible with Go 1.2+
    The following is a very simple example for the client usage:
 
        package main
+
        import (
-   	    "fmt"
-   	    ibclient "github.com/infobloxopen/infoblox-go-client"
+         "fmt"
+         ibclient "github.com/infobloxopen/infoblox-go-client/v2"
        )
 
        func main() {
-   	    hostConfig := ibclient.HostConfig{
-   		    Host:     "<NIOS grid IP>",
-   		    Version:  "<WAPI version>",
-   		    Port:     "PORT",
-   		    Username: "username",
-   		    Password: "password",
-   	    }
-   	    transportConfig := ibclient.NewTransportConfig("false", 20, 10)
-   	    requestBuilder := &ibclient.WapiRequestBuilder{}
-   	    requestor := &ibclient.WapiHttpRequestor{}
-   	    conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-   	    if err != nil {
-   		    fmt.Println(err)
-   	    }
-   	    defer conn.Logout()
-   	    objMgr := ibclient.NewObjectManager(conn, "myclient", "")
-   	    //Fetches grid information
-   	    fmt.Println(objMgr.GetLicense())
-       }
+         hostConfig := ibclient.HostConfig{
+         	Host:    "<NIOS grid IP>",
+            Version: "<WAPI version>",
+            Port:    "PORT",
+         }
+         authConfig := ibclient.AuthConfig{
+            Username: "username",
+            Password: "password",
+         }
+         transportConfig := ibclient.NewTransportConfig("false", 20, 10)
+         requestBuilder := &ibclient.WapiRequestBuilder{}
+         requestor := &ibclient.WapiHttpRequestor{}
+         conn, err := ibclient.NewConnector(hostConfig, authConfig, transportConfig, requestBuilder, requestor)
+         if err != nil {
+         	fmt.Println(err)
+         }
+         defer conn.Logout()
+         objMgr := ibclient.NewObjectManager(conn, "myclient", "")
+         //Fetches grid information
+         fmt.Println(objMgr.GetGridLicense())
+       } 
+
 
 ## Supported NIOS operations
 
