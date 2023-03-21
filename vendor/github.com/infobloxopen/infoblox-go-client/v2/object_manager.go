@@ -56,7 +56,7 @@ type IBObjectManager interface {
 	SearchHostRecordByAltId(internalId string, ref string, eaNameForInternalId string) (*HostRecord, error)
 	GetHostRecordByRef(ref string) (*HostRecord, error)
 	GetIpAddressFromHostRecord(host HostRecord) (string, error)
-	GetMXRecord(dnsView string, fqdn string, mx string) (*RecordMX, error)
+	GetMXRecord(dnsView string, fqdn string, mx string, preference uint32) (*RecordMX, error)
 	GetMXRecordByRef(ref string) (*RecordMX, error)
 	GetNetwork(netview string, cidr string, isIPv6 bool, ea EA) (*Network, error)
 	GetNetworkByRef(ref string) (*Network, error)

@@ -50,7 +50,7 @@ func (objMgr *ObjectManager) GetMXRecordByRef(ref string) (*RecordMX, error) {
 	return recordMX, err
 }
 
-func (objMgr *ObjectManager) GetMXRecord(dnsView string, fqdn string, mx string) (*RecordMX, error) {
+func (objMgr *ObjectManager) GetMXRecord(dnsView string, fqdn string, mx string, preference uint32) (*RecordMX, error) {
 	if dnsView == "" || fqdn == "" {
 		return nil, fmt.Errorf("'DNS view' and 'fqdn' are required to retrieve a unique mx record")
 	}
@@ -61,6 +61,7 @@ func (objMgr *ObjectManager) GetMXRecord(dnsView string, fqdn string, mx string)
 		"view":           dnsView,
 		"name":           fqdn,
 		"mail_exchanger": mx,
+		"preference":     fmt.Sprintf("%d", preference),
 	}
 	queryParams := NewQueryParams(false, sf)
 	err := objMgr.connector.GetObject(recordMX, "", queryParams, &res)
