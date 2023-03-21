@@ -34,7 +34,7 @@ func dataSourceMXRecord() *schema.Resource {
 			},
 			"preference": {
 				Type:        schema.TypeInt,
-				Computed:    true,
+				Required:    true,
 				Description: "Configures the preference (0-65535) for this MX record.",
 			},
 			"ttl": {
@@ -65,7 +65,13 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	obj, err := objMgr.GetMXRecord(dnsView, fqdn, mx)
+	tempInt := d.Get("preference").(int)
+	if err := ibclient.CheckIntRange("preference", tempInt, 0, 65535); err != nil {
+		return err
+	}
+	preference := uint32(tempInt)
+
+	obj, err := objMgr.GetMXRecord(dnsView, fqdn, mx, preference)
 	if err != nil {
 		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
