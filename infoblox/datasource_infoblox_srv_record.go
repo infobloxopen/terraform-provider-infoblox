@@ -80,41 +80,44 @@ func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	srvRec, err := objMgr.GetSRVRecord(dnsView, name, target, port)
+	obj, err := objMgr.GetSRVRecord(dnsView, name, target, port)
 	if err != nil {
 		return fmt.Errorf("failed getting SRV-Record: %s", err)
 	}
-	d.SetId(srvRec.Ref)
-	if err := d.Set("priority", srvRec.Priority); err != nil {
+	d.SetId(obj.Ref)
+	if err := d.Set("priority", obj.Priority); err != nil {
 		return err
 	}
-	if err := d.Set("weight", srvRec.Weight); err != nil {
+	if err := d.Set("weight", obj.Weight); err != nil {
 		return err
 	}
 
-	ttl := int(srvRec.Ttl)
-	if !srvRec.UseTtl {
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	if err := d.Set("comment", srvRec.Comment); err != nil {
+	if err := d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
 
-	if srvRec.Ea != nil && len(srvRec.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(srvRec.Ea)
-		ea, err := json.Marshal(eaMap)
-		if err != nil {
-			return err
-		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
-			return err
-		}
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
+		return err
 	}
 
 	return nil
