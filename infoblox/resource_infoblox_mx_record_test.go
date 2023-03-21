@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -185,6 +186,29 @@ func TestAccResourceMXRecord(t *testing.T) {
 						Preference: 35,
 					}),
 				),
+			},
+
+			// negative test cases
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_mx_record" "foo3"{
+						fqdn = "name3.test.com"
+						dns_view = "nondefault_view"
+						mail_exchanger = "sample.mx3.com"
+						preference = 350000
+					}`),
+				ExpectError: regexp.MustCompile("'preference' must be integer and must be in the range from 0 to 65535 inclusively"),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_mx_record" "foo3"{
+						fqdn = "name3.test.com"
+						dns_view = "nondefault_view"
+						mail_exchanger = "sample.mx3.com"
+						preference = 35
+						ttl = -1
+					}`),
+				ExpectError: regexp.MustCompile("TTL value must be 0 or higher"),
 			},
 		},
 	})

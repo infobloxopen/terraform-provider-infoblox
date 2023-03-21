@@ -209,11 +209,11 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("name", prevName.(string))
-			_ = d.Set("priority", prevPriority.(uint32))
-			_ = d.Set("weight", prevWeight.(uint32))
-			_ = d.Set("port", prevPort.(uint32))
+			_ = d.Set("priority", prevPriority.(int))
+			_ = d.Set("weight", prevWeight.(int))
+			_ = d.Set("port", prevPort.(int))
 			_ = d.Set("target", prevTarget.(string))
-			_ = d.Set("ttl", prevTTL.(uint32))
+			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
