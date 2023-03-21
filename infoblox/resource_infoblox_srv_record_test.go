@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -244,6 +245,57 @@ func TestAccResourceSRVRecord(t *testing.T) {
 						Target:   "sample.target4.com",
 					}),
 				),
+			},
+
+			// negative test cases
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101
+						weight = 51
+						port = 89
+						target = "sample.target4.com"
+						ttl = -1
+					}`),
+				ExpectError: regexp.MustCompile("TTL value must be 0 or higher"),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101
+						weight = 51
+						port = 89000
+						target = "sample.target4.com"
+					}`),
+				ExpectError: regexp.MustCompile("'port' must be integer and must be in the range from 0 to 65535 inclusively"),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101000
+						weight = 51
+						port = 89
+						target = "sample.target4.com"
+					}`),
+				ExpectError: regexp.MustCompile("'priority' must be integer and must be in the range from 0 to 65535 inclusively"),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101
+						weight = 510000
+						port = 89
+						target = "sample.target4.com"
+					}`),
+				ExpectError: regexp.MustCompile("'weight' must be integer and must be in the range from 0 to 65535 inclusively"),
 			},
 		},
 	})

@@ -190,7 +190,7 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevDNSView, _ := d.GetChange("dns_view")
 			prevFQDN, _ := d.GetChange("fqdn")
 			prevMX, _ := d.GetChange("mail_exchanger")
-			prevPriority, _ := d.GetChange("preference")
+			prevPreference, _ := d.GetChange("preference")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
 			prevEa, _ := d.GetChange("ext_attrs")
@@ -198,8 +198,8 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("fqdn", prevFQDN.(string))
 			_ = d.Set("mail_exchanger", prevMX.(string))
-			_ = d.Set("preference", prevPriority.(uint32))
-			_ = d.Set("ttl", prevTTL.(uint32))
+			_ = d.Set("preference", prevPreference.(int))
+			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
@@ -223,7 +223,7 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		useTtl = true
 		ttl = uint32(tempTTL)
 	} else if tempTTL != ttlUndef {
-		return fmt.Errorf("TTL must be 0 or higher")
+		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
 	comment := d.Get("comment").(string)
