@@ -47,6 +47,7 @@ data "infoblox_mx_record" "rec1" {
 	dns_view = infoblox_mx_record.rec1.dns_view
 	fqdn = infoblox_mx_record.rec1.fqdn
 	mail_exchanger = infoblox_mx_record.rec1.mail_exchanger
+	preference = infoblox_mx_record.rec1.preference
 }
 
 resource "infoblox_mx_record" "rec2" {
@@ -66,5 +67,6 @@ data "infoblox_mx_record" "rec2" {
 	dns_view = infoblox_mx_record.rec2.dns_view
 	fqdn = infoblox_mx_record.rec2.fqdn
 	mail_exchanger = infoblox_mx_record.rec2.mail_exchanger
+	preference = infoblox_mx_record.rec2.preference
 }
 `)
