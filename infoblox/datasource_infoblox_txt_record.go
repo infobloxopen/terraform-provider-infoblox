@@ -80,15 +80,20 @@ func dataSourceTXTRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
 	if obj.Ea != nil && len(obj.Ea) > 0 {
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
-		if err != nil {
-			return err
-		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
-			return err
-		}
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
+		return err
 	}
 
 	if err = d.Set("comment", obj.Comment); err != nil {
