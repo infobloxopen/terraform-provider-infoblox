@@ -210,6 +210,16 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				ExpectError: regexp.MustCompile("TTL value must be 0 or higher"),
 			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_mx_record" "foo3"{
+						fqdn = "name3.test.com"
+						dns_view = "nondefault_view2"
+						mail_exchanger = "sample.mx3.com"
+						preference = 35
+					}`),
+				ExpectError: regexp.MustCompile("changing the value of 'dns_view' field is not allowed"),
+			},
 		},
 	})
 }

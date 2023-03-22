@@ -188,6 +188,10 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}()
 
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+
 	text := d.Get("text").(string)
 	if text == "" {
 		return fmt.Errorf("empty 'text' value is not allowed")

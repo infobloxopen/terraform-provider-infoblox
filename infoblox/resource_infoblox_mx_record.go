@@ -205,6 +205,9 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}()
 
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	mx := d.Get("mail_exchanger").(string)
