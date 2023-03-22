@@ -219,6 +219,10 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}()
 
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+
 	// the next group of parameters will be validated inside ibclient.UpdateSRVRecord()
 	name := d.Get("name").(string)
 	priority := d.Get("priority").(int)

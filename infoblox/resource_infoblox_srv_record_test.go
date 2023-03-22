@@ -297,6 +297,18 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					}`),
 				ExpectError: regexp.MustCompile("'weight' must be integer and must be in the range from 0 to 65535 inclusively"),
 			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "foo2"{
+						dns_view = "nondefault_view2"
+						name = "_customservice._newcoolproto.demo.host4.test.com"
+						priority = 101
+						weight = 51
+						port = 89
+						target = "sample.target4.com"
+					}`),
+				ExpectError: regexp.MustCompile("changing the value of 'dns_view' field is not allowed"),
+			},
 		},
 	})
 }

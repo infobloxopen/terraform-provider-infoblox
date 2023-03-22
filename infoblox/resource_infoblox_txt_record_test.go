@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -149,6 +150,19 @@ func TestAccResourceTXTRecord(t *testing.T) {
 						Comment: "test comment 2",
 					}),
 				),
+			},
+
+			// negative test cases
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_txt_record" "foo2" {
+						fqdn = "name3.test.com"
+						text = "this is a text record"
+						ttl = 150
+						dns_view = "nondefault_view2"
+						comment = "test comment 2"
+					}`),
+				ExpectError: regexp.MustCompile("changing the value of 'dns_view' field is not allowed"),
 			},
 		},
 	})
