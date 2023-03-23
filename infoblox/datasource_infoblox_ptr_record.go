@@ -25,14 +25,14 @@ func dataSourcePtrRecord() *schema.Resource {
 			},
 			"record_name": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
-				Default:     "",
 				Description: "The name of the DNS PTR-record in FQDN format",
 			},
 			"ip_addr": {
 				Type:        schema.TypeString,
+				Computed:    true,
 				Optional:    true,
-				Default:     "",
 				Description: "IPv4/IPv6 address the PTR-record points from.",
 			},
 			"ttl": {
@@ -42,14 +42,12 @@ func dataSourcePtrRecord() *schema.Resource {
 			},
 			"comment": {
 				Type:        schema.TypeString,
-				Default:     "",
-				Optional:    true,
+				Computed:    true,
 				Description: "PTR-record's description.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
-				Default:     "",
-				Optional:    true,
+				Computed:    true,
 				Description: "The Extensible attributes of the PTR-record.",
 			},
 		},
