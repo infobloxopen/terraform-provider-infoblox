@@ -73,9 +73,17 @@ func dataSourceCNameRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("zone", recordCNAME.Zone); err != nil {
 		return err
 	}
-	if err := d.Set("ttl", recordCNAME.Ttl); err != nil {
+
+	var ttl int
+	if recordCNAME.UseTtl {
+		ttl = int(recordCNAME.Ttl)
+	} else {
+		ttl = int(ttlUndef)
+	}
+	if err := d.Set("ttl", ttl); err != nil {
 		return err
 	}
+
 	if err := d.Set("comment", recordCNAME.Comment); err != nil {
 		return err
 	}

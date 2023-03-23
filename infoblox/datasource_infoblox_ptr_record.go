@@ -75,9 +75,17 @@ func dataSourcePtrRecordRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId(ptrRecord.Ref)
-	if err := d.Set("ttl", ptrRecord.Ttl); err != nil {
+
+	var ttl int
+	if ptrRecord.UseTtl {
+		ttl = int(ptrRecord.Ttl)
+	} else {
+		ttl = int(ttlUndef)
+	}
+	if err := d.Set("ttl", ttl); err != nil {
 		return err
 	}
+
 	if err := d.Set("comment", ptrRecord.Comment); err != nil {
 		return err
 	}
