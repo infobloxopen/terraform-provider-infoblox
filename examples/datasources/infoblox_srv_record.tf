@@ -6,4 +6,6 @@ data "infoblox_srv_record" "ds1" {
     port = infoblox_srv_record.rec2.port
 
     // priority, weight, ttl, comment, ext_attrs arguments may be retrieved using this data source.
+
+    depends_on = [infoblox_srv_record.rec1]
 }

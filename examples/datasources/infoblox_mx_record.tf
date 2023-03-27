@@ -6,4 +6,6 @@ data "infoblox_mx_record" "ds1" {
     preference = infoblox_mx_record.rec2.preference
 
     // preference, ttl, comment, ext_attrs arguments may be retrieved using this data source.
+
+    depends_on = [infoblox_mx_record.rec1]
 }
