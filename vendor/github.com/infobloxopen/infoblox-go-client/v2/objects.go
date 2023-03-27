@@ -803,16 +803,19 @@ type RecordMX struct {
 	Fqdn       string `json:"name,omitempty"`
 	MX         string `json:"mail_exchanger,omitempty"`
 	Preference uint32 `json:"preference"`
+	Zone       string `json:"zone,omitempty"`
 	Ttl        uint32 `json:"ttl"`
 	UseTtl     bool   `json:"use_ttl"`
 	Comment    string `json:"comment"`
 	Ea         EA     `json:"extattrs"`
 }
 
+var mxRecordReturnFieldsList = []string{"mail_exchanger", "view", "name", "preference", "ttl", "use_ttl", "comment", "extattrs", "zone"}
+
 func NewEmptyRecordMX() *RecordMX {
 	res := &RecordMX{}
 	res.objectType = "record:mx"
-	res.returnFields = []string{"mail_exchanger", "view", "name", "preference", "ttl", "use_ttl", "comment", "extattrs"}
+	res.returnFields = mxRecordReturnFieldsList
 
 	return res
 }
@@ -820,7 +823,7 @@ func NewEmptyRecordMX() *RecordMX {
 func NewRecordMX(rm RecordMX) *RecordMX {
 	res := rm
 	res.objectType = "record:mx"
-	res.returnFields = []string{"mail_exchanger", "view", "name", "preference", "ttl", "use_ttl", "comment", "extattrs"}
+	res.returnFields = mxRecordReturnFieldsList
 
 	return &res
 }
@@ -834,16 +837,19 @@ type RecordSRV struct {
 	Weight   uint32 `json:"weight"`
 	Port     uint32 `json:"port"`
 	Target   string `json:"target,omitempty"`
+	Zone     string `json:"zone,omitempty"`
 	Ttl      uint32 `json:"ttl"`
 	UseTtl   bool   `json:"use_ttl"`
 	Comment  string `json:"comment"`
 	Ea       EA     `json:"extattrs"`
 }
 
+var srvRecordReturnFieldsList = []string{"name", "view", "priority", "weight", "port", "target", "ttl", "use_ttl", "comment", "extattrs", "zone"}
+
 func NewEmptyRecordSRV() *RecordSRV {
 	res := RecordSRV{}
 	res.objectType = "record:srv"
-	res.returnFields = []string{"name", "view", "priority", "weight", "port", "target", "ttl", "use_ttl", "comment", "extattrs"}
+	res.returnFields = srvRecordReturnFieldsList
 
 	return &res
 }
@@ -851,7 +857,7 @@ func NewEmptyRecordSRV() *RecordSRV {
 func NewRecordSRV(rv RecordSRV) *RecordSRV {
 	res := rv
 	res.objectType = "record:srv"
-	res.returnFields = []string{"name", "view", "priority", "weight", "port", "target", "ttl", "use_ttl", "comment", "extattrs"}
+	res.returnFields = srvRecordReturnFieldsList
 
 	return &res
 }
