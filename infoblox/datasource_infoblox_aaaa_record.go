@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -31,7 +32,7 @@ func dataSourceAAAARecord() *schema.Resource {
 			"zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Zone which the record belongs to.",
+				Description: "The zone which the record belongs to.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -53,40 +54,49 @@ func dataSourceAAAARecord() *schema.Resource {
 }
 
 func dataSourceAAAARecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ipv6_addr").(string)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
-	aaaaRec, err := objMgr.GetAAAARecord(dnsView, fqdn, ipAddr)
+	obj, err := objMgr.GetAAAARecord(dnsView, fqdn, ipAddr)
 	if err != nil {
 		return fmt.Errorf("failed getting AAAA-record: %s", err.Error())
 	}
 
-	d.SetId(aaaaRec.Ref)
-	if err := d.Set("zone", aaaaRec.Zone); err != nil {
-		return err
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
 	}
-	if aaaaRec.UseTtl {
-		if err := d.Set("ttl", aaaaRec.Ttl); err != nil {
-			return err
-		}
-	}
-	if err := d.Set("comment", aaaaRec.Comment); err != nil {
+	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	dsExtAttrsVal := aaaaRec.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
 		return err
 	}
+
+	if err := d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+	if err := d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
 
 	return nil
 }

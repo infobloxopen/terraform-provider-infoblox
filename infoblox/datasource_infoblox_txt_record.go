@@ -22,11 +22,6 @@ func dataSourceTXTRecord() *schema.Resource {
 				Required:    true,
 				Description: "DNS View which the zone exists within.",
 			},
-			"zone": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "zone under which record has been created.",
-			},
 			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -36,6 +31,11 @@ func dataSourceTXTRecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Data of the TXT-Record.",
+			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The zone which the record belongs to.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -62,14 +62,9 @@ func dataSourceTXTRecordRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
 	obj, err := objMgr.GetTXTRecord(dnsView, fqdn)
 	if err != nil {
 		return fmt.Errorf("failed getting TXT-Record: %s", err)
-	}
-
-	if err = d.Set("text", obj.Text); err != nil {
-		return err
 	}
 
 	ttl := int(obj.Ttl)
@@ -96,11 +91,13 @@ func dataSourceTXTRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err = d.Set("comment", obj.Comment); err != nil {
+	if err = d.Set("text", obj.Text); err != nil {
 		return err
 	}
-
 	if err = d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
 

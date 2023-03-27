@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,27 +36,32 @@ func dataSourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
-	networkView, err := objMgr.GetNetworkView(name)
+	obj, err := objMgr.GetNetworkView(name)
 	if err != nil {
-		return fmt.Errorf("Getting networkView %s failed : %s", name, err.Error())
+		return fmt.Errorf("getting network view '%s' failed: %s", name, err)
 	}
 
-	d.SetId(networkView.Ref)
-
-	if err := d.Set("comment", networkView.Comment); err != nil {
-		return err
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
 	}
-
-	dsExtAttrsVal := networkView.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	ea, err := json.Marshal(eaMap)
 	if err != nil {
 		return err
 	}
-
-	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
 		return err
 	}
+
+	if err := d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
 
 	return nil
 }
