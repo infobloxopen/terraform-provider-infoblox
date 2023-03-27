@@ -4,4 +4,6 @@ data "infoblox_txt_record" "ds1"{
   fqdn = infoblox_txt_record.rec3.fqdn
 
   // zone, text, ttl, comment and ext_attrs values may be retrieved using this data source.
+
+  depends_on = [infoblox_txt_record.rec1]
 }
