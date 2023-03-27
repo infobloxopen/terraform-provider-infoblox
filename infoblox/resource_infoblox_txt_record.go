@@ -20,7 +20,7 @@ func resourceTXTRecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultDNSView,
-				Description: "DNS View in which the zone exists.",
+				Description: "DNS view in which the record's zone exists.",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
@@ -30,7 +30,7 @@ func resourceTXTRecord() *schema.Resource {
 			"text": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Data to be associated with TXT_Record, this field can be empty.",
+				Description: "Data to be associated with TXT_Record.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,

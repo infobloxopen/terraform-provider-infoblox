@@ -37,6 +37,11 @@ func dataSourceMXRecord() *schema.Resource {
 				Required:    true,
 				Description: "Configures the preference (0-65535) for this MX record.",
 			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The zone which the record belongs to.",
+			},
 			"ttl": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -57,13 +62,9 @@ func dataSourceMXRecord() *schema.Resource {
 }
 
 func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	mx := d.Get("mail_exchanger").(string)
-
-	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
 	tempInt := d.Get("preference").(int)
 	if err := ibclient.CheckIntRange("preference", tempInt, 0, 65535); err != nil {
@@ -71,6 +72,8 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 	}
 	preference := uint32(tempInt)
 
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 	obj, err := objMgr.GetMXRecord(dnsView, fqdn, mx, preference)
 	if err != nil {
 		return fmt.Errorf("failed getting MX-Record: %s", err)
@@ -100,12 +103,16 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err = d.Set("comment", obj.Comment); err != nil {
-		return err
-	}
 	if err = d.Set("preference", obj.Preference); err != nil {
 		return err
 	}
+	if err = d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
 	d.SetId(obj.Ref)
 
 	return nil

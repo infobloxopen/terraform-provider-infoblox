@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -21,11 +22,6 @@ func dataSourceARecord() *schema.Resource {
 				Required:    true,
 				Description: "Dns View under which the zone has been created.",
 			},
-			"zone": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Zone under which record has been created.",
-			},
 			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -35,6 +31,11 @@ func dataSourceARecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address the A-record points to",
+			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The zone which the record belongs to.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -56,37 +57,49 @@ func dataSourceARecord() *schema.Resource {
 }
 
 func dataSourceARecordRead(d *schema.ResourceData, m interface{}) error {
-
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
-	aRec, err := objMgr.GetARecord(dnsView, fqdn, ipAddr)
+	obj, err := objMgr.GetARecord(dnsView, fqdn, ipAddr)
 	if err != nil {
 		return fmt.Errorf("failed getting A-record: %s", err.Error())
 	}
 
-	d.SetId(aRec.Ref)
-	if err := d.Set("zone", aRec.Zone); err != nil {
-		return err
+	ttl := int(obj.Ttl)
+	if !obj.UseTtl {
+		ttl = ttlUndef
 	}
-	if err := d.Set("ttl", aRec.Ttl); err != nil {
-		return err
-	}
-	if err := d.Set("comment", aRec.Comment); err != nil {
+	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	dsExtAttrsVal := aRec.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
 	if err != nil {
 		return err
 	}
-	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
 		return err
 	}
+
+	if err := d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+	if err := d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
+
 	return nil
 }

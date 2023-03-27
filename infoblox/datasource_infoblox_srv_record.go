@@ -48,6 +48,11 @@ func dataSourceSRVRecord() *schema.Resource {
 				Required:    true,
 				Description: "Provides service for domain name in the SRV record.",
 			},
+			"zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The zone which the record belongs to.",
+			},
 			"ttl": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -79,17 +84,9 @@ func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
 	obj, err := objMgr.GetSRVRecord(dnsView, name, target, port)
 	if err != nil {
 		return fmt.Errorf("failed getting SRV-Record: %s", err)
-	}
-	d.SetId(obj.Ref)
-	if err := d.Set("priority", obj.Priority); err != nil {
-		return err
-	}
-	if err := d.Set("weight", obj.Weight); err != nil {
-		return err
 	}
 
 	ttl := int(obj.Ttl)
@@ -97,10 +94,6 @@ func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
-		return err
-	}
-
-	if err := d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
 
@@ -119,6 +112,21 @@ func dataSourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("ext_attrs", string(ea)); err != nil {
 		return err
 	}
+
+	if err := d.Set("priority", obj.Priority); err != nil {
+		return err
+	}
+	if err := d.Set("weight", obj.Weight); err != nil {
+		return err
+	}
+	if err = d.Set("zone", obj.Zone); err != nil {
+		return err
+	}
+	if err := d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
 
 	return nil
 }

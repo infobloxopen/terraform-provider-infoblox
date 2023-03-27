@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -38,35 +39,40 @@ func dataSourceIPv4Network() *schema.Resource {
 }
 
 func dataSourceIPv4NetworkRead(d *schema.ResourceData, m interface{}) error {
-
 	networkView := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
-
-	network, err := objMgr.GetNetwork(networkView, cidr, false, nil)
+	obj, err := objMgr.GetNetwork(networkView, cidr, false, nil)
 	if err != nil {
-		return fmt.Errorf("Getting Network %s failed : %s", cidr, err.Error())
+		return fmt.Errorf("getting network '%s' failed: %s", cidr, err)
 	}
-	if network == nil {
-		return fmt.Errorf("API returns a nil/empty id on network %s", cidr)
-	}
-
-	d.SetId(network.Ref)
-
-	if err := d.Set("comment", network.Comment); err != nil {
-		return err
+	if obj == nil {
+		return fmt.Errorf("API returns a nil/empty ID for the network '%s'", cidr)
 	}
 
-	dsExtAttrsVal := network.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	var eaMap map[string]interface{}
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaMap = (map[string]interface{})(obj.Ea)
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
 	if err != nil {
 		return err
 	}
-
-	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
+	if err = d.Set("ext_attrs", string(ea)); err != nil {
 		return err
 	}
+
+	if err := d.Set("comment", obj.Comment); err != nil {
+		return err
+	}
+
+	d.SetId(obj.Ref)
+
 	return nil
 }
