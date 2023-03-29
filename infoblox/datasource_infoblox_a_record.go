@@ -19,8 +19,9 @@ func dataSourceARecord() *schema.Resource {
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Dns View under which the zone has been created.",
+				Optional:    true,
+				Default:     defaultDNSView,
+				Description: "DNS view which the record's zone belongs to.",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,

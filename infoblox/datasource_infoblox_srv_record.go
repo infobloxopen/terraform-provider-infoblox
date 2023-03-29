@@ -20,8 +20,9 @@ func dataSourceSRVRecord() *schema.Resource {
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "DNS View which the zone exists within.",
+				Optional:    true,
+				Default:     defaultDNSView,
+				Description: "DNS view which the record's zone belongs to.",
 			},
 			"name": {
 				Type:        schema.TypeString,

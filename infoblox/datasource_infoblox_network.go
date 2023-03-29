@@ -18,7 +18,8 @@ func dataSourceIPv4Network() *schema.Resource {
 			},
 			"network_view": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Default:  defaultNetView,
 			},
 			"cidr": {
 				Type:     schema.TypeString,
