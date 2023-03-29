@@ -11,7 +11,7 @@ To get information about an AAAA-record, specify a combination of the DNS view, 
 
 The following list describes the parameters you must define in an `infoblox_aaaa_record` data source block (all except `dns_view` are required):
 
-* `dns_view`: the DNS view in which the zone exists.
+* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
 * `ipv6_addr`: the IPv6 address associated with the AAAA-record.
 * `fqdn`: the fully qualified domain name which the IP address is assigned to.
 

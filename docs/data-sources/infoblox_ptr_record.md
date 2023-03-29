@@ -2,6 +2,7 @@
 
 Use the data source to retrieve the following information for a PTR-record from the corresponding object in NIOS:
 
+* `zone`: the zone which the record belongs to.
 * `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
 * `comment`: the description of the record. This is a regular comment. Example: `manager's PC`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as a JSON map. Example: `{"Owner”: "State Library”, "Expires”: "never”}`.
@@ -11,7 +12,7 @@ or the record name in FQDN format, and the FQDN that corresponds to the IP addre
 
 The following list describes the parameters you must define in an `infoblox_ptr_record` data source block:
 
-* `dns_view`: optional, Specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
+* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
 * `ip_addr`: required only if record_name is not set; specifies the IPv4 or IPv6 address associated with the PTR-record. 
   If both `ip_addr` and `record_name` are set, `ip_addr` takes precedence.
 * `record_name`: required only if ip_addr is not set; specifies the name of the PTR-record in FQDN format,

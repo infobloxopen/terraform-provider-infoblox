@@ -9,7 +9,7 @@ To get information about a network, you must specify a combination of the networ
 network address in the CIDR format.
 The following list describes the parameters you must define in an `infoblox_ipv4_network` data source block (all of them are required):
 
-* `network_view`: the network view in which the network exists.
+* `network_view`: optional, specifies the network view which the network container exists in. If a value is not specified, the name `default` is used as the network view.
 * `cidr`: specifies the network block which correcponds to the network, in CIDR notation. Do not use the IPv6 CIDR for an IPv4 network.
 
 ### Example of a Network Data Source Block

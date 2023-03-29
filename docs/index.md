@@ -54,6 +54,12 @@ There are data sources for the following objects:
 * AAAA-record (`infoblox_aaaa_record`)
 * CNAME-record (`infoblox_cname_record`)
 * PTR-record (`infoblox_ptr_record`)
+* MX-record (`infoblox_mx_record`)
+* TXT-record (`infoblox_txt_record`)
+* SRV-record (`infoblox_srv_record`)
+
+!> Currently, the data sources work the way that if two or more NIOS objects match the same set of search fields, only one object will be used to populate
+   the data source's return fields. This is to be improved in one of the next releases.
 
 ## Importing existing resources
 
