@@ -19,8 +19,9 @@ func dataSourceMXRecord() *schema.Resource {
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "DNS View which the zone exists within.",
+				Optional:    true,
+				Default:     defaultDNSView,
+				Description: "DNS view which the record's zone belongs to.",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
