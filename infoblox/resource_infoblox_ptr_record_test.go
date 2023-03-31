@@ -244,40 +244,39 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 					},
 				),
 			},
-			// TODO: fix update by IP address, not by record_name (most likely, in go-client)
-			//{
-			//	Config: `
-			//		resource "infoblox_ptr_record" "foo2"{
-			//			network_view = "default"
-			//			dns_view="default"
-			//			ptrdname="testptrdname3.test.com"
-			//			ip_addr = "10.0.0.3"
-			//			comment="PTR record created in reverse mapping zone with IP"
-			//			ext_attrs = jsonencode({
-			//				"Tenant ID"="terraform_test_tenant"
-			//				"Location"="Test loc."
-			//				"Site"="Test site2"
-			//				"TestEA1"=["text1","text2"]
-			//			  })
-			//		}`,
-			//	Check: validateRecordPTR(
-			//		"infoblox_ptr_record.foo2",
-			//		&ibclient.RecordPTR{
-			//			View:     "default",
-			//			PtrdName: "testptrdname3.test.com",
-			//			Ipv4Addr: "10.0.0.3",
-			//			Name:     "3.0.0.10.in-addr.arpa",
-			//			Zone:     "0.0.10.in-addr.arpa",
-			//			Comment:  "PTR record created in reverse mapping zone with IP",
-			//			Ea: ibclient.EA{
-			//				"Tenant ID": "terraform_test_tenant",
-			//				"Location":  "Test loc.",
-			//				"Site":      "Test site2",
-			//				"TestEA1":   []string{"text1", "text2"},
-			//			},
-			//		},
-			//	),
-			//},
+			{
+				Config: `
+					resource "infoblox_ptr_record" "foo2"{
+						network_view = "default"
+						dns_view="default"
+						ptrdname="testptrdname3.test.com"
+						ip_addr = "10.0.0.3"
+						comment="PTR record created in reverse mapping zone with IP"
+						ext_attrs = jsonencode({
+							"Tenant ID"="terraform_test_tenant"
+							"Location"="Test loc."
+							"Site"="Test site2"
+							"TestEA1"=["text1","text2"]
+						  })
+					}`,
+				Check: validateRecordPTR(
+					"infoblox_ptr_record.foo2",
+					&ibclient.RecordPTR{
+						View:     "default",
+						PtrdName: "testptrdname3.test.com",
+						Ipv4Addr: "10.0.0.3",
+						Name:     "3.0.0.10.in-addr.arpa",
+						Zone:     "0.0.10.in-addr.arpa",
+						Comment:  "PTR record created in reverse mapping zone with IP",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Location":  "Test loc.",
+							"Site":      "Test site2",
+							"TestEA1":   []string{"text1", "text2"},
+						},
+					},
+				),
+			},
 			{
 				// TODO: implement a requirement of lower-case FQDNs
 				Config: `

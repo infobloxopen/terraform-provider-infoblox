@@ -123,6 +123,14 @@ func getAltIdFields(altId string) (internalId *internalResourceId, ref string) {
 	return
 }
 
+// This function checks if the text string has any trailing or leading spaces.
+func checkAndTrimSpaces(text string) (string, bool) {
+	newText := strings.TrimSpace(text)
+	return newText, text != newText
+}
+
+const errMsgFormatLeadingTrailingSpaces = "leading or trailing spaces are not allowed for the '%s' field"
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
