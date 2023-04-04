@@ -131,6 +131,14 @@ func checkAndTrimSpaces(text string) (string, bool) {
 
 const errMsgFormatLeadingTrailingSpaces = "leading or trailing spaces are not allowed for the '%s' field"
 
+func isNotFoundError(err error) bool {
+	if _, notFoundErr := err.(*ibclient.NotFoundError); notFoundErr {
+		return true
+	}
+
+	return false
+}
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{

@@ -125,7 +125,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -170,9 +170,8 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsViewName, err.Error())
+		return fmt.Errorf("creation of PTR-record under the DNS view '%s' failed: %s", dnsViewName, err)
 	}
-	d.SetId(recordPTR.Ref)
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
@@ -200,6 +199,12 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	if err = d.Set("comment", comment); err != nil {
+		return err
+	}
+
+	d.SetId(recordPTR.Ref)
+
 	return nil
 }
 
@@ -208,7 +213,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -221,7 +226,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+		return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
 	ttl := int(obj.Ttl)
@@ -366,7 +371,8 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		cidr = ""
 	} else {
 		if cidr != "" {
-			ipAddr = "" // In go-client, 'ip_addr' takes precedence over 'cidr', we need to disable it.
+			recordName = "" // In go-client, 'record_name' takes precedence over 'cidr' and 'ip_addr', we need to disable it.
+			ipAddr = ""     // In go-client, 'ip_addr' takes precedence over 'cidr', we need to disable it.
 			ipAddrSrcChangesCounter = ipAddrSrcChangesCounter + 1
 		}
 	}
@@ -386,7 +392,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -414,7 +420,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if cidr == "" && ipAddr == "" {
 		recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
 		if err != nil {
-			return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+			return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 		}
 
 		ipv4 := recordPTR.Ipv4Addr
@@ -428,7 +434,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
+		return fmt.Errorf("update operaiton failed for the PTR-record with ID '%s' under the DNS view '%s': %s", d.Id(), dnsView, err)
 	}
 	updateSuccessful = true
 	d.SetId(recordPTRUpdated.Ref)
@@ -458,7 +464,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -472,9 +478,11 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeletePTRRecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of PTR Record from dns view %s failed : %s", dnsView, err.Error())
+		if isNotFoundError(err) {
+			d.SetId("")
+		}
+		return fmt.Errorf("deletion of PTR-record with ID '%s'under the DNS view '%s' failed: %s", d.Id(), dnsView, err)
 	}
-	d.SetId("")
 
 	return nil
 }
