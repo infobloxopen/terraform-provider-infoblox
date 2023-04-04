@@ -76,23 +76,56 @@ func resourcePTRRecord() *schema.Resource {
 }
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
-	networkView := d.Get("network_view").(string)
+	networkView, trimmed := checkAndTrimSpaces(d.Get("network_view").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "network_view")
+	}
 	if networkView == "" {
 		networkView = defaultNetView
 	}
-	cidr := d.Get("cidr").(string)
-	ipAddr := d.Get("ip_addr").(string)
 
-	dnsViewName := d.Get("dns_view").(string)
-	ptrdname := d.Get("ptrdname").(string)
-	recordName := d.Get("record_name").(string)
+	ipAddrSrcCounter := 0
+
+	cidr, trimmed := checkAndTrimSpaces(d.Get("cidr").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "cidr")
+	}
+	if cidr != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
+
+	ipAddr, trimmed := checkAndTrimSpaces(d.Get("ip_addr").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "ip_addr")
+	}
+	if ipAddr != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
+
+	dnsViewName, trimmed := checkAndTrimSpaces(d.Get("dns_view").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "dns_view")
+	}
+
+	ptrdname, trimmed := checkAndTrimSpaces(d.Get("ptrdname").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "ptrdname")
+	}
+
+	recordName, trimmed := checkAndTrimSpaces(d.Get("record_name").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "record_name")
+	}
+	if recordName != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
 
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -101,11 +134,14 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		tenantID = tempVal.(string)
 	}
 
-	if recordName == "" {
-		if ipAddr == "" && cidr == "" {
-			return fmt.Errorf(
-				"Creation of PTR record failed: 'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
-		}
+	if ipAddrSrcCounter == 0 {
+		return fmt.Errorf(
+			"'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
+	}
+
+	if ipAddrSrcCounter != 1 {
+		return fmt.Errorf(
+			"only one of 'ip_addr', 'cidr' and 'record_name' must be defined")
 	}
 
 	var ttl uint32
@@ -134,9 +170,8 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("Creation of PTR Record under %s DNS View failed : %s", dnsViewName, err.Error())
+		return fmt.Errorf("creation of PTR-record under the DNS view '%s' failed: %s", dnsViewName, err)
 	}
-	d.SetId(recordPTR.Ref)
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
@@ -164,6 +199,12 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	if err = d.Set("comment", comment); err != nil {
+		return err
+	}
+
+	d.SetId(recordPTR.Ref)
+
 	return nil
 }
 
@@ -172,7 +213,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 	var tenantID string
@@ -185,7 +226,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetPTRRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+		return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
 	ttl := int(obj.Ttl)
@@ -288,16 +329,62 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 	ptrdname := d.Get("ptrdname").(string)
-	recordName := d.Get("record_name").(string)
 
-	ipAddr := d.Get("ip_addr").(string)
-	cidr := d.Get("cidr").(string)
+	ipAddrSrcChangesCounter := 0
+	ipAddrSrcCounter := 0
+
+	recordName, trimmed := checkAndTrimSpaces(d.Get("record_name").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "record_name")
+	}
+	if recordName != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
+	if d.HasChange("record_name") && recordName != "" {
+		ipAddrSrcChangesCounter = ipAddrSrcChangesCounter + 1
+	}
+
+	ipAddr, trimmed := checkAndTrimSpaces(d.Get("ip_addr").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "ip_addr")
+	}
+	if ipAddr != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
+	if d.HasChange("ip_addr") && ipAddr != "" {
+		recordName = "" // In go-client, 'record_name' takes precedence over 'cidr' and 'ip_addr', we need to disable it.
+		ipAddrSrcChangesCounter = ipAddrSrcChangesCounter + 1
+	}
+
+	cidr, trimmed := checkAndTrimSpaces(d.Get("cidr").(string))
+	if trimmed {
+		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "cidr")
+	}
+	if cidr != "" {
+		ipAddrSrcCounter = ipAddrSrcCounter + 1
+	}
 	// If 'cidr' is unchanged, then nothing to update here, making them empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
 	// during every 'update' operation).
 	if !d.HasChange("cidr") {
 		cidr = ""
+	} else {
+		if cidr != "" {
+			recordName = "" // In go-client, 'record_name' takes precedence over 'cidr' and 'ip_addr', we need to disable it.
+			ipAddr = ""     // In go-client, 'ip_addr' takes precedence over 'cidr', we need to disable it.
+			ipAddrSrcChangesCounter = ipAddrSrcChangesCounter + 1
+		}
+	}
+
+	if ipAddrSrcCounter == 0 {
+		return fmt.Errorf(
+			"'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
+	}
+
+	if ipAddrSrcChangesCounter > 1 {
+		return fmt.Errorf("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty")
+
 	}
 
 	comment := d.Get("comment").(string)
@@ -305,7 +392,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -328,12 +415,12 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Retrive the IP of PTR record.
-	// When IP is allocated using cidr and an empty IP is passed for updation
+	// Retrieve the IP of PTR record.
+	// When IP is allocated using cidr and an empty IP is passed for an update.
 	if cidr == "" && ipAddr == "" {
 		recordPTR, err := objMgr.GetPTRRecordByRef(d.Id())
 		if err != nil {
-			return fmt.Errorf("Getting PTR Record with ID %s failed : %s", d.Id(), err.Error())
+			return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 		}
 
 		ipv4 := recordPTR.Ipv4Addr
@@ -347,7 +434,7 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, extAttrs)
 	if err != nil {
-		return fmt.Errorf("Updating of PTR Record from dns view %s failed : %s", dnsView, err.Error())
+		return fmt.Errorf("update operaiton failed for the PTR-record with ID '%s' under the DNS view '%s': %s", d.Id(), dnsView, err)
 	}
 	updateSuccessful = true
 	d.SetId(recordPTRUpdated.Ref)
@@ -377,7 +464,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
 		}
 	}
 
@@ -391,9 +478,11 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeletePTRRecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of PTR Record from dns view %s failed : %s", dnsView, err.Error())
+		if isNotFoundError(err) {
+			d.SetId("")
+		}
+		return fmt.Errorf("deletion of PTR-record with ID '%s'under the DNS view '%s' failed: %s", d.Id(), dnsView, err)
 	}
-	d.SetId("")
 
 	return nil
 }
