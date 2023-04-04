@@ -11,7 +11,7 @@ To get information about a CNAME-record, specify a combination of the DNS view, 
 
 The following list describes the parameters you must define in an `infoblox_cname_record` data source block (all of them are required):
 
-* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
+* `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
 * `canonical`: specifies the canonical name of the record in the FQDN format.
 * `alias`: specifies the alias name of the record in the FQDN format.
 

@@ -11,7 +11,7 @@ Use the data source to retrieve the following information for an SRV-record from
 
 The following list describes the parameters you must define in an `infoblox_srv_record` data source block:
 
-* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
+* `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
 * `name`: required, specifies the record's name in the format, defined in RFC2782 document. Example: `_http._tcp.acme.com`
 * `target`: required, specifies an FQDN of the host which is responsible for providing the service specified by `name`. Example: `www.acme.com`
 * `port`: required, specifies a port number (0..65535) on the `target` host which the service expects requests on.
@@ -41,4 +41,29 @@ data "infoblox_srv_record" "ds1" {
 
     depends_on = [infoblox_srv_record.rec2]
 }
+
+output "srv_rec2_priority" {
+  value = data.infoblox_srv_record.ds1.priority
+}
+
+output "srv_rec2_weight" {
+  value = data.infoblox_srv_record.ds1.weight
+}
+
+output "srv_rec2_zone" {
+  value = data.infoblox_srv_record.ds1.zone
+}
+
+output "srv_rec2_ttl" {
+  value = data.infoblox_srv_record.ds1.ttl
+}
+
+output "srv_rec2_comment" {
+  value = data.infoblox_srv_record.ds1.comment
+}
+
+output "srv_rec2_ext_attrs" {
+  value = data.infoblox_srv_record.ds1.ext_attrs
+}
+
 ```

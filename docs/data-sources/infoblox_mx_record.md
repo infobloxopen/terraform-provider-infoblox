@@ -9,8 +9,8 @@ Use the data source to retrieve the following information for an MX-record from 
 
 The following list describes the parameters you must define in an `infoblox_mx_record` data source block:
 
-* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
-* `fqdn`: required, required, specifies the fully qualified domain name which a mail exchange host is assigned to. Example: `big-big-company.com`
+* `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
+* `fqdn`: required, specifies the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `big-big-company.com`
 * `mail_exchanger`: required, specifies the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
 * `preference`: required, specifies the preference number (0-65535) for this MX-record.
 
@@ -36,5 +36,21 @@ data "infoblox_mx_record" "ds2" {
   preference = 40
 
   depends_on = [infoblox_mx_record.rec2]
+
+  output "mx_rec2_zone" {
+    value = data.infoblox_mx_record.ds2.zone
+  }
+
+  output "mx_rec2_ttl" {
+    value = data.infoblox_mx_record.ds2.ttl
+  }
+
+  output "mx_rec2_comment" {
+    value = data.infoblox_mx_record.ds2.comment
+  }
+
+  output "mx_rec2_ext_attrs" {
+    value = data.infoblox_mx_record.ds2.ext_attrs
+  }
 }
 ```
