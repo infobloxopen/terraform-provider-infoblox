@@ -10,8 +10,8 @@ Use the data source to retrieve the following information for an TXT-record from
 
 The following list describes the parameters you must define in an `infoblox_txt_record` data source block:
 
-* `dns_view`: optional, specifies the DNS view in which the reverse mapping zone exists. If a value is not specified, the name `default` is used as the DNS view.
-* `fqdn`: required, required, specifies the fully qualified domain name which a mail exchange host is assigned to. Example: `big-big-company.com`
+* `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
+* `fqdn`: required, specifies the fully qualified domain name which a textual value is assigned to. Exmample: `big-big-company.com`
 
 ### Example of the TXT-record Data Source Block
 
@@ -32,5 +32,25 @@ data "infoblox_txt_record" "ds3" {
   fqdn = "example3.example2.org"
 
   depends_on = [infoblox_txt_record.rec3]
+}
+
+output "txt_rec3_text" {
+  value = data.infoblox_txt_record.ds3.text
+}
+
+output "txt_rec3_zone" {
+  value = data.infoblox_txt_record.ds3.zone
+}
+
+output "txt_rec3_ttl" {
+  value = data.infoblox_txt_record.ds3.ttl
+}
+
+output "txt_rec3_comment" {
+  value = data.infoblox_txt_record.ds3.comment
+}
+
+output "txt_rec3_ext_attrs" {
+  value = data.infoblox_txt_record.ds3.ext_attrs
 }
 ```
