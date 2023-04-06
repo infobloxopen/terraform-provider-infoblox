@@ -7,7 +7,7 @@
 This is a provider plugin for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plugin enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.2.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.2.0)
+The latest version of Infoblox provider is [v2.3.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.3.0)
 
 ## Provider Features
 
@@ -22,6 +22,9 @@ The provider plugin has NIOS DDI resources represented as Terraform resources an
 * AAAA-record (`infoblox_aaaa_record`)
 * PTR-record (`infoblox_ptr_record`)
 * CNAME-record (`infoblox_cname_record`)
+* MX-record (`infoblox_mx_record`)
+* TXT-record (`infoblox_txt_record`)
+* SRV-record (`infoblox_srv_record`)
 * Host record as a backend for the following operations:
     * Allocation and de-allocation of an IP address from a Network (`infoblox_ip_allocation`)
     * Association and de-association of an IP address from a VM (`infoblox_ip_association`)
@@ -34,13 +37,16 @@ DNS records and `infoblox_ip_allocation` resource have the `ttl` field's support
 * Network View (`infoblox_network_view`)
 * IPv4 Network (`infoblox_ipv4_network`)
 * IPv4 Network Container (`infoblox_ipv4_network_container`)
-* A-record (`infoblox_a_record`)m
+* A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
 * CNAME-record (`infoblox_cname_record`)
 * PTR-record (`infoblox_ptr_record`)
+* MX-record (`infoblox_mx_record`)
+* TXT-record (`infoblox_txt_record`)
+* SRV-record (`infoblox_srv_record`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
-DNS records have the `ttl` field's support.
+DNS records have the `ttl` and `zone` fields' support.
 
 ## Quick Start
 
@@ -76,19 +82,18 @@ complete the following prerequisites:
 
 ## Limitations
 
-The limitations of Infoblox IPAM Plug-In for Terraform version 2.1.0 and later are as follows:
+The limitations of Infoblox IPAM Plug-In for Terraform version 2.3.0 are as follows:
 
 * No support for creating a DNS zone. Therefore, to work with DNS
   records, you must ensure that appropriate DNS zones have been created in NIOS.
-* Allocation and association through a fixed address record are not supported.
+* Allocation and association through a fixed-address record are not supported.
 * For `infoblox_ip_allocation` and `infoblox_ip_association` resources: creation of a host
   record with multiple IP addresses of the same type is not supported.
-  You can create a host record with a single IPv4 and IPv6 address.
+  But you can create a host record with a single IPv4 and IPv6 address (of both IP types at the same host record).
 * For `infoblox_ipv4_allocation`, `infoblox_ipv6_allocation`, `infoblox_ipv4_association` and `infoblox_ipv6_association`
   resources: creation of a host record with multiple IP addresses of the same type or
   a combination of IPv4 and IPv6 types, is not supported.
 * Authority delegation of IP addresses and DNS name spaces to a cloud platform appliance, is not supported.
-* Supported Terraform data sources are network, A-record, and CNAME-record.
 * Inheritance of extensible attributes is not supported.
 * Required extensible attributes specified in NIOS Grid Manager are not validated by the plug-in.
 * In NIOS, the gateway IP addresses of networks created using the `infoblox_ipv4_network` and
@@ -101,3 +106,5 @@ The limitations of Infoblox IPAM Plug-In for Terraform version 2.1.0 and later a
   * `infoblox_ipv6_allocation`
   * `infoblox_ipv4_association`
   * `infoblox_ipv6_association`
+* The Update functionality is currently not working for the CIDR field in A, AAAA, and PTR records.
+* The fetch functionality in data sources returns output for only one matching object even if it finds multiple objects matching the search criteria.

@@ -56,7 +56,7 @@ resource "infoblox_ptr_record" "ptr4" {
   cidr = infoblox_ipv4_network.net1.cidr
 }
 
-// dynamically allocated PTR-record, full set of parameters
+// statically allocated PTR-record, full set of parameters, non-default network view
 resource "infoblox_ptr_record" "ptr5" {
   ptrdname = "rec5.example2.org"
   dns_view = "nondefault_dnsview2"
