@@ -27,7 +27,7 @@ You can reference this resource and retrieve information about it. For example,
 
 ```hcl
 data "infoblox_ptr_record" "host1" {
-  dns_view="default"
+  // dns_view="default" // may be omitted
   ptrdname="host.example.org"
   ip_addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
 }
@@ -57,7 +57,7 @@ output "host1_ext_attrs" {
 }
 
 data "infoblox_ptr_record" "host2" {
-  dns_view="default"
+  dns_view="default" // ... but may be specified as well
   ptrdname="host.example.org"
   record_name="0.6.a.a.7.2.f.d.2.e.2.1.d.0.c.e.0.0.b.c.5.7.2.0.4.1.0.d.5.0.a.2.ip6.arpa"
 }

@@ -11,6 +11,9 @@ There are resources for the following objects, supported by the plugin:
 * AAAA-record (`infoblox_aaaa_record`)
 * PTR-record (`infoblox_ptr_record`)
 * CNAME-record (`infoblox_cname_record`)
+* MX-record (`infoblox_mx_record`)
+* TXT-record (`infoblox_txt_record`)
+* SRV-record (`infoblox_srv_record`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
@@ -50,7 +53,7 @@ There are data sources for the following objects:
 * Network View (`infoblox_network_view`)
 * IPv4 Network (`infoblox_ipv4_network`)
 * IPv4 Network Container (`infoblox_ipv4_network_container`)
-* A-record (`infoblox_a_record`)m
+* A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
 * CNAME-record (`infoblox_cname_record`)
 * PTR-record (`infoblox_ptr_record`)
