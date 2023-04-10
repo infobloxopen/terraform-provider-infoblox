@@ -384,7 +384,6 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if ipAddrSrcChangesCounter > 1 {
 		return fmt.Errorf("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty")
-
 	}
 
 	comment := d.Get("comment").(string)
