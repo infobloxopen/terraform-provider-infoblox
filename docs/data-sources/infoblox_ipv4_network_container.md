@@ -17,9 +17,23 @@ in an `infoblox_ipv4_network_container` data source block (all of them are requi
 ### Example of an IPv4 Network Container Data Source Block
 
 ```hcl
+resource "infoblox_ipv4_network_container" "nearby_org" {
+  cidr = "192.168.128.0/16"
+  network_view = "separate_tenants"
+  comment = "one of our clients"
+  ext_attrs = jsonencode({
+    "Site" = "remote office"
+    "Country" = "Australia"
+  })
+}
+
 data "infoblox_ipv4_network_container" "nearby_org" {
   network_view = "separate_tenants"
   cidr = "192.168.128.0/16"
+
+  // This is just to ensure that the network container has been be created
+  // using 'infoblox_ipv4_network_container' resource block before the data source will be queried.
+  depends_on = [infoblox_ipv4_network_container.nearby_org]
 }
 
 output "nearby_org_comment" {

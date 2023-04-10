@@ -15,9 +15,24 @@ The following list describes the parameters you must define in an `infoblox_ipv4
 ### Example of a Network Data Source Block
 
 ```hcl
-data "infoblox_ipv4_network" "nearby_network" {
-  network_view = "default"
+resource "infoblox_ipv4_network" "net2" {
   cidr = "192.168.128.0/20"
+  network_view = "nondefault_netview"
+  reserve_ip = 5
+  gateway = "192.168.128.254"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "bla-bla-bla... testing..."
+  })
+}
+
+data "infoblox_ipv4_network" "nearby_network" {
+  network_view = "nondefault_netview"
+  cidr = "192.168.128.0/20"
+
+  // This is just to ensure that the network has been be created
+  // using 'infoblox_ipv4_network' resource block before the data source will be queried.
+  depends_on = [infoblox_ipv4_network.net2]
 }
 
 output "nearby_network_comment" {
