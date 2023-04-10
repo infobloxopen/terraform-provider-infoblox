@@ -106,5 +106,5 @@ The limitations of Infoblox IPAM Plug-In for Terraform version 2.3.0 are as foll
   * `infoblox_ipv6_allocation`
   * `infoblox_ipv4_association`
   * `infoblox_ipv6_association`
-* The Update functionality is currently not working for the CIDR field in A, AAAA, and PTR records.
+* The Update functionality is currently not working for the CIDR field in A and AAAA records.
 * The fetch functionality in data sources returns output for only one matching object even if it finds multiple objects matching the search criteria.

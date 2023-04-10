@@ -9,7 +9,7 @@ resource "infoblox_srv_record" "rec1" {
 
 // all set of parameters for SRV record
 resource "infoblox_srv_record" "rec2" {
-    dns_view = "nondefault_dnsview1" // not 'default' thus must be specified
+    dns_view = "nondefault_dnsview1"
     name = "_sip._udp.example2.org"
     priority = 12
     weight = 10

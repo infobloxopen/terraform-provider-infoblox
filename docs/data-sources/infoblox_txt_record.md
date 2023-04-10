@@ -28,9 +28,11 @@ resource "infoblox_txt_record" "rec3" {
 }
 
 data "infoblox_txt_record" "ds3" {
-  dns_view = "nondefault_dnsview1" // not 'default' thus must be specified
+  dns_view = "nondefault_dnsview1"
   fqdn = "example3.example2.org"
 
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_txt_record' resource block before the data source will be queried.
   depends_on = [infoblox_txt_record.rec3]
 }
 

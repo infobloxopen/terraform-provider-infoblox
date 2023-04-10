@@ -14,7 +14,7 @@ resource "infoblox_txt_record" "rec2" {
 
 // all the parameters for a TXT-Record
 resource "infoblox_txt_record" "rec3" {
-  dns_view = "nondefault_dnsview1" // not 'default' thus must be specified
+  dns_view = "nondefault_dnsview1"
   fqdn = "example3.example2.org"
   text = "data for TXT-record #3"
   ttl = 300

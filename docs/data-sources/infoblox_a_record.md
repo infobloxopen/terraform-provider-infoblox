@@ -22,10 +22,26 @@ You can reference this resource and retrieve information about it. For example, 
 a text as is a comment for the A-record.
 
 ```hcl
+resource "infoblox_a_record" "vip_host" {
+  fqdn = "very-interesting-host.example.com"
+  ip_addr = "10.3.1.65"
+  comment = "special host"
+  dns_view = "nondefault_dnsview2"
+  ttl = 120 // 120s
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+}
+
+
 data "infoblox_a_record" "vip_host" {
-  dns_view="default"
+  dns_view="nondefault_dnsview2"
   fqdn="very-interesting-host.example.com"
   ip_addr="10.3.1.65"
+  
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_a_record' resource block before the data source will be queried.
+  depends_on = [infoblox_a_record.vip_host]
 }
 
 output "vip_host_id" {

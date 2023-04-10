@@ -35,22 +35,24 @@ data "infoblox_mx_record" "ds2" {
   mail_exchanger = "sample.test.com"
   preference = 40
 
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_mx_record' resource block before the data source will be queried.
   depends_on = [infoblox_mx_record.rec2]
+}
 
-  output "mx_rec2_zone" {
-    value = data.infoblox_mx_record.ds2.zone
-  }
+output "mx_rec2_zone" {
+  value = data.infoblox_mx_record.ds2.zone
+}
 
-  output "mx_rec2_ttl" {
-    value = data.infoblox_mx_record.ds2.ttl
-  }
+output "mx_rec2_ttl" {
+  value = data.infoblox_mx_record.ds2.ttl
+}
 
-  output "mx_rec2_comment" {
-    value = data.infoblox_mx_record.ds2.comment
-  }
+output "mx_rec2_comment" {
+  value = data.infoblox_mx_record.ds2.comment
+}
 
-  output "mx_rec2_ext_attrs" {
-    value = data.infoblox_mx_record.ds2.ext_attrs
-  }
+output "mx_rec2_ext_attrs" {
+  value = data.infoblox_mx_record.ds2.ext_attrs
 }
 ```

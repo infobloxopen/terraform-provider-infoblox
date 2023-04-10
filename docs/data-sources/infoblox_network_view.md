@@ -10,8 +10,20 @@ To get information about a network view, you must specify a name of the network 
 ### Example of a Network View Data Source Block
 
 ```hcl
+resource "infoblox_network_view" "inet_nv" {
+  name = "inet_visible_nv"
+  comment = "Internet-facing networks"
+  ext_attrs = jsonencode({
+    "Location" = "the North pole"
+  })
+}
+
 data "infoblox_network_view" "inet_nv" {
   name = "inet_visible_nv"
+
+  // This is just to ensure that the network view has been be created
+  // using 'infoblox_network_view' resource block before the data source will be queried.
+  depends_on = [infoblox_network_view.inet_nv]
 }
 
 output "inet_nv_ext_attrs" {
