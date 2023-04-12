@@ -31,12 +31,12 @@ resource "infoblox_ptr_record" "rec4" {
   cidr = infoblox_ipv4_network.net1.cidr
 }
 
-// statically allocated PTR-record, full set of parameters, non-default network view
+// dynamically allocated PTR-record, full set of parameters, non-default network view
 resource "infoblox_ptr_record" "rec5" {
   ptrdname = "rec5.example2.org"
   dns_view = "nondefault_dnsview2"
   network_view = "nondefault_netview"
-  ip_addr = "2002:1f93::5"
+  cidr = infoblox_ipv4_network.net2.cidr
   comment = "workstation #5"
   ttl = 300 # 5 minutes
   ext_attrs = jsonencode({
