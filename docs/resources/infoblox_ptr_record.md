@@ -53,15 +53,15 @@ resource "infoblox_ptr_record" "ptr3" {
 // dynamically allocated PTR-record, minimal set of parameters
 resource "infoblox_ptr_record" "ptr4" {
   ptrdname = "rec4.example2.org"
-  cidr = infoblox_ipv4_network.net1.cidr
+  cidr = "10.0.0.0/16"
 }
 
-// statically allocated PTR-record, full set of parameters, non-default network view
+// dynamically allocated PTR-record, full set of parameters, non-default network view
 resource "infoblox_ptr_record" "ptr5" {
   ptrdname = "rec5.example2.org"
   dns_view = "nondefault_dnsview2"
   network_view = "nondefault_netview"
-  ip_addr = "2002:1f93::5"
+  cidr = "10.1.0.0/24"
   comment = "workstation #5"
   ttl = 300 # 5 minutes
   ext_attrs = jsonencode({
