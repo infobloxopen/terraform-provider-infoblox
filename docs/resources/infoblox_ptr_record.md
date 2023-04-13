@@ -18,7 +18,7 @@ The following list describes the parameters you can define for the `infoblox_ptr
 
 -> When creating the PTR-record in a forward-mapping zone, `ptrdname` and `record_name` parameters are required, and `network_view` is optional. The corresponding forward-mapping zone must have been already created at the appropriate DNS view.
 
-->  When creating a PTR-record in a reverse-mapping zone, you must specify the `ptrdname` attribute with either the `ip_addr`, `cidr`, or `record_name` attribute. If you configure all three parameters, that is `ip_addr`, `cidr`, and `record_name`, the order of precedence for the record creation is `record_name` > `ip_addr` > `cidr`. The values of parameters with lower precedence are ignored.
+-> When creating a PTR record in a reverse-mapping zone, you must specify the `ptrdname` parameter with any one of the `ip_addr`, `cidr`, and `record_name` parameters. Configuring any two or all of `ip_addr`, `cidr`, and `record_name` parameters in a resource block is not supported.
 
 ### Example of a PTR-record Resource
 

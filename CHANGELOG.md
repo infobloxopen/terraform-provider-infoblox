@@ -1,5 +1,19 @@
 # Changelog
 
+## [v2.3.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.3.0) (2023-04-13)
+- Minimal required Go-lang version is bumped up
+- infoblox_ptr_record resource's behaviour changes (see the documentation changes for the details)
+- 'dns_view' and 'network_view' fields are now optional for all the `resources and data sources
+- New resources:
+  - infoblox_mx_record
+  - infoblox_txt_record
+  - infoblox_srv_record
+- New data sources:
+  - infoblox_mx_record
+  - infoblox_txt_record
+  - infoblox_srv_record
+- Bugfixes
+
 ## [v2.2.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.2.0) (2022-12-07)
 - New feature: ability to import resources from existing NIOS objects
 - New Data sources:
