@@ -89,24 +89,25 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	// Attempt to allocate next available network container
 	if cidr == "" && parentCidr != "" && prefixLen > 1 {
 		_, err = objMgr.GetNetworkContainer(nvName, parentCidr, isIPv6, nil)
 		if err != nil {
 			return fmt.Errorf(
-				"Allocation of network block within network container '%s' under network view '%s' failed: %s", parentCidr, nvName, err.Error())
+				"Allocation of network block within network container '%s' under network view '%s' failed: %w", parentCidr, nvName, err)
 		}
 
 		nc, err = objMgr.AllocateNetworkContainer(nvName, parentCidr, isIPv6, uint(prefixLen), comment, extAttrs)
 		if err != nil {
-			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", nvName, err)
+			return fmt.Errorf("Allocation of network block failed in network view (%s) : %w", nvName, err)
 		}
 		d.Set("cidr", nc.Cidr)
 	} else if cidr != "" {
 		nc, err = objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
 			return fmt.Errorf(
-				"creation of IPv6 network container block failed in network view '%s': %s",
-				nvName, err.Error())
+				"creation of IPv6 network container block failed in network view '%s': %w",
+				nvName, err)
 		}
 	} else {
 		return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
