@@ -16,7 +16,7 @@ resource "infoblox_ipv4_network_container" "v4net_c2" {
 
 // full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv4_network_container" "nc3" {
-  parent_cidr = "25.0.0.0/24" // cidr must exists in the grid
+  parent_cidr = infoblox_ipv4_network_container.v4net_c2.cidr
   allocate_prefix_len = 26
   network_view = "nondefault_netview"
   comment = "one of our clients"

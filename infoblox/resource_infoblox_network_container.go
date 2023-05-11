@@ -197,16 +197,15 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
+
 	if d.HasChange("parent_cidr") {
 		return fmt.Errorf("changing the value of 'parent_cidr' field is not allowed")
-	}
-	if d.HasChange("cidr") {
-		return fmt.Errorf("changing the value of 'cidr' field is not allowed")
 	}
 
 	if d.HasChange("allocate_prefix_len") {
 		return fmt.Errorf("changing the value of 'allocate_prefix_len' field is not allowed")
 	}
+
 	cidr := d.Get("cidr").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})

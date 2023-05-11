@@ -16,7 +16,7 @@ resource "infoblox_ipv6_network_container" "v6net_c2" {
 
 // full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv6_network_container" "ncv6" {
-  parent_cidr = "2002:1f93:0:2::/96"
+  parent_cidr = infoblox_ipv6_network_container.v6net_c2.cidr
   allocate_prefix_len = 97
   network_view = "default"
   comment = "dynamic allocation of network container"
