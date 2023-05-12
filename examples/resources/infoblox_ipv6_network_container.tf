@@ -14,4 +14,14 @@ resource "infoblox_ipv6_network_container" "nc2" {
   })
 }
 
-// so far, we do not support dynamic allocation of network containers
+// full set of parameters for dynamic allocation of network containers
+resource "infoblox_ipv6_network_container" "ncv6" {
+  parent_cidr = infoblox_ipv6_network_container.nc2.cidr
+  allocate_prefix_len = 97
+  network_view = "default"
+  comment = "dynamic allocation of network container"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "terraform_test_tenant"
+    Site = "Test site"
+  })
+}

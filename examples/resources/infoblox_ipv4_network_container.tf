@@ -14,4 +14,14 @@ resource "infoblox_ipv4_network_container" "nc2" {
   })
 }
 
-// so far, we do not support dynamic allocation of network containers
+// full set of parameters for dynamic allocation of network containers
+resource "infoblox_ipv4_network_container" "nc3" {
+  parent_cidr = infoblox_ipv4_network_container.nc2.cidr
+  allocate_prefix_len = 26
+  network_view = "nondefault_netview"
+  comment = "one of our clients"
+  ext_attrs = jsonencode({
+    "Site" = "remote office"
+    "Country" = "Australia"
+  })
+}
