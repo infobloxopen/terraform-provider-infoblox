@@ -94,23 +94,23 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 		_, err = objMgr.GetNetworkContainer(nvName, parentCidr, isIPv6, nil)
 		if err != nil {
 			return fmt.Errorf(
-				"Allocation of network block within network container '%s' under network view '%s' failed: %w", parentCidr, nvName, err)
+				"allocation of network block within network container '%s' under network view '%s' failed: %w", parentCidr, nvName, err)
 		}
 
 		nc, err = objMgr.AllocateNetworkContainer(nvName, parentCidr, isIPv6, uint(prefixLen), comment, extAttrs)
 		if err != nil {
-			return fmt.Errorf("Allocation of network block failed in network view (%s) : %w", nvName, err)
+			return fmt.Errorf("allocation of network block in network view '%s' failed: %w", nvName, err)
 		}
 		d.Set("cidr", nc.Cidr)
 	} else if cidr != "" {
 		nc, err = objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
 			return fmt.Errorf(
-				"creation of IPv6 network container block failed in network view '%s': %w",
+				"creation of IPv6 network container block in network view '%s' failed: %w",
 				nvName, err)
 		}
 	} else {
-		return fmt.Errorf("Creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified.")
+		return fmt.Errorf("creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified")
 	}
 
 	d.SetId(nc.Ref)
@@ -223,7 +223,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 
 	if cidr == "" || nvName == "" {
 		return fmt.Errorf(
-			"Tenant ID, network view's name and CIDR are required to update a network container")
+			"tenant ID, network view's name and CIDR are required to update a network container")
 	}
 
 	connector := m.(ibclient.IBConnector)
