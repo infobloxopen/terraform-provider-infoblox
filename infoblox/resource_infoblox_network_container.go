@@ -27,8 +27,20 @@ func resourceNetworkContainer() *schema.Resource {
 			},
 			"cidr": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				Description: "The network container's address, in CIDR format.",
+			},
+			"parent_cidr": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network container block in CIDR format to allocate from.",
+			},
+			"allocate_prefix_len": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Set the parameter's value > 0 to allocate next available network container with corresponding prefix length from the network container defined by 'parent_cidr'",
 			},
 			"comment": {
 				Type:        schema.TypeString,
@@ -47,15 +59,22 @@ func resourceNetworkContainer() *schema.Resource {
 }
 
 func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
+	var (
+		nc  *ibclient.NetworkContainer
+		err error
+	)
+
 	nvName := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
+	parentCidr := d.Get("parent_cidr").(string)
+	prefixLen := d.Get("allocate_prefix_len").(int)
 	comment := d.Get("comment").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+		if err = json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 	var tenantID string
@@ -67,19 +86,33 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 		}
 	}
 
-	if cidr == "" || nvName == "" {
-		return fmt.Errorf(
-			"Tenant ID, network view's name and CIDR are required to create a network container")
-	}
-
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	nc, err := objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
-	if err != nil {
-		return fmt.Errorf(
-			"creation of IPv6 network container block failed in network view '%s': %s",
-			nvName, err.Error())
+
+	// Attempt to allocate next available network container
+	if cidr == "" && parentCidr != "" && prefixLen > 1 {
+		_, err = objMgr.GetNetworkContainer(nvName, parentCidr, isIPv6, nil)
+		if err != nil {
+			return fmt.Errorf(
+				"allocation of network block within network container '%s' under network view '%s' failed: %w", parentCidr, nvName, err)
+		}
+
+		nc, err = objMgr.AllocateNetworkContainer(nvName, parentCidr, isIPv6, uint(prefixLen), comment, extAttrs)
+		if err != nil {
+			return fmt.Errorf("allocation of network block in network view '%s' failed: %w", nvName, err)
+		}
+		d.Set("cidr", nc.Cidr)
+	} else if cidr != "" {
+		nc, err = objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
+		if err != nil {
+			return fmt.Errorf(
+				"creation of IPv6 network container block in network view '%s' failed: %w",
+				nvName, err)
+		}
+	} else {
+		return fmt.Errorf("creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified")
 	}
+
 	d.SetId(nc.Ref)
 
 	return nil
@@ -90,7 +123,7 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 	var tenantID string
@@ -104,7 +137,7 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetNetworkContainerByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("failed to retrieve network container: %s", err.Error())
+		return fmt.Errorf("failed to retrieve network container: %w", err)
 	}
 
 	if obj.Ea != nil && len(obj.Ea) > 0 {
@@ -146,11 +179,15 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 		if !updateSuccessful {
 			prevNetView, _ := d.GetChange("network_view")
 			prevCIDR, _ := d.GetChange("cidr")
+			prevParCIDR, _ := d.GetChange("parent_cidr")
+			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
 			prevComment, _ := d.GetChange("comment")
 			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("network_view", prevNetView.(string))
 			_ = d.Set("cidr", prevCIDR.(string))
+			_ = d.Set("parent_cidr", prevParCIDR.(string))
+			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
@@ -160,12 +197,21 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
+
+	if d.HasChange("parent_cidr") {
+		return fmt.Errorf("changing the value of 'parent_cidr' field is not allowed")
+	}
+
+	if d.HasChange("allocate_prefix_len") {
+		return fmt.Errorf("changing the value of 'allocate_prefix_len' field is not allowed")
+	}
+
 	cidr := d.Get("cidr").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -177,7 +223,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 
 	if cidr == "" || nvName == "" {
 		return fmt.Errorf(
-			"Tenant ID, network view's name and CIDR are required to update a network container")
+			"tenant ID, network view's name and CIDR are required to update a network container")
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -192,8 +238,8 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	nc, err := objMgr.UpdateNetworkContainer(d.Id(), extAttrs, comment)
 	if err != nil {
 		return fmt.Errorf(
-			"failed to update the network container in network view '%s': %s",
-			nvName, err.Error())
+			"failed to update the network container in network view '%s': %w",
+			nvName, err)
 	}
 	updateSuccessful = true
 	d.SetId(nc.Ref)
@@ -206,7 +252,7 @@ func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 	var tenantID string
@@ -222,7 +268,7 @@ func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error
 
 	if _, err := objMgr.DeleteNetworkContainer(d.Id()); err != nil {
 		return fmt.Errorf(
-			"deletion of the network container failed: %s", err.Error())
+			"deletion of the network container failed: %w", err)
 	}
 
 	return nil
