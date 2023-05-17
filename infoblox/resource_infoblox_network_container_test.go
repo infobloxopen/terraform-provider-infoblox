@@ -36,7 +36,7 @@ resource "infoblox_ipv4_network_container" "nc_2" {
 }
 
 resource "infoblox_ipv4_network_container" "nc_3" {
-  network_view = "default"
+  network_view = infoblox_ipv4_network_container.nc_2.network_view
   parent_cidr = infoblox_ipv4_network_container.nc_2.cidr
   allocate_prefix_len = 26
   comment = "dynamic creation of network container"
@@ -80,7 +80,7 @@ resource "infoblox_ipv4_network_container" "nc_2" {
 }
 
 resource "infoblox_ipv4_network_container" "nc_3" {
-  network_view = "default"
+  network_view = infoblox_ipv4_network_container.nc_2.network_view
   parent_cidr = infoblox_ipv4_network_container.nc_2.cidr
   allocate_prefix_len = 26
   comment = ""
@@ -102,7 +102,7 @@ resource "infoblox_ipv4_network_container" "nc_2" {
 }
 
 resource "infoblox_ipv4_network_container" "nc_3" {
-  network_view = "default"
+  network_view = infoblox_ipv4_network_container.nc_2.network_view
   parent_cidr = infoblox_ipv4_network_container.nc_2.cidr
   allocate_prefix_len = 28
   comment = ""
@@ -135,7 +135,7 @@ resource "infoblox_ipv6_network_container" "nc6_2" {
 }
 
 resource "infoblox_ipv6_network_container" "nc6_3" {
-  network_view = "default"
+  network_view = infoblox_ipv6_network_container.nc6_2.network_view
   parent_cidr = infoblox_ipv6_network_container.nc6_2.cidr
   allocate_prefix_len = 58
   comment = "fc01::/58 dynamic network container"
@@ -168,7 +168,7 @@ resource "infoblox_ipv6_network_container" "nc6_2" {
 }
 
 resource "infoblox_ipv6_network_container" "nc6_3" {
-  network_view = "default"
+  network_view = infoblox_ipv6_network_container.nc6_2.network_view
   parent_cidr = infoblox_ipv6_network_container.nc6_2.cidr
   allocate_prefix_len = 58
   comment = "dynamic network container testing"
@@ -190,7 +190,7 @@ resource "infoblox_ipv6_network_container" "nc6_2" {
 }
 
 resource "infoblox_ipv6_network_container" "nc6_3" {
-  network_view = "default"
+  network_view = infoblox_ipv6_network_container.nc6_2.network_view
   parent_cidr = infoblox_ipv6_network_container.nc6_2.cidr
   allocate_prefix_len = 59
   comment = "dynamic network container testing"
