@@ -8,6 +8,8 @@ import (
 
 const testNetView = "default"
 
+const testCustomNetView = "custom"
+
 const (
 	eaListTypeString = iota
 	eaListTypeInt

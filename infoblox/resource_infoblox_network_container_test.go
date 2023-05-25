@@ -46,6 +46,29 @@ resource "infoblox_ipv4_network_container" "nc_3" {
   })
 }`, testNetView)
 
+var resCfgNetworkContainer_create3_ipv4 = fmt.Sprintf(`
+resource "infoblox_ipv4_network_container" "nc_4" {
+  network_view = "%s"
+  cidr = "15.10.0.0/24"
+  comment = "15.10.0.0/24 network container"
+  ext_attrs = jsonencode({
+	"Tenant ID" = "terraform_test_tenant"
+    Location = "Test location"
+    Site = "Test site"
+  })
+}
+
+resource "infoblox_ipv4_network_container" "nc_5" {
+  network_view = infoblox_ipv4_network_container.nc_4.network_view
+  parent_cidr = infoblox_ipv4_network_container.nc_4.cidr
+  allocate_prefix_len = 26
+  comment = "dynamic creation testing nc"
+  ext_attrs = jsonencode({
+	"Tenant ID" = "terraform_test_tenant"
+    Site = "Test site"
+  })
+}`, testCustomNetView)
+
 var resCfgNetworkContainer_update_ipv4 = fmt.Sprintf(`
 resource "infoblox_ipv4_network_container" "nc_1" {
   network_view = "%s"
@@ -144,6 +167,28 @@ resource "infoblox_ipv6_network_container" "nc6_3" {
     Site = "Test site"
   })
 }`, testNetView)
+
+var resCfgNetworkContainer_create3_ipv6 = fmt.Sprintf(`
+resource "infoblox_ipv6_network_container" "nc6_4" {
+  network_view = "%s"
+  cidr = "2002::/64"
+  comment = "test network container"
+  ext_attrs = jsonencode({
+	"Tenant ID" = "terraform_test_tenant"
+    Site = "Test site"
+  })
+}
+
+resource "infoblox_ipv6_network_container" "nc6_5" {
+  network_view = infoblox_ipv6_network_container.nc6_4.network_view
+  parent_cidr = infoblox_ipv6_network_container.nc6_4.cidr
+  allocate_prefix_len = 66
+  comment = "test dynamic network container"
+  ext_attrs = jsonencode({
+	"Tenant ID" = "terraform_test_tenant"
+    Site = "Test site"
+  })
+}`, testCustomNetView)
 
 var resCfgNetworkContainer_update_ipv6 = fmt.Sprintf(`
 resource "infoblox_ipv6_network_container" "nc_1" {
@@ -344,6 +389,20 @@ func TestAcc_resourceNetworkContainer_ipv4(t *testing.T) {
 				),
 			},
 			{
+				Config: resCfgNetworkContainer_create3_ipv4,
+				Check: validateNetworkContainer(
+					"infoblox_ipv4_network_container.nc_5",
+					&ibclient.NetworkContainer{
+						NetviewName: testCustomNetView,
+						Comment:     "dynamic creation testing nc",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			{
 				Config: resCfgNetworkContainer_update3_ipv4,
 				Check: validateNetworkContainer(
 					"infoblox_ipv4_network_container.nc_3",
@@ -408,6 +467,20 @@ func TestAcc_resourceNetworkContainer_ipv6(t *testing.T) {
 					&ibclient.NetworkContainer{
 						NetviewName: testNetView,
 						Comment:     "fc01::/58 dynamic network container",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			{
+				Config: resCfgNetworkContainer_create3_ipv6,
+				Check: validateNetworkContainer(
+					"infoblox_ipv6_network_container.nc6_5",
+					&ibclient.NetworkContainer{
+						NetviewName: testCustomNetView,
+						Comment:     "test dynamic network container",
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Site":      "Test site",
