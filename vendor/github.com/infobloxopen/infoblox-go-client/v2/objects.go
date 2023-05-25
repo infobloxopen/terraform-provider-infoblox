@@ -323,10 +323,11 @@ func NewNetworkContainer(netview, cidr string, isIPv6 bool, comment string, ea E
 }
 
 type NetworkContainerNextAvailable struct {
-	IBBase  `json:"-"`
-	Network *NetworkContainerNextAvailableInfo `json:"network"`
-	Comment string                             `json:"comment"`
-	Ea      EA                                 `json:"extattrs"`
+	IBBase      `json:"-"`
+	Network     *NetworkContainerNextAvailableInfo `json:"network"`
+	NetviewName string                             `json:"network_view,omitempty"`
+	Comment     string                             `json:"comment"`
+	Ea          EA                                 `json:"extattrs"`
 }
 
 type NetworkContainerNextAvailableInfo struct {
@@ -358,9 +359,10 @@ func NewNetworkContainerNextAvailableInfo(netview, cidr string, prefixLen uint, 
 
 func NewNetworkContainerNextAvailable(ncav *NetworkContainerNextAvailableInfo, isIPv6 bool, comment string, ea EA) *NetworkContainerNextAvailable {
 	nc := &NetworkContainerNextAvailable{
-		Network: ncav,
-		Ea:      ea,
-		Comment: comment,
+		Network:     ncav,
+		NetviewName: ncav.NetviewName,
+		Ea:          ea,
+		Comment:     comment,
 	}
 
 	if isIPv6 {
