@@ -6,8 +6,6 @@ import (
 	"sort"
 )
 
-const testNetView = "default"
-
 const (
 	eaListTypeString = iota
 	eaListTypeInt
