@@ -260,6 +260,20 @@ func TestAcc_resourceNetworkContainer_ipv4(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_ipv4_network_container" "nc_2" {
+					  network_view = "default"
+					  cidr = "25.0.10.0/24"
+					  comment = "25.0.0.0/24 network container"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+					  })
+					}`,
+				ExpectError: updateNotAllowedRegexp,
+			},
+			{
+				Config: `
 					resource "infoblox_network_view" "nv1" {
 						name = "non_default_view_54397156"
 					}
@@ -456,6 +470,19 @@ func TestAcc_resourceNetworkContainer_ipv6(t *testing.T) {
 					  parent_cidr = infoblox_ipv6_network_container.nc6_2.cidr
 					  allocate_prefix_len = 59
 					  comment = "dynamic network container testing"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Site = "Test site"
+					  })
+					}`,
+				ExpectError: updateNotAllowedRegexp,
+			},
+			{
+				Config: `
+					resource "infoblox_ipv6_network_container" "nc6_2" {
+					  network_view = "default"
+					  cidr = "fc02::/56"
+					  comment = "fc01::/56 network container"
 					  ext_attrs = jsonencode({
 						"Tenant ID" = "terraform_test_tenant"
 						Site = "Test site"
