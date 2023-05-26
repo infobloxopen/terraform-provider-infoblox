@@ -198,6 +198,10 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
 
+	if d.HasChange("cidr") {
+		return fmt.Errorf("changing the value of 'cidr' field is not allowed")
+	}
+
 	if d.HasChange("parent_cidr") {
 		return fmt.Errorf("changing the value of 'parent_cidr' field is not allowed")
 	}
