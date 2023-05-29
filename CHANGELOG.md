@@ -1,5 +1,12 @@
 # Changelog
 
+## [v2.4.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.0) (2023-05-29)
+- IPV4/IPV6 Network Container resources reworked:
+  - 'parent_cidr' and 'allocate_prefix_len' are added for dynamic allocation
+  - both the resources now supports the dynamic allocation determined by 'parent_cidr'
+  - added the examples for dynamic allocation in each IPV4 and IPV6 resources
+- Bugfixes
+
 ## [v2.3.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.3.0) (2023-04-13)
 - Minimal required Go-lang version is bumped up
 - infoblox_ptr_record resource's behaviour changes (see the documentation changes for the details)

@@ -8,10 +8,14 @@ resource block:
 
 * `network_view`: optional, specifies the network view in which to create the network container; if a value is not specified, the name `default` is used as the network view.
 * `cidr`: required, specifies the network block to use for the network container; do not use an IPv4 CIDR for an IPv6 network container.
+* `parent_cidr`: required only if `cidr` is not set, specifies the network container from which next available network container must be allocated.
+* `allocate_prefix_len`: required only if `parent_cidr` is set, defines length of netmask for a network container that should be allocated from network container,determined by `parent_cidr`.
 * `comment`: optional, describes the network container.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network container.
 
 !> Once the network container is created, the `network_view` and `cidr` parameter values cannot be changed by performing an `update` operation.
+
+!> Once the network container is created dynamically, the `parent_cidr` and `allocate_prefix_len` parameter values cannot be changed.
 
 ### Examples of the Network Container Resource
 
@@ -32,5 +36,15 @@ resource "infoblox_ipv6_network_container" "v6net_c2" {
   })
 }
 
-// so far, we do not support dynamic allocation of network containers
+// full set of parameters for dynamic allocation of network containers
+resource "infoblox_ipv6_network_container" "v6net_c3" {
+  parent_cidr = infoblox_ipv6_network_container.v6net_c2.cidr
+  allocate_prefix_len = 97
+  network_view = infoblox_ipv6_network_container.v6net_c2.network_view
+  comment = "dynamic allocation of network container"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "terraform_test_tenant"
+    Site = "Test site"
+  })
+}
 ```
