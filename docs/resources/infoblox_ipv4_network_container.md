@@ -8,8 +8,8 @@ resource block:
 
 * `network_view`: optional, specifies the network view in which to create the network container; if a value is not specified, the name `default` is used as the network view.
 * `cidr`: required only if `parent_cidr` is not set, specifies the network block to use for the network container; do not use an IPv6 CIDR for an IPv4 network container.
-* `parent_cidr`: required only if cidr is not set, specifies the network container from which next available network container must be allocated.
-* `allocate_prefix_len`: required only if parent_cidr is set, defines length of netmask for a network container that should be allocated from network container, determined by `parent_cidr`.
+* `parent_cidr`: required only if `cidr` is not set, specifies the network container from which next available network container must be allocated.
+* `allocate_prefix_len`: required only if `parent_cidr` is set, defines length of netmask for a network container that should be allocated from network container, determined by `parent_cidr`.
 * `comment`: optional, describes the network container.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network container.
 
