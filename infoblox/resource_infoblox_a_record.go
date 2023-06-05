@@ -262,6 +262,16 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		cidr = ""
 	}
 
+	if !d.HasChange("cidr") && d.HasChange("ip_addr") {
+		return fmt.Errorf("allowing 'ip_addr' to update creates inconsistency with 'cidr'")
+	}
+
+	// this will fix issue when 'cidr' given for update when 'ip_addr' already
+	// exists in the state, unable to update value of ip_addr in NIOS with given 'cidr'.
+	if d.HasChange("cidr") && ipAddr != "" {
+		ipAddr = ""
+	}
+
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
