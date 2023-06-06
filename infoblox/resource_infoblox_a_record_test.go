@@ -170,6 +170,46 @@ func TestAccResourceARecord(t *testing.T) {
 					}),
 				),
 			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo3"{
+						fqdn = "newsample.test.com"
+						ip_addr = "10.10.0.3"
+						ttl = 100
+						dns_view = "nondefault_view"
+						comment = "test comment 2"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
+						Ipv4Addr: "10.10.0.3",
+						Name:     "newsample.test.com",
+						View:     "nondefault_view",
+						UseTtl:   true,
+						Ttl:      100,
+						Comment:  "test comment 2",
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo3"{
+						fqdn = lower("newSAMPLE2.test.com")
+						ip_addr = "10.10.0.3"
+						ttl = 100
+						dns_view = "nondefault_view"
+						comment = "test comment 2"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
+						Ipv4Addr: "10.10.0.3",
+						Name:     "newsample2.test.com",
+						View:     "nondefault_view",
+						UseTtl:   true,
+						Ttl:      100,
+						Comment:  "test comment 2",
+					}),
+				),
+			},
 		},
 	})
 }
