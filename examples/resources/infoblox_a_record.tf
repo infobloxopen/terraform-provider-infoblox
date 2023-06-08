@@ -28,11 +28,12 @@ resource "infoblox_a_record" "rec3" {
 }
 
 // name parameter recommended to use with lower() function
-resource "infoblox_a_record" "rec4" {
-  fqdn = lower("NEWRECORD2.example2.org") // if you want to use uppercase letters, please use this 'lower' function
-  cidr = "25.10.0.0/24"
-  network_view = "default"
-  dns_view = "nondefault_dnsview2"
+resource "infoblox_a_record" "rec3" {
+  fqdn = lower("dynaMIC1.example2.org") // if you want to use uppercase letters, please use this 'lower' function
+  cidr = infoblox_ipv4_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv4_network resource.
+  network_view = infoblox_ipv4_network.net2.network_view // not necessarily in the same network view as the DNS view resides in.
+  comment = "example dynamic A-record rec3"
+  dns_view = "nondefault_dnsview1"
   ttl = 0 // 0 = disable caching
   ext_attrs = jsonencode({})
 }

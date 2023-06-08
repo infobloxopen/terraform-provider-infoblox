@@ -254,18 +254,37 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty")
 	}
 
+	oldCidr, _ := d.GetChange("cidr")
+
+	if oldCidr == "" {
+		if d.HasChange("cidr") && !d.HasChange("ip_addr") {
+			return fmt.Errorf("when 'ip_addr' exists 'cidr' value is not allowed to update")
+		}
+	}
+
+	// this will fix issue when 'cidr' given for update when 'ip_addr' already
+	// exists in the state, unable to update value of ip_addr in NIOS with given 'cidr'.
+
+	if oldCidr != "" {
+		if d.HasChange("cidr") && !d.HasChange("ip_addr") {
+			ipAddr = ""
+		}
+
+		if !d.HasChange("cidr") && d.HasChange("ip_addr") {
+			return fmt.Errorf("when 'cidr' exists 'ip_addr' value is not allowed to update")
+		}
+	}
+
+	if d.HasChange("cidr") && d.HasChange("ip_addr") {
+		return fmt.Errorf("both 'cidr' and 'ip_addr' values are not allowed to update at once")
+	}
+
 	// If 'cidr' is unchanged, then making it empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
 	// during every 'update' operation).
 	if !d.HasChange("cidr") {
 		cidr = ""
-	}
-
-	// this will fix issue when 'cidr' given for update when 'ip_addr' already
-	// exists in the state, unable to update value of ip_addr in NIOS with given 'cidr'.
-	if d.HasChange("cidr") && ipAddr != "" {
-		ipAddr = ""
 	}
 
 	var ttl uint32
