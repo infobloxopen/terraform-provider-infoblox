@@ -52,6 +52,15 @@ func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.R
 				rec.Name,
 				expectedRec.Name)
 		}
+
+		if expectedRec.Ipv4Addr == "" {
+			expectedRec.Ipv4Addr = res.Primary.Attributes["ip_addr"]
+			if expectedRec.Ipv4Addr == "" {
+				return fmt.Errorf(
+					"the value of 'ip_addr' field is empty, but expected some value")
+			}
+		}
+
 		if rec.Ipv4Addr != expectedRec.Ipv4Addr {
 			return fmt.Errorf(
 				"'ipv4address' does not match: got '%s', expected '%s'",
