@@ -253,6 +253,31 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 
+	oldCidr, _ := d.GetChange("cidr")
+
+	if oldCidr == "" {
+		if d.HasChange("cidr") && !d.HasChange("ipv6_addr") {
+			return fmt.Errorf("when 'ipv6_addr' exists 'cidr' value is not allowed to update")
+		}
+	}
+
+	// this will fix issue when 'cidr' given for update when 'ipv6_addr' already
+	// exists in the state, unable to update value of ipv6_addr in NIOS with given 'cidr'.
+
+	if oldCidr != "" {
+		if d.HasChange("cidr") && !d.HasChange("ipv6_addr") {
+			ipv6Addr = ""
+		}
+
+		if !d.HasChange("cidr") && d.HasChange("ipv6_addr") {
+			return fmt.Errorf("when 'cidr' exists 'ipv6_addr' value is not allowed to update")
+		}
+	}
+
+	if d.HasChange("cidr") && d.HasChange("ipv6_addr") {
+		return fmt.Errorf("both 'cidr' and 'ipv6_addr' values are not allowed to update at once")
+	}
+
 	// If 'cidr' is unchanged, then nothing to update here, making them empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
