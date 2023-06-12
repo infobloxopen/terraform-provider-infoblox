@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -51,6 +52,15 @@ func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.R
 				rec.Name,
 				expectedRec.Name)
 		}
+
+		if expectedRec.Ipv4Addr == "" {
+			expectedRec.Ipv4Addr = res.Primary.Attributes["ip_addr"]
+			if expectedRec.Ipv4Addr == "" {
+				return fmt.Errorf(
+					"the value of 'ip_addr' field is empty, but expected some value")
+			}
+		}
+
 		if rec.Ipv4Addr != expectedRec.Ipv4Addr {
 			return fmt.Errorf(
 				"'ipv4address' does not match: got '%s', expected '%s'",
@@ -81,6 +91,10 @@ func testAccARecordCompare(t *testing.T, resPath string, expectedRec *ibclient.R
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
+
+var changesNotAllowedRegExp = regexp.MustCompile("when '.+' exists '.+' value is not allowed to update")
+
+var changesNotAllowedExp = regexp.MustCompile("both '.+' and '.+' values are not allowed to update at once")
 
 func TestAccResourceARecord(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -169,6 +183,56 @@ func TestAccResourceARecord(t *testing.T) {
 						UseTtl:   false,
 					}),
 				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+						ip_addr = "10.10.0.1"
+						cidr = "25.10.0.0/24"
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: changesNotAllowedRegExp,
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+						ip_addr = "10.10.0.4"
+						cidr = "25.10.0.0/24"
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: changesNotAllowedExp,
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_ipv4_network" ipn1 {
+						cidr = "34.0.0.0/24"
+					}
+					resource "infoblox_a_record" "foo3"{
+						fqdn = "name4.test.com"
+						cidr = infoblox_ipv4_network.ipn1.cidr
+						dns_view = "nondefault_view"
+						comment = "sample test comment 1"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
+						Name:    "name4.test.com",
+						View:    "nondefault_view",
+						Comment: "sample test comment 1",
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo3"{
+						fqdn = "name4.test.com"
+						cidr = "34.0.0.0/24"
+						ip_addr = "27.0.0.9"
+						dns_view = "nondefault_view"
+						comment = "sample test comment 1"
+					}`),
+				ExpectError: changesNotAllowedRegExp,
 			},
 		},
 	})
