@@ -112,8 +112,8 @@ func testAccARecordCompare(
 }
 
 var (
-	regexpRequiredMissing    = regexp.MustCompile("error creating A-record: either of 'ip_addr' and 'cidr' values is required")
-	regexpCidrIpAddrConflict = regexp.MustCompile("error updating A-record: only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+	regexpRequiredMissing    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
+	regexpCidrIpAddrConflict = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
 )
 
 func TestAccResourceARecord(t *testing.T) {

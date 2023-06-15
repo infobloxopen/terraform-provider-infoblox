@@ -79,11 +79,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("error creating A-record: either of 'ip_addr' and 'cidr' values is required")
+		return fmt.Errorf("either of 'ip_addr' and 'cidr' values is required")
 	}
 
 	if ipAddr != "" && cidr != "" {
-		return fmt.Errorf("error updating A-record: only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+		return fmt.Errorf("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
 	}
 
 	var ttl uint32
