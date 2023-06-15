@@ -112,8 +112,8 @@ func testAccARecordCompare(
 }
 
 var (
-	regexpRequiredMissing    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
-	regexpCidrIpAddrConflict = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
+	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
 )
 
 func TestAccResourceARecord(t *testing.T) {
@@ -130,14 +130,14 @@ func TestAccResourceARecord(t *testing.T) {
 						cidr = "10.20.30.0/24"
                         network_view = "default"
 					}`),
-				ExpectError: regexpCidrIpAddrConflict,
+				ExpectError: regexpCidrIpAddrConflictIPv4,
 			},
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo"{
 						fqdn = "name1.test.com"
 					}`),
-				ExpectError: regexpRequiredMissing,
+				ExpectError: regexpRequiredMissingIPv4,
 			},
 			{
 				Config: fmt.Sprintf(`
