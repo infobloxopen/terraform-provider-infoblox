@@ -243,10 +243,6 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
-	networkView := d.Get("network_view").(string)
-	if d.HasChange("network_view") {
-		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
-	}
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
@@ -258,6 +254,11 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	// for readability
 	dynamicAllocation := cidr != ""
 	cidrChanged := d.HasChange("cidr")
+
+	networkView := d.Get("network_view").(string)
+	if !cidrChanged && d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 
 	// If 'cidr' is not empty (dynamic allocation) and is unchanged,
 	// then making it empty to skip the update.

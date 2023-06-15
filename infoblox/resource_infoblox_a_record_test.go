@@ -245,7 +245,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Config: fmt.Sprintf(`
                     resource "infoblox_ipv4_network" "net2" {
                         cidr = "10.20.33.0/24"
-                        network_view = "default"
+                        network_view = "nondefault_netview"
                     }
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
