@@ -79,7 +79,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
 	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("error creating A-record: 'ip_addr' is empty and either 'cidr' or 'network_view' values are absent")
+		return fmt.Errorf("error creating A-record: either of 'ip_addr' and 'cidr' values is required")
+	}
+
+	if ipAddr != "" && cidr != "" {
+		return fmt.Errorf("error updating A-record: only one of 'ip_addr' and 'cidr' values is allowed to be defined")
 	}
 
 	var ttl uint32
@@ -250,16 +254,25 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	cidr := d.Get("cidr").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
-	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("error updating A-record: either 'ip_addr' or 'cidr' value must not be empty")
-	}
 
-	// If 'cidr' is unchanged, then making it empty to skip the update.
+	// for readability
+	dynamicAllocation := cidr != ""
+	cidrChanged := d.HasChange("cidr")
+
+	// If 'cidr' is not empty (dynamic allocation) and is unchanged,
+	// then making it empty to skip the update.
 	// (This is to prevent record renewal for the case when 'cidr' is
 	// used for IP address allocation, otherwise the address will be changing
 	// during every 'update' operation).
-	if !d.HasChange("cidr") {
-		cidr = ""
+	// And making ipAddr empty in case 'cidr' gets changed, to make it possible
+	// to allocate an IP address from another network.
+
+	if dynamicAllocation {
+		if !cidrChanged {
+			cidr = ""
+		} else {
+			ipAddr = ""
+		}
 	}
 
 	var ttl uint32
@@ -290,15 +303,6 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-
-	// Get the existing IP address
-	if ipAddr == "" && cidr == "" {
-		aRec, err := objMgr.GetARecordByRef(d.Id())
-		if err != nil {
-			return fmt.Errorf("failed getting A-record: %s", err.Error())
-		}
-		ipAddr = aRec.Ipv4Addr
-	}
 
 	rec, err := objMgr.UpdateARecord(
 		d.Id(), fqdn, ipAddr, cidr, networkView, ttl, useTtl, comment, extAttrs)
