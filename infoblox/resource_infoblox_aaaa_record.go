@@ -102,7 +102,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -125,7 +125,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("creation of AAAA-record under DNS view '%s' failed: %s", dnsViewName, err)
+		return fmt.Errorf("creation of AAAA-record under DNS view '%s' failed: %w", dnsViewName, err)
 	}
 	d.SetId(recordAAAA.Ref)
 
@@ -136,7 +136,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		dnsViewObj, err := objMgr.GetDNSView(dnsViewName)
 		if err != nil {
 			return fmt.Errorf(
-				"error while retrieving information about DNS view '%s': %s",
+				"error while retrieving information about DNS view '%s': %w",
 				dnsViewName, err)
 		}
 		if err = d.Set("network_view", dnsViewObj.NetworkView); err != nil {
@@ -152,7 +152,7 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 	var tenantID string
@@ -165,7 +165,7 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 
 	obj, err := objMgr.GetAAAARecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("getting AAAA Record with ID: %s failed: %s", d.Id(), err)
+		return fmt.Errorf("getting AAAA Record with ID: %s failed: %w", d.Id(), err)
 	}
 	if err = d.Set("ipv6_addr", obj.Ipv6Addr); err != nil {
 		return err
@@ -203,7 +203,7 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 		dnsView, err := objMgr.GetDNSView(obj.View)
 		if err != nil {
 			return fmt.Errorf(
-				"error while retrieving information about DNS view '%s': %s",
+				"error while retrieving information about DNS view '%s': %w",
 				obj.View, err)
 		}
 		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
@@ -248,6 +248,11 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}()
 
+	networkView := d.Get("network_view").(string)
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
+
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
@@ -259,11 +264,6 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	// for readability
 	dynamicAllocation := cidr != ""
 	cidrChanged := d.HasChange("cidr")
-
-	networkView := d.Get("network_view").(string)
-	if !cidrChanged && d.HasChange("network_view") {
-		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
-	}
 
 	// If 'cidr' is not empty (dynamic allocation) and is unchanged,
 	// then making it empty to skip the update.
@@ -298,7 +298,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -321,7 +321,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		comment,
 		extAttrs)
 	if err != nil {
-		return fmt.Errorf("error updating AAAA-record: %s", err)
+		return fmt.Errorf("error updating AAAA-record: %w", err)
 	}
 	updateSuccessful = true
 	d.SetId(recordAAAA.Ref)
@@ -340,7 +340,7 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -354,7 +354,7 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteAAAARecord(d.Id())
 	if err != nil {
-		return fmt.Errorf("deletion of AAAA Record from dns view %s failed: %s", dnsView, err)
+		return fmt.Errorf("deletion of AAAA Record from dns view %s failed: %w", dnsView, err)
 	}
 	d.SetId("")
 

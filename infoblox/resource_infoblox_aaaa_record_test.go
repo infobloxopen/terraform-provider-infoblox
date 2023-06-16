@@ -237,7 +237,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 				Config: fmt.Sprintf(`
                     resource "infoblox_ipv6_network" "net2" {
                         cidr = "2000:1fcc::/96"
-                        network_view = "nondefault_netview"
+                        network_view = "default"
                     }
 					resource "infoblox_aaaa_record" "foo2"{
 						fqdn = "name3.test.com"
@@ -255,6 +255,20 @@ func TestAccResourceAAAARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv6_network" "net3" {
+                        cidr = "2000:1fcd::/96"
+                        network_view = "nondefault_netview"
+                    }
+					resource "infoblox_aaaa_record" "foo2"{
+						fqdn = "name3.test.com"
+                        cidr = infoblox_ipv6_network.net3.cidr
+                        network_view = infoblox_ipv6_network.net3.network_view
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: regexpNetviewUpdateNotAllowed,
+			},
+			{
+				Config: fmt.Sprintf(`
 					resource "infoblox_aaaa_record" "foo2"{
 						fqdn = "name3.test.com"
 						ipv6_addr = "2000::2"
@@ -268,6 +282,15 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						UseTtl:   false,
 					}, "", ""),
 				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_aaaa_record" "foo2"{
+						fqdn = "name3.test.com"
+						ipv6_addr = "2000::2"
+						dns_view = "default"
+					}`),
+				ExpectError: regexpDnsviewUpdateNotAllowed,
 			},
 		},
 	})

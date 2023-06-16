@@ -114,6 +114,9 @@ func testAccARecordCompare(
 var (
 	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
 	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+
+	regexpNetviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'network_view' field is not allowed")
+	regexpDnsviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'dns_view' field is not allowed")
 )
 
 func TestAccResourceARecord(t *testing.T) {
@@ -245,7 +248,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Config: fmt.Sprintf(`
                     resource "infoblox_ipv4_network" "net2" {
                         cidr = "10.20.33.0/24"
-                        network_view = "nondefault_netview"
+                        network_view = "default"
                     }
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
@@ -263,6 +266,20 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv4_network" "net3" {
+                        cidr = "10.20.34.0/24"
+                        network_view = "nondefault_netview"
+                    }
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+                        cidr = infoblox_ipv4_network.net3.cidr
+                        network_view = infoblox_ipv4_network.net3.network_view
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: regexpNetviewUpdateNotAllowed,
+			},
+			{
+				Config: fmt.Sprintf(`
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.2"
@@ -276,6 +293,15 @@ func TestAccResourceARecord(t *testing.T) {
 						UseTtl:   false,
 					}, "", ""),
 				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+						ip_addr = "10.10.0.2"
+						dns_view = "default"
+					}`),
+				ExpectError: regexpDnsviewUpdateNotAllowed,
 			},
 		},
 	})
