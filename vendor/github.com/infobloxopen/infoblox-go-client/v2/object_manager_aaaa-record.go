@@ -17,7 +17,7 @@ func (objMgr *ObjectManager) CreateAAAARecord(
 	comment string,
 	eas EA) (*RecordAAAA, error) {
 
-	cleanName := strings.ToLower(strings.TrimSpace(recordName))
+	cleanName := strings.TrimSpace(recordName)
 	if cleanName == "" || cleanName != recordName {
 		return nil, fmt.Errorf(
 			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
@@ -107,7 +107,7 @@ func (objMgr *ObjectManager) UpdateAAAARecord(
 	comment string,
 	setEas EA) (*RecordAAAA, error) {
 
-	cleanName := strings.ToLower(strings.TrimSpace(recordName))
+	cleanName := strings.TrimSpace(recordName)
 	if cleanName == "" || cleanName != recordName {
 		return nil, fmt.Errorf(
 			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
