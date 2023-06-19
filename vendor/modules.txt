@@ -181,7 +181,7 @@ github.com/hashicorp/terraform-plugin-sdk/v2/terraform
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 ## explicit
 github.com/hashicorp/yamux
-# github.com/infobloxopen/infoblox-go-client/v2 v2.3.1-0.20230525121944-7aeeca0ab3b7
+# github.com/infobloxopen/infoblox-go-client/v2 v2.3.1-0.20230619121113-e439cee464bb
 ## explicit; go 1.17
 github.com/infobloxopen/infoblox-go-client/v2
 # github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
