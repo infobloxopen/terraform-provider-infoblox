@@ -15,6 +15,8 @@ The following list describes the parameters you can define in the resource block
     * For allocating a dynamic IP address, configure the `cidr` field instead of `ip_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
 * `cidr`: required only for dynamic allocation, specifies the network from which to allocate an IP address when the `ip_addr` field is empty. The address is in CIDR format. For static allocation, use `ip_addr` instead of `cidr`. Example: `192.168.10.4/30`.
 
+!> To use upper case letters in `fqdn`, infoblox recommends that you use lower() function. Example: `lower("testEXAMPLE.zone1.com")`
+
 ### Examples of an A-record Block
 
 ```hcl
