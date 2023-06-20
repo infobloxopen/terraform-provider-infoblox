@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.4.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.1) (2023-06-20)
+- A/AAAA Record resources reworked:
+  - removed limitation of updating 'cidr' field
+  - added test cases for transition from 'cidr' to 'ip_addr' and vice versa
+- Bugfixes
+
 ## [v2.4.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.0) (2023-05-29)
 - IPV4/IPV6 Network Container resources reworked:
   - 'parent_cidr' and 'allocate_prefix_len' are added for dynamic allocation
