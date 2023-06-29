@@ -2,6 +2,7 @@ package ibclient
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
 	"strings"
 )
@@ -38,7 +39,7 @@ func (objMgr *ObjectManager) CreateAAAARecord(
 		if netView == "" {
 			netView = "default"
 		}
-		recordAAAA.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+		recordAAAA.Ipv6Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView))
 	} else {
 		ipAddress := net.ParseIP(ipAddr)
 		if ipAddress == nil {
@@ -47,7 +48,7 @@ func (objMgr *ObjectManager) CreateAAAARecord(
 		if ipAddress.To4() != nil || ipAddress.To16() == nil {
 			return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
 		}
-		recordAAAA.Ipv6Addr = ipAddr
+		recordAAAA.Ipv6Addr = &ipAddr
 	}
 	ref, err := objMgr.connector.CreateObject(recordAAAA)
 	if err != nil {
@@ -130,7 +131,7 @@ func (objMgr *ObjectManager) UpdateAAAARecord(
 			if netView == "" {
 				netView = "default"
 			}
-			newIpAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+			newIpAddr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView))
 		}
 	} else {
 		ipAddress := net.ParseIP(ipAddr)
@@ -140,9 +141,9 @@ func (objMgr *ObjectManager) UpdateAAAARecord(
 		if ipAddress.To4() != nil || ipAddress.To16() == nil {
 			return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
 		}
-		newIpAddr = ipAddr
+		newIpAddr = &ipAddr
 	}
-	recordAAAA := NewRecordAAAA("", recordName, newIpAddr, useTtl, ttl, comment, setEas, ref)
+	recordAAAA := NewRecordAAAA("", recordName, *newIpAddr, useTtl, ttl, comment, setEas, ref)
 	reference, err := objMgr.connector.UpdateObject(recordAAAA, ref)
 	if err != nil {
 		return nil, err

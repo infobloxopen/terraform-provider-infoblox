@@ -139,8 +139,8 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
@@ -165,10 +165,10 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("dns_view", obj.View); err != nil {
 		return err
 	}
-	if err = d.Set("fqdn", obj.Fqdn); err != nil {
+	if err = d.Set("fqdn", obj.Name); err != nil {
 		return err
 	}
-	if err = d.Set("mail_exchanger", obj.MX); err != nil {
+	if err = d.Set("mail_exchanger", obj.MailExchanger); err != nil {
 		return err
 	}
 	if err = d.Set("preference", obj.Preference); err != nil {

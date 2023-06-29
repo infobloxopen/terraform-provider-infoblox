@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -48,14 +49,14 @@ func validateIPAlloc(
 		if ipAlloc.Name != expFqdn {
 			return fmt.Errorf(
 				"the value of 'fqdn' field is '%s', but expected '%s'",
-				ipAlloc.Name, expFqdn)
+				*ipAlloc.Name, *expFqdn)
 		}
 
 		expComment := expectedValue.Comment
 		if ipAlloc.Comment != expComment {
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
-				ipAlloc.Comment, expComment)
+				*ipAlloc.Comment, *expComment)
 		}
 
 		// the rest is about extensible attributes
@@ -103,10 +104,14 @@ func TestAcc_resourceIPAllocation_ipv4(t *testing.T) {
 					"infoblox_ipv4_allocation.foo",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostname.test.com",
-						Ipv4Addr:    "10.0.0.1",
-						Comment:     "10.0.0.1 IP is allocated",
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("testhostname.test.com"),
+						Ipv4Addrs: []ibclient.HostRecordIpv4Addr{
+							{
+								Ipv4Addr: utils.StringPtr("10.0.0.1"),
+							},
+						},
+						Comment: utils.StringPtr("10.0.0.1 IP is allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -145,10 +150,14 @@ func TestAcc_resourceIPAllocation_ipv6(t *testing.T) {
 					"infoblox_ipv6_allocation.foo2",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostnameipv6.test.com",
-						Ipv6Addr:    "2001:db8:abcd:12::1",
-						Comment:     "2001:db8:abcd:12::1 IP is allocated",
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("testhostnameipv6.test.com"),
+						Ipv6Addrs: []ibclient.HostRecordIpv6Addr{
+							{
+								Ipv6Addr: utils.StringPtr("2001:db8:abcd:12::1"),
+							},
+						},
+						Comment: utils.StringPtr("2001:db8:abcd:12::1 IP is allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance-ipv6",

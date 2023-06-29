@@ -339,8 +339,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
@@ -478,12 +478,12 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	)
 	if needIpv4Addr || needIpv6Addr {
 		if _, ipv4CidrFlag := d.GetOk("ipv4_cidr"); ipv4CidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
-			ipv4Addr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
-			macAddr = hostRecObj.Ipv4Addrs[0].Mac
+			ipv4Addr = *hostRecObj.Ipv4Addrs[0].Ipv4Addr
+			macAddr = *hostRecObj.Ipv4Addrs[0].Mac
 		}
 		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
-			ipv6Addr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
-			duid = hostRecObj.Ipv6Addrs[0].Duid
+			ipv6Addr = *hostRecObj.Ipv6Addrs[0].Ipv6Addr
+			duid = *hostRecObj.Ipv6Addrs[0].Duid
 		}
 	}
 
@@ -503,13 +503,13 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	enableDhcp := false
 
 	if recIpV4Addr != nil {
-		macAddr = recIpV4Addr.Mac
-		enableDhcp = recIpV4Addr.EnableDhcp
+		macAddr = *recIpV4Addr.Mac
+		enableDhcp = *recIpV4Addr.EnableDhcp
 	}
 
 	if recIpV6Addr != nil {
-		duid = recIpV6Addr.Duid
-		enableDhcp = recIpV6Addr.EnableDhcp
+		duid = *recIpV6Addr.Duid
+		enableDhcp = *recIpV6Addr.EnableDhcp
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(

@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
 	"regexp"
 	"testing"
@@ -56,10 +57,10 @@ func testAccAAAARecordCompare(
 		if rec.Name != expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
-				rec.Name,
-				expectedRec.Name)
+				*rec.Name,
+				*expectedRec.Name)
 		}
-		if notExpectedIpAddr != "" && notExpectedIpAddr == rec.Ipv6Addr {
+		if notExpectedIpAddr != "" && notExpectedIpAddr == *rec.Ipv6Addr {
 			return fmt.Errorf(
 				"'ipv6_addr' field has value '%s' but that is not expected to happen",
 				notExpectedIpAddr)
@@ -70,19 +71,19 @@ func testAccAAAARecordCompare(
 				panic(fmt.Sprintf("cannot parse CIDR '%s': %s", expectedCidr, err))
 			}
 
-			if !parsedCidr.Contains(net.ParseIP(rec.Ipv6Addr)) {
+			if !parsedCidr.Contains(net.ParseIP(*rec.Ipv6Addr)) {
 				return fmt.Errorf(
 					"IP address '%s' does not belong to the expected CIDR '%s'",
-					rec.Ipv6Addr, expectedCidr)
+					*rec.Ipv6Addr, expectedCidr)
 			}
 		}
-		if expectedRec.Ipv6Addr == "" {
-			expectedRec.Ipv6Addr = res.Primary.Attributes["ipv6_addr"]
+		if *expectedRec.Ipv6Addr == "" {
+			expectedRec.Ipv6Addr = utils.StringPtr(res.Primary.Attributes["ipv6_addr"])
 		}
 		if rec.Ipv6Addr != expectedRec.Ipv6Addr {
 			return fmt.Errorf(
 				"'ipv6address' does not match: got '%s', expected '%s'",
-				rec.Ipv6Addr, expectedRec.Ipv6Addr)
+				*rec.Ipv6Addr, *expectedRec.Ipv6Addr)
 		}
 		if rec.View != expectedRec.View {
 			return fmt.Errorf(
@@ -97,7 +98,7 @@ func testAccAAAARecordCompare(
 		if rec.Comment != expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
@@ -139,12 +140,12 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo", &ibclient.RecordAAAA{
-						Ipv6Addr: "2000::1",
-						Name:     "name1.test.com",
+						Ipv6Addr: utils.StringPtr("2000::1"),
+						Name:     utils.StringPtr("name1.test.com"),
 						View:     "default",
-						Ttl:      0,
-						UseTtl:   false,
-						Comment:  "",
+						Ttl:      utils.Uint32Ptr(0),
+						UseTtl:   utils.BoolPtr(false),
+						Comment:  utils.StringPtr(""),
 						Ea:       nil,
 					}, "", ""),
 				),
@@ -164,12 +165,12 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Ipv6Addr: "2002::10",
-						Name:     "name2.test.com",
+						Ipv6Addr: utils.StringPtr("2002::10"),
+						Name:     utils.StringPtr("name2.test.com"),
 						View:     "nondefault_view",
-						Ttl:      10,
-						UseTtl:   true,
-						Comment:  "test comment 1",
+						Ttl:      utils.Uint32Ptr(10),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 1"),
 						Ea: ibclient.EA{
 							"Location": "New York",
 							"Site":     "HQ",
@@ -188,12 +189,12 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Ipv6Addr: "2000::1",
-						Name:     "name3.test.com",
+						Ipv6Addr: utils.StringPtr("2000::1"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						Ttl:      155,
-						UseTtl:   true,
-						Comment:  "test comment 2",
+						Ttl:      utils.Uint32Ptr(155),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 2"),
 					}, "", ""),
 				),
 			},
@@ -206,10 +207,10 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Ipv6Addr: "2000::1",
-						Name:     "name3.test.com",
+						Ipv6Addr: utils.StringPtr("2000::1"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						UseTtl:   false,
+						UseTtl:   utils.BoolPtr(false),
 					}, "", ""),
 				),
 			},
@@ -227,9 +228,9 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Name:   "name3.test.com",
+						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
-						UseTtl: false,
+						UseTtl: utils.BoolPtr(false),
 					}, "2000::1", "2000:1fde::/96"),
 				),
 			},
@@ -247,9 +248,9 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Name:   "name3.test.com",
+						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
-						UseTtl: false,
+						UseTtl: utils.BoolPtr(false),
 					}, "", "2000:1fcc::/96"),
 				),
 			},
@@ -276,10 +277,10 @@ func TestAccResourceAAAARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo2", &ibclient.RecordAAAA{
-						Ipv6Addr: "2000::2",
-						Name:     "name3.test.com",
+						Ipv6Addr: utils.StringPtr("2000::2"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						UseTtl:   false,
+						UseTtl:   utils.BoolPtr(false),
 					}, "", ""),
 				),
 			},

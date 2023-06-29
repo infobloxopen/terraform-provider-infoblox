@@ -77,17 +77,17 @@ func dataSourcePtrRecordRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting PTR-record: %s", err.Error())
 	}
 
-	if obj.Ipv4Addr != "" {
-		ipAddr = obj.Ipv4Addr
+	if *obj.Ipv4Addr != "" {
+		ipAddr = *obj.Ipv4Addr
 	} else {
-		ipAddr = obj.Ipv6Addr
+		ipAddr = *obj.Ipv6Addr
 	}
 	if err := d.Set("ip_addr", ipAddr); err != nil {
 		return err
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {

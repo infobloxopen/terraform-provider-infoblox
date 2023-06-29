@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"regexp"
 	"testing"
 
@@ -49,25 +50,25 @@ func testAccTXTRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if rec.Name != expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
-				rec.Name,
-				expectedRec.Name)
+				*rec.Name,
+				*expectedRec.Name)
 		}
 		if rec.Text != expectedRec.Text {
 			return fmt.Errorf(
 				"'text does not match: got '%s', expected '%s'",
-				rec.Text, expectedRec.Text)
+				*rec.Text, *expectedRec.Text)
 		}
 		if rec.View != expectedRec.View {
 			return fmt.Errorf(
 				"'dns_view' does not match: got '%s', expected '%s'",
-				rec.View, expectedRec.View)
+				*rec.View, *expectedRec.View)
 		}
 		if rec.UseTtl != expectedRec.UseTtl {
 			return fmt.Errorf(
 				"TTL usage does not match: got '%t', expected '%t'",
-				rec.UseTtl, expectedRec.UseTtl)
+				*rec.UseTtl, *expectedRec.UseTtl)
 		}
-		if rec.UseTtl {
+		if *rec.UseTtl {
 			if rec.Ttl != expectedRec.Ttl {
 				return fmt.Errorf(
 					"'Ttl' usage does not match: got '%d', expected '%d'",
@@ -77,7 +78,7 @@ func testAccTXTRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if rec.Comment != expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
@@ -97,9 +98,9 @@ func TestAccResourceTXTRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo", &ibclient.RecordTXT{
-						View: "default",
-						Name: "name1.test.com",
-						Text: "this is a sample text",
+						View: utils.StringPtr("default"),
+						Name: utils.StringPtr("name1.test.com"),
+						Text: utils.StringPtr("this is a sample text"),
 					}),
 				),
 			},
@@ -118,12 +119,12 @@ func TestAccResourceTXTRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
-						Text:    "this is a sample text-2",
-						Name:    "name2.test.com",
-						View:    "nondefault_view",
-						Ttl:     200,
-						UseTtl:  true,
-						Comment: "test comment",
+						Text:    utils.StringPtr("this is a sample text-2"),
+						Name:    utils.StringPtr("name2.test.com"),
+						View:    utils.StringPtr("nondefault_view"),
+						Ttl:     utils.Uint32Ptr(200),
+						UseTtl:  utils.BoolPtr(true),
+						Comment: utils.StringPtr("test comment"),
 						Ea: ibclient.EA{
 							"Location": "California",
 							"Site":     "HQ",
@@ -142,12 +143,12 @@ func TestAccResourceTXTRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
-						Text:    "this is a text record",
-						Name:    "name3.test.com",
-						View:    "nondefault_view",
-						Ttl:     150,
-						UseTtl:  true,
-						Comment: "test comment 2",
+						Text:    utils.StringPtr("this is a text record"),
+						Name:    utils.StringPtr("name3.test.com"),
+						View:    utils.StringPtr("nondefault_view"),
+						Ttl:     utils.Uint32Ptr(150),
+						UseTtl:  utils.BoolPtr(true),
+						Comment: utils.StringPtr("test comment 2"),
 					}),
 				),
 			},

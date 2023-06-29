@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -48,13 +49,13 @@ func testAccNetworkViewCompare(t *testing.T, resPath string, expectedRec *ibclie
 		if rec.Name != expectedRec.Name {
 			return fmt.Errorf(
 				"'network name' does not match: got '%s', expected '%s'",
-				rec.Name,
-				expectedRec.Name)
+				*rec.Name,
+				*expectedRec.Name)
 		}
 		if rec.Comment != expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
@@ -80,8 +81,8 @@ func TestAccResourceNetworkView(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccNetworkViewCompare(t, "infoblox_network_view.foo", &ibclient.NetworkView{
-						Name:    "testNetworkView",
-						Comment: "test comment 1",
+						Name:    utils.StringPtr("testNetworkView"),
+						Comment: utils.StringPtr("test comment 1"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc",

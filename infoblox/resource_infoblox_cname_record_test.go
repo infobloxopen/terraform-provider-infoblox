@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -72,21 +73,21 @@ func validateRecordCNAME(
 		if recCNAME.Canonical != expCanonical {
 			return fmt.Errorf(
 				"the value of 'canonical' field is '%s', but expected '%s'",
-				recCNAME.Canonical, expCanonical)
+				*recCNAME.Canonical, *expCanonical)
 		}
 
 		expName := expectedValue.Name
 		if recCNAME.Name != expName {
 			return fmt.Errorf(
 				"the value of 'alias Name' field is '%s', but expected '%s'",
-				recCNAME.Name, expName)
+				*recCNAME.Name, *expName)
 		}
 
 		expComment := expectedValue.Comment
 		if recCNAME.Comment != expComment {
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
-				recCNAME.Comment, expComment)
+				*recCNAME.Comment, *expComment)
 		}
 
 		// the rest is about extensible attributes
@@ -118,11 +119,11 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",
 					&ibclient.RecordCNAME{
-						View:      "default",
-						Canonical: "test-canonicalName.test.com",
-						Name:      "test-aliasname.test.com",
+						View:      utils.StringPtr("default"),
+						Canonical: utils.StringPtr("test-canonicalName.test.com"),
+						Name:      utils.StringPtr("test-aliasname.test.com"),
 						Zone:      "test.com",
-						Comment:   "CNAME record created",
+						Comment:   utils.StringPtr("CNAME record created"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc",
@@ -137,11 +138,11 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo",
 					&ibclient.RecordCNAME{
-						View:      "default",
-						Canonical: "test-canonicalName.test.com",
-						Name:      "test-aliasname.test.com",
+						View:      utils.StringPtr("default"),
+						Canonical: utils.StringPtr("test-canonicalName.test.com"),
+						Name:      utils.StringPtr("test-aliasname.test.com"),
 						Zone:      "test.com",
-						Comment:   "CNAME record updated",
+						Comment:   utils.StringPtr("CNAME record updated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc 2",

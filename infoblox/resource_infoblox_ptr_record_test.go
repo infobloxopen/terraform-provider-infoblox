@@ -53,30 +53,30 @@ func validateRecordPTR(
 	if recPtr.PtrdName != expPtrdName {
 		return fmt.Errorf(
 			"the value of 'ptrdname' field is '%s', but expected '%s'",
-			recPtr.PtrdName, expPtrdName)
+			*recPtr.PtrdName, *expPtrdName)
 	}
 
 	expComment := expectedValue.Comment
 	if recPtr.Comment != expComment {
 		return fmt.Errorf(
 			"the value of 'comment' field is '%s', but expected '%s'",
-			recPtr.Comment, expComment)
+			*recPtr.Comment, *expComment)
 	}
 
 	expName := expectedValue.Name
 	if recPtr.Name != expName {
 		return fmt.Errorf(
 			"the value of 'name' field is '%s', but expected '%s'",
-			recPtr.Name, expName)
+			*recPtr.Name, *expName)
 	}
 
 	expUseTtl := expectedValue.UseTtl
 	if recPtr.UseTtl != expUseTtl {
 		return fmt.Errorf(
 			"the value of 'use_ttl' field is '%t', but expected '%t'",
-			recPtr.UseTtl, expUseTtl)
+			*recPtr.UseTtl, *expUseTtl)
 	}
-	if expUseTtl {
+	if *expUseTtl {
 		expTtl := expectedValue.Ttl
 		if recPtr.Ttl != expTtl {
 			return fmt.Errorf(
@@ -103,14 +103,14 @@ func validateRecordPTR(
 	if recPtr.Ipv4Addr != expIpv4Addr {
 		return fmt.Errorf(
 			"the value of 'ipv4addr' field is '%s', but expected '%s'",
-			recPtr.Ipv4Addr, expIpv4Addr)
+			*recPtr.Ipv4Addr, *expIpv4Addr)
 	}
 
 	expIpv6Addr := expectedValue.Ipv6Addr
 	if recPtr.Ipv6Addr != expIpv6Addr {
 		return fmt.Errorf(
 			"the value of 'ipv6addr' field is '%s', but expected '%s'",
-			recPtr.Ipv6Addr, expIpv6Addr)
+			*recPtr.Ipv6Addr, *expIpv6Addr)
 	}
 
 	// the rest is about extensible attributes

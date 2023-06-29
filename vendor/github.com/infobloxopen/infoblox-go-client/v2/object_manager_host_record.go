@@ -146,7 +146,7 @@ func (objMgr *ObjectManager) GetHostRecord(netview string, dnsview string, recor
 func (objMgr *ObjectManager) GetIpAddressFromHostRecord(host HostRecord) (string, error) {
 	err := objMgr.connector.GetObject(
 		&host, host.Ref, NewQueryParams(false, nil), &host)
-	return host.Ipv4Addrs[0].Ipv4Addr, err
+	return *host.Ipv4Addrs[0].Ipv4Addr, err
 }
 
 func (objMgr *ObjectManager) UpdateHostRecord(

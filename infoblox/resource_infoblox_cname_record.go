@@ -130,8 +130,8 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {

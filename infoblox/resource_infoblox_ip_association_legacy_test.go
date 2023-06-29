@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -48,14 +49,14 @@ func validateIPAssoc(
 		if ipAsso.Name != expFqdn {
 			return fmt.Errorf(
 				"the value of 'fqdn' field is '%s', but expected '%s'",
-				ipAsso.Name, expFqdn)
+				*ipAsso.Name, *expFqdn)
 		}
 
 		expComment := expectedValue.Comment
 		if ipAsso.Comment != expComment {
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
-				ipAsso.Comment, expComment)
+				*ipAsso.Comment, *expComment)
 		}
 
 		/*
@@ -159,10 +160,14 @@ func TestAcc_resourceipAssociation_ipv4(t *testing.T) {
 					"infoblox_ipv4_association.foo",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostname.test.com",
-						Ipv4Addr:    "10.0.0.12",
-						Comment:     "10.0.0.12 IP is associated",
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("testhostname.test.com"),
+						Ipv4Addrs: []ibclient.HostRecordIpv4Addr{
+							{
+								Ipv4Addr: utils.StringPtr("10.0.0.12"),
+							},
+						},
+						Comment: utils.StringPtr("10.0.0.12 IP is associated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -206,12 +211,16 @@ func TestAcc_resourceipAssociation_ipv4_2(t *testing.T) {
 					"infoblox_ipv4_association.assoc1",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "host1.test.com",
-						Ipv4Addr:    "10.3.0.5",
-						Ttl:         10,
-						UseTtl:      true,
-						Ea:          ibclient.EA{},
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("host1.test.com"),
+						Ipv4Addrs: []ibclient.HostRecordIpv4Addr{
+							{
+								Ipv4Addr: utils.StringPtr("10.3.0.5"),
+							},
+						},
+						Ttl:    utils.Uint32Ptr(10),
+						UseTtl: utils.BoolPtr(true),
+						Ea:     ibclient.EA{},
 					},
 				),
 			},
@@ -239,12 +248,16 @@ func TestAcc_resourceipAssociation_ipv4_2(t *testing.T) {
 					"infoblox_ipv4_association.assoc1",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "host1.test.com",
-						Ipv4Addr:    "10.3.0.5",
-						Ttl:         0,
-						UseTtl:      true,
-						Ea:          ibclient.EA{},
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("host1.test.com"),
+						Ipv4Addrs: []ibclient.HostRecordIpv4Addr{
+							{
+								Ipv4Addr: utils.StringPtr("10.3.0.5"),
+							},
+						},
+						Ttl:    utils.Uint32Ptr(0),
+						UseTtl: utils.BoolPtr(true),
+						Ea:     ibclient.EA{},
 					},
 				),
 			},
@@ -271,12 +284,16 @@ func TestAcc_resourceipAssociation_ipv4_2(t *testing.T) {
 					"infoblox_ipv4_association.assoc1",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "host1.test.com",
-						Ipv4Addr:    "10.3.0.5",
-						Ttl:         0,
-						UseTtl:      false,
-						Ea:          ibclient.EA{},
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("host1.test.com"),
+						Ipv4Addrs: []ibclient.HostRecordIpv4Addr{
+							{
+								Ipv4Addr: utils.StringPtr("10.3.0.5"),
+							},
+						},
+						Ttl:    utils.Uint32Ptr(0),
+						UseTtl: utils.BoolPtr(false),
+						Ea:     ibclient.EA{},
 					},
 				),
 			},
@@ -323,10 +340,14 @@ func TestAcc_resourceIPAssociation_ipv6(t *testing.T) {
 					"infoblox_ipv6_association.foo2",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						Name:        "testhostnameipv6.test.com",
-						Ipv6Addr:    "2001:db8:abcd:12::10",
-						Comment:     "2001:db8:abcd:12::10 IP is associated",
+						View:        utils.StringPtr("default"),
+						Name:        utils.StringPtr("testhostnameipv6.test.com"),
+						Ipv6Addrs: []ibclient.HostRecordIpv6Addr{
+							{
+								Ipv6Addr: utils.StringPtr("2001:db8:abcd:12::10"),
+							},
+						},
+						Comment: utils.StringPtr("2001:db8:abcd:12::10 IP is associated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance-ipv6",

@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
 	"regexp"
 	"testing"
@@ -56,10 +57,10 @@ func testAccARecordCompare(
 		if rec.Name != expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
-				rec.Name,
-				expectedRec.Name)
+				*rec.Name,
+				*expectedRec.Name)
 		}
-		if notExpectedIpAddr != "" && notExpectedIpAddr == rec.Ipv4Addr {
+		if notExpectedIpAddr != "" && notExpectedIpAddr == *rec.Ipv4Addr {
 			return fmt.Errorf(
 				"'ip_addr' field has value '%s' but that is not expected to happen",
 				notExpectedIpAddr)
@@ -70,19 +71,19 @@ func testAccARecordCompare(
 				panic(fmt.Sprintf("cannot parse CIDR '%s': %s", expectedCidr, err))
 			}
 
-			if !parsedCidr.Contains(net.ParseIP(rec.Ipv4Addr)) {
+			if !parsedCidr.Contains(net.ParseIP(*rec.Ipv4Addr)) {
 				return fmt.Errorf(
 					"IP address '%s' does not belong to the expected CIDR '%s'",
-					rec.Ipv4Addr, expectedCidr)
+					*rec.Ipv4Addr, expectedCidr)
 			}
 		}
-		if expectedRec.Ipv4Addr == "" {
-			expectedRec.Ipv4Addr = res.Primary.Attributes["ip_addr"]
+		if *expectedRec.Ipv4Addr == "" {
+			expectedRec.Ipv4Addr = utils.StringPtr(res.Primary.Attributes["ip_addr"])
 		}
 		if rec.Ipv4Addr != expectedRec.Ipv4Addr {
 			return fmt.Errorf(
 				"'ipv4address' does not match: got '%s', expected '%s'",
-				rec.Ipv4Addr, expectedRec.Ipv4Addr)
+				*rec.Ipv4Addr, *expectedRec.Ipv4Addr)
 		}
 		if rec.View != expectedRec.View {
 			return fmt.Errorf(
@@ -92,10 +93,10 @@ func testAccARecordCompare(
 		if rec.UseTtl != expectedRec.UseTtl {
 			return fmt.Errorf(
 				"TTL usage does not match: got '%t', expected '%t'",
-				rec.UseTtl, expectedRec.UseTtl)
+				*rec.UseTtl, *expectedRec.UseTtl)
 		}
-		if rec.UseTtl {
-			if rec.Ttl != expectedRec.Ttl {
+		if *rec.UseTtl {
+			if *rec.Ttl != *expectedRec.Ttl {
 				return fmt.Errorf(
 					"'Ttl' usage does not match: got '%d', expected '%d'",
 					rec.Ttl, expectedRec.Ttl)
@@ -104,7 +105,7 @@ func testAccARecordCompare(
 		if rec.Comment != expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 
 		return validateEAs(rec.Ea, expectedRec.Ea)
@@ -150,12 +151,12 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo", &ibclient.RecordA{
-						Ipv4Addr: "10.0.0.2",
-						Name:     "name1.test.com",
+						Ipv4Addr: utils.StringPtr("10.0.0.2"),
+						Name:     utils.StringPtr("name1.test.com"),
 						View:     "default",
-						Ttl:      0,
-						UseTtl:   false,
-						Comment:  "",
+						Ttl:      utils.Uint32Ptr(0),
+						UseTtl:   utils.BoolPtr(false),
+						Comment:  utils.StringPtr(""),
 						Ea:       nil,
 					}, "", ""),
 				),
@@ -175,12 +176,12 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Ipv4Addr: "192.168.31.31",
-						Name:     "name2.test.com",
+						Ipv4Addr: utils.StringPtr("192.168.31.31"),
+						Name:     utils.StringPtr("name2.test.com"),
 						View:     "nondefault_view",
-						Ttl:      10,
-						UseTtl:   true,
-						Comment:  "test comment 1",
+						Ttl:      utils.Uint32Ptr(10),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 1"),
 						Ea: ibclient.EA{
 							"Location": "New York",
 							"Site":     "HQ",
@@ -199,12 +200,12 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Ipv4Addr: "10.10.0.1",
-						Name:     "name3.test.com",
+						Ipv4Addr: utils.StringPtr("10.10.0.1"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						Ttl:      155,
-						UseTtl:   true,
-						Comment:  "test comment 2",
+						Ttl:      utils.Uint32Ptr(155),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 2"),
 					}, "", ""),
 				),
 			},
@@ -217,10 +218,10 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Ipv4Addr: "10.10.0.1",
-						Name:     "name3.test.com",
+						Ipv4Addr: utils.StringPtr("10.10.0.1"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						UseTtl:   false,
+						UseTtl:   utils.BoolPtr(false),
 					}, "", ""),
 				),
 			},
@@ -238,9 +239,9 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Name:   "name3.test.com",
+						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
-						UseTtl: false,
+						UseTtl: utils.BoolPtr(false),
 					}, "10.10.0.1", "10.20.30.0/24"),
 				),
 			},
@@ -258,9 +259,9 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Name:   "name3.test.com",
+						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
-						UseTtl: false,
+						UseTtl: utils.BoolPtr(false),
 					}, "", "10.20.33.0/24"),
 				),
 			},
@@ -287,10 +288,10 @@ func TestAccResourceARecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
-						Ipv4Addr: "10.10.0.2",
-						Name:     "name3.test.com",
+						Ipv4Addr: utils.StringPtr("10.10.0.2"),
+						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
-						UseTtl:   false,
+						UseTtl:   utils.BoolPtr(false),
 					}, "", ""),
 				),
 			},

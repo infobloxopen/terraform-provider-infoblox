@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"regexp"
 	"testing"
 
@@ -47,7 +48,7 @@ func testAccSRVRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if rec.Name != expectedRec.Name {
 			return fmt.Errorf(
 				"'name' does not match: got '%s', expected '%s'",
-				rec.Name, expectedRec.Name)
+				*rec.Name, *expectedRec.Name)
 		}
 
 		if rec.View != expectedRec.View {
@@ -77,16 +78,16 @@ func testAccSRVRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if rec.Target != expectedRec.Target {
 			return fmt.Errorf(
 				"'target' does not match: got '%s', expected '%s'",
-				rec.Target, expectedRec.Target)
+				*rec.Target, *expectedRec.Target)
 		}
 
 		if rec.UseTtl != expectedRec.UseTtl {
 			return fmt.Errorf(
 				"TTL usage does not match: got '%t', expected '%t'",
-				rec.UseTtl, expectedRec.UseTtl)
+				*rec.UseTtl, *expectedRec.UseTtl)
 		}
-		if rec.UseTtl {
-			if rec.Ttl != expectedRec.Ttl {
+		if *rec.UseTtl {
+			if *rec.Ttl != *expectedRec.Ttl {
 				return fmt.Errorf(
 					"'Ttl' usage does not match: got '%d', expected '%d'",
 					rec.Ttl, expectedRec.Ttl)
@@ -95,7 +96,7 @@ func testAccSRVRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if rec.Comment != expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
@@ -119,11 +120,11 @@ func TestAccResourceSRVRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo", &ibclient.RecordSRV{
 						View:     "default",
-						Name:     "_sip._tcp.host1.test.com",
-						Priority: 50,
-						Weight:   30,
-						Port:     80,
-						Target:   "sample.target1.com",
+						Name:     utils.StringPtr("_sip._tcp.host1.test.com"),
+						Priority: utils.Uint32Ptr(50),
+						Weight:   utils.Uint32Ptr(30),
+						Port:     utils.Uint32Ptr(80),
+						Target:   utils.StringPtr("sample.target1.com"),
 					}),
 				),
 			},
@@ -146,14 +147,14 @@ func TestAccResourceSRVRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo1", &ibclient.RecordSRV{
 						View:     "nondefault_view",
-						Name:     "_sip._udp.host2.test.com",
-						Priority: 60,
-						Weight:   40,
-						Port:     36,
-						Target:   "sample.target2.com",
-						Ttl:      300,
-						UseTtl:   true,
-						Comment:  "test comment 1",
+						Name:     utils.StringPtr("_sip._udp.host2.test.com"),
+						Priority: utils.Uint32Ptr(60),
+						Weight:   utils.Uint32Ptr(40),
+						Port:     utils.Uint32Ptr(36),
+						Target:   utils.StringPtr("sample.target2.com"),
+						Ttl:      utils.Uint32Ptr(300),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 1"),
 						Ea: ibclient.EA{
 							"Location": "France",
 							"Site":     "DHQ",
@@ -179,14 +180,14 @@ func TestAccResourceSRVRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
 						View:     "nondefault_view",
-						Name:     "_http._tcp.demo.host3.test.com",
-						Priority: 100,
-						Weight:   50,
-						Port:     88,
-						Target:   "sample.target3.com",
-						Ttl:      140,
-						UseTtl:   true,
-						Comment:  "test comment 2",
+						Name:     utils.StringPtr("_http._tcp.demo.host3.test.com"),
+						Priority: utils.Uint32Ptr(100),
+						Weight:   utils.Uint32Ptr(50),
+						Port:     utils.Uint32Ptr(88),
+						Target:   utils.StringPtr("sample.target3.com"),
+						Ttl:      utils.Uint32Ptr(140),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 2"),
 						Ea: ibclient.EA{
 							"Site": "DHQ",
 						},
@@ -211,14 +212,14 @@ func TestAccResourceSRVRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
 						View:     "nondefault_view",
-						Name:     "_http._tcp.demo.host4.test.com",
-						Priority: 101,
-						Weight:   51,
-						Port:     89,
-						Target:   "sample.target4.com",
-						Ttl:      141,
-						UseTtl:   true,
-						Comment:  "test comment 3",
+						Name:     utils.StringPtr("_http._tcp.demo.host4.test.com"),
+						Priority: utils.Uint32Ptr(101),
+						Weight:   utils.Uint32Ptr(51),
+						Port:     utils.Uint32Ptr(89),
+						Target:   utils.StringPtr("sample.target4.com"),
+						Ttl:      utils.Uint32Ptr(141),
+						UseTtl:   utils.BoolPtr(true),
+						Comment:  utils.StringPtr("test comment 3"),
 						Ea: ibclient.EA{
 							"Site": "None",
 						},
@@ -238,11 +239,11 @@ func TestAccResourceSRVRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccSRVRecordCompare(t, "infoblox_srv_record.foo2", &ibclient.RecordSRV{
 						View:     "nondefault_view",
-						Name:     "_customservice._newcoolproto.demo.host4.test.com",
-						Priority: 101,
-						Weight:   51,
-						Port:     89,
-						Target:   "sample.target4.com",
+						Name:     utils.StringPtr("_customservice._newcoolproto.demo.host4.test.com"),
+						Priority: utils.Uint32Ptr(101),
+						Weight:   utils.Uint32Ptr(51),
+						Port:     utils.Uint32Ptr(89),
+						Target:   utils.StringPtr("sample.target4.com"),
 					}),
 				),
 			},

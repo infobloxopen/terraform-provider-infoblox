@@ -253,18 +253,18 @@ func resourceIPAllocUpdate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 
 	enableDhcp := false
 	if recIpV4Addr != nil {
-		macAddr = recIpV4Addr.Mac
-		enableDhcp = recIpV4Addr.EnableDhcp
+		macAddr = *recIpV4Addr.Mac
+		enableDhcp = *recIpV4Addr.EnableDhcp
 	} else if recIpV6Addr != nil {
-		duid = recIpV6Addr.Duid
-		enableDhcp = recIpV6Addr.EnableDhcp
+		duid = *recIpV6Addr.Duid
+		enableDhcp = *recIpV6Addr.EnableDhcp
 	}
 
 	if cidr == "" && ipAddr == "" {
 		if isIPv6 {
-			ipAddr = recIpV6Addr.Ipv6Addr
+			ipAddr = *recIpV6Addr.Ipv6Addr
 		} else {
-			ipAddr = recIpV4Addr.Ipv4Addr
+			ipAddr = *recIpV4Addr.Ipv4Addr
 		}
 	}
 

@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"regexp"
 	"testing"
 
@@ -46,47 +47,47 @@ func testAccMXRecordCompare(t *testing.T, resPath string, expectedRec *ibclient.
 			return fmt.Errorf("record not found")
 		}
 
-		if rec.Fqdn != expectedRec.Fqdn {
+		if *rec.Name != *expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
-				rec.Fqdn,
-				expectedRec.Fqdn)
+				*rec.Name,
+				*expectedRec.Name)
 		}
 
-		if rec.View != expectedRec.View {
+		if *rec.View != *expectedRec.View {
 			return fmt.Errorf(
 				"'dns_view' does not match: got '%s', expected '%s'",
-				rec.View, expectedRec.View)
+				*rec.View, *expectedRec.View)
 		}
 
-		if rec.MX != expectedRec.MX {
+		if *rec.MailExchanger != *expectedRec.MailExchanger {
 			return fmt.Errorf(
 				"'mail_exchanger' does not match: got '%s', expected '%s'",
-				rec.MX, expectedRec.MX)
+				*rec.MailExchanger, *expectedRec.MailExchanger)
 		}
 
-		if rec.Preference != expectedRec.Preference {
+		if *rec.Preference != *expectedRec.Preference {
 			return fmt.Errorf(
 				"'priority' does not match: got '%d', expected '%d'",
-				rec.Preference, expectedRec.Preference)
+				*rec.Preference, *expectedRec.Preference)
 		}
 
-		if rec.UseTtl != expectedRec.UseTtl {
+		if *rec.UseTtl != *expectedRec.UseTtl {
 			return fmt.Errorf(
 				"TTL usage does not match: got '%t', expected '%t'",
-				rec.UseTtl, expectedRec.UseTtl)
+				*rec.UseTtl, *expectedRec.UseTtl)
 		}
-		if rec.UseTtl {
-			if rec.Ttl != expectedRec.Ttl {
+		if *rec.UseTtl {
+			if *rec.Ttl != *expectedRec.Ttl {
 				return fmt.Errorf(
 					"'Ttl' usage does not match: got '%d', expected '%d'",
-					rec.Ttl, expectedRec.Ttl)
+					*rec.Ttl, *expectedRec.Ttl)
 			}
 		}
-		if rec.Comment != expectedRec.Comment {
+		if *rec.Comment != *expectedRec.Comment {
 			return fmt.Errorf(
 				"'comment' does not match: got '%s', expected '%s'",
-				rec.Comment, expectedRec.Comment)
+				*rec.Comment, *expectedRec.Comment)
 		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
@@ -107,14 +108,14 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo", &ibclient.RecordMX{
-						View:       "default",
-						Fqdn:       "name1.test.com",
-						MX:         "sample.mx1.com",
-						Preference: 25,
-						Ttl:        0,
-						UseTtl:     false,
-						Comment:    "",
-						Ea:         nil,
+						View:          utils.StringPtr("default"),
+						Name:          utils.StringPtr("name1.test.com"),
+						MailExchanger: utils.StringPtr("sample.mx1.com"),
+						Preference:    utils.Uint32Ptr(25),
+						Ttl:           utils.Uint32Ptr(0),
+						UseTtl:        utils.BoolPtr(false),
+						Comment:       utils.StringPtr(""),
+						Ea:            nil,
 					}),
 				),
 			},
@@ -134,13 +135,13 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo1", &ibclient.RecordMX{
-						Fqdn:       "name2.test.com",
-						MX:         "sample.mx2.com",
-						Preference: 30,
-						View:       "nondefault_view",
-						Ttl:        300,
-						UseTtl:     true,
-						Comment:    "test comment 1",
+						Name:          utils.StringPtr("name2.test.com"),
+						MailExchanger: utils.StringPtr("sample.mx2.com"),
+						Preference:    utils.Uint32Ptr(30),
+						View:          utils.StringPtr("nondefault_view"),
+						Ttl:           utils.Uint32Ptr(300),
+						UseTtl:        utils.BoolPtr(true),
+						Comment:       utils.StringPtr("test comment 1"),
 						Ea: ibclient.EA{
 							"Location": "Los Angeles",
 							"Site":     "HQ",
@@ -160,13 +161,13 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo2", &ibclient.RecordMX{
-						Fqdn:       "name3.test.com",
-						MX:         "sample.mx3.com",
-						Preference: 35,
-						View:       "nondefault_view",
-						Ttl:        150,
-						UseTtl:     true,
-						Comment:    "test comment 2",
+						Name:          utils.StringPtr("name3.test.com"),
+						MailExchanger: utils.StringPtr("sample.mx3.com"),
+						Preference:    utils.Uint32Ptr(35),
+						View:          utils.StringPtr("nondefault_view"),
+						Ttl:           utils.Uint32Ptr(150),
+						UseTtl:        utils.BoolPtr(true),
+						Comment:       utils.StringPtr("test comment 2"),
 					}),
 				),
 			},
@@ -180,10 +181,10 @@ func TestAccResourceMXRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccMXRecordCompare(t, "infoblox_mx_record.foo3", &ibclient.RecordMX{
-						Fqdn:       "name3.test.com",
-						View:       "nondefault_view",
-						MX:         "sample.mx3.com",
-						Preference: 35,
+						Name:          utils.StringPtr("name3.test.com"),
+						View:          utils.StringPtr("nondefault_view"),
+						MailExchanger: utils.StringPtr("sample.mx3.com"),
+						Preference:    utils.Uint32Ptr(35),
 					}),
 				),
 			},

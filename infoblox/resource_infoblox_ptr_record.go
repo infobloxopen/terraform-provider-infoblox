@@ -175,10 +175,10 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
-	if recordPTR.Ipv4Addr != "" {
-		ipAddr = recordPTR.Ipv4Addr
+	if *recordPTR.Ipv4Addr != "" {
+		ipAddr = *recordPTR.Ipv4Addr
 	} else {
-		ipAddr = recordPTR.Ipv6Addr
+		ipAddr = *recordPTR.Ipv6Addr
 	}
 
 	if err = d.Set("ip_addr", ipAddr); err != nil {
@@ -229,8 +229,8 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
@@ -274,10 +274,10 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var ipAddr string
-	if obj.Ipv4Addr != "" {
-		ipAddr = obj.Ipv4Addr
+	if *obj.Ipv4Addr != "" {
+		ipAddr = *obj.Ipv4Addr
 	} else {
-		ipAddr = obj.Ipv6Addr
+		ipAddr = *obj.Ipv6Addr
 	}
 	if err = d.Set("ip_addr", ipAddr); err != nil {
 		return err
@@ -424,10 +424,10 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 		ipv4 := recordPTR.Ipv4Addr
 		ipv6 := recordPTR.Ipv6Addr
-		if len(ipv4) > 0 {
-			ipAddr = ipv4
+		if len(*ipv4) > 0 {
+			ipAddr = *ipv4
 		} else {
-			ipAddr = ipv6
+			ipAddr = *ipv6
 		}
 	}
 
@@ -440,10 +440,10 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	// After reading a newly created object, IP address will be
 	// set even if it is not specified directly in the configuration of the resource,
-	if recordPTRUpdated.Ipv4Addr != "" {
-		ipAddr = recordPTRUpdated.Ipv4Addr
+	if *recordPTRUpdated.Ipv4Addr != "" {
+		ipAddr = *recordPTRUpdated.Ipv4Addr
 	} else {
-		ipAddr = recordPTRUpdated.Ipv6Addr
+		ipAddr = *recordPTRUpdated.Ipv6Addr
 	}
 
 	if err = d.Set("ip_addr", ipAddr); err != nil {

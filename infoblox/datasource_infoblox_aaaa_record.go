@@ -65,8 +65,8 @@ func dataSourceAAAARecordRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting AAAA-record: %s", err.Error())
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {

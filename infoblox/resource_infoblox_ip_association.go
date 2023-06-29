@@ -85,8 +85,8 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("association with multiple IP addresses are not supported")
 		}
 
-		enableDhcpActualIpv6 = hostRec.Ipv6Addrs[0].EnableDhcp
-		duidActual = hostRec.Ipv6Addrs[0].Duid
+		enableDhcpActualIpv6 = *hostRec.Ipv6Addrs[0].EnableDhcp
+		duidActual = *hostRec.Ipv6Addrs[0].Duid
 	}
 
 	if hostRec.Ipv4Addrs != nil && len(hostRec.Ipv4Addrs) > 0 {
@@ -94,8 +94,8 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("association with multiple IP addresses are not supported")
 		}
 
-		enableDhcpActualIpv4 = hostRec.Ipv4Addrs[0].EnableDhcp
-		macAddrActual = hostRec.Ipv4Addrs[0].Mac
+		enableDhcpActualIpv4 = *hostRec.Ipv4Addrs[0].EnableDhcp
+		macAddrActual = *hostRec.Ipv4Addrs[0].Mac
 	}
 
 	enableDhcpActual = enableDhcpActualIpv4 || enableDhcpActualIpv6
@@ -203,11 +203,11 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	if len(hostRec.Ipv4Addrs) > 0 {
 		recIpV4Addr = &hostRec.Ipv4Addrs[0]
-		ipV4Addr = recIpV4Addr.Ipv4Addr
+		ipV4Addr = *recIpV4Addr.Ipv4Addr
 	}
 	if len(hostRec.Ipv6Addrs) > 0 {
 		recIpV6Addr = &hostRec.Ipv6Addrs[0]
-		ipV6Addr = recIpV6Addr.Ipv6Addr
+		ipV6Addr = *recIpV6Addr.Ipv6Addr
 	}
 
 	mac = strings.Replace(mac, "-", ":", -1)
@@ -225,16 +225,16 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	_, err = objMgr.UpdateHostRecord(
 		hostRec.Ref,
-		hostRec.EnableDns,
+		*hostRec.EnableDns,
 		enableDhcp,
-		hostRec.Name,
+		*hostRec.Name,
 		hostRec.NetworkView,
-		hostRec.View,
+		*hostRec.View,
 		"", "",
 		ipV4Addr, ipV6Addr,
 		mac, duid,
-		hostRec.UseTtl, hostRec.Ttl,
-		hostRec.Comment,
+		*hostRec.UseTtl, *hostRec.Ttl,
+		*hostRec.Comment,
 		hostRec.Ea, []string{})
 	if err != nil {
 		return fmt.Errorf(

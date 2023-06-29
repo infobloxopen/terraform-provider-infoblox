@@ -80,8 +80,8 @@ func dataSourceMXRecordRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
