@@ -7,6 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"strconv"
+	"time"
 )
 
 func dataSourceIPv4Network() *schema.Resource {
@@ -92,7 +94,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 	}
 
 	// always run
-	d.SetId("lol")
+	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
 
 	return diags
 }
