@@ -266,3 +266,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	}
 	return conn, nil
 }
+
+// filterFromMap generates filter map for NIOS query parameters from a terraform map[string]interface{}
+func filterFromMap(filtersMap map[string]interface{}) map[string]string {
+	filters := make(map[string]string, len(filtersMap))
+
+	for k, v := range filtersMap {
+		filters[k] = v.(string)
+	}
+
+	return filters
+}
