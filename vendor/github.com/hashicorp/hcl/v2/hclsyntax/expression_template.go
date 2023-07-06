@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package hclsyntax
 
 import (
@@ -26,23 +29,30 @@ func (e *TemplateExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) 
 	var diags hcl.Diagnostics
 	isKnown := true
 
+	// Maintain a set of marks for values used in the template
+	marks := make(cty.ValueMarks)
+
 	for _, part := range e.Parts {
 		partVal, partDiags := part.Value(ctx)
 		diags = append(diags, partDiags...)
 
 		if partVal.IsNull() {
 			diags = append(diags, &hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  "Invalid template interpolation value",
-				Detail: fmt.Sprintf(
-					"The expression result is null. Cannot include a null value in a string template.",
-				),
+				Severity:    hcl.DiagError,
+				Summary:     "Invalid template interpolation value",
+				Detail:      "The expression result is null. Cannot include a null value in a string template.",
 				Subject:     part.Range().Ptr(),
 				Context:     &e.SrcRange,
 				Expression:  part,
 				EvalContext: ctx,
 			})
 			continue
+		}
+
+		// Unmark the part and merge its marks into the set
+		unmarkedVal, partMarks := partVal.Unmark()
+		for k, v := range partMarks {
+			marks[k] = v
 		}
 
 		if !partVal.IsKnown() {
@@ -54,7 +64,7 @@ func (e *TemplateExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) 
 			continue
 		}
 
-		strVal, err := convert.Convert(partVal, cty.String)
+		strVal, err := convert.Convert(unmarkedVal, cty.String)
 		if err != nil {
 			diags = append(diags, &hcl.Diagnostic{
 				Severity: hcl.DiagError,
@@ -71,14 +81,31 @@ func (e *TemplateExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) 
 			continue
 		}
 
-		buf.WriteString(strVal.AsString())
+		// If we're just continuing to validate after we found an unknown value
+		// then we'll skip appending so that "buf" will contain only the
+		// known prefix of the result.
+		if isKnown && !diags.HasErrors() {
+			buf.WriteString(strVal.AsString())
+		}
 	}
 
+	var ret cty.Value
 	if !isKnown {
-		return cty.UnknownVal(cty.String), diags
+		ret = cty.UnknownVal(cty.String)
+		if !diags.HasErrors() { // Invalid input means our partial result buffer is suspect
+			if knownPrefix := buf.String(); knownPrefix != "" {
+				ret = ret.Refine().StringPrefix(knownPrefix).NewValue()
+			}
+		}
+	} else {
+		ret = cty.StringVal(buf.String())
 	}
 
-	return cty.StringVal(buf.String()), diags
+	// A template rendering result is never null.
+	ret = ret.RefineNotNull()
+
+	// Apply the full set of marks to the returned value
+	return ret.WithMarks(marks), diags
 }
 
 func (e *TemplateExpr) Range() hcl.Range {
@@ -139,6 +166,8 @@ func (e *TemplateJoinExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnosti
 		return cty.UnknownVal(cty.String), diags
 	}
 
+	tuple, marks := tuple.Unmark()
+	allMarks := []cty.ValueMarks{marks}
 	buf := &bytes.Buffer{}
 	it := tuple.ElementIterator()
 	for it.Next() {
@@ -158,7 +187,7 @@ func (e *TemplateJoinExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnosti
 			continue
 		}
 		if val.Type() == cty.DynamicPseudoType {
-			return cty.UnknownVal(cty.String), diags
+			return cty.UnknownVal(cty.String).WithMarks(marks), diags
 		}
 		strVal, err := convert.Convert(val, cty.String)
 		if err != nil {
@@ -176,13 +205,17 @@ func (e *TemplateJoinExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnosti
 			continue
 		}
 		if !val.IsKnown() {
-			return cty.UnknownVal(cty.String), diags
+			return cty.UnknownVal(cty.String).WithMarks(marks), diags
 		}
 
+		strVal, strValMarks := strVal.Unmark()
+		if len(strValMarks) > 0 {
+			allMarks = append(allMarks, strValMarks)
+		}
 		buf.WriteString(strVal.AsString())
 	}
 
-	return cty.StringVal(buf.String()), diags
+	return cty.StringVal(buf.String()).WithMarks(allMarks...), diags
 }
 
 func (e *TemplateJoinExpr) Range() hcl.Range {

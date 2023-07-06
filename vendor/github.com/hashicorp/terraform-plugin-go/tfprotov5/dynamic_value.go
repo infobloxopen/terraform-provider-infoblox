@@ -1,11 +1,12 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package tfprotov5
 
 import (
-	"bytes"
 	"errors"
 
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tftypes"
-	"github.com/vmihailenco/msgpack"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
 // ErrUnknownDynamicValueType is returned when a DynamicValue has no MsgPack or
@@ -37,7 +38,7 @@ func NewDynamicValue(t tftypes.Type, v tftypes.Value) (DynamicValue, error) {
 
 // DynamicValue represents a nested encoding value that came from the protocol.
 // The only way providers should ever interact with it is by calling its
-// `Unmarshal` method to retrive a `tftypes.Value`. Although the type system
+// `Unmarshal` method to retrieve a `tftypes.Value`. Although the type system
 // allows for other interactions, they are explicitly not supported, and will
 // not be considered when evaluating for breaking changes. Treat this type as
 // an opaque value, and *only* call its `Unmarshal` method.
@@ -80,12 +81,10 @@ type DynamicValue struct {
 // received from RPC requests.
 func (d DynamicValue) Unmarshal(typ tftypes.Type) (tftypes.Value, error) {
 	if d.JSON != nil {
-		return jsonUnmarshal(d.JSON, typ, tftypes.AttributePath{})
+		return tftypes.ValueFromJSON(d.JSON, typ) //nolint:staticcheck
 	}
 	if d.MsgPack != nil {
-		r := bytes.NewReader(d.MsgPack)
-		dec := msgpack.NewDecoder(r)
-		return msgpackUnmarshal(dec, typ, tftypes.AttributePath{})
+		return tftypes.ValueFromMsgPack(d.MsgPack, typ) //nolint:staticcheck
 	}
 	return tftypes.Value{}, ErrUnknownDynamicValueType
 }
