@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package httpclient
 
 import (
@@ -8,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/hc-install/version"
+	"github.com/hashicorp/hc-install/internal/version"
 )
 
 // NewHTTPClient provides a pre-configured http.Client
@@ -16,7 +13,7 @@ import (
 func NewHTTPClient() *http.Client {
 	client := cleanhttp.DefaultClient()
 
-	userAgent := fmt.Sprintf("hc-install/%s", version.Version())
+	userAgent := fmt.Sprintf("hc-install/%s", version.ModuleVersion())
 
 	cli := cleanhttp.DefaultPooledClient()
 	cli.Transport = &userAgentRoundTripper{

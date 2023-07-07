@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package checkpoint
 
 import (
@@ -126,10 +123,7 @@ func (lv *LatestVersion) Install(ctx context.Context) (string, error) {
 	if lv.ArmoredPublicKey != "" {
 		d.ArmoredPublicKey = lv.ArmoredPublicKey
 	}
-	zipFilePath, err := d.DownloadAndUnpack(ctx, pv, dstDir)
-	if zipFilePath != "" {
-		lv.pathsToRemove = append(lv.pathsToRemove, zipFilePath)
-	}
+	err = d.DownloadAndUnpack(ctx, pv, dstDir)
 	if err != nil {
 		return "", err
 	}

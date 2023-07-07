@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package tfprotov6
 
 // ServerCapabilities allows providers to communicate optionally supported

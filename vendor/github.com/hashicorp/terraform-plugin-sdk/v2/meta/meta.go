@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 // The meta package provides a location to set the release version
 // and any other relevant metadata for the SDK.
 //

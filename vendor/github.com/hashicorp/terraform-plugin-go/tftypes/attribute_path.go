@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package tftypes
 
 import (
@@ -327,17 +324,17 @@ func builtinAttributePathStepper(in interface{}) (AttributePathStepper, bool) {
 type mapStringInterfaceAttributePathStepper map[string]interface{}
 
 func (m mapStringInterfaceAttributePathStepper) ApplyTerraform5AttributePathStep(step AttributePathStep) (interface{}, error) {
-	attributeName, isAttributeName := step.(AttributeName)
-	elementKeyString, isElementKeyString := step.(ElementKeyString)
+	_, isAttributeName := step.(AttributeName)
+	_, isElementKeyString := step.(ElementKeyString)
 	if !isAttributeName && !isElementKeyString {
 		return nil, ErrInvalidStep
 	}
 	var stepValue string
 	if isAttributeName {
-		stepValue = string(attributeName)
+		stepValue = string(step.(AttributeName))
 	}
 	if isElementKeyString {
-		stepValue = string(elementKeyString)
+		stepValue = string(step.(ElementKeyString))
 	}
 	v, ok := m[stepValue]
 	if !ok {

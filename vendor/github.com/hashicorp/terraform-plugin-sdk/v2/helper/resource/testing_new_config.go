@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package resource
 
 import (
@@ -19,7 +16,7 @@ import (
 func testStepNewConfig(ctx context.Context, t testing.T, c TestCase, wd *plugintest.WorkingDir, step TestStep, providers *providerFactories) error {
 	t.Helper()
 
-	err := wd.SetConfig(ctx, step.mergedConfig(ctx, c))
+	err := wd.SetConfig(ctx, step.Config)
 	if err != nil {
 		return fmt.Errorf("Error setting config: %w", err)
 	}

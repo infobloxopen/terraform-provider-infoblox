@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 // Package tfjson is a de-coupled helper library containing types for
 // the plan format output by "terraform show -json" command. This
 // command is designed for the export of Terraform plan data in

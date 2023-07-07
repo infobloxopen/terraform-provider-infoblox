@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package logging
 
 import (
@@ -27,10 +24,4 @@ func ProtocolWarn(ctx context.Context, msg string, additionalFields ...map[strin
 // ProtocolTrace emits a protocol subsystem log at TRACE level.
 func ProtocolTrace(ctx context.Context, msg string, additionalFields ...map[string]interface{}) {
 	tfsdklog.SubsystemTrace(ctx, SubsystemProto, msg, additionalFields...)
-}
-
-// ProtocolSetField returns a context with the additional protocol subsystem
-// field set.
-func ProtocolSetField(ctx context.Context, key string, value any) context.Context {
-	return tfsdklog.SubsystemSetField(ctx, SubsystemProto, key, value)
 }

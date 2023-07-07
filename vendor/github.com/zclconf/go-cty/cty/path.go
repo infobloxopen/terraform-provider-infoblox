@@ -225,9 +225,7 @@ func (s IndexStep) Apply(val Value) (Value, error) {
 		return NilVal, errors.New("key value not number or string")
 	}
 
-	// This value needs to be stripped of marks to check True(), but Index will
-	// apply the correct marks for the result.
-	has, _ := val.HasIndex(s.Key).Unmark()
+	has := val.HasIndex(s.Key)
 	if !has.IsKnown() {
 		return UnknownVal(val.Type().ElementType()), nil
 	}

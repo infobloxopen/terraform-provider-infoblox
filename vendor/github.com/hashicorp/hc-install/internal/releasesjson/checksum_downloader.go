@@ -1,21 +1,17 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package releasesjson
 
 import (
-	"context"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/hashicorp/hc-install/internal/httpclient"
+	"golang.org/x/crypto/openpgp"
 )
 
 type ChecksumDownloader struct {
@@ -46,7 +42,7 @@ func HashSumFromHexDigest(hexDigest string) (HashSum, error) {
 	return HashSum(sumBytes), nil
 }
 
-func (cd *ChecksumDownloader) DownloadAndVerifyChecksums(ctx context.Context) (ChecksumFileMap, error) {
+func (cd *ChecksumDownloader) DownloadAndVerifyChecksums() (ChecksumFileMap, error) {
 	sigFilename, err := cd.findSigFilename(cd.ProductVersion)
 	if err != nil {
 		return nil, err
@@ -58,12 +54,7 @@ func (cd *ChecksumDownloader) DownloadAndVerifyChecksums(ctx context.Context) (C
 		url.PathEscape(cd.ProductVersion.RawVersion),
 		url.PathEscape(sigFilename))
 	cd.Logger.Printf("downloading signature from %s", sigURL)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, sigURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request for %q: %w", sigURL, err)
-	}
-	sigResp, err := client.Do(req)
+	sigResp, err := client.Get(sigURL)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +70,7 @@ func (cd *ChecksumDownloader) DownloadAndVerifyChecksums(ctx context.Context) (C
 		url.PathEscape(cd.ProductVersion.RawVersion),
 		url.PathEscape(cd.ProductVersion.SHASUMS))
 	cd.Logger.Printf("downloading checksums from %s", shasumsURL)
-
-	req, err = http.NewRequestWithContext(ctx, http.MethodGet, shasumsURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request for %q: %w", shasumsURL, err)
-	}
-	sumsResp, err := client.Do(req)
+	sumsResp, err := client.Get(shasumsURL)
 	if err != nil {
 		return nil, err
 	}
@@ -135,13 +121,43 @@ func fileMapFromChecksums(checksums strings.Builder) (ChecksumFileMap, error) {
 	return csMap, nil
 }
 
+func compareChecksum(logger *log.Logger, r io.Reader, verifiedHashSum HashSum, filename string, expectedSize int64) error {
+	h := sha256.New()
+
+	// This may take a while depending on network connection as the io.Reader
+	// is expected to be http.Response.Body which streams the bytes
+	// on demand over the network.
+	logger.Printf("copying %q (%d bytes) to calculate checksum", filename, expectedSize)
+	bytesCopied, err := io.Copy(h, r)
+	if err != nil {
+		return err
+	}
+	logger.Printf("copied %d bytes of %q", bytesCopied, filename)
+
+	if expectedSize != 0 && bytesCopied != int64(expectedSize) {
+		return fmt.Errorf("unexpected size (downloaded: %d, expected: %d)",
+			bytesCopied, expectedSize)
+	}
+
+	calculatedSum := h.Sum(nil)
+	if !bytes.Equal(calculatedSum, verifiedHashSum) {
+		return fmt.Errorf("checksum mismatch (expected %q, calculated %q)",
+			verifiedHashSum,
+			hex.EncodeToString(calculatedSum))
+	}
+
+	logger.Printf("checksum matches: %q", hex.EncodeToString(calculatedSum))
+
+	return nil
+}
+
 func (cd *ChecksumDownloader) verifySumsSignature(checksums, signature io.Reader) error {
 	el, err := cd.keyEntityList()
 	if err != nil {
 		return err
 	}
 
-	_, err = openpgp.CheckDetachedSignature(el, checksums, signature, nil)
+	_, err = openpgp.CheckDetachedSignature(el, checksums, signature)
 	if err != nil {
 		return fmt.Errorf("unable to verify checksums signature: %w", err)
 	}

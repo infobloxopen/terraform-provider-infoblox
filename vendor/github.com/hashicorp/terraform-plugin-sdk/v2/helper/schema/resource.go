@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package schema
 
 import (
@@ -36,16 +33,16 @@ var ReservedResourceFields = []string{
 
 // Resource is an abstraction for multiple Terraform concepts:
 //
-//   - Managed Resource: An infrastructure component with a schema, lifecycle
-//     operations such as create, read, update, and delete
-//     (CRUD), and optional implementation details such as
-//     import support, upgrade state support, and difference
-//     customization.
-//   - Data Resource: Also known as a data source. An infrastructure component
-//     with a schema and only the read lifecycle operation.
-//   - Block: When implemented within a Schema type Elem field, a configuration
-//     block that contains nested schema information such as attributes
-//     and blocks.
+// - Managed Resource: An infrastructure component with a schema, lifecycle
+//                     operations such as create, read, update, and delete
+//                     (CRUD), and optional implementation details such as
+//                     import support, upgrade state support, and difference
+//                     customization.
+// - Data Resource: Also known as a data source. An infrastructure component
+//                  with a schema and only the read lifecycle operation.
+// - Block: When implemented within a Schema type Elem field, a configuration
+//          block that contains nested schema information such as attributes
+//          and blocks.
 //
 // To fully implement managed resources, the Provider type ResourcesMap field
 // should include a reference to an implementation of this type. To fully
@@ -56,24 +53,12 @@ var ReservedResourceFields = []string{
 // being implemented.
 type Resource struct {
 	// Schema is the structure and type information for this component. This
-	// field, or SchemaFunc, is required for all Resource concepts. To prevent
-	// storing all schema information in memory for the lifecycle of a provider,
-	// use SchemaFunc instead.
+	// field is required for all Resource concepts.
 	//
 	// The keys of this map are the names used in a practitioner configuration,
 	// such as the attribute or block name. The values describe the structure
 	// and type information of that attribute or block.
 	Schema map[string]*Schema
-
-	// SchemaFunc is the structure and type information for this component. This
-	// field, or Schema, is required for all Resource concepts. Use this field
-	// instead of Schema on top level Resource declarations to prevent storing
-	// all schema information in memory for the lifecycle of a provider.
-	//
-	// The keys of this map are the names used in a practitioner configuration,
-	// such as the attribute or block name. The values describe the structure
-	// and type information of that attribute or block.
-	SchemaFunc func() map[string]*Schema
 
 	// SchemaVersion is the version number for this resource's Schema
 	// definition. This field is only valid when the Resource is a managed
@@ -597,17 +582,6 @@ type Resource struct {
 	UseJSONNumber bool
 }
 
-// SchemaMap returns the schema information for this Resource whether it is
-// defined via the SchemaFunc field or Schema field. The SchemaFunc field, if
-// defined, takes precedence over the Schema field.
-func (r *Resource) SchemaMap() map[string]*Schema {
-	if r.SchemaFunc != nil {
-		return r.SchemaFunc()
-	}
-
-	return r.Schema
-}
-
 // ShimInstanceStateFromValue converts a cty.Value to a
 // terraform.InstanceState.
 func (r *Resource) ShimInstanceStateFromValue(state cty.Value) (*terraform.InstanceState, error) {
@@ -617,7 +591,7 @@ func (r *Resource) ShimInstanceStateFromValue(state cty.Value) (*terraform.Insta
 
 	// We now rebuild the state through the ResourceData, so that the set indexes
 	// match what helper/schema expects.
-	data, err := schemaMap(r.SchemaMap()).Data(s, nil)
+	data, err := schemaMap(r.Schema).Data(s, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -692,13 +666,13 @@ type StateUpgrader struct {
 // or block names mapped to values that can be type asserted similar to
 // fetching values using the ResourceData Get* methods:
 //
-//   - TypeBool: bool
-//   - TypeFloat: float
-//   - TypeInt: int
-//   - TypeList: []interface{}
-//   - TypeMap: map[string]interface{}
-//   - TypeSet: *Set
-//   - TypeString: string
+//     - TypeBool: bool
+//     - TypeFloat: float
+//     - TypeInt: int
+//     - TypeList: []interface{}
+//     - TypeMap: map[string]interface{}
+//     - TypeSet: *Set
+//     - TypeString: string
 //
 // In certain scenarios, the map may be nil, so checking for that condition
 // upfront is recommended to prevent potential panics.
@@ -790,8 +764,7 @@ func (r *Resource) Apply(
 	s *terraform.InstanceState,
 	d *terraform.InstanceDiff,
 	meta interface{}) (*terraform.InstanceState, diag.Diagnostics) {
-	schema := schemaMap(r.SchemaMap())
-	data, err := schema.Data(s, d)
+	data, err := schemaMap(r.Schema).Data(s, d)
 	if err != nil {
 		return s, diag.FromErr(err)
 	}
@@ -848,7 +821,7 @@ func (r *Resource) Apply(
 		}
 
 		// Reset the data to be stateless since we just destroyed
-		data, err = schema.Data(nil, d)
+		data, err = schemaMap(r.Schema).Data(nil, d)
 		if err != nil {
 			return nil, append(diags, diag.FromErr(err)...)
 		}
@@ -892,7 +865,7 @@ func (r *Resource) Diff(
 		return nil, fmt.Errorf("[ERR] Error decoding timeout: %s", err)
 	}
 
-	instanceDiff, err := schemaMap(r.SchemaMap()).Diff(ctx, s, c, r.CustomizeDiff, meta, true)
+	instanceDiff, err := schemaMap(r.Schema).Diff(ctx, s, c, r.CustomizeDiff, meta, true)
 	if err != nil {
 		return instanceDiff, err
 	}
@@ -914,7 +887,7 @@ func (r *Resource) SimpleDiff(
 	c *terraform.ResourceConfig,
 	meta interface{}) (*terraform.InstanceDiff, error) {
 
-	instanceDiff, err := schemaMap(r.SchemaMap()).Diff(ctx, s, c, r.CustomizeDiff, meta, false)
+	instanceDiff, err := schemaMap(r.Schema).Diff(ctx, s, c, r.CustomizeDiff, meta, false)
 	if err != nil {
 		return instanceDiff, err
 	}
@@ -939,7 +912,7 @@ func (r *Resource) SimpleDiff(
 
 // Validate validates the resource configuration against the schema.
 func (r *Resource) Validate(c *terraform.ResourceConfig) diag.Diagnostics {
-	diags := schemaMap(r.SchemaMap()).Validate(c)
+	diags := schemaMap(r.Schema).Validate(c)
 
 	if r.DeprecationMessage != "" {
 		diags = append(diags, diag.Diagnostic{
@@ -961,7 +934,7 @@ func (r *Resource) ReadDataApply(
 ) (*terraform.InstanceState, diag.Diagnostics) {
 	// Data sources are always built completely from scratch
 	// on each read, so the source state is always nil.
-	data, err := schemaMap(r.SchemaMap()).Data(nil, d)
+	data, err := schemaMap(r.Schema).Data(nil, d)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -1002,12 +975,10 @@ func (r *Resource) RefreshWithoutUpgrade(
 		}
 	}
 
-	schema := schemaMap(r.SchemaMap())
-
 	if r.Exists != nil {
 		// Make a copy of data so that if it is modified it doesn't
 		// affect our Read later.
-		data, err := schema.Data(s, nil)
+		data, err := schemaMap(r.Schema).Data(s, nil)
 		if err != nil {
 			return s, diag.FromErr(err)
 		}
@@ -1030,7 +1001,7 @@ func (r *Resource) RefreshWithoutUpgrade(
 		}
 	}
 
-	data, err := schema.Data(s, nil)
+	data, err := schemaMap(r.Schema).Data(s, nil)
 	if err != nil {
 		return s, diag.FromErr(err)
 	}
@@ -1049,7 +1020,7 @@ func (r *Resource) RefreshWithoutUpgrade(
 		state = nil
 	}
 
-	schema.handleDiffSuppressOnRefresh(ctx, s, state)
+	schemaMap(r.Schema).handleDiffSuppressOnRefresh(ctx, s, state)
 	return r.recordCurrentSchemaVersion(state), diags
 }
 
@@ -1095,14 +1066,13 @@ func (r *Resource) InternalValidate(topSchemaMap schemaMap, writable bool) error
 		}
 	}
 
-	schema := schemaMap(r.SchemaMap())
 	tsm := topSchemaMap
 
 	if r.isTopLevel() && writable {
 		// All non-Computed attributes must be ForceNew if Update is not defined
 		if !r.updateFuncSet() {
 			nonForceNewAttrs := make([]string, 0)
-			for k, v := range schema {
+			for k, v := range r.Schema {
 				if !v.ForceNew && !v.Computed {
 					nonForceNewAttrs = append(nonForceNewAttrs, k)
 				}
@@ -1113,19 +1083,19 @@ func (r *Resource) InternalValidate(topSchemaMap schemaMap, writable bool) error
 			}
 		} else {
 			nonUpdateableAttrs := make([]string, 0)
-			for k, v := range schema {
+			for k, v := range r.Schema {
 				if v.ForceNew || v.Computed && !v.Optional {
 					nonUpdateableAttrs = append(nonUpdateableAttrs, k)
 				}
 			}
-			updateableAttrs := len(schema) - len(nonUpdateableAttrs)
+			updateableAttrs := len(r.Schema) - len(nonUpdateableAttrs)
 			if updateableAttrs == 0 {
 				return fmt.Errorf(
 					"All fields are ForceNew or Computed w/out Optional, Update is superfluous")
 			}
 		}
 
-		tsm = schema
+		tsm = schemaMap(r.Schema)
 
 		// Destroy, and Read are required
 		if !r.readFuncSet() {
@@ -1184,16 +1154,12 @@ func (r *Resource) InternalValidate(topSchemaMap schemaMap, writable bool) error
 
 	// Data source
 	if r.isTopLevel() && !writable {
-		tsm = schema
+		tsm = schemaMap(r.Schema)
 		for k := range tsm {
 			if isReservedDataSourceFieldName(k) {
 				return fmt.Errorf("%s is a reserved field name", k)
 			}
 		}
-	}
-
-	if r.SchemaFunc != nil && r.Schema != nil {
-		return fmt.Errorf("SchemaFunc and Schema should not both be set")
 	}
 
 	// check context funcs are not set alongside their nonctx counterparts
@@ -1238,7 +1204,7 @@ func (r *Resource) InternalValidate(topSchemaMap schemaMap, writable bool) error
 		return fmt.Errorf("Delete and DeleteWithoutTimeout should not both be set")
 	}
 
-	return schema.InternalValidate(tsm)
+	return schemaMap(r.Schema).InternalValidate(tsm)
 }
 
 func isReservedDataSourceFieldName(name string) bool {
@@ -1285,7 +1251,7 @@ func isReservedResourceFieldName(name string) bool {
 //
 // This function is useful for unit tests and ResourceImporter functions.
 func (r *Resource) Data(s *terraform.InstanceState) *ResourceData {
-	result, err := schemaMap(r.SchemaMap()).Data(s, nil)
+	result, err := schemaMap(r.Schema).Data(s, nil)
 	if err != nil {
 		// At the time of writing, this isn't possible (Data never returns
 		// non-nil errors). We panic to find this in the future if we have to.
@@ -1312,7 +1278,7 @@ func (r *Resource) Data(s *terraform.InstanceState) *ResourceData {
 // TODO: May be able to be removed with the above ResourceData function.
 func (r *Resource) TestResourceData() *ResourceData {
 	return &ResourceData{
-		schema: r.SchemaMap(),
+		schema: r.Schema,
 	}
 }
 

@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 // The plugin package exposes functions and helpers for communicating to
 // plugins which are implemented as standalone binary applications.
 //

@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package tfjson
 
 import (
@@ -42,7 +39,7 @@ func (p *ProviderSchemas) Validate() error {
 		return errors.New("unexpected provider schema data, format version is missing")
 	}
 
-	constraint, err := version.NewConstraint(ProviderSchemasFormatVersionConstraints)
+	constraint, err := version.NewConstraint(PlanFormatVersionConstraints)
 	if err != nil {
 		return fmt.Errorf("invalid version constraint: %w", err)
 	}

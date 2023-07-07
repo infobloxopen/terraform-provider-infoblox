@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package product
 
 import (
@@ -53,6 +50,6 @@ var Consul = Product{
 	BuildInstructions: &BuildInstructions{
 		GitRepoURL:    "https://github.com/hashicorp/consul.git",
 		PreCloneCheck: &build.GoIsInstalled{},
-		Build:         &build.GoBuild{},
+		Build:         &build.GoBuild{Version: v1_18},
 	},
 }

@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package hclsyntax
 
 import (
@@ -38,9 +35,11 @@ func (e *TemplateExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) 
 
 		if partVal.IsNull() {
 			diags = append(diags, &hcl.Diagnostic{
-				Severity:    hcl.DiagError,
-				Summary:     "Invalid template interpolation value",
-				Detail:      "The expression result is null. Cannot include a null value in a string template.",
+				Severity: hcl.DiagError,
+				Summary:  "Invalid template interpolation value",
+				Detail: fmt.Sprintf(
+					"The expression result is null. Cannot include a null value in a string template.",
+				),
 				Subject:     part.Range().Ptr(),
 				Context:     &e.SrcRange,
 				Expression:  part,
@@ -81,28 +80,15 @@ func (e *TemplateExpr) Value(ctx *hcl.EvalContext) (cty.Value, hcl.Diagnostics) 
 			continue
 		}
 
-		// If we're just continuing to validate after we found an unknown value
-		// then we'll skip appending so that "buf" will contain only the
-		// known prefix of the result.
-		if isKnown && !diags.HasErrors() {
-			buf.WriteString(strVal.AsString())
-		}
+		buf.WriteString(strVal.AsString())
 	}
 
 	var ret cty.Value
 	if !isKnown {
 		ret = cty.UnknownVal(cty.String)
-		if !diags.HasErrors() { // Invalid input means our partial result buffer is suspect
-			if knownPrefix := buf.String(); knownPrefix != "" {
-				ret = ret.Refine().StringPrefix(knownPrefix).NewValue()
-			}
-		}
 	} else {
 		ret = cty.StringVal(buf.String())
 	}
-
-	// A template rendering result is never null.
-	ret = ret.RefineNotNull()
 
 	// Apply the full set of marks to the returned value
 	return ret.WithMarks(marks), diags
