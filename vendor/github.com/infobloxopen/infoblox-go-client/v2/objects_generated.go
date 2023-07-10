@@ -15450,7 +15450,12 @@ func NewRecordCNAME(dnsView string,
 	ref string) *RecordCNAME {
 
 	res := NewEmptyRecordCNAME()
+
 	res.View = &dnsView
+	if *res.View == "" {
+		res.View = nil
+	}
+
 	res.Canonical = &canonical
 	res.Name = &recordName
 	res.UseTtl = &useTtl

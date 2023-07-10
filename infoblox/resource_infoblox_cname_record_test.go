@@ -69,25 +69,25 @@ func validateRecordCNAME(
 			}
 		}
 
-		expCanonical := expectedValue.Canonical
-		if recCNAME.Canonical != expCanonical {
+		expCanonical := *expectedValue.Canonical
+		if *recCNAME.Canonical != expCanonical {
 			return fmt.Errorf(
 				"the value of 'canonical' field is '%s', but expected '%s'",
-				*recCNAME.Canonical, *expCanonical)
+				*recCNAME.Canonical, expCanonical)
 		}
 
-		expName := expectedValue.Name
-		if recCNAME.Name != expName {
+		expName := *expectedValue.Name
+		if *recCNAME.Name != expName {
 			return fmt.Errorf(
 				"the value of 'alias Name' field is '%s', but expected '%s'",
-				*recCNAME.Name, *expName)
+				*recCNAME.Name, expName)
 		}
 
-		expComment := expectedValue.Comment
-		if recCNAME.Comment != expComment {
+		expComment := *expectedValue.Comment
+		if *recCNAME.Comment != expComment {
 			return fmt.Errorf(
 				"the value of 'comment' field is '%s', but expected '%s'",
-				*recCNAME.Comment, *expComment)
+				*recCNAME.Comment, expComment)
 		}
 
 		// the rest is about extensible attributes
