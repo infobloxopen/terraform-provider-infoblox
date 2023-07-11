@@ -277,3 +277,15 @@ func filterFromMap(filtersMap map[string]interface{}) map[string]string {
 
 	return filters
 }
+
+// extAttrsDiffSuppressFunc will suppress diff for EA entry, if state value is provided,
+// but config value is not provided (e.g. in case of EA inheritance).
+func extAttrsDiffSuppressFunc(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	stateVal := d.Get(k).(string)
+
+	if stateVal != "" && stateVal != newValue && newValue == "" {
+		return true
+	}
+
+	return false
+}

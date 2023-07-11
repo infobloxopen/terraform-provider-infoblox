@@ -2,8 +2,11 @@ package infoblox
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -110,12 +113,12 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 						reserve_ip = 5
 						gateway = "10.10.0.250"
 						comment = "10.0.0.0/24 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Network Name"= "demo-network"
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						  })
+						  }
 						}`,
 				Check: validateNetwork(
 					"infoblox_ipv4_network.foo",
@@ -133,6 +136,28 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 				),
 			},
 			{
+				// Terraform provider should be able to update the network object
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.250"
+						comment = "Updated comment"
+						ext_attrs = {
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+							"Building" = "Revista Semana"
+						  }
+						}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "comment", "Updated comment"),
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.%", "5"),
+				),
+			},
+			{
 				Config: `
 					resource "infoblox_ipv4_network" "foo"{
 						network_view="default"
@@ -140,12 +165,12 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 						reserve_ip = 6
 						gateway = "10.10.0.250"
 						comment = "10.0.0.0/24 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Network Name"= "demo-network"
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						  })
+						  }
 						}`,
 				ExpectError: updateNotAllowedErrorRegexp,
 			},
@@ -157,12 +182,12 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 						reserve_ip = 6
 						gateway = "10.10.0.250"
 						comment = "10.0.0.0/24 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Network Name"= "demo-network"
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						  })
+						  }
 						}`,
 				// double-check that the next update (with the same changes) returns an error as well
 				// (in case the field to be updated is 'computed' and the main code do not clear it to the previous state)
@@ -176,12 +201,12 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 						reserve_ip = 5
 						gateway = "10.10.0.251"
 						comment = "10.0.0.0/24 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Network Name"= "demo-network"
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						  })
+						  }
 						}`,
 				ExpectError: updateNotAllowedErrorRegexp,
 			},
@@ -193,14 +218,152 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 						reserve_ip = 5
 						gateway = "10.10.0.251"
 						comment = "10.0.0.0/24 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Network Name"= "demo-network"
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						  })
+						  }
 						}`,
 				ExpectError: updateNotAllowedErrorRegexp,
+			},
+		},
+	})
+}
+
+// TestAcc_resourceNetwork_ipv4_ea_inheritance validates that in case of EA
+// inheritance, terraform doesn't remove EAs, that set on the NIOS side.
+func TestAcc_resourceNetwork_ipv4_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = {
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  }
+						}`,
+				Check: validateNetwork(
+					"infoblox_ipv4_network.foo",
+					&ibclient.Network{
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/24",
+						Comment:     "10.0.0.0/24 network created",
+						Ea: ibclient.EA{
+							"Network Name": "demo-network",
+							"Tenant ID":    "terraform_test_tenant",
+							"Location":     "Test loc.",
+							"Site":         "Test site",
+						},
+					},
+				),
+			},
+			{
+				// When extensible attributes are added by another tool,
+				// terraform shouldn't remove those EAs
+				PreConfig: func() {
+					getEnvDefault := func(key, def string) string {
+						if value, ok := os.LookupEnv(key); ok {
+							return value
+						}
+						return def
+					}
+
+					hostConfig := ibclient.HostConfig{
+						Host:    os.Getenv("INFOBLOX_SERVER"),
+						Port:    getEnvDefault("PORT", "443"),
+						Version: getEnvDefault("WAPI_VERSION", "2.7"),
+					}
+
+					authConfig := ibclient.AuthConfig{
+						Username: os.Getenv("INFOBLOX_USERNAME"),
+						Password: os.Getenv("INFOBLOX_PASSWORD"),
+					}
+
+					sslVerify, err := strconv.ParseBool(getEnvDefault("SSLMODE", "false"))
+					if err != nil {
+						panic(err)
+					}
+
+					secondsStr := getEnvDefault("CONNECT_TIMEOUT", "60")
+					seconds, err := strconv.Atoi(secondsStr)
+					if err != nil {
+						panic(err)
+					}
+
+					poolConnectionsStr := getEnvDefault("POOL_CONNECTIONS", "10")
+					poolConnections, err := strconv.Atoi(poolConnectionsStr)
+					if err != nil {
+						panic(err)
+					}
+
+					transportConfig := ibclient.TransportConfig{
+						SslVerify:           sslVerify,
+						HttpRequestTimeout:  time.Duration(seconds),
+						HttpPoolConnections: poolConnections,
+					}
+
+					requestBuilder := &ibclient.WapiRequestBuilder{}
+					requestor := &ibclient.WapiHttpRequestor{}
+
+					conn, err := ibclient.NewConnector(hostConfig, authConfig, transportConfig, requestBuilder, requestor)
+					if err != nil {
+						panic(err)
+					}
+
+					n := &ibclient.Ipv4Network{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"network":      "10.10.0.0/24",
+							"network_view": "default",
+						},
+					)
+					var res []ibclient.Ipv4Network
+					err = conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].NetworkView = ""
+					res[0].Ea["Building"] = "Revista Semana"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = {
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+						  }
+						}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.%", "5"),
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.Building", "Revista Semana"),
+				),
 			},
 		},
 	})
@@ -219,12 +382,12 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 						cidr="2001:db8:abcd:12::/64"
 						reserve_ipv6 = 10
 						comment = "2001:db8:abcd:12::/64 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Tenant ID" = "terraform_test_tenant"
 							"Network Name"= "demo-network"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						})
+						}
 					}`,
 				Check: validateNetwork(
 					"infoblox_ipv6_network.foo",
@@ -248,12 +411,12 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 						cidr="2001:db8:abcd:12::/64"
 						reserve_ipv6 = 11
 						comment = "2001:db8:abcd:12::/64 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Tenant ID" = "terraform_test_tenant"
 							"Network Name"= "demo-network"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						})
+						}
 					}`,
 				ExpectError: updateNotAllowedErrorRegexp,
 			},
@@ -264,12 +427,12 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 						cidr="2001:db8:abcd:12::/64"
 						reserve_ipv6 = 11
 						comment = "2001:db8:abcd:12::/64 network created"
-						ext_attrs = jsonencode({
+						ext_attrs = {
 							"Tenant ID" = "terraform_test_tenant"
 							"Network Name"= "demo-network"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-						})
+						}
 					}`,
 				ExpectError: updateNotAllowedErrorRegexp,
 			},

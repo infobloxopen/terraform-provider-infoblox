@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -68,10 +67,11 @@ func resourceNetwork() *schema.Resource {
 				Description: "A string describing the network",
 			},
 			"ext_attrs": {
-				Type:        schema.TypeString,
-				Default:     "",
-				Optional:    true,
-				Description: "The Extensible attributes of the Network, as a map in JSON format",
+				Type:             schema.TypeMap,
+				DiffSuppressFunc: extAttrsDiffSuppressFunc,
+				Optional:         true,
+				Computed:         true,
+				Description:      "The Extensible attributes of the Network",
 			},
 		},
 	}
@@ -91,13 +91,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	gateway := d.Get("gateway").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
-	}
+
+	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
@@ -182,13 +178,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
-	}
+
+	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
@@ -207,14 +199,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
-		if err != nil {
-			return err
-		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", obj.Ea); err != nil {
 			return err
 		}
 	}
@@ -268,7 +253,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
 			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("ext_attrs", prevEa.(string))
+			_ = d.Set("ext_attrs", prevEa.(map[string]interface{}))
 		}
 	}()
 
@@ -288,13 +273,9 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	if d.HasChange("gateway") {
 		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
 	}
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err = json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
-	}
+
+	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
@@ -326,13 +307,9 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
-	}
+
+	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
