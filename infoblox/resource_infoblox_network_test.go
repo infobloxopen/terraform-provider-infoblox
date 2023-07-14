@@ -149,7 +149,7 @@ func TestAcc_resourceNetwork_ipv4(t *testing.T) {
 							"Tenant ID" = "terraform_test_tenant"
 							"Location" = "Test loc."
 							"Site" = "Test site"
-							"Building" = "Revista Semana"
+							"Building" = "Test Building"
 						  }
 						}`,
 				Check: resource.ComposeTestCheckFunc(
@@ -339,7 +339,7 @@ func TestAcc_resourceNetwork_ipv4_ea_inheritance(t *testing.T) {
 					}
 
 					res[0].NetworkView = ""
-					res[0].Ea["Building"] = "Revista Semana"
+					res[0].Ea["Building"] = "Test Building"
 
 					_, err = conn.UpdateObject(&res[0], res[0].Ref)
 					if err != nil {
@@ -362,7 +362,40 @@ func TestAcc_resourceNetwork_ipv4_ea_inheritance(t *testing.T) {
 						}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.%", "5"),
-					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.Building", "Revista Semana"),
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.foo", "ext_attrs.Building", "Test Building"),
+				),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "foo"{
+						network_view="default"
+						cidr="10.10.0.0/24"
+						reserve_ip = 5
+						gateway = "10.10.0.250"
+						comment = "10.0.0.0/24 network created"
+						ext_attrs = {
+							"Network Name"= "demo-network"
+							"Tenant ID" = "terraform_test_tenant"
+							"Location" = "Test loc."
+							"Site" = "Test site"
+							"Building" = "Test building 2"
+						  }
+						}`,
+				Check: validateNetwork(
+					"infoblox_ipv4_network.foo",
+					&ibclient.Network{
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/24",
+						Comment:     "10.0.0.0/24 network created",
+						Ea: ibclient.EA{
+							"Network Name": "demo-network",
+							"Tenant ID":    "terraform_test_tenant",
+							"Location":     "Test loc.",
+							"Site":         "Test site",
+							"Building":     "Test building 2",
+						},
+					},
 				),
 			},
 		},
