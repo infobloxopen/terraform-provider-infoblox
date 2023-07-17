@@ -507,9 +507,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		enableDhcp = *recIpV4Addr.EnableDhcp
 	}
 
-	if recIpV6Addr != nil {
-		duid = *recIpV6Addr.Duid
-		enableDhcp = *recIpV6Addr.EnableDhcp
+	if recIpV6Addr != nil && recIpV6Addr.EnableDhcp != nil {
+		if recIpV6Addr.Duid != nil {
+			duid = *recIpV6Addr.Duid
+			enableDhcp = *recIpV6Addr.EnableDhcp
+		}
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(

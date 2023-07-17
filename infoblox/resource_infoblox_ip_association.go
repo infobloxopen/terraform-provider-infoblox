@@ -212,6 +212,10 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	mac = strings.Replace(mac, "-", ":", -1)
 
+	var (
+		comment string
+	)
+
 	if hostRec.Ea != nil {
 		if tempVal, found := hostRec.Ea[eaNameForTenantId]; found {
 			if tempStrVal, ok := tempVal.(string); ok {
@@ -222,6 +226,10 @@ func resourceIpAssociationCreateUpdateCommon(
 	}
 	objMgr := ibclient.NewObjectManager(
 		m.(ibclient.IBConnector), "Terraform", tenantId)
+
+	if hostRec.Comment != nil {
+		comment = *hostRec.Comment
+	}
 
 	_, err = objMgr.UpdateHostRecord(
 		hostRec.Ref,
@@ -234,7 +242,7 @@ func resourceIpAssociationCreateUpdateCommon(
 		ipV4Addr, ipV6Addr,
 		mac, duid,
 		*hostRec.UseTtl, *hostRec.Ttl,
-		*hostRec.Comment,
+		comment,
 		hostRec.Ea, []string{})
 	if err != nil {
 		return fmt.Errorf(
