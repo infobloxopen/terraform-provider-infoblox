@@ -15973,6 +15973,9 @@ func NewHostRecord(
 	res.Name = &name
 	res.Ea = eas
 	res.View = &dnsView
+	if *res.View == "" {
+		res.View = nil
+	}
 	res.Zone = zone
 	res.Ref = ref
 	res.Comment = &comment
@@ -18152,6 +18155,9 @@ func NewRecordTXT(
 
 	res := NewEmptyRecordTXT()
 	res.View = &dnsview
+	if *res.View == "" {
+		res.View = nil
+	}
 	res.Zone = zone
 	res.Name = &recordname
 	res.Text = &text
