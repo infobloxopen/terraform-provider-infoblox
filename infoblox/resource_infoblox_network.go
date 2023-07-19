@@ -67,11 +67,10 @@ func resourceNetwork() *schema.Resource {
 				Description: "A string describing the network",
 			},
 			"ext_attrs": {
-				Type:             schema.TypeMap,
-				DiffSuppressFunc: extAttrsDiffSuppressFunc,
-				Optional:         true,
-				Computed:         true,
-				Description:      "The Extensible attributes of the Network",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "The Extensible attributes of the Network",
 			},
 		},
 	}
@@ -92,7 +91,11 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 
 	comment := d.Get("comment").(string)
 
-	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+	extAttrsJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrsJSON)
+	if err != nil {
+		return err
+	}
 
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
@@ -108,7 +111,6 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	var network *ibclient.Network
-	var err error
 	if cidr == "" && parentCidr != "" && prefixLen > 1 {
 		_, err := objMgr.GetNetworkContainer(networkViewName, parentCidr, isIPv6, nil)
 		if err != nil {
@@ -179,7 +181,11 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view").(string)
 
-	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+	extAttrsJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrsJSON)
+	if err != nil {
+		return err
+	}
 
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
@@ -198,8 +204,15 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("getting Network block from network view (%s) failed : %s", networkViewName, err)
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		if err = d.Set("ext_attrs", obj.Ea); err != nil {
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
+		if err != nil {
+			return err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
@@ -253,7 +266,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
 			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("ext_attrs", prevEa.(map[string]interface{}))
+			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
 
@@ -274,10 +287,20 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
 	}
 
-	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
 
 	var tenantID string
-	for attrName, attrValueInf := range extAttrs {
+	for attrName, attrValueInf := range newExtAttrs {
 		attrValue, _ := attrValueInf.(string)
 		if attrName == eaNameForTenantId {
 			tenantID = attrValue
@@ -295,7 +318,14 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 		comment = commentVal.(string)
 	}
 
-	Network, err = objMgr.UpdateNetwork(d.Id(), extAttrs, comment)
+	net, err := objMgr.GetNetworkByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read network for update operation")
+	}
+
+	newExtAttrs = mergeEAs(net.Ea, newExtAttrs, oldExtAttrs)
+
+	Network, err = objMgr.UpdateNetwork(d.Id(), newExtAttrs, comment)
 	if err != nil {
 		return fmt.Errorf("Updation of IP Network under network view '%s' failed: '%s'", networkViewName, err.Error())
 	}
@@ -308,7 +338,11 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	networkViewName := d.Get("network_view").(string)
 
-	extAttrs := d.Get("ext_attrs").(map[string]interface{})
+	extAttrsJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrsJSON)
+	if err != nil {
+		return err
+	}
 
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
@@ -322,7 +356,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeleteNetwork(d.Id())
+	_, err = objMgr.DeleteNetwork(d.Id())
 	if err != nil {
 		return fmt.Errorf("Deletion of Network block failed from network view(%s): %s", networkViewName, err)
 	}

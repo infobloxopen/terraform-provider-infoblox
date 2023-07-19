@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"strings"
@@ -278,14 +279,69 @@ func filterFromMap(filtersMap map[string]interface{}) map[string]string {
 	return filters
 }
 
-// extAttrsDiffSuppressFunc will suppress diff for EA entry, if state value is provided,
-// but config value is not provided (e.g. in case of EA inheritance).
-func extAttrsDiffSuppressFunc(k, oldValue, newValue string, d *schema.ResourceData) bool {
-	stateVal := d.Get(k).(string)
-
-	if stateVal != "" && stateVal != newValue && newValue == "" {
-		return true
+// terraformSerializeEAs will convert ibclient.EA to a JSON-formatted string,
+// which is generally used as a value for 'ext_attrs' terraform fields.
+func terraformSerializeEAs(ea ibclient.EA) (string, error) {
+	eaMap := (map[string]interface{})(ea)
+	eaJSON, err := json.Marshal(eaMap)
+	if err != nil {
+		return "", err
 	}
 
-	return false
+	return string(eaJSON), nil
+}
+
+// terraformDeserializeEAs converts JSON-formatted string
+// of extensible attributes to a map
+func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error) {
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return nil, fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
+		}
+	}
+
+	return extAttrs, nil
+}
+
+// omitEAs will omit NIOS-side EAs that are not present on the terraform-provider side.
+// Should be used for read operations.
+func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{} {
+	// ToDo: When EA inheritance is implemented on the go-client side, only inherited EAs should be omitted here.
+	res := niosEAs
+
+	for attrName, _ := range niosEAs {
+		if _, ok := terraformEAs[attrName]; !ok {
+			delete(res, attrName)
+		}
+	}
+
+	return res
+}
+
+// mergeEAs merges omitted NIOS-side EAs with EAs specified in terraform configuration.
+// Should be used in update functions.
+func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}) ibclient.EA {
+	res := map[string]interface{}{}
+
+	for key, niosVal := range niosEAs {
+		// If EA is present on the NIOS side, and there's no attempt to
+		// change a value of this EA by the terraform user, use EA value from NIOS
+		if newTfVal, newTfValFound := newTerraformEAs[key]; !newTfValFound {
+			if _, oldTfValFound := oldTerraformEAs[key]; !oldTfValFound {
+				res[key] = niosVal
+			}
+		} else {
+			res[key] = newTfVal
+		}
+	}
+
+	// Merge EAs, added to the terraform configuration
+	for key, newTfVal := range newTerraformEAs {
+		if _, ok := res[key]; !ok {
+			res[key] = newTfVal
+		}
+	}
+
+	return res
 }
