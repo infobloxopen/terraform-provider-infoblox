@@ -46,17 +46,29 @@ func testAccNetworkViewCompare(t *testing.T, resPath string, expectedRec *ibclie
 			return fmt.Errorf("record not found")
 		}
 
-		if rec.Name != expectedRec.Name {
+		if rec.Name == nil {
+			return fmt.Errorf("network view's 'name' field is expected to be defined but it is not")
+		}
+		if *rec.Name != *expectedRec.Name {
 			return fmt.Errorf(
 				"'network name' does not match: got '%s', expected '%s'",
 				*rec.Name,
 				*expectedRec.Name)
 		}
-		if rec.Comment != expectedRec.Comment {
-			return fmt.Errorf(
-				"'comment' does not match: got '%s', expected '%s'",
-				*rec.Comment, *expectedRec.Comment)
+
+		if rec.Comment != nil {
+			if expectedRec.Comment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *rec.Comment != *expectedRec.Comment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*rec.Comment, *expectedRec.Comment)
+			}
+		} else if expectedRec.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }

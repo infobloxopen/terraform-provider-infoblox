@@ -46,7 +46,10 @@ func validateV4Addrs(exp, act []ibclient.HostRecordIpv4Addr) error {
 
 	for i, expAddr := range exp {
 		actAddr := act[i]
-		if expAddr.Ipv4Addr != actAddr.Ipv4Addr {
+		if actAddr.Ipv4Addr == nil {
+			return fmt.Errorf("'ipv4addr' is expected to be defined but it is not")
+		}
+		if *expAddr.Ipv4Addr != *actAddr.Ipv4Addr {
 			return fmt.Errorf(
 				"expected IPv4 address '%s' does not equal to the actual one '%s'",
 				*expAddr.Ipv4Addr, *actAddr.Ipv4Addr)
@@ -62,7 +65,10 @@ func validateV6Addrs(exp, act []ibclient.HostRecordIpv6Addr) error {
 
 	for i, expAddr := range exp {
 		actAddr := act[i]
-		if expAddr.Ipv6Addr != actAddr.Ipv6Addr {
+		if actAddr.Ipv6Addr == nil {
+			return fmt.Errorf("'ipv6addr' is expected to be defined but it is not")
+		}
+		if *expAddr.Ipv6Addr != *actAddr.Ipv6Addr {
 			return fmt.Errorf(
 				"expected IPv6 address '%s' does not equal to the actual one '%s'",
 				*expAddr.Ipv6Addr, *actAddr.Ipv6Addr)
@@ -116,56 +122,79 @@ func validateIPAllocation(
 				ipAlloc.NetworkView, expNv)
 		}
 
+		if ipAlloc.View == nil {
+			return fmt.Errorf("'dns_view' is expected to be defined but it is not")
+		}
 		expDnsView := expectedValue.View
-		if ipAlloc.View != expDnsView {
+		if *ipAlloc.View != *expDnsView {
 			return fmt.Errorf(
 				"the value of 'dns_view' field is '%s', but expected '%s'",
 				*ipAlloc.View, *expDnsView)
 		}
 
+		if ipAlloc.EnableDns == nil {
+			return fmt.Errorf("'enable_dns' is expected to be defined but it is not")
+		}
 		expEnableDns := expectedValue.EnableDns
-		if ipAlloc.EnableDns != expEnableDns {
+		if *ipAlloc.EnableDns != *expEnableDns {
 			return fmt.Errorf(
 				"the value of 'enable_dns' field is '%t', but expected '%t'",
 				*ipAlloc.EnableDns, *expEnableDns)
 		}
 
-		expUseTtl := expectedValue.UseTtl
-		if ipAlloc.UseTtl != expUseTtl {
-			return fmt.Errorf(
-				"the value of 'use_ttl' field is '%t', but expected '%t'",
-				*ipAlloc.UseTtl, *expUseTtl)
+		if ipAlloc.UseTtl != nil {
+			if expectedValue.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *ipAlloc.UseTtl != *expectedValue.UseTtl {
+				return fmt.Errorf(
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*ipAlloc.UseTtl, *expectedValue.UseTtl)
+			}
+			if *ipAlloc.UseTtl {
+				if *ipAlloc.Ttl != *expectedValue.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						ipAlloc.Ttl, expectedValue.Ttl)
+				}
+			}
 		}
 
-		expTtl := expectedValue.Ttl
-		if ipAlloc.Ttl != expTtl {
-			return fmt.Errorf(
-				"the value of 'ttl' field is '%d', but expected '%d'",
-				ipAlloc.Ttl, expTtl)
+		if ipAlloc.Name == nil {
+			return fmt.Errorf("'fqdn' is expected not to be nil")
 		}
-
-		expFqdn := expectedValue.Name
-		if ipAlloc.Name != expFqdn {
+		if expectedValue.Name == nil {
+			panic("'fqdn' is expected not to be nil")
+		}
+		if *ipAlloc.Name != *expectedValue.Name {
 			return fmt.Errorf(
-				"the value of 'fqdn' field is '%s', but expected '%s'",
-				*ipAlloc.Name, *expFqdn)
+				"'fqdn' does not match: got '%s', expected '%s'",
+				*ipAlloc.Name,
+				*expectedValue.Name)
 		}
 
 		expComment := expectedValue.Comment
-		if ipAlloc.Comment != expComment {
-			return fmt.Errorf(
-				"the value of 'comment' field is '%s', but expected '%s'",
-				*ipAlloc.Comment, *expComment)
+		if ipAlloc.Comment != nil {
+			if expComment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *ipAlloc.Comment != *expComment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*ipAlloc.Comment, *expComment)
+			}
+		} else if expectedValue.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
 
 		expV4Addrs := expectedValue.Ipv4Addrs
 		actualV4Addrs := ipAlloc.Ipv4Addrs
-		if expV4Addrs == nil && actualV4Addrs != nil || expV4Addrs != nil && actualV4Addrs == nil {
-			return fmt.Errorf("one of expected IPv4 address list and actual IPv4 address list is 'nil' while the other one is not")
+		if (expV4Addrs == nil) != (actualV4Addrs == nil) {
+			return fmt.Errorf("one of the expected and actual IPv4 address lists is 'nil' while the other one is not")
 		}
 		if expV4Addrs != nil {
 			if len(expV4Addrs) != len(actualV4Addrs) {
-				return fmt.Errorf("expected IPv4 address list and actual IPv4 address list are not of equal length")
+				return fmt.Errorf("expected and actual IPv4 address lists are not of equal length")
 			}
 			if err = validateV4Addrs(expV4Addrs, actualV4Addrs); err != nil {
 				return err
@@ -174,12 +203,12 @@ func validateIPAllocation(
 
 		expV6Addrs := expectedValue.Ipv6Addrs
 		actualV6Addrs := ipAlloc.Ipv6Addrs
-		if expV6Addrs == nil && actualV6Addrs != nil || expV6Addrs != nil && actualV6Addrs == nil {
-			return fmt.Errorf("one of expected IPv6 address list and actual IPv6 address list is 'nil' while the other one is not")
+		if (expV6Addrs == nil) != (actualV6Addrs == nil) {
+			return fmt.Errorf("one of the expected and actual IPv6 address lists is 'nil' while the other one is not")
 		}
 		if expV6Addrs != nil {
 			if len(expV6Addrs) != len(actualV6Addrs) {
-				return fmt.Errorf("expected IPv6 address list and actual IPv6 address list are not of equal length")
+				return fmt.Errorf("expected and actual IPv6 address lists are not of equal length")
 			}
 			if err = validateV6Addrs(expV6Addrs, actualV6Addrs); err != nil {
 				return err
@@ -235,6 +264,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Name:        utils.StringPtr("testhostnameip.test.com"),
 						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -290,7 +320,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					dns_view = "default"
 					fqdn="testhostnameip2.test.com"
 					ipv4_addr="10.0.0.2"
-					comment = "IPv4 and IPv6 are allocated"
+					comment = "IPv4 is allocated"
 					ext_attrs = jsonencode({
 						"VM Name" =  "tf-ec2-instance"
 						"Tenant ID" = "terraform_test_tenant"
@@ -306,7 +336,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(true),
 						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 is allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -343,6 +375,8 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(false),
 						Name:        utils.StringPtr("testhostnameip3"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
+						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("DNS disabled"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
@@ -379,6 +413,8 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(true),
 						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
+						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
