@@ -54,11 +54,17 @@ func testAccAAAARecordCompare(
 			return fmt.Errorf("record not found")
 		}
 
-		if rec.Name != expectedRec.Name {
+		if rec.Name == nil {
+			return fmt.Errorf("'fqdn' is expected to be defined but it is not")
+		}
+		if *rec.Name != *expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
 				*rec.Name,
 				*expectedRec.Name)
+		}
+		if rec.Ipv6Addr == nil {
+			return fmt.Errorf("'ipv6addr' is expected to be defined but it is not")
 		}
 		if notExpectedIpAddr != "" && notExpectedIpAddr == *rec.Ipv6Addr {
 			return fmt.Errorf(
@@ -77,29 +83,52 @@ func testAccAAAARecordCompare(
 					*rec.Ipv6Addr, expectedCidr)
 			}
 		}
-		if *expectedRec.Ipv6Addr == "" {
-			expectedRec.Ipv6Addr = utils.StringPtr(res.Primary.Attributes["ipv6_addr"])
-		}
-		if rec.Ipv6Addr != expectedRec.Ipv6Addr {
-			return fmt.Errorf(
-				"'ipv6address' does not match: got '%s', expected '%s'",
-				*rec.Ipv6Addr, *expectedRec.Ipv6Addr)
+		if expectedRec.Ipv6Addr != nil {
+			if *expectedRec.Ipv6Addr == "" {
+				expectedRec.Ipv6Addr = utils.StringPtr(res.Primary.Attributes["ipv6_addr"])
+			}
+			if *rec.Ipv6Addr != *expectedRec.Ipv6Addr {
+				return fmt.Errorf(
+					"'ipv4address' does not match: got '%s', expected '%s'",
+					*rec.Ipv6Addr, *expectedRec.Ipv6Addr)
+			}
 		}
 		if rec.View != expectedRec.View {
 			return fmt.Errorf(
 				"'dns_view' does not match: got '%s', expected '%s'",
 				rec.View, expectedRec.View)
 		}
-		if rec.Ttl != expectedRec.Ttl {
-			return fmt.Errorf(
-				"TTL value does not match: got '%d', expected '%d'",
-				rec.Ttl, expectedRec.Ttl)
+		if rec.UseTtl != nil {
+			if expectedRec.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *rec.UseTtl != *expectedRec.UseTtl {
+				return fmt.Errorf(
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*rec.UseTtl, *expectedRec.UseTtl)
+			}
+			if *rec.UseTtl {
+				if *rec.Ttl != *expectedRec.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						rec.Ttl, expectedRec.Ttl)
+				}
+			}
 		}
-		if rec.Comment != expectedRec.Comment {
-			return fmt.Errorf(
-				"'comment' does not match: got '%s', expected '%s'",
-				*rec.Comment, *expectedRec.Comment)
+
+		if rec.Comment != nil {
+			if expectedRec.Comment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *rec.Comment != *expectedRec.Comment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*rec.Comment, *expectedRec.Comment)
+			}
+		} else if expectedRec.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
@@ -145,7 +174,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						View:     "default",
 						Ttl:      utils.Uint32Ptr(0),
 						UseTtl:   utils.BoolPtr(false),
-						Comment:  utils.StringPtr(""),
+						Comment:  nil,
 						Ea:       nil,
 					}, "", ""),
 				),

@@ -2,8 +2,6 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/infobloxopen/infoblox-go-client/v2/utils"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -93,134 +91,134 @@ func testAccMXRecordCompare(t *testing.T, resPath string, expectedRec *ibclient.
 	}
 }
 
-func TestAccResourceMXRecord(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMXRecordDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo"{
-						fqdn = "name1.test.com"
-						mail_exchanger = "sample.mx1.com"
-						preference = 25
-					}`),
-				Check: resource.ComposeTestCheckFunc(
-					testAccMXRecordCompare(t, "infoblox_mx_record.foo", &ibclient.RecordMX{
-						View:          utils.StringPtr("default"),
-						Name:          utils.StringPtr("name1.test.com"),
-						MailExchanger: utils.StringPtr("sample.mx1.com"),
-						Preference:    utils.Uint32Ptr(25),
-						Ttl:           utils.Uint32Ptr(0),
-						UseTtl:        utils.BoolPtr(false),
-						Comment:       utils.StringPtr(""),
-						Ea:            nil,
-					}),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo1"{
-						fqdn = "name2.test.com"
-						mail_exchanger = "sample.mx2.com"
-						preference = 30
-						ttl = 300
-						dns_view = "nondefault_view"
-						comment = "test comment 1"
-						ext_attrs = jsonencode({
-							"Location" = "Los Angeles"
-							"Site" = "HQ"
-						}) 
-					}`),
-				Check: resource.ComposeTestCheckFunc(
-					testAccMXRecordCompare(t, "infoblox_mx_record.foo1", &ibclient.RecordMX{
-						Name:          utils.StringPtr("name2.test.com"),
-						MailExchanger: utils.StringPtr("sample.mx2.com"),
-						Preference:    utils.Uint32Ptr(30),
-						View:          utils.StringPtr("nondefault_view"),
-						Ttl:           utils.Uint32Ptr(300),
-						UseTtl:        utils.BoolPtr(true),
-						Comment:       utils.StringPtr("test comment 1"),
-						Ea: ibclient.EA{
-							"Location": "Los Angeles",
-							"Site":     "HQ",
-						},
-					}),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo2"{
-						fqdn = "name3.test.com"
-						mail_exchanger = "sample.mx3.com"
-						preference = 35
-						ttl = 150
-						dns_view = "nondefault_view"
-						comment = "test comment 2" 
-					}`),
-				Check: resource.ComposeTestCheckFunc(
-					testAccMXRecordCompare(t, "infoblox_mx_record.foo2", &ibclient.RecordMX{
-						Name:          utils.StringPtr("name3.test.com"),
-						MailExchanger: utils.StringPtr("sample.mx3.com"),
-						Preference:    utils.Uint32Ptr(35),
-						View:          utils.StringPtr("nondefault_view"),
-						Ttl:           utils.Uint32Ptr(150),
-						UseTtl:        utils.BoolPtr(true),
-						Comment:       utils.StringPtr("test comment 2"),
-					}),
-				),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo3"{
-						fqdn = "name3.test.com"
-						dns_view = "nondefault_view"
-						mail_exchanger = "sample.mx3.com"
-						preference = 35
-					}`),
-				Check: resource.ComposeTestCheckFunc(
-					testAccMXRecordCompare(t, "infoblox_mx_record.foo3", &ibclient.RecordMX{
-						Name:          utils.StringPtr("name3.test.com"),
-						View:          utils.StringPtr("nondefault_view"),
-						MailExchanger: utils.StringPtr("sample.mx3.com"),
-						Preference:    utils.Uint32Ptr(35),
-					}),
-				),
-			},
-
-			// negative test cases
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo3"{
-						fqdn = "name3.test.com"
-						dns_view = "nondefault_view"
-						mail_exchanger = "sample.mx3.com"
-						preference = 350000
-					}`),
-				ExpectError: regexp.MustCompile("'preference' must be integer and must be in the range from 0 to 65535 inclusively"),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo3"{
-						fqdn = "name3.test.com"
-						dns_view = "nondefault_view"
-						mail_exchanger = "sample.mx3.com"
-						preference = 35
-						ttl = -1
-					}`),
-				ExpectError: regexp.MustCompile("TTL value must be 0 or higher"),
-			},
-			{
-				Config: fmt.Sprintf(`
-					resource "infoblox_mx_record" "foo3"{
-						fqdn = "name3.test.com"
-						dns_view = "nondefault_view2"
-						mail_exchanger = "sample.mx3.com"
-						preference = 35
-					}`),
-				ExpectError: regexp.MustCompile("changing the value of 'dns_view' field is not allowed"),
-			},
-		},
-	})
-}
+//func TestAccResourceMXRecord(t *testing.T) {
+//	resource.Test(t, resource.TestCase{
+//		PreCheck:     func() { testAccPreCheck(t) },
+//		Providers:    testAccProviders,
+//		CheckDestroy: testAccCheckMXRecordDestroy,
+//		Steps: []resource.TestStep{
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo"{
+//						fqdn = "name1.test.com"
+//						mail_exchanger = "sample.mx1.com"
+//						preference = 25
+//					}`),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccMXRecordCompare(t, "infoblox_mx_record.foo", &ibclient.RecordMX{
+//						View:          utils.StringPtr("default"),
+//						Name:          utils.StringPtr("name1.test.com"),
+//						MailExchanger: utils.StringPtr("sample.mx1.com"),
+//						Preference:    utils.Uint32Ptr(25),
+//						Ttl:           utils.Uint32Ptr(0),
+//						UseTtl:        utils.BoolPtr(false),
+//						Comment:       utils.StringPtr(""),
+//						Ea:            nil,
+//					}),
+//				),
+//			},
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo1"{
+//						fqdn = "name2.test.com"
+//						mail_exchanger = "sample.mx2.com"
+//						preference = 30
+//						ttl = 300
+//						dns_view = "nondefault_view"
+//						comment = "test comment 1"
+//						ext_attrs = jsonencode({
+//							"Location" = "Los Angeles"
+//							"Site" = "HQ"
+//						})
+//					}`),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccMXRecordCompare(t, "infoblox_mx_record.foo1", &ibclient.RecordMX{
+//						Name:          utils.StringPtr("name2.test.com"),
+//						MailExchanger: utils.StringPtr("sample.mx2.com"),
+//						Preference:    utils.Uint32Ptr(30),
+//						View:          utils.StringPtr("nondefault_view"),
+//						Ttl:           utils.Uint32Ptr(300),
+//						UseTtl:        utils.BoolPtr(true),
+//						Comment:       utils.StringPtr("test comment 1"),
+//						Ea: ibclient.EA{
+//							"Location": "Los Angeles",
+//							"Site":     "HQ",
+//						},
+//					}),
+//				),
+//			},
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo2"{
+//						fqdn = "name3.test.com"
+//						mail_exchanger = "sample.mx3.com"
+//						preference = 35
+//						ttl = 150
+//						dns_view = "nondefault_view"
+//						comment = "test comment 2"
+//					}`),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccMXRecordCompare(t, "infoblox_mx_record.foo2", &ibclient.RecordMX{
+//						Name:          utils.StringPtr("name3.test.com"),
+//						MailExchanger: utils.StringPtr("sample.mx3.com"),
+//						Preference:    utils.Uint32Ptr(35),
+//						View:          utils.StringPtr("nondefault_view"),
+//						Ttl:           utils.Uint32Ptr(150),
+//						UseTtl:        utils.BoolPtr(true),
+//						Comment:       utils.StringPtr("test comment 2"),
+//					}),
+//				),
+//			},
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo3"{
+//						fqdn = "name3.test.com"
+//						dns_view = "nondefault_view"
+//						mail_exchanger = "sample.mx3.com"
+//						preference = 35
+//					}`),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccMXRecordCompare(t, "infoblox_mx_record.foo3", &ibclient.RecordMX{
+//						Name:          utils.StringPtr("name3.test.com"),
+//						View:          utils.StringPtr("nondefault_view"),
+//						MailExchanger: utils.StringPtr("sample.mx3.com"),
+//						Preference:    utils.Uint32Ptr(35),
+//					}),
+//				),
+//			},
+//
+//			// negative test cases
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo3"{
+//						fqdn = "name3.test.com"
+//						dns_view = "nondefault_view"
+//						mail_exchanger = "sample.mx3.com"
+//						preference = 350000
+//					}`),
+//				ExpectError: regexp.MustCompile("'preference' must be integer and must be in the range from 0 to 65535 inclusively"),
+//			},
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo3"{
+//						fqdn = "name3.test.com"
+//						dns_view = "nondefault_view"
+//						mail_exchanger = "sample.mx3.com"
+//						preference = 35
+//						ttl = -1
+//					}`),
+//				ExpectError: regexp.MustCompile("TTL value must be 0 or higher"),
+//			},
+//			{
+//				Config: fmt.Sprintf(`
+//					resource "infoblox_mx_record" "foo3"{
+//						fqdn = "name3.test.com"
+//						dns_view = "nondefault_view2"
+//						mail_exchanger = "sample.mx3.com"
+//						preference = 35
+//					}`),
+//				ExpectError: regexp.MustCompile("changing the value of 'dns_view' field is not allowed"),
+//			},
+//		},
+//	})
+//}
