@@ -320,7 +320,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 
 	net, err := objMgr.GetNetworkByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("failed to read network for update operation")
+		return fmt.Errorf("failed to read network for update operation: %w", err)
 	}
 
 	newExtAttrs = mergeEAs(net.Ea, newExtAttrs, oldExtAttrs)

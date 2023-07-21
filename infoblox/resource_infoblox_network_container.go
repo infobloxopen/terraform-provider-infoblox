@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -71,12 +70,11 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	comment := d.Get("comment").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err = json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to create network container: %w", err)
 	}
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
@@ -120,12 +118,11 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 
 func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to read network containter: %w", err)
 	}
+
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
@@ -140,15 +137,14 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to retrieve network container: %w", err)
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
@@ -211,16 +207,21 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	}
 
 	cidr := d.Get("cidr").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs[eaNameForTenantId]
+	tempVal, found := newExtAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
@@ -233,13 +234,20 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	nc, err := objMgr.GetNetworkContainerByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read network container for update operation: %w", err)
+	}
+
+	newExtAttrs = mergeEAs(nc.Ea, newExtAttrs, oldExtAttrs)
+
 	comment := ""
 	commentText, commentFieldFound := d.GetOk("comment")
 	if commentFieldFound {
 		comment = commentText.(string)
 	}
 
-	nc, err := objMgr.UpdateNetworkContainer(d.Id(), extAttrs, comment)
+	nc, err = objMgr.UpdateNetworkContainer(d.Id(), newExtAttrs, comment)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to update the network container in network view '%s': %w",
@@ -253,12 +261,11 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 
 func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to delete network container: %w", err)
 	}
+
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
 		attrValue, _ := attrValueInf.(string)
