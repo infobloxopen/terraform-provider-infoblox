@@ -47,39 +47,65 @@ func testAccTXTRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 			return fmt.Errorf("record not found")
 		}
 
-		if rec.Name != expectedRec.Name {
+		if rec.Name == nil {
+			return fmt.Errorf("'fqdn' is expected to be defined but it is not")
+		}
+		if *rec.Name != *expectedRec.Name {
 			return fmt.Errorf(
 				"'fqdn' does not match: got '%s', expected '%s'",
 				*rec.Name,
 				*expectedRec.Name)
 		}
-		if rec.Text != expectedRec.Text {
+
+		if rec.Text == nil {
+			return fmt.Errorf("'text' is expected to be defined but it is not")
+		}
+		if *rec.Text != *expectedRec.Text {
 			return fmt.Errorf(
 				"'text does not match: got '%s', expected '%s'",
 				*rec.Text, *expectedRec.Text)
 		}
-		if rec.View != expectedRec.View {
+
+		if rec.View == nil {
+			return fmt.Errorf("'dns_view' is expected to be defined but it is not")
+		}
+		if *rec.View != *expectedRec.View {
 			return fmt.Errorf(
 				"'dns_view' does not match: got '%s', expected '%s'",
 				*rec.View, *expectedRec.View)
 		}
-		if rec.UseTtl != expectedRec.UseTtl {
-			return fmt.Errorf(
-				"TTL usage does not match: got '%t', expected '%t'",
-				*rec.UseTtl, *expectedRec.UseTtl)
-		}
-		if *rec.UseTtl {
-			if rec.Ttl != expectedRec.Ttl {
+
+		if rec.UseTtl != nil {
+			if expectedRec.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *rec.UseTtl != *expectedRec.UseTtl {
 				return fmt.Errorf(
-					"'Ttl' usage does not match: got '%d', expected '%d'",
-					rec.Ttl, expectedRec.Ttl)
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*rec.UseTtl, *expectedRec.UseTtl)
+			}
+			if *rec.UseTtl {
+				if *rec.Ttl != *expectedRec.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						rec.Ttl, expectedRec.Ttl)
+				}
 			}
 		}
-		if rec.Comment != expectedRec.Comment {
-			return fmt.Errorf(
-				"'comment' does not match: got '%s', expected '%s'",
-				*rec.Comment, *expectedRec.Comment)
+
+		if rec.Comment != nil {
+			if expectedRec.Comment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *rec.Comment != *expectedRec.Comment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*rec.Comment, *expectedRec.Comment)
+			}
+		} else if expectedRec.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
@@ -98,9 +124,10 @@ func TestAccResourceTXTRecord(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo", &ibclient.RecordTXT{
-						View: utils.StringPtr("default"),
-						Name: utils.StringPtr("name1.test.com"),
-						Text: utils.StringPtr("this is a sample text"),
+						View:   utils.StringPtr("default"),
+						Name:   utils.StringPtr("name1.test.com"),
+						Text:   utils.StringPtr("this is a sample text"),
+						UseTtl: utils.BoolPtr(false),
 					}),
 				),
 			},

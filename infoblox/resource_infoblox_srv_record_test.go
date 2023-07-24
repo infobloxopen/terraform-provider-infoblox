@@ -45,7 +45,10 @@ func testAccSRVRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 			return fmt.Errorf("record not found")
 		}
 
-		if rec.Name != expectedRec.Name {
+		if rec.Name == nil {
+			return fmt.Errorf("'name' is expected to be defined but it is not")
+		}
+		if *rec.Name != *expectedRec.Name {
 			return fmt.Errorf(
 				"'name' does not match: got '%s', expected '%s'",
 				*rec.Name, *expectedRec.Name)
@@ -57,47 +60,73 @@ func testAccSRVRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 				rec.View, expectedRec.View)
 		}
 
-		if rec.Priority != expectedRec.Priority {
+		if rec.Priority == nil {
+			return fmt.Errorf("'priority' is expected to be defined but it is not")
+		}
+		if *rec.Priority != *expectedRec.Priority {
 			return fmt.Errorf(
 				"'priority' does not match: got '%d', expected '%d'",
 				rec.Priority, expectedRec.Priority)
 		}
 
-		if rec.Weight != expectedRec.Weight {
+		if rec.Weight == nil {
+			return fmt.Errorf("'weight' is expected to be defined but it is not")
+		}
+		if *rec.Weight != *expectedRec.Weight {
 			return fmt.Errorf(
 				"'weight' does not match: got '%d', expected '%d'",
 				rec.Weight, expectedRec.Weight)
 		}
 
-		if rec.Port != expectedRec.Port {
+		if rec.Port == nil {
+			return fmt.Errorf("'port' is expected to be defined but it is not")
+		}
+		if *rec.Port != *expectedRec.Port {
 			return fmt.Errorf(
 				"'port' does not match: got '%d', expected '%d'",
 				rec.Port, expectedRec.Port)
 		}
 
-		if rec.Target != expectedRec.Target {
+		if rec.Target == nil {
+			return fmt.Errorf("'target' is expected to be defined but it is not")
+		}
+		if *rec.Target != *expectedRec.Target {
 			return fmt.Errorf(
 				"'target' does not match: got '%s', expected '%s'",
 				*rec.Target, *expectedRec.Target)
 		}
 
-		if rec.UseTtl != expectedRec.UseTtl {
-			return fmt.Errorf(
-				"TTL usage does not match: got '%t', expected '%t'",
-				*rec.UseTtl, *expectedRec.UseTtl)
-		}
-		if *rec.UseTtl {
-			if *rec.Ttl != *expectedRec.Ttl {
+		if rec.UseTtl != nil {
+			if expectedRec.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *rec.UseTtl != *expectedRec.UseTtl {
 				return fmt.Errorf(
-					"'Ttl' usage does not match: got '%d', expected '%d'",
-					rec.Ttl, expectedRec.Ttl)
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*rec.UseTtl, *expectedRec.UseTtl)
+			}
+			if *rec.UseTtl {
+				if *rec.Ttl != *expectedRec.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						rec.Ttl, expectedRec.Ttl)
+				}
 			}
 		}
-		if rec.Comment != expectedRec.Comment {
-			return fmt.Errorf(
-				"'comment' does not match: got '%s', expected '%s'",
-				*rec.Comment, *expectedRec.Comment)
+
+		if rec.Comment != nil {
+			if expectedRec.Comment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *rec.Comment != *expectedRec.Comment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*rec.Comment, *expectedRec.Comment)
+			}
+		} else if expectedRec.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
@@ -125,6 +154,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 						Weight:   utils.Uint32Ptr(30),
 						Port:     utils.Uint32Ptr(80),
 						Target:   utils.StringPtr("sample.target1.com"),
+						UseTtl:   utils.BoolPtr(false),
 					}),
 				),
 			},
@@ -244,6 +274,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 						Weight:   utils.Uint32Ptr(51),
 						Port:     utils.Uint32Ptr(89),
 						Target:   utils.StringPtr("sample.target4.com"),
+						UseTtl:   utils.BoolPtr(false),
 					}),
 				),
 			},
