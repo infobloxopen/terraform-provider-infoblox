@@ -102,7 +102,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 func flattenNetwork(network ibclient.Ipv4Network) (map[string]interface{}, error) {
 	var eaMap map[string]interface{}
 	if network.Ea != nil && len(network.Ea) > 0 {
-		eaMap = (map[string]interface{})(network.Ea)
+		eaMap = network.Ea
 	} else {
 		eaMap = make(map[string]interface{})
 	}
