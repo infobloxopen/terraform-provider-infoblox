@@ -7363,7 +7363,7 @@ type IPv6Address struct {
 	NetworkView string `json:"network_view,omitempty"`
 
 	// The objects associated with the IP address.
-	Objects []string `json:"objects,omitempty"`
+	Objects string `json:"objects,omitempty"`
 
 	// The reserved port for the address.
 	ReservedPort string `json:"reserved_port,omitempty"`
@@ -15878,10 +15878,10 @@ type HostRecord struct {
 	Ea EA `json:"extattrs"`
 
 	// This is a list of IPv4 Addresses for the host.
-	Ipv4Addrs []HostRecordIpv4Addr `json:"ipv4addrs,omitempty"`
+	Ipv4Addrs []HostRecordIpv4Addr `json:"ipv4addrs"`
 
 	// This is a list of IPv6 Addresses for the host.
-	Ipv6Addrs []HostRecordIpv6Addr `json:"ipv6addrs,omitempty"`
+	Ipv6Addrs []HostRecordIpv6Addr `json:"ipv6addrs"`
 
 	// The time of the last DNS query in Epoch seconds format.
 	LastQueried *UnixTime `json:"last_queried,omitempty"`
@@ -18155,9 +18155,6 @@ func NewRecordTXT(
 
 	res := NewEmptyRecordTXT()
 	res.View = &dnsview
-	if *res.View == "" {
-		res.View = nil
-	}
 	res.Zone = zone
 	res.Name = &recordname
 	res.Text = &text

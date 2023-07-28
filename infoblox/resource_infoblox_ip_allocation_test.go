@@ -313,6 +313,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					},
 				),
 			},
+			// Validate that ipv6_addr can be removed
 			{
 				Config: `
 				resource "infoblox_ip_allocation" "foo3"{
@@ -336,7 +337,6 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(true),
 						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
 						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("IPv4 is allocated"),
 						Ea: ibclient.EA{
@@ -375,7 +375,6 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(false),
 						Name:        utils.StringPtr("testhostnameip3"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
 						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("DNS disabled"),
 						Ea: ibclient.EA{
@@ -413,7 +412,6 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						EnableDns:   utils.BoolPtr(true),
 						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{},
 						UseTtl:      utils.BoolPtr(false),
 						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
 						Ea: ibclient.EA{

@@ -172,11 +172,6 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 			}
 		}
 	}
-	if recordPTR.Name != nil {
-		if *recordPTR.Name == "" {
-			recordPTR.Name = nil
-		}
-	}
 	reference, err := objMgr.connector.UpdateObject(recordPTR, ref)
 	if err != nil {
 		return nil, err

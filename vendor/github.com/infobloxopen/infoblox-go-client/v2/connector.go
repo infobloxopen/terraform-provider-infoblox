@@ -254,9 +254,29 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 	return u.String()
 }
 
+func (wrb *WapiRequestBuilder) populateNilLists(obj IBObject) IBObject {
+	objVal := reflect.ValueOf(obj)
+	if reflect.ValueOf(obj).Kind() == reflect.Ptr {
+		objVal = objVal.Elem()
+	}
+
+	for i := 0; i < objVal.NumField(); i++ {
+		fieldVal := objVal.Field(i)
+		if fieldVal.Type().Kind() == reflect.Slice && fieldVal.CanSet() {
+			if fieldVal.IsNil() == true {
+				fieldVal.Set(reflect.MakeSlice(fieldVal.Type(), 0, 0))
+			}
+		}
+	}
+
+	return obj
+}
+
 func (wrb *WapiRequestBuilder) BuildBody(t RequestType, obj IBObject) []byte {
 	var objJSON []byte
 	var err error
+
+	obj = wrb.populateNilLists(obj)
 
 	objJSON, err = json.Marshal(obj)
 	if err != nil {
