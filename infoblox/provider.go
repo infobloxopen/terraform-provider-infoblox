@@ -210,6 +210,7 @@ func Provider() *schema.Provider {
 			"infoblox_mx_record":              resourceMXRecord(),
 			"infoblox_srv_record":             resourceSRVRecord(),
 			"infoblox_ea_definition":          resourceEADefinition(),
+			"infoblox_dns_view":               resourceDNSView(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),

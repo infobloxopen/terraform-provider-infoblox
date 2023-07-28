@@ -131,12 +131,12 @@ func resourceEADefinitionUpdate(ctx context.Context, d *schema.ResourceData, m i
 		eaDef.Flags = utils.StringPtr(d.Get("flags").(string))
 	}
 
-	zoneRef, err := conn.UpdateObject(eaDef, d.Id())
+	eaDefRef, err := conn.UpdateObject(eaDef, d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(zoneRef)
+	d.SetId(eaDefRef)
 
 	return resourceEADefinitionRead(ctx, d, m)
 }
