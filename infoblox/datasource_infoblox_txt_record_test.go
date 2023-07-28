@@ -64,7 +64,7 @@ resource "infoblox_txt_record" "rec2"{
 
 data "infoblox_txt_record" "ds2"{
 	filters = {
-		view= "default"
+		view= "nondefault_view"
 		name= infoblox_txt_record.rec2.fqdn
 	}
 
