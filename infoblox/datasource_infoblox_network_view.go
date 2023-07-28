@@ -95,7 +95,7 @@ func dataSourceNetworkViewRead(ctx context.Context, d *schema.ResourceData, m in
 func flattenNetworkView(nv ibclient.NetworkView) (map[string]interface{}, error) {
 	var eaMap map[string]interface{}
 	if nv.Ea != nil && len(nv.Ea) > 0 {
-		eaMap = (map[string]interface{})(nv.Ea)
+		eaMap = nv.Ea
 	} else {
 		eaMap = make(map[string]interface{})
 	}

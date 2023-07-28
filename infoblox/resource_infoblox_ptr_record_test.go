@@ -215,27 +215,27 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 			},
 			{
 				Config:      testCasePtrRecordTestErrData05,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 			{
 				Config:      testCasePtrRecordTestErrData06,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 			{
 				Config:      testCasePtrRecordTestErrData07,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 			{
 				Config:      testCasePtrRecordTestErrData08,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 			{
 				Config:      testCasePtrRecordTestErrData09,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 			{
 				Config:      testCasePtrRecordTestErrData10,
-				ExpectError: regexp.MustCompile("only one of 'cidr', 'ip_addr' and 'record_name' is allowed to be non-empty"),
+				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),
 			},
 		},
 	})

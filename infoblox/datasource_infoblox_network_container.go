@@ -100,7 +100,7 @@ func dataSourceIpv4NetworkContainerRead(ctx context.Context, d *schema.ResourceD
 func flattenNetworkContainer(nc ibclient.Ipv4NetworkContainer) (map[string]interface{}, error) {
 	var eaMap map[string]interface{}
 	if nc.Ea != nil && len(nc.Ea) > 0 {
-		eaMap = (map[string]interface{})(nc.Ea)
+		eaMap = nc.Ea
 	} else {
 		eaMap = make(map[string]interface{})
 	}
