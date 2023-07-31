@@ -192,12 +192,11 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
+
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to allocate IP: %w", err)
 	}
 
 	var tenantID string
@@ -305,7 +304,25 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to read network containter: %w", err)
+	}
+
 	delete(obj.Ea, eaNameForInternalId)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
+		if err != nil {
+			return err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return err
+		}
+	}
+
 	if obj.Ea != nil && len(obj.Ea) > 0 {
 		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
 		//       (avoiding additional layer of keys ("value" key)
@@ -454,15 +471,21 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
 	var tenantID string
-	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+	if tempVal, ok := newExtAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -487,7 +510,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		}
 	}
 
-	extAttrs[eaNameForInternalId] = internalId.String()
+	newExtAttrs[eaNameForInternalId] = internalId.String()
 
 	var (
 		recIpV4Addr *ibclient.HostRecordIpv4Addr
@@ -514,6 +537,13 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		}
 	}
 
+	hr, err := objMgr.GetHostRecordByRef(hostRecObj.Ref)
+	if err != nil {
+		return fmt.Errorf("failed to update IP allocation: %w", err)
+	}
+
+	mergedEAs := mergeEAs(hr.Ea, newExtAttrs, oldExtAttrs)
+
 	hostRecObj, err = objMgr.UpdateHostRecord(
 		hostRecObj.Ref,
 		enableDNS,
@@ -526,7 +556,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid,
 		useTtl, ttl,
 		comment,
-		extAttrs, []string{})
+		mergedEAs, []string{})
 	if err != nil {
 		return fmt.Errorf(
 			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())
@@ -572,12 +602,11 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to delete network container: %w", err)
 	}
+
 	var tenantID string
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)

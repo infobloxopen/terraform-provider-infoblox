@@ -427,6 +427,249 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 	})
 }
 
+func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIPAllocationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "IPv4 and IPv6 are allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+						},
+					},
+				),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.HostRecord{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"name": "testhostnameip.test.com",
+						},
+					)
+					var res []ibclient.HostRecord
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].Ipv6Addrs[0].Host = ""
+					res[0].Ipv4Addrs[0].Host = ""
+					res[0].Ea["Site"] = "Test site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+					resource "infoblox_ip_allocation" "foo3"{
+						network_view="default"
+						dns_view = "default"
+						fqdn="testhostnameip.test.com"
+						ipv6_addr="2001:db8:abcd:12::1"
+						ipv4_addr="10.0.0.1"
+						comment = "IPv4 and IPv6 are allocated"
+						ext_attrs = jsonencode({
+							"VM Name" =  "tf-ec2-instance"
+							"Tenant ID" = "terraform_test_tenant"
+							Location = "Test loc."
+						})
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_ip_allocation.foo3", "ext_attrs",
+						`{"Location":"Test loc.","Tenant ID":"terraform_test_tenant","VM Name":"tf-ec2-instance"}`,
+					),
+					// Actual API object should have Building EA
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo3",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip.test.com"),
+							Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Tenant ID": "terraform_test_tenant",
+								"VM Name":   "tf-ec2-instance",
+								"Location":  "Test loc.",
+								"Site":      "Test site",
+							},
+						},
+					),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				// Actual API object should have  EA
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("Updated comment"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Updated test site"
+					})
+				}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("Updated comment"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Updated test site",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_ip_allocation.foo3", "ext_attrs",
+						`{"Location":"Test loc.","Tenant ID":"terraform_test_tenant","VM Name":"tf-ec2-instance"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_ip_allocation.foo3"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_ip_allocation.foo3")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						nc, err := objMgr.GetHostRecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := nc.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 	connector := testAccProvider.Meta().(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(
