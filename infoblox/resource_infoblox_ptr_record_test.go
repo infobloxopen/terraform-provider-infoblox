@@ -240,3 +240,177 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 		},
 	})
 }
+
+func TestAcc_resourcePTRRecord_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRecordPTRDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_zone_auth" "za1" {
+					fqdn = "10.1.0.0/24"
+					zone_format = "IPV4"
+				}
+				resource "infoblox_ptr_record" "foo1"{
+					dns_view = "default"
+					ptrdname = "sampleptr.test.com"
+					ip_addr = "10.1.0.2"
+					comment = "test comment on PTR record"
+					ext_attrs = jsonencode({
+						"Location" = "Las Angeles"
+					})
+					depends_on = [infoblox_zone_auth.za1]
+				}`,
+				Check: validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData03),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.RecordPTR{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"ptrdname": "sampleptr.test.com",
+							"ipv4addr": "10.1.0.2",
+						},
+					)
+					var res []ibclient.RecordPTR
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].View = ""
+					res[0].Ea["Site"] = "Building Site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+				resource "infoblox_zone_auth" "za1" {
+					fqdn = "10.1.0.0/24"
+					zone_format = "IPV4"
+				}
+				resource "infoblox_ptr_record" "foo1"{
+					dns_view = "default"
+					ptrdname = "sampleptr.test.com"
+					ip_addr = "10.1.0.2"
+					comment = "test comment on PTR record"
+					ext_attrs = jsonencode({
+						"Location" = "Las Angeles"
+					})
+					depends_on = [infoblox_zone_auth.za1]
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_ptr_record.foo1", "ext_attrs",
+						`{"Location":"Las Angeles"}`,
+					),
+					// Actual API object should have Site EA
+					validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData04),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_zone_auth" "za1" {
+					fqdn = "10.1.0.0/24"
+					zone_format = "IPV4"
+				}
+				resource "infoblox_ptr_record" "foo1"{
+					dns_view = "default"
+					ptrdname = "sampleptr.test.com"
+					ip_addr = "10.1.0.2"
+					comment = "updated comment on PTR record"
+					ext_attrs = jsonencode({
+						"Location" = "Las Angeles"
+					})
+					depends_on = [infoblox_zone_auth.za1]
+				}`,
+				Check: validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData05),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_zone_auth" "za1" {
+					fqdn = "10.1.0.0/24"
+					zone_format = "IPV4"
+				}
+				resource "infoblox_ptr_record" "foo1"{
+					dns_view = "default"
+					ptrdname = "sampleptr.test.com"
+					ip_addr = "10.1.0.2"
+					comment = "test comment on PTR record"
+					ext_attrs = jsonencode({
+						"Location" = "Las Angeles"
+						"Site" = "New Building Site"
+					})
+					depends_on = [infoblox_zone_auth.za1]
+				}`,
+				Check: validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData06),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_zone_auth" "za1" {
+					fqdn = "10.1.0.0/24"
+					zone_format = "IPV4"
+				}
+				resource "infoblox_ptr_record" "foo1"{
+					dns_view = "default"
+					ptrdname = "sampleptr.test.com"
+					ip_addr = "10.1.0.2"
+					comment = "test comment on PTR record"
+					ext_attrs = jsonencode({
+						"Location" = "Las Angeles"
+					})
+					depends_on = [infoblox_zone_auth.za1]
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_ptr_record.foo1", "ext_attrs",
+						`{"Location":"Las Angeles"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_ptr_record.foo1"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_ptr_record.foo1")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						prec, err := objMgr.GetPTRRecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+						if _, ok := prec.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}

@@ -254,6 +254,7 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 	return u.String()
 }
 
+// populateNilLists fills nil lists in IBObject structs, since NIOS doesn't accept a null list in JSON payload.
 func (wrb *WapiRequestBuilder) populateNilLists(obj IBObject) IBObject {
 	objVal := reflect.ValueOf(obj)
 	if reflect.ValueOf(obj).Kind() == reflect.Ptr {

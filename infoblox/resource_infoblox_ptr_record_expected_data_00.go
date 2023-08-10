@@ -175,3 +175,74 @@ var testCasePtrRecordExpectedData00 = map[string]*ibclient.RecordPTR{
 		Ea:       ibclient.EA{},
 	},
 }
+
+var testCasePtrRecordExpectedData03 = map[string]*ibclient.RecordPTR{
+	"infoblox_ptr_record.foo1": {
+		View:     "default",
+		Ipv4Addr: utils.StringPtr("10.1.0.2"),
+		Ipv6Addr: nil,
+		Name:     utils.StringPtr("2.0.1.10.in-addr.arpa"),
+		PtrdName: utils.StringPtr("sampleptr.test.com"),
+		Zone:     "0.1.10.in-addr.arpa",
+		UseTtl:   utils.BoolPtr(false),
+		Ttl:      nil,
+		Comment:  utils.StringPtr("test comment on PTR record"),
+		Ea: ibclient.EA{
+			"Location": "Las Angeles",
+		},
+	},
+}
+
+var testCasePtrRecordExpectedData04 = map[string]*ibclient.RecordPTR{
+	"infoblox_ptr_record.foo1": {
+		View:     "default",
+		Ipv4Addr: utils.StringPtr("10.1.0.2"),
+		Ipv6Addr: nil,
+		Name:     utils.StringPtr("2.0.1.10.in-addr.arpa"),
+		PtrdName: utils.StringPtr("sampleptr.test.com"),
+		Zone:     "0.1.10.in-addr.arpa",
+		UseTtl:   utils.BoolPtr(false),
+		Ttl:      nil,
+		Comment:  utils.StringPtr("test comment on PTR record"),
+		Ea: ibclient.EA{
+			"Location": "Las Angeles",
+			"Site":     "Building Site",
+		},
+	},
+}
+
+var testCasePtrRecordExpectedData05 = map[string]*ibclient.RecordPTR{
+	"infoblox_ptr_record.foo1": {
+		View:     "default",
+		Ipv4Addr: utils.StringPtr("10.1.0.2"),
+		Ipv6Addr: nil,
+		Name:     utils.StringPtr("2.0.1.10.in-addr.arpa"),
+		PtrdName: utils.StringPtr("sampleptr.test.com"),
+		Zone:     "0.1.10.in-addr.arpa",
+		UseTtl:   utils.BoolPtr(false),
+		Ttl:      nil,
+		Comment:  utils.StringPtr("updated comment on PTR record"),
+		Ea: ibclient.EA{
+			"Location": "Las Angeles",
+			"Site":     "Building Site",
+		},
+	},
+}
+
+var testCasePtrRecordExpectedData06 = map[string]*ibclient.RecordPTR{
+	"infoblox_ptr_record.foo1": {
+		View:     "default",
+		Ipv4Addr: utils.StringPtr("10.1.0.2"),
+		Ipv6Addr: nil,
+		Name:     utils.StringPtr("2.0.1.10.in-addr.arpa"),
+		PtrdName: utils.StringPtr("sampleptr.test.com"),
+		Zone:     "0.1.10.in-addr.arpa",
+		UseTtl:   utils.BoolPtr(false),
+		Ttl:      nil,
+		Comment:  utils.StringPtr("test comment on PTR record"),
+		Ea: ibclient.EA{
+			"Location": "Las Angeles",
+			"Site":     "New Building Site",
+		},
+	},
+}

@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -122,11 +121,9 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -210,12 +207,11 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
+
 	var tenantID string
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
@@ -237,15 +233,14 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
@@ -387,16 +382,21 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+	if tempVal, ok := newExtAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -431,7 +431,14 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, extAttrs)
+	ptrrec, err := objMgr.GetPTRRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read PTR Record for update operation: %w", err)
+	}
+
+	newExtAttrs = mergeEAs(ptrrec.Ea, newExtAttrs, oldExtAttrs)
+
+	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, newExtAttrs)
 	if err != nil {
 		return fmt.Errorf("update operaiton failed for the PTR-record with ID '%s' under the DNS view '%s': %s", d.Id(), dnsView, err)
 	}
@@ -460,11 +467,9 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -475,7 +480,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeletePTRRecord(d.Id())
+	_, err = objMgr.DeletePTRRecord(d.Id())
 	if err != nil {
 		if isNotFoundError(err) {
 			d.SetId("")

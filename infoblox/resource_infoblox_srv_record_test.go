@@ -344,3 +344,220 @@ func TestAccResourceSRVRecord(t *testing.T) {
 		},
 	})
 }
+
+func TestAcc_resourceSRVRecord_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSRVRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_srv_record" "foo3" {
+					dns_view = "default"
+					name = "_sip._udp.test.com"
+					priority = 12
+					weight = 10
+					port = 5060
+					target = "sip.example2.org"
+					comment = "example SRV record"
+					ext_attrs = jsonencode({
+						"Location" = "Newyork"
+					})
+				}`,
+				Check: testAccSRVRecordCompare(t, "infoblox_srv_record.foo3", &ibclient.RecordSRV{
+					View:     "default",
+					Name:     utils.StringPtr("_sip._udp.test.com"),
+					Priority: utils.Uint32Ptr(12),
+					Weight:   utils.Uint32Ptr(10),
+					Port:     utils.Uint32Ptr(5060),
+					UseTtl:   utils.BoolPtr(false),
+					Target:   utils.StringPtr("sip.example2.org"),
+					Comment:  utils.StringPtr("example SRV record"),
+					Ea: ibclient.EA{
+						"Location": "Newyork",
+					},
+				}),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.RecordSRV{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"name":   "_sip._udp.test.com",
+							"target": "sip.example2.org",
+							"port":   "5060",
+						},
+					)
+					var res []ibclient.RecordSRV
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].View = ""
+					res[0].Ea["Site"] = "SRV new site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+				resource "infoblox_srv_record" "foo3" {
+					dns_view = "default"
+					name = "_sip._udp.test.com"
+					priority = 12
+					weight = 10
+					port = 5060
+					target = "sip.example2.org"
+					comment = "example SRV record"
+					ext_attrs = jsonencode({
+						"Location" = "Newyork"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_srv_record.foo3", "ext_attrs",
+						`{"Location":"Newyork"}`,
+					),
+					// Actual API object should have Site EA
+					testAccSRVRecordCompare(t, "infoblox_srv_record.foo3", &ibclient.RecordSRV{
+						View:     "default",
+						Name:     utils.StringPtr("_sip._udp.test.com"),
+						Priority: utils.Uint32Ptr(12),
+						Weight:   utils.Uint32Ptr(10),
+						Port:     utils.Uint32Ptr(5060),
+						UseTtl:   utils.BoolPtr(false),
+						Target:   utils.StringPtr("sip.example2.org"),
+						Comment:  utils.StringPtr("example SRV record"),
+						Ea: ibclient.EA{
+							"Location": "Newyork",
+							"Site":     "SRV new site",
+						},
+					}),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_srv_record" "foo3" {
+					dns_view = "default"
+					name = "_sip._udp.test.com"
+					priority = 12
+					weight = 10
+					port = 5060
+					target = "sip.example2.org"
+					comment = "updated example SRV record"
+					ext_attrs = jsonencode({
+						"Location" = "Newyork"
+					})
+				}`,
+				Check: testAccSRVRecordCompare(t, "infoblox_srv_record.foo3", &ibclient.RecordSRV{
+					View:     "default",
+					Name:     utils.StringPtr("_sip._udp.test.com"),
+					Priority: utils.Uint32Ptr(12),
+					Weight:   utils.Uint32Ptr(10),
+					Port:     utils.Uint32Ptr(5060),
+					UseTtl:   utils.BoolPtr(false),
+					Target:   utils.StringPtr("sip.example2.org"),
+					Comment:  utils.StringPtr("updated example SRV record"),
+					Ea: ibclient.EA{
+						"Location": "Newyork",
+						"Site":     "SRV new site",
+					},
+				}),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_srv_record" "foo3" {
+					dns_view = "default"
+					name = "_sip._udp.test.com"
+					priority = 12
+					weight = 10
+					port = 5060
+					target = "sip.example2.org"
+					comment = "example SRV record"
+					ext_attrs = jsonencode({
+						"Location" = "Newyork"
+						"Site" = "random new site"
+					})
+				}`,
+				Check: testAccSRVRecordCompare(t, "infoblox_srv_record.foo3", &ibclient.RecordSRV{
+					View:     "default",
+					Name:     utils.StringPtr("_sip._udp.test.com"),
+					Priority: utils.Uint32Ptr(12),
+					Weight:   utils.Uint32Ptr(10),
+					Port:     utils.Uint32Ptr(5060),
+					UseTtl:   utils.BoolPtr(false),
+					Target:   utils.StringPtr("sip.example2.org"),
+					Comment:  utils.StringPtr("example SRV record"),
+					Ea: ibclient.EA{
+						"Location": "Newyork",
+						"Site":     "random new site",
+					},
+				}),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_srv_record" "foo3" {
+					dns_view = "default"
+					name = "_sip._udp.test.com"
+					priority = 12
+					weight = 10
+					port = 5060
+					target = "sip.example2.org"
+					comment = "example SRV record"
+					ext_attrs = jsonencode({
+						"Location" = "Newyork"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_srv_record.foo3", "ext_attrs",
+						`{"Location":"Newyork"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_srv_record.foo3"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_srv_record.foo3")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						srec, err := objMgr.GetSRVRecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := srec.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}

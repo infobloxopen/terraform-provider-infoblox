@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,11 +63,9 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var ttl uint32
@@ -102,11 +99,9 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -138,18 +133,18 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
+
 	if err = d.Set("dns_view", obj.View); err != nil {
 		return err
 	}
@@ -190,12 +185,17 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	alias := d.Get("alias").(string)
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
 
 	var ttl uint32
@@ -210,13 +210,20 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
-	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+	if tempVal, ok := newExtAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, useTtl, ttl, comment, extAttrs)
+	crec, err := objMgr.GetCNAMERecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read CNAME record for update operation: %w", err)
+	}
+
+	newExtAttrs = mergeEAs(crec.Ea, newExtAttrs, oldExtAttrs)
+
+	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, useTtl, ttl, comment, newExtAttrs)
 	if err != nil {
 		return fmt.Errorf("updation of CNAME Record under %s DNS View failed: %s", dnsView, err.Error())
 	}
@@ -230,11 +237,9 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 	dnsView := d.Get("dns_view").(string)
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -244,7 +249,7 @@ func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeleteCNAMERecord(d.Id())
+	_, err = objMgr.DeleteCNAMERecord(d.Id())
 	if err != nil {
 		return fmt.Errorf("deletion of CNAME Record from dns view %s failed: %s", dnsView, err.Error())
 	}

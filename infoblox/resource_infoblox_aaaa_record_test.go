@@ -325,3 +325,192 @@ func TestAccResourceAAAARecord(t *testing.T) {
 		},
 	})
 }
+
+func TestAcc_resourceAAAARecord_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAAAARecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_aaaa_record" "foo3"{
+					dns_view = "default"
+					fqdn = "testname2.test.com"
+					ipv6_addr = "2002::4"
+					comment = "test comment on AAAA record"
+					ext_attrs = jsonencode({
+						"Location" = "test AAAA location"
+					})
+				}`,
+				Check: testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo3", &ibclient.RecordAAAA{
+					Ipv6Addr: utils.StringPtr("2002::4"),
+					Name:     utils.StringPtr("testname2.test.com"),
+					View:     "default",
+					UseTtl:   utils.BoolPtr(false),
+					Comment:  utils.StringPtr("test comment on AAAA record"),
+					Ea: ibclient.EA{
+						"Location": "test AAAA location",
+					},
+				}, "", ""),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.RecordAAAA{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"name":     "testname2.test.com",
+							"ipv6addr": "2002::4",
+						},
+					)
+					var res []ibclient.RecordAAAA
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].View = ""
+					res[0].Ea["Site"] = "Testing Site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+				resource "infoblox_aaaa_record" "foo3"{
+					dns_view = "default"
+					fqdn = "testname2.test.com"
+					ipv6_addr = "2002::4"
+					comment = "test comment on AAAA record"
+					ext_attrs = jsonencode({
+						"Location" = "test AAAA location"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_aaaa_record.foo3", "ext_attrs",
+						`{"Location":"test AAAA location"}`,
+					),
+					// Actual API object should have Site EA
+					testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo3", &ibclient.RecordAAAA{
+						Ipv6Addr: utils.StringPtr("2002::4"),
+						Name:     utils.StringPtr("testname2.test.com"),
+						View:     "default",
+						UseTtl:   utils.BoolPtr(false),
+						Comment:  utils.StringPtr("test comment on AAAA record"),
+						Ea: ibclient.EA{
+							"Location": "test AAAA location",
+							"Site":     "Testing Site",
+						},
+					}, "", ""),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_aaaa_record" "foo3"{
+					dns_view = "default"
+					fqdn = "testname2.test.com"
+					ipv6_addr = "2002::4"
+					comment = "updated comment on AAAA record"
+					ext_attrs = jsonencode({
+						"Location" = "test AAAA location"
+					})
+				}`,
+				Check: testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo3", &ibclient.RecordAAAA{
+					Ipv6Addr: utils.StringPtr("2002::4"),
+					Name:     utils.StringPtr("testname2.test.com"),
+					View:     "default",
+					UseTtl:   utils.BoolPtr(false),
+					Comment:  utils.StringPtr("updated comment on AAAA record"),
+					Ea: ibclient.EA{
+						"Location": "test AAAA location",
+						"Site":     "Testing Site",
+					},
+				}, "", ""),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_aaaa_record" "foo3"{
+					dns_view = "default"
+					fqdn = "testname2.test.com"
+					ipv6_addr = "2002::4"
+					comment = "test comment on AAAA record"
+					ext_attrs = jsonencode({
+						"Location" = "test AAAA location"
+						"Site" = "New Testing Site"
+					})
+				}`,
+				Check: testAccAAAARecordCompare(t, "infoblox_aaaa_record.foo3", &ibclient.RecordAAAA{
+					Ipv6Addr: utils.StringPtr("2002::4"),
+					Name:     utils.StringPtr("testname2.test.com"),
+					View:     "default",
+					UseTtl:   utils.BoolPtr(false),
+					Comment:  utils.StringPtr("test comment on AAAA record"),
+					Ea: ibclient.EA{
+						"Location": "test AAAA location",
+						"Site":     "New Testing Site",
+					},
+				}, "", ""),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_aaaa_record" "foo3"{
+					dns_view = "default"
+					fqdn = "testname2.test.com"
+					ipv6_addr = "2002::4"
+					comment = "test comment on AAAA record"
+					ext_attrs = jsonencode({
+						"Location" = "test AAAA location"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_aaaa_record.foo3", "ext_attrs",
+						`{"Location":"test AAAA location"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_aaaa_record.foo3"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_aaaa_record.foo3")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						qarec, err := objMgr.GetARecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := qarec.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}

@@ -59,7 +59,6 @@ func resourceZoneAuth() *schema.Resource {
 			"ns_group": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "nsgroup1",
 				Description: "The name server group that serves DNS for this zone.",
 			},
 

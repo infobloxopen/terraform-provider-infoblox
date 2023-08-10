@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -70,10 +71,12 @@ func testAccMXRecordCompare(t *testing.T, resPath string, expectedRec *ibclient.
 				*rec.Preference, *expectedRec.Preference)
 		}
 
-		if *rec.UseTtl != *expectedRec.UseTtl {
-			return fmt.Errorf(
-				"TTL usage does not match: got '%t', expected '%t'",
-				*rec.UseTtl, *expectedRec.UseTtl)
+		if expectedRec.Ttl != nil {
+			if *rec.UseTtl != *expectedRec.UseTtl {
+				return fmt.Errorf(
+					"TTL usage does not match: got '%t', expected '%t'",
+					*rec.UseTtl, *expectedRec.UseTtl)
+			}
 		}
 		if *rec.UseTtl {
 			if *rec.Ttl != *expectedRec.Ttl {
@@ -222,3 +225,196 @@ func testAccMXRecordCompare(t *testing.T, resPath string, expectedRec *ibclient.
 //		},
 //	})
 //}
+
+func TestAcc_resourceMXRecord_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMXRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_mx_record" "foo4"{
+					dns_view = "default"
+					fqdn = "testdemo.test.com"
+					mail_exchanger = "sample.mx4.com"
+					preference = 40
+					comment = "test comment on MX record"
+					ext_attrs = jsonencode({
+						"Location" = "Test MX Location"
+					})
+				}`,
+				Check: testAccMXRecordCompare(t, "infoblox_mx_record.foo4", &ibclient.RecordMX{
+					Name:          utils.StringPtr("testdemo.test.com"),
+					View:          utils.StringPtr("default"),
+					MailExchanger: utils.StringPtr("sample.mx4.com"),
+					Preference:    utils.Uint32Ptr(40),
+					Comment:       utils.StringPtr("test comment on MX record"),
+					Ea: ibclient.EA{
+						"Location": "Test MX Location",
+					},
+				}),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.RecordMX{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"name":           "testdemo.test.com",
+							"mail_exchanger": "sample.mx4.com",
+						},
+					)
+					var res []ibclient.RecordA
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].Ea["Site"] = "Sample MX site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+				resource "infoblox_mx_record" "foo4"{
+					dns_view = "default"
+					fqdn = "testdemo.test.com"
+					mail_exchanger = "sample.mx4.com"
+					preference = 40
+					comment = "test comment on MX record"
+					ext_attrs = jsonencode({
+						"Location" = "Test MX Location"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_mx_record.foo4", "ext_attrs",
+						`{"Location":"Test MX Location"}`,
+					),
+					// Actual API object should have Site EA
+					testAccMXRecordCompare(t, "infoblox_mx_record.foo4", &ibclient.RecordMX{
+						Name:          utils.StringPtr("testdemo.test.com"),
+						View:          utils.StringPtr("default"),
+						MailExchanger: utils.StringPtr("sample.mx4.com"),
+						Preference:    utils.Uint32Ptr(40),
+						Comment:       utils.StringPtr("test comment on MX record"),
+						Ea: ibclient.EA{
+							"Location": "Test MX Location",
+							"Site":     "Sample MX site",
+						},
+					}),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_mx_record" "foo4"{
+					dns_view = "default"
+					fqdn = "testdemo.test.com"
+					mail_exchanger = "sample.mx4.com"
+					preference = 40
+					comment = "updated comment on MX record"
+					ext_attrs = jsonencode({
+						"Location" = "Test MX Location"
+					})
+				}`,
+				Check: testAccMXRecordCompare(t, "infoblox_mx_record.foo4", &ibclient.RecordMX{
+					Name:          utils.StringPtr("testdemo.test.com"),
+					View:          utils.StringPtr("default"),
+					MailExchanger: utils.StringPtr("sample.mx4.com"),
+					Preference:    utils.Uint32Ptr(40),
+					Comment:       utils.StringPtr("updated comment on MX record"),
+					Ea: ibclient.EA{
+						"Location": "Test MX Location",
+						"Site":     "Sample MX site",
+					},
+				}),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_mx_record" "foo4"{
+					dns_view = "default"
+					fqdn = "testdemo.test.com"
+					mail_exchanger = "sample.mx4.com"
+					preference = 40
+					comment = "test comment on MX record"
+					ext_attrs = jsonencode({
+						"Location" = "Test MX Location"
+						"Site" = "New Modern site"
+					})
+				}`,
+				Check: testAccMXRecordCompare(t, "infoblox_mx_record.foo4", &ibclient.RecordMX{
+					Name:          utils.StringPtr("testdemo.test.com"),
+					View:          utils.StringPtr("default"),
+					MailExchanger: utils.StringPtr("sample.mx4.com"),
+					Preference:    utils.Uint32Ptr(40),
+					Comment:       utils.StringPtr("test comment on MX record"),
+					Ea: ibclient.EA{
+						"Location": "Test MX Location",
+						"Site":     "New Modern site",
+					},
+				}),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_mx_record" "foo4"{
+					dns_view = "default"
+					fqdn = "testdemo.test.com"
+					mail_exchanger = "sample.mx4.com"
+					preference = 40
+					comment = "test comment on MX record"
+					ext_attrs = jsonencode({
+						"Location" = "Test MX Location"
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_mx_record.foo4", "ext_attrs",
+						`{"Location":"Test MX Location"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_mx_record.foo4"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_mx_record.foo4")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						mrec, err := objMgr.GetMXRecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := mrec.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}

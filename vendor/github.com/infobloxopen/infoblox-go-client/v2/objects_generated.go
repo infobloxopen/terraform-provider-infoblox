@@ -7363,7 +7363,7 @@ type IPv6Address struct {
 	NetworkView string `json:"network_view,omitempty"`
 
 	// The objects associated with the IP address.
-	Objects string `json:"objects,omitempty"`
+	Objects []string `json:"objects,omitempty"`
 
 	// The reserved port for the address.
 	ReservedPort string `json:"reserved_port,omitempty"`
@@ -18155,6 +18155,9 @@ func NewRecordTXT(
 
 	res := NewEmptyRecordTXT()
 	res.View = &dnsview
+	if *res.View == "" {
+		res.View = nil
+	}
 	res.Zone = zone
 	res.Name = &recordname
 	res.Text = &text
