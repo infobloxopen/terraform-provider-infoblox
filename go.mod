@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.19.0
-	github.com/infobloxopen/infoblox-go-client/v2 v2.3.1-0.20230619121113-e439cee464bb
+	github.com/infobloxopen/infoblox-go-client/v2 v2.3.1-0.20230821105248-072a0c82bc9a
 	github.com/sirupsen/logrus v1.8.0
 )
 
@@ -57,5 +57,3 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
-
-replace github.com/infobloxopen/infoblox-go-client/v2 v2.3.1-0.20230619121113-e439cee464bb => ../infoblox-go-client

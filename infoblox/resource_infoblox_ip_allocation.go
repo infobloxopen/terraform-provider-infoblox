@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -307,11 +306,13 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
-		return fmt.Errorf("failed to read network containter: %w", err)
+		return err
 	}
 
 	delete(obj.Ea, eaNameForInternalId)
+
 	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
 	if omittedEAs != nil && len(omittedEAs) > 0 {
 		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
@@ -319,19 +320,6 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if err = d.Set("ext_attrs", eaJSON); err != nil {
-			return err
-		}
-	}
-
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
-		if err != nil {
-			return err
-		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
 			return err
 		}
 	}
