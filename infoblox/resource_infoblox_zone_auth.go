@@ -2,7 +2,6 @@ package infoblox
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -128,11 +127,9 @@ func formZone(
 	*ibclient.ZoneAuth, diag.Diagnostics) {
 
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return nil, diag.FromErr(fmt.Errorf("cannot process 'ext_attrs' field: %w", err))
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, diag.FromErr(err)
 	}
 
 	zone := &ibclient.ZoneAuth{
@@ -212,6 +209,12 @@ func resourceZoneAuthCreate(ctx context.Context, d *schema.ResourceData, m inter
 }
 
 func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	connector := m.(ibclient.IBConnector)
 	var diags diag.Diagnostics
 
@@ -234,7 +237,7 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 		"extattrs",
 	))
 
-	err := connector.GetObject(zone, zoneRef, nil, &zoneResult)
+	err = connector.GetObject(zone, zoneRef, nil, &zoneResult)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to read zone: %w", err))
 	}
@@ -305,15 +308,14 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 
-	if zoneResult.Ea != nil && len(zoneResult.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(zoneResult.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(zoneResult.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -341,7 +343,27 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		return errs
 	}
 
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", "terraform_test_tenant")
+	zoneVal, err := objMgr.GetZoneAuthByRef(d.Id())
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("failed to read Zone Auth for update operation: %w", err))
+	}
+
+	zone.Ea = mergeEAs(zoneVal.Ea, newExtAttrs, oldExtAttrs)
+
 	zoneRef, err := connector.UpdateObject(zone, d.Id())
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to create a zone: %w", err))
