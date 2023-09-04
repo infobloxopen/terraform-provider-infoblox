@@ -225,6 +225,7 @@ func Provider() *schema.Provider {
 			"infoblox_mx_record":              dataSourceMXRecord(),
 			"infoblox_srv_record":             dataSourceSRVRecord(),
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
+			"infoblox_dns_view":               dataSourceDNSView(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

@@ -15,25 +15,26 @@ func resourceDNSView() *schema.Resource {
 		ReadContext:   resourceDNSViewRead,
 		UpdateContext: resourceDNSViewUpdate,
 		DeleteContext: resourceDNSViewDelete,
+		Importer:      &schema.ResourceImporter{},
 
 		Schema: map[string]*schema.Schema{
 			"comment": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Comment for the Extensible Attribute Definition; maximum 256 characters.",
+				Description: "Comment for the DNS View object; maximum 256 characters.",
 			},
 
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The name of the Extensible Attribute Definition.",
+				Description: "The name of the DNS View to be specified",
 			},
 
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "default",
-				Description: "The name of the Extensible Attribute Definition.",
+				Description: "The name of the Network View in which DNS View exists.",
 			},
 
 			"ext_attrs": {
