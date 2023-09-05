@@ -209,7 +209,6 @@ func Provider() *schema.Provider {
 			"infoblox_txt_record":             resourceTXTRecord(),
 			"infoblox_mx_record":              resourceMXRecord(),
 			"infoblox_srv_record":             resourceSRVRecord(),
-			"infoblox_ea_definition":          resourceEADefinition(),
 			"infoblox_dns_view":               resourceDNSView(),
 			"infoblox_zone_auth":              resourceZoneAuth(),
 		},
