@@ -13,6 +13,21 @@ The following list describes the parameters you must define in an `infoblox_txt_
 * `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
 * `fqdn`: required, specifies the fully qualified domain name which a textual value is assigned to. Exmample: `big-big-company.com`
 
+### Supported Arguments for filters
+
+-----
+
+| Field   | Alias    | Type   | Searchable |
+|---------|----------|--------|------------|
+| name    | fqdn     | string | yes        |
+| text    | ---      | string | yes        |
+| view    | dns_view | string | yes        |
+| zone    | ---      | string | yes        |
+| ttl     | ---      | uint   | no         |
+| comment | ---      | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of the TXT-record Data Source Block
 
 ```hcl

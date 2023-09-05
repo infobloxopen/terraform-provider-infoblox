@@ -16,6 +16,24 @@ The following list describes the parameters you must define in an `infoblox_srv_
 * `target`: required, specifies an FQDN of the host which is responsible for providing the service specified by `name`. Example: `www.acme.com`
 * `port`: required, specifies a port number (0..65535) on the `target` host which the service expects requests on.
 
+### Supported Arguments for filters
+
+-----
+
+| Field    | Alias    | Type   | Searchable |
+|----------|----------|--------|------------|
+| name     | fqdn     | string | yes        |
+| priority | ---      | uint32 | yes        |
+| view     | dns_view | string | yes        |
+| weight   | ---      | uint32 | yes        |
+| port     | ---      | uint32 | yes        |
+| target   | ---      | string | yes        |
+| ttl      | ---      | uint32 | no         |
+| comment  | ---      | string | yes        |
+| zone     | ---      | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of the SRV-record Data Source Block
 
 ```hcl

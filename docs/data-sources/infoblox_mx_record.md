@@ -14,6 +14,21 @@ The following list describes the parameters you must define in an `infoblox_mx_r
 * `mail_exchanger`: required, specifies the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
 * `preference`: required, specifies the preference number (0-65535) for this MX-record.
 
+### Supported Arguments for filters
+
+-----
+| Field          | Alias    | Type   | Searchable |
+|----------------|----------|--------|------------|
+| name           | fqdn     | string | yes        |
+| mail_exchanger | ---      | string | yes        |
+| preference     | ---      | uint32 | yes        |
+| view           | dns_view | string | yes        |
+| ttl            | ---      | uint32 | no         |
+| comment        | ---      | string | yes        |
+| zone           | ---      | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of the MX-record Data Source Block
 
 ```hcl

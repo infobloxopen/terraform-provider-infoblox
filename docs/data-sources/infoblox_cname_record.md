@@ -15,6 +15,20 @@ The following list describes the parameters you must define in an `infoblox_cnam
 * `canonical`: specifies the canonical name of the record in the FQDN format.
 * `alias`: specifies the alias name of the record in the FQDN format.
 
+### Supported Arguments for filters
+
+-----
+| Field     | Alias    | Type   | Searchable |
+|-----------|----------|--------|------------|
+| name      | alias    | string | yes        |
+| view      | dns_view | string | yes        |
+| canonical | ---      | string | yes        |
+| ttl       | ---      | uint   | no         |
+| comment   | ---      | string | yes        |
+| zone      | ---      | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of the CNAME-record Data Source Block
 
 ```hcl

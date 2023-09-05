@@ -19,6 +19,22 @@ The following list describes the parameters you must define in an `infoblox_ptr_
   which can be used instead of an IP address. Example: `1.0.0.10.in-addr.arpa`.
 * `ptrdname`: required; specifies the fully qualified domain name that the PTR-record points to.
 
+### Supported Arguments for filters
+
+-----
+| Field       | Alias    | Type   | Searchable |
+|-------------|----------|--------|------------|
+| ptrdname    | ---      | string | yes        |
+| record_name | name     | string | yes        |
+| view        | dns_view | string | yes        |
+| ipv4addr    | ip_addr  | string | yes        |
+| ipv6addr    | ip_addr  | string | yes        |
+| ttl         | ---      | uint32 | no         |
+| comment     | ---      | string | yes        |
+| zone        | ---      | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of the PTR-record Data Source Block
 
 This example defines a data source of type `infoblox_ptr_record` and the name "vip_host", which is configured in a Terraform file.

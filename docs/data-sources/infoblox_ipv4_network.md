@@ -12,6 +12,17 @@ The following list describes the parameters you must define in an `infoblox_ipv4
 * `network_view`: optional, specifies the network view which the network container exists in. If a value is not specified, the name `default` is used as the network view.
 * `cidr`: specifies the network block which correcponds to the network, in CIDR notation. Do not use the IPv6 CIDR for an IPv4 network.
 
+### Supported Arguments for filters
+
+-----
+| Field        | Alias | Type   | Searchable |
+|--------------|-------|--------|------------|
+| network      | cidr  | string | yes        |
+| network_view | ---   | string | yes        |
+| comment      | ---   | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of a Network Data Source Block
 
 ```hcl

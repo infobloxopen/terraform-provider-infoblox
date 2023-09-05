@@ -7,6 +7,16 @@ Use the data source to retrieve the following information for a network view res
 
 To get information about a network view, you must specify a name of the network view.
 
+### Supported Arguments for filters
+
+-----
+| Field   | Alias | Type   | Searchable |
+|---------|-------|--------|------------|
+| name    | ---   | string | yes        |
+| comment | ---   | string | yes        |
+
+Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+
 ### Example of a Network View Data Source Block
 
 ```hcl
