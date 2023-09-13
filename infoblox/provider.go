@@ -310,9 +310,11 @@ func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{
 	// ToDo: When EA inheritance is implemented on the go-client side, only inherited EAs should be omitted here.
 	res := niosEAs
 
-	for attrName, _ := range niosEAs {
-		if _, ok := terraformEAs[attrName]; !ok {
-			delete(res, attrName)
+	if !(len(terraformEAs) < 1) {
+		for attrName, _ := range niosEAs {
+			if _, ok := terraformEAs[attrName]; !ok {
+				delete(res, attrName)
+			}
 		}
 	}
 

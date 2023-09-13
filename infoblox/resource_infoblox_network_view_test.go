@@ -81,19 +81,12 @@ func TestAccResourceNetworkView(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-					resource "infoblox_ea_definition" "ea_def" {
-						name = "TestEA1"
-						type = "STRING"
-						flags = "V"
-						comment = "Acceptance test extensible attribute"
-					}
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "test comment 1"
 						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
-							"TestEA1"=["text1","text2"]
 						})
 					}`),
 				Check: resource.ComposeTestCheckFunc(
@@ -103,7 +96,6 @@ func TestAccResourceNetworkView(t *testing.T) {
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc",
-							"TestEA1":   []string{"text1", "text2"},
 						},
 					}),
 				),
@@ -137,26 +129,19 @@ func TestAccResourceNetworkView(t *testing.T) {
 					}
 				},
 				Config: `
-					resource "infoblox_ea_definition" "ea_def" {
-						name = "TestEA1"
-						type = "STRING"
-						flags = "V"
-						comment = "Acceptance test extensible attribute"
-					}
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "test comment 1"
 						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
-							"TestEA1"=["text1","text2"]
 						})
 					}`,
 				Check: resource.ComposeTestCheckFunc(
 					// Resource object shouldn't have Site, since it's omitted by provider
 					resource.TestCheckResourceAttr(
 						"infoblox_network_view.foo", "ext_attrs",
-						`{"Location":"Test loc","Tenant ID":"terraform_test_tenant","TestEA1":["text1","text2"]}`,
+						`{"Location":"Test loc","Tenant ID":"terraform_test_tenant"}`,
 					),
 					// Actual API object should have Building EA
 					testAccNetworkViewCompare(t, "infoblox_network_view.foo", &ibclient.NetworkView{
@@ -165,7 +150,6 @@ func TestAccResourceNetworkView(t *testing.T) {
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc",
-							"TestEA1":   []string{"text1", "text2"},
 							"Site":      "Test site",
 						},
 					}),
@@ -174,19 +158,12 @@ func TestAccResourceNetworkView(t *testing.T) {
 			// Validate that inherited EA won't be removed if some field is updated in the resource
 			{
 				Config: `
-					resource "infoblox_ea_definition" "ea_def" {
-						name = "TestEA1"
-						type = "STRING"
-						flags = "V"
-						comment = "Acceptance test extensible attribute"
-					}
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "Updated test comment"
 						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
-							"TestEA1"=["text1","text2"]
 						})
 					}`,
 				Check: testAccNetworkViewCompare(t, "infoblox_network_view.foo", &ibclient.NetworkView{
@@ -195,7 +172,6 @@ func TestAccResourceNetworkView(t *testing.T) {
 					Ea: ibclient.EA{
 						"Tenant ID": "terraform_test_tenant",
 						"Location":  "Test loc",
-						"TestEA1":   []string{"text1", "text2"},
 						"Site":      "Test site",
 					},
 				}),
@@ -203,19 +179,12 @@ func TestAccResourceNetworkView(t *testing.T) {
 			// Validate that inherited EA can be updated
 			{
 				Config: `
-					resource "infoblox_ea_definition" "ea_def" {
-						name = "TestEA1"
-						type = "STRING"
-						flags = "V"
-						comment = "Acceptance test extensible attribute"
-					}
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "Updated test comment"
 						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
-							"TestEA1"=["text1","text2"]
 							"Site" = "Updated test site"
 						})
 					}`,
@@ -225,7 +194,6 @@ func TestAccResourceNetworkView(t *testing.T) {
 					Ea: ibclient.EA{
 						"Tenant ID": "terraform_test_tenant",
 						"Location":  "Test loc",
-						"TestEA1":   []string{"text1", "text2"},
 						"Site":      "Updated test site",
 					},
 				}),
@@ -233,25 +201,18 @@ func TestAccResourceNetworkView(t *testing.T) {
 			// Validate that inherited EA can be removed, if updated
 			{
 				Config: `
-					resource "infoblox_ea_definition" "ea_def" {
-						name = "TestEA1"
-						type = "STRING"
-						flags = "V"
-						comment = "Acceptance test extensible attribute"
-					}
 					resource "infoblox_network_view" "foo"{
 						name = "testNetworkView"
 						comment = "Updated test comment"
 						ext_attrs = jsonencode({
 							"Tenant ID"="terraform_test_tenant"
 							"Location"="Test loc"
-							"TestEA1"=["text1","text2"]
 						})
 					}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"infoblox_network_view.foo", "ext_attrs",
-						`{"Location":"Test loc","Tenant ID":"terraform_test_tenant","TestEA1":["text1","text2"]}`,
+						`{"Location":"Test loc","Tenant ID":"terraform_test_tenant"}`,
 					),
 					func(s *terraform.State) error {
 						conn := testAccProvider.Meta().(ibclient.IBConnector)

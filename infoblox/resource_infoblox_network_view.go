@@ -2,10 +2,14 @@ package infoblox
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"regexp"
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+)
+
+var (
+	networkViewRegExp = regexp.MustCompile("^networkview/.+")
 )
 
 func resourceNetworkView() *schema.Resource {
@@ -87,24 +91,28 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Failed to get Network View : %s", err.Error())
 	}
 
+	if !networkViewRegExp.MatchString(d.Id()) {
+		return fmt.Errorf("reference '%s' for 'networkview' object has an invalid format", d.Id())
+	}
+
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
+		if err != nil {
+			return err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return err
+		}
+	}
+
 	d.SetId(obj.Ref)
 	if err = d.Set("name", obj.Name); err != nil {
 		return err
 	}
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
-	}
-
-	omittedEAs := omitEAs(obj.Ea, extAttrs)
-	if omittedEAs != nil && len(omittedEAs) > 0 {
-		eaJSON, err := terraformSerializeEAs(omittedEAs)
-		if err != nil {
-			return err
-		}
-
-		if err = d.Set("ext_attrs", eaJSON); err != nil {
-			return err
-		}
 	}
 
 	return nil

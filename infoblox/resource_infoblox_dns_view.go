@@ -7,6 +7,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
+	"regexp"
+)
+
+var (
+	dnsViewRegExp = regexp.MustCompile("^view/.+")
 )
 
 func resourceDNSView() *schema.Resource {
@@ -88,6 +93,10 @@ func resourceDNSViewRead(ctx context.Context, d *schema.ResourceData, m interfac
 	v.SetReturnFields([]string{"name", "comment", "network_view", "extattrs"})
 
 	vResult := ibclient.View{}
+
+	if !dnsViewRegExp.MatchString(d.Id()) {
+		return diag.FromErr(fmt.Errorf("reference '%s' for 'view' object has an invalid format", d.Id()))
+	}
 
 	err := conn.GetObject(v, viewRef, nil, &vResult)
 	if err != nil {
