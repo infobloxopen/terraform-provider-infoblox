@@ -17,7 +17,9 @@ func resourceZoneAuth() *schema.Resource {
 		ReadContext:   resourceZoneAuthRead,
 		UpdateContext: resourceZoneAuthUpdate,
 		DeleteContext: resourceZoneAuthDelete,
-		Importer:      &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceZoneAuthImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"fqdn": {
@@ -362,7 +364,10 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		return diag.FromErr(fmt.Errorf("failed to read Zone Auth for update operation: %w", err))
 	}
 
-	zone.Ea = mergeEAs(zoneVal.Ea, newExtAttrs, oldExtAttrs)
+	zone.Ea, err = mergeEAs(zoneVal.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	zoneRef, err := connector.UpdateObject(zone, d.Id())
 	if err != nil {
@@ -386,4 +391,118 @@ func resourceZoneAuthDelete(ctx context.Context, d *schema.ResourceData, m inter
 
 	d.SetId("")
 	return nil
+}
+
+func resourceZoneAuthImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	_, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	connector := m.(ibclient.IBConnector)
+
+	zoneRef := d.Id()
+
+	zoneResult := ibclient.ZoneAuth{}
+
+	zone := &ibclient.ZoneAuth{}
+	zone.SetReturnFields(append(
+		zoneResult.ReturnFields(),
+		"comment",
+		"ns_group",
+		"soa_default_ttl",
+		"soa_expire",
+		"soa_negative_ttl",
+		"soa_refresh",
+		"soa_retry",
+		"view",
+		"zone_format",
+		"extattrs",
+	))
+
+	err = connector.GetObject(zone, zoneRef, nil, &zoneResult)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read zone: %w", err)
+	}
+
+	err = d.Set("fqdn", zoneResult.Fqdn)
+	if err != nil {
+		return nil, err
+	}
+
+	if zoneResult.Comment != nil {
+		err = d.Set("comment", *zoneResult.Comment)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.NsGroup != nil {
+		err = d.Set("ns_group", *zoneResult.NsGroup)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.SoaDefaultTtl != nil {
+		err = d.Set("soa_default_ttl", *zoneResult.SoaDefaultTtl)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.SoaExpire != nil {
+		err = d.Set("soa_expire", *zoneResult.SoaExpire)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.SoaNegativeTtl != nil {
+		err = d.Set("soa_negative_ttl", *zoneResult.SoaNegativeTtl)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.SoaRefresh != nil {
+		err = d.Set("soa_refresh", *zoneResult.SoaRefresh)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.SoaRetry != nil {
+		err = d.Set("soa_retry", *zoneResult.SoaRetry)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if zoneResult.View != nil {
+		err = d.Set("view", *zoneResult.View)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = d.Set("zone_format", zoneResult.ZoneFormat)
+	if err != nil {
+		return nil, err
+	}
+
+	if zoneResult.Ea != nil && len(zoneResult.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(zoneResult.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	d.SetId(zoneResult.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

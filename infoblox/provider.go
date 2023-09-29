@@ -12,7 +12,6 @@ import (
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -309,12 +308,9 @@ func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error)
 func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{} {
 	// ToDo: When EA inheritance is implemented on the go-client side, only inherited EAs should be omitted here.
 	res := niosEAs
-
-	if !(len(terraformEAs) < 1) {
-		for attrName, _ := range niosEAs {
-			if _, ok := terraformEAs[attrName]; !ok {
-				delete(res, attrName)
-			}
+	for attrName, _ := range niosEAs {
+		if _, ok := terraformEAs[attrName]; !ok {
+			delete(res, attrName)
 		}
 	}
 
@@ -323,17 +319,28 @@ func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{
 
 // mergeEAs merges omitted NIOS-side EAs with EAs specified in terraform configuration.
 // Should be used in update functions.
-func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}) ibclient.EA {
+func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}, conn ibclient.IBConnector) (ibclient.EA, error) {
 	res := map[string]interface{}{}
-
 	for key, niosVal := range niosEAs {
 		// If EA is present on the NIOS side, and there's no attempt to
 		// change a value of this EA by the terraform user, use EA value from NIOS
+
+		// If EA is required returns true, else returns false
+		req := checkEARequirement(key, conn)
+
 		if newTfVal, newTfValFound := newTerraformEAs[key]; !newTfValFound {
 			if _, oldTfValFound := oldTerraformEAs[key]; !oldTfValFound {
 				res[key] = niosVal
 			}
+			_, oldTfValFound := oldTerraformEAs[key]
+			if req && oldTfValFound {
+				return nil, fmt.Errorf("%s is required attribute, can't be removed", key)
+			}
+
 		} else {
+			if req && newTfVal == "" {
+				return nil, fmt.Errorf("%s is required attribute, can't be empty", key)
+			}
 			res[key] = newTfVal
 		}
 	}
@@ -345,5 +352,28 @@ func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}) 
 		}
 	}
 
-	return res
+	return res, nil
+}
+
+func checkEARequirement(name string, conn ibclient.IBConnector) bool {
+	eadef := &ibclient.EADefinition{}
+	eadef.SetReturnFields(append(eadef.ReturnFields(), "flags"))
+
+	sf := map[string]string{
+		"name": name,
+	}
+	qp := ibclient.NewQueryParams(false, sf)
+	var res []ibclient.EADefinition
+
+	err := conn.GetObject(eadef, "", qp, &res)
+	if err != nil {
+		fmt.Errorf("failed to get EA definition")
+	}
+	result := &res[0]
+	if result.Flags != nil {
+		if strings.Contains(*result.Flags, "M") {
+			return true
+		}
+	}
+	return false
 }

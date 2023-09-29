@@ -530,7 +530,10 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		return fmt.Errorf("failed to update IP allocation: %w", err)
 	}
 
-	mergedEAs := mergeEAs(hr.Ea, newExtAttrs, oldExtAttrs)
+	mergedEAs, err := mergeEAs(hr.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(
 		hostRecObj.Ref,
@@ -629,6 +632,99 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 }
 
 func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	obj, err := getOrFindHostRec(d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return nil, ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
+		return nil, err
+	}
+
+	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
+		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
+			return nil, err
+		}
+		if _, found := d.GetOk("ipv6_cidr"); !found {
+			if err := d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if obj.Ipv4Addrs == nil || len(obj.Ipv4Addrs) < 1 {
+		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
+			return nil, err
+		}
+		if _, found := d.GetOk("ipv4_cidr"); !found {
+			if err := d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	_, err = terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	delete(obj.Ea, eaNameForInternalId)
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("network_view", obj.NetworkView); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("enable_dns", obj.EnableDns); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("ref", obj.Ref); err != nil {
+		return nil, err
+	}
+
 	internalId := newInternalResourceIdFromString(d.Id())
 	if internalId == nil {
 		return nil, fmt.Errorf("ID value provided is not in a proper format")

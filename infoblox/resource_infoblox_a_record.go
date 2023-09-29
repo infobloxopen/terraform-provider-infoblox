@@ -10,11 +10,13 @@ import (
 
 func resourceARecord() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceARecordCreate,
-		Read:     resourceARecordGet,
-		Update:   resourceARecordUpdate,
-		Delete:   resourceARecordDelete,
-		Importer: &schema.ResourceImporter{},
+		Create: resourceARecordCreate,
+		Read:   resourceARecordGet,
+		Update: resourceARecordUpdate,
+		Delete: resourceARecordDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceARecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -317,7 +319,10 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read A Record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(arec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(arec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	rec, err := objMgr.UpdateARecord(
 		d.Id(),
@@ -365,4 +370,75 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func resourceARecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetARecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed getting A-record: %w", err)
+	}
+
+	if err = d.Set("ip_addr", obj.Ipv4Addr); err != nil {
+		return nil, err
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		dnsView, err := objMgr.GetDNSView(obj.View)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"error while retrieving information about DNS view '%s': %w",
+				obj.View, err)
+		}
+		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

@@ -13,7 +13,9 @@ func resourceMXRecord() *schema.Resource {
 		Update: resourceMXRecordUpdate,
 		Delete: resourceMXRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceMXRecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -252,7 +254,10 @@ func resourceMXRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read MX Record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(mxrec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(mxrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	rec, err := objMgr.UpdateMXRecord(
 		d.Id(), dnsView, fqdn, mx, preference, ttl, useTtl, comment, newExtAttrs)
@@ -287,4 +292,63 @@ func resourceMXRecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func resourceMXRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetMXRecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed getting MX-Record: %s", err)
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+	if err = d.Set("mail_exchanger", obj.MailExchanger); err != nil {
+		return nil, err
+	}
+	if err = d.Set("preference", obj.Preference); err != nil {
+		return nil, err
+	}
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

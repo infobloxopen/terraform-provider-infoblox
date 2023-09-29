@@ -15,7 +15,9 @@ func resourcePTRRecord() *schema.Resource {
 		Update: resourcePTRRecordUpdate,
 		Delete: resourcePTRRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourcePTRRecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -436,7 +438,10 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read PTR Record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(ptrrec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(ptrrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	recordPTRUpdated, err := objMgr.UpdatePTRRecord(d.Id(), networkView, ptrdname, recordName, cidr, ipAddr, useTtl, ttl, comment, newExtAttrs)
 	if err != nil {
@@ -489,4 +494,83 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	return nil
+}
+
+func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetPTRRecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+		dnsView, err := objMgr.GetDNSView(obj.View)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"error while retrieving information about DNS view '%s': %s",
+				obj.View, err)
+		}
+		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
+		return nil, err
+	}
+
+	var ipAddr string
+	if *obj.Ipv4Addr != "" {
+		ipAddr = *obj.Ipv4Addr
+	} else {
+		ipAddr = *obj.Ipv6Addr
+	}
+	if err = d.Set("ip_addr", ipAddr); err != nil {
+		return nil, err
+	}
+	if err = d.Set("record_name", obj.Name); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

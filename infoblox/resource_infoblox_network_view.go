@@ -14,11 +14,13 @@ var (
 
 func resourceNetworkView() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceNetworkViewCreate,
-		Read:     resourceNetworkViewRead,
-		Update:   resourceNetworkViewUpdate,
-		Delete:   resourceNetworkViewDelete,
-		Importer: &schema.ResourceImporter{},
+		Create: resourceNetworkViewCreate,
+		Read:   resourceNetworkViewRead,
+		Update: resourceNetworkViewUpdate,
+		Delete: resourceNetworkViewDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceNetworkViewImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -163,7 +165,10 @@ func resourceNetworkViewUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read network for update operation: %w", err)
 	}
 
-	updExtAttrs := mergeEAs(nv.Ea, newExtAttrs, oldExtAttrs)
+	updExtAttrs, err := mergeEAs(nv.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	nv, err = objMgr.UpdateNetworkView(d.Id(), networkView, comment, updExtAttrs)
 	if err != nil {
@@ -200,4 +205,49 @@ func resourceNetworkViewDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	return nil
+}
+
+func resourceNetworkViewImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+		tenantID = tempVal.(string)
+	}
+
+	Connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(Connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetNetworkViewByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get Network View : %s", err.Error())
+	}
+
+	if !networkViewRegExp.MatchString(d.Id()) {
+		return nil, fmt.Errorf("reference '%s' for 'networkview' object has an invalid format", d.Id())
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	d.SetId(obj.Ref)
+	if err = d.Set("name", obj.Name); err != nil {
+		return nil, err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	return []*schema.ResourceData{d}, nil
 }

@@ -13,7 +13,9 @@ func resourceSRVRecord() *schema.Resource {
 		Update: resourceSRVRecordUpdate,
 		Delete: resourceSRVRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceSRVRecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -263,7 +265,10 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read SRV Record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(srvrec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(srvrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	rec, err := objMgr.UpdateSRVRecord(
 		d.Id(), name, uint32(priority), uint32(weight), uint32(port), target, ttl, useTtl, comment, newExtAttrs)
@@ -300,4 +305,68 @@ func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 
+}
+
+func resourceSRVRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetSRVRecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed getting SRV-Record: %s", err.Error())
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+	if err = d.Set("name", obj.Name); err != nil {
+		return nil, err
+	}
+	if err = d.Set("priority", obj.Priority); err != nil {
+		return nil, err
+	}
+	if err = d.Set("weight", obj.Weight); err != nil {
+		return nil, err
+	}
+	if err = d.Set("port", obj.Port); err != nil {
+		return nil, err
+	}
+	if err = d.Set("target", obj.Target); err != nil {
+		return nil, err
+	}
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

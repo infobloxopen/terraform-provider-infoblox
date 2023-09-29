@@ -13,7 +13,9 @@ func resourceTXTRecord() *schema.Resource {
 		Update: resourceTXTRecordUpdate,
 		Delete: resourceTXTRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceTXTRecordImport,
+		},
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
 				Type:        schema.TypeString,
@@ -234,7 +236,10 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read TXT Record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(txtrec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(txtrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	rec, err := objMgr.UpdateTXTRecord(
 		d.Id(), fqdn, text, ttl, useTtl, comment, newExtAttrs)
@@ -268,4 +273,64 @@ func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func resourceTXTRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetTXTRecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed getting TXT-Record: %s", err)
+	}
+
+	if err = d.Set("text", obj.Text); err != nil {
+		return nil, err
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

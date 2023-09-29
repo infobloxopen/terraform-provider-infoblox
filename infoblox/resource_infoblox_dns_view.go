@@ -20,7 +20,9 @@ func resourceDNSView() *schema.Resource {
 		ReadContext:   resourceDNSViewRead,
 		UpdateContext: resourceDNSViewUpdate,
 		DeleteContext: resourceDNSViewDelete,
-		Importer:      &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceDNSViewImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"comment": {
@@ -167,8 +169,10 @@ func resourceDNSViewUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(fmt.Errorf("failed to read DNS View for update operation: %w", err))
 	}
 
-	mergedExtAttrs := mergeEAs(vResult.Ea, newExtAttrs, oldExtAttrs)
-
+	mergedExtAttrs, err := mergeEAs(vResult.Ea, newExtAttrs, oldExtAttrs, conn)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	vUpd := &ibclient.View{
 		Name: utils.StringPtr(d.Get("name").(string)),
 	}
@@ -201,4 +205,61 @@ func resourceDNSViewDelete(ctx context.Context, d *schema.ResourceData, m interf
 	}
 
 	return nil
+}
+
+func resourceDNSViewImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	conn := m.(ibclient.IBConnector)
+
+	viewRef := d.Id()
+
+	v := &ibclient.View{}
+	v.SetReturnFields([]string{"name", "comment", "network_view", "extattrs"})
+
+	vResult := ibclient.View{}
+
+	if !dnsViewRegExp.MatchString(d.Id()) {
+		return nil, fmt.Errorf("reference '%s' for 'view' object has an invalid format", d.Id())
+	}
+
+	err := conn.GetObject(v, viewRef, nil, &vResult)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read DNS View: %w", err)
+	}
+
+	if err = d.Set("name", vResult.Name); err != nil {
+		return nil, err
+	}
+
+	if vResult.Comment != nil {
+		if err = d.Set("comment", vResult.Comment); err != nil {
+			return nil, err
+		}
+	}
+
+	if vResult.NetworkView != nil {
+		if err = d.Set("network_view", vResult.NetworkView); err != nil {
+			return nil, err
+		}
+	}
+
+	extAttrsJSON := d.Get("ext_attrs").(string)
+	_, err = terraformDeserializeEAs(extAttrsJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	if vResult.Ea != nil && len(vResult.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(vResult.Ea)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	d.SetId(vResult.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

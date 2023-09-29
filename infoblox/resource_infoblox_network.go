@@ -16,7 +16,9 @@ var (
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceNetworkImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -323,7 +325,10 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 		return fmt.Errorf("failed to read network for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(net.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(net.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	Network, err = objMgr.UpdateNetwork(d.Id(), newExtAttrs, comment)
 	if err != nil {
@@ -409,4 +414,64 @@ func resourceIPv6NetworkRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	return resourceNetworkRead(d, m)
+}
+
+func resourceNetworkImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	networkViewName := d.Get("network_view").(string)
+
+	extAttrsJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrsJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	for attrName, attrValueInf := range extAttrs {
+		attrValue, _ := attrValueInf.(string)
+		if attrName == eaNameForTenantId {
+			tenantID = attrValue
+			break
+		}
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetNetworkByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("getting Network block from network view (%s) failed : %s", networkViewName, err)
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if obj.NetviewName != "" {
+		if err = d.Set("network_view", obj.NetviewName); err != nil {
+			return nil, err
+		}
+	} else {
+		if err = d.Set("network_view", defaultNetView); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

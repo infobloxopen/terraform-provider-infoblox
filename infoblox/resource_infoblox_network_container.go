@@ -15,7 +15,9 @@ var (
 
 func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceNetworkContainerImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -239,7 +241,10 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 		return fmt.Errorf("failed to read network container for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(nc.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(nc.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	comment := ""
 	commentText, commentFieldFound := d.GetOk("comment")
@@ -360,4 +365,53 @@ func resourceIPv6NetworkContainer() *schema.Resource {
 	//nc.Exists = resourceIPv6NetworkContainerExists
 
 	return nc
+}
+
+func resourceNetworkContainerImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read network containter: %w", err)
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetNetworkContainerByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve network container: %w", err)
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("network_view", obj.NetviewName); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

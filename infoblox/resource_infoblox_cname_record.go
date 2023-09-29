@@ -15,7 +15,9 @@ func resourceCNAMERecord() *schema.Resource {
 		Update: resourceCNAMERecordUpdate,
 		Delete: resourceCNAMERecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceCNAMERecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -221,7 +223,10 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read CNAME record for update operation: %w", err)
 	}
 
-	newExtAttrs = mergeEAs(crec.Ea, newExtAttrs, oldExtAttrs)
+	newExtAttrs, err = mergeEAs(crec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
 
 	recordCNAME, err := objMgr.UpdateCNAMERecord(d.Id(), canonical, alias, useTtl, ttl, comment, newExtAttrs)
 	if err != nil {
@@ -256,4 +261,59 @@ func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
+}
+
+func resourceCNAMERecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+		tenantID = tempVal.(string)
+	}
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetCNAMERecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("getting CNAME Record with ID: %s failed: %s", d.Id(), err.Error())
+	}
+
+	if err = d.Set("alias", obj.Name); err != nil {
+		return nil, err
+	}
+	if err = d.Set("canonical", obj.Canonical); err != nil {
+		return nil, err
+	}
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }
