@@ -199,3 +199,12 @@ func CheckIntRange(name string, value int, min int, max int) error {
 
 	return nil
 }
+
+func ValidateMultiValue(v string) ([]string, bool) {
+	res := strings.Split(v, ",")
+	if len(res) > 1 {
+		return res, true
+	} else {
+		return nil, false
+	}
+}

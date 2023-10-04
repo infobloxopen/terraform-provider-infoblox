@@ -237,10 +237,15 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 				vals.Set("_proxy_search", "GM")
 			}
 			for k, v := range queryParams.searchFields {
-				vals.Set(k, v)
+				if res, ok := ValidateMultiValue(v); ok {
+					for _, mv := range res {
+						vals.Add(k, mv)
+					}
+				} else {
+					vals.Set(k, v)
+				}
 			}
 		}
-
 		qry = vals.Encode()
 	}
 
