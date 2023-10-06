@@ -136,6 +136,7 @@ func testAccAAAARecordCompare(
 var (
 	regexpRequiredMissingIPv6    = regexp.MustCompile("either of 'ipv6_addr' and 'cidr' values is required")
 	regexpCidrIpAddrConflictIPv6 = regexp.MustCompile("only one of 'ipv6_addr' and 'cidr' values is allowed to be defined")
+	regexpUpdateConflictIPv6     = regexp.MustCompile("only one of 'ipv6_addr' and 'cidr' values is allowed to update")
 )
 
 func TestAccResourceAAAARecord(t *testing.T) {
@@ -265,6 +266,21 @@ func TestAccResourceAAAARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv6_network" "netA" {
+                        cidr = "2000:1fcc::/96"
+                        network_view = "default"
+                    }
+					resource "infoblox_aaaa_record" "foo2"{
+						fqdn = "name3.test.com"
+                        cidr = infoblox_ipv6_network.netA.cidr
+						ipv6_addr = "2002::4"
+                        network_view = infoblox_ipv6_network.netA.network_view
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: regexpUpdateConflictIPv6,
+			},
+			{
+				Config: fmt.Sprintf(`
                     resource "infoblox_ipv6_network" "net2" {
                         cidr = "2000:1fcc::/96"
                         network_view = "default"
@@ -285,9 +301,12 @@ func TestAccResourceAAAARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_network_view" "view1" {
+						name = "nondefault_netview"
+					}
                     resource "infoblox_ipv6_network" "net3" {
                         cidr = "2000:1fcd::/96"
-                        network_view = "nondefault_netview"
+                        network_view = infoblox_network_view.view1.name
                     }
 					resource "infoblox_aaaa_record" "foo2"{
 						fqdn = "name3.test.com"

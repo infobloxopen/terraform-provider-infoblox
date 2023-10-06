@@ -273,9 +273,13 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	// And making ipAddr empty in case 'cidr' gets changed, to make it possible
 	// to allocate an IP address from another network.
 
+	ipaddrChanged := d.HasChange("ip_addr")
+
 	if dynamicAllocation {
 		if !cidrChanged {
 			cidr = ""
+		} else if ipaddrChanged && cidrChanged {
+			return fmt.Errorf("only one of 'ip_addr' and 'cidr' values is allowed to update")
 		} else {
 			ipAddr = ""
 		}

@@ -137,6 +137,7 @@ var (
 	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
 	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
 
+	regexpUpdateConflictIPv4      = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to update")
 	regexpNetviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'network_view' field is not allowed")
 	regexpDnsviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'dns_view' field is not allowed")
 )
@@ -268,6 +269,21 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv4_network" "netA" {
+                        cidr = "11.20.0.0/24"
+                        network_view = "default"
+                    }
+					resource "infoblox_a_record" "foo2"{
+						fqdn = "name3.test.com"
+                        cidr = infoblox_ipv4_network.netA.cidr
+						ip_addr = "10.10.0.7"
+                        network_view = infoblox_ipv4_network.netA.network_view
+						dns_view = "nondefault_view"
+					}`),
+				ExpectError: regexpUpdateConflictIPv4,
+			},
+			{
+				Config: fmt.Sprintf(`
                     resource "infoblox_ipv4_network" "net2" {
                         cidr = "10.20.33.0/24"
                         network_view = "default"
@@ -288,9 +304,12 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_network_view" "view1" {
+						name = "nondefault_netview"
+					}
                     resource "infoblox_ipv4_network" "net3" {
                         cidr = "10.20.34.0/24"
-                        network_view = "nondefault_netview"
+                        network_view = infoblox_network_view.view1.name
                     }
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"

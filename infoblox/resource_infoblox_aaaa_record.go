@@ -271,9 +271,14 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	// And making ipv6Addr empty in case 'cidr' gets changed, to make it possible
 	// to allocate an IP address from another network.
 
+	// to get the change status of ipv6 address
+	ipaddrChanged := d.HasChange("ipv6_addr")
+
 	if dynamicAllocation {
 		if !cidrChanged {
 			cidr = ""
+		} else if ipaddrChanged && cidrChanged {
+			return fmt.Errorf("only one of 'ipv6_addr' and 'cidr' values is allowed to update")
 		} else {
 			ipv6Addr = ""
 		}
