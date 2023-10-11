@@ -239,7 +239,7 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 			for k, v := range queryParams.searchFields {
 				if res, ok := ValidateMultiValue(v); ok {
 					for _, mv := range res {
-						vals.Add(k, mv)
+						vals.Add(k, strings.TrimSpace(mv))
 					}
 				} else {
 					vals.Set(k, v)
