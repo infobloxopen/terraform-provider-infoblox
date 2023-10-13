@@ -162,7 +162,12 @@ func formZone(
 	}
 
 	if d.HasChange("ns_group") {
-		zone.NsGroup = utils.StringPtr(d.Get("ns_group").(string))
+		nsGrp := d.Get("ns_group").(string)
+		if nsGrp != "" {
+			zone.NsGroup = utils.StringPtr(nsGrp)
+		} else {
+			zone.NsGroup = nil
+		}
 	}
 
 	if d.HasChange("restart_if_needed") {
@@ -371,7 +376,7 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 
 	zoneRef, err := connector.UpdateObject(zone, d.Id())
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to create a zone: %w", err))
+		return diag.FromErr(fmt.Errorf("failed to update a zone: %w", err))
 	}
 
 	d.SetId(zoneRef)

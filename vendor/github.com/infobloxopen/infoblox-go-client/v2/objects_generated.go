@@ -21614,7 +21614,7 @@ type ZoneAuth struct {
 	NotifyDelay *uint32 `json:"notify_delay,omitempty"`
 
 	// The name server group that serves DNS for this zone.
-	NsGroup *string `json:"ns_group,omitempty"`
+	NsGroup *string `json:"ns_group"`
 
 	// The parent zone of this zone. Note that when searching for reverse zones,
 	// the "in-addr.arpa" notation should be used.
