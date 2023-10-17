@@ -1,18 +1,19 @@
 # MX-record Data Source
 
-Use the data source to retrieve the following information for an MX-record from the corresponding object in NIOS:
+Use the data source to retrieve the following information for MX-record's from the corresponding object in NIOS:
 
+* `dns_view`: the DNS view which the record's zone belongs to.
+* `fqdn`: the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `samplemx.demo.com`
+* `mail_exchanger`: the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
+* `preference`: the preference number (0-65535) for this MX-record.
 * `zone`: the zone which the record belongs to.
 * `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
 * `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as a JSON map. Example: `{"Owner”: "State Library”, "Expires”: "never”}`.
+* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as stirng of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
 
-The following list describes the parameters you must define in an `infoblox_mx_record` data source block:
-
-* `dns_view`: optional, specifies the DNS view which the record's zone belongs to. If a value is not specified, the name `default` is used as the DNS view.
-* `fqdn`: required, specifies the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `big-big-company.com`
-* `mail_exchanger`: required, specifies the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
-* `preference`: required, specifies the preference number (0-65535) for this MX-record.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object. Only searchable fields
+from below list of supported arguments for filters, are allowed to use in filters, for retrieving one or more records or objects matching
+filters.
 
 ### Supported Arguments for filters
 
@@ -27,7 +28,25 @@ The following list describes the parameters you must define in an `infoblox_mx_r
 | comment        | ---      | string | yes        |
 | zone           | ---      | string | yes        |
 
-Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+!> Any of the combination from searchable fields in supported arguments list for fields are allowed.
+
+!> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+
+### Example for using the filters:
+ ```hcl
+ data "infoblox_mx_record" "mx_filter" {
+    filters = {
+        name = "samplemx.demo.com"
+        mail_exchanger = "mx1.secure-mail-provider.net"
+        view = "nondefault_dnsview" // associated DNS view
+    }
+ }
+ ```
+
+!> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
+all records will be fetched in results.
+
+!> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_mx_record` will be fetched in results.
 
 ### Example of the MX-record Data Source Block
 
@@ -45,29 +64,36 @@ resource "infoblox_mx_record" "rec2" {
 }
 
 data "infoblox_mx_record" "ds2" {
-  dns_view = "nondefault_dnsview1"
-  fqdn = "rec2.example2.org"
-  mail_exchanger = "sample.test.com"
-  preference = 40
+  filters = {
+    dns_view = "nondefault_dnsview1"
+    fqdn = "rec2.example2.org"
+    mail_exchanger = "sample.test.com"
+  }
 
   // This is just to ensure that the record has been be created
   // using 'infoblox_mx_record' resource block before the data source will be queried.
   depends_on = [infoblox_mx_record.rec2]
 }
 
-output "mx_rec2_zone" {
-  value = data.infoblox_mx_record.ds2.zone
+output "mx_rec_res" {
+  value = data.infoblox_mx_record.ds2
 }
 
-output "mx_rec2_ttl" {
-  value = data.infoblox_mx_record.ds2.ttl
+// accessing individual field in results
+output "mx_rec_name" {
+  value = data.infoblox_mx_record.ds2.results.0.fqdn //zero represents index of json object from results list
 }
 
-output "mx_rec2_comment" {
-  value = data.infoblox_mx_record.ds2.comment
+// accessing MX-Record through EA's
+data "infoblox_mx_record" "mx_rec_ea" {
+  filters = {
+    "*Location" = "California"
+    "*TestEA" = "automate"
+  }
 }
 
-output "mx_rec2_ext_attrs" {
-  value = data.infoblox_mx_record.ds2.ext_attrs
+// throws matching MX-Records with EA, if any
+output "mx_rec_out" {
+  value = data.infoblox_mx_record.mx_rec_ea
 }
 ```

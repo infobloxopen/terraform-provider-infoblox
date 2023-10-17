@@ -1,16 +1,16 @@
 # IPv4 Network Data Source
 
-The data source for the network object allows you to get the following parameters for an IPv4 network resource:
+The data source for the network object allows you to get the following parameters for list of IPv4 network resources:
 
+* `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
+* `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
-* `ext_attrs`: The set of extensible attributes, if any. The content is formatted as a JSON map. Example: `{"Owner": "public internet caffe", "Administrator": "unknown"}`.
+* `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
 
-To get information about a network, you must specify a combination of the network view and
-network address in the CIDR format.
-The following list describes the parameters you must define in an `infoblox_ipv4_network` data source block (all of them are required):
 
-* `network_view`: optional, specifies the network view which the network container exists in. If a value is not specified, the name `default` is used as the network view.
-* `cidr`: specifies the network block which correcponds to the network, in CIDR notation. Do not use the IPv6 CIDR for an IPv4 network.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object. Only searchable fields
+from below list of supported arguments for filters, are allowed to use in filters, for retrieving one or more records or objects matching
+filters.
 
 ### Supported Arguments for filters
 
@@ -21,7 +21,24 @@ The following list describes the parameters you must define in an `infoblox_ipv4
 | network_view | ---   | string | yes        |
 | comment      | ---   | string | yes        |
 
-Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+!> Any of the combination from searchable fields in supported arguments list for fields are allowed.
+
+!> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+
+### Example for using the filters:
+ ```hcl
+ data "infoblox_ipv4_network" "network_filter" {
+    filters = {
+        network = "10.11.0.0/16"
+        network_view = "nondefault_netview"
+    }
+ }
+ ```
+
+!> From the above example, if the 'network_view' value is not specified, if same network exists in one or more different network views, those
+all networks will be fetched in results.
+
+!> If `null` or empty filters are passed, then all the networks or objects associated with datasource like here `infoblox_ipv4_network`, will be fetched in results.
 
 ### Example of a Network Data Source Block
 
@@ -38,19 +55,33 @@ resource "infoblox_ipv4_network" "net2" {
 }
 
 data "infoblox_ipv4_network" "nearby_network" {
-  network_view = "nondefault_netview"
-  cidr = "192.168.128.0/20"
-
+  filters = {
+    network = "192.168.128.0/20"
+    network_view = "nondefault_netview"
+  }
   // This is just to ensure that the network has been be created
   // using 'infoblox_ipv4_network' resource block before the data source will be queried.
   depends_on = [infoblox_ipv4_network.net2]
 }
 
-output "nearby_network_comment" {
-  value = data.infoblox_ipv4_network.nearby_network.comment
+output "ipv4_net1" {
+  value = data.infoblox_ipv4_network.nearby_network
 }
 
-output "nearby_network_ext_attrs" {
-  value = data.infoblox_ipv4_network.nearby_network.ext_attrs
+// accessing individual field in results
+output "ipv4_net2" {
+  value = data.infoblox_ipv4_network.nearby_network.results.0.cidr //zero represents index of json object from results list
+}
+
+// accessing IPv4 network through EA's
+data "infoblox_ipv4_network" "ipv4_net_ea" {
+  filters = {
+    "*Site" = "Custom network site"
+  }
+}
+
+// throws matching IPv4 networks with EA, if any
+output "net_ea_out" {
+  value = data.infoblox_ipv4_network.ipv4_net_ea
 }
 ```

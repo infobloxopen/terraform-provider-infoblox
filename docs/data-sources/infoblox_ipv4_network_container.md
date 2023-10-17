@@ -1,18 +1,17 @@
 # IPv4 Network Container Data Source
 
-Use the data source to retrieve the following information for an IPv4 network container resource from the corresponding
+Use the data source to retrieve the following information for list of IPv4 network container resources from the corresponding
 object in NIOS:
-
+* `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
+* `cidr`: the IPv4 network block of the network container. Example: `19.17.0.0/16`
 * `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
-* `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as a JSON map. Example: `{"Administrator": "jsw@telecom.ca"}`.
+* `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as stirng of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
 
-To get information about a network container, specify a combination of
-the network view and the address of the network block in CIDR format.
-The following list describes the parameters you must define
-in an `infoblox_ipv4_network_container` data source block (all of them are required):
+As there is new feature filters , the previous usage of combination of Network view and address of the network block in CIDR format has been removed.
 
-* `network_view`: optional, specifies the network view which the network container exists in. If a value is not specified, the name `default` is used as the network view.
-* `cidr`: specifies the IPv4 network block of the network container.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object. Only searchable fields
+from below list of supported arguments for filters, are allowed to use in filters, for retrieving one or more records or objects matching
+filters.
 
 ### Supported Arguments for filters
 
@@ -23,7 +22,24 @@ in an `infoblox_ipv4_network_container` data source block (all of them are requi
 | network_view | ---   | string | yes        |
 | comment      | ---   | string | yes        |
 
-Note: Please consider using only fields as the keys in terraform datasource, kindly don't use alias names as keys from the above table.
+!> Any of the combination from searchable fields in supported arguments list for fields are allowed.
+
+!> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+
+### Example for using the filters:
+ ```hcl
+ data "infoblox_ipv4_network_container" "nc_filter" {
+    filters = {
+        network = "10.11.0.0/16"
+        network_view = "nondefault_netview"
+    }
+ }
+ ```
+
+!> From the above example, if the 'network_view' value is not specified, if same network container exists in one or more different network views, those
+all network containers will be fetched in results.
+
+!> If `null` or empty filters are passed, then all the network containers or objects associated with datasource like here `infoblox_ipv4_network_container`, will be fetched in results.
 
 ### Example of an IPv4 Network Container Data Source Block
 
@@ -38,20 +54,35 @@ resource "infoblox_ipv4_network_container" "nearby_org" {
   })
 }
 
-data "infoblox_ipv4_network_container" "nearby_org" {
-  network_view = "separate_tenants"
-  cidr = "192.168.128.0/16"
+data "infoblox_ipv4_network_container" "nearby_nc" {
+  filters = {
+    network_view = "separate_tenants"
+    cidr = "192.168.128.0/16"
+  }
 
   // This is just to ensure that the network container has been be created
   // using 'infoblox_ipv4_network_container' resource block before the data source will be queried.
   depends_on = [infoblox_ipv4_network_container.nearby_org]
 }
 
-output "nearby_org_comment" {
-  value = data.infoblox_ipv4_network_container.nearby_org.comment
+output "nc_res" {
+  value = data.infoblox_ipv4_network_container.nearby_nc
 }
 
-output "nearby_org_ext_attrs" {
-  value = data.infoblox_ipv4_network_container.nearby_org.ext_attrs
+// accessing individual field in results
+output "nc_cidr_out" {
+  value = data.infoblox_ipv4_network_container.nearby_nc.results.0.cidr //zero represents index of json object from results list
+}
+
+// accessing IPv4 Network Container through EA's
+data "infoblox_ipv4_network_container" "nc_ea" {
+  filters = {
+    "*Site" = "GMC Site"
+  }
+}
+
+// throws matching IPv4 Network Containers with EA, if any
+output "nc_ea_out" {
+  value = data.infoblox_ipv4_network_container.nc_ea
 }
 ```

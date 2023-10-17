@@ -61,8 +61,81 @@ There are data sources for the following objects:
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
 
-!> Currently, the data sources work the way that if two or more NIOS objects match the same set of search fields, only one object will be used to populate
-   the data source's return fields. This is to be improved in one of the next releases.
+!> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
+matching NIOS objects.
+
+* `filters`: the schema, with passing combination of searchable fields are supported by NIOS server, which
+returns one or more matching objects from the NIOS server.
+
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
+
+### Example for using filters:
+```hcl
+resource "infoblox_a_record" "vip_host" {
+  fqdn = "very-interesting-host.example.com"
+  ip_addr = "10.3.1.65"
+  comment = "special host"
+  dns_view = "nondefault_dnsview2"
+  ttl = 120 // 120s
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+}
+
+
+data "infoblox_a_record" "a_rec_temp" {
+  filters = {
+    name = "very-interesting-host.example.com"
+    ipv4addr = "10.3.1.65" //alias is ip_addr
+    view = "nondefault_dnsview2"
+  }
+
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_a_record' resource block before the data source will be queried.
+  depends_on = [infoblox_a_record.vip_host]
+}
+
+output "a_rec_res" {
+  value = data.infoblox_a_record.a_rec_temp
+}
+
+// accessing individual field in results
+output "a_rec_name" {
+  value = data.infoblox_a_record.a_rec_temp.results.0.fqdn //zero represents index of json object from results list
+}
+```
+
+The list of matching objects as JSON format returned in output under results, with fields or arguments that are passed in the filters.
+
+Filters will support `EA Search` i.e, fetches matching objects or records associated with the EAs' corresponding to provided data source, if any.
+
+### Example for using filters for EA Search:
+ ```hcl
+ data "infoblox_a_record" "a_rec1" {
+    filters = {
+        "*TestEA" = "Acceptance Test"
+    }
+ }
+ ```
+Filters will also support Multi Value EA Search, where if the EA has more than one value, to be passed as comma seperated
+value as a string. In here EAs' can have multiple or multi values of types like 'string', 'integer', etc..
+
+### Example for using Multi Value EA Search:
+```hcl
+data "infoblox_a_record" "a_rec2" {
+    filters = {
+        "*tf_multi_val" = "test,test2,demo"
+    }
+ }
+
+// for negative condition, if there are common EA values associated with different objects, to fetch unique record or object
+data "infoblox_a_record" "a_rec3" {
+  filters = {
+    "*tf_multi_val" = "test"
+    "*tf_multi_val!" = "dummy"
+  }
+}
+```
 
 ## Importing existing resources
 
