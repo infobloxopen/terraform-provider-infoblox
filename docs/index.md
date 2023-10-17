@@ -9,11 +9,13 @@ There are resources for the following objects, supported by the plugin:
 * Network (`infoblox_ipv4_network`, `infoblox_ipv6_network`)
 * A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
+* DNS View (`infoblox_dns_view`)
 * PTR-record (`infoblox_ptr_record`)
 * CNAME-record (`infoblox_cname_record`)
 * MX-record (`infoblox_mx_record`)
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
+* Zone Auth (`infoblox_zone_auth`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
@@ -56,10 +58,12 @@ There are data sources for the following objects:
 * A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
 * CNAME-record (`infoblox_cname_record`)
+* DNS View (`infoblox_dns_view`)
 * PTR-record (`infoblox_ptr_record`)
 * MX-record (`infoblox_mx_record`)
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
+* Zone Auth (`infoblox_zone_auth`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
