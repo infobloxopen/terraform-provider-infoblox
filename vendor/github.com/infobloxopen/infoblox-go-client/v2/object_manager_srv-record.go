@@ -71,14 +71,14 @@ func (objMgr *ObjectManager) CreateSRVRecord(
 
 	recordSRV := NewRecordSRV(RecordSRV{
 		View:     dnsView,
-		Name:     name,
-		Priority: priority,
-		Weight:   weight,
-		Port:     port,
-		Target:   target,
-		Ttl:      ttl,
-		UseTtl:   useTtl,
-		Comment:  comment,
+		Name:     &name,
+		Priority: &priority,
+		Weight:   &weight,
+		Port:     &port,
+		Target:   &target,
+		Ttl:      &ttl,
+		UseTtl:   &useTtl,
+		Comment:  &comment,
 		Ea:       eas,
 	})
 
@@ -158,14 +158,14 @@ func (objMgr *ObjectManager) UpdateSRVRecord(
 
 	recordSRV := NewRecordSRV(RecordSRV{
 		Ref:      ref,
-		Name:     name,
-		Priority: priority,
-		Weight:   weight,
-		Port:     port,
-		Target:   target,
-		Ttl:      ttl,
-		UseTtl:   useTtl,
-		Comment:  comment,
+		Name:     &name,
+		Priority: &priority,
+		Weight:   &weight,
+		Port:     &port,
+		Target:   &target,
+		Ttl:      &ttl,
+		UseTtl:   &useTtl,
+		Comment:  &comment,
 		Ea:       eas,
 	})
 

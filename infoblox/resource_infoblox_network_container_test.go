@@ -329,6 +329,214 @@ func TestAcc_resourceNetworkContainer_ipv4(t *testing.T) {
 	})
 }
 
+func TestAcc_resourceNetworkContainer_ipv4_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkContainerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					resource "infoblox_ipv4_network_container" "nc_1" {
+					  network_view = "default"
+					  cidr = "10.0.0.0/16"
+					  comment = "10.0.0.0/16 network container"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+					  })
+					}`,
+				Check: validateNetworkContainer(
+					"infoblox_ipv4_network_container.nc_1",
+					&ibclient.NetworkContainer{
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/16",
+						Comment:     "10.0.0.0/16 network container",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Location":  "Test location",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.Ipv4NetworkContainer{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"network":      "10.0.0.0/16",
+							"network_view": "default",
+						},
+					)
+					var res []ibclient.Ipv4NetworkContainer
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].Network = ""
+					res[0].NetworkView = ""
+					res[0].Ea["Building"] = "Test Building"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+					resource "infoblox_ipv4_network_container" "nc_1" {
+					  network_view = "default"
+					  cidr = "10.0.0.0/16"
+					  comment = "10.0.0.0/16 network container"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+					  })
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Building EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_ipv4_network_container.nc_1", "ext_attrs",
+						`{"Location":"Test location","Site":"Test site","Tenant ID":"terraform_test_tenant"}`,
+					),
+					// Actual API object should have Building EA
+					validateNetworkContainer(
+						"infoblox_ipv4_network_container.nc_1",
+						&ibclient.NetworkContainer{
+							NetviewName: "default",
+							Cidr:        "10.0.0.0/16",
+							Comment:     "10.0.0.0/16 network container",
+							Ea: ibclient.EA{
+								"Tenant ID": "terraform_test_tenant",
+								"Location":  "Test location",
+								"Site":      "Test site",
+								"Building":  "Test Building",
+							},
+						},
+					),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+					resource "infoblox_ipv4_network_container" "nc_1" {
+					  network_view = "default"
+					  cidr = "10.0.0.0/16"
+					  comment = "Updated comment"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+					  })
+					}`,
+				Check: validateNetworkContainer(
+					"infoblox_ipv4_network_container.nc_1",
+					&ibclient.NetworkContainer{
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/16",
+						Comment:     "Updated comment",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Location":  "Test location",
+							"Site":      "Test site",
+							"Building":  "Test Building",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+					resource "infoblox_ipv4_network_container" "nc_1" {
+					  network_view = "default"
+					  cidr = "10.0.0.0/16"
+					  comment = "Updated comment"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+						Building = "Test Building 2"
+					  })
+					}`,
+				Check: validateNetworkContainer(
+					"infoblox_ipv4_network_container.nc_1",
+					&ibclient.NetworkContainer{
+						NetviewName: "default",
+						Cidr:        "10.0.0.0/16",
+						Comment:     "Updated comment",
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"Location":  "Test location",
+							"Site":      "Test site",
+							"Building":  "Test Building 2",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+					resource "infoblox_ipv4_network_container" "nc_1" {
+					  network_view = "default"
+					  cidr = "10.0.0.0/16"
+					  comment = "Updated comment"
+					  ext_attrs = jsonencode({
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test location"
+						Site = "Test site"
+					  })
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_ipv4_network_container.nc_1", "ext_attrs",
+						`{"Location":"Test location","Site":"Test site","Tenant ID":"terraform_test_tenant"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_ipv4_network_container.nc_1"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_ipv4_network_container.nc_1")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						nc, err := objMgr.GetNetworkContainerByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := nc.Ea["Building"]; ok {
+							return fmt.Errorf("building EA should've been removed, but still present in the WAPI object")
+						}
+
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
 func TestAcc_resourceNetworkContainer_ipv6(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

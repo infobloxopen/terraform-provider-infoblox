@@ -1,24 +1,24 @@
-// searching by an IP address
-data "infoblox_ptr_record" "ds1" {
-  ptrdname = "rec1.example1.org"
-  ip_addr = "10.0.0.1"
-
-  depends_on = [infoblox_ptr_record.rec1]
+resource "infoblox_ptr_record" "host1" {
+  ptrdname = "host.example.org"
+  ip_addr = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+  comment = "workstation #3"
+  ttl = 300 # 5 minutes
+  ext_attrs = jsonencode({
+    "Location" = "the main office"
+  })
 }
 
-// searching by a record's name
-data "infoblox_ptr_record" "ds2" {
-  ptrdname = "rec2.example1.org"
-  record_name = "2.0.0.10.in-addr.arpa"
+data "infoblox_ptr_record" "host1" {
+  filters = {
+    ptrdname="host.example.org"
+    ip_addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+  }
 
-  depends_on = [infoblox_ptr_record.rec2]
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_ptr_record' resource block before the data source will be queried.
+  depends_on = [infoblox_ptr_record.host1]
 }
 
-// non-default DNS view name
-data "infoblox_ptr_record" "ds3" {
-  ptrdname = "rec3.example2.org"
-  dns_view = "nondefault_dnsview1"
-  ip_addr = "2002:1f93::3"
-
-  depends_on = [infoblox_ptr_record.rec3]
+output "ptr_rec_res" {
+  value = data.infoblox_ptr_record.host1
 }

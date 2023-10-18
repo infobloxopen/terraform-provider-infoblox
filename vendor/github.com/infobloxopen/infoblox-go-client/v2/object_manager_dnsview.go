@@ -2,8 +2,8 @@ package ibclient
 
 import "fmt"
 
-func (objMgr *ObjectManager) GetDNSView(name string) (*DNSView, error) {
-	var res []DNSView
+func (objMgr *ObjectManager) GetDNSView(name string) (*View, error) {
+	var res []View
 	if name == "" {
 		return nil, fmt.Errorf(
 			"DNS view's name is required to retreive DNS view object")

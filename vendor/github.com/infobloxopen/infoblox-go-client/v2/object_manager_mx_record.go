@@ -1,6 +1,8 @@
 package ibclient
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (objMgr *ObjectManager) CreateMXRecord(
 	dnsView string,
@@ -25,14 +27,14 @@ func (objMgr *ObjectManager) CreateMXRecord(
 	}
 
 	recordMx := NewRecordMX(RecordMX{
-		View:       dnsView,
-		Fqdn:       fqdn,
-		MX:         mx,
-		Preference: preference,
-		Ttl:        ttl,
-		UseTtl:     useTtl,
-		Comment:    comment,
-		Ea:         eas,
+		View:          &dnsView,
+		Name:          &fqdn,
+		MailExchanger: &mx,
+		Preference:    &preference,
+		Ttl:           &ttl,
+		UseTtl:        &useTtl,
+		Comment:       &comment,
+		Ea:            eas,
 	})
 
 	ref, err := objMgr.connector.CreateObject(recordMx)
@@ -97,7 +99,7 @@ func (objMgr *ObjectManager) UpdateMXRecord(
 		return nil, err
 	}
 
-	if dnsView != res.View {
+	if dnsView != *res.View {
 		return nil, fmt.Errorf("changing 'dns_view' field after object creation is not allowed")
 	}
 
@@ -109,14 +111,14 @@ func (objMgr *ObjectManager) UpdateMXRecord(
 		return nil, fmt.Errorf("'mail_exchanger' field must not be empty")
 	}
 	recordMx := NewRecordMX(RecordMX{
-		View:       dnsView,
-		Fqdn:       fqdn,
-		MX:         mx,
-		Preference: preference,
-		Ttl:        ttl,
-		UseTtl:     useTtl,
-		Comment:    comment,
-		Ea:         eas,
+		View:          &dnsView,
+		Name:          &fqdn,
+		MailExchanger: &mx,
+		Preference:    &preference,
+		Ttl:           &ttl,
+		UseTtl:        &useTtl,
+		Comment:       &comment,
+		Ea:            eas,
 	})
 
 	recordMx.Ref = ref

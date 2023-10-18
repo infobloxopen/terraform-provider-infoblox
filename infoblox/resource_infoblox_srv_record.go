@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -14,7 +13,9 @@ func resourceSRVRecord() *schema.Resource {
 		Update: resourceSRVRecordUpdate,
 		Delete: resourceSRVRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceSRVRecordImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
@@ -94,11 +95,9 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 	comment := d.Get("comment").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -123,11 +122,9 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
@@ -143,26 +140,26 @@ func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting SRV-Record: %s", err.Error())
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
+
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
@@ -243,24 +240,38 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs[eaNameForTenantId]
+	tempVal, found := newExtAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	srvrec, err := objMgr.GetSRVRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read SRV Record for update operation: %w", err)
+	}
+
+	newExtAttrs, err = mergeEAs(srvrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
+
 	rec, err := objMgr.UpdateSRVRecord(
-		d.Id(), name, uint32(priority), uint32(weight), uint32(port), target, ttl, useTtl, comment, extAttrs)
+		d.Id(), name, uint32(priority), uint32(weight), uint32(port), target, ttl, useTtl, comment, newExtAttrs)
 	if err != nil {
 		return fmt.Errorf("error updating SRV-Record: %s", err.Error())
 	}
@@ -272,11 +283,35 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	_, err = objMgr.DeleteSRVRecord(d.Id())
+	if err != nil {
+		return fmt.Errorf("deletion of MX-Record failed: %s", err.Error())
+	}
+	d.SetId("")
+
+	return nil
+
+}
+
+func resourceSRVRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
 	}
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
@@ -287,12 +322,51 @@ func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeleteSRVRecord(d.Id())
+	obj, err := objMgr.GetSRVRecordByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("deletion of MX-Record failed: %s", err.Error())
+		return nil, fmt.Errorf("failed getting SRV-Record: %s", err.Error())
 	}
-	d.SetId("")
 
-	return nil
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
 
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+	if err = d.Set("name", obj.Name); err != nil {
+		return nil, err
+	}
+	if err = d.Set("priority", obj.Priority); err != nil {
+		return nil, err
+	}
+	if err = d.Set("weight", obj.Weight); err != nil {
+		return nil, err
+	}
+	if err = d.Set("port", obj.Port); err != nil {
+		return nil, err
+	}
+	if err = d.Set("target", obj.Target); err != nil {
+		return nil, err
+	}
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

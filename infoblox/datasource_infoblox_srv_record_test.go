@@ -15,24 +15,24 @@ func TestAccDataSourceSRVRecord(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDataSourceSRVRecordsRead,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "dns_view", "nondefault_view"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "name", "_http._tcp.test.com"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "target", "www.test.com"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "port", "80"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "priority", "50"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "weight", "40"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "ttl", "10"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "comment", "testing SRV-record datasource"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec1", "ext_attrs", "{\"Site\":\"Moon\"}"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.dns_view", "nondefault_view"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.name", "_http._tcp.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.target", "www.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.port", "80"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.priority", "50"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.weight", "40"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.ttl", "10"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.comment", "testing SRV-record datasource"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec1", "results.0.ext_attrs", "{\"Site\":\"Moon\"}"),
 
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "dns_view", "default"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "name", "_http._tcp.test.com"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "target", "www2.test.com"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "port", "8080"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "priority", "50"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "weight", "40"),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "ttl", fmt.Sprintf("%d", ttlUndef)),
-					resource.TestCheckResourceAttr("data.infoblox_srv_record.rec2", "comment", ""),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.dns_view", "default"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.name", "_http._tcp.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.target", "www2.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.port", "8080"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.priority", "50"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.weight", "40"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.ttl", fmt.Sprintf("%d", ttlUndef)),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.srec2", "results.0.comment", ""),
 				),
 			},
 		},
@@ -54,11 +54,15 @@ resource "infoblox_srv_record" "rec1" {
     })
 }
 
-data "infoblox_srv_record" "rec1" {
-	dns_view = infoblox_srv_record.rec1.dns_view
-	name = infoblox_srv_record.rec1.name
-	target = infoblox_srv_record.rec1.target
-	port = infoblox_srv_record.rec1.port
+data "infoblox_srv_record" "srec1" {
+	filters = {
+		view = infoblox_srv_record.rec1.dns_view
+		name = infoblox_srv_record.rec1.name
+		target = infoblox_srv_record.rec1.target
+		port = infoblox_srv_record.rec1.port
+	}
+
+	depends_on = [infoblox_srv_record.rec1]
 }
 
 resource "infoblox_srv_record" "rec2" {
@@ -69,10 +73,56 @@ resource "infoblox_srv_record" "rec2" {
 	target = "www2.test.com"
 }
 
-data "infoblox_srv_record" "rec2" {
-	dns_view = infoblox_srv_record.rec2.dns_view
-	name = infoblox_srv_record.rec2.name
-	target = infoblox_srv_record.rec2.target
-	port = infoblox_srv_record.rec2.port
+data "infoblox_srv_record" "srec2" {
+	filters = {
+		view = infoblox_srv_record.rec2.dns_view
+		name = infoblox_srv_record.rec2.name
+		target = infoblox_srv_record.rec2.target
+		port = infoblox_srv_record.rec2.port
+	}
+
+	depends_on = [infoblox_srv_record.rec2]
 }
 `)
+
+func TestAccDataSourceSRVRecordSearchByEA(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: fmt.Sprintf(`
+					resource "infoblox_srv_record" "srv1"{
+						name = "_http._udp.test.com"
+						priority = 40
+						weight = 55
+						port = 5080
+						target = "random.test.com"
+						dns_view = "default"
+						comment = "new sample srv-record"
+						ext_attrs = jsonencode({
+							"Site" = "test srv site"
+						})
+					}
+
+					data "infoblox_srv_record" "dsrv1" {
+						filters = {
+							"*Site" = "test srv site"
+						}
+						depends_on = [infoblox_srv_record.srv1]
+					}
+				`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.dns_view", "default"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.name", "_http._udp.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.priority", "40"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.weight", "55"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.port", "5080"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.target", "random.test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.comment", "new sample srv-record"),
+					resource.TestCheckResourceAttr("data.infoblox_srv_record.dsrv1", "results.0.ext_attrs", "{\"Site\":\"test srv site\"}"),
+				),
+			},
+		},
+	})
+}

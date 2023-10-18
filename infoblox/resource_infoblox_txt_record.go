@@ -1,7 +1,6 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -14,7 +13,9 @@ func resourceTXTRecord() *schema.Resource {
 		Update: resourceTXTRecordUpdate,
 		Delete: resourceTXTRecordDelete,
 
-		Importer: &schema.ResourceImporter{},
+		Importer: &schema.ResourceImporter{
+			State: resourceTXTRecordImport,
+		},
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
 				Type:        schema.TypeString,
@@ -76,11 +77,9 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 	comment := d.Get("comment").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
@@ -105,12 +104,11 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
+
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
@@ -129,21 +127,22 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
@@ -211,24 +210,39 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
 
 	var tenantID string
-	tempVal, found := extAttrs[eaNameForTenantId]
+	tempVal, found := newExtAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
+	txtrec, err := objMgr.GetTXTRecordByRef(d.Id())
+	if err != nil {
+		return fmt.Errorf("failed to read TXT Record for update operation: %w", err)
+	}
+
+	newExtAttrs, err = mergeEAs(txtrec.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
+	}
+
 	rec, err := objMgr.UpdateTXTRecord(
-		d.Id(), fqdn, text, ttl, useTtl, comment, extAttrs)
+		d.Id(), fqdn, text, ttl, useTtl, comment, newExtAttrs)
 	if err != nil {
 		return fmt.Errorf("error updating TXT-Record: %s", err)
 	}
@@ -240,11 +254,9 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'extattrs' field: %s", err)
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
 	}
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
@@ -254,11 +266,71 @@ func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err := objMgr.DeleteTXTRecord(d.Id())
+	_, err = objMgr.DeleteTXTRecord(d.Id())
 	if err != nil {
 		return fmt.Errorf("deletion of TXT-Record failed: %s", err)
 	}
 	d.SetId("")
 
 	return nil
+}
+
+func resourceTXTRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	connector := m.(ibclient.IBConnector)
+	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+
+	obj, err := objMgr.GetTXTRecordByRef(d.Id())
+	if err != nil {
+		return nil, fmt.Errorf("failed getting TXT-Record: %s", err)
+	}
+
+	if err = d.Set("text", obj.Text); err != nil {
+		return nil, err
+	}
+
+	ttl := int(*obj.Ttl)
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	d.SetId(obj.Ref)
+
+	return []*schema.ResourceData{d}, nil
 }

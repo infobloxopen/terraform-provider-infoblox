@@ -12,7 +12,7 @@ func (objMgr *ObjectManager) CreateEADefinition(eadef EADefinition) (*EADefiniti
 func (objMgr *ObjectManager) GetEADefinition(name string) (*EADefinition, error) {
 	var res []EADefinition
 
-	eadef := NewEADefinition(EADefinition{Name: name})
+	eadef := NewEADefinition(EADefinition{Name: &name})
 
 	sf := map[string]string{
 		"name": name,
