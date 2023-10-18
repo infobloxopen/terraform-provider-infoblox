@@ -1,6 +1,6 @@
 # PTR-record Data Source
 
-Use the data source to retrieve the following information for list of PTR-records from the corresponding object in NIOS:
+Use the data source to retrieve the following information for PTR-record from the corresponding object in NIOS:
 
 * `dns_view`: the DNS view which the record's zone belongs to.
 * `ip_addr`: the IPv4 or IPv6 address associated with the PTR-record.

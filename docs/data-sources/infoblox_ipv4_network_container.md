@@ -1,6 +1,6 @@
 # IPv4 Network Container Data Source
 
-Use the data source to retrieve the following information for list of IPv4 network container resources from the corresponding
+Use the data source to retrieve the following information for an IPv4 network container resource from the corresponding
 object in NIOS:
 * `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
 * `cidr`: the IPv4 network block of the network container. Example: `19.17.0.0/16`

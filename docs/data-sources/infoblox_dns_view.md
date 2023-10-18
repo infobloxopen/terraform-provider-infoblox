@@ -1,6 +1,6 @@
 # DNS View Data Source
 
-Use the `infoblox_dns_view` data source to retrieve the following information for list of DNS Views if any, which are managed by a NIOS server:
+Use the `infoblox_dns_view` data source to retrieve the following information for a DNS View if any, which is managed by a NIOS server:
 
 * `name`: The name of th DNS View. Example: `custom_dnsview`.
 * `network_view`: The name of the network view object associated with this DNS view. Example: `nondefault_netview`.

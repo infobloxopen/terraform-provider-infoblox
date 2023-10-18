@@ -1,6 +1,6 @@
 # Network View Data Source
 
-Use the data source to retrieve the following information for list of network view resources from the corresponding object in NIOS:
+Use the data source to retrieve the following information for a network view resource from the corresponding object in NIOS:
 
 * `name`: the name of the network view to be specified. Example: `custom_netview`
 * `comment`: a description of the network view. This is a regular comment. Example: `From the outside`.

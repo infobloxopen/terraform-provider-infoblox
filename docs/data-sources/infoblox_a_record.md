@@ -1,6 +1,6 @@
 # A-record Data Source
 
-Use the `infoblox_a_record` data source to retrieve the following information for list of A-records if any, which are managed by a NIOS server:
+Use the `infoblox_a_record` data source to retrieve the following information for an A-Record if any, which is managed by a NIOS server:
 
 * `dns_view`: the DNS view which the record's zone belongs to. Example: `default`
 * `ip_addr`: the IPv4 address associated with the A-record. Example: `17.10.0.8`

@@ -1,6 +1,6 @@
 # SRV-record Data Source
 
-Use the data source to retrieve the following information for list of SRV-records from the corresponding object in NIOS:
+Use the data source to retrieve the following information for SRV-record from the corresponding object in NIOS:
 
 * `dns_view`: the DNS view which the record's zone belongs to.
 * `name`: the record's name in the format, defined in RFC2782 document. Example: `_http._tcp.acme.com`

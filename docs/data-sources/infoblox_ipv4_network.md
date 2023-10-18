@@ -1,6 +1,6 @@
 # IPv4 Network Data Source
 
-The data source for the network object allows you to get the following parameters for list of IPv4 network resources:
+The data source for the network object allows you to get the following parameters for an IPv4 network resource:
 
 * `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`

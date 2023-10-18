@@ -1,6 +1,6 @@
 # MX-record Data Source
 
-Use the data source to retrieve the following information for MX-record's from the corresponding object in NIOS:
+Use the data source to retrieve the following information for MX-record from the corresponding object in NIOS:
 
 * `dns_view`: the DNS view which the record's zone belongs to.
 * `fqdn`: the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `samplemx.demo.com`

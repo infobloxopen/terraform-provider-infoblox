@@ -1,6 +1,6 @@
 # AAAA-record Data Source
 
-Use the `infoblox_aaaa_record` data source to retrieve the following information for list of AAAA-records if any, which are managed by a NIOS server:
+Use the `infoblox_aaaa_record` data source to retrieve the following information for an AAAA-record if any, which is managed by a NIOS server:
 
 * `dns_view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
 * `ipv6_addr`: the IPv6 address associated with the AAAA-record. Example: `2001::14`

@@ -1,6 +1,6 @@
 # TXT-record Data Source
 
-Use the data source to retrieve the following information for list of TXT-records from the corresponding object in NIOS:
+Use the data source to retrieve the following information for TXT-record from the corresponding object in NIOS:
 
 * `dns_view`: the DNS view which the record's zone belongs to.
 * `fqdn`: the fully qualified domain name which a textual value is assigned to. Example: `sampletxt.demo.com`

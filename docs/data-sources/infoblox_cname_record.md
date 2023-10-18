@@ -1,6 +1,6 @@
 # CNAME-record Data Source
 
-Use the `infoblox_cname_record` data resource for the CNAME object to retrieve the following information for list of CNAME records:
+Use the `infoblox_cname_record` data resource for the CNAME object to retrieve the following information for a CNAME record:
 
 * `dns_view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
 * `canonical`: the canonical name of the record in the FQDN format. Example: `debug.point.somewhere.in`

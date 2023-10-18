@@ -1,13 +1,25 @@
-data "infoblox_txt_record" "ds1"{
-  // the arguments are taken from the examples for infoblox_txt_record resource
+resource "infoblox_txt_record" "rec3" {
+  dns_view = "nondefault_dnsview1"
+  fqdn = "example3.example2.org"
+  text = "data for TXT-record #3"
+  ttl = 300
+  comment = "example TXT record #3"
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+}
 
-  // as we use a reference to a resource's field, we do not know if
-  // it is 'default' (may be omitted) or not.
-  dns_view=infoblox_txt_record.rec3.dns_view
+data "infoblox_txt_record" "ds3" {
+  filters =  {
+    dns_view = "nondefault_dnsview1"
+    fqdn = "example3.example2.org"
+  }
 
-  fqdn = infoblox_txt_record.rec3.fqdn
+  // This is just to ensure that the record has been be created
+  // using 'infoblox_txt_record' resource block before the data source will be queried.
+  depends_on = [infoblox_txt_record.rec3]
+}
 
-  // zone, text, ttl, comment and ext_attrs values may be retrieved using this data source.
-
-  depends_on = [infoblox_txt_record.rec1]
+output "txt_rec_res" {
+  value = data.infoblox_txt_record.ds3
 }

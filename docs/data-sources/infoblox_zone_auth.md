@@ -1,6 +1,6 @@
 # Zone Auth Data Source
 
-Use the `infoblox_zone_auth` data source to retrieve the following information for list of zones if any, which are managed by a NIOS server:
+Use the `infoblox_zone_auth` data source to retrieve the following information for Authoritative Zone if any, which are managed by a NIOS server:
 
 * `fqdn`: The name of this DNS zone. For a reverse zone, this is in “address/cidr” format. Example: `11.10.0.0/24`. For other zones, this is in FQDN format. Example: `demozone.com` This value can be in unicode format.
 * `view`: The name of the DNS view in which the zone resides. Example: `external`.

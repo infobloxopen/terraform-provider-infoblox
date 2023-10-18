@@ -1,15 +1,27 @@
-data "infoblox_mx_record" "ds1" {
-    // the arguments are taken from the examples for infoblox_mx_record resource
+resource "infoblox_mx_record" "rec2" {
+    dns_view = "nondefault_dnsview1"
+    fqdn = "rec2.example2.org"
+    mail_exchanger = "sample.test.com"
+    preference = 40
+    comment = "example MX-record"
+    ttl = 120
+    ext_attrs = jsonencode({
+        "Location" = "Las Vegas"
+    })
+}
 
-    // as we use a reference to a resource's field, we do not know if
-    // it is 'default' (may be omitted) or not.
-    dns_view = infoblox_mx_record.rec2.dns_view
+data "infoblox_mx_record" "ds2" {
+    filters = {
+        dns_view = "nondefault_dnsview1"
+        fqdn = "rec2.example2.org"
+        mail_exchanger = "sample.test.com"
+    }
 
-    fqdn = infoblox_mx_record.rec2.fqdn
-    mail_exchanger = infoblox_mx_record.rec2.mail_exchanger
-    preference = infoblox_mx_record.rec2.preference
+    // This is just to ensure that the record has been be created
+    // using 'infoblox_mx_record' resource block before the data source will be queried.
+    depends_on = [infoblox_mx_record.rec2]
+}
 
-    // preference, ttl, comment, ext_attrs arguments may be retrieved using this data source.
-
-    depends_on = [infoblox_mx_record.rec1]
+output "mx_rec_res" {
+    value = data.infoblox_mx_record.ds2
 }
