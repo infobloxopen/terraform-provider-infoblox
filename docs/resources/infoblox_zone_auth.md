@@ -1,6 +1,6 @@
 # Zone Auth Resource
 
-The `infoblox_zone_auth` resource associates authoritative zone with in a DNS View.The resource represents the ‘zone_auth’ WAPI object in NIOS.
+The `infoblox_zone_auth` resource associates authoritative zone with a DNS View.The resource represents the ‘zone_auth’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the resource block of the zone auth object:
 
