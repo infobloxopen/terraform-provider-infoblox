@@ -261,6 +261,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	obj, err := getOrFindHostRec(d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); ok {
@@ -344,7 +345,9 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -632,6 +635,7 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 }
 
 func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	obj, err := getOrFindHostRec(d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); ok {
@@ -713,7 +717,9 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 		return nil, err
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}

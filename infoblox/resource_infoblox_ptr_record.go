@@ -208,6 +208,7 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -227,7 +228,10 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -497,6 +501,7 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -516,7 +521,10 @@ func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 		return nil, fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
