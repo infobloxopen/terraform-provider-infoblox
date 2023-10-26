@@ -636,16 +636,17 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 
 func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	var ttl int
+	internalId := newInternalResourceIdFromString(d.Id())
+	if internalId == nil {
+		return nil, fmt.Errorf("ID value provided is not in a proper format")
+	}
+
+	d.SetId(internalId.String())
+	if err := d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
 	obj, err := getOrFindHostRec(d, m)
 	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); ok {
-			d.SetId("")
-			return nil, ibclient.NewNotFoundError(fmt.Sprintf(
-				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
-					" removing the resource from Terraform state",
-				d.Id(), err))
-		}
-
 		return nil, err
 	}
 
@@ -728,19 +729,6 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 	}
 
 	if err = d.Set("ref", obj.Ref); err != nil {
-		return nil, err
-	}
-
-	internalId := newInternalResourceIdFromString(d.Id())
-	if internalId == nil {
-		return nil, fmt.Errorf("ID value provided is not in a proper format")
-	}
-
-	d.SetId(internalId.String())
-	if err := d.Set("internal_id", internalId.String()); err != nil {
-		return nil, err
-	}
-	if _, err := getOrFindHostRec(d, m); err != nil {
 		return nil, err
 	}
 
