@@ -35,7 +35,7 @@ resource "infoblox_zone_auth" "zone2" {
 }
 
 //IPV6 reverse mapping zone, with minimal set of parameters
-resource "infoblox_zone_auth" "zone2" {
+resource "infoblox_zone_auth" "zone3" {
   fqdn = "2002:1100::/64"
   view = "non_defaultview"
   zone_format = "IPV6"

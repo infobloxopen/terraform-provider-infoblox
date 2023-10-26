@@ -14,9 +14,8 @@ Use the data source to retrieve the following information for PTR-record from th
 As new feature filters are introduced, specifying combination DNS view , IPv4 address or IPv6 address or record name used instead of IP address
 and ptrdname is removed.
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object. Only searchable fields
-from below list of supported arguments for filters, are allowed to use in filters, for retrieving one or more records or objects matching
-filters.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
+From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 

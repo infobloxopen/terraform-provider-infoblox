@@ -121,6 +121,7 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -140,7 +141,10 @@ func resourceSRVRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting SRV-Record: %s", err.Error())
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -308,6 +312,7 @@ func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSRVRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -327,7 +332,10 @@ func resourceSRVRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 		return nil, fmt.Errorf("failed getting SRV-Record: %s", err.Error())
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}

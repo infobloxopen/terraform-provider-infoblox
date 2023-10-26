@@ -8,9 +8,8 @@ The data source for the network object allows you to get the following parameter
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
 
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object. Only searchable fields
-from below list of supported arguments for filters, are allowed to use in filters, for retrieving one or more records or objects matching
-filters.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
+From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 

@@ -100,6 +100,7 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -127,7 +128,11 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return err
 	}
-	ttl := int(*obj.Ttl)
+
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -264,6 +269,7 @@ func resourceCNAMERecordDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceCNAMERecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -291,7 +297,11 @@ func resourceCNAMERecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return nil, err
 	}
-	ttl := int(*obj.Ttl)
+
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}

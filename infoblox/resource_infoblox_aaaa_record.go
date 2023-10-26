@@ -147,6 +147,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -169,7 +170,9 @@ func resourceAAAARecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -377,6 +380,7 @@ func resourceAAAARecordDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceAAAARecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -399,7 +403,10 @@ func resourceAAAARecordImport(d *schema.ResourceData, m interface{}) ([]*schema.
 		return nil, err
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}

@@ -117,6 +117,7 @@ func resourceMXRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -137,7 +138,10 @@ func resourceMXRecordGet(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed getting MX-Record: %s", err)
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
@@ -295,6 +299,7 @@ func resourceMXRecordDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMXRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -315,7 +320,10 @@ func resourceMXRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.Re
 		return nil, fmt.Errorf("failed getting MX-Record: %s", err)
 	}
 
-	ttl := int(*obj.Ttl)
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
