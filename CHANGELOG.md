@@ -1,5 +1,18 @@
 # Changelog
 
+## [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.5.0) (2023-10-30)
+- Resources are reworked aganist the changes from auto generated objects in go-client
+- New Feature: ability to search through Extensible Attributes in datasources
+- Additionally, added Multi Value Extensible Attributes search support
+- EA Inheritance issue fixed, where inherited EAs in NIOS were getting deleted for second apply
+- Datasources are reworked to use `filters`, for fetching matching objects, refer to [Terraform Docs](https://github.com/infobloxopen/terraform-provider-infoblox/blob/master/docs/index.md)
+- New Resources:
+  - infoblox_dns_view
+  - infoblox_zone_auth
+- New Datasources:
+  - infoblox_dns_view
+  - infoblox_zone_auth
+
 ## [v2.4.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.1) (2023-06-20)
 - A/AAAA Record resources reworked:
   - removed limitation on updating 'cidr' field

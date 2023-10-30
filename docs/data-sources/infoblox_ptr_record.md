@@ -22,14 +22,14 @@ From the below list of supported arguments for filters,  use only the searchable
 -----
 | Field       | Alias    | Type   | Searchable |
 |-------------|----------|--------|------------|
-| ptrdname    | ---      | string | yes        |
+| ptrdname    | ptrdname | string | yes        |
 | record_name | name     | string | yes        |
 | view        | dns_view | string | yes        |
 | ipv4addr    | ip_addr  | string | yes        |
 | ipv6addr    | ip_addr  | string | yes        |
-| ttl         | ---      | uint32 | no         |
-| comment     | ---      | string | yes        |
-| zone        | ---      | string | yes        |
+| ttl         | ttl      | uint32 | no         |
+| comment     | comment  | string | yes        |
+| zone        | zone     | string | yes        |
 
 !> From above list, both ipv4addr and ipv6addr are not allowed together in filters. Apart from this any other combination is allowed.
 

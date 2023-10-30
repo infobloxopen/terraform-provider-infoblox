@@ -1,5 +1,21 @@
 # Infoblox Go Client Release Notes
 
+## v2.4.0
+
+### Release Summary
+
+- Added 'object_generated' file contains auto generated WAPI object structures and associated functions from WAPI instance.
+- Added E2E tests for functionality validation on WAPI's instance.
+- Updated CHANGELOG file with structs and fields of corresponding objects generated.
+- Some fields of structs are updated with pointers corresponding to WAPI instance.
+
+### Major Changes
+
+- Updated vendor directory and some dependencies like `ginkgo` with version update for test files.
+- Added `object_generated` file contains supported objects from go-client and other WAPI objects with structs.
+- Added Multi Value Extensible Attribute search validation for terraform plugin.
+- Removed `record_ns` file as `RecordNS` object struct already exists in `object_generated` file.
+
 ## v2.1.1
 
 This is just a bugfix release.

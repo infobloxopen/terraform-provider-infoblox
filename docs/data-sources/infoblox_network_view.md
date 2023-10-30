@@ -12,10 +12,10 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field   | Alias | Type   | Searchable |
-|---------|-------|--------|------------|
-| name    | ---   | string | yes        |
-| comment | ---   | string | yes        |
+| Field   | Alias   | Type   | Searchable |
+|---------|---------|--------|------------|
+| name    | name    | string | yes        |
+| comment | comment | string | yes        |
 
 !> Either you can fetch with both `name` and `comment` or just with `name` field.
 

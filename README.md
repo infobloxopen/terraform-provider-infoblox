@@ -7,7 +7,7 @@
 This is a provider plugin for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plugin enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.4.1](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.4.1)
+The latest version of Infoblox provider is [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.5.0)
 
 ## Provider Features
 
@@ -20,11 +20,13 @@ The provider plugin has NIOS DDI resources represented as Terraform resources an
 * Network (`infoblox_ipv4_network`, `infoblox_ipv6_network`)
 * A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
+* DNS View (`infoblox_dns_view`)
 * PTR-record (`infoblox_ptr_record`)
 * CNAME-record (`infoblox_cname_record`)
 * MX-record (`infoblox_mx_record`)
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
+* Zone Auth (`infoblox_zone_auth`)
 * Host record as a backend for the following operations:
     * Allocation and de-allocation of an IP address from a Network (`infoblox_ip_allocation`)
     * Association and de-association of an IP address from a VM (`infoblox_ip_association`)
@@ -39,11 +41,13 @@ DNS records and `infoblox_ip_allocation` resource have the `ttl` field's support
 * IPv4 Network Container (`infoblox_ipv4_network_container`)
 * A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
+* DNS View (`infoblox_dns_view`)
 * CNAME-record (`infoblox_cname_record`)
 * PTR-record (`infoblox_ptr_record`)
 * MX-record (`infoblox_mx_record`)
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
+* Zone Auth (`infoblox_zone_auth`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
 DNS records have the `ttl` and `zone` fields' support.
@@ -82,29 +86,22 @@ complete the following prerequisites:
 
 ## Limitations
 
-The limitations of Infoblox IPAM Plug-In for Terraform version 2.3.0 are as follows:
+The limitations of Infoblox IPAM Plug-In for Terraform version 2.5.0 are as follows:
 
-* No support for creating a DNS zone. Therefore, to work with DNS
-  records, you must ensure that appropriate DNS zones have been created in NIOS.
 * Allocation and association through a fixed-address record are not supported.
 * For `infoblox_ip_allocation` and `infoblox_ip_association` resources: creation of a host
   record with multiple IP addresses of the same type is not supported.
   But you can create a host record with a single IPv4 and IPv6 address (of both IP types at the same host record).
-* For `infoblox_ipv4_allocation`, `infoblox_ipv6_allocation`, `infoblox_ipv4_association` and `infoblox_ipv6_association`
-  resources: creation of a host record with multiple IP addresses of the same type or
-  a combination of IPv4 and IPv6 types, is not supported.
 * Authority delegation of IP addresses and DNS name spaces to a cloud platform appliance, is not supported.
-* Inheritance of extensible attributes is not supported.
+* Inheritance of extensible attributes is not fully functional in this release. Infoblox supports only the retaining of
+  inherited extensible attributes values in NIOS. The values are no longer deleted from NIOS as a result of any
+  operation performed in Terraform.
+* Configuring an A, AAAA, and a host record resource with both cidr and ip_addr parameters, or
+  configuring a PTR record with a combination of cidr , ip_addr , and record_name parameters, may
+  lead to unexpected behavior. For a consistent behavior, configure any one of the input parameters.
 * Required extensible attributes specified in NIOS Grid Manager are not validated by the plug-in.
 * In NIOS, the gateway IP addresses of networks created using the `infoblox_ipv4_network` and
   `infoblox_ipv6_network` resources display as "IPv4 Reservation" and "IPv6 Fixed Address" respectively.
 * Use of capital letters in the domain name of a Terraform resource may lead to unexpected results. For example,
   when you use a Terraform data source to search for a DNS record that has capital letters in its name, no results
   are returned if you specify the name in the same text case. You must specify the name in lower case.
-* The import functionality is not supported by the following resources (they are deprecated and not supported anymore):
-  * `infoblox_ipv4_allocation`
-  * `infoblox_ipv6_allocation`
-  * `infoblox_ipv4_association`
-  * `infoblox_ipv6_association`
-* The Update functionality is currently not working for the CIDR field in A and AAAA records.
-* The fetch functionality in data sources returns output for only one matching object even if it finds multiple objects matching the search criteria.

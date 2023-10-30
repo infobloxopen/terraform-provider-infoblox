@@ -14,11 +14,11 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field        | Alias | Type   | Searchable |
-|--------------|-------|--------|------------|
-| network      | cidr  | string | yes        |
-| network_view | ---   | string | yes        |
-| comment      | ---   | string | yes        |
+| Field        | Alias        | Type   | Searchable |
+|--------------|--------------|--------|------------|
+| network      | cidr         | string | yes        |
+| network_view | network_view | string | yes        |
+| comment      | comment      | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 

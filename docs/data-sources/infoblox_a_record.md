@@ -22,9 +22,9 @@ From the below list of supported arguments for filters,  use only the searchable
 |----------|----------|--------|------------|
 | name     | fqdn     | string | yes        |
 | view     | dns_view | string | yes        |
-| zone     | ---      | string | yes        |
-| ttl      | ---      | uint   | no         |
-| comment  | ---      | string | yes        |
+| zone     | zone     | string | yes        |
+| ttl      | ttl      | uint   | no         |
+| comment  | comment  | string | yes        |
 | ipv4addr | ip_addr  | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
