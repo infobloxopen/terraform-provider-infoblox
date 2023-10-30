@@ -23,14 +23,14 @@ From the below list of supported arguments for filters,  use only the searchable
 | Field    | Alias    | Type   | Searchable |
 |----------|----------|--------|------------|
 | name     | fqdn     | string | yes        |
-| priority | ---      | uint32 | yes        |
+| priority | priority | uint32 | yes        |
 | view     | dns_view | string | yes        |
-| weight   | ---      | uint32 | yes        |
-| port     | ---      | uint32 | yes        |
-| target   | ---      | string | yes        |
-| ttl      | ---      | uint32 | no         |
-| comment  | ---      | string | yes        |
-| zone     | ---      | string | yes        |
+| weight   | weight   | uint32 | yes        |
+| port     | port     | uint32 | yes        |
+| target   | target   | string | yes        |
+| ttl      | ttl      | uint32 | no         |
+| comment  | comment  | string | yes        |
+| zone     | zone     | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 

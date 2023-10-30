@@ -15,12 +15,12 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field       | Alias | Type   | Searchable |
-|-------------|-------|--------|------------|
-| fqdn        | ---   | string | yes        |
-| view        | ---   | string | yes        |
-| zone_format | ---   | string | yes        |
-| comment     | ---   | string | yes        |
+| Field       | Alias       | Type   | Searchable |
+|-------------|-------------|--------|------------|
+| fqdn        | fqdn        | string | yes        |
+| view        | view        | string | yes        |
+| zone_format | zone_format | string | yes        |
+| comment     | comment     | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 
