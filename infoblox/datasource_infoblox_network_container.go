@@ -1,7 +1,12 @@
 package infoblox
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"strconv"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -9,59 +14,111 @@ import (
 
 func dataSourceIpv4NetworkContainer() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceIpv4NetworkContainerRead,
+		ReadContext: dataSourceIpv4NetworkContainerRead,
 		Schema: map[string]*schema.Schema{
-			"network_view": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Newtwork view's name the network container belongs to.",
+			"filters": {
+				Type:     schema.TypeMap,
+				Required: true,
 			},
-			"cidr": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The CIDR value of the network container.",
-			},
-			"comment": {
-				Type:        schema.TypeString,
+
+			"results": {
+				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "Network container's description.",
-			},
-			"ext_attrs": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The Extensible attributes for the network container.",
+				Description: "List of networks matching filters.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"network_view": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     defaultNetView,
+							Description: "Newtwork view's name the network container belongs to.",
+						},
+						"cidr": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The CIDR value of the network container.",
+						},
+						"comment": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Network container's description.",
+						},
+						"ext_attrs": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The Extensible attributes for the network container.",
+						},
+					},
+				},
 			},
 		},
 	}
 }
 
-func dataSourceIpv4NetworkContainerRead(d *schema.ResourceData, m interface{}) error {
-
-	networkView := d.Get("network_view").(string)
-	cidr := d.Get("cidr").(string)
-
+func dataSourceIpv4NetworkContainerRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	networkContainer, err := objMgr.GetNetworkContainer(networkView, cidr, false, nil)
+	n := &ibclient.Ipv4NetworkContainer{}
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
+	qp := ibclient.NewQueryParams(false, filters)
+	var res []ibclient.Ipv4NetworkContainer
+
+	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return fmt.Errorf("Getting NetworkContainer %s failed : %s", cidr, err.Error())
-	}
-	d.SetId(networkContainer.Ref)
-
-	if err := d.Set("comment", networkContainer.Comment); err != nil {
-		return err
+		return diag.FromErr(fmt.Errorf("getting NetworkContainer failed : %w", err))
 	}
 
-	dsExtAttrsVal := networkContainer.Ea
-	dsExtAttrs, err := dsExtAttrsVal.MarshalJSON()
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	results := make([]interface{}, 0, len(res))
+	for _, nc := range res {
+		networkContainerFlat, err := flattenNetworkContainer(nc)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("failed to flatten network container: %w", err))
+		}
+
+		results = append(results, networkContainerFlat)
+	}
+
+	err = d.Set("results", results)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	if err := d.Set("ext_attrs", string(dsExtAttrs)); err != nil {
-		return err
-	}
+	// always run
+	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
 
 	return nil
+}
+
+func flattenNetworkContainer(nc ibclient.Ipv4NetworkContainer) (map[string]interface{}, error) {
+	var eaMap map[string]interface{}
+	if nc.Ea != nil && len(nc.Ea) > 0 {
+		eaMap = nc.Ea
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[string]interface{}{
+		"id":           nc.Ref,
+		"network_view": nc.NetworkView,
+		"cidr":         nc.Network,
+		"ext_attrs":    string(ea),
+	}
+
+	if nc.Comment != nil {
+		res["comment"] = *nc.Comment
+	}
+
+	return res, nil
 }

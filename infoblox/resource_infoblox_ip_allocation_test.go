@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"sort"
 	"testing"
 
@@ -17,7 +18,7 @@ func (al v4addrsType) Len() int {
 }
 
 func (al v4addrsType) Less(i, j int) bool {
-	return al[i].Ipv4Addr < al[j].Ipv4Addr
+	return *al[i].Ipv4Addr < *al[j].Ipv4Addr
 }
 
 func (al v4addrsType) Swap(i, j int) {
@@ -31,7 +32,7 @@ func (al v6addrsType) Len() int {
 }
 
 func (al v6addrsType) Less(i, j int) bool {
-	return al[i].Ipv6Addr < al[j].Ipv6Addr
+	return *al[i].Ipv6Addr < *al[j].Ipv6Addr
 }
 
 func (al v6addrsType) Swap(i, j int) {
@@ -45,10 +46,13 @@ func validateV4Addrs(exp, act []ibclient.HostRecordIpv4Addr) error {
 
 	for i, expAddr := range exp {
 		actAddr := act[i]
-		if expAddr.Ipv4Addr != actAddr.Ipv4Addr {
+		if actAddr.Ipv4Addr == nil {
+			return fmt.Errorf("'ipv4addr' is expected to be defined but it is not")
+		}
+		if *expAddr.Ipv4Addr != *actAddr.Ipv4Addr {
 			return fmt.Errorf(
 				"expected IPv4 address '%s' does not equal to the actual one '%s'",
-				expAddr.Ipv4Addr, actAddr.Ipv4Addr)
+				*expAddr.Ipv4Addr, *actAddr.Ipv4Addr)
 		}
 	}
 
@@ -61,10 +65,13 @@ func validateV6Addrs(exp, act []ibclient.HostRecordIpv6Addr) error {
 
 	for i, expAddr := range exp {
 		actAddr := act[i]
-		if expAddr.Ipv6Addr != actAddr.Ipv6Addr {
+		if actAddr.Ipv6Addr == nil {
+			return fmt.Errorf("'ipv6addr' is expected to be defined but it is not")
+		}
+		if *expAddr.Ipv6Addr != *actAddr.Ipv6Addr {
 			return fmt.Errorf(
 				"expected IPv6 address '%s' does not equal to the actual one '%s'",
-				expAddr.Ipv6Addr, actAddr.Ipv6Addr)
+				*expAddr.Ipv6Addr, *actAddr.Ipv6Addr)
 		}
 	}
 
@@ -115,56 +122,79 @@ func validateIPAllocation(
 				ipAlloc.NetworkView, expNv)
 		}
 
+		if ipAlloc.View == nil {
+			return fmt.Errorf("'dns_view' is expected to be defined but it is not")
+		}
 		expDnsView := expectedValue.View
-		if ipAlloc.View != expDnsView {
+		if *ipAlloc.View != *expDnsView {
 			return fmt.Errorf(
 				"the value of 'dns_view' field is '%s', but expected '%s'",
-				ipAlloc.View, expDnsView)
+				*ipAlloc.View, *expDnsView)
 		}
 
+		if ipAlloc.EnableDns == nil {
+			return fmt.Errorf("'enable_dns' is expected to be defined but it is not")
+		}
 		expEnableDns := expectedValue.EnableDns
-		if ipAlloc.EnableDns != expEnableDns {
+		if *ipAlloc.EnableDns != *expEnableDns {
 			return fmt.Errorf(
 				"the value of 'enable_dns' field is '%t', but expected '%t'",
-				ipAlloc.EnableDns, expEnableDns)
+				*ipAlloc.EnableDns, *expEnableDns)
 		}
 
-		expUseTtl := expectedValue.UseTtl
-		if ipAlloc.UseTtl != expUseTtl {
-			return fmt.Errorf(
-				"the value of 'use_ttl' field is '%t', but expected '%t'",
-				ipAlloc.UseTtl, expUseTtl)
+		if ipAlloc.UseTtl != nil {
+			if expectedValue.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *ipAlloc.UseTtl != *expectedValue.UseTtl {
+				return fmt.Errorf(
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*ipAlloc.UseTtl, *expectedValue.UseTtl)
+			}
+			if *ipAlloc.UseTtl {
+				if *ipAlloc.Ttl != *expectedValue.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						ipAlloc.Ttl, expectedValue.Ttl)
+				}
+			}
 		}
 
-		expTtl := expectedValue.Ttl
-		if ipAlloc.Ttl != expTtl {
-			return fmt.Errorf(
-				"the value of 'ttl' field is '%d', but expected '%d'",
-				ipAlloc.Ttl, expTtl)
+		if ipAlloc.Name == nil {
+			return fmt.Errorf("'fqdn' is expected not to be nil")
 		}
-
-		expFqdn := expectedValue.Name
-		if ipAlloc.Name != expFqdn {
+		if expectedValue.Name == nil {
+			panic("'fqdn' is expected not to be nil")
+		}
+		if *ipAlloc.Name != *expectedValue.Name {
 			return fmt.Errorf(
-				"the value of 'fqdn' field is '%s', but expected '%s'",
-				ipAlloc.Name, expFqdn)
+				"'fqdn' does not match: got '%s', expected '%s'",
+				*ipAlloc.Name,
+				*expectedValue.Name)
 		}
 
 		expComment := expectedValue.Comment
-		if ipAlloc.Comment != expComment {
-			return fmt.Errorf(
-				"the value of 'comment' field is '%s', but expected '%s'",
-				ipAlloc.Comment, expComment)
+		if ipAlloc.Comment != nil {
+			if expComment == nil {
+				return fmt.Errorf("'comment' is expected to be undefined but it is not")
+			}
+			if *ipAlloc.Comment != *expComment {
+				return fmt.Errorf(
+					"'comment' does not match: got '%s', expected '%s'",
+					*ipAlloc.Comment, *expComment)
+			}
+		} else if expectedValue.Comment != nil {
+			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
 
 		expV4Addrs := expectedValue.Ipv4Addrs
 		actualV4Addrs := ipAlloc.Ipv4Addrs
-		if expV4Addrs == nil && actualV4Addrs != nil || expV4Addrs != nil && actualV4Addrs == nil {
-			return fmt.Errorf("one of expected IPv4 address list and actual IPv4 address list is 'nil' while the other one is not")
+		if (expV4Addrs == nil) != (actualV4Addrs == nil) {
+			return fmt.Errorf("one of the expected and actual IPv4 address lists is 'nil' while the other one is not")
 		}
 		if expV4Addrs != nil {
 			if len(expV4Addrs) != len(actualV4Addrs) {
-				return fmt.Errorf("expected IPv4 address list and actual IPv4 address list are not of equal length")
+				return fmt.Errorf("expected and actual IPv4 address lists are not of equal length")
 			}
 			if err = validateV4Addrs(expV4Addrs, actualV4Addrs); err != nil {
 				return err
@@ -173,12 +203,12 @@ func validateIPAllocation(
 
 		expV6Addrs := expectedValue.Ipv6Addrs
 		actualV6Addrs := ipAlloc.Ipv6Addrs
-		if expV6Addrs == nil && actualV6Addrs != nil || expV6Addrs != nil && actualV6Addrs == nil {
-			return fmt.Errorf("one of expected IPv6 address list and actual IPv6 address list is 'nil' while the other one is not")
+		if (expV6Addrs == nil) != (actualV6Addrs == nil) {
+			return fmt.Errorf("one of the expected and actual IPv6 address lists is 'nil' while the other one is not")
 		}
 		if expV6Addrs != nil {
 			if len(expV6Addrs) != len(actualV6Addrs) {
-				return fmt.Errorf("expected IPv6 address list and actual IPv6 address list are not of equal length")
+				return fmt.Errorf("expected and actual IPv6 address lists are not of equal length")
 			}
 			if err = validateV6Addrs(expV6Addrs, actualV6Addrs); err != nil {
 				return err
@@ -229,12 +259,13 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						EnableDns:   true,
-						Name:        "testhostnameip.test.com",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
 						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
-						Comment:     "IPv4 and IPv6 are allocated",
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -265,14 +296,14 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						EnableDns:   true,
-						Name:        "testhostnameip2.test.com",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::2", "", false, "")},
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						UseTtl:      true,
-						Ttl:         10,
-						Comment:     "IPv4 and IPv6 are allocated",
+						UseTtl:      utils.BoolPtr(true),
+						Ttl:         utils.Uint32Ptr(10),
+						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -282,6 +313,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					},
 				),
 			},
+			// Validate that ipv6_addr can be removed
 			{
 				Config: `
 				resource "infoblox_ip_allocation" "foo3"{
@@ -289,7 +321,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					dns_view = "default"
 					fqdn="testhostnameip2.test.com"
 					ipv4_addr="10.0.0.2"
-					comment = "IPv4 and IPv6 are allocated"
+					comment = "IPv4 is allocated"
 					ext_attrs = jsonencode({
 						"VM Name" =  "tf-ec2-instance"
 						"Tenant ID" = "terraform_test_tenant"
@@ -301,11 +333,12 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        "default",
-						EnableDns:   true,
-						Name:        "testhostnameip2.test.com",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip2.test.com"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Comment:     "IPv4 and IPv6 are allocated",
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 is allocated"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
@@ -338,17 +371,298 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					"infoblox_ip_allocation.foo3",
 					&ibclient.HostRecord{
 						NetworkView: "default",
-						View:        " ",
-						EnableDns:   false,
-						Name:        "testhostnameip3",
+						View:        utils.StringPtr(" "),
+						EnableDns:   utils.BoolPtr(false),
+						Name:        utils.StringPtr("testhostnameip3"),
 						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
-						Comment:     "DNS disabled",
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("DNS disabled"),
 						Ea: ibclient.EA{
 							"Tenant ID": "terraform_test_tenant",
 							"VM Name":   "tf-ec2-instance",
 							"Location":  "Test loc.",
 							"Site":      "Test site",
 						},
+					},
+				),
+			},
+			{
+				Config: `
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip2.test.com"
+					ipv4_addr="10.0.0.2"
+					comment = "IPv4 and IPv6 are allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Test site"
+					  })
+					}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip2.test.com"),
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+		},
+	})
+}
+
+func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckIPAllocationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "IPv4 and IPv6 are allocated"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+						},
+					},
+				),
+			},
+			// When extensible attributes are added by another tool,
+			// terraform shouldn't remove those EAs
+			{
+				PreConfig: func() {
+					conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+					n := &ibclient.HostRecord{}
+					n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+					qp := ibclient.NewQueryParams(
+						false,
+						map[string]string{
+							"name": "testhostnameip.test.com",
+						},
+					)
+					var res []ibclient.HostRecord
+					err := conn.GetObject(n, "", qp, &res)
+					if err != nil {
+						panic(err)
+					}
+
+					res[0].Ipv6Addrs[0].Host = ""
+					res[0].Ipv4Addrs[0].Host = ""
+					res[0].Ea["Site"] = "Test site"
+
+					_, err = conn.UpdateObject(&res[0], res[0].Ref)
+					if err != nil {
+						panic(err)
+					}
+				},
+				Config: `
+					resource "infoblox_ip_allocation" "foo3"{
+						network_view="default"
+						dns_view = "default"
+						fqdn="testhostnameip.test.com"
+						ipv6_addr="2001:db8:abcd:12::1"
+						ipv4_addr="10.0.0.1"
+						comment = "IPv4 and IPv6 are allocated"
+						ext_attrs = jsonencode({
+							"VM Name" =  "tf-ec2-instance"
+							"Tenant ID" = "terraform_test_tenant"
+							Location = "Test loc."
+						})
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					// Resource object shouldn't have Site EA, since it's omitted by provider
+					resource.TestCheckResourceAttr(
+						"infoblox_ip_allocation.foo3", "ext_attrs",
+						`{"Location":"Test loc.","Tenant ID":"terraform_test_tenant","VM Name":"tf-ec2-instance"}`,
+					),
+					// Actual API object should have Building EA
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo3",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip.test.com"),
+							Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Tenant ID": "terraform_test_tenant",
+								"VM Name":   "tf-ec2-instance",
+								"Location":  "Test loc.",
+								"Site":      "Test site",
+							},
+						},
+					),
+				),
+			},
+			// Validate that inherited EA won't be removed if some field is updated in the resource
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				// Actual API object should have  EA
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("Updated comment"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Test site",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be updated
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+						Site = "Updated test site"
+					})
+				}`,
+				Check: validateIPAllocation(
+					"infoblox_ip_allocation.foo3",
+					&ibclient.HostRecord{
+						NetworkView: "default",
+						View:        utils.StringPtr("default"),
+						EnableDns:   utils.BoolPtr(true),
+						Name:        utils.StringPtr("testhostnameip.test.com"),
+						Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2001:db8:abcd:12::1", "", false, "")},
+						Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.1", "", false, "")},
+						UseTtl:      utils.BoolPtr(false),
+						Comment:     utils.StringPtr("Updated comment"),
+						Ea: ibclient.EA{
+							"Tenant ID": "terraform_test_tenant",
+							"VM Name":   "tf-ec2-instance",
+							"Location":  "Test loc.",
+							"Site":      "Updated test site",
+						},
+					},
+				),
+			},
+			// Validate that inherited EA can be removed, if updated
+			{
+				Config: `
+				resource "infoblox_ip_allocation" "foo3"{
+					network_view="default"
+					dns_view = "default"
+					fqdn="testhostnameip.test.com"
+					ipv6_addr="2001:db8:abcd:12::1"
+					ipv4_addr="10.0.0.1"
+					comment = "Updated comment"
+					ext_attrs = jsonencode({
+						"VM Name" =  "tf-ec2-instance"
+						"Tenant ID" = "terraform_test_tenant"
+						Location = "Test loc."
+					})
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"infoblox_ip_allocation.foo3", "ext_attrs",
+						`{"Location":"Test loc.","Tenant ID":"terraform_test_tenant","VM Name":"tf-ec2-instance"}`,
+					),
+					func(s *terraform.State) error {
+						conn := testAccProvider.Meta().(ibclient.IBConnector)
+
+						res, found := s.RootModule().Resources["infoblox_ip_allocation.foo3"]
+						if !found {
+							return fmt.Errorf("not found: %s", "infoblox_ip_allocation.foo3")
+						}
+
+						id := res.Primary.ID
+						if id == "" {
+							return fmt.Errorf("ID is not set")
+						}
+
+						objMgr := ibclient.NewObjectManager(
+							conn,
+							"terraform_test",
+							"terraform_test_tenant")
+						nc, err := objMgr.GetHostRecordByRef(id)
+						if err != nil {
+							if isNotFoundError(err) {
+								return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+							}
+						}
+
+						if _, ok := nc.Ea["Site"]; ok {
+							return fmt.Errorf("Site EA should've been removed, but still present in the WAPI object")
+						}
+
+						return nil
 					},
 				),
 			},

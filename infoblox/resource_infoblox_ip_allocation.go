@@ -1,13 +1,12 @@
 package infoblox
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -27,13 +26,13 @@ func resourceIPAllocation() *schema.Resource {
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultNetView,
 				Description: "network view name on NIOS server.",
 			},
 			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Computed:    true,
 				Description: "DNS view under which the zone has been created.",
 			},
 			"enable_dns": {
@@ -103,7 +102,6 @@ func resourceIPAllocation() *schema.Resource {
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 				Description: "Internal ID of an object at NIOS side," +
 					" used by Infoblox Terraform plugin to search for a NIOS's object" +
@@ -154,18 +152,7 @@ func getOrFindHostRec(d *schema.ResourceData, m interface{}) (
 
 	// TODO: use proper Tenant ID
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
-	hostRec, err = objMgr.SearchHostRecordByAltId(actualIntId.String(), ref, eaNameForInternalId)
-	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return nil, fmt.Errorf("error getting the allocated host record with ID '%s': %s", d.Id(), err.Error())
-		}
-
-		return nil, ibclient.NewNotFoundError(
-			fmt.Sprintf(
-				"the resource with ID '%s' has been removed from the Terraform state because the underlying object on NIOS side was lost", d.Id()))
-	}
-
-	return
+	return objMgr.SearchHostRecordByAltId(actualIntId.String(), ref, eaNameForInternalId)
 }
 
 func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
@@ -204,12 +191,11 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
+
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to allocate IP: %w", err)
 	}
 
 	var tenantID string
@@ -241,6 +227,15 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error while creating a host record: %s", err.Error())
 	}
+	d.SetId(internalId.String())
+	if err = d.Set("ref", hostRec.Ref); err != nil {
+		return err
+	}
+
+	// For compatibility reason. This field should be deprecated in the future.
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 
 	if hostRec.Ipv6Addrs == nil || len(hostRec.Ipv6Addrs) < 1 {
 		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
@@ -262,28 +257,21 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.SetId(internalId.String())
-
-	// For compatibility reason. This field should be deprecated in the future.
-	if err = d.Set("internal_id", internalId.String()); err != nil {
-		return err
-	}
-
-	hostRec, err = getOrFindHostRec(d, m)
-	if err != nil {
-		return err
-	}
-
-	if err = d.Set("ref", hostRec.Ref); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
+	var ttl int
 	obj, err := getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
@@ -316,16 +304,23 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return err
+	}
+
 	delete(obj.Ea, eaNameForInternalId)
-	if obj.Ea != nil && len(obj.Ea) > 0 {
-		// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
-		//       (avoiding additional layer of keys ("value" key)
-		eaMap := (map[string]interface{})(obj.Ea)
-		ea, err := json.Marshal(eaMap)
+
+	omittedEAs := omitEAs(obj.Ea, extAttrs)
+
+	if omittedEAs != nil && len(omittedEAs) > 0 {
+		eaJSON, err := terraformSerializeEAs(omittedEAs)
 		if err != nil {
 			return err
 		}
-		if err = d.Set("ext_attrs", string(ea)); err != nil {
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return err
 		}
 	}
@@ -334,10 +329,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if strings.TrimSpace(obj.View) != "" {
-		if err = d.Set("dns_view", obj.View); err != nil {
-			return err
-		}
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
 	}
 
 	if err = d.Set("network_view", obj.NetworkView); err != nil {
@@ -348,16 +341,14 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if obj.EnableDns {
-		// if enable_dns = false then updating fqdn leads
-		// to constantly updating fqdn, which is truncated by NIOS to just one component.
-		if err = d.Set("fqdn", obj.Name); err != nil {
-			return err
-		}
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return err
 	}
 
-	ttl := int(obj.Ttl)
-	if !obj.UseTtl {
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
@@ -371,22 +362,74 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error) {
+	var updateSuccessful bool
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			prevNetView, _ := d.GetChange("network_view")
+			prevDNSView, _ := d.GetChange("dns_view")
+			prevFQDN, _ := d.GetChange("fqdn")
+			prevIPv4Addr, _ := d.GetChange("ipv4_addr")
+			prevIPv6Addr, _ := d.GetChange("ipv6_addr")
+			prevIPv4CIDR, _ := d.GetChange("ipv4_cidr")
+			prevIPv6CIDR, _ := d.GetChange("ipv6_cidr")
+			prevEnableDNS, _ := d.GetChange("enable_dns")
+			prevTTL, _ := d.GetChange("ttl")
+			prevComment, _ := d.GetChange("comment")
+			prevEa, _ := d.GetChange("ext_attrs")
+
+			_ = d.Set("network_view", prevNetView.(string))
+			_ = d.Set("dns_view", prevDNSView.(string))
+			_ = d.Set("fqdn", prevFQDN.(string))
+			_ = d.Set("ipv4_addr", prevIPv4Addr.(string))
+			_ = d.Set("ipv6_addr", prevIPv6Addr.(string))
+			_ = d.Set("ipv4_cidr", prevIPv4CIDR.(string))
+			_ = d.Set("ipv6_cidr", prevIPv6CIDR.(string))
+			_ = d.Set("enable_dns", prevEnableDNS.(bool))
+			_ = d.Set("ttl", prevTTL.(int))
+			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("ext_attrs", prevEa.(string))
+		}
+	}()
+
 	hostRecObj, err := getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
-	if d.HasChange("network_view") {
-		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
-	}
-	if d.HasChange("dns_view") {
-		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
-	}
 	if d.HasChange("internal_id") {
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
 	}
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
+
+	enableDNS := d.Get("enable_dns").(bool)
+	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
+	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
+		return fmt.Errorf(
+			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
+	}
+	if enableDNS {
+		if dnsView == disabledDNSView {
+			return fmt.Errorf("a valid DNS view's name MUST be defined ('dns_view' property) once 'enable_dns' has been changed from 'false' to 'true'")
+		}
+		if !strings.ContainsRune(fqdn, '.') {
+			return fmt.Errorf("'fqdn' value must be an FQDN without a trailing dot")
+		}
+	}
 
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
@@ -418,17 +461,22 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
-	enableDns := d.Get("enable_dns").(bool)
 	comment := d.Get("comment").(string)
-	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+
+	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
+
+	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
+	if err != nil {
+		return err
 	}
+
+	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
+	if err != nil {
+		return err
+	}
+
 	var tenantID string
-	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+	if tempVal, ok := newExtAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 
@@ -444,16 +492,16 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	)
 	if needIpv4Addr || needIpv6Addr {
 		if _, ipv4CidrFlag := d.GetOk("ipv4_cidr"); ipv4CidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
-			ipv4Addr = hostRecObj.Ipv4Addrs[0].Ipv4Addr
-			macAddr = hostRecObj.Ipv4Addrs[0].Mac
+			ipv4Addr = *hostRecObj.Ipv4Addrs[0].Ipv4Addr
+			macAddr = *hostRecObj.Ipv4Addrs[0].Mac
 		}
 		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
-			ipv6Addr = hostRecObj.Ipv6Addrs[0].Ipv6Addr
-			duid = hostRecObj.Ipv6Addrs[0].Duid
+			ipv6Addr = *hostRecObj.Ipv6Addrs[0].Ipv6Addr
+			duid = *hostRecObj.Ipv6Addrs[0].Duid
 		}
 	}
 
-	extAttrs[eaNameForInternalId] = internalId.String()
+	newExtAttrs[eaNameForInternalId] = internalId.String()
 
 	var (
 		recIpV4Addr *ibclient.HostRecordIpv4Addr
@@ -469,32 +517,52 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) error {
 	enableDhcp := false
 
 	if recIpV4Addr != nil {
-		macAddr = recIpV4Addr.Mac
-		enableDhcp = recIpV4Addr.EnableDhcp
+		macAddr = *recIpV4Addr.Mac
+		enableDhcp = *recIpV4Addr.EnableDhcp
 	}
 
-	if recIpV6Addr != nil {
-		duid = recIpV6Addr.Duid
-		enableDhcp = recIpV6Addr.EnableDhcp
+	if recIpV6Addr != nil && recIpV6Addr.EnableDhcp != nil {
+		if recIpV6Addr.Duid != nil {
+			duid = *recIpV6Addr.Duid
+			enableDhcp = *recIpV6Addr.EnableDhcp
+		}
+	}
+
+	hr, err := objMgr.GetHostRecordByRef(hostRecObj.Ref)
+	if err != nil {
+		return fmt.Errorf("failed to update IP allocation: %w", err)
+	}
+
+	mergedEAs, err := mergeEAs(hr.Ea, newExtAttrs, oldExtAttrs, connector)
+	if err != nil {
+		return err
 	}
 
 	hostRecObj, err = objMgr.UpdateHostRecord(
 		hostRecObj.Ref,
-		enableDns,
+		enableDNS,
 		enableDhcp,
 		fqdn,
 		hostRecObj.NetworkView,
+		dnsView,
 		ipv4Cidr, ipv6Cidr,
 		ipv4Addr, ipv6Addr,
 		macAddr, duid,
 		useTtl, ttl,
 		comment,
-		extAttrs, []string{})
+		mergedEAs, []string{})
 	if err != nil {
 		return fmt.Errorf(
-			"error while updating IP addresses of the host record with ID '%s': %s", d.Id(), err.Error())
+			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())
 	}
+	updateSuccessful = true
 	if err = d.Set("ref", hostRecObj.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("dns_view", hostRecObj.View); err != nil {
+		return err
+	}
+	if err = d.Set("fqdn", hostRecObj.Name); err != nil {
 		return err
 	}
 
@@ -528,12 +596,11 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 	extAttrJSON := d.Get("ext_attrs").(string)
-	extAttrs := make(map[string]interface{})
-	if extAttrJSON != "" {
-		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
-		}
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return fmt.Errorf("failed to delete network container: %w", err)
 	}
+
 	var tenantID string
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
@@ -550,7 +617,7 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 		// the corresponding NIOS object doesn't exist anyway.
 		// TODO: re-align this with ip_association.
 		log.Warningf(
-			"unsuccessfull attempt to delete a host record for the resource ID '%s': the object cannot be found; nevertheless, the resource is to be deleted anyway", d.Id())
+			"unsuccessfull attempt to delete a host record for the resource ID '%s': the object cannot be found; nevertheless, the resource is still to be deleted from Terraform state", d.Id())
 		d.SetId("")
 
 		return nil
@@ -568,6 +635,7 @@ func resourceAllocationRelease(d *schema.ResourceData, m interface{}) error {
 }
 
 func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	var ttl int
 	internalId := newInternalResourceIdFromString(d.Id())
 	if internalId == nil {
 		return nil, fmt.Errorf("ID value provided is not in a proper format")
@@ -577,7 +645,90 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 	if err := d.Set("internal_id", internalId.String()); err != nil {
 		return nil, err
 	}
-	if _, err := getOrFindHostRec(d, m); err != nil {
+	obj, err := getOrFindHostRec(d, m)
+	if err != nil {
+		return nil, err
+	}
+
+	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
+		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
+			return nil, err
+		}
+		if _, found := d.GetOk("ipv6_cidr"); !found {
+			if err := d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if obj.Ipv4Addrs == nil || len(obj.Ipv4Addrs) < 1 {
+		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
+			return nil, err
+		}
+		if _, found := d.GetOk("ipv4_cidr"); !found {
+			if err := d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	_, err = terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	delete(obj.Ea, eaNameForInternalId)
+
+	if obj.Ea != nil && len(obj.Ea) > 0 {
+		eaJSON, err := terraformSerializeEAs(obj.Ea)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = d.Set("ext_attrs", eaJSON); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = d.Set("comment", obj.Comment); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("dns_view", obj.View); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("network_view", obj.NetworkView); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("enable_dns", obj.EnableDns); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	if obj.Ttl != nil {
+		ttl = int(*obj.Ttl)
+	}
+	if !*obj.UseTtl {
+		ttl = ttlUndef
+	}
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("ref", obj.Ref); err != nil {
 		return nil, err
 	}
 

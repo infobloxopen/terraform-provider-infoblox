@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        go: [1.15.x]
+        go: [1.17]
     steps:
 
     - uses: actions/setup-go@v1

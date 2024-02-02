@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	log "github.com/sirupsen/logrus"
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
@@ -49,6 +50,7 @@ func resourceIpAssociation() *schema.Resource {
 // TODO: add validation of values (extra spaces, format, etc)
 func resourceIpAssociationUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("internal_id") {
+		restoreIpAssociationState(d)
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
 	}
 
@@ -67,6 +69,14 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 
 	hostRec, err = getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
@@ -75,8 +85,8 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("association with multiple IP addresses are not supported")
 		}
 
-		enableDhcpActualIpv6 = hostRec.Ipv6Addrs[0].EnableDhcp
-		duidActual = hostRec.Ipv6Addrs[0].Duid
+		enableDhcpActualIpv6 = *hostRec.Ipv6Addrs[0].EnableDhcp
+		duidActual = *hostRec.Ipv6Addrs[0].Duid
 	}
 
 	if hostRec.Ipv4Addrs != nil && len(hostRec.Ipv4Addrs) > 0 {
@@ -84,8 +94,8 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("association with multiple IP addresses are not supported")
 		}
 
-		enableDhcpActualIpv4 = hostRec.Ipv4Addrs[0].EnableDhcp
-		macAddrActual = hostRec.Ipv4Addrs[0].Mac
+		enableDhcpActualIpv4 = *hostRec.Ipv4Addrs[0].EnableDhcp
+		macAddrActual = *hostRec.Ipv4Addrs[0].Mac
 	}
 
 	enableDhcpActual = enableDhcpActualIpv4 || enableDhcpActualIpv6
@@ -109,7 +119,13 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 func resourceIpAssociationDelete(d *schema.ResourceData, m interface{}) error {
 	// TODO: process carefully the case: the host record is already deleted
 	if err := resourceIpAssociationCreateUpdateCommon(d, m, "00:00:00:00:00:00", ""); err != nil {
-		return err
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return fmt.Errorf("error getting the allocated host record with ID '%s': %s", d.Id(), err.Error())
+		}
+
+		log.Warnf(
+			"the underlying object for the resource with ID '%s' was lost on NIOS side, nothing to delete;"+
+				" removing appropriate resource from Terraform state anyway", d.Id())
 	}
 
 	d.SetId("")
@@ -132,20 +148,50 @@ func resourceIpAssociationCreateUpdate(d *schema.ResourceData, m interface{}) er
 	return resourceIpAssociationCreateUpdateCommon(d, m, mac, duid)
 }
 
+func restoreIpAssociationState(d *schema.ResourceData) {
+	prevMac, _ := d.GetChange("mac_addr")
+	prevDUID, _ := d.GetChange("duid")
+	prevEnableDHCP, _ := d.GetChange("enable_dhcp")
+	prevInternalID, _ := d.GetChange("internal_id")
+
+	_ = d.Set("mac_addr", prevMac.(string))
+	_ = d.Set("duid", prevDUID.(string))
+	_ = d.Set("enable_dhcp", prevEnableDHCP.(bool))
+	_ = d.Set("internal_id", prevInternalID.(string))
+}
+
 func resourceIpAssociationCreateUpdateCommon(
 	d *schema.ResourceData, m interface{}, mac string, duid string) (err error) {
 
 	var (
-		hostRec     *ibclient.HostRecord
-		recIpV4Addr *ibclient.HostRecordIpv4Addr
-		recIpV6Addr *ibclient.HostRecordIpv6Addr
-		ipV4Addr    string
-		ipV6Addr    string
-		tenantId    string
+		hostRec          *ibclient.HostRecord
+		recIpV4Addr      *ibclient.HostRecordIpv4Addr
+		recIpV6Addr      *ibclient.HostRecordIpv6Addr
+		ipV4Addr         string
+		ipV6Addr         string
+		tenantId         string
+		updateSuccessful bool
 	)
+
+	defer func() {
+		// Reverting the state back, in case of a failure,
+		// otherwise Terraform will keep the values, which leaded to the failure,
+		// in the state file.
+		if !updateSuccessful {
+			restoreIpAssociationState(d)
+		}
+	}()
 
 	hostRec, err = getOrFindHostRec(d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
 		return err
 	}
 
@@ -157,14 +203,18 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	if len(hostRec.Ipv4Addrs) > 0 {
 		recIpV4Addr = &hostRec.Ipv4Addrs[0]
-		ipV4Addr = recIpV4Addr.Ipv4Addr
+		ipV4Addr = *recIpV4Addr.Ipv4Addr
 	}
 	if len(hostRec.Ipv6Addrs) > 0 {
 		recIpV6Addr = &hostRec.Ipv6Addrs[0]
-		ipV6Addr = recIpV6Addr.Ipv6Addr
+		ipV6Addr = *recIpV6Addr.Ipv6Addr
 	}
 
 	mac = strings.Replace(mac, "-", ":", -1)
+
+	var (
+		comment string
+	)
 
 	if hostRec.Ea != nil {
 		if tempVal, found := hostRec.Ea[eaNameForTenantId]; found {
@@ -177,31 +227,37 @@ func resourceIpAssociationCreateUpdateCommon(
 	objMgr := ibclient.NewObjectManager(
 		m.(ibclient.IBConnector), "Terraform", tenantId)
 
+	if hostRec.Comment != nil {
+		comment = *hostRec.Comment
+	}
+
 	_, err = objMgr.UpdateHostRecord(
 		hostRec.Ref,
-		hostRec.EnableDns,
+		*hostRec.EnableDns,
 		enableDhcp,
-		hostRec.Name,
+		*hostRec.Name,
 		hostRec.NetworkView,
+		*hostRec.View,
 		"", "",
 		ipV4Addr, ipV6Addr,
 		mac, duid,
-		hostRec.UseTtl, hostRec.Ttl,
-		hostRec.Comment,
+		*hostRec.UseTtl, *hostRec.Ttl,
+		comment,
 		hostRec.Ea, []string{})
 	if err != nil {
 		return fmt.Errorf(
 			"failed to update the resource with ID '%s' (host record with internal ID '%s'): %s",
 			d.Id(), internalIdStr, err.Error())
 	}
-
-	if err = d.Set("ref", hostRec.Ref); err != nil {
-		return err
-	}
+	updateSuccessful = true
 
 	// Generate an ID for a newly created resource.
 	if d.Id() == "" {
 		d.SetId(generateInternalId().String())
+	}
+
+	if err = d.Set("ref", hostRec.Ref); err != nil {
+		return err
 	}
 
 	return nil

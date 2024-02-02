@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -21,18 +21,25 @@ const (
 	eaNameForInternalId = "Terraform Internal ID"
 	eaNameForTenantId   = "Tenant ID"
 	altIdSeparator      = "|"
+
+	defaultDNSView  = "default"
+	disabledDNSView = "  "
+	defaultNetView  = "default"
 )
 
 // Internal ID represents an immutable ID during resource's lifecycle.
 // NIOS object's reference may get changed, sometimes this is a problem:
-//   when more than one TF resources have the same NIOS WAPI object as a backend,
-//   changing reference to the object invalidates the old reference,
-//   which needs to be changed for all appropriate TF resources.
-//   Doing this is problematic.
-//   An example of such resources: a pair of infoblox_ipvX_allocation/infoblox_ipvX_association.
-//   They both must relate to a single host record on NIOS side.
+//
+//	when more than one TF resources have the same NIOS WAPI object as a backend,
+//	changing reference to the object invalidates the old reference,
+//	which needs to be changed for all appropriate TF resources.
+//	Doing this is problematic.
+//	An example of such resources: a pair of infoblox_ipvX_allocation/infoblox_ipvX_association.
+//	They both must relate to a single host record on NIOS side.
+//
 // Important requirement: the text representing an internal ID must not contain '|' sign,
-//   or in general: the sign (or a sequence of) which is defined by altIdSeparator constant.
+//
+//	or in general: the sign (or a sequence of) which is defined by altIdSeparator constant.
 type internalResourceId struct {
 	value uuid.UUID
 }
@@ -116,6 +123,22 @@ func getAltIdFields(altId string) (internalId *internalResourceId, ref string) {
 	return
 }
 
+// This function checks if the text string has any trailing or leading spaces.
+func checkAndTrimSpaces(text string) (string, bool) {
+	newText := strings.TrimSpace(text)
+	return newText, text != newText
+}
+
+const errMsgFormatLeadingTrailingSpaces = "leading or trailing spaces are not allowed for the '%s' field"
+
+func isNotFoundError(err error) bool {
+	if _, notFoundErr := err.(*ibclient.NotFoundError); notFoundErr {
+		return true
+	}
+
+	return false
+}
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -176,16 +199,17 @@ func Provider() *schema.Provider {
 			"infoblox_ipv6_network_container": resourceIPv6NetworkContainer(),
 			"infoblox_ipv4_network":           resourceIPv4Network(),
 			"infoblox_ipv6_network":           resourceIPv6Network(),
-			"infoblox_ipv4_allocation":        resourceIPv4Allocation(),
-			"infoblox_ipv6_allocation":        resourceIPv6Allocation(),
 			"infoblox_ip_allocation":          resourceIPAllocation(),
-			"infoblox_ipv4_association":       resourceIPv4AssociationInit(),
-			"infoblox_ipv6_association":       resourceIPv6AssociationInit(),
 			"infoblox_ip_association":         resourceIpAssociationInit(),
 			"infoblox_a_record":               resourceARecord(),
 			"infoblox_aaaa_record":            resourceAAAARecord(),
 			"infoblox_cname_record":           resourceCNAMERecord(),
 			"infoblox_ptr_record":             resourcePTRRecord(),
+			"infoblox_txt_record":             resourceTXTRecord(),
+			"infoblox_mx_record":              resourceMXRecord(),
+			"infoblox_srv_record":             resourceSRVRecord(),
+			"infoblox_dns_view":               resourceDNSView(),
+			"infoblox_zone_auth":              resourceZoneAuth(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -195,6 +219,11 @@ func Provider() *schema.Provider {
 			"infoblox_aaaa_record":            dataSourceAAAARecord(),
 			"infoblox_cname_record":           dataSourceCNameRecord(),
 			"infoblox_ptr_record":             dataSourcePtrRecord(),
+			"infoblox_txt_record":             dataSourceTXTRecord(),
+			"infoblox_mx_record":              dataSourceMXRecord(),
+			"infoblox_srv_record":             dataSourceSRVRecord(),
+			"infoblox_zone_auth":              dataSourceZoneAuth(),
+			"infoblox_dns_view":               dataSourceDNSView(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -236,4 +265,115 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
 	}
 	return conn, nil
+}
+
+// filterFromMap generates filter map for NIOS query parameters from a terraform map[string]interface{}
+func filterFromMap(filtersMap map[string]interface{}) map[string]string {
+	filters := make(map[string]string, len(filtersMap))
+
+	for k, v := range filtersMap {
+		filters[k] = v.(string)
+	}
+
+	return filters
+}
+
+// terraformSerializeEAs will convert ibclient.EA to a JSON-formatted string,
+// which is generally used as a value for 'ext_attrs' terraform fields.
+func terraformSerializeEAs(ea ibclient.EA) (string, error) {
+	eaMap := (map[string]interface{})(ea)
+	eaJSON, err := json.Marshal(eaMap)
+	if err != nil {
+		return "", err
+	}
+
+	return string(eaJSON), nil
+}
+
+// terraformDeserializeEAs converts JSON-formatted string
+// of extensible attributes to a map
+func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error) {
+	extAttrs := make(map[string]interface{})
+	if extAttrJSON != "" {
+		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
+			return nil, fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
+		}
+	}
+
+	return extAttrs, nil
+}
+
+// omitEAs will omit NIOS-side EAs that are not present on the terraform-provider side.
+// Should be used for read operations.
+func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{} {
+	// ToDo: When EA inheritance is implemented on the go-client side, only inherited EAs should be omitted here.
+	res := niosEAs
+	for attrName, _ := range niosEAs {
+		if _, ok := terraformEAs[attrName]; !ok {
+			delete(res, attrName)
+		}
+	}
+
+	return res
+}
+
+// mergeEAs merges omitted NIOS-side EAs with EAs specified in terraform configuration.
+// Should be used in update functions.
+func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}, conn ibclient.IBConnector) (ibclient.EA, error) {
+	res := map[string]interface{}{}
+	for key, niosVal := range niosEAs {
+		// If EA is present on the NIOS side, and there's no attempt to
+		// change a value of this EA by the terraform user, use EA value from NIOS
+
+		// If EA is required returns true, else returns false
+		req := checkEARequirement(key, conn)
+
+		if newTfVal, newTfValFound := newTerraformEAs[key]; !newTfValFound {
+			if _, oldTfValFound := oldTerraformEAs[key]; !oldTfValFound {
+				res[key] = niosVal
+			}
+			_, oldTfValFound := oldTerraformEAs[key]
+			if req && oldTfValFound {
+				return nil, fmt.Errorf("%s is required attribute, can't be removed", key)
+			}
+
+		} else {
+			if req && newTfVal == "" {
+				return nil, fmt.Errorf("%s is required attribute, can't be empty", key)
+			}
+			res[key] = newTfVal
+		}
+	}
+
+	// Merge EAs, added to the terraform configuration
+	for key, newTfVal := range newTerraformEAs {
+		if _, ok := res[key]; !ok {
+			res[key] = newTfVal
+		}
+	}
+
+	return res, nil
+}
+
+func checkEARequirement(name string, conn ibclient.IBConnector) bool {
+	eadef := &ibclient.EADefinition{}
+	eadef.SetReturnFields(append(eadef.ReturnFields(), "flags"))
+
+	sf := map[string]string{
+		"name": name,
+	}
+	qp := ibclient.NewQueryParams(false, sf)
+	var res []ibclient.EADefinition
+
+	err := conn.GetObject(eadef, "", qp, &res)
+	if err != nil {
+		fmt.Errorf("failed to get EA definition")
+	}
+	result := &res[0]
+	if result.Flags != nil {
+		if strings.Contains(*result.Flags, "M") {
+			return true
+		}
+	}
+	return false
 }

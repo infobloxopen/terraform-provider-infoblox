@@ -2,6 +2,7 @@ package ibclient
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
 	"regexp"
 	"strings"
@@ -26,7 +27,7 @@ func (objMgr *ObjectManager) CreatePTRRecord(
 	recordPTR := NewRecordPTR(dnsView, ptrdname, useTtl, ttl, comment, eas)
 
 	if recordName != "" {
-		recordPTR.Name = recordName
+		recordPTR.Name = &recordName
 	} else if ipAddr == "" && cidr != "" {
 		if networkView == "" {
 			networkView = "default"
@@ -39,9 +40,9 @@ func (objMgr *ObjectManager) CreatePTRRecord(
 			if net.String() != cidr {
 				return nil, fmt.Errorf("%s is an invalid CIDR. Note: leading zeros should be removed if exists", cidr)
 			}
-			recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView)
+			recordPTR.Ipv4Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView))
 		} else {
-			recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView)
+			recordPTR.Ipv6Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, networkView))
 		}
 	} else if ipAddr != "" {
 		ipAddress := net.ParseIP(ipAddr)
@@ -49,9 +50,9 @@ func (objMgr *ObjectManager) CreatePTRRecord(
 			return nil, fmt.Errorf("%s is an invalid IP address", ipAddr)
 		}
 		if ipAddress.To4() != nil {
-			recordPTR.Ipv4Addr = ipAddr
+			recordPTR.Ipv4Addr = &ipAddr
 		} else {
-			recordPTR.Ipv6Addr = ipAddr
+			recordPTR.Ipv6Addr = &ipAddr
 		}
 	} else {
 		return nil, fmt.Errorf("CIDR and network view are required to allocate a next available IP address\n" +
@@ -128,7 +129,7 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 
 	recordPTR := NewRecordPTR("", ptrdname, useTtl, ttl, comment, setEas)
 	recordPTR.Ref = ref
-	recordPTR.Name = name
+	recordPTR.Name = &name
 	isIPv6, _ := regexp.MatchString(`^record:ptr/.+.ip6.arpa/.+`, ref)
 
 	if name == "" {
@@ -145,12 +146,12 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 					if ipAddress.To4() != nil || ipAddress.To16() == nil {
 						return nil, fmt.Errorf("CIDR value must be an IPv6 CIDR, not an IPv4 one")
 					}
-					recordPTR.Ipv6Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+					recordPTR.Ipv6Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview))
 				} else {
 					if ipAddress.To4() == nil {
 						return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
 					}
-					recordPTR.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
+					recordPTR.Ipv4Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview))
 				}
 			}
 		} else {
@@ -162,13 +163,18 @@ func (objMgr *ObjectManager) UpdatePTRRecord(
 				if ipAddress.To4() != nil || ipAddress.To16() == nil {
 					return nil, fmt.Errorf("IP address must be an IPv6 address, not an IPv4 one")
 				}
-				recordPTR.Ipv6Addr = ipAddr
+				recordPTR.Ipv6Addr = &ipAddr
 			} else {
 				if ipAddress.To4() == nil {
 					return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
 				}
-				recordPTR.Ipv4Addr = ipAddr
+				recordPTR.Ipv4Addr = &ipAddr
 			}
+		}
+	}
+	if recordPTR.Name != nil {
+		if *recordPTR.Name == "" {
+			recordPTR.Name = nil
 		}
 	}
 	reference, err := objMgr.connector.UpdateObject(recordPTR, ref)

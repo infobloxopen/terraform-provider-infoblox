@@ -4,24 +4,12 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
-
-	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
-
-const testNetView = "default"
 
 const (
 	eaListTypeString = iota
 	eaListTypeInt
 )
-
-func isNotFoundError(err error) bool {
-	if _, notFoundErr := err.(*ibclient.NotFoundError); notFoundErr {
-		return true
-	}
-
-	return false
-}
 
 func typesEqual(a, b interface{}) bool {
 	return reflect.TypeOf(a) == reflect.TypeOf(b)
