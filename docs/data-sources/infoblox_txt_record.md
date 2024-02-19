@@ -35,7 +35,7 @@ From the below list of supported arguments for filters,  use only the searchable
  data "infoblox_txt_record" "txt_rec_filter" {
     filters = {
         name = "sampletxt.demo.com"
-        text = "some random text"
+        text = "\"some random text\""
         view = "default" // associated DNS view
     }
  }
@@ -52,7 +52,7 @@ all records will be fetched in results.
 resource "infoblox_txt_record" "rec3" {
   dns_view = "nondefault_dnsview1"
   fqdn = "example3.example2.org"
-  text = "data for TXT-record #3"
+  text = "\"data for TXT-record #3\""
   ttl = 300
   comment = "example TXT record #3"
   ext_attrs = jsonencode({
@@ -63,7 +63,7 @@ resource "infoblox_txt_record" "rec3" {
 data "infoblox_txt_record" "ds3" {
   filters =  {
     dns_view = "nondefault_dnsview1"
-    fqdn = "example3.example2.org"
+    name = "example3.example2.org"
   }
 
   // This is just to ensure that the record has been be created
