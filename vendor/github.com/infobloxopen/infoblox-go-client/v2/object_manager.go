@@ -77,6 +77,7 @@ type IBObjectManager interface {
 	GetAllMembers() ([]Member, error)
 	GetGridInfo() ([]Grid, error)
 	GetGridLicense() ([]License, error)
+	SearchDnsObjectByAltId(objType string, internalId string, ref string, eaNameForInternalId string) (interface{}, error)
 	ReleaseIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (string, error)
 	UpdateAAAARecord(ref string, netView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordAAAA, error)
 	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
@@ -91,6 +92,10 @@ type IBObjectManager interface {
 	UpdateTXTRecord(ref string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
+	GetDnsMember(ref string) ([]Dns, error)
+	UpdateDnsStatus(ref string, status bool) (Dns, error)
+	GetDhcpMember(ref string) ([]Dhcp, error)
+	UpdateDhcpStatus(ref string, status bool) (Dhcp, error)
 }
 
 type ObjectManager struct {
@@ -296,4 +301,99 @@ func (objMgr *ObjectManager) UpdateZoneDelegated(ref string, delegate_to []NameS
 // DeleteZoneDelegated deletes delegated zone
 func (objMgr *ObjectManager) DeleteZoneDelegated(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
+}
+
+// Generic function to search object by alternate id
+func (objMgr *ObjectManager) SearchDnsObjectByAltId(
+	objType string, ref string, internalId string, eaNameForInternalId string) (interface{}, error) {
+	var err error
+	if internalId == "" {
+		return nil, fmt.Errorf("internal ID must not be empty")
+	}
+
+	var recordType GenericObj
+
+	switch objType {
+	case "A":
+		recordType = NewEmptyRecordA()
+	case "AAAA":
+		recordType = NewEmptyRecordAAAA()
+	case "CNAME":
+		recordType = NewEmptyRecordCNAME()
+	case "MX":
+		recordType = NewEmptyRecordMX()
+	default:
+		return nil, fmt.Errorf("unknown record type")
+	}
+	var res interface{}
+	if ref != "" {
+		if err := objMgr.connector.GetObject(recordType, ref, NewQueryParams(false, nil), &res); err != nil {
+			fmt.Println("Error ", err.Error())
+			if _, ok := err.(*NotFoundError); !ok {
+				return nil, err
+			}
+		}
+	}
+
+	sf := map[string]string{
+		fmt.Sprintf("*%s", eaNameForInternalId): internalId,
+	}
+	var val interface{}
+	switch objType {
+	case "A":
+		if recordType.(*RecordA).Ref != "" {
+			return &res, nil
+		}
+
+		err = objMgr.connector.GetObject(NewEmptyRecordA(), "", NewQueryParams(false, sf), &val)
+		//res = make([]HostRecord, 0)
+		var newVal []RecordA
+		byteVal, _ := json.Marshal(val)
+		json.Unmarshal(byteVal, &newVal)
+		res = newVal
+	case "AAAA":
+		if recordType.(*RecordAAAA).Ref != "" {
+			return &res, nil
+		}
+
+		err = objMgr.connector.GetObject(NewEmptyRecordAAAA(), "", NewQueryParams(false, sf), &val)
+		//res = make([]HostRecord, 0)
+		var newVal []RecordAAAA
+		byteVal, _ := json.Marshal(val)
+		json.Unmarshal(byteVal, &newVal)
+		res = newVal
+	case "CNAME":
+		if recordType.(*RecordCNAME).Ref != "" {
+			return &res, nil
+		}
+
+		err = objMgr.connector.GetObject(NewEmptyRecordCNAME(), "", NewQueryParams(false, sf), &val)
+		//res = make([]HostRecord, 0)
+		var newVal []RecordCNAME
+		byteVal, _ := json.Marshal(val)
+		json.Unmarshal(byteVal, &newVal)
+		res = newVal
+	case "MX":
+		if recordType.(*RecordMX).Ref != "" {
+			return &res, nil
+		}
+
+		err = objMgr.connector.GetObject(NewEmptyRecordMX(), "", NewQueryParams(false, sf), &val)
+		//res = make([]HostRecord, 0)
+		var newVal []RecordMX
+		byteVal, _ := json.Marshal(val)
+		json.Unmarshal(byteVal, &newVal)
+		res = newVal
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if res == nil {
+		return nil, NewNotFoundError("record not found")
+	}
+
+	result := res
+	return &result, nil
 }

@@ -377,3 +377,38 @@ func checkEARequirement(name string, conn ibclient.IBConnector) bool {
 	}
 	return false
 }
+
+func getOrFindRecord(objType string, d *schema.ResourceData, m interface{}) (
+	genRec interface{},
+	err error) {
+
+	var (
+		ref         string
+		actualIntId *internalResourceId
+	)
+
+	if r, found := d.GetOk("ref"); found {
+		ref = r.(string)
+	} else {
+		_, ref = getAltIdFields(d.Id())
+	}
+
+	if id, found := d.GetOk("internal_id"); !found {
+		return nil, fmt.Errorf("internal_id value is required for the resource but it is not defined")
+	} else {
+		actualIntId = newInternalResourceIdFromString(id.(string))
+		if actualIntId == nil {
+			return nil, fmt.Errorf("internal_id value is not in a proper format")
+		}
+	}
+
+	// TODO: use proper Tenant ID
+	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
+	res, err := objMgr.SearchDnsObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch %v", err)
+	}
+
+	return res, nil
+}

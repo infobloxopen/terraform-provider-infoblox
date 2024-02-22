@@ -460,3 +460,49 @@ func (u *UnixTime) UnmarshalJSON(b []byte) error {
 func (u UnixTime) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf("%d", u.Time.Unix())), nil
 }
+
+type Dns struct {
+	IBBase      `json:"-"`
+	objectType  string
+	Ref         string `json:"_ref,omitempty"`
+	Ea          EA     `json:"extattrs"`
+	Comment     string `json:"comment,omitempty"`
+	HostName    string `json:"host_name,omitempty"`
+	IPv4Address string `json:"ipv4addr,omitempty"`
+	EnableDns   bool   `json:"enable_dns,omitempty"`
+}
+
+func (d Dns) ObjectType() string {
+	return d.objectType
+}
+
+func NewDns(dns Dns) *Dns {
+	result := dns
+	result.objectType = "member:dns"
+	returnFields := []string{"enable_dns", "host_name"}
+	result.returnFields = returnFields
+	return &result
+}
+
+type Dhcp struct {
+	IBBase      `json:"-"`
+	objectType  string
+	Ref         string `json:"_ref,omitempty"`
+	Ea          EA     `json:"extattrs"`
+	Comment     string `json:"comment,omitempty"`
+	HostName    string `json:"host_name,omitempty"`
+	IPv4Address string `json:"ipv4addr,omitempty"`
+	EnableDns   bool   `json:"enable_dns,omitempty"`
+}
+
+func (d Dhcp) ObjectType() string {
+	return d.objectType
+}
+
+func NewDhcp(dhcp Dhcp) *Dhcp {
+	result := dhcp
+	result.objectType = "member:dhcpproperties"
+	returnFields := []string{"enable_dhcp", "host_name"}
+	result.returnFields = returnFields
+	return &result
+}

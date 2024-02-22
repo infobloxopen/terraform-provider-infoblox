@@ -1,8 +1,8 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -48,6 +48,18 @@ func resourceCNAMERecord() *schema.Resource {
 				Default:     "",
 				Description: "A description about CNAME record.",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -59,6 +71,11 @@ func resourceCNAMERecord() *schema.Resource {
 }
 
 func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
+
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	dnsView := d.Get("dns_view").(string)
 	canonical := d.Get("canonical").(string)
 	alias := d.Get("alias").(string)
@@ -81,6 +98,10 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+
 	var tenantID string
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
@@ -94,7 +115,14 @@ func resourceCNAMERecordCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("creation of CNAME Record under %s DNS View failed: %s", dnsView, err.Error())
 	}
 
-	d.SetId(recordCNAME.Ref)
+	//d.SetId(recordCNAME.Ref)
+	d.SetId(internalId.String())
+	if err = d.Set("ref", recordCNAME.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -108,39 +136,55 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
+	var (
+		recordCname *ibclient.RecordCNAME
+		cnameList   []ibclient.RecordCNAME
+	)
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
 	}
 	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetCNAMERecordByRef(d.Id())
+	//obj, err := objMgr.GetCNAMERecordByRef(d.Id())
+	obj, err := getOrFindRecord("CNAME", d, m)
+
 	if err != nil {
-		return fmt.Errorf("getting CNAME Record with ID: %s failed: %s", d.Id(), err.Error())
+		d.SetId("")
+		return nil
+		//return fmt.Errorf("getting CNAME Record with ID: %s failed: %s", d.Id(), err.Error())
 	}
 
-	if err = d.Set("alias", obj.Name); err != nil {
+	recJson, _ := json.Marshal(obj)
+	json.Unmarshal(recJson, &cnameList)
+	byteObj, _ := json.Marshal(cnameList[0])
+	err = json.Unmarshal(byteObj, &recordCname)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal %v", err.Error())
+	}
+
+	if err = d.Set("alias", recordCname.Name); err != nil {
 		return err
 	}
-	if err = d.Set("canonical", obj.Canonical); err != nil {
+	if err = d.Set("canonical", recordCname.Canonical); err != nil {
 		return err
 	}
-	if err = d.Set("comment", obj.Comment); err != nil {
+	if err = d.Set("comment", recordCname.Comment); err != nil {
 		return err
 	}
 
-	if obj.Ttl != nil {
-		ttl = int(*obj.Ttl)
+	if recordCname.Ttl != nil {
+		ttl = int(*recordCname.Ttl)
 	}
 
-	if !*obj.UseTtl {
+	if !*recordCname.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	omittedEAs := omitEAs(obj.Ea, extAttrs)
+	omittedEAs := omitEAs(recordCname.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
 		eaJSON, err := terraformSerializeEAs(omittedEAs)
@@ -152,11 +196,11 @@ func resourceCNAMERecordGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if err = d.Set("dns_view", obj.View); err != nil {
+	if err = d.Set("dns_view", recordCname.View); err != nil {
 		return err
 	}
 
-	d.SetId(obj.Ref)
+	d.SetId(recordCname.Ref)
 
 	return nil
 }
@@ -193,6 +237,11 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 
+	var (
+		crec      *ibclient.RecordCNAME
+		cnameList []ibclient.RecordCNAME
+	)
+
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
@@ -223,10 +272,34 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	crec, err := objMgr.GetCNAMERecordByRef(d.Id())
+	//crec, err := objMgr.GetCNAMERecordByRef(d.Id())
+	obj, err := getOrFindRecord("A", d, m)
 	if err != nil {
-		return fmt.Errorf("failed to read CNAME record for update operation: %w", err)
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
+		return err
 	}
+	recJson, _ := json.Marshal(obj)
+	json.Unmarshal(recJson, &cnameList)
+	byteObj, _ := json.Marshal(cnameList[0])
+	err = json.Unmarshal(byteObj, &crec)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal json %v", err.Error())
+	}
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
+	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
+	newExtAttrs[eaNameForInternalId] = internalId.String()
+	//if err != nil {
+	//	return fmt.Errorf("failed to read CNAME record for update operation: %w", err)
+	//}
 
 	newExtAttrs, err = mergeEAs(crec.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
@@ -240,6 +313,9 @@ func resourceCNAMERecordUpdate(d *schema.ResourceData, m interface{}) error {
 	updateSuccessful = true
 
 	d.SetId(recordCNAME.Ref)
+	if err = d.Set("ref", crec.Ref); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -309,6 +385,18 @@ func resourceCNAMERecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 		return nil, err
 	}
 
+	// Internal ID
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
+	// Set ref
+	if err = d.Set("ref", obj.Ref); err != nil {
+		return nil, err
+	}
+	delete(obj.Ea, eaNameForInternalId)
 	if obj.Ea != nil && len(obj.Ea) > 0 {
 		eaJSON, err := terraformSerializeEAs(obj.Ea)
 		if err != nil {
@@ -324,6 +412,17 @@ func resourceCNAMERecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	d.SetId(obj.Ref)
+
+	// Resource CNAME Record update Terraform Internal ID and Ref on NIOS side
+	// After the record is imported, call the update function
+	_, err = connector.UpdateObject(&ibclient.RecordCNAME{
+		Ea: ibclient.EA{
+			eaNameForInternalId: internalId.String(),
+		},
+	}, obj.Ref)
+	if err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

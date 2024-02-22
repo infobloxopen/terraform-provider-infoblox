@@ -41,6 +41,7 @@ This library is compatible with Go 1.2+
 
        func main() {
          hostConfig := ibclient.HostConfig{
+            Scheme:  "https",
          	Host:    "<NIOS grid IP>",
             Version: "<WAPI version>",
             Port:    "PORT",
@@ -100,6 +101,8 @@ This library is compatible with Go 1.2+
    * GetCapacityReport
    * GetCNAMERecordByRef
    * GetCNAMERecord
+   * GetDhcpMember
+   * GetDnsMember
    * GetEADefinition
    * GetFixedAddress
    * GetFixedAddressByRef
@@ -126,6 +129,8 @@ This library is compatible with Go 1.2+
    * ReleaseIP
    * UpdateAAAARecord
    * UpdateCNAMERecord
+   * UpdateDhcpStatus
+   * UpdateDnsStatus
    * UpdateFixedAddress
    * UpdateHostRecord
    * UpdateNetwork

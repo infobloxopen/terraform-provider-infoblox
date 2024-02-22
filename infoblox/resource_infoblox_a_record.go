@@ -1,10 +1,10 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -65,11 +65,69 @@ func resourceARecord() *schema.Resource {
 				Default:     "",
 				Description: "Extensible attributes of the A-record to be added/updated, as a map in JSON format",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
 
+//func getOrFindRecordA(d *schema.ResourceData, m interface{}) (
+//	hostRec interface{},
+//	err error) {
+//
+//	var (
+//		ref         string
+//		actualIntId *internalResourceId
+//	)
+//
+//	if r, found := d.GetOk("ref"); found {
+//		ref = r.(string)
+//		fmt.Printf("Reference: %v", ref)
+//	} else {
+//		_, ref = getAltIdFields(d.Id())
+//		fmt.Printf("Reference in else: %v", ref)
+//	}
+//
+//	if id, found := d.GetOk("internal_id"); !found {
+//		return nil, fmt.Errorf("internal_id value is required for the resource but it is not defined")
+//	} else {
+//		actualIntId = newInternalResourceIdFromString(id.(string))
+//		if actualIntId == nil {
+//			return nil, fmt.Errorf("internal_id value is not in a proper format")
+//		}
+//	}
+//
+//	// TODO: use proper Tenant ID
+//	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", "")
+//	res, err := objMgr.SearchDnsObjectByAltId("A", ref, actualIntId.String(), eaNameForInternalId)
+//	// Json marshall
+//	var record []ibclient.RecordA
+//	recJson, _ := json.Marshal(res)
+//	json.Unmarshal(recJson, &record)
+//	fmt.Printf("Debug point a: val %v", record)
+//	if err != nil {
+//		return nil, fmt.Errorf("failng to fetch %v", err)
+//	}
+//
+//	return record[0], nil
+//}
+
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
+
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	networkView := d.Get("network_view").(string)
 	if networkView == "" {
 		networkView = defaultNetView
@@ -101,6 +159,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+
 	if err != nil {
 		return err
 	}
@@ -126,7 +189,14 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("creation of A-record under DNS view '%s' failed: %w", dnsViewName, err)
 	}
-	d.SetId(newRecord.Ref)
+	//d.SetId(newRecord.Ref)
+	d.SetId(internalId.String())
+	if err = d.Set("ref", newRecord.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 
 	if err = d.Set("ip_addr", newRecord.Ipv4Addr); err != nil {
 		return err
@@ -155,34 +225,51 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var tenantID string
+	var (
+		recordA *ibclient.RecordA
+		aList   []ibclient.RecordA
+	)
 	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
 		tenantID = tempVal.(string)
 	}
-
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetARecordByRef(d.Id())
+	obj, err := getOrFindRecord("A", d, m)
+	fmt.Printf("Some value %v", obj)
+	//obj, err := objMgr.GetARecordByRef(d.Id())
+
 	if err != nil {
-		return fmt.Errorf("failed getting A-record: %w", err)
+		//return nil
+		d.SetId("")
+		return nil
+		//return fmt.Errorf("failed getting A-record: %w", err)
 	}
 
-	if err = d.Set("ip_addr", obj.Ipv4Addr); err != nil {
+	recJson, _ := json.Marshal(obj)
+	json.Unmarshal(recJson, &aList)
+	byteObj, _ := json.Marshal(aList[0])
+	err = json.Unmarshal(byteObj, &recordA)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal %v", err.Error())
+	}
+
+	if err = d.Set("ip_addr", recordA.Ipv4Addr); err != nil {
 		return err
 	}
 
-	if obj.Ttl != nil {
-		ttl = int(*obj.Ttl)
+	if recordA.Ttl != nil {
+		ttl = int(*recordA.Ttl)
 	}
-	if !*obj.UseTtl {
+	if !*recordA.UseTtl {
 		ttl = ttlUndef
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
 	}
 
-	omittedEAs := omitEAs(obj.Ea, extAttrs)
+	omittedEAs := omitEAs(recordA.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
 		eaJSON, err := terraformSerializeEAs(omittedEAs)
@@ -194,30 +281,30 @@ func resourceARecordGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if err = d.Set("comment", obj.Comment); err != nil {
+	if err = d.Set("comment", recordA.Comment); err != nil {
 		return err
 	}
 
-	if err = d.Set("dns_view", obj.View); err != nil {
+	if err = d.Set("dns_view", recordA.View); err != nil {
 		return err
 	}
 	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
-		dnsView, err := objMgr.GetDNSView(obj.View)
+		dnsView, err := objMgr.GetDNSView(recordA.View)
 		if err != nil {
 			return fmt.Errorf(
 				"error while retrieving information about DNS view '%s': %w",
-				obj.View, err)
+				recordA.View, err)
 		}
 		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
 			return err
 		}
 	}
 
-	if err = d.Set("fqdn", obj.Name); err != nil {
+	if err = d.Set("fqdn", recordA.Name); err != nil {
 		return err
 	}
 
-	d.SetId(obj.Ref)
+	d.SetId(recordA.Ref)
 
 	return nil
 }
@@ -288,6 +375,11 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	var (
+		arec  *ibclient.RecordA
+		aList []ibclient.RecordA
+	)
+
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -321,10 +413,35 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	arec, err := objMgr.GetARecordByRef(d.Id())
+	//arec, err := objMgr.GetARecordByRef(d.Id())
+	obj, err := getOrFindRecord("A", d, m)
 	if err != nil {
-		return fmt.Errorf("failed to read A Record for update operation: %w", err)
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			d.SetId("")
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
+					" removing the resource from Terraform state",
+				d.Id(), err))
+		}
+
+		return err
 	}
+	recJson, _ := json.Marshal(obj)
+	json.Unmarshal(recJson, &aList)
+	byteObj, _ := json.Marshal(aList[0])
+	err = json.Unmarshal(byteObj, &arec)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal json %v", err.Error())
+	}
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
+	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
+	newExtAttrs[eaNameForInternalId] = internalId.String()
+
+	//if err != nil {
+	//	return fmt.Errorf("failed to read A Record for update operation: %w", err)
+	//}
 
 	newExtAttrs, err = mergeEAs(arec.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
@@ -346,6 +463,9 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	updateSuccessful = true
 	d.SetId(rec.Ref)
+	if err = d.Set("ref", rec.Ref); err != nil {
+		return err
+	}
 
 	if err = d.Set("ip_addr", rec.Ipv4Addr); err != nil {
 		return err
@@ -411,10 +531,23 @@ func resourceARecordImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
-	if err = d.Set("ttl", ttl); err != nil {
+
+	// Internal ID
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return nil, err
+	}
+	// Set ref
+	if err = d.Set("ref", obj.Ref); err != nil {
 		return nil, err
 	}
 
+	if err = d.Set("ttl", ttl); err != nil {
+		return nil, err
+	}
+	delete(obj.Ea, eaNameForInternalId)
 	if obj.Ea != nil && len(obj.Ea) > 0 {
 		eaJSON, err := terraformSerializeEAs(obj.Ea)
 		if err != nil {
@@ -449,6 +582,22 @@ func resourceARecordImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	}
 
 	d.SetId(obj.Ref)
+
+	// Resource ARecord update Terraform Internal ID and Ref on NOIS side
+	// After the record is imported, call the update function
+	//err = resourceARecordUpdate(d, m)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	_, err = connector.UpdateObject(&ibclient.RecordA{
+		Ea: ibclient.EA{
+			eaNameForInternalId: internalId.String(),
+		},
+	}, obj.Ref)
+	if err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

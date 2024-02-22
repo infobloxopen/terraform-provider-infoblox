@@ -6,8 +6,8 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.19.0
-	github.com/infobloxopen/infoblox-go-client/v2 v2.4.0
-	github.com/sirupsen/logrus v1.8.0
+	github.com/infobloxopen/infoblox-go-client/v2 v2.4.1-0.20240215090707-26886f6280fc
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
@@ -35,7 +35,6 @@ require (
 	github.com/hashicorp/terraform-registry-address v0.0.0-20220623143253-7d51757b572c // indirect
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
-	github.com/magefile/mage v1.10.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
@@ -57,3 +56,5 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
+
+replace github.com/infobloxopen/infoblox-go-client/v2 v2.4.1-0.20240215090707-26886f6280fc => ../infoblox-go-client
