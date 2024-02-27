@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
-	"strings"
-	"time"
-
 	"github.com/google/uuid"
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"math"
+	"strings"
+	"time"
 )
 
 // Common parameters
@@ -75,11 +74,11 @@ func newInternalResourceIdFromString(id string) *internalResourceId {
 }
 
 func generateInternalId() *internalResourceId {
-	uuid, err := uuid.NewRandom()
+	uuid_new, err := uuid.NewRandom()
 	if err != nil {
 		panic(err)
 	}
-	return &internalResourceId{value: uuid}
+	return &internalResourceId{value: uuid_new}
 }
 
 // A separate function to abstract from the nature of internal ID,
@@ -376,4 +375,43 @@ func checkEARequirement(name string, conn ibclient.IBConnector) bool {
 		}
 	}
 	return false
+}
+
+// Fetch Resource using the Ref | Terraform Internal ID
+func getOrFindRec(objType string, d *schema.ResourceData, m interface{}) (
+	record interface{},
+	err error) {
+
+	var (
+		ref         string
+		actualIntId *internalResourceId
+	)
+
+	if r, found := d.GetOk("ref"); found {
+		ref = r.(string)
+	} else {
+		_, ref = getAltIdFields(d.Id())
+	}
+
+	if id, found := d.GetOk("internal_id"); found {
+		actualIntId = newInternalResourceIdFromString(id.(string))
+		if actualIntId == nil {
+			return nil, fmt.Errorf("internal_id value is not in a proper format")
+		}
+	}
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", tenantID)
+	return objMgr.SearchDnsObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
 }
