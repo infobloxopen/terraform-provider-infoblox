@@ -1,10 +1,10 @@
 package infoblox
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
@@ -17,6 +17,15 @@ func resourcePTRRecord() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: resourcePTRRecordImport,
+		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -72,11 +81,28 @@ func resourcePTRRecord() *schema.Resource {
 				Optional:    true,
 				Description: "The Extensible attributes of PTR record to be added/updated, as a map in JSON format",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
 
 func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
+
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	networkView, trimmed := checkAndTrimSpaces(d.Get("network_view").(string))
 	if trimmed {
 		return fmt.Errorf(errMsgFormatLeadingTrailingSpaces, "network_view")
@@ -128,6 +154,10 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+
 	var tenantID string
 	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
 		tenantID = tempVal.(string)
@@ -135,7 +165,8 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	if ipAddrSrcCounter == 0 {
 		return fmt.Errorf(
-			"'ip_addr' or 'cidr' are mandatory in reverse mapping zone and 'record_name' is mandatory in forward mapping zone")
+			"'ip_addr' or 'cidr' are mandatory in reverse mapping zone " +
+				"and 'record_name' is mandatory in forward mapping zone")
 	}
 
 	if ipAddrSrcCounter != 1 {
@@ -178,6 +209,13 @@ func resourcePTRRecordCreate(d *schema.ResourceData, m interface{}) error {
 		ipAddr = *recordPTR.Ipv4Addr
 	} else {
 		ipAddr = *recordPTR.Ipv6Addr
+	}
+
+	if err = d.Set("ref", recordPTR.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
 	}
 
 	if err = d.Set("ip_addr", ipAddr); err != nil {
@@ -223,8 +261,23 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetPTRRecordByRef(d.Id())
+	rec, err := searchObjectByRefOrInternalId("PTR", d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var obj *ibclient.RecordPTR
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &obj)
+
+	if err != nil && obj.Ref != "" {
 		return fmt.Errorf("getting PTR-record with ID '%s' failed: %s", d.Id(), err)
 	}
 
@@ -239,6 +292,7 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	delete(obj.Ea, eaNameForInternalId)
 	omittedEAs := omitEAs(obj.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
@@ -256,6 +310,9 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err = d.Set("dns_view", obj.View); err != nil {
+		return err
+	}
+	if err = d.Set("ref", obj.Ref); err != nil {
 		return err
 	}
 	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
@@ -321,15 +378,21 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}()
 
-	networkView := d.Get("network_view").(string)
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
+
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
-	dnsView := d.Get("dns_view").(string)
+
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
+
+	networkView := d.Get("network_view").(string)
 	ptrdname := d.Get("ptrdname").(string)
+	dnsView := d.Get("dns_view").(string)
 
 	ipAddrSrcChangesCounter := 0
 	ipAddrSrcCounter := 0
@@ -442,6 +505,15 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read PTR Record for update operation: %w", err)
 	}
 
+	internalId := d.Get("internal_id").(string)
+
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+
+	newInternalId := newInternalResourceIdFromString(internalId)
+	newExtAttrs[eaNameForInternalId] = newInternalId.String()
+
 	newExtAttrs, err = mergeEAs(ptrrec.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
 		return err
@@ -460,6 +532,13 @@ func resourcePTRRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		ipAddr = *recordPTRUpdated.Ipv4Addr
 	} else {
 		ipAddr = *recordPTRUpdated.Ipv6Addr
+	}
+
+	if err = d.Set("ref", recordPTRUpdated.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", newInternalId.String()); err != nil {
+		return err
 	}
 
 	if err = d.Set("ip_addr", ipAddr); err != nil {
@@ -489,7 +568,27 @@ func resourcePTRRecordDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	_, err = objMgr.DeletePTRRecord(d.Id())
+	ptrrec, err := searchObjectByRefOrInternalId("PTR", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var obj ibclient.RecordPTR
+	recJson, _ := json.Marshal(ptrrec)
+	err = json.Unmarshal(recJson, &obj)
+
+	if err != nil {
+		return fmt.Errorf("getting PTR Record with ID: %s failed: %w", d.Id(), err)
+	}
+
+	_, err = objMgr.DeletePTRRecord(obj.Ref)
 	if err != nil {
 		if isNotFoundError(err) {
 			d.SetId("")
@@ -528,6 +627,12 @@ func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
+
+	// Set ref
+	if err = d.Set("ref", obj.Ref); err != nil {
+		return nil, err
+	}
+
 	if err = d.Set("ttl", ttl); err != nil {
 		return nil, err
 	}
@@ -579,6 +684,11 @@ func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	}
 
 	d.SetId(obj.Ref)
+
+	err = resourcePTRRecordUpdate(d, m)
+	if err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
