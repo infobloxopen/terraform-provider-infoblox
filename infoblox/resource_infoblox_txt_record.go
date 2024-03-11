@@ -1,6 +1,8 @@
 package infoblox
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
@@ -16,6 +18,16 @@ func resourceTXTRecord() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceTXTRecordImport,
 		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+
 		Schema: map[string]*schema.Schema{
 			"dns_view": {
 				Type:        schema.TypeString,
@@ -51,11 +63,28 @@ func resourceTXTRecord() *schema.Resource {
 				Default:     "",
 				Description: "Extensible attributes of the TXT-record to be added/updated, as a map in JSON format",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
 
 func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
+
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	text := d.Get("text").(string)
@@ -82,6 +111,10 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
+
 	var tenantID string
 	tempVal, found := extAttrs[eaNameForTenantId]
 	if found {
@@ -99,6 +132,13 @@ func resourceTXTRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(newRecord.Ref)
 
+	if err = d.Set("ref", newRecord.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -110,17 +150,23 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	var tenantID string
-	tempVal, found := extAttrs[eaNameForTenantId]
-	if found {
-		tenantID = tempVal.(string)
+	rec, err := searchObjectByRefOrInternalId("TXT", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
 	}
 
-	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	// Assertion of object type and error handling
+	var obj *ibclient.RecordTXT
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &obj)
 
-	obj, err := objMgr.GetTXTRecordByRef(d.Id())
-	if err != nil {
+	if err != nil && obj.Ref != "" {
 		return fmt.Errorf("failed getting TXT-Record: %s", err)
 	}
 
@@ -139,6 +185,7 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	delete(obj.Ea, eaNameForInternalId)
 	omittedEAs := omitEAs(obj.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
@@ -160,6 +207,10 @@ func resourceTXTRecordGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err = d.Set("fqdn", obj.Name); err != nil {
+		return err
+	}
+
+	if err = d.Set("ref", obj.Ref); err != nil {
 		return err
 	}
 
@@ -190,6 +241,9 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
 
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
@@ -240,6 +294,15 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read TXT Record for update operation: %w", err)
 	}
 
+	internalId := d.Get("internal_id").(string)
+
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+
+	newInternalId := newInternalResourceIdFromString(internalId)
+	newExtAttrs[eaNameForInternalId] = newInternalId.String()
+
 	newExtAttrs, err = mergeEAs(txtrec.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
 		return err
@@ -253,6 +316,12 @@ func resourceTXTRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	updateSuccessful = true
 	d.SetId(rec.Ref)
 
+	if err = d.Set("ref", rec.Ref); err != nil {
+		return err
+	}
+	if err = d.Set("internal_id", newInternalId.String()); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -269,8 +338,27 @@ func resourceTXTRecordDelete(d *schema.ResourceData, m interface{}) error {
 	}
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	txtrec, err := searchObjectByRefOrInternalId("TXT", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
 
-	_, err = objMgr.DeleteTXTRecord(d.Id())
+	// Assertion of object type and error handling
+	var obj ibclient.RecordTXT
+	recJson, _ := json.Marshal(txtrec)
+	err = json.Unmarshal(recJson, &obj)
+
+	if err != nil {
+		return fmt.Errorf("failed getting TXT-Record: %s", err)
+	}
+
+	_, err = objMgr.DeleteTXTRecord(obj.Ref)
 	if err != nil {
 		return fmt.Errorf("deletion of TXT-Record failed: %s", err)
 	}
@@ -312,6 +400,12 @@ func resourceTXTRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	if !*obj.UseTtl {
 		ttl = ttlUndef
 	}
+
+	// Set ref
+	if err = d.Set("ref", obj.Ref); err != nil {
+		return nil, err
+	}
+
 	if err = d.Set("ttl", ttl); err != nil {
 		return nil, err
 	}
@@ -339,6 +433,11 @@ func resourceTXTRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	}
 
 	d.SetId(obj.Ref)
+
+	err = resourceTXTRecordUpdate(d, m)
+	if err != nil {
+		return nil, err
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

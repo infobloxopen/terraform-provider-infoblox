@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,6 +23,15 @@ func resourceDNSView() *schema.Resource {
 		DeleteContext: resourceDNSViewDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceDNSViewImport,
+		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -50,11 +60,33 @@ func resourceDNSView() *schema.Resource {
 				Optional:    true,
 				Description: "The Extensible attributes of the DNS view to be added/updated, as a map in JSON format",
 			},
+
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
 
 func resourceDNSViewCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return diag.FromErr(fmt.Errorf("the value of 'internal_id' field must not be set manually"))
+	}
+
+	if ref := d.Get("ref"); ref.(string) != "" {
+		return diag.FromErr(fmt.Errorf("the value of 'ref' field must not be set manually"))
+	}
+
 	conn := m.(ibclient.IBConnector)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
@@ -62,6 +94,10 @@ func resourceDNSViewCreate(ctx context.Context, d *schema.ResourceData, m interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
 
 	v := &ibclient.View{
 		Name: utils.StringPtr(d.Get("name").(string)),
@@ -83,26 +119,43 @@ func resourceDNSViewCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(viewRef)
 
+	if err = d.Set("ref", viewRef); err != nil {
+		return diag.FromErr(err)
+	}
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceDNSViewRead(ctx, d, m)
 }
 
 func resourceDNSViewRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	conn := m.(ibclient.IBConnector)
-
-	viewRef := d.Id()
 
 	v := &ibclient.View{}
 	v.SetReturnFields([]string{"name", "comment", "network_view", "extattrs"})
-
-	vResult := ibclient.View{}
 
 	if !dnsViewRegExp.MatchString(d.Id()) {
 		return diag.FromErr(fmt.Errorf("reference '%s' for 'view' object has an invalid format", d.Id()))
 	}
 
-	err := conn.GetObject(v, viewRef, nil, &vResult)
+	rec, err := searchObjectByRefOrInternalId("DNSView", d, m)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to read DNS View: %w", err))
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return diag.FromErr(ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err)))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var vResult *ibclient.View
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &vResult)
+
+	if err != nil && vResult.Ref != "" {
+		return diag.FromErr(fmt.Errorf("getting DNS View with ID: %s failed: %w", d.Id(), err))
 	}
 
 	if err = d.Set("name", vResult.Name); err != nil {
@@ -126,6 +179,8 @@ func resourceDNSViewRead(ctx context.Context, d *schema.ResourceData, m interfac
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	delete(vResult.Ea, eaNameForInternalId)
 	omittedEAs := omitEAs(vResult.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
@@ -138,13 +193,23 @@ func resourceDNSViewRead(ctx context.Context, d *schema.ResourceData, m interfac
 			return diag.FromErr(err)
 		}
 	}
-
+	if err = d.Set("ref", vResult.Ref); err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId(vResult.Ref)
 
 	return nil
 }
 
 func resourceDNSViewUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	if d.HasChange("internal_id") {
+		return diag.FromErr(fmt.Errorf("changing the value of 'internal_id' field is not allowed"))
+	}
+
+	if d.HasChange("ref") {
+		return diag.FromErr(fmt.Errorf("changing the value of 'ref' field is not allowed"))
+	}
+
 	conn := m.(ibclient.IBConnector)
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -168,6 +233,15 @@ func resourceDNSViewUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to read DNS View for update operation: %w", err))
 	}
+
+	internalId := d.Get("internal_id").(string)
+
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+
+	newInternalId := newInternalResourceIdFromString(internalId)
+	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	mergedExtAttrs, err := mergeEAs(vResult.Ea, newExtAttrs, oldExtAttrs, conn)
 	if err != nil {
@@ -194,13 +268,40 @@ func resourceDNSViewUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	d.SetId(viewRef)
 
+	if err = d.Set("ref", viewRef); err != nil {
+		return diag.FromErr(err)
+	}
+	if err = d.Set("internal_id", newInternalId.String()); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceDNSViewRead(ctx, d, m)
 }
 
 func resourceDNSViewDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	conn := m.(ibclient.IBConnector)
 
-	if _, err := conn.DeleteObject(d.Id()); err != nil {
+	rec, err := searchObjectByRefOrInternalId("DNSView", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return diag.FromErr(ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err)))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var vResult *ibclient.View
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &vResult)
+
+	if err != nil && vResult.Ref != "" {
+		return diag.FromErr(fmt.Errorf("getting DNS View with ID: %s failed: %w", d.Id(), err))
+	}
+
+	if _, err := conn.DeleteObject(vResult.Ref); err != nil {
 		return diag.FromErr(fmt.Errorf("deletion of DNS View failed: %w", err))
 	}
 
@@ -260,6 +361,13 @@ func resourceDNSViewImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	}
 
 	d.SetId(vResult.Ref)
+
+	var dErr diag.Diagnostics
+	var ctx context.Context
+	dErr = resourceDNSViewUpdate(ctx, d, m)
+	if dErr != nil {
+		return nil, fmt.Errorf("failed to import DNS View: %v", dErr)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }

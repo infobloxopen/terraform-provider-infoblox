@@ -2,8 +2,8 @@ package infoblox
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
@@ -19,6 +19,15 @@ func resourceZoneAuth() *schema.Resource {
 		DeleteContext: resourceZoneAuthDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceZoneAuthImport,
+		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -111,6 +120,18 @@ func resourceZoneAuth() *schema.Resource {
 					"recontact the primary server after a connection failure between the two " +
 					"servers occurs.",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
@@ -199,15 +220,31 @@ func formZone(
 
 func resourceZoneAuthCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return diag.FromErr(fmt.Errorf("the value of 'internal_id' field must not be set manually"))
+	}
+
 	zone, errs := formZone(true, d, m)
 	if errs != nil {
 		return errs
 	}
 
+	// Generate internal ID and add it to the extensible attributes
+	internalId := generateInternalId()
+	zone.Ea[eaNameForInternalId] = internalId.String()
+
 	connector := m.(ibclient.IBConnector)
 	zoneRef, err := connector.CreateObject(zone)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to create a zone: %w", err))
+	}
+
+	if err = d.Set("ref", zoneRef); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId(zoneRef)
@@ -222,31 +259,26 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 
-	connector := m.(ibclient.IBConnector)
 	var diags diag.Diagnostics
 
-	zoneRef := d.Id()
-
-	zoneResult := ibclient.ZoneAuth{}
-
-	zone := &ibclient.ZoneAuth{}
-	zone.SetReturnFields(append(
-		zoneResult.ReturnFields(),
-		"comment",
-		"ns_group",
-		"soa_default_ttl",
-		"soa_expire",
-		"soa_negative_ttl",
-		"soa_refresh",
-		"soa_retry",
-		"view",
-		"zone_format",
-		"extattrs",
-	))
-
-	err = connector.GetObject(zone, zoneRef, nil, &zoneResult)
+	rec, err := searchObjectByRefOrInternalId("ZoneAuth", d, m)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to read zone: %w", err))
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return diag.FromErr(ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err)))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var zoneResult *ibclient.ZoneAuth
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &zoneResult)
+
+	if err != nil && zoneResult.Ref != "" {
+		return diag.FromErr(fmt.Errorf("getting DNS View with ID: %s failed: %w", d.Id(), err))
 	}
 
 	err = d.Set("fqdn", zoneResult.Fqdn)
@@ -315,6 +347,8 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 		return diag.FromErr(err)
 	}
 
+	delete(zoneResult.Ea, eaNameForInternalId)
+
 	omittedEAs := omitEAs(zoneResult.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
@@ -328,11 +362,18 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 	}
 
 	d.SetId(zoneResult.Ref)
+	if err = d.Set("ref", zoneResult.Ref); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }
 
 func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) (diags diag.Diagnostics) {
+	if d.HasChange("internal_id") {
+		return diag.FromErr(fmt.Errorf("changing the value of 'internal_id' field is not allowed"))
+	}
+
 	if d.HasChange("fqdn") {
 		return diag.FromErr(fmt.Errorf("field is not allowed for update: fqdn"))
 	}
@@ -369,6 +410,15 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 		return diag.FromErr(fmt.Errorf("failed to read Zone Auth for update operation: %w", err))
 	}
 
+	internalId := d.Get("internal_id").(string)
+
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+
+	newInternalId := newInternalResourceIdFromString(internalId)
+	newExtAttrs[eaNameForInternalId] = newInternalId.String()
+
 	zone.Ea, err = mergeEAs(zoneVal.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
 		return diag.FromErr(err)
@@ -381,16 +431,39 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 
 	d.SetId(zoneRef)
 
+	if err = d.Set("ref", zoneRef); err != nil {
+		return diag.FromErr(err)
+	}
+	if err = d.Set("internal_id", newInternalId.String()); err != nil {
+		return diag.FromErr(err)
+	}
 	return resourceZoneAuthRead(ctx, d, m)
 }
 
 func resourceZoneAuthDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	connector := m.(ibclient.IBConnector)
 
-	zoneRef := d.Id()
-
-	_, err := connector.DeleteObject(zoneRef)
+	rec, err := searchObjectByRefOrInternalId("ZoneAuth", d, m)
 	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return diag.FromErr(ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err)))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var zoneResult *ibclient.ZoneAuth
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &zoneResult)
+
+	if err != nil && zoneResult.Ref != "" {
+		return diag.FromErr(fmt.Errorf("getting zone with ID: %s failed: %w", d.Id(), err))
+	}
+
+	if _, err := connector.DeleteObject(zoneResult.Ref); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -508,6 +581,13 @@ func resourceZoneAuthImport(d *schema.ResourceData, m interface{}) ([]*schema.Re
 	}
 
 	d.SetId(zoneResult.Ref)
+
+	var dErr diag.Diagnostics
+	var ctx context.Context
+	dErr = resourceZoneAuthUpdate(ctx, d, m)
+	if dErr != nil {
+		return nil, fmt.Errorf("failed to import Zone Auth: %v", dErr)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
