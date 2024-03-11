@@ -263,6 +263,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
 	}
+
+	// Check and Create Pre-requisites
+	err = checkAndCreatePreRequisites(conn)
+	if err != nil {
+		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
+	}
 	return conn, nil
 }
 
@@ -377,8 +383,38 @@ func checkEARequirement(name string, conn ibclient.IBConnector) bool {
 	return false
 }
 
+// Check Pre-requisites for the provider and create if not present
+func checkAndCreatePreRequisites(conn ibclient.IBConnector) error {
+	// 1. Create EA Definition for Internal ID if not present.
+
+	objMgr := ibclient.NewObjectManager(conn, "Terraform", "")
+
+	// Check if EA Definition for Internal ID is present
+	_, err := objMgr.GetEADefinition(eaNameForInternalId)
+	// Check for 404 error and create EA Definition if not present
+	if isNotFoundError(err) {
+		// Create EA Definition
+		var EA ibclient.EADefinition
+		var ea_string = eaNameForInternalId
+		var flags = "CR"
+		var comment = "Internal ID for Terraform Resource"
+		EA.Name = &ea_string
+		EA.Type = "STRING"
+		EA.Flags = &flags
+		EA.Comment = &comment
+		_, err = objMgr.CreateEADefinition(EA)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Fetch Resource using the Ref | Terraform Internal ID
-func getOrFindRec(objType string, d *schema.ResourceData, m interface{}) (
+
+//Func to search the object using the ref or internal_id
+
+func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m interface{}) (
 	record interface{},
 	err error) {
 
@@ -413,5 +449,5 @@ func getOrFindRec(objType string, d *schema.ResourceData, m interface{}) (
 	}
 
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", tenantID)
-	return objMgr.SearchDnsObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
+	return objMgr.SearchObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
 }

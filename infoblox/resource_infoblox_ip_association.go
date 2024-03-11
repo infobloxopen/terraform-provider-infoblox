@@ -71,10 +71,7 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); ok {
 			d.SetId("")
-			return ibclient.NewNotFoundError(fmt.Sprintf(
-				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
-					" removing the resource from Terraform state",
-				d.Id(), err))
+			return nil
 		}
 
 		return err
