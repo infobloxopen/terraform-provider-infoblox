@@ -86,7 +86,11 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 		}
 
 		enableDhcpActualIpv6 = *hostRec.Ipv6Addrs[0].EnableDhcp
-		duidActual = *hostRec.Ipv6Addrs[0].Duid
+		if hostRec.Ipv6Addrs[0].Duid != nil {
+			duidActual = *hostRec.Ipv6Addrs[0].Duid
+		} else {
+			duidActual = ""
+		}
 	}
 
 	if hostRec.Ipv4Addrs != nil && len(hostRec.Ipv4Addrs) > 0 {
@@ -95,7 +99,11 @@ func resourceIpAssociationRead(d *schema.ResourceData, m interface{}) error {
 		}
 
 		enableDhcpActualIpv4 = *hostRec.Ipv4Addrs[0].EnableDhcp
-		macAddrActual = *hostRec.Ipv4Addrs[0].Mac
+		if hostRec.Ipv4Addrs[0].Mac != nil {
+			macAddrActual = *hostRec.Ipv4Addrs[0].Mac
+		} else {
+			macAddrActual = ""
+		}
 	}
 
 	enableDhcpActual = enableDhcpActualIpv4 || enableDhcpActualIpv6
