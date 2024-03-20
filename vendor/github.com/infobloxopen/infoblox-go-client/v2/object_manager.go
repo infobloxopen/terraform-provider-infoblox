@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 )
 
 // Compile-time interface checks
@@ -77,6 +79,7 @@ type IBObjectManager interface {
 	GetAllMembers() ([]Member, error)
 	GetGridInfo() ([]Grid, error)
 	GetGridLicense() ([]License, error)
+	SearchObjectByAltId(objType string, internalId string, ref string, eaNameForInternalId string) (interface{}, error)
 	ReleaseIP(netview string, cidr string, ipAddr string, isIPv6 bool, macAddr string) (string, error)
 	UpdateAAAARecord(ref string, netView string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordAAAA, error)
 	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
@@ -91,6 +94,250 @@ type IBObjectManager interface {
 	UpdateTXTRecord(ref string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
+	GetDnsMember(ref string) ([]Dns, error)
+	UpdateDnsStatus(ref string, status bool) (Dns, error)
+	GetDhcpMember(ref string) ([]Dhcp, error)
+	UpdateDhcpStatus(ref string, status bool) (Dhcp, error)
+}
+
+const (
+	ARecord               = "A"
+	AaaaRecord            = "AAAA"
+	CnameRecord           = "CNAME"
+	MxRecord              = "MX"
+	SrvRecord             = "SRV"
+	TxtRecord             = "TXT"
+	PtrRecord             = "PTR"
+	HostRecordConst       = "Host"
+	DnsViewConst          = "DNSView"
+	ZoneAuthConst         = "ZoneAuth"
+	NetworkViewConst      = "NetworkView"
+	NetworkConst          = "Network"
+	NetworkContainerConst = "NetworkContainer"
+)
+
+// Map of record type to its corresponding object
+var getRecordTypeMap = map[string]func(ref string) IBObject{
+	ARecord: func(ref string) IBObject {
+		return NewEmptyRecordA()
+	},
+	AaaaRecord: func(ref string) IBObject {
+		return NewEmptyRecordAAAA()
+	},
+	CnameRecord: func(ref string) IBObject {
+		return NewEmptyRecordCNAME()
+	},
+	MxRecord: func(ref string) IBObject {
+		return NewEmptyRecordMX()
+	},
+	SrvRecord: func(ref string) IBObject {
+		return NewEmptyRecordSRV()
+	},
+	TxtRecord: func(ref string) IBObject {
+		return NewEmptyRecordTXT()
+	},
+	PtrRecord: func(ref string) IBObject {
+		return NewEmptyRecordPTR()
+	},
+	HostRecordConst: func(ref string) IBObject {
+		return NewEmptyHostRecord()
+	},
+	DnsViewConst: func(ref string) IBObject {
+		return NewEmptyDNSView()
+	},
+	ZoneAuthConst: func(ref string) IBObject {
+		zone := &ZoneAuth{}
+		zone.SetReturnFields(append(
+			zone.ReturnFields(),
+			"comment",
+			"ns_group",
+			"soa_default_ttl",
+			"soa_expire",
+			"soa_negative_ttl",
+			"soa_refresh",
+			"soa_retry",
+			"view",
+			"zone_format",
+			"extattrs",
+		))
+		return zone
+	},
+	NetworkViewConst: func(ref string) IBObject {
+		return NewEmptyNetworkView()
+	},
+	NetworkContainerConst: func(ref string) IBObject {
+		return NewNetworkContainer("", "", false, "", nil)
+	},
+	NetworkConst: func(ref string) IBObject {
+		r := regexp.MustCompile("^ipv6network\\/.+")
+		isIPv6 := r.MatchString(ref)
+		return NewNetwork("", "", isIPv6, "", nil)
+	},
+}
+
+// Map returns the object with search fields with the given record type
+var getObjectWithSearchFieldsMap = map[string]func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error){
+	ARecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordA).Ref != "" {
+			return res, nil
+		}
+		var recordAList []*RecordA
+		err := objMgr.connector.GetObject(NewEmptyRecordA(), "", NewQueryParams(false, sf), &recordAList)
+		if err == nil && len(recordAList) > 0 {
+			res = recordAList[0]
+		}
+		return res, err
+	},
+	AaaaRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordAAAA).Ref != "" {
+			return res, nil
+		}
+		var recordAaaList []*RecordAAAA
+		err := objMgr.connector.GetObject(NewEmptyRecordAAAA(), "", NewQueryParams(false, sf), &recordAaaList)
+		if err == nil && len(recordAaaList) > 0 {
+			res = recordAaaList[0]
+		}
+		return res, err
+	},
+	CnameRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordCNAME).Ref != "" {
+			return res, nil
+		}
+		var cNameList []*RecordCNAME
+		err := objMgr.connector.GetObject(NewEmptyRecordCNAME(), "", NewQueryParams(false, sf), &cNameList)
+		if err == nil && len(cNameList) > 0 {
+			res = cNameList[0]
+		}
+		return res, err
+	},
+	MxRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordMX).Ref != "" {
+			return res, nil
+		}
+		var mxList []*RecordMX
+		err := objMgr.connector.GetObject(NewEmptyRecordMX(), "", NewQueryParams(false, sf), &mxList)
+		if err == nil && len(mxList) > 0 {
+			res = mxList[0]
+		}
+		return res, err
+
+	},
+	SrvRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordSRV).Ref != "" {
+			return res, nil
+		}
+		var srvList []*RecordSRV
+		err := objMgr.connector.GetObject(NewEmptyRecordSRV(), "", NewQueryParams(false, sf), &srvList)
+		if err == nil && len(srvList) > 0 {
+			res = srvList[0]
+		}
+		return res, err
+	},
+	TxtRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordTXT).Ref != "" {
+			return res, nil
+		}
+		var txtList []*RecordTXT
+		err := objMgr.connector.GetObject(NewEmptyRecordTXT(), "", NewQueryParams(false, sf), &txtList)
+		if err == nil && len(txtList) > 0 {
+			res = txtList[0]
+		}
+		return res, err
+	},
+	PtrRecord: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*RecordPTR).Ref != "" {
+			return res, nil
+		}
+		var ptrList []*RecordPTR
+		err := objMgr.connector.GetObject(NewEmptyRecordPTR(), "", NewQueryParams(false, sf), &ptrList)
+		if err == nil && len(ptrList) > 0 {
+			res = ptrList[0]
+		}
+		return res, err
+	},
+	HostRecordConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*HostRecord).Ref != "" {
+			return res, nil
+		}
+		var hostRecordList []*HostRecord
+		err := objMgr.connector.GetObject(NewEmptyHostRecord(), "", NewQueryParams(false, sf), &hostRecordList)
+		if err == nil && len(hostRecordList) > 0 {
+			res = hostRecordList[0]
+		}
+		return res, err
+	},
+	DnsViewConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*View).Ref != "" {
+			return res, nil
+		}
+		var dnsViewList []*View
+		err := objMgr.connector.GetObject(NewEmptyDNSView(), "", NewQueryParams(false, sf), &dnsViewList)
+		if err == nil && len(dnsViewList) > 0 {
+			res = dnsViewList[0]
+		}
+		return res, err
+	},
+	ZoneAuthConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*ZoneAuth).Ref != "" {
+			return res, nil
+		}
+		zoneAuth := recordType.(*ZoneAuth)
+		var zoneAuthList []*ZoneAuth
+		err := objMgr.connector.GetObject(zoneAuth, "", NewQueryParams(false, sf), &zoneAuthList)
+		if err == nil && len(zoneAuthList) > 0 {
+			res = zoneAuthList[0]
+		}
+		return res, err
+	},
+	NetworkViewConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*NetworkView).Ref != "" {
+			return res, nil
+		}
+		var networkViewList []*NetworkView
+		err := objMgr.connector.GetObject(NewEmptyNetworkView(), "", NewQueryParams(false, sf), &networkViewList)
+		if err == nil && len(networkViewList) > 0 {
+			res = networkViewList[0]
+		}
+		return res, err
+	},
+	// TODO: Do we need to add netview string, cidr string, isIPv6 bool, ea EA to create network container
+	NetworkContainerConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*NetworkContainer).Ref != "" {
+			return res, nil
+		}
+		var networkContainerList []*NetworkContainer
+		err := objMgr.connector.GetObject(NewNetworkContainer("", "", false, "", nil), "", NewQueryParams(false, sf), &networkContainerList)
+		if err == nil && len(networkContainerList) > 0 {
+			res = networkContainerList[0]
+		}
+		return res, err
+
+	},
+	//TODO: Do we need to add netview string, cidr string, isIPv6 bool, ea EA to create network
+	NetworkConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*Network).Ref != "" {
+			return res, nil
+		}
+		var networkList []*Network
+		err := objMgr.connector.GetObject(NewNetwork("", "", false, "", nil), "", NewQueryParams(false, sf), &networkList)
+		if err == nil && len(networkList) > 0 {
+			res = networkList[0]
+		}
+		return res, err
+	},
 }
 
 type ObjectManager struct {
@@ -157,7 +404,8 @@ func (objMgr *ObjectManager) GetAllMembers() ([]Member, error) {
 
 	memberObj := NewMember(Member{})
 	err := objMgr.connector.GetObject(
-		memberObj, "", NewQueryParams(false, nil), &res)
+		memberObj, "", NewQueryParams(false, nil), &res,
+	)
 	return res, err
 }
 
@@ -181,7 +429,8 @@ func (objMgr *ObjectManager) GetLicense() ([]License, error) {
 
 	licenseObj := NewLicense(License{})
 	err := objMgr.connector.GetObject(
-		licenseObj, "", NewQueryParams(false, nil), &res)
+		licenseObj, "", NewQueryParams(false, nil), &res,
+	)
 	return res, err
 }
 
@@ -191,7 +440,8 @@ func (objMgr *ObjectManager) GetGridLicense() ([]License, error) {
 
 	licenseObj := NewGridLicense(License{})
 	err := objMgr.connector.GetObject(
-		licenseObj, "", NewQueryParams(false, nil), &res)
+		licenseObj, "", NewQueryParams(false, nil), &res,
+	)
 	return res, err
 }
 
@@ -201,7 +451,8 @@ func (objMgr *ObjectManager) GetGridInfo() ([]Grid, error) {
 
 	gridObj := NewGrid(Grid{})
 	err := objMgr.connector.GetObject(
-		gridObj, "", NewQueryParams(false, nil), &res)
+		gridObj, "", NewQueryParams(false, nil), &res,
+	)
 	return res, err
 }
 
@@ -210,9 +461,11 @@ func (objMgr *ObjectManager) CreateZoneAuth(
 	fqdn string,
 	eas EA) (*ZoneAuth, error) {
 
-	zoneAuth := NewZoneAuth(ZoneAuth{
-		Fqdn: fqdn,
-		Ea:   eas})
+	zoneAuth := NewZoneAuth(
+		ZoneAuth{
+			Fqdn: fqdn,
+			Ea:   eas},
+	)
 
 	ref, err := objMgr.connector.CreateObject(zoneAuth)
 	zoneAuth.Ref = ref
@@ -228,7 +481,8 @@ func (objMgr *ObjectManager) GetZoneAuthByRef(ref string) (*ZoneAuth, error) {
 	}
 
 	err := objMgr.connector.GetObject(
-		res, ref, NewQueryParams(false, nil), res)
+		res, ref, NewQueryParams(false, nil), res,
+	)
 	return res, err
 }
 
@@ -243,7 +497,8 @@ func (objMgr *ObjectManager) GetZoneAuth() ([]ZoneAuth, error) {
 
 	zoneAuth := NewZoneAuth(ZoneAuth{})
 	err := objMgr.connector.GetObject(
-		zoneAuth, "", NewQueryParams(false, nil), &res)
+		zoneAuth, "", NewQueryParams(false, nil), &res,
+	)
 
 	return res, err
 }
@@ -272,9 +527,11 @@ func (objMgr *ObjectManager) GetZoneDelegated(fqdn string) (*ZoneDelegated, erro
 
 // CreateZoneDelegated creates delegated zone
 func (objMgr *ObjectManager) CreateZoneDelegated(fqdn string, delegate_to []NameServer) (*ZoneDelegated, error) {
-	zoneDelegated := NewZoneDelegated(ZoneDelegated{
-		Fqdn:       fqdn,
-		DelegateTo: delegate_to})
+	zoneDelegated := NewZoneDelegated(
+		ZoneDelegated{
+			Fqdn:       fqdn,
+			DelegateTo: delegate_to},
+	)
 
 	ref, err := objMgr.connector.CreateObject(zoneDelegated)
 	zoneDelegated.Ref = ref
@@ -284,9 +541,11 @@ func (objMgr *ObjectManager) CreateZoneDelegated(fqdn string, delegate_to []Name
 
 // UpdateZoneDelegated updates delegated zone
 func (objMgr *ObjectManager) UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error) {
-	zoneDelegated := NewZoneDelegated(ZoneDelegated{
-		Ref:        ref,
-		DelegateTo: delegate_to})
+	zoneDelegated := NewZoneDelegated(
+		ZoneDelegated{
+			Ref:        ref,
+			DelegateTo: delegate_to},
+	)
 
 	refResp, err := objMgr.connector.UpdateObject(zoneDelegated, ref)
 	zoneDelegated.Ref = refResp
@@ -296,4 +555,94 @@ func (objMgr *ObjectManager) UpdateZoneDelegated(ref string, delegate_to []NameS
 // DeleteZoneDelegated deletes delegated zone
 func (objMgr *ObjectManager) DeleteZoneDelegated(ref string) (string, error) {
 	return objMgr.connector.DeleteObject(ref)
+}
+
+// SearchObjectByAltId is a generic function to search object by alternate id
+func (objMgr *ObjectManager) SearchObjectByAltId(
+	objType string, ref string, internalId string, eaNameForInternalId string) (interface{}, error) {
+	var (
+		err        error
+		recordType IBObject
+		res        interface{}
+	)
+	val, ok := getRecordTypeMap[objType]
+	if !ok {
+		return nil, fmt.Errorf("unknown record type")
+	}
+	recordType = val(ref)
+
+	if ref != "" {
+		// Fetching object by reference
+		if err := objMgr.connector.GetObject(recordType, ref, NewQueryParams(false, nil), &res); err != nil {
+			if _, ok := err.(*NotFoundError); !ok {
+				return nil, err
+			}
+		}
+		success, err := validateObjByInternalId(res, internalId, eaNameForInternalId)
+		if err != nil {
+			return nil, err
+		} else if success {
+			return res, nil
+		}
+	}
+
+	sf := map[string]string{
+		fmt.Sprintf("*%s", eaNameForInternalId): internalId,
+	}
+
+	// Fetch the object by search fields
+	getObjectWithSearchFields, ok := getObjectWithSearchFieldsMap[objType]
+	if !ok {
+		return nil, fmt.Errorf("unknown record type")
+	}
+	res, err = getObjectWithSearchFields(recordType, objMgr, sf)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, NewNotFoundError("record not found")
+	}
+
+	return &res, nil
+}
+
+// validateObjByInternalId validates the object by comparing the given internal with the object's internal id
+func validateObjByInternalId(res interface{}, internalId, eaNameForInternalId string) (bool, error) {
+	var success bool
+	if res == nil {
+		return success, nil
+	} else if strings.TrimSpace(internalId) == "" {
+		// return object if internal id is empty
+		success = true
+		return success, nil
+	}
+	byteObj, err := json.Marshal(res)
+	if err != nil {
+		return success, fmt.Errorf("error marshaling JSON: %v", err)
+	}
+	obj := make(map[string]interface{})
+	err = json.Unmarshal(byteObj, &obj)
+	if err != nil {
+		return success, fmt.Errorf("error unmarshaling JSON: %v", err)
+	}
+	extAttrs, err := getInterfaceValueFromMap(obj, "extattrs")
+	if err == nil {
+		resInternalId, err := getInterfaceValueFromMap(extAttrs, eaNameForInternalId)
+		if err == nil && resInternalId["value"] != nil && resInternalId["value"].(string) == internalId {
+			// return object if object's internal id matches with the given internal id
+			success = true
+			return success, nil
+		}
+		return success, err
+	}
+	return success, err
+}
+
+// getInterfaceValueFromMap returns the value, after converting it into a map[string]interface{}, of the given key from the map
+func getInterfaceValueFromMap(m map[string]interface{}, key string) (map[string]interface{}, error) {
+	if val, ok := m[key]; ok && val != nil {
+		res := val.(map[string]interface{})
+		return res, nil
+	}
+	return nil, fmt.Errorf("key %s not found in map", key)
 }

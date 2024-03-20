@@ -22,6 +22,13 @@ func NewNotFoundError(msg string) *NotFoundError {
 	return &NotFoundError{msg: msg}
 }
 
+type GenericObj interface {
+	ObjectType() string
+	ReturnFields() []string
+	EaSearch() EASearch
+	SetReturnFields([]string)
+}
+
 func BuildNetworkViewFromRef(ref string) *NetworkView {
 	// networkview/ZG5zLm5ldHdvcmtfdmlldyQyMw:global_view/false
 	r := regexp.MustCompile(`networkview/\w+:([^/]+)/\w+`)
