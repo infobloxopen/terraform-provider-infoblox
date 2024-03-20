@@ -136,7 +136,7 @@ func resourceNetworkViewRead(d *schema.ResourceData, m interface{}) error {
 	if !networkViewRegExp.MatchString(nv.Ref) {
 		return fmt.Errorf("reference '%s' for 'networkview' object has an invalid format", nv.Ref)
 	}
-	delete(nv.Ea, eaNameForTenantId)
+	delete(nv.Ea, eaNameForInternalId)
 	omittedEAs := omitEAs(nv.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
