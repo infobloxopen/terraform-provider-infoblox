@@ -28,6 +28,7 @@ type AuthConfig struct {
 }
 
 type HostConfig struct {
+	Scheme  string
 	Host    string
 	Version string
 	Port    string
@@ -83,6 +84,31 @@ type HttpRequestor interface {
 type WapiRequestBuilder struct {
 	hostCfg HostConfig
 	authCfg AuthConfig
+}
+
+type WapiRequestBuilderWithHeaders struct {
+	HttpRequestBuilder
+	header http.Header
+}
+
+func NewWapiRequestBuilderWithHeaders(wrb *WapiRequestBuilder, header http.Header) (*WapiRequestBuilderWithHeaders, error) {
+	return &WapiRequestBuilderWithHeaders{
+		HttpRequestBuilder: wrb,
+		header:             header,
+	}, nil
+}
+
+func (wrbh *WapiRequestBuilderWithHeaders) BuildRequest(r RequestType, obj IBObject, ref string, queryParams *QueryParams) (req *http.Request, err error) {
+	req, err = wrbh.HttpRequestBuilder.BuildRequest(r, obj, ref, queryParams)
+	if err != nil {
+		return req, err
+	}
+	for h, values := range wrbh.header {
+		for _, v := range values {
+			req.Header.Add(h, v)
+		}
+	}
+	return req, nil
 }
 
 type WapiHttpRequestor struct {
@@ -246,11 +272,16 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 				}
 			}
 		}
+
 		qry = vals.Encode()
 	}
 
+	scheme := "https"
+	if wrb.hostCfg.Scheme == "http" {
+		scheme = "http"
+	}
 	u := url.URL{
-		Scheme:   "https",
+		Scheme:   scheme,
 		Host:     wrb.hostCfg.Host + ":" + wrb.hostCfg.Port,
 		Path:     strings.Join(path, "/"),
 		RawQuery: qry,
