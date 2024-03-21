@@ -513,9 +513,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 
 	enableDhcp := false
 
-	if recIpV4Addr != nil {
-		macAddr = *recIpV4Addr.Mac
-		enableDhcp = *recIpV4Addr.EnableDhcp
+	if recIpV4Addr != nil && recIpV4Addr.EnableDhcp != nil {
+		if recIpV4Addr.Mac != nil {
+			macAddr = *recIpV4Addr.Mac
+			enableDhcp = *recIpV4Addr.EnableDhcp
+		}
 	}
 
 	if recIpV6Addr != nil && recIpV6Addr.EnableDhcp != nil {
