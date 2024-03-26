@@ -288,6 +288,9 @@ func filterFromMap(filtersMap map[string]interface{}) map[string]string {
 func terraformSerializeEAs(ea ibclient.EA) (string, error) {
 	delete(ea, eaNameForInternalId)
 	eaMap := (map[string]interface{})(ea)
+	if len(eaMap) == 0 {
+		return "", nil
+	}
 	eaJSON, err := json.Marshal(eaMap)
 	if err != nil {
 		return "", err
