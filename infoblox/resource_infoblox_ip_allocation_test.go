@@ -241,6 +241,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -254,6 +257,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
+					depends_on = [infoblox_zone_auth.zone]
 					}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -277,6 +281,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 			},
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -291,6 +298,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
+					depends_on = [infoblox_zone_auth.zone]
 					}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -316,6 +324,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 			// Validate that ipv6_addr can be removed
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -328,6 +339,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
+					depends_on = [infoblox_zone_auth.zone]
 					}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -350,6 +362,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 			},
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
 				resource "infoblox_ipv4_network" "net1" {
 					cidr = "10.0.0.0/24"
 				}
@@ -365,7 +380,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
-					depends_on = [infoblox_ipv4_network.net1]
+					depends_on = [infoblox_ipv4_network.net1, infoblox_zone_auth.zone]
 				}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -388,6 +403,9 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 			},
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
 				resource "infoblox_ipv4_network" "net1" {
 					cidr = "10.0.0.0/24"
 				}
@@ -403,6 +421,7 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 						Location = "Test loc."
 						Site = "Test site"
 					  })
+					depends_on = [infoblox_zone_auth.zone, infoblox_ipv4_network.net1]
 					}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -435,6 +454,9 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -447,6 +469,7 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						Location = "Test loc."
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -498,6 +521,9 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 					}
 				},
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_ip_allocation" "foo3"{
 						network_view="default"
 						dns_view = "default"
@@ -510,6 +536,7 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 							"Tenant ID" = "terraform_test_tenant"
 							Location = "Test loc."
 						})
+						depends_on = [infoblox_zone_auth.zone]
 					}`,
 				Check: resource.ComposeTestCheckFunc(
 					// Resource object shouldn't have Site EA, since it's omitted by provider
@@ -542,6 +569,9 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA won't be removed if some field is updated in the resource
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+	            }
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -554,6 +584,7 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						Location = "Test loc."
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				// Actual API object should have  EA
 				Check: validateIPAllocation(
@@ -579,6 +610,9 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+                }
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -592,6 +626,7 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 						Location = "Test loc."
 						Site = "Updated test site"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: validateIPAllocation(
 					"infoblox_ip_allocation.foo3",
@@ -616,6 +651,9 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be removed, if updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+				}
 				resource "infoblox_ip_allocation" "foo3"{
 					network_view="default"
 					dns_view = "default"
@@ -628,6 +666,7 @@ func TestAcc_resourceIPAllocation_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						Location = "Test loc."
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

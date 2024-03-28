@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -23,20 +24,35 @@ func validateNetwork(
 			return fmt.Errorf("ID is not set")
 		}
 
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
+		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
 		connector := testAccProvider.Meta().(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(
 			connector,
 			"terraform_test",
-			"terraform_test_tenant")
-		nw, err := objMgr.GetNetworkByRef(id)
+			"test")
+		nwObj, err := objMgr.SearchObjectByAltId("Network", ref, internalId, eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
 					return nil
 				}
-				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
 			}
 		}
+		// Assertion of object type and error handling
+		var nw *ibclient.Network
+		recJson, _ := json.Marshal(nwObj)
+		err = json.Unmarshal(recJson, &nw)
+
 		expNv := expectedValue.NetviewName
 		if nw.NetviewName != expNv {
 			return fmt.Errorf(

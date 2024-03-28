@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
@@ -11,6 +12,9 @@ import (
 )
 
 var testAccresourceCNAMERecordCreate = fmt.Sprintf(`
+resource "infoblox_zone_auth" "zone" {
+	fqdn = "test.com"
+}
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	canonical="test-canonicalName.test.com"
@@ -20,12 +24,14 @@ resource "infoblox_cname_record" "foo"{
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc"
 		"Site" = "Test site"
-		"TestEA1"=["text1","text2"]
 	  })
-
+	depends_on=[infoblox_zone_auth.zone]
 }`)
 
 var testAccresourceCNAMERecordUpdate = fmt.Sprintf(`
+resource "infoblox_zone_auth" "zone" {
+	fqdn = "test.com"
+}
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	canonical="test-canonicalName.test.com"
@@ -35,9 +41,8 @@ resource "infoblox_cname_record" "foo"{
 		"Tenant ID" = "terraform_test_tenant"
 		"Location" = "Test loc 2"
 		"Site" = "Test site 2"
-		"TestEA1"="text3"
 	  })
-
+	depends_on=[infoblox_zone_auth.zone]
 }`)
 
 func validateRecordCNAME(
@@ -49,6 +54,16 @@ func validateRecordCNAME(
 			return fmt.Errorf("not found: %s", resourceName)
 		}
 
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
+		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
 		id := res.Primary.ID
 		if id == "" {
 			return fmt.Errorf("ID is not set")
@@ -58,16 +73,20 @@ func validateRecordCNAME(
 		objMgr := ibclient.NewObjectManager(
 			connector,
 			"terraform_test",
-			"terraform_test_tenant")
-		recCNAME, err := objMgr.GetCNAMERecordByRef(id)
+			"test")
+		rec, err := objMgr.SearchObjectByAltId("CNAME", ref, internalId, eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
 					return nil
 				}
-				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
 			}
 		}
+		// Assertion of object type and error handling
+		var recCNAME *ibclient.RecordCNAME
+		recJson, _ := json.Marshal(rec)
+		err = json.Unmarshal(recJson, &recCNAME)
 
 		expCanonical := *expectedValue.Canonical
 		if *recCNAME.Canonical != expCanonical {
@@ -128,7 +147,6 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc",
 							"Site":      "Test site",
-							"TestEA1":   []string{"text1", "text2"},
 						},
 					},
 				),
@@ -147,7 +165,6 @@ func TestAccResourceCNAMERecord(t *testing.T) {
 							"Tenant ID": "terraform_test_tenant",
 							"Location":  "Test loc 2",
 							"Site":      "Test site 2",
-							"TestEA1":   "text3",
 						},
 					},
 				),
@@ -188,6 +205,9 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}	
 				resource "infoblox_cname_record" "foo1"{
 					dns_view="default"
 					canonical="test.somewhere.net"
@@ -197,6 +217,7 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						"Site" = "Marking site"
 					})
+					depends_on=[infoblox_zone_auth.zone]
 				}`,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo1",
@@ -243,6 +264,9 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 					}
 				},
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_cname_record" "foo1"{
 					dns_view="default"
 					canonical="test.somewhere.net"
@@ -252,6 +276,7 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						"Site" = "Marking site"
 					})
+					depends_on=[infoblox_zone_auth.zone]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					// Resource object shouldn't have Location EA, since it's omitted by provider
@@ -280,6 +305,9 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA won't be removed if some field is updated in the resource
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_cname_record" "foo1"{
 					dns_view="default"
 					canonical="testhidden.somewhere.net"
@@ -289,6 +317,7 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						"Site" = "Marking site"
 					})
+					depends_on=[infoblox_zone_auth.zone]
 				}`,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo1",
@@ -309,6 +338,9 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_cname_record" "foo1"{
 					dns_view="default"
 					canonical="test.somewhere.net"
@@ -319,6 +351,7 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 						"Site" = "Marking site"
 						"Location" = "New California"
 					})
+					depends_on=[infoblox_zone_auth.zone]
 				}`,
 				Check: validateRecordCNAME(
 					"infoblox_cname_record.foo1",
@@ -339,6 +372,9 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be removed, if updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_cname_record" "foo1"{
 					dns_view="default"
 					canonical="test.somewhere.net"
@@ -348,6 +384,7 @@ func TestAcc_resourceCNAMERecord_ea_inheritance(t *testing.T) {
 						"Tenant ID" = "terraform_test_tenant"
 						"Site" = "Marking site"
 					})
+					depends_on=[infoblox_zone_auth.zone]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

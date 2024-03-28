@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -24,21 +25,34 @@ func validateNetworkContainer(
 			return fmt.Errorf("ID is not set")
 		}
 
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
+		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
 		connector := testAccProvider.Meta().(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(
 			connector,
 			"terraform_test",
-			"terraform_test_tenant")
-
-		nc, err := objMgr.GetNetworkContainerByRef(id)
+			"test")
+		recA, err := objMgr.SearchObjectByAltId("NetworkContainer", ref, internalId, eaNameForInternalId)
 		if err != nil {
 			if isNotFoundError(err) {
 				if expectedValue == nil {
 					return nil
 				}
-				return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
 			}
 		}
+		// Assertion of object type and error handling
+		var nc *ibclient.NetworkContainer
+		recJson, _ := json.Marshal(recA)
+		err = json.Unmarshal(recJson, &nc)
 
 		expNv := expectedValue.NetviewName
 		if nc.NetviewName != expNv {

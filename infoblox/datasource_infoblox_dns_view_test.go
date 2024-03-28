@@ -67,7 +67,7 @@ func TestAccDataSourceDNSViewSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_dns_view.accview", "results.0.name", "customview"),
 					resource.TestCheckResourceAttr("data.infoblox_dns_view.accview", "results.0.network_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_dns_view.accview", "results.0.comment", "new dns view example"),
-					resource.TestCheckResourceAttr("data.infoblox_dns_view.accview", "results.0.ext_attrs", "{\"Site\":\"Main DNS Site\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_dns_view.accview", "results.0.ext_attrs.Site", "infoblox_dns_view.dview1", "ext_attrs.Site"),
 				),
 			},
 		},

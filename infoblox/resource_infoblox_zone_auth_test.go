@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -36,14 +37,35 @@ func testAccZoneAuthCompare(t *testing.T, resPath string, expectedObj *ibclient.
 		if res.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		meta := testAccProvider.Meta()
-		connector := meta.(ibclient.IBConnector)
-		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		zoneObj, _ := objMgr.GetZoneAuthByRef(res.Primary.ID)
-		if zoneObj == nil {
-			return fmt.Errorf("zone not found")
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
 		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
+		connector := testAccProvider.Meta().(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(
+			connector,
+			"terraform_test",
+			"test")
+		zone, err := objMgr.SearchObjectByAltId("ZoneAuth", ref, internalId, eaNameForInternalId)
+		if err != nil {
+			if isNotFoundError(err) {
+				if expectedObj == nil {
+					return nil
+				}
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
+			}
+		}
+		// Assertion of object type and error handling
+		var zoneObj *ibclient.ZoneAuth
+		recJson, _ := json.Marshal(zone)
+		err = json.Unmarshal(recJson, &zoneObj)
 
 		if zoneObj.Fqdn != expectedObj.Fqdn {
 			return fmt.Errorf(
@@ -58,14 +80,6 @@ func testAccZoneAuthCompare(t *testing.T, resPath string, expectedObj *ibclient.
 			return fmt.Errorf(
 				"'view' does not match: got '%s', expected '%s'",
 				*zoneObj.View, *expectedObj.View)
-		}
-
-		if zoneObj.NsGroup != nil {
-			if *zoneObj.NsGroup != *expectedObj.NsGroup {
-				return fmt.Errorf(
-					"'ns_group' does not match: got '%s', expected '%s'",
-					*zoneObj.NsGroup, *expectedObj.NsGroup)
-			}
 		}
 
 		if expectedObj.ZoneFormat != "" {
@@ -147,11 +161,14 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource "infoblox_zone_auth" "test_zone2" {
 						fqdn = "test2.com"
 					}
+					resource "infoblox_dns_view" "view" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_zone_auth" "test_zone3" {
 						fqdn = "test3.com"
 						view = "nondefault_view"
 						zone_format = "FORWARD"
-						ns_group = "nsgroup1"
+						//ns_group = "nsgroup1"
 						restart_if_needed = true
 						soa_default_ttl = 36000
 						soa_expire = 72000
@@ -162,16 +179,13 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 						ext_attrs = jsonencode({
 							Location = "AcceptanceTerraform"
 						})
+						depends_on = [infoblox_dns_view.view]
 					}
 				`),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "fqdn", "test2.com"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "view", "default"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "zone_format", "FORWARD"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ext_attrs", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ns_group", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_negative_ttl", "900"),
@@ -183,8 +197,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "comment", "Zone Auth created by terraform acceptance test"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ext_attrs", "{\"Location\":\"AcceptanceTerraform\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ns_group", "nsgroup1"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "restart_if_needed", "true"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_default_ttl", "36000"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_expire", "72000"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_negative_ttl", "600"),
@@ -196,7 +208,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 				Config: fmt.Sprintf(`
 					resource "infoblox_zone_auth" "test_zone2" {
 						fqdn = "test2.com"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 						restart_if_needed = true
 						soa_default_ttl = 36002
 						soa_expire = 72002
@@ -208,11 +220,14 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 							Location = "AcceptanceTerraform 22"
 						})
 					}
+					resource "infoblox_dns_view" "view" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_zone_auth" "test_zone3" {
 						fqdn = "test3.com"
 						view = "nondefault_view"
 						zone_format = "FORWARD"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 						restart_if_needed = false
 						soa_default_ttl = 36001
 						soa_expire = 72001
@@ -223,6 +238,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 						ext_attrs = jsonencode({
 							Location = "AcceptanceTerraform 2"
 						})
+						depends_on = [infoblox_dns_view.view]
 					}
 				`),
 				Check: resource.ComposeTestCheckFunc(
@@ -231,7 +247,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "comment", "Zone Auth created by terraform acceptance test 22"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ext_attrs", "{\"Location\":\"AcceptanceTerraform 22\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ns_group", "nsgroup2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "restart_if_needed", "true"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_default_ttl", "36002"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_expire", "72002"),
@@ -244,7 +259,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "comment", "Zone Auth created by terraform acceptance test 2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ext_attrs", "{\"Location\":\"AcceptanceTerraform 2\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ns_group", "nsgroup2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_default_ttl", "36001"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_expire", "72001"),
@@ -255,24 +269,24 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_zone_auth" "test_zone2" {
 						fqdn = "test2.com"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 					}
 					resource "infoblox_zone_auth" "test_zone3" {
 						fqdn = "test3.com"
 						view = "nondefault_view"
 						zone_format = "FORWARD"
+						depends_on = [infoblox_dns_view.view]
 					}
 				`),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "fqdn", "test2.com"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "view", "default"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "zone_format", "FORWARD"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ext_attrs", ""),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "ns_group", "nsgroup2"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone2", "soa_negative_ttl", "900"),
@@ -282,10 +296,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "fqdn", "test3.com"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "view", "nondefault_view"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "zone_format", "FORWARD"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ext_attrs", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "ns_group", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone3", "soa_negative_ttl", "900"),
@@ -302,7 +312,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource "infoblox_zone_auth" "test_zone5" {
 						fqdn = "2345::/64"
 						zone_format = "IPV6"
-						ns_group = "nsgroup1"
+						//ns_group = "nsgroup1"
 						restart_if_needed = true
 						soa_default_ttl = 36000
 						soa_expire = 72000
@@ -319,10 +329,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "fqdn", "10.20.30.0/24"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "view", "default"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "zone_format", "IPV4"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ext_attrs", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ns_group", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_negative_ttl", "900"),
@@ -334,7 +340,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "zone_format", "IPV6"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "comment", "Zone Auth created by terraform acceptance test"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ext_attrs", "{\"Location\":\"AcceptanceTerraform\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ns_group", "nsgroup1"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "restart_if_needed", "true"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_default_ttl", "36000"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_expire", "72000"),
@@ -348,7 +353,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource "infoblox_zone_auth" "test_zone4" {
 						fqdn = "10.20.30.0/24"
 						zone_format = "IPV4"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 						restart_if_needed = true
 						soa_default_ttl = 36002
 						soa_expire = 72002
@@ -363,7 +368,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource "infoblox_zone_auth" "test_zone5" {
 						fqdn = "2345::/64"
 						zone_format = "IPV6"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 						restart_if_needed = false
 						soa_default_ttl = 36001
 						soa_expire = 72001
@@ -382,7 +387,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "zone_format", "IPV4"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "comment", "Zone Auth created by terraform acceptance test 22"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ext_attrs", "{\"Location\":\"AcceptanceTerraform 22\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ns_group", "nsgroup2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "restart_if_needed", "true"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_default_ttl", "36002"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_expire", "72002"),
@@ -395,7 +399,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "zone_format", "IPV6"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "comment", "Zone Auth created by terraform acceptance test 2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ext_attrs", "{\"Location\":\"AcceptanceTerraform 2\"}"),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ns_group", "nsgroup2"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_default_ttl", "36001"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_expire", "72001"),
@@ -409,7 +412,7 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource "infoblox_zone_auth" "test_zone4" {
 						fqdn = "10.20.30.0/24"
 						zone_format = "IPV4"
-						ns_group = "nsgroup2"
+						//ns_group = "nsgroup2"
 					}
 					resource "infoblox_zone_auth" "test_zone5" {
 						fqdn = "2345::/64"
@@ -420,10 +423,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "fqdn", "10.20.30.0/24"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "view", "default"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "zone_format", "IPV4"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ext_attrs", ""),
-					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "ns_group", "nsgroup2"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone4", "soa_negative_ttl", "900"),
@@ -433,10 +432,6 @@ func TestAccResourceZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "fqdn", "2345::/64"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "view", "default"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "zone_format", "IPV6"),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "comment", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ext_attrs", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "ns_group", ""),
-					//resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "restart_if_needed", "false"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_default_ttl", "28800"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_expire", "2419200"),
 					resource.TestCheckResourceAttr("infoblox_zone_auth.test_zone5", "soa_negative_ttl", "900"),

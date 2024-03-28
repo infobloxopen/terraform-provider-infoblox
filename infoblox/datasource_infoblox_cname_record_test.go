@@ -26,11 +26,15 @@ func TestAccDataSourceCNameRecord(t *testing.T) {
 }
 
 var testAccDataSourceCNameRecordsRead = fmt.Sprintf(`
+resource "infoblox_zone_auth" "test" {
+	fqdn = "test.com"
+}
 resource "infoblox_cname_record" "foo"{
 	dns_view="default"
 	
 	alias="test.test.com"
-	canonical="test-name.test.com"	
+	canonical="test-name.test.com"
+	depends_on = [infoblox_zone_auth.test]
   }
 
 data "infoblox_cname_record" "acctest" {
@@ -49,6 +53,9 @@ func TestAccDataSourceCNameRecordSearchByEA(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "test" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_cname_record" "cname1"{
 						canonical = "somewhere.in.the.net"
 						alias = "samplecname.test.com"
@@ -57,6 +64,7 @@ func TestAccDataSourceCNameRecordSearchByEA(t *testing.T) {
 						ext_attrs = jsonencode({
 							"Site": "test site one"
 						})
+						depends_on = [infoblox_zone_auth.test]
 					}
 
 					data "infoblox_cname_record" "dcname1" {
@@ -71,7 +79,7 @@ func TestAccDataSourceCNameRecordSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.dcname1", "results.0.canonical", "somewhere.in.the.net"),
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.dcname1", "results.0.alias", "samplecname.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_cname_record.dcname1", "results.0.comment", "test sample CName-record"),
-					resource.TestCheckResourceAttr("data.infoblox_cname_record.dcname1", "results.0.ext_attrs", "{\"Site\":\"test site one\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_cname_record.dcname1", "results.0.ext_attrs.Site", "infoblox_cname_record.cname1", "ext_attrs.Site"),
 				),
 			},
 		},

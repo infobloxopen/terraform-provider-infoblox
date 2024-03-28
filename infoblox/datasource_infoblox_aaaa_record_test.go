@@ -26,10 +26,14 @@ func TestAccDataSourceAAAARecord(t *testing.T) {
 }
 
 var testAccDataSourceAAAARecordsRead = fmt.Sprintf(`
+resource "infoblox_zone_auth" "test" {
+	fqdn = "test.com"
+}
 resource "infoblox_aaaa_record" "foo"{
 	dns_view="default"
 	fqdn="aaaa-test.test.com"
 	ipv6_addr="2002:1111::7"
+	depends_on = [infoblox_zone_auth.test]
 }
 
 data "infoblox_aaaa_record" "acctest" {
@@ -48,6 +52,9 @@ func TestAccDataSourceAAAARecordSearchByEA(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "test" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_aaaa_record" "qarec1"{
 						ipv6_addr = "2002:1f93:0:4::11"
 						fqdn = "sampleqa.test.com"
@@ -56,6 +63,7 @@ func TestAccDataSourceAAAARecordSearchByEA(t *testing.T) {
 						ext_attrs = jsonencode({
 							"Location": "Norway"
 						})
+						depends_on = [infoblox_zone_auth.test]
 					}
 
 					data "infoblox_aaaa_record" "dqa1" {
@@ -71,7 +79,7 @@ func TestAccDataSourceAAAARecordSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_aaaa_record.dqa1", "results.0.ipv6_addr", "2002:1f93:0:4::11"),
 					resource.TestCheckResourceAttr("data.infoblox_aaaa_record.dqa1", "results.0.fqdn", "sampleqa.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_aaaa_record.dqa1", "results.0.comment", "test sample AAAA-record"),
-					resource.TestCheckResourceAttr("data.infoblox_aaaa_record.dqa1", "results.0.ext_attrs", "{\"Location\":\"Norway\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_aaaa_record.dqa1", "results.0.ext_attrs.Location", "infoblox_aaaa_record.qarec1", "ext_attrs.Location"),
 				),
 			},
 		},
