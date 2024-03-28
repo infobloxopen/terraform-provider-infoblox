@@ -286,7 +286,11 @@ func filterFromMap(filtersMap map[string]interface{}) map[string]string {
 // terraformSerializeEAs will convert ibclient.EA to a JSON-formatted string,
 // which is generally used as a value for 'ext_attrs' terraform fields.
 func terraformSerializeEAs(ea ibclient.EA) (string, error) {
+	delete(ea, eaNameForInternalId)
 	eaMap := (map[string]interface{})(ea)
+	if len(eaMap) == 0 {
+		return "", nil
+	}
 	eaJSON, err := json.Marshal(eaMap)
 	if err != nil {
 		return "", err
@@ -304,7 +308,9 @@ func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error)
 			return nil, fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
-
+	if extAttrs == nil {
+		extAttrs = make(map[string]interface{})
+	}
 	return extAttrs, nil
 }
 
