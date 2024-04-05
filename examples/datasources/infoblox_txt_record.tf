@@ -11,7 +11,7 @@ resource "infoblox_txt_record" "rec3" {
 
 data "infoblox_txt_record" "ds3" {
   filters =  {
-    dns_view = "nondefault_dnsview1"
+    view = "nondefault_dnsview1"
     name = "example3.example2.org"
   }
 
