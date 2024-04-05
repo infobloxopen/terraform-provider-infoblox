@@ -20,16 +20,16 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field       | Alias    | Type   | Searchable |
-|-------------|----------|--------|------------|
-| ptrdname    | ptrdname | string | yes        |
-| record_name | name     | string | yes        |
-| view        | dns_view | string | yes        |
-| ipv4addr    | ip_addr  | string | yes        |
-| ipv6addr    | ip_addr  | string | yes        |
-| ttl         | ttl      | uint32 | no         |
-| comment     | comment  | string | yes        |
-| zone        | zone     | string | yes        |
+| Field    | Alias        | Type   | Searchable |
+|----------|--------------|--------|------------|
+| ptrdname | ptrdname     | string | yes        |
+| name     | record_name  | string | yes        |
+| view     | dns_view     | string | yes        |
+| ipv4addr | ip_addr      | string | yes        |
+| ipv6addr | ip_addr      | string | yes        |
+| ttl      | ttl          | uint32 | no         |
+| comment  | comment      | string | yes        |
+| zone     | zone         | string | yes        |
 
 !> From above list, both ipv4addr and ipv6addr are not allowed together in filters. Apart from this any other combination is allowed.
 
@@ -70,7 +70,7 @@ resource "infoblox_ptr_record" "host1" {
 data "infoblox_ptr_record" "host1" {
   filters = {
     ptrdname="host.example.org"
-    ip_addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+    ipv6addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
   // This is just to ensure that the record has been be created
@@ -84,9 +84,9 @@ output "ptr_rec_res" {
 
 data "infoblox_ptr_record" "host2" {
   filters = {
-    dns_view="default"
+    view="default"
     ptrdname="host.example.org"
-    record_name="0.6.a.a.7.2.f.d.2.e.2.1.d.0.c.e.0.0.b.c.5.7.2.0.4.1.0.d.5.0.a.2.ip6.arpa"
+    name="0.6.a.a.7.2.f.d.2.e.2.1.d.0.c.e.0.0.b.c.5.7.2.0.4.1.0.d.5.0.a.2.ip6.arpa"
   }
 }
 

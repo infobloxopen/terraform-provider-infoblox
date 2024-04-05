@@ -64,8 +64,8 @@ resource "infoblox_mx_record" "rec2" {
 
 data "infoblox_mx_record" "ds2" {
   filters = {
-    dns_view = "nondefault_dnsview1"
-    fqdn = "rec2.example2.org"
+    view = "nondefault_dnsview1"
+    name = "rec2.example2.org"
     mail_exchanger = "sample.test.com"
   }
 
