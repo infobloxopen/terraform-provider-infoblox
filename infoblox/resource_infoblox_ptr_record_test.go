@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -35,20 +36,34 @@ func validateRecordPTR(
 		return fmt.Errorf("ID is not set")
 	}
 
+	internalId := res.Primary.Attributes["internal_id"]
+	if internalId == "" {
+		return fmt.Errorf("ID is not set")
+	}
+
+	ref, found := res.Primary.Attributes["ref"]
+	if !found {
+		return fmt.Errorf("'ref' attribute is not set")
+	}
+
 	connector := testAccProvider.Meta().(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(
 		connector,
 		"terraform_test",
-		"terraform_test_tenant")
-	recPtr, err := objMgr.GetPTRRecordByRef(id)
+		"test")
+	recPTR, err := objMgr.SearchObjectByAltId("PTR", ref, internalId, eaNameForInternalId)
 	if err != nil {
 		if isNotFoundError(err) {
 			if expectedValue == nil {
 				return nil
 			}
-			return fmt.Errorf("object with ID '%s' not found, but expected to exist", id)
+			return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
 		}
 	}
+	// Assertion of object type and error handling
+	var recPtr *ibclient.RecordPTR
+	recJson, _ := json.Marshal(recPTR)
+	err = json.Unmarshal(recJson, &recPtr)
 
 	if recPtr.PtrdName == nil {
 		return fmt.Errorf("'ptrdname' is expected to be defined but it is not")
@@ -180,7 +195,7 @@ func testAccCheckRecordPTRDestroy(s *terraform.State) error {
 	return nil
 }
 
-func TestAcc_resourceRecordPTR(t *testing.T) {
+func TestAcc_resourceRecordPTR_test1(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -190,10 +205,30 @@ func TestAcc_resourceRecordPTR(t *testing.T) {
 				Config: testCasePtrRecordTestData00,
 				Check:  validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData00),
 			},
+		},
+	})
+}
+
+func TestAcc_resourceRecordPTR_test2(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRecordPTRDestroy,
+		Steps: []resource.TestStep{
 			{
 				Config: testCasePtrRecordTestData01,
 				Check:  validateFuncForSetOfRecordPTR(testCasePtrRecordExpectedData01),
 			},
+		},
+	})
+}
+
+func TestAcc_resourceRecordPTR_test3(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckRecordPTRDestroy,
+		Steps: []resource.TestStep{
 			{
 				Config:      testCasePtrRecordTestErrData01,
 				ExpectError: regexp.MustCompile("only one of 'ip_addr', 'cidr' and 'record_name' must be defined"),

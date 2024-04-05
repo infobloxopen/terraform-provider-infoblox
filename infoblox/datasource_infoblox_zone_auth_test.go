@@ -112,7 +112,7 @@ func TestAccDataSourceZoneAuthSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_zone_auth.dzone1", "results.0.fqdn", "17.1.0.0/16"),
 					resource.TestCheckResourceAttr("data.infoblox_zone_auth.dzone1", "results.0.comment", "test sample reverse zone"),
 					resource.TestCheckResourceAttr("data.infoblox_zone_auth.dzone1", "results.0.zone_format", "IPV4"),
-					resource.TestCheckResourceAttr("data.infoblox_zone_auth.dzone1", "results.0.ext_attrs", "{\"Location\":\"Test Zone Location\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_zone_auth.dzone1", "results.0.ext_attrs.Location", "infoblox_zone_auth.zone1", "ext_attrs.Location"),
 				),
 			},
 		},

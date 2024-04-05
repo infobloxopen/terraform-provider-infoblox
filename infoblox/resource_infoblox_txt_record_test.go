@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"regexp"
@@ -38,14 +39,35 @@ func testAccTXTRecordCompare(t *testing.T, resPath string, expectedRec *ibclient
 		if res.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		meta := testAccProvider.Meta()
-		connector := meta.(ibclient.IBConnector)
-		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		rec, _ := objMgr.GetTXTRecordByRef(res.Primary.ID)
-		if rec == nil {
-			return fmt.Errorf("record not found")
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
 		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
+		connector := testAccProvider.Meta().(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(
+			connector,
+			"terraform_test",
+			"test")
+		recTXT, err := objMgr.SearchObjectByAltId("TXT", ref, internalId, eaNameForInternalId)
+		if err != nil {
+			if isNotFoundError(err) {
+				if expectedRec == nil {
+					return nil
+				}
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
+			}
+		}
+		// Assertion of object type and error handling
+		var rec *ibclient.RecordTXT
+		recJson, _ := json.Marshal(recTXT)
+		err = json.Unmarshal(recJson, &rec)
 
 		if rec.Name == nil {
 			return fmt.Errorf("'fqdn' is expected to be defined but it is not")
@@ -118,9 +140,13 @@ func TestAccResourceTXTRecord(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_txt_record" "foo"{
 						fqdn = "name1.test.com"
 						text = "this is a sample text"
+						depends_on = [infoblox_zone_auth.zone]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo", &ibclient.RecordTXT{
@@ -133,6 +159,13 @@ func TestAccResourceTXTRecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = infoblox_dns_view.view.name
+					}
 					resource "infoblox_txt_record" "foo2"{
 						fqdn = "name2.test.com"
 						text = "this is a sample text-2"
@@ -143,6 +176,7 @@ func TestAccResourceTXTRecord(t *testing.T) {
 						  "Location" = "California"
 						  "Site" = "HQ"
 						})
+						depends_on = [infoblox_zone_auth.zone1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
@@ -161,12 +195,20 @@ func TestAccResourceTXTRecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = infoblox_dns_view.view.name
+					}
 					resource "infoblox_txt_record" "foo2" {
 						fqdn = "name3.test.com"
 						text = "this is a text record"
 						ttl = 150
 						dns_view = "nondefault_view"
 						comment = "test comment 2"
+						depends_on = [infoblox_zone_auth.zone1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccTXTRecordCompare(t, "infoblox_txt_record.foo2", &ibclient.RecordTXT{
@@ -183,6 +225,13 @@ func TestAccResourceTXTRecord(t *testing.T) {
 			// negative test cases
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view2"
+					}
+					resource "infoblox_zone_auth" "zone2" {
+						fqdn = "test.com"
+						view = infoblox_dns_view.view1.name
+					}
 					resource "infoblox_txt_record" "foo2" {
 						fqdn = "name3.test.com"
 						text = "this is a text record"
@@ -204,6 +253,9 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_txt_record" "foo3"{
 					dns_view = "default"
 					fqdn = "newtext.test.com"
@@ -212,6 +264,7 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "Some location"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: testAccTXTRecordCompare(t, "infoblox_txt_record.foo3", &ibclient.RecordTXT{
 					Text:    utils.StringPtr("this is sample text record"),
@@ -254,6 +307,9 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 					}
 				},
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_txt_record" "foo3"{
 					dns_view = "default"
 					fqdn = "newtext.test.com"
@@ -262,6 +318,7 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "Some location"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					// Resource object shouldn't have Site EA, since it's omitted by provider
@@ -286,6 +343,9 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA won't be removed if some field is updated in the resource
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_txt_record" "foo3"{
 					dns_view = "default"
 					fqdn = "newtext.test.com"
@@ -294,6 +354,7 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "Some location"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: testAccTXTRecordCompare(t, "infoblox_txt_record.foo3", &ibclient.RecordTXT{
 					Text:    utils.StringPtr("this is sample text record"),
@@ -310,6 +371,9 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_txt_record" "foo3"{
 					dns_view = "default"
 					fqdn = "newtext.test.com"
@@ -319,6 +383,7 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 						"Location" = "Some location"
 						"Site" = "Sample text site"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: testAccTXTRecordCompare(t, "infoblox_txt_record.foo3", &ibclient.RecordTXT{
 					Text:    utils.StringPtr("this is sample text record"),
@@ -335,6 +400,9 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be removed, if updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+				}
 				resource "infoblox_txt_record" "foo3"{
 					dns_view = "default"
 					fqdn = "newtext.test.com"
@@ -343,6 +411,7 @@ func TestAcc_resourceTXTRecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "Some location"
 					})
+					depends_on = [infoblox_zone_auth.zone]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
@@ -42,17 +43,35 @@ func testAccARecordCompare(
 		if !found {
 			return fmt.Errorf("not found: %s", resPath)
 		}
-		if res.Primary.ID == "" {
+
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		meta := testAccProvider.Meta()
-		connector := meta.(ibclient.IBConnector)
-		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		rec, _ := objMgr.GetARecordByRef(res.Primary.ID)
-		if rec == nil {
-			return fmt.Errorf("record not found")
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
 		}
+
+		connector := testAccProvider.Meta().(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(
+			connector,
+			"terraform_test",
+			"test")
+		recA, err := objMgr.SearchObjectByAltId("A", ref, internalId, eaNameForInternalId)
+		if err != nil {
+			if isNotFoundError(err) {
+				if expectedRec == nil {
+					return nil
+				}
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
+			}
+		}
+		// Assertion of object type and error handling
+		var rec *ibclient.RecordA
+		recJson, _ := json.Marshal(recA)
+		err = json.Unmarshal(recJson, &rec)
 
 		if rec.Name == nil {
 			return fmt.Errorf("'fqdn' is expected to be defined but it is not")
@@ -150,6 +169,14 @@ func TestAccResourceARecord(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = "nondefault_view"
+						depends_on = [infoblox_dns_view.view1]
+					}
 					resource "infoblox_a_record" "foo"{
 						fqdn = "name1.test.com"
 						ip_addr = "10.0.0.2"
@@ -160,6 +187,14 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = "nondefault_view"
+						depends_on = [infoblox_dns_view.view1]
+					}
 					resource "infoblox_a_record" "foo"{
 						fqdn = "name1.test.com"
 					}`),
@@ -167,15 +202,25 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = "nondefault_view"
+						depends_on = [infoblox_dns_view.view1]
+					}
 					resource "infoblox_a_record" "foo"{
 						fqdn = "name1.test.com"
 						ip_addr = "10.0.0.2"
+						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo", &ibclient.RecordA{
 						Ipv4Addr: utils.StringPtr("10.0.0.2"),
 						Name:     utils.StringPtr("name1.test.com"),
-						View:     "default",
+						View:     "nondefault_view",
 						Ttl:      utils.Uint32Ptr(0),
 						UseTtl:   utils.BoolPtr(false),
 						Comment:  nil,
@@ -185,6 +230,14 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = "nondefault_view"
+						depends_on = [infoblox_dns_view.view1]
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name2.test.com"
 						ip_addr = "192.168.31.31"
@@ -195,6 +248,7 @@ func TestAccResourceARecord(t *testing.T) {
 						  "Location" = "New York"
 						  "Site" = "HQ"
 						})
+						depends_on = [infoblox_zone_auth.zone1, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -213,12 +267,19 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.1"
 						ttl = 155
 						dns_view = "nondefault_view"
 						comment = "test comment 2"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -233,10 +294,17 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.1"
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -249,15 +317,22 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
-                    resource "infoblox_ipv4_network" "net1" {
-                        cidr = "10.20.30.0/24"
-                        network_view = "default"
-                    }
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
+			        resource "infoblox_ipv4_network" "net1" {
+			            cidr = "10.20.30.0/24"
+			            network_view = "default"
+			        }
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
-                        cidr = infoblox_ipv4_network.net1.cidr
-                        network_view = infoblox_ipv4_network.net1.network_view
+			            cidr = infoblox_ipv4_network.net1.cidr
+			            network_view = infoblox_ipv4_network.net1.network_view
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_ipv4_network.net1, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -269,30 +344,44 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
-                    resource "infoblox_ipv4_network" "netA" {
-                        cidr = "11.20.0.0/24"
-                        network_view = "default"
-                    }
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
+			        resource "infoblox_ipv4_network" "netA" {
+			            cidr = "11.20.0.0/24"
+			            network_view = "default"
+			        }
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
-                        cidr = infoblox_ipv4_network.netA.cidr
+			            cidr = infoblox_ipv4_network.netA.cidr
 						ip_addr = "10.10.0.7"
-                        network_view = infoblox_ipv4_network.netA.network_view
+			            network_view = infoblox_ipv4_network.netA.network_view
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_ipv4_network.netA, infoblox_dns_view.view1]
 					}`),
 				ExpectError: regexpUpdateConflictIPv4,
 			},
 			{
 				Config: fmt.Sprintf(`
-                    resource "infoblox_ipv4_network" "net2" {
-                        cidr = "10.20.33.0/24"
-                        network_view = "default"
-                    }
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
+			        resource "infoblox_ipv4_network" "net2" {
+			            cidr = "10.20.33.0/24"
+			            network_view = "default"
+			        }
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
-                        cidr = infoblox_ipv4_network.net2.cidr
-                        network_view = infoblox_ipv4_network.net2.network_view
+			            cidr = infoblox_ipv4_network.net2.cidr
+			            network_view = infoblox_ipv4_network.net2.network_view
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_ipv4_network.net2, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -304,27 +393,39 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_network_view" "view1" {
 						name = "nondefault_netview"
 					}
-                    resource "infoblox_ipv4_network" "net3" {
-                        cidr = "10.20.34.0/24"
-                        network_view = infoblox_network_view.view1.name
-                    }
+			      	resource "infoblox_ipv4_network" "net3" {
+			          	cidr = "10.20.34.0/24"
+			          	network_view = infoblox_network_view.view1.name
+			      	}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
-                        cidr = infoblox_ipv4_network.net3.cidr
-                        network_view = infoblox_ipv4_network.net3.network_view
+			          	cidr = infoblox_ipv4_network.net3.cidr
+			          	network_view = infoblox_ipv4_network.net3.network_view
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_network_view.view1, infoblox_ipv4_network.net3]
 					}`),
 				ExpectError: regexpNetviewUpdateNotAllowed,
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_dns_view" "view1" {
+						name = "nondefault_view"
+					}
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+						view = infoblox_dns_view.view1.name
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.2"
 						dns_view = "nondefault_view"
+						depends_on = [infoblox_zone_auth.zone1, infoblox_dns_view.view1]
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccARecordCompare(t, "infoblox_a_record.foo2", &ibclient.RecordA{
@@ -337,10 +438,14 @@ func TestAccResourceARecord(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 					resource "infoblox_a_record" "foo2"{
 						fqdn = "name3.test.com"
 						ip_addr = "10.10.0.2"
 						dns_view = "default"
+						depends_on = [infoblox_zone_auth.zone1]
 					}`),
 				ExpectError: regexpDnsviewUpdateNotAllowed,
 			},
@@ -353,9 +458,13 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckARecordDestroy,
+
 		Steps: []resource.TestStep{
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 				resource "infoblox_a_record" "foo3"{
 					dns_view = "default"
 					fqdn = "samplearec2.test.com"
@@ -364,6 +473,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "test location A"
 					})
+					depends_on = [infoblox_zone_auth.zone1]
 				}`,
 				Check: testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
 					Ipv4Addr: utils.StringPtr("10.1.0.2"),
@@ -407,6 +517,9 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					}
 				},
 				Config: `
+				resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 				resource "infoblox_a_record" "foo3"{
 					dns_view = "default"
 					fqdn = "samplearec2.test.com"
@@ -415,6 +528,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "test location A"
 					})
+					depends_on = [infoblox_zone_auth.zone1]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					// Resource object shouldn't have Site EA, since it's omitted by provider
@@ -439,6 +553,9 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA won't be removed if some field is updated in the resource
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 				resource "infoblox_a_record" "foo3"{
 					dns_view = "default"
 					fqdn = "samplearec2.test.com"
@@ -447,6 +564,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "test location A"
 					})
+					depends_on = [infoblox_zone_auth.zone1]
 				}`,
 				Check: testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
 					Ipv4Addr: utils.StringPtr("10.1.0.2"),
@@ -463,6 +581,9 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 				resource "infoblox_a_record" "foo3"{
 					dns_view = "default"
 					fqdn = "samplearec2.test.com"
@@ -472,6 +593,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 						"Location" = "test location A"
 						"Site" = "new extensible site"
 					})
+					depends_on = [infoblox_zone_auth.zone1]
 				}`,
 				Check: testAccARecordCompare(t, "infoblox_a_record.foo3", &ibclient.RecordA{
 					Ipv4Addr: utils.StringPtr("10.1.0.2"),
@@ -488,6 +610,9 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 			// Validate that inherited EA can be removed, if updated
 			{
 				Config: `
+				resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test.com"
+					}
 				resource "infoblox_a_record" "foo3"{
 					dns_view = "default"
 					fqdn = "samplearec2.test.com"
@@ -496,6 +621,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					ext_attrs = jsonencode({
 						"Location" = "test location A"
 					})
+					depends_on = [infoblox_zone_auth.zone1]
 				}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(

@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"testing"
@@ -34,17 +35,39 @@ func testAccNetworkViewCompare(t *testing.T, resPath string, expectedRec *ibclie
 		if !found {
 			return fmt.Errorf("Not found: %s", resPath)
 		}
+
+		internalId := res.Primary.Attributes["internal_id"]
+		if internalId == "" {
+			return fmt.Errorf("ID is not set")
+		}
+
+		ref, found := res.Primary.Attributes["ref"]
+		if !found {
+			return fmt.Errorf("'ref' attribute is not set")
+		}
+
 		if res.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		meta := testAccProvider.Meta()
-		connector := meta.(ibclient.IBConnector)
-		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		rec, _ := objMgr.GetNetworkViewByRef(res.Primary.ID)
-		if rec == nil {
-			return fmt.Errorf("record not found")
+		connector := testAccProvider.Meta().(ibclient.IBConnector)
+		objMgr := ibclient.NewObjectManager(
+			connector,
+			"terraform_test",
+			"test")
+		nw, err := objMgr.SearchObjectByAltId("NetworkView", ref, internalId, eaNameForInternalId)
+		if err != nil {
+			if isNotFoundError(err) {
+				if expectedRec == nil {
+					return nil
+				}
+				return fmt.Errorf("object with Terraform ID '%s' not found, but expected to exist", internalId)
+			}
 		}
+		// Assertion of object type and error handling
+		var rec *ibclient.NetworkView
+		recJson, _ := json.Marshal(nw)
+		err = json.Unmarshal(recJson, &rec)
 
 		if rec.Name == nil {
 			return fmt.Errorf("network view's 'name' field is expected to be defined but it is not")
