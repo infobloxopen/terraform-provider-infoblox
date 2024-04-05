@@ -14,7 +14,7 @@ resource "infoblox_srv_record" "rec2" {
 
 data "infoblox_srv_record" "ds1" {
     filters = {
-        dns_view = "nondefault_dnsview1"
+        view = "nondefault_dnsview1"
         name = "_sip._udp.example2.org"
         port = 5060
         target = "sip.example2.org"

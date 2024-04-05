@@ -44,7 +44,7 @@ all network containers will be fetched in results.
 
 ```hcl
 resource "infoblox_ipv4_network_container" "nearby_org" {
-  cidr = "192.168.128.0/16"
+  network = "192.168.128.0/17"
   network_view = "separate_tenants"
   comment = "one of our clients"
   ext_attrs = jsonencode({
@@ -56,7 +56,7 @@ resource "infoblox_ipv4_network_container" "nearby_org" {
 data "infoblox_ipv4_network_container" "nearby_nc" {
   filters = {
     network_view = "separate_tenants"
-    cidr = "192.168.128.0/16"
+    cidr = "192.168.128.0/17"
   }
 
   // This is just to ensure that the network container has been be created
