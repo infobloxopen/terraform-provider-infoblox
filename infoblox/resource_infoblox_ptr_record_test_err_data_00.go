@@ -34,9 +34,19 @@ resource "infoblox_ptr_record" "err_ptr_rec1" {
 `
 
 const testCasePtrRecordTestErrData05Pre = `
+resource "infoblox_zone_auth" "zone" {
+  fqdn = "test.com"
+}
+
+resource "infoblox_zone_auth" "izone" {
+  fqdn = "10.0.0.0/8"
+  zone_format = "IPV4"
+}
+
 resource "infoblox_ptr_record" "err_ptr_rec1" {
   ptrdname = "test.com"
   ip_addr = "10.0.0.1"
+  depends_on = [infoblox_zone_auth.zone, infoblox_zone_auth.izone]
 }
 `
 
@@ -45,6 +55,7 @@ resource "infoblox_ptr_record" "err_ptr_rec1" {
   ptrdname = "test.com"
   ip_addr = "10.0.0.2"
   record_name = "2.0.0.10.in-addr.arpa"
+  //depends_on = [infoblox_zone_auth.zone1, infoblox_zone_auth.izone1]
 }
 `
 

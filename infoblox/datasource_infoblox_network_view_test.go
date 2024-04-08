@@ -32,7 +32,7 @@ func TestAccDataSourceNetworkViewReadByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_network_view.acctest", "results.#", "1"),
 					resource.TestCheckResourceAttr("data.infoblox_network_view.acctest", "results.0.name", "testNetworkView"),
 					resource.TestCheckResourceAttr("data.infoblox_network_view.acctest", "results.0.comment", "test comment 1"),
-					resource.TestCheckResourceAttr("data.infoblox_network_view.acctest", "results.0.ext_attrs", "{\"Location\":\"AcceptanceTerraform\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_network_view.acctest", "results.0.ext_attrs.Location", "infoblox_network_view.test_network_view", "ext_attrs.Location"),
 				),
 			},
 		},

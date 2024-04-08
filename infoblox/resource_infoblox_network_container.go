@@ -1,11 +1,12 @@
 package infoblox
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"regexp"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"regexp"
 )
 
 var (
@@ -17,6 +18,15 @@ func resourceNetworkContainer() *schema.Resource {
 	return &schema.Resource{
 		Importer: &schema.ResourceImporter{
 			State: resourceNetworkContainerImport,
+		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -55,11 +65,26 @@ func resourceNetworkContainer() *schema.Resource {
 				Optional:    true,
 				Description: "The Extensible attributes of the network container to be added/updated, as a map in JSON format",
 			},
+			"internal_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: "Internal ID of an object at NIOS side," +
+					" used by Infoblox Terraform plugin to search for a NIOS's object" +
+					" which corresponds to the Terraform resource.",
+			},
+			"ref": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "NIOS object's reference, not to be set by a user.",
+			},
 		},
 	}
 }
 
 func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) error {
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
 	var (
 		nc  *ibclient.NetworkContainer
 		err error
@@ -76,6 +101,10 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	if err != nil {
 		return fmt.Errorf("failed to create network container: %w", err)
 	}
+
+	// Generate UUID for internal_id and add to the EA
+	internalId := generateInternalId()
+	extAttrs[eaNameForInternalId] = internalId.String()
 
 	var tenantID string
 	for attrName, attrValueInf := range extAttrs {
@@ -101,7 +130,9 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 		if err != nil {
 			return fmt.Errorf("allocation of network block in network view '%s' failed: %w", nvName, err)
 		}
-		d.Set("cidr", nc.Cidr)
+		if err = d.Set("cidr", nc.Cidr); err != nil {
+			return err
+		}
 	} else if cidr != "" {
 		nc, err = objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
@@ -114,7 +145,12 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	}
 
 	d.SetId(nc.Ref)
-
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
+	if err = d.Set("ref", nc.Ref); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -125,19 +161,33 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("failed to read network containter: %w", err)
 	}
 
-	var tenantID string
-	tempVal, found := extAttrs[eaNameForTenantId]
-	if found {
-		tenantID = tempVal.(string)
-	}
+	//var tenantID string
+	//tempVal, found := extAttrs[eaNameForTenantId]
+	//if found {
+	//	tenantID = tempVal.(string)
+	//}
 
-	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	//connector := m.(ibclient.IBConnector)
+	//objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	obj, err := objMgr.GetNetworkContainerByRef(d.Id())
+	nc, err := searchObjectByRefOrInternalId("NetworkContainer", d, m)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve network container: %w", err)
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
 	}
+	var obj *ibclient.NetworkContainer
+	recJson, _ := json.Marshal(nc)
+	err = json.Unmarshal(recJson, &obj)
+	if err != nil {
+		return err
+	}
+
+	delete(extAttrs, eaNameForInternalId)
 
 	omittedEAs := omitEAs(obj.Ea, extAttrs)
 	if omittedEAs != nil && len(omittedEAs) > 0 {
@@ -163,6 +213,9 @@ func resourceNetworkContainerRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	if err = d.Set("ref", obj.Ref); err != nil {
+		return err
+	}
 	d.SetId(obj.Ref)
 
 	return nil
@@ -191,7 +244,9 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 		}
 	}()
 
-	nvName := d.Get("network_view").(string)
+	if d.HasChange("internal_id") {
+		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
+	}
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
@@ -208,6 +263,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 		return fmt.Errorf("changing the value of 'allocate_prefix_len' field is not allowed")
 	}
 
+	nvName := d.Get("network_view").(string)
 	cidr := d.Get("cidr").(string)
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -227,6 +283,16 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	if found {
 		tenantID = tempVal.(string)
 	}
+
+	// Generate UUID for internal_id and add to the EA if it is not set
+	internalId := d.Get("internal_id").(string)
+
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+
+	newInternalId := newInternalResourceIdFromString(internalId)
+	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	if cidr == "" || nvName == "" {
 		return fmt.Errorf(
@@ -260,7 +326,12 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 	}
 	updateSuccessful = true
 	d.SetId(nc.Ref)
-
+	if err = d.Set("internal_id", newInternalId.String()); err != nil {
+		return err
+	}
+	if err = d.Set("ref", nc.Ref); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -282,7 +353,26 @@ func resourceNetworkContainerDelete(d *schema.ResourceData, m interface{}) error
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	if _, err := objMgr.DeleteNetworkContainer(d.Id()); err != nil {
+	obj, err := searchObjectByRefOrInternalId("NetworkContainer", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var nc *ibclient.NetworkContainer
+	recJson, _ := json.Marshal(obj)
+	err = json.Unmarshal(recJson, &nc)
+	if err != nil {
+		return fmt.Errorf("failed to read network container for deletion: %w", err)
+	}
+
+	if _, err := objMgr.DeleteNetworkContainer(nc.Ref); err != nil {
 		return fmt.Errorf(
 			"deletion of the network container failed: %w", err)
 	}
@@ -413,5 +503,10 @@ func resourceNetworkContainerImport(d *schema.ResourceData, m interface{}) ([]*s
 
 	d.SetId(obj.Ref)
 
+	// Set the Terraform Internal ID to the NIOS EA if it is not already set
+	err = resourceNetworkContainerUpdate(d, m)
+	if err != nil {
+		return nil, err
+	}
 	return []*schema.ResourceData{d}, nil
 }

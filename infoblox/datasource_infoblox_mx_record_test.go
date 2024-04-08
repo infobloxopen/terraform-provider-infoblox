@@ -19,7 +19,6 @@ func TestAccDataSourceMXRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec1", "results.0.fqdn", "test-name.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec1", "results.0.mail_exchanger", "mx-test.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec1", "results.0.preference", "25"),
-					//resource.TestCheckResourceAttr("data.infoblox_mx_record.rec1", "ttl", ""),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec1", "results.0.comment", ""),
 
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec2", "results.0.dns_view", "nondefault_view"),
@@ -28,7 +27,7 @@ func TestAccDataSourceMXRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec2", "results.0.preference", "25"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec2", "results.0.ttl", "10"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec2", "results.0.comment", "non-empty comment"),
-					resource.TestCheckResourceAttr("data.infoblox_mx_record.rec2", "results.0.ext_attrs", "{\"Site\":\"None\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_mx_record.rec2", "results.0.ext_attrs.Site", "infoblox_mx_record.rec2", "ext_attrs.Site"),
 				),
 			},
 		},
@@ -36,11 +35,16 @@ func TestAccDataSourceMXRecord(t *testing.T) {
 }
 
 var testAccDataSourceMXRecordsRead = fmt.Sprintf(`
+resource "infoblox_zone_auth" "test" {
+	fqdn = "test.com"
+}
+
 resource "infoblox_mx_record" "rec1" {
 	dns_view = "default"
 	fqdn = "test-name.test.com"
 	mail_exchanger = "mx-test.test.com"
 	preference = 25
+	depends_on = [infoblox_zone_auth.test]
 }
 
 data "infoblox_mx_record" "rec1" {
@@ -54,6 +58,17 @@ data "infoblox_mx_record" "rec1" {
 	depends_on = [infoblox_mx_record.rec1]
 }
 
+resource "infoblox_dns_view" "view" {
+	name = "nondefault_view"
+	network_view = "default"
+}
+
+resource "infoblox_zone_auth" "test2" {
+	fqdn = "test.com"
+	view = "nondefault_view"
+	depends_on = [infoblox_dns_view.view]
+}
+	
 resource "infoblox_mx_record" "rec2" {
 	dns_view = "nondefault_view"
 	fqdn = "test-name2.test.com"
@@ -65,6 +80,7 @@ resource "infoblox_mx_record" "rec2" {
     ext_attrs = jsonencode({
       "Site": "None"
     })
+	depends_on = [infoblox_zone_auth.test2]
 }
 
 data "infoblox_mx_record" "rec2" {
@@ -86,6 +102,10 @@ func TestAccDataSourceMXRecordSearchByEA(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "test" {
+						fqdn = "test.com"
+					}
+
 					resource "infoblox_mx_record" "mx1"{
 						fqdn = "samplemx.test.com"
 						mail_exchanger = "exdemo.test.com"
@@ -96,6 +116,7 @@ func TestAccDataSourceMXRecordSearchByEA(t *testing.T) {
 						ext_attrs = jsonencode({
 							"Site": "Some automated site"
 						})
+						depends_on = [infoblox_zone_auth.test]
 					}
 
 					data "infoblox_mx_record" "dmx1" {
@@ -111,7 +132,7 @@ func TestAccDataSourceMXRecordSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.dmx1", "results.0.preference", "30"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.dmx1", "results.0.fqdn", "samplemx.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_mx_record.dmx1", "results.0.comment", "new sample mx-record"),
-					resource.TestCheckResourceAttr("data.infoblox_mx_record.dmx1", "results.0.ext_attrs", "{\"Site\":\"Some automated site\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_mx_record.dmx1", "results.0.ext_attrs.Site", "infoblox_mx_record.mx1", "ext_attrs.Site"),
 				),
 			},
 		},

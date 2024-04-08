@@ -62,7 +62,7 @@ resource "infoblox_txt_record" "rec3" {
 
 data "infoblox_txt_record" "ds3" {
   filters =  {
-    dns_view = "nondefault_dnsview1"
+    view = "nondefault_dnsview1"
     name = "example3.example2.org"
   }
 
@@ -89,6 +89,6 @@ data "infoblox_txt_record" "txt_rec_ea" {
 
 // throws matching TXT-Records with EA, if any
 output "txt_rec_out" {
-  value = data.infoblox_infoblox_record.txt_rec_ea
+  value = data.infoblox_txt_record.txt_rec_ea
 }
 ```

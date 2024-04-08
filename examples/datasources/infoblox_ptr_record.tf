@@ -11,7 +11,7 @@ resource "infoblox_ptr_record" "host1" {
 data "infoblox_ptr_record" "host1" {
   filters = {
     ptrdname="host.example.org"
-    ip_addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+    ipv6addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
   // This is just to ensure that the record has been be created

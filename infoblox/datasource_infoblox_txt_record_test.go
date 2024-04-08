@@ -21,7 +21,7 @@ func TestAccDataSourceTXTRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds1", "results.0.text", "some text for a TXT-record"),
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds1", "results.0.ttl", "30"),
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds1", "results.0.comment", "this is a test TXT-record"),
-					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds1", "results.0.ext_attrs", "{\"Site\":\"Greenland\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_txt_record.ds1", "results.0.ext_attrs.Site", "infoblox_txt_record.rec1", "ext_attrs.Site"),
 
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds2", "results.0.dns_view", "nondefault_view"),
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.ds2", "results.0.fqdn", "test-name2.test.com"),
@@ -36,6 +36,10 @@ func TestAccDataSourceTXTRecord(t *testing.T) {
 }
 
 var testAccDataSourceTXTRecordsRead = fmt.Sprintf(`
+resource "infoblox_zone_auth" "test" {
+	fqdn = "test.com"
+}
+
 resource "infoblox_txt_record" "rec1"{
 	dns_view = "default"
 	fqdn = "test-name1.test.com"
@@ -45,6 +49,7 @@ resource "infoblox_txt_record" "rec1"{
     ext_attrs = jsonencode({
       "Site": "Greenland"
     })
+	depends_on = [infoblox_zone_auth.test]
 }
 
 data "infoblox_txt_record" "ds1"{
@@ -56,10 +61,21 @@ data "infoblox_txt_record" "ds1"{
 	depends_on = [infoblox_txt_record.rec1]
 }
 
+resource "infoblox_dns_view" "view" {
+	name = "nondefault_view"
+}
+
+resource "infoblox_zone_auth" "test2" {
+	fqdn = "test.com"
+	view = "nondefault_view"
+	depends_on = [infoblox_dns_view.view]
+}
+
 resource "infoblox_txt_record" "rec2"{
 	dns_view = "nondefault_view"
 	fqdn = "test-name2.test.com"
 	text = "some text for a TXT-record 2"
+	depends_on = [infoblox_zone_auth.test2]
 }
 
 data "infoblox_txt_record" "ds2"{
@@ -79,6 +95,10 @@ func TestAccDataSourceTXTRecordSearchByEA(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "test" {
+						fqdn = "test.com"
+					}
+
 					resource "infoblox_txt_record" "txt1"{
 						dns_view = "default"
 						fqdn = "newtxt.test.com"
@@ -88,6 +108,7 @@ func TestAccDataSourceTXTRecordSearchByEA(t *testing.T) {
 						ext_attrs = jsonencode({
 							"Site" = "sample text site"
 						})
+						depends_on = [infoblox_zone_auth.test]
 					}
 
 					data "infoblox_txt_record" "dtxt1" {
@@ -103,7 +124,7 @@ func TestAccDataSourceTXTRecordSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.dtxt1", "results.0.text", "some text for a TXT-record"),
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.dtxt1", "results.0.ttl", "30"),
 					resource.TestCheckResourceAttr("data.infoblox_txt_record.dtxt1", "results.0.comment", "new sample txt-record"),
-					resource.TestCheckResourceAttr("data.infoblox_txt_record.dtxt1", "results.0.ext_attrs", "{\"Site\":\"sample text site\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_txt_record.dtxt1", "results.0.ext_attrs.Site", "infoblox_txt_record.txt1", "ext_attrs.Site"),
 				),
 			},
 		},

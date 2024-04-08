@@ -266,10 +266,7 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); ok {
 			d.SetId("")
-			return ibclient.NewNotFoundError(fmt.Sprintf(
-				"cannot find apropriate object on NIOS side for resource with ID '%s': %s;"+
-					" removing the resource from Terraform state",
-				d.Id(), err))
+			return nil
 		}
 
 		return err
@@ -516,9 +513,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 
 	enableDhcp := false
 
-	if recIpV4Addr != nil {
-		macAddr = *recIpV4Addr.Mac
-		enableDhcp = *recIpV4Addr.EnableDhcp
+	if recIpV4Addr != nil && recIpV4Addr.EnableDhcp != nil {
+		if recIpV4Addr.Mac != nil {
+			macAddr = *recIpV4Addr.Mac
+			enableDhcp = *recIpV4Addr.EnableDhcp
+		}
 	}
 
 	if recIpV6Addr != nil && recIpV6Addr.EnableDhcp != nil {

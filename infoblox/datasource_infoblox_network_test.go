@@ -62,7 +62,7 @@ func TestAccDataSourceNetworkReadByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_network.acctest", "results.0.network_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_network.acctest", "results.0.cidr", "10.4.20.0/24"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_network.acctest", "results.0.comment", "Created by terraform-provider-infoblox acceptance test"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_network.acctest", "results.0.ext_attrs", "{\"Building\":\"AcceptanceTerraform\"}"),
+					resource.TestCheckResourceAttrPair("data.infoblox_ipv4_network.acctest", "results.0.ext_attrs.Building", "infoblox_ipv4_network.test_network", "ext_attrs.Building"),
 				),
 			},
 		},

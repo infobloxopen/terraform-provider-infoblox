@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
-	"strings"
-	"time"
-
 	"github.com/google/uuid"
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"math"
+	"strings"
+	"time"
 )
 
 // Common parameters
@@ -75,11 +74,11 @@ func newInternalResourceIdFromString(id string) *internalResourceId {
 }
 
 func generateInternalId() *internalResourceId {
-	uuid, err := uuid.NewRandom()
+	uuid_new, err := uuid.NewRandom()
 	if err != nil {
 		panic(err)
 	}
-	return &internalResourceId{value: uuid}
+	return &internalResourceId{value: uuid_new}
 }
 
 // A separate function to abstract from the nature of internal ID,
@@ -264,6 +263,12 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	if err != nil {
 		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
 	}
+
+	// Check and Create Pre-requisites
+	err = checkAndCreatePreRequisites(conn)
+	if err != nil {
+		return nil, diag.Diagnostics{diag.Diagnostic{Summary: err.Error()}}
+	}
 	return conn, nil
 }
 
@@ -281,7 +286,11 @@ func filterFromMap(filtersMap map[string]interface{}) map[string]string {
 // terraformSerializeEAs will convert ibclient.EA to a JSON-formatted string,
 // which is generally used as a value for 'ext_attrs' terraform fields.
 func terraformSerializeEAs(ea ibclient.EA) (string, error) {
+	delete(ea, eaNameForInternalId)
 	eaMap := (map[string]interface{})(ea)
+	if len(eaMap) == 0 {
+		return "", nil
+	}
 	eaJSON, err := json.Marshal(eaMap)
 	if err != nil {
 		return "", err
@@ -299,7 +308,9 @@ func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error)
 			return nil, fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
-
+	if extAttrs == nil {
+		extAttrs = make(map[string]interface{})
+	}
 	return extAttrs, nil
 }
 
@@ -376,4 +387,73 @@ func checkEARequirement(name string, conn ibclient.IBConnector) bool {
 		}
 	}
 	return false
+}
+
+// Check Pre-requisites for the provider and create if not present
+func checkAndCreatePreRequisites(conn ibclient.IBConnector) error {
+	// 1. Create EA Definition for Internal ID if not present.
+
+	objMgr := ibclient.NewObjectManager(conn, "Terraform", "")
+
+	// Check if EA Definition for Internal ID is present
+	_, err := objMgr.GetEADefinition(eaNameForInternalId)
+	// Check for 404 error and create EA Definition if not present
+	if isNotFoundError(err) {
+		// Create EA Definition
+		var EA ibclient.EADefinition
+		var ea_string = eaNameForInternalId
+		var flags = "CR"
+		var comment = "Internal ID for Terraform Resource"
+		EA.Name = &ea_string
+		EA.Type = "STRING"
+		EA.Flags = &flags
+		EA.Comment = &comment
+		_, err = objMgr.CreateEADefinition(EA)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Fetch Resource using the Ref | Terraform Internal ID
+
+//Func to search the object using the ref or internal_id
+
+func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m interface{}) (
+	record interface{},
+	err error) {
+
+	var (
+		ref         string
+		actualIntId *internalResourceId
+	)
+
+	if r, found := d.GetOk("ref"); found {
+		ref = r.(string)
+	} else {
+		_, ref = getAltIdFields(d.Id())
+	}
+
+	if id, found := d.GetOk("internal_id"); found {
+		actualIntId = newInternalResourceIdFromString(id.(string))
+		if actualIntId == nil {
+			return nil, fmt.Errorf("internal_id value is not in a proper format")
+		}
+	}
+
+	extAttrJSON := d.Get("ext_attrs").(string)
+	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantID string
+	tempVal, found := extAttrs[eaNameForTenantId]
+	if found {
+		tenantID = tempVal.(string)
+	}
+
+	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", tenantID)
+	return objMgr.SearchObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
 }

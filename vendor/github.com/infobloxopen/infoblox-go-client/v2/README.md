@@ -18,7 +18,7 @@ This library is compatible with Go 1.2+
    * Go 1.2 or above
 
 ## Installation
-   To get the latest released version [v2.4.0](https://github.com/infobloxopen/infoblox-go-client/releases/tag/v2.4.0) of Go Client use below command.
+   To get the latest released version [v2.6.0](https://github.com/infobloxopen/infoblox-go-client/releases/tag/v2.6.0) of Go Client use below command.
    
    `go get github.com/infobloxopen/infoblox-go-client/v2`
 
@@ -41,6 +41,7 @@ This library is compatible with Go 1.2+
 
        func main() {
          hostConfig := ibclient.HostConfig{
+            Scheme:  "https",
          	Host:    "<NIOS grid IP>",
             Version: "<WAPI version>",
             Port:    "PORT",
@@ -100,12 +101,15 @@ This library is compatible with Go 1.2+
    * GetCapacityReport
    * GetCNAMERecordByRef
    * GetCNAMERecord
+   * GetDhcpMember
+   * GetDnsMember
    * GetEADefinition
    * GetFixedAddress
    * GetFixedAddressByRef
    * GetHostRecord
    * GetHostRecordByRef
    * SearchHostRecordByAltId
+   * SearchObjectByAltId
    * GetIpAddressFromHostRecord
    * GetNetwork
    * GetNetworkByRef
@@ -126,6 +130,8 @@ This library is compatible with Go 1.2+
    * ReleaseIP
    * UpdateAAAARecord
    * UpdateCNAMERecord
+   * UpdateDhcpStatus
+   * UpdateDnsStatus
    * UpdateFixedAddress
    * UpdateHostRecord
    * UpdateNetwork

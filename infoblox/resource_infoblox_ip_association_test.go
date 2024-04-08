@@ -198,6 +198,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -213,7 +216,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_zone_auth.zone]
 					}
 
 					resource "infoblox_ip_association" "foo" {
@@ -242,6 +245,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -262,7 +268,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -296,6 +302,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -315,7 +324,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -349,6 +358,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -369,7 +381,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -403,6 +415,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -422,7 +437,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -456,6 +471,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -476,7 +494,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -510,6 +528,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -530,7 +551,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
