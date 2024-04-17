@@ -29,8 +29,8 @@ To run the full suite of acceptance tests, run the following commands:
     $ export INFOBLOX_SERVER=<nios_ip-addr> or <hostname>
     $ export INFOBLOX_USERNAME=<nios_username>
     $ export INFOBLOX_PASSWORD=<nios_password>
-    $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
     $ make test
+    $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
     $ make testacc
   ```
 

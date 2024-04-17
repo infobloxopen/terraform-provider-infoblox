@@ -1,5 +1,10 @@
 # Changelog
 
+## [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.6.0) (2024-04-17)
+- New Feature: Ability to manage drift through "Terraform Internal ID" Extensible Attributes in resources
+- Bugfixes
+  - Fixed Host record import with empty MAC or DUID.
+  
 ## [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.5.0) (2023-10-30)
 - Resources are reworked aganist the changes from auto generated objects in go-client
 - New Feature: ability to search through Extensible Attributes in datasources

@@ -4,14 +4,14 @@
  
 # Infoblox NIOS Terraform Provider
 
-This is a provider plugin for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
-The plugin enables lifecycle management of Infoblox NIOS DDI resources.
+This is a provider plug-in for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
+The plug-in enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.5.0)
+The latest version of Infoblox provider is [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.6.0)
 
 ## Provider Features
 
-The provider plugin has NIOS DDI resources represented as Terraform resources and data sources. The consolidated list of supported resources and data sources is as follows:
+The provider plug-in has NIOS DDI resources represented as Terraform resources and data sources. The consolidated list of supported resources and data sources is as follows:
 
 ### Resources:
 
@@ -28,11 +28,13 @@ The provider plugin has NIOS DDI resources represented as Terraform resources an
 * SRV-record (`infoblox_srv_record`)
 * Zone Auth (`infoblox_zone_auth`)
 * Host record as a backend for the following operations:
-    * Allocation and de-allocation of an IP address from a Network (`infoblox_ip_allocation`)
-    * Association and de-association of an IP address from a VM (`infoblox_ip_association`)
+    * Allocation and deallocation of an IP address from a Network (`infoblox_ip_allocation`)
+    * Association and disassociation of an IP address from a VM (`infoblox_ip_association`)
 
 All of the above resources are supported with `comment` and `ext_attrs` fields.
-DNS records and `infoblox_ip_allocation` resource have the `ttl` field's support.
+DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` field.
+<br> A resource can manage its drift state by using the extensible attribute `Terraform Internal ID` when its Reference ID is changed by any manual intervention.
+
 
 ### Data Sources:
 
@@ -50,7 +52,7 @@ DNS records and `infoblox_ip_allocation` resource have the `ttl` field's support
 * Zone Auth (`infoblox_zone_auth`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
-DNS records have the `ttl` and `zone` fields' support.
+Data source of DNS records are supported with `ttl` and `zone` fields.
 
 ## Quick Start
 
@@ -59,12 +61,12 @@ DNS records have the `ttl` and `zone` fields' support.
 
 ## Documentation
 
-The comprehensive documentation of plugin is available at [Terraform registry](https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs)
-and on [Infoblox internet site](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform/pages/53055610/Overview+of+Infoblox+IPAM+Plug-In+for+Terraform) as well.
+The comprehensive documentation of the plug-in is available at [Terraform registry](https://registry.terraform.io/providers/infobloxopen/infoblox/latest/docs)
+and on [Infoblox internet site](https://docs.infoblox.com/space/ipamdriverterraform/17006594/Infoblox+IPAM+Driver+for+Terraform) as well.
 
 ## Prerequisites
 
-Whether you intend to use the published plug-in or the customized version that you have built yourself, you must
+Whether you intend to use the published plug-in or the customized version that you have built by yourself, you must
 complete the following prerequisites:
 
 * Install and set up a physical or virtual Infoblox NIOS appliance that is running on
@@ -74,19 +76,21 @@ complete the following prerequisites:
 * Download and install Terraform (as of now, only version 0.14 is supported).
 * Configure the access permissions for Terraform to interact with NIOS Grid objects.
 * If you plan to develop a plug-in that includes features that are not in the published version,
-  then install the [infblox-go-client](https://github.com/infobloxopen/infoblox-go-client) and Go programming language.
+  then install the [infoblox-go-client](https://github.com/infobloxopen/infoblox-go-client) and Go programming language.
 * To use the Infoblox IPAM Plug-In for Terraform, you must either define the following extensible attributes in NIOS or 
   install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
   * `Tenant ID`: String Type 
   * `CMP Type`: String Type 
   * `Cloud API Owned`: List Type (Values: True, False)
-* For creation of host records using the `infoblox_ip_allocation` and `infoblox_ip_association` resources,
-  you must create the extensible attribute `Terraform Internal ID` of String Type in Infoblox NIOS Grid Manager.
-  For steps, refer to the [Infoblox NIOS Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ILP/pages/15433773).
-
+* To use the Infoblox IPAM Plug-In for Terraform, you must either define the extensible attribute `Terraform Internal ID`
+  in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`. 
+  for more details refer to the [Infoblox NIOS Documentation](https://docs.infoblox.com/space/NIOS/35400616/NIOS).
+  ```shell
+  curl -k -u <SUPERUSER>:<PASSWORD> -H "Content-Type: application/json" -X POST https://<NIOS_GRID_IP>/wapi/<WAPI_VERSION>/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
+  ```
 ## Limitations
 
-The limitations of Infoblox IPAM Plug-In for Terraform version 2.5.0 are as follows:
+The limitations of Infoblox IPAM Plug-In for Terraform are as follows:
 
 * Allocation and association through a fixed-address record are not supported.
 * For `infoblox_ip_allocation` and `infoblox_ip_association` resources: creation of a host
@@ -105,3 +109,10 @@ The limitations of Infoblox IPAM Plug-In for Terraform version 2.5.0 are as foll
 * Use of capital letters in the domain name of a Terraform resource may lead to unexpected results. For example,
   when you use a Terraform data source to search for a DNS record that has capital letters in its name, no results
   are returned if you specify the name in the same text case. You must specify the name in lower case.
+* In plug-in versions prior to `v2.5.0`, the fetch functionality in data sources returns output for only one matching 
+  object even if it finds multiple objects matching the search criteria.
+
+## Best Practices
+
+* Infoblox recommends that you manage all resources supported by IPAM Plug-In for Terraform from Terraform only. Modifying a resource outside of Terraform may result in unexpected behavior.
+* If you need to manage a large number of resources, Infoblox recommends that you manage them across multiple workspaces instead of using a single state file to manage all resources. For more information, see [Managing Workspaces](https://developer.hashicorp.com/terraform/cli/workspaces) and [Structuring Terraform Configuration](https://www.hashicorp.com/blog/structuring-hashicorp-terraform-configuration-for-production).

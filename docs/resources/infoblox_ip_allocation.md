@@ -2,7 +2,7 @@
 
 The `infoblox_ip_allocation` resource allows allocation of a new IP address from a network that already exists as a NIOS object. The IP address can be allocated statically by specifying an address or dynamically as the next available IP address from the specified IPv4 and/or IPv6 network blocks. The allocation is done by creating a host record in NIOS with an IPv4 address, an IPv6 address, or both assigned to the record. The allocated IP address is marked as ‘used’ in the appropriate network block.
 
--> As a prerequisite for creation of Host records using the `infoblox_ip_allocation` and `infoblox_ip_association` resources, you must create the extensible attribute `Terraform Internal ID` of string type in Infoblox NIOS Grid Manager. For steps, refer to the [Infoblox NIOS Documentation] (https://docs.infoblox.com/display/ILP/NIOS).
+-> As a prerequisite for creation of Host records using the `infoblox_ip_allocation` and `infoblox_ip_association` resources, you must create the extensible attribute `Terraform Internal ID` of string type in Infoblox NIOS Grid Manager. For steps, refer to the [Infoblox NIOS Documentation] (https://docs.infoblox.com/space/NIOS/35400616/NIOS).
 
 The following list describes the parameters you can define in the `infoblox_ip_allocation` resource block:
 
