@@ -212,7 +212,9 @@ func Provider() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
+			"infoblox_ipv6_network":           dataSourceIPv6Network(),
 			"infoblox_ipv4_network_container": dataSourceIpv4NetworkContainer(),
+			"infoblox_ipv6_network_container": dataSourceIpv6NetworkContainer(),
 			"infoblox_network_view":           dataSourceNetworkView(),
 			"infoblox_a_record":               dataSourceARecord(),
 			"infoblox_aaaa_record":            dataSourceAAAARecord(),
@@ -221,6 +223,7 @@ func Provider() *schema.Provider {
 			"infoblox_txt_record":             dataSourceTXTRecord(),
 			"infoblox_mx_record":              dataSourceMXRecord(),
 			"infoblox_srv_record":             dataSourceSRVRecord(),
+			"infoblox_host_record":            dataSourceHostRecord(),
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
 			"infoblox_dns_view":               dataSourceDNSView(),
 		},
