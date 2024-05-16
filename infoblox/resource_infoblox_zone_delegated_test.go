@@ -20,7 +20,7 @@ func testAccCheckZoneDelegatedDestroy(s *terraform.State) error {
 		}
 		connector := meta.(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
-		rec, _ := objMgr.GetZoneDelegated(rs.Primary.ID)
+		rec, _ := objMgr.GetZoneDelegatedByRef(rs.Primary.ID)
 		if rec != nil {
 			return fmt.Errorf("Zone Delegation record found after destroy")
 		}
@@ -48,7 +48,7 @@ func testAccZoneDelegatedCompare(t *testing.T, resPath string, expectedRec *ibcl
 		sort.Strings(lookupHosts)
 		expectedRec.Addresses = append(expectedRec.Addresses, &ibclient.ZoneNameServer{Address: lookupHosts[0]})
 
-		rec, _ := objMgr.GetZoneDelegated(res.Primary.ID)
+		rec, _ := objMgr.GetZoneDelegatedByRef(res.Primary.ID)
 		if rec == nil {
 			return fmt.Errorf("record not found")
 		}
@@ -77,6 +77,7 @@ func strPtr(s string) *string {
 }
 
 func TestAccResourceZoneDelegated(t *testing.T) {
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
