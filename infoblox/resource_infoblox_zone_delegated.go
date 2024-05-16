@@ -160,9 +160,12 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// first attempt to read by ref, otherwise assume import and support fqdn
-	zoneDelegatedObj, err := objMgr.GetZoneDelegated(d.Id())
+	zoneDelegatedObj, err := objMgr.GetZoneDelegatedByRef(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting Zone Delegated failed: %w", err)
+		zoneDelegatedObj, err = objMgr.GetZoneDelegated(d.Id())
+		if err != nil {
+			return fmt.Errorf("Getting Zone Delegated failed: %s", err)
+		}
 	}
 
 	var delegations []map[string]interface{}
