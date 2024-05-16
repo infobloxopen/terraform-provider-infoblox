@@ -59,12 +59,11 @@ func resourceNameServer() *schema.Schema {
 }
 
 func computeDelegations(delegations []interface{}) ([]ibclient.NameServer, []map[string]interface{}, error) {
-
 	var nameServers []ibclient.NameServer
 	computedDelegations := make([]map[string]interface{}, 0)
 	for _, delegation := range delegations {
 		var ns ibclient.NameServer
-		var delegationMap = delegation.(map[string]interface{})
+		delegationMap := delegation.(map[string]interface{})
 		ns.Name = delegationMap["name"].(string)
 		lookupHosts, err := net.LookupHost(delegationMap["name"].(string))
 		if err != nil {
@@ -144,12 +143,9 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// first attempt to read by ref, otherwise assume import and support fqdn
-	zoneDelegatedObj, err := objMgr.GetZoneDelegatedByRef(d.Id())
+	zoneDelegatedObj, err := objMgr.GetZoneDelegated(d.Id())
 	if err != nil {
-		zoneDelegatedObj, err = objMgr.GetZoneDelegated(d.Id())
-		if err != nil {
-			return fmt.Errorf("Getting Zone Delegated failed: %s", err)
-		}
+		return fmt.Errorf("Getting Zone Delegated failed: %s", err)
 	}
 
 	var delegations []map[string]interface{}
