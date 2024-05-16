@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"math"
-	"strings"
-	"time"
 )
 
 // Common parameters
@@ -66,7 +67,8 @@ func newInternalResourceIdFromString(id string) *internalResourceId {
 	if err != nil {
 		log.Error(context.Background(), "cannot parse internal ID", map[string]interface{}{
 			"internal ID": id,
-			"error":       err.Error()})
+			"error":       err.Error(),
+		})
 		return nil
 	}
 
@@ -204,6 +206,7 @@ func Provider() *schema.Provider {
 			"infoblox_aaaa_record":            resourceAAAARecord(),
 			"infoblox_cname_record":           resourceCNAMERecord(),
 			"infoblox_ptr_record":             resourcePTRRecord(),
+			"infoblox_zone_delegated":         resourceZoneDelegated(),
 			"infoblox_txt_record":             resourceTXTRecord(),
 			"infoblox_mx_record":              resourceMXRecord(),
 			"infoblox_srv_record":             resourceSRVRecord(),
@@ -229,7 +232,6 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-
 	if d.Get("password") == "" {
 		return nil, diag.Diagnostics{diag.Diagnostic{
 			Severity: diag.Error,
@@ -319,7 +321,7 @@ func terraformDeserializeEAs(extAttrJSON string) (map[string]interface{}, error)
 func omitEAs(niosEAs, terraformEAs map[string]interface{}) map[string]interface{} {
 	// ToDo: When EA inheritance is implemented on the go-client side, only inherited EAs should be omitted here.
 	res := niosEAs
-	for attrName, _ := range niosEAs {
+	for attrName := range niosEAs {
 		if _, ok := terraformEAs[attrName]; !ok {
 			delete(res, attrName)
 		}
@@ -401,9 +403,9 @@ func checkAndCreatePreRequisites(conn ibclient.IBConnector) error {
 	if isNotFoundError(err) {
 		// Create EA Definition
 		var EA ibclient.EADefinition
-		var ea_string = eaNameForInternalId
-		var flags = "CR"
-		var comment = "Internal ID for Terraform Resource"
+		ea_string := eaNameForInternalId
+		flags := "CR"
+		comment := "Internal ID for Terraform Resource"
 		EA.Name = &ea_string
 		EA.Type = "STRING"
 		EA.Flags = &flags
@@ -418,12 +420,11 @@ func checkAndCreatePreRequisites(conn ibclient.IBConnector) error {
 
 // Fetch Resource using the Ref | Terraform Internal ID
 
-//Func to search the object using the ref or internal_id
-
+// Func to search the object using the ref or internal_id
 func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m interface{}) (
 	record interface{},
-	err error) {
-
+	err error,
+) {
 	var (
 		ref         string
 		actualIntId *internalResourceId

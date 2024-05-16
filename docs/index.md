@@ -17,6 +17,7 @@ There are resources for the following objects, supported by the plugin:
 * SRV-record (`infoblox_srv_record`)
 * Zone Auth (`infoblox_zone_auth`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
