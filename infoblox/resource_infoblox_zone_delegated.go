@@ -26,7 +26,24 @@ func resourceZoneDelegated() *schema.Resource {
 				Required:    true,
 				Description: "The FQDN of the delegated zone.",
 			},
-			"delegate_to": resourceNameServer(),
+			"delegate_to": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "IP of Name Server",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "FQDN of Name Server",
+						},
+					},
+				},
+			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
 				Default:     "",
@@ -67,7 +84,7 @@ func computeDelegations(delegations []interface{}) ([]ibclient.NameServer, []map
 		ns.Name = delegationMap["name"].(string)
 		lookupHosts, err := net.LookupHost(delegationMap["name"].(string))
 		if err != nil {
-			return nil, nil, fmt.Errorf("Failed to resolve delegate_to: %s", err.Error())
+			return nil, nil, fmt.Errorf("Failed to resolve delegate_to: %w", err)
 		}
 		sort.Strings(lookupHosts)
 		ns.Address = lookupHosts[0]
@@ -85,7 +102,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -111,7 +128,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		delegatedFQDN,
 		nameServers)
 	if err != nil {
-		return fmt.Errorf("Error creating Zone Delegated: %s", err)
+		return fmt.Errorf("Error creating Zone Delegated: %w", err)
 	}
 
 	d.Set("delegate_to", computedDelegations)
@@ -129,7 +146,7 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -145,7 +162,7 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	// first attempt to read by ref, otherwise assume import and support fqdn
 	zoneDelegatedObj, err := objMgr.GetZoneDelegated(d.Id())
 	if err != nil {
-		return fmt.Errorf("Getting Zone Delegated failed: %s", err)
+		return fmt.Errorf("Getting Zone Delegated failed: %w", err)
 	}
 
 	var delegations []map[string]interface{}
@@ -172,7 +189,7 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -194,7 +211,7 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 
 	zoneDelegatedUpdated, err := objMgr.UpdateZoneDelegated(d.Id(), nameServers)
 	if err != nil {
-		return fmt.Errorf("Updating of Zone Delegated failed : %s", err.Error())
+		return fmt.Errorf("Updating of Zone Delegated failed : %w", err)
 	}
 
 	d.Set("delegate_to", computedDelegations)
@@ -210,7 +227,7 @@ func resourceZoneDelegatedDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrs := make(map[string]interface{})
 	if extAttrJSON != "" {
 		if err := json.Unmarshal([]byte(extAttrJSON), &extAttrs); err != nil {
-			return fmt.Errorf("cannot process 'ext_attrs' field: %s", err.Error())
+			return fmt.Errorf("cannot process 'ext_attrs' field: %w", err)
 		}
 	}
 
@@ -225,7 +242,7 @@ func resourceZoneDelegatedDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err := objMgr.DeleteZoneDelegated(d.Id())
 	if err != nil {
-		return fmt.Errorf("Deletion of Zone Delegated failed : %s", err)
+		return fmt.Errorf("Deletion of Zone Delegated failed : %w", err)
 	}
 	d.SetId("")
 
