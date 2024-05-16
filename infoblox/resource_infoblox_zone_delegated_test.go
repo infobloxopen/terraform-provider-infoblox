@@ -41,12 +41,12 @@ func testAccZoneDelegatedCompare(t *testing.T, resPath string, expectedRec *ibcl
 		connector := meta.(ibclient.IBConnector)
 		objMgr := ibclient.NewObjectManager(connector, "terraform_test", "test")
 
-		lookupHosts, err := net.LookupHost(expectedRec.Nameserver)
+		lookupHosts, err := net.LookupHost(*expectedRec.Nameserver)
 		if err != nil {
 			return fmt.Errorf("Failed to resolve delegate_to: %s", err.Error())
 		}
 		sort.Strings(lookupHosts)
-		expectedRec.Addresses = append(expectedRec.Addresses, ibclient.ZoneNameServer{Address: lookupHosts[0]})
+		expectedRec.Addresses = append(expectedRec.Addresses, &ibclient.ZoneNameServer{Address: lookupHosts[0]})
 
 		rec, _ := objMgr.GetZoneDelegated(res.Primary.ID)
 		if rec == nil {
@@ -63,13 +63,17 @@ func testAccZoneDelegatedCompare(t *testing.T, resPath string, expectedRec *ibcl
 				"'delegate_to['address']' does not match: got '%s', expected '%s'",
 				rec.DelegateTo[0].Address, expectedRec.Addresses[0].Address)
 		}
-		if rec.DelegateTo[0].Name != expectedRec.Nameserver {
+		if rec.DelegateTo[0].Name != *expectedRec.Nameserver {
 			return fmt.Errorf(
 				"'delegate_to['name']' does not match: got '%s', expected '%s'",
-				rec.DelegateTo[0].Name, expectedRec.Nameserver)
+				rec.DelegateTo[0].Name, *expectedRec.Nameserver)
 		}
 		return nil
 	}
+}
+
+func strPtr(s string) *string {
+	return &s
 }
 
 func TestAccResourceZoneDelegated(t *testing.T) {
@@ -89,7 +93,7 @@ func TestAccResourceZoneDelegated(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccZoneDelegatedCompare(t, "infoblox_zone_delegated.foo", &ibclient.RecordNS{
 						Name:       "subdomain.test.com",
-						Nameserver: "ns2.infoblox.com",
+						Nameserver: strPtr("ns2.infoblox.com"),
 					}),
 				),
 			},
