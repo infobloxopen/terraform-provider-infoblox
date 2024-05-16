@@ -85,7 +85,9 @@ func (objMgr *ObjectManager) SearchHostRecordByAltId(
 	recordHost := NewEmptyHostRecord()
 	if ref != "" {
 		if err := objMgr.connector.GetObject(recordHost, ref, NewQueryParams(false, nil), &recordHost); err != nil {
-			return nil, err
+			if _, ok := err.(*NotFoundError); !ok {
+				return nil, err
+			}
 		}
 	}
 	if recordHost.Ref != "" {
@@ -144,7 +146,7 @@ func (objMgr *ObjectManager) GetHostRecord(netview string, dnsview string, recor
 func (objMgr *ObjectManager) GetIpAddressFromHostRecord(host HostRecord) (string, error) {
 	err := objMgr.connector.GetObject(
 		&host, host.Ref, NewQueryParams(false, nil), &host)
-	return host.Ipv4Addrs[0].Ipv4Addr, err
+	return *host.Ipv4Addrs[0].Ipv4Addr, err
 }
 
 func (objMgr *ObjectManager) UpdateHostRecord(
@@ -153,6 +155,7 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 	enableDhcp bool,
 	name string,
 	netView string,
+	dnsView string,
 	ipv4cidr string,
 	ipv6cidr string,
 	ipv4Addr string,
@@ -235,9 +238,12 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 		recordHostIpAddr := NewHostRecordIpv6Addr(ipv6Addr, duid, enableDhcpv6, "")
 		recordHostIpv6AddrSlice = []HostRecordIpv6Addr{*recordHostIpAddr}
 	}
+	if !enabledns {
+		dnsView = ""
+	}
 	updateHostRecord := NewHostRecord(
 		"", name, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
-		eas, enabledns, "", "", hostRref, useTtl, ttl, comment, aliases)
+		eas, enabledns, dnsView, "", hostRref, useTtl, ttl, comment, aliases)
 	ref, err := objMgr.connector.UpdateObject(updateHostRecord, hostRref)
 	if err != nil {
 		return nil, err

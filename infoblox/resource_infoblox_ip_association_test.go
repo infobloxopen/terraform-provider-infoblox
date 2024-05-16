@@ -12,20 +12,29 @@ import (
 func validateIPAssociationIpV4Addr(a, e *ibclient.HostRecordIpv4Addr) error {
 	if e == nil {
 		if a != nil {
-			return fmt.Errorf("IPv4 address at a host record is expected to be empty")
+			return fmt.Errorf("IPv4-address-related property set at a host record is expected to be empty")
 		}
 		return nil
 	}
 
-	if a == nil {
-		return fmt.Errorf("IPv4 address at a host record is expected to be non-empty")
+	if a.EnableDhcp == nil {
+		return fmt.Errorf("'configure_for_dhcp' property of IPv4 address at a host record is expected to be non-empty")
 	}
 
-	if a.Ipv4Addr != e.Ipv4Addr || a.EnableDhcp != e.EnableDhcp || a.Mac != e.Mac {
-		return fmt.Errorf(
-			"IPv4 address at a host record is not the same as expected;"+
-				" actual: '%+v'; expected: '%+v'",
-			a, e)
+	if *a.EnableDhcp {
+		if *a.EnableDhcp != *e.EnableDhcp {
+			return fmt.Errorf(
+				"actual 'enable_dhcp' value is '%t' but expected '%t'",
+				*a.EnableDhcp, *e.EnableDhcp)
+		}
+		if a.Mac == nil {
+			return fmt.Errorf("'mac' property of IPv4 address at a host record is expected to be non-empty")
+		}
+		if *a.Mac != *e.Mac {
+			return fmt.Errorf(
+				"actual 'mac_addr' value is '%s' but expected '%s'",
+				*a.Mac, *e.Mac)
+		}
 	}
 
 	return nil
@@ -34,20 +43,29 @@ func validateIPAssociationIpV4Addr(a, e *ibclient.HostRecordIpv4Addr) error {
 func validateIPAssociationIpV6Addr(a, e *ibclient.HostRecordIpv6Addr) error {
 	if e == nil {
 		if a != nil {
-			return fmt.Errorf("IPv6 address at a host record is expected to be empty")
+			return fmt.Errorf("IPv6-address-related property set at a host record is expected to be empty")
 		}
 		return nil
 	}
 
-	if a == nil {
-		return fmt.Errorf("IPv6 address at a host record is expected to be non-empty")
+	if a.EnableDhcp == nil {
+		return fmt.Errorf("'configure_for_dhcp' property of IPv6 address at a host record is expected to be non-empty")
 	}
 
-	if a.Ipv6Addr != e.Ipv6Addr || a.EnableDhcp != e.EnableDhcp || a.Duid != e.Duid {
-		return fmt.Errorf(
-			"IPv6 address at a host record is not the same as expected;"+
-				" actual: '%+v'; expected: '%+v'",
-			a, e)
+	if *a.EnableDhcp {
+		if *a.EnableDhcp != *e.EnableDhcp {
+			return fmt.Errorf(
+				"actual 'enable_dhcp' value is '%t' but expected '%t'",
+				*a.EnableDhcp, *e.EnableDhcp)
+		}
+		if a.Duid == nil {
+			return fmt.Errorf("'duid' property of IPv4 address at a host record is expected to be non-empty")
+		}
+		if *a.Duid != *e.Duid {
+			return fmt.Errorf(
+				"actual 'duid' value is '%s' but expected '%s'",
+				*a.Duid, *e.Duid)
+		}
 	}
 
 	return nil
@@ -180,6 +198,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -195,9 +216,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_zone_auth.zone]
 					}
-	
+
 					resource "infoblox_ip_association" "foo" {
 					  internal_id = infoblox_ip_allocation.foo.internal_id
 					  enable_dhcp = true
@@ -224,6 +245,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -232,7 +256,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 					}
 					resource "infoblox_ip_allocation" "foo" {
 						network_view="default"
-						fqdn="testhostname.test.com"
+						fqdn="testhostname"
 						ipv4_addr="10.0.0.12"
 						ipv6_addr="2001::10"
 						enable_dns = "false"
@@ -244,7 +268,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -278,6 +302,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -297,7 +324,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -331,6 +358,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -351,7 +381,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -385,6 +415,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -404,7 +437,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -438,6 +471,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -458,7 +494,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {
@@ -492,6 +528,9 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 			},
 			{
 				Config: `
+					resource "infoblox_zone_auth" "zone" {
+						fqdn = "test.com"
+					}
 					resource infoblox_ipv4_network "net1" {
 						cidr = "10.0.0.0/24"
 					}
@@ -512,7 +551,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 							"Location" = "Test loc."
 							"Site" = "Test site"
 						})
-						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+						depends_on = [infoblox_ipv4_network.net1, infoblox_ipv6_network.net2, infoblox_zone_auth.zone]
 					}
 		
 					resource "infoblox_ip_association" "foo" {

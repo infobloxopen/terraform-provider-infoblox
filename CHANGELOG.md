@@ -1,10 +1,65 @@
 # Changelog
 
+## [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.6.0) (2024-04-17)
+- New Feature: Ability to manage drift through "Terraform Internal ID" Extensible Attributes in resources
+- Bugfixes
+  - Fixed Host record import with empty MAC or DUID.
+  
+## [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.5.0) (2023-10-30)
+- Resources are reworked aganist the changes from auto generated objects in go-client
+- New Feature: ability to search through Extensible Attributes in datasources
+- Additionally, added Multi Value Extensible Attributes search support
+- EA Inheritance issue fixed, where inherited EAs in NIOS were getting deleted for second apply
+- Datasources are reworked to use `filters`, for fetching matching objects, refer to [Terraform Docs](https://github.com/infobloxopen/terraform-provider-infoblox/blob/master/docs/index.md)
+- New Resources:
+  - infoblox_dns_view
+  - infoblox_zone_auth
+- New Datasources:
+  - infoblox_dns_view
+  - infoblox_zone_auth
+
+## [v2.4.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.1) (2023-06-20)
+- A/AAAA Record resources reworked:
+  - removed limitation on updating 'cidr' field
+- Bugfixes
+
+## [v2.4.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.0) (2023-05-29)
+- IPV4/IPV6 Network Container resources reworked:
+  - 'parent_cidr' and 'allocate_prefix_len' are added for dynamic allocation
+  - both the resources now support the dynamic allocation determined by 'parent_cidr'
+  - added examples for dynamic allocation in each IPV4 and IPV6 resources
+- Bugfixes
+
+## [v2.3.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.3.0) (2023-04-13)
+- Minimal required Go-lang version is bumped up
+- infoblox_ptr_record resource's behaviour changes (see the documentation changes for the details)
+- 'dns_view' and 'network_view' fields are now optional for all the `resources and data sources
+- New resources:
+  - infoblox_mx_record
+  - infoblox_txt_record
+  - infoblox_srv_record
+- New data sources:
+  - infoblox_mx_record
+  - infoblox_txt_record
+  - infoblox_srv_record
+- Bugfixes
+
+## [v2.2.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.2.0) (2022-12-07)
+- New feature: ability to import resources from existing NIOS objects
+- New Data sources:
+  - infoblox_aaaa_record
+  - infoblox_ptr_record
+  - infoblox_network_view
+  - infoblox_ipv4_network_container
+- Allocation/Association resources have been reworked
+- Examples are reorganized
+- Numerous bugfixes
+
 ## [v2.1.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.1.0) (2022-02-10)
 
 - Moved to Terraform Plugin SDK v2
 - Allocation/Association resources reworked:
-  - new resources added: infoblox_ipv_allocation and infoblox_ip_association;
+  - new resources added: infoblox_ip_allocation and infoblox_ip_association;
     both IPv4 and IPv6 addresses may be allocated within a single resource in one go.
   - infoblox_ipv4_allocation, infoblox_ipv6_allocation, infoblox_ipv4_association and infoblox_ipv6_association
     are deprecated and unsupported from now on.

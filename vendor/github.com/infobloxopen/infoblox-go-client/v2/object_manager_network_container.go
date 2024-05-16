@@ -67,13 +67,44 @@ func (objMgr *ObjectManager) UpdateNetworkContainer(
 	nc.Ea = setEas
 	nc.Comment = comment
 
+	// Network view is not allowed to be updated,
+	// thus making its name empty (will not appear among data which we update).
+	netViewSaved := nc.NetviewName
+	nc.NetviewName = ""
+
 	reference, err := objMgr.connector.UpdateObject(nc, ref)
 	if err != nil {
 		return nil, err
 	}
 
 	nc.Ref = reference
+	nc.NetviewName = netViewSaved
+
 	return nc, nil
+}
+
+func (objMgr *ObjectManager) AllocateNetworkContainer(
+	netview string,
+	cidr string,
+	isIPv6 bool,
+	prefixLen uint,
+	comment string,
+	eas EA) (*NetworkContainer, error) {
+
+	containerInfo := NewNetworkContainerNextAvailableInfo(netview, cidr, prefixLen, isIPv6)
+	container := NewNetworkContainerNextAvailable(containerInfo, isIPv6, comment, eas)
+
+	ref, err := objMgr.connector.CreateObject(container)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if isIPv6 {
+		return BuildIPv6NetworkContainerFromRef(ref)
+	} else {
+		return BuildNetworkContainerFromRef(ref)
+	}
 }
 
 func (objMgr *ObjectManager) DeleteNetworkContainer(ref string) (string, error) {

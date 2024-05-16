@@ -19,12 +19,19 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-type HostConfig struct {
-	Host     string
-	Version  string
-	Port     string
+type AuthConfig struct {
 	Username string
 	Password string
+
+	ClientCert []byte
+	ClientKey  []byte
+}
+
+type HostConfig struct {
+	Scheme  string
+	Host    string
+	Version string
+	Port    string
 }
 
 type TransportConfig struct {
@@ -58,23 +65,50 @@ func NewTransportConfig(sslVerify string, httpRequestTimeout int, httpPoolConnec
 
 	cfg.HttpPoolConnections = httpPoolConnections
 	cfg.HttpRequestTimeout = time.Duration(httpRequestTimeout)
+
 	return
 }
 
 type HttpRequestBuilder interface {
-	Init(HostConfig)
+	Init(HostConfig, AuthConfig)
 	BuildUrl(r RequestType, objType string, ref string, returnFields []string, queryParams *QueryParams) (urlStr string)
 	BuildBody(r RequestType, obj IBObject) (jsonStr []byte)
 	BuildRequest(r RequestType, obj IBObject, ref string, queryParams *QueryParams) (req *http.Request, err error)
 }
 
 type HttpRequestor interface {
-	Init(TransportConfig)
+	Init(AuthConfig, TransportConfig)
 	SendRequest(*http.Request) ([]byte, error)
 }
 
 type WapiRequestBuilder struct {
-	HostConfig HostConfig
+	hostCfg HostConfig
+	authCfg AuthConfig
+}
+
+type WapiRequestBuilderWithHeaders struct {
+	HttpRequestBuilder
+	header http.Header
+}
+
+func NewWapiRequestBuilderWithHeaders(wrb *WapiRequestBuilder, header http.Header) (*WapiRequestBuilderWithHeaders, error) {
+	return &WapiRequestBuilderWithHeaders{
+		HttpRequestBuilder: wrb,
+		header:             header,
+	}, nil
+}
+
+func (wrbh *WapiRequestBuilderWithHeaders) BuildRequest(r RequestType, obj IBObject, ref string, queryParams *QueryParams) (req *http.Request, err error) {
+	req, err = wrbh.HttpRequestBuilder.BuildRequest(r, obj, ref, queryParams)
+	if err != nil {
+		return req, err
+	}
+	for h, values := range wrbh.header {
+		for _, v := range values {
+			req.Header.Add(h, v)
+		}
+	}
+	return req, nil
 }
 
 type WapiHttpRequestor struct {
@@ -89,10 +123,11 @@ type IBConnector interface {
 }
 
 type Connector struct {
-	HostConfig      HostConfig
-	TransportConfig TransportConfig
-	RequestBuilder  HttpRequestBuilder
-	Requestor       HttpRequestor
+	hostCfg        HostConfig
+	authCfg        AuthConfig
+	transportCfg   TransportConfig
+	requestBuilder HttpRequestBuilder
+	requestor      HttpRequestor
 }
 
 type RequestType int
@@ -123,24 +158,41 @@ func getHTTPResponseError(resp *http.Response) error {
 	defer resp.Body.Close()
 	content, _ := ioutil.ReadAll(resp.Body)
 	msg := fmt.Sprintf("WAPI request error: %d('%s')\nContents:\n%s\n", resp.StatusCode, resp.Status, content)
-	log.Printf(msg)
 	if resp.StatusCode == http.StatusNotFound {
 		return NewNotFoundError(msg)
 	}
 	return errors.New(msg)
 }
 
-func (whr *WapiHttpRequestor) Init(cfg TransportConfig) {
+func (whr *WapiHttpRequestor) Init(authCfg AuthConfig, trCfg TransportConfig) {
+	var certList []tls.Certificate
+
+	clientAuthType := tls.NoClientCert
+
+	if authCfg.ClientKey != nil && authCfg.ClientCert != nil {
+		cert, err := tls.X509KeyPair(authCfg.ClientCert, authCfg.ClientKey)
+		if err != nil {
+			log.Fatal("Invalid certificate key pair (PEM format error): ", err)
+		}
+
+		certList = []tls.Certificate{cert}
+		clientAuthType = tls.RequestClientCert
+	}
+
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: !cfg.SslVerify,
-			RootCAs:       cfg.certPool,
-			Renegotiation: tls.RenegotiateOnceAsClient},
-		MaxIdleConnsPerHost: cfg.HttpPoolConnections,
+		TLSClientConfig: &tls.Config{
+			RootCAs:            trCfg.certPool,
+			ClientAuth:         clientAuthType,
+			Certificates:       certList,
+			InsecureSkipVerify: !trCfg.SslVerify,
+			Renegotiation:      tls.RenegotiateOnceAsClient,
+		},
+		MaxIdleConnsPerHost: trCfg.HttpPoolConnections,
 		Proxy:               http.ProxyFromEnvironment,
 	}
 
-	if cfg.ProxyUrl != nil {
-		tr.Proxy = http.ProxyURL(cfg.ProxyUrl)
+	if trCfg.ProxyUrl != nil {
+		tr.Proxy = http.ProxyURL(trCfg.ProxyUrl)
 	}
 
 	// All users of cookiejar should import "golang.org/x/net/publicsuffix"
@@ -149,7 +201,11 @@ func (whr *WapiHttpRequestor) Init(cfg TransportConfig) {
 		log.Fatal(err)
 	}
 
-	whr.client = http.Client{Jar: jar, Transport: tr, Timeout: cfg.HttpRequestTimeout * time.Second}
+	whr.client = http.Client{
+		Jar:       jar,
+		Transport: tr,
+		Timeout:   trCfg.HttpRequestTimeout * time.Second,
+	}
 }
 
 func (whr *WapiHttpRequestor) SendRequest(req *http.Request) (res []byte, err error) {
@@ -159,7 +215,7 @@ func (whr *WapiHttpRequestor) SendRequest(req *http.Request) (res []byte, err er
 		return
 	} else if !(resp.StatusCode == http.StatusOK ||
 		(resp.StatusCode == http.StatusCreated &&
-			req.Method == RequestType(CREATE).toMethod())) {
+			req.Method == CREATE.toMethod())) {
 		err := getHTTPResponseError(resp)
 		return nil, err
 	}
@@ -173,12 +229,22 @@ func (whr *WapiHttpRequestor) SendRequest(req *http.Request) (res []byte, err er
 	return
 }
 
-func (wrb *WapiRequestBuilder) Init(cfg HostConfig) {
-	wrb.HostConfig = cfg
+func NewWapiRequestBuilder(hostCfg HostConfig, authCfg AuthConfig) (*WapiRequestBuilder, error) {
+	wrb := WapiRequestBuilder{
+		hostCfg: hostCfg,
+		authCfg: authCfg,
+	}
+
+	return &wrb, nil
+}
+
+func (wrb *WapiRequestBuilder) Init(hostCfg HostConfig, authCfg AuthConfig) {
+	wrb.hostCfg = hostCfg
+	wrb.authCfg = authCfg
 }
 
 func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref string, returnFields []string, queryParams *QueryParams) (urlStr string) {
-	path := []string{"wapi", "v" + wrb.HostConfig.Version}
+	path := []string{"wapi", "v" + wrb.hostCfg.Version}
 	if len(ref) > 0 {
 		path = append(path, ref)
 	} else {
@@ -191,20 +257,32 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 		if len(returnFields) > 0 {
 			vals.Set("_return_fields", strings.Join(returnFields, ","))
 		}
-		// TODO need to get this from individual objects in future
-		if queryParams.forceProxy {
-			vals.Set("_proxy_search", "GM")
-		}
-		for k, v := range queryParams.searchFields {
-			vals.Set(k, v)
+		if queryParams != nil {
+			// TODO need to get this from individual objects in future
+			if queryParams.forceProxy {
+				vals.Set("_proxy_search", "GM")
+			}
+			for k, v := range queryParams.searchFields {
+				if res, ok := ValidateMultiValue(v); ok {
+					for _, mv := range res {
+						vals.Add(k, strings.TrimSpace(mv))
+					}
+				} else {
+					vals.Set(k, v)
+				}
+			}
 		}
 
 		qry = vals.Encode()
 	}
 
+	scheme := "https"
+	if wrb.hostCfg.Scheme == "http" {
+		scheme = "http"
+	}
 	u := url.URL{
-		Scheme:   "https",
-		Host:     wrb.HostConfig.Host + ":" + wrb.HostConfig.Port,
+		Scheme:   scheme,
+		Host:     wrb.hostCfg.Host + ":" + wrb.hostCfg.Port,
 		Path:     strings.Join(path, "/"),
 		RawQuery: qry,
 	}
@@ -212,9 +290,30 @@ func (wrb *WapiRequestBuilder) BuildUrl(t RequestType, objType string, ref strin
 	return u.String()
 }
 
+// populateNilLists fills nil lists in IBObject structs, since NIOS doesn't accept a null list in JSON payload.
+func (wrb *WapiRequestBuilder) populateNilLists(obj IBObject) IBObject {
+	objVal := reflect.ValueOf(obj)
+	if reflect.ValueOf(obj).Kind() == reflect.Ptr {
+		objVal = objVal.Elem()
+	}
+
+	for i := 0; i < objVal.NumField(); i++ {
+		fieldVal := objVal.Field(i)
+		if fieldVal.Type().Kind() == reflect.Slice && fieldVal.CanSet() {
+			if fieldVal.IsNil() == true {
+				fieldVal.Set(reflect.MakeSlice(fieldVal.Type(), 0, 0))
+			}
+		}
+	}
+
+	return obj
+}
+
 func (wrb *WapiRequestBuilder) BuildBody(t RequestType, obj IBObject) []byte {
 	var objJSON []byte
 	var err error
+
+	obj = wrb.populateNilLists(obj)
 
 	objJSON, err = json.Marshal(obj)
 	if err != nil {
@@ -253,30 +352,36 @@ func (wrb *WapiRequestBuilder) BuildRequest(t RequestType, obj IBObject, ref str
 
 	req, err = http.NewRequest(t.toMethod(), urlStr, bytes.NewBuffer(bodyStr))
 	if err != nil {
-		log.Printf("err1: '%s'", err)
+		log.Printf("cannot build request: '%s'", err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(wrb.HostConfig.Username, wrb.HostConfig.Password)
+	if wrb.authCfg.Username != "" {
+		req.SetBasicAuth(wrb.authCfg.Username, wrb.authCfg.Password)
+	}
 
 	return
 }
 
 func (c *Connector) makeRequest(t RequestType, obj IBObject, ref string, queryParams *QueryParams) (res []byte, err error) {
 	var req *http.Request
-	req, err = c.RequestBuilder.BuildRequest(t, obj, ref, queryParams)
+	req, err = c.requestBuilder.BuildRequest(t, obj, ref, queryParams)
 	if err != nil {
 		return
 	}
-	res, err = c.Requestor.SendRequest(req)
+	res, err = c.requestor.SendRequest(req)
 	if err != nil {
-		/* Forcing the request to redirect to Grid Master by making forcedProxy=true */
-		queryParams.forceProxy = true
-		req, err = c.RequestBuilder.BuildRequest(t, obj, ref, queryParams)
-		if err != nil {
-			return
+		if queryParams != nil {
+			/* Forcing the request to redirect to Grid Master by making forcedProxy=true */
+			queryParams.forceProxy = true
+			req, err = c.requestBuilder.BuildRequest(t, obj, ref, queryParams)
+			if err != nil {
+				return
+			}
+			res, err = c.requestor.SendRequest(req)
+		} else {
+			return nil, err
 		}
-		res, err = c.Requestor.SendRequest(req)
 	}
 
 	return
@@ -300,7 +405,6 @@ func (c *Connector) CreateObject(obj IBObject) (ref string, err error) {
 	return
 }
 
-// TODO: distinguish between "not found" and other kinds of errors.
 func (c *Connector) GetObject(
 	obj IBObject, ref string,
 	queryParams *QueryParams, res interface{}) (err error) {
@@ -318,6 +422,10 @@ func (c *Connector) GetObject(
 
 	var data []interface{}
 	if resp == nil || (reflect.TypeOf(result) == reflect.TypeOf(data) && len(result.([]interface{})) == 0) {
+		if queryParams == nil {
+			err = NewNotFoundError("requested object not found")
+			return
+		}
 		queryParams.forceProxy = true
 		resp, err = c.makeRequest(GET, obj, ref, queryParams)
 	}
@@ -399,21 +507,22 @@ func validateConnector(c *Connector) (err error) {
 	return
 }
 
-func NewConnector(hostConfig HostConfig, transportConfig TransportConfig,
+func NewConnector(hostConfig HostConfig, authCfg AuthConfig, transportConfig TransportConfig,
 	requestBuilder HttpRequestBuilder, requestor HttpRequestor) (res *Connector, err error) {
 	res = nil
 
 	connector := &Connector{
-		HostConfig:      hostConfig,
-		TransportConfig: transportConfig,
+		hostCfg:      hostConfig,
+		authCfg:      authCfg,
+		transportCfg: transportConfig,
 	}
 
-	//connector.RequestBuilder = WapiRequestBuilder{WaipHostConfig: connector.HostConfig}
-	connector.RequestBuilder = requestBuilder
-	connector.RequestBuilder.Init(connector.HostConfig)
+	//connector.requestBuilder = WapiRequestBuilder{WaipHostConfig: connector.hostCfg}
+	connector.requestBuilder = requestBuilder
+	connector.requestBuilder.Init(connector.hostCfg, connector.authCfg)
 
-	connector.Requestor = requestor
-	connector.Requestor.Init(connector.TransportConfig)
+	connector.requestor = requestor
+	connector.requestor.Init(connector.authCfg, connector.transportCfg)
 
 	res = connector
 	err = ValidateConnector(connector)

@@ -18,7 +18,7 @@ This library is compatible with Go 1.2+
    * Go 1.2 or above
 
 ## Installation
-   To get the latest released version [v2.1.0](https://github.com/infobloxopen/infoblox-go-client/releases/tag/v2.1.0) of Go Client use below command.
+   To get the latest released version [v2.6.0](https://github.com/infobloxopen/infoblox-go-client/releases/tag/v2.6.0) of Go Client use below command.
    
    `go get github.com/infobloxopen/infoblox-go-client/v2`
 
@@ -33,36 +33,42 @@ This library is compatible with Go 1.2+
    The following is a very simple example for the client usage:
 
        package main
+
        import (
-   	    "fmt"
-   	    ibclient "github.com/infobloxopen/infoblox-go-client"
+         "fmt"
+         ibclient "github.com/infobloxopen/infoblox-go-client/v2"
        )
 
        func main() {
-   	    hostConfig := ibclient.HostConfig{
-   		    Host:     "<NIOS grid IP>",
-   		    Version:  "<WAPI version>",
-   		    Port:     "PORT",
-   		    Username: "username",
-   		    Password: "password",
-   	    }
-   	    transportConfig := ibclient.NewTransportConfig("false", 20, 10)
-   	    requestBuilder := &ibclient.WapiRequestBuilder{}
-   	    requestor := &ibclient.WapiHttpRequestor{}
-   	    conn, err := ibclient.NewConnector(hostConfig, transportConfig, requestBuilder, requestor)
-   	    if err != nil {
-   		    fmt.Println(err)
-   	    }
-   	    defer conn.Logout()
-   	    objMgr := ibclient.NewObjectManager(conn, "myclient", "")
-   	    //Fetches grid information
-   	    fmt.Println(objMgr.GetLicense())
-       }
+         hostConfig := ibclient.HostConfig{
+            Scheme:  "https",
+         	Host:    "<NIOS grid IP>",
+            Version: "<WAPI version>",
+            Port:    "PORT",
+         }
+         authConfig := ibclient.AuthConfig{
+            Username: "username",
+            Password: "password",
+         }
+         transportConfig := ibclient.NewTransportConfig("false", 20, 10)
+         requestBuilder := &ibclient.WapiRequestBuilder{}
+         requestor := &ibclient.WapiHttpRequestor{}
+         conn, err := ibclient.NewConnector(hostConfig, authConfig, transportConfig, requestBuilder, requestor)
+         if err != nil {
+         	fmt.Println(err)
+         }
+         defer conn.Logout()
+         objMgr := ibclient.NewObjectManager(conn, "myclient", "")
+         //Fetches grid information
+         fmt.Println(objMgr.GetGridLicense())
+       } 
+
 
 ## Supported NIOS operations
 
    * AllocateIP
    * AllocateNetwork
+   * AllocateNetworkContainer
    * CreateARecord
    * CreateAAAARecord
    * CreateZoneAuth
@@ -95,12 +101,15 @@ This library is compatible with Go 1.2+
    * GetCapacityReport
    * GetCNAMERecordByRef
    * GetCNAMERecord
+   * GetDhcpMember
+   * GetDnsMember
    * GetEADefinition
    * GetFixedAddress
    * GetFixedAddressByRef
    * GetHostRecord
    * GetHostRecordByRef
    * SearchHostRecordByAltId
+   * SearchObjectByAltId
    * GetIpAddressFromHostRecord
    * GetNetwork
    * GetNetworkByRef
@@ -110,6 +119,8 @@ This library is compatible with Go 1.2+
    * GetNetworkViewByRef
    * GetPTRRecordByRef
    * GetPTRRecord
+   * GetTXTRecord
+   * GetTXTRecordByRef
    * GetZoneAuthByRef
    * GetZoneDelegated
    * GetUpgradeStatus (2.7 or above)
@@ -119,12 +130,15 @@ This library is compatible with Go 1.2+
    * ReleaseIP
    * UpdateAAAARecord
    * UpdateCNAMERecord
+   * UpdateDhcpStatus
+   * UpdateDnsStatus
    * UpdateFixedAddress
    * UpdateHostRecord
    * UpdateNetwork
    * UpdateNetworkContainer
    * UpdateNetworkView
    * UpdatePTRRecord
+   * UpdateTXTRecord
    * UpdateARecord
    * UpdateZoneDelegated
 

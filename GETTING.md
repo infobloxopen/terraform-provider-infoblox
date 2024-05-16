@@ -11,8 +11,8 @@ Specify the plugin version in the .tf file as follows:
     terraform {
       required_providers {
         infoblox = {
-          source = “infobloxopen/infoblox”
-          version = ">= 2.0.1"
+          source = "infobloxopen/infoblox"
+          version = ">= 2.6.0"
         }
       }
     }
@@ -35,7 +35,7 @@ Refer to the official documentation for more information https://registry.terraf
 
 ## Building a Binary from the GitHub Source Code and Using it
 Complete the follwing steps to build the binary:
-* Install and set up Golang  version 1.16 or later from:
+* Install and set up Golang  version 1.17 or later from:
   `https://golang.org/doc/install`
 * Install Terraform CLI v0.14.x from:  
   `https://www.terraform.io/downloads.html`

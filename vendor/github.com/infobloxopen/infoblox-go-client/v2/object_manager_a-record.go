@@ -2,6 +2,7 @@ package ibclient
 
 import (
 	"fmt"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"net"
 	"strings"
 )
@@ -37,9 +38,9 @@ func (objMgr *ObjectManager) CreateARecord(
 			return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
 		}
 		if netView == "" {
-			recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s", cidr)
+			recordA.Ipv4Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s", cidr))
 		} else {
-			recordA.Ipv4Addr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+			recordA.Ipv4Addr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView))
 		}
 	} else {
 		ip := net.ParseIP(ipAddr)
@@ -49,7 +50,7 @@ func (objMgr *ObjectManager) CreateARecord(
 		if ip.To4() == nil {
 			return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
 		}
-		recordA.Ipv4Addr = ipAddr
+		recordA.Ipv4Addr = &ipAddr
 	}
 
 	ref, err := objMgr.connector.CreateObject(recordA)
@@ -76,7 +77,7 @@ func (objMgr *ObjectManager) UpdateARecord(
 	comment string,
 	eas EA) (*RecordA, error) {
 
-	cleanName := strings.ToLower(strings.TrimSpace(name))
+	cleanName := strings.TrimSpace(name)
 	if cleanName == "" || cleanName != name {
 		return nil, fmt.Errorf(
 			"'name' argument is expected to be non-empty and it must NOT contain leading/trailing spaces")
@@ -97,9 +98,9 @@ func (objMgr *ObjectManager) UpdateARecord(
 				return nil, fmt.Errorf("CIDR value must be an IPv4 CIDR, not an IPv6 one")
 			}
 			if netView == "" {
-				newIpAddr = fmt.Sprintf("func:nextavailableip:%s", cidr)
+				newIpAddr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s", cidr))
 			} else {
-				newIpAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView)
+				newIpAddr = utils.StringPtr(fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netView))
 			}
 		}
 		// else: leaving ipv4addr field untouched
@@ -111,10 +112,10 @@ func (objMgr *ObjectManager) UpdateARecord(
 		if ip.To4() == nil {
 			return nil, fmt.Errorf("IP address must be an IPv4 address, not an IPv6 one")
 		}
-		newIpAddr = ipAddr
+		newIpAddr = &ipAddr
 	}
 	rec = NewRecordA(
-		"", "", name, newIpAddr, ttl, useTTL, comment, eas, ref)
+		"", "", name, *newIpAddr, ttl, useTTL, comment, eas, ref)
 	ref, err = objMgr.connector.UpdateObject(rec, ref)
 	if err != nil {
 		return nil, err

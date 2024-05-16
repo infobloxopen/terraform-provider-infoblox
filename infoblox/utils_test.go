@@ -2,40 +2,14 @@ package infoblox
 
 import (
 	"fmt"
-
 	"reflect"
 	"sort"
-	"strings"
-
-	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
-
-const testNetView = "default"
-
-var NotFoundTexts = []string{"404 Not Found", "not found"}
 
 const (
 	eaListTypeString = iota
 	eaListTypeInt
 )
-
-func isNotFoundError(err error) bool {
-	if _, notFoundErr := err.(*ibclient.NotFoundError); notFoundErr {
-		return true
-	}
-
-	// TODO: uncomment when infoblox-go-client will handle NotFoundError separately.
-	//return false
-
-	errText := err.Error()
-	for _, text := range NotFoundTexts {
-		if strings.Contains(errText, text) {
-			return true
-		}
-	}
-
-	return false
-}
 
 func typesEqual(a, b interface{}) bool {
 	return reflect.TypeOf(a) == reflect.TypeOf(b)

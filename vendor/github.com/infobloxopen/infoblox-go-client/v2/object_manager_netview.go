@@ -86,9 +86,9 @@ func (objMgr *ObjectManager) UpdateNetworkView(ref string, name string, comment 
 	}
 	cleanName := strings.TrimSpace(name)
 	if cleanName != "" {
-		nv.Name = cleanName
+		nv.Name = &cleanName
 	}
-	nv.Comment = comment
+	nv.Comment = &comment
 	nv.Ea = setEas
 
 	updatedRef, err := objMgr.connector.UpdateObject(nv, ref)

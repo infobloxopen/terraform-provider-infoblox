@@ -6,7 +6,7 @@ Working at code level requires you  to set up the environment, clone the code, b
 ## Building the Binary from Source Code and Using it
 Golang and Terraform installed in the system are basic requirements to build and test the plugin.
 
-* Install and set up Golang  version 1.16 or later from:
+* Install and set up Golang  version 1.17 or later from:
   `https://golang.org/doc/install`
 * Install Terraform CLI v0.14.x from:  
   `https://www.terraform.io/downloads.html`
@@ -29,8 +29,8 @@ To run the full suite of acceptance tests, run the following commands:
     $ export INFOBLOX_SERVER=<nios_ip-addr> or <hostname>
     $ export INFOBLOX_USERNAME=<nios_username>
     $ export INFOBLOX_PASSWORD=<nios_password>
-    $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
     $ make test
+    $ export TF_ACC=true # without this only unit tests (not acceptance tests) run
     $ make testacc
   ```
 
