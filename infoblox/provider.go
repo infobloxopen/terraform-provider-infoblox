@@ -209,6 +209,7 @@ func Provider() *schema.Provider {
 			"infoblox_srv_record":             resourceSRVRecord(),
 			"infoblox_dns_view":               resourceDNSView(),
 			"infoblox_zone_auth":              resourceZoneAuth(),
+			"infoblox_zone_forward":           resourceZoneForward(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -223,6 +224,7 @@ func Provider() *schema.Provider {
 			"infoblox_srv_record":             dataSourceSRVRecord(),
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
 			"infoblox_dns_view":               dataSourceDNSView(),
+			"infoblox_zone_forward":           dataSourceZoneForward(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
