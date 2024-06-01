@@ -3,6 +3,7 @@ package infoblox
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -224,14 +225,17 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 	}
 
 	if zf.ForwardingServers != nil {
-		fwServersInterface := encodeForwardingServers(zf.ForwardingServers)
+		fwServersInterface, _ := encodeForwardingServers(zf.ForwardingServers)
 		res["forwarding_servers"] = fwServersInterface
 	}
 	return res, nil
 }
 
-func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) []map[string]interface{} {
-	fwServers := make([]map[string]interface{}, len(zf))
+func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) ([]map[string]interface{}, error) {
+	if zf == nil {
+		return nil, errors.New("forwarding servers is nil")
+	}
+	fwServers := make([]map[string]interface{}, 0, len(zf))
 	for _, fs := range zf {
 		sMap := make(map[string]interface{})
 		sMap["name"] = fs.Name
@@ -243,11 +247,11 @@ func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) []map[string
 		}
 		fwServers = append(fwServers, sMap)
 	}
-	return fwServers
+	return fwServers, nil
 }
 
 func encodeForwardTo(nameServers []ibclient.NameServer) []map[string]interface{} {
-	nsInterface := make([]map[string]interface{}, len(nameServers))
+	nsInterface := make([]map[string]interface{}, 0, len(nameServers))
 	for _, ns := range nameServers {
 		nsMap := make(map[string]interface{})
 		nsMap["address"] = ns.Address

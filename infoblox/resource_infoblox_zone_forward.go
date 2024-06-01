@@ -160,9 +160,7 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	if intId := d.Get("internal_id"); intId.(string) != "" {
 		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
 	}
-	//if d.Get("ns_group").(string) && d.Get("Forwading_servers") != nil {
-	//	return fmt.Errorf("ns_group and forwarding_servers are mutually exclusive")
-	//}
+
 	_, nsGroupOk := d.GetOk("ns_group")
 	fsInterface, forwardingServersOk := d.GetOk("forwarding_servers")
 
@@ -179,7 +177,6 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	disable := d.Get("disable").(bool)
 	forwardersOnly := d.Get("forwarders_only").(bool)
 	ftInterface := d.Get("forward_to")
-	//fsInterface := d.Get("forwarding_servers")
 
 	ftSlice, ok := ftInterface.([]interface{})
 	if !ok {
@@ -322,6 +319,10 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("ns_group", *zoneForward.NsGroup); err != nil {
 			return err
 		}
+	} else {
+		if err := d.Set("ns_group", ""); err != nil {
+			return err
+		}
 	}
 
 	if zoneForward.Comment != nil {
@@ -349,7 +350,7 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 
 	}
 	if zoneForward.ForwardingServers != nil {
-		fwServerInterface := encodeForwardingServers(zoneForward.ForwardingServers)
+		fwServerInterface, _ := encodeForwardingServers(zoneForward.ForwardingServers)
 		if err := d.Set("forwarding_servers", fwServerInterface); err != nil {
 			return err
 		}
@@ -445,10 +446,11 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	comment := d.Get("comment").(string)
 	disable := d.Get("disable").(bool)
 	var nsGroup string
-	if d.HasChange("ns_group") {
+	if d.Get("ns_group") != "" {
 		nsGroup = d.Get("ns_group").(string)
+	} else {
+		nsGroup = ""
 	}
-	//nsGroup := d.Get("ns_group").(string)
 	ftInterface := d.Get("forward_to")
 	forwardersOnly := d.Get("forwarders_only").(bool)
 	fsInterface := d.Get("forwarding_servers")
@@ -608,7 +610,7 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	if zf.ForwardingServers != nil {
-		fwServerInterface := encodeForwardingServers(zoneForward.ForwardingServers)
+		fwServerInterface, _ := encodeForwardingServers(zoneForward.ForwardingServers)
 		if err = d.Set("forwarding_servers", fwServerInterface); err != nil {
 			return nil, err
 		}
