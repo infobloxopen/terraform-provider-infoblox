@@ -182,13 +182,11 @@ func formZone(
 		zone.Comment = utils.StringPtr(d.Get("comment").(string))
 	}
 
-	if d.HasChange("ns_group") {
-		nsGrp := d.Get("ns_group").(string)
-		if nsGrp != "" {
-			zone.NsGroup = utils.StringPtr(nsGrp)
-		} else {
-			zone.NsGroup = nil
-		}
+	nsGrp := d.Get("ns_group").(string)
+	if nsGrp != "" {
+		zone.NsGroup = utils.StringPtr(nsGrp)
+	} else {
+		zone.NsGroup = nil
 	}
 
 	if d.HasChange("restart_if_needed") {
@@ -295,9 +293,11 @@ func resourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m interfa
 
 	if zoneResult.NsGroup != nil {
 		err = d.Set("ns_group", *zoneResult.NsGroup)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	} else {
+		err = d.Set("ns_group", "")
+	}
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	if zoneResult.SoaDefaultTtl != nil {
@@ -404,8 +404,23 @@ func resourceZoneAuthUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	}
 
 	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", "terraform_test_tenant")
-	zoneVal, err := objMgr.GetZoneAuthByRef(d.Id())
+
+	rec, err := searchObjectByRefOrInternalId("ZoneAuth", d, m)
+	if err != nil {
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return diag.FromErr(ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err)))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+
+	// Assertion of object type and error handling
+	var zoneVal *ibclient.ZoneAuth
+	recJson, _ := json.Marshal(rec)
+	err = json.Unmarshal(recJson, &zoneVal)
+
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to read Zone Auth for update operation: %w", err))
 	}
