@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-func dataSourceIPv4Network() *schema.Resource {
+func dataSourceNetwork() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceIPv4NetworkRead,
+		//ReadContext: dataSourceIPv4NetworkRead,
 		Schema: map[string]*schema.Schema{
 			"filters": {
 				Type:     schema.TypeMap,
@@ -80,7 +80,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 	//       (avoiding additional layer of keys ("value" key)
 	results := make([]interface{}, 0, len(res))
 	for _, n := range res {
-		networkFlat, err := flattenNetwork(n)
+		networkFlat, err := flattenIpv4Network(n)
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("failed to flatten network: %w", err))
 		}
@@ -99,7 +99,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 	return diags
 }
 
-func flattenNetwork(network ibclient.Ipv4Network) (map[string]interface{}, error) {
+func flattenIpv4Network(network ibclient.Ipv4Network) (map[string]interface{}, error) {
 	var eaMap map[string]interface{}
 	if network.Ea != nil && len(network.Ea) > 0 {
 		eaMap = network.Ea
@@ -126,4 +126,88 @@ func flattenNetwork(network ibclient.Ipv4Network) (map[string]interface{}, error
 	}
 
 	return res, nil
+}
+
+func flattenIpv6Network(network ibclient.Ipv6Network) (map[string]interface{}, error) {
+	var eaMap map[string]interface{}
+	if network.Ea != nil && len(network.Ea) > 0 {
+		eaMap = network.Ea
+	} else {
+		eaMap = make(map[string]interface{})
+	}
+	ea, err := json.Marshal(eaMap)
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[string]interface{}{
+		"id":           network.Ref,
+		"network_view": network.NetworkView,
+		"ext_attrs":    string(ea),
+	}
+
+	if network.Network != nil {
+		res["cidr"] = *network.Network
+	}
+
+	if network.Comment != nil {
+		res["comment"] = *network.Comment
+	}
+
+	return res, nil
+}
+
+func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	connector := m.(ibclient.IBConnector)
+
+	var diags diag.Diagnostics
+
+	n := &ibclient.Ipv6Network{}
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+
+	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
+	qp := ibclient.NewQueryParams(false, filters)
+	var res []ibclient.Ipv6Network
+
+	err := connector.GetObject(n, "", qp, &res)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("getting network failed: %s", err))
+	}
+	if res == nil {
+		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the network"))
+	}
+
+	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
+	//       (avoiding additional layer of keys ("value" key)
+	results := make([]interface{}, 0, len(res))
+	for _, n := range res {
+		networkFlat, err := flattenIpv6Network(n)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("failed to flatten network: %w", err))
+		}
+
+		results = append(results, networkFlat)
+	}
+
+	err = d.Set("results", results)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// always run
+	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+
+	return diags
+}
+
+func dataSourceIPv4Network() *schema.Resource {
+	nw := dataSourceNetwork()
+	nw.ReadContext = dataSourceIPv4NetworkRead
+	return nw
+}
+
+func dataSourceIPv6Network() *schema.Resource {
+	nw := dataSourceNetwork()
+	nw.ReadContext = dataSourceIPv6NetworkRead
+	return nw
 }
