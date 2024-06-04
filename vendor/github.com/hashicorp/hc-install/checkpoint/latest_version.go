@@ -1,9 +1,12 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
 package checkpoint
 
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +24,7 @@ import (
 
 var (
 	defaultTimeout = 30 * time.Second
-	discardLogger  = log.New(ioutil.Discard, "", 0)
+	discardLogger  = log.New(io.Discard, "", 0)
 )
 
 // LatestVersion installs the latest version known to Checkpoint
@@ -98,7 +101,7 @@ func (lv *LatestVersion) Install(ctx context.Context) (string, error) {
 	if dstDir == "" {
 		var err error
 		dirName := fmt.Sprintf("%s_*", lv.Product.Name)
-		dstDir, err = ioutil.TempDir("", dirName)
+		dstDir, err = os.MkdirTemp("", dirName)
 		if err != nil {
 			return "", err
 		}
@@ -123,7 +126,10 @@ func (lv *LatestVersion) Install(ctx context.Context) (string, error) {
 	if lv.ArmoredPublicKey != "" {
 		d.ArmoredPublicKey = lv.ArmoredPublicKey
 	}
-	err = d.DownloadAndUnpack(ctx, pv, dstDir)
+	up, err := d.DownloadAndUnpack(ctx, pv, dstDir, "")
+	if up != nil {
+		lv.pathsToRemove = append(lv.pathsToRemove, up.PathsToRemove...)
+	}
 	if err != nil {
 		return "", err
 	}
