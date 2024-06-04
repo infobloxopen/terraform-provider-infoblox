@@ -220,18 +220,18 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 	}
 
 	if zf.ForwardTo != nil {
-		nsInterface := encodeForwardTo(zf.ForwardTo)
+		nsInterface := convertForwardToInterface(zf.ForwardTo)
 		res["forward_to"] = nsInterface
 	}
 
 	if zf.ForwardingServers != nil {
-		fwServersInterface, _ := encodeForwardingServers(zf.ForwardingServers)
+		fwServersInterface, _ := convertForwardingServersToInterface(zf.ForwardingServers)
 		res["forwarding_servers"] = fwServersInterface
 	}
 	return res, nil
 }
 
-func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) ([]map[string]interface{}, error) {
+func convertForwardingServersToInterface(zf []*ibclient.Forwardingmemberserver) ([]map[string]interface{}, error) {
 	if zf == nil {
 		return nil, errors.New("forwarding servers is nil")
 	}
@@ -242,7 +242,7 @@ func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) ([]map[strin
 		sMap["forwarders_only"] = fs.ForwardersOnly
 		sMap["use_override_forwarders"] = fs.UseOverrideForwarders
 		if fs.ForwardTo != nil {
-			nsInterface := encodeForwardTo(fs.ForwardTo)
+			nsInterface := convertForwardToInterface(fs.ForwardTo)
 			sMap["forward_to"] = nsInterface
 		}
 		fwServers = append(fwServers, sMap)
@@ -250,7 +250,7 @@ func encodeForwardingServers(zf []*ibclient.Forwardingmemberserver) ([]map[strin
 	return fwServers, nil
 }
 
-func encodeForwardTo(nameServers []ibclient.NameServer) []map[string]interface{} {
+func convertForwardToInterface(nameServers []ibclient.NameServer) []map[string]interface{} {
 	nsInterface := make([]map[string]interface{}, 0, len(nameServers))
 	for _, ns := range nameServers {
 		nsMap := make(map[string]interface{})

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"reflect"
+	"regexp"
 	"testing"
 )
 
@@ -20,6 +21,29 @@ var testResourceZoneForwardRecord = `resource "infoblox_zone_forward" "testfz1" 
     forward_to {
         name = "test245.dz.ex.com"
         address = "10.0.0.2"
+    }
+}`
+
+var testResourceZoneForward = `resource "infoblox_zone_forward" "testfz1" {
+    fqdn = "test_fz.ex.org"
+    comment = "test sample forward zone"
+    ns_group = "test_ns_group"
+    forward_to {
+        name = "test123.dz.ex.com"
+        address = "10.0.0.1"
+    }
+    forward_to {
+        name = "test245.dz.ex.com"
+        address = "10.0.0.2"
+    }
+    forwarding_servers {
+        name = "infoblox.172_28_82_176"
+        forwarders_only = true
+        use_override_forwarders = true
+        forward_to {
+                name = "cc.fwd.com"
+                address = "10.1.1.1"
+        }
     }
 }`
 
@@ -161,6 +185,11 @@ func TestAccResourceZoneForward(t *testing.T) {
 						},
 					},
 				}),
+			},
+			// negative test case
+			{
+				Config:      testResourceZoneForward,
+				ExpectError: regexp.MustCompile("ns_group and forwarding_servers are mutually exclusive"),
 			},
 		},
 	})

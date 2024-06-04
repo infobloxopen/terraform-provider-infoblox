@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"github.com/mitchellh/mapstructure"
 	// "log"
 	// "reflect"
 )
@@ -180,18 +179,18 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 
 	ftSlice, ok := ftInterface.([]interface{})
 	if !ok {
-		return fmt.Errorf("forward_to is not a slice of interfaces")
+		return fmt.Errorf("forward_to is not a slice of Nameservers")
 	}
-	forwardTo, err := decodeForwardTo(ftSlice)
+	forwardTo, err := validateForwardTo(ftSlice)
 	if err != nil {
 		return err
 	}
 
 	fsSlice, ok := fsInterface.([]interface{})
 	if !ok {
-		return fmt.Errorf("forwarding_servers is not a slice of interfaces")
+		return fmt.Errorf("forwarding_servers is not a slice of Forwardingmemberserver pointers")
 	}
-	forwardingServer, err := decodeForwardingServers(fsSlice)
+	forwardingServer, err := validateForwardingServers(fsSlice)
 	if err != nil {
 		return err
 	}
@@ -228,35 +227,28 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func decodeForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmemberserver, error) {
+func validateForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmemberserver, error) {
+	fsStr, err := json.Marshal(fsSlice)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal forwarding_servers: %s", err)
+	}
 	var forwardingServer []*ibclient.Forwardingmemberserver
-	for _, fs := range fsSlice {
-		var fsm ibclient.Forwardingmemberserver
-		fsMap, ok := fs.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("element in forwarding_servers is not a map")
-		}
-		if err := mapstructure.Decode(fsMap, &fsm); err != nil {
-			return nil, fmt.Errorf("failed to decode forwarding_servers: %s", err)
-		}
-		forwardingServer = append(forwardingServer, &fsm)
+	err = json.Unmarshal(fsStr, &forwardingServer)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal forwarding_servers: %s", err)
 	}
 	return forwardingServer, nil
 }
 
-func decodeForwardTo(ftSlice []interface{}) ([]ibclient.NameServer, error) {
+func validateForwardTo(ftSlice []interface{}) ([]ibclient.NameServer, error) {
+	nsStr, err := json.Marshal(ftSlice)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal forward_to: %s", err)
+	}
 	var forwardTo []ibclient.NameServer
-	for _, ft := range ftSlice {
-		// fmt.Sprintf("ft: %v", ft)
-		var ns ibclient.NameServer
-		ftMap, ok := ft.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("element in forward_to is not a map")
-		}
-		if err := mapstructure.Decode(ftMap, &ns); err != nil {
-			return nil, fmt.Errorf("failed to decode forward_to: %s", err)
-		}
-		forwardTo = append(forwardTo, ns)
+	err = json.Unmarshal(nsStr, &forwardTo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal forward_to: %s", err)
 	}
 	return forwardTo, nil
 }
@@ -336,6 +328,7 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
+
 	if zoneForward.ForwardersOnly != nil {
 		if err := d.Set("forwarders_only", *zoneForward.ForwardersOnly); err != nil {
 			return err
@@ -343,15 +336,19 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if zoneForward.ForwardTo != nil {
-		nsInterface := encodeForwardTo(zoneForward.ForwardTo)
+		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
 		if err := d.Set("forward_to", nsInterface); err != nil {
 			return err
 		}
-
 	}
+
 	if zoneForward.ForwardingServers != nil {
-		fwServerInterface, _ := encodeForwardingServers(zoneForward.ForwardingServers)
+		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers)
 		if err := d.Set("forwarding_servers", fwServerInterface); err != nil {
+			return err
+		}
+	} else {
+		if err := d.Set("forwarding_servers", nil); err != nil {
 			return err
 		}
 	}
@@ -457,9 +454,9 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 
 	ftSlice, ok := ftInterface.([]interface{})
 	if !ok {
-		return fmt.Errorf("forward_to is not a slice of interfaces")
+		return fmt.Errorf("forward_to is not a slice of inetrfaces")
 	}
-	forwardTo, err := decodeForwardTo(ftSlice)
+	forwardTo, err := validateForwardTo(ftSlice)
 	if err != nil {
 		return err
 	}
@@ -468,7 +465,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	if !ok {
 		return fmt.Errorf("forwarding_servers is not a slice of interfaces")
 	}
-	forwardingServers, err := decodeForwardingServers(fsSlice)
+	forwardingServers, err := validateForwardingServers(fsSlice)
 	if err != nil {
 		return err
 	}
@@ -597,7 +594,7 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	if zf.ForwardTo != nil {
-		nsInterface := encodeForwardTo(zoneForward.ForwardTo)
+		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return nil, err
 		}
@@ -610,8 +607,12 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	if zf.ForwardingServers != nil {
-		fwServerInterface, _ := encodeForwardingServers(zoneForward.ForwardingServers)
+		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers)
 		if err = d.Set("forwarding_servers", fwServerInterface); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("forwarding_servers", nil); err != nil {
 			return nil, err
 		}
 	}
