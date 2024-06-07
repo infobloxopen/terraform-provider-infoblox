@@ -73,6 +73,28 @@ func dataSourceHostRecord() *schema.Resource {
 							Computed:    true,
 							Description: "Extensible attributes of the Host-record, as a map in JSON format",
 						},
+						"mac_addr": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "MAC address of a cloud instance.",
+						},
+						"duid": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "DHCP unique identifier for IPv6.",
+						},
+						"enable_dhcp": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "The flag which defines if the host record is to be used for IPAM purposes.",
+						},
+						"enable_dns": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Description: "flag that defines if the host record is to be used for DNS purposes.",
+						},
 					},
 				},
 			},
@@ -146,9 +168,16 @@ func flattenRecordHost(hostRecord ibclient.HostRecord) (map[string]interface{}, 
 
 	if hostRecord.Ipv4Addrs != nil {
 		res["ipv4_addr"] = hostRecord.Ipv4Addrs[0].Ipv4Addr
+		res["mac_addr"] = hostRecord.Ipv4Addrs[0].Mac
+		res["enable_dhcp"] = hostRecord.Ipv4Addrs[0].EnableDhcp
+		res["enable_dns"] = hostRecord.EnableDns
+
 	}
 	if hostRecord.Ipv6Addrs != nil {
 		res["ipv6_addr"] = hostRecord.Ipv6Addrs[0].Ipv6Addr
+		res["duid"] = hostRecord.Ipv6Addrs[0].Duid
+		res["enable_dhcp"] = hostRecord.Ipv6Addrs[0].EnableDhcp
+		res["enable_dns"] = hostRecord.EnableDns
 	}
 
 	if hostRecord.UseTtl != nil {
