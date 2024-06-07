@@ -342,8 +342,8 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if zoneForward.ForwardingServers != nil {
-		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers)
+	if zoneForward.ForwardingServers.Servers != nil {
+		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers.Servers)
 		if err := d.Set("forwarding_servers", fwServerInterface); err != nil {
 			return err
 		}
@@ -382,7 +382,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	}()
 
 	_, nsGroupOk := d.GetOk("ns_group")
-	_, forwardingServersOk := d.GetOk("forwarding_servers")
+	fsInterface, forwardingServersOk := d.GetOk("forwarding_servers")
 
 	if nsGroupOk && forwardingServersOk {
 		return fmt.Errorf("ns_group and forwarding_servers are mutually exclusive")
@@ -421,10 +421,25 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Get by Ref
-	zf, err := objMgr.GetZoneForwardByRef(d.Id())
+	var zf *ibclient.ZoneForward
+
+	rec, err := searchObjectByRefOrInternalId("ZoneForward", d, m)
 	if err != nil {
-		return fmt.Errorf("failed to read zone forward for update operation: %w", err)
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+	recJson, err := json.Marshal(rec)
+	if err != nil {
+		return fmt.Errorf("failed to marshal zone forward record : %s", err.Error())
+	}
+	err = json.Unmarshal(recJson, &zf)
+	if err != nil {
+		return fmt.Errorf("failed getting zone forward record : %s", err.Error())
 	}
 
 	// If 'internal_id' is not set, then generate a new one and set it to the EA.
@@ -450,7 +465,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	ftInterface := d.Get("forward_to")
 	forwardersOnly := d.Get("forwarders_only").(bool)
-	fsInterface := d.Get("forwarding_servers")
+	//fsInterface := d.Get("forwarding_servers")
 
 	ftSlice, ok := ftInterface.([]interface{})
 	if !ok {
@@ -461,16 +476,27 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	fsSlice, ok := fsInterface.([]interface{})
-	if !ok {
-		return fmt.Errorf("forwarding_servers is not a slice of interfaces")
-	}
-	forwardingServers, err := validateForwardingServers(fsSlice)
-	if err != nil {
-		return err
+	var nullFWS *ibclient.NullableForwardingServers
+
+	if forwardingServersOk && d.HasChange("forwarding_servers") {
+		fsSlice, ok := fsInterface.([]interface{})
+		if !ok {
+			return fmt.Errorf("forwarding_servers is not a slice of Forwardingmemberserver pointers")
+		}
+		forwardingServer, err := validateForwardingServers(fsSlice)
+		if err != nil {
+			return err
+		}
+		nullFWS = &ibclient.NullableForwardingServers{IsNull: false, Servers: forwardingServer}
+	} else if !forwardingServersOk && d.HasChange("forwarding_servers") {
+		nullFWS = &ibclient.NullableForwardingServers{IsNull: false, Servers: []*ibclient.Forwardingmemberserver{}}
+	} else {
+		nullFWS = &ibclient.NullableForwardingServers{IsNull: true, Servers: nil}
 	}
 
-	zf, err = objMgr.UpdateZoneForward(d.Id(), comment, disable, newExtAttrs, forwardTo, forwardersOnly, forwardingServers, nsGroup)
+	//TODO: Check if forwarding_servers is nil
+
+	zf, err = objMgr.UpdateZoneForward(d.Id(), comment, disable, newExtAttrs, forwardTo, forwardersOnly, nullFWS, nsGroup)
 	if err != nil {
 		return fmt.Errorf("Failed to update Zone Forward with %s, ", err.Error())
 	}
@@ -543,9 +569,6 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	zoneForward := ibclient.NewEmptyZoneForward()
-	zoneForward.SetReturnFields(append(zoneForward.ReturnFields(), "zone_format", "ns_group", "comment", "disable", "extattrs", "forwarders_only", "forwarding_servers"))
-
 	zf, err := objMgr.GetZoneForwardByRef(d.Id())
 	if err != nil {
 		return nil, fmt.Errorf("failed getting zone forward record: %w", err)
@@ -594,7 +617,7 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	if zf.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
+		nsInterface := convertForwardToInterface(zf.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return nil, err
 		}
@@ -606,8 +629,8 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 		}
 	}
 
-	if zf.ForwardingServers != nil {
-		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers)
+	if zf.ForwardingServers.Servers != nil {
+		fwServerInterface, _ := convertForwardingServersToInterface(zf.ForwardingServers.Servers)
 		if err = d.Set("forwarding_servers", fwServerInterface); err != nil {
 			return nil, err
 		}
