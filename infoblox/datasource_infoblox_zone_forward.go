@@ -224,8 +224,8 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 		res["forward_to"] = nsInterface
 	}
 
-	if zf.ForwardingServers != nil {
-		fwServersInterface, _ := convertForwardingServersToInterface(zf.ForwardingServers)
+	if zf.ForwardingServers.Servers != nil {
+		fwServersInterface, _ := convertForwardingServersToInterface(zf.ForwardingServers.Servers)
 		res["forwarding_servers"] = fwServersInterface
 	}
 	return res, nil
