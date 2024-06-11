@@ -108,7 +108,7 @@ func dataSourceHostRecordRead(ctx context.Context, d *schema.ResourceData, m int
 	var diags diag.Diagnostics
 
 	n := &ibclient.HostRecord{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "comment", "zone", "ttl"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "comment", "zone", "ttl", "configure_for_dns"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
