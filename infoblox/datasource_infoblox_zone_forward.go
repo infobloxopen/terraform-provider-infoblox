@@ -72,6 +72,11 @@ func dataSourceZoneForward() *schema.Resource {
 							Optional:    true,
 							Description: "A forwarding member name server group.",
 						},
+						"external_ns_group": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A forwarding member name server group.",
+						},
 						"comment": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -145,7 +150,7 @@ func dataSourceZoneForward() *schema.Resource {
 	}
 }
 
-func dataSourceZoneForwardRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceZoneForwardRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	connector := m.(ibclient.IBConnector)
 
 	var diags diag.Diagnostics
@@ -213,6 +218,10 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 	}
 	if zf.NsGroup != nil {
 		res["ns_group"] = *zf.NsGroup
+	}
+
+	if zf.NsGroup != nil {
+		res["external_ns_group"] = *zf.ExternalNsGroup
 	}
 
 	if zf.ForwardersOnly != nil {
