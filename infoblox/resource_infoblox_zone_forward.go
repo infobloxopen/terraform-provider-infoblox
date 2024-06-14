@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	// "log"
-	// "reflect"
 )
 
 func resourceZoneForward() *schema.Resource {
@@ -118,6 +116,7 @@ func resourceZoneForward() *schema.Resource {
 						"use_override_forwarders": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Default:     false,
 							Description: "Determines if the appliance sends queries to name servers.",
 						},
 						"forward_to": {
@@ -168,18 +167,36 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	_, nsGroupOk := d.GetOk("ns_group")
 	_, ExternalNsGroupOk := d.GetOk("external_ns_group")
 	fsInterface, forwardingServersOk := d.GetOk("forwarding_servers")
+	ftInterface, _ := d.GetOk("forward_to")
 	ftInterface, forwardToOk := d.GetOk("forward_to")
 
 	if nsGroupOk && forwardingServersOk {
 		return fmt.Errorf("ns_group and forwarding_servers are mutually exclusive")
 	}
+	var forwardTo []ibclient.NameServer
+	var nullFWT ibclient.NullForwardTo
 	if ExternalNsGroupOk && forwardToOk {
 		return fmt.Errorf("external_ns_group and forward_to are mutually exclusive")
+	} else if !ExternalNsGroupOk && !forwardToOk {
+		return fmt.Errorf("either external_ns_group or forward_to must be set")
+	} else if ExternalNsGroupOk && !forwardToOk {
+		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+	} else if !ExternalNsGroupOk && forwardToOk {
+		ftSlice, ok := ftInterface.([]interface{})
+		if !ok {
+			return fmt.Errorf("forward_to is not a slice of Nameservers")
+		}
+		var err error
+		forwardTo, err = validateForwardTo(ftSlice)
+		if err != nil {
+			return err
+		}
+		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
 	}
 
 	fqdn := d.Get("fqdn").(string)
 	nsGroup := d.Get("ns_group").(string)
-	externalNsGroup := d.Get("ns_group").(string)
+	externalNsGroup := d.Get("external_ns_group").(string)
 	view := d.Get("view").(string)
 	zoneFormat := d.Get("zone_format").(string)
 
@@ -187,15 +204,6 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	disable := d.Get("disable").(bool)
 	forwardersOnly := d.Get("forwarders_only").(bool)
 	//ftInterface := d.Get("forward_to")
-
-	ftSlice, ok := ftInterface.([]interface{})
-	if !ok {
-		return fmt.Errorf("forward_to is not a slice of Nameservers")
-	}
-	forwardTo, err := validateForwardTo(ftSlice)
-	if err != nil {
-		return err
-	}
 
 	fsSlice, ok := fsInterface.([]interface{})
 	if !ok {
@@ -224,7 +232,7 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newForwardZone, err := objMgr.CreateZoneForward(comment, disable, extAttrs, forwardTo, forwardersOnly, forwardingServer, fqdn, nsGroup, view, zoneFormat, externalNsGroup)
+	newForwardZone, err := objMgr.CreateZoneForward(comment, disable, extAttrs, nullFWT, forwardersOnly, forwardingServer, fqdn, nsGroup, view, zoneFormat, externalNsGroup)
 	if err != nil {
 		return fmt.Errorf("failed to create zone forward : %s", err)
 	}
@@ -235,7 +243,7 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("ref", newForwardZone.Ref); err != nil {
 		return err
 	}
-	return nil
+	return resourceZoneForwardRead(d, m)
 }
 
 func validateForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmemberserver, error) {
@@ -349,17 +357,6 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
-	_, forwardToOk := d.GetOk("forward_to")
-	if zoneForward.ForwardTo != nil && forwardToOk {
-		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
-		if err := d.Set("forward_to", nsInterface); err != nil {
-			return err
-		}
-	} else {
-		if err := d.Set("forward_to", nil); err != nil {
-			return err
-		}
-	}
 
 	if zoneForward.ForwardingServers.Servers != nil {
 		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers.Servers)
@@ -386,6 +383,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 			prevDisable, _ := d.GetChange("disable")
 			prevForwardersOnly, _ := d.GetChange("forwarders_only")
 			prevNsGroup, _ := d.GetChange("ns_group")
+			prevExternalNsGroup, _ := d.GetChange("external_ns_group")
 			prevForwardTo, _ := d.GetChange("forward_to")
 			prevForwardingServers, _ := d.GetChange("forwarding_servers")
 			prevExtAttrs, _ := d.GetChange("ext_attrs")
@@ -394,6 +392,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("disable", prevDisable.(bool))
 			_ = d.Set("forwarders_only", prevForwardersOnly.(bool))
 			_ = d.Set("ns_group", prevNsGroup.(string))
+			_ = d.Set("external_ns_group", prevExternalNsGroup.(string))
 			_ = d.Set("forward_to", prevForwardTo)
 			_ = d.Set("forwarding_servers", prevForwardingServers)
 			_ = d.Set("ext_attrs", prevExtAttrs.(string))
@@ -408,9 +407,6 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	if nsGroupOk && forwardingServersOk {
 		return fmt.Errorf("ns_group and forwarding_servers are mutually exclusive")
 	}
-	if externalNsGroupOk && forwardToOk {
-		return fmt.Errorf("external_ns_group and forward_to are mutually exclusive")
-	}
 
 	if d.HasChange("internal_id") {
 		return fmt.Errorf("changing the value of 'internal_id' field is not allowed")
@@ -423,6 +419,27 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	if d.HasChange("zone_format") {
 		return fmt.Errorf("changing the value of 'zone_format' field is not allowed")
+	}
+
+	var forwardTo []ibclient.NameServer
+	var nullFWT ibclient.NullForwardTo
+	if externalNsGroupOk && forwardToOk {
+		return fmt.Errorf("external_ns_group and forward_to are mutually exclusive")
+	} else if !externalNsGroupOk && !forwardToOk {
+		return fmt.Errorf("either external_ns_group or forward_to must be set")
+	} else if externalNsGroupOk && !forwardToOk {
+		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+	} else if !externalNsGroupOk && forwardToOk {
+		ftSlice, ok := ftInterface.([]interface{})
+		if !ok {
+			return fmt.Errorf("forward_to is not a slice of Nameservers")
+		}
+		var err error
+		forwardTo, err = validateForwardTo(ftSlice)
+		if err != nil {
+			return err
+		}
+		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
 	}
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -494,18 +511,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 		externalNsGroup = ""
 
 	}
-	//ftInterface := d.Get("forward_to")
 	forwardersOnly := d.Get("forwarders_only").(bool)
-	//fsInterface := d.Get("forwarding_servers")
-
-	ftSlice, ok := ftInterface.([]interface{})
-	if !ok {
-		return fmt.Errorf("forward_to is not a slice of inetrfaces")
-	}
-	forwardTo, err := validateForwardTo(ftSlice)
-	if err != nil {
-		return err
-	}
 
 	var nullFWS *ibclient.NullableForwardingServers
 
@@ -525,9 +531,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 		nullFWS = &ibclient.NullableForwardingServers{IsNull: true, Servers: nil}
 	}
 
-	//TODO: Check if forwarding_servers is nil
-
-	zf, err = objMgr.UpdateZoneForward(d.Id(), comment, disable, newExtAttrs, forwardTo, forwardersOnly, nullFWS, nsGroup, externalNsGroup)
+	zf, err = objMgr.UpdateZoneForward(d.Id(), comment, disable, newExtAttrs, nullFWT, forwardersOnly, nullFWS, nsGroup, externalNsGroup)
 	if err != nil {
 		return fmt.Errorf("Failed to update Zone Forward with %s, ", err.Error())
 	}
@@ -653,9 +657,13 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 		}
 	}
 
-	if zf.ForwardTo != nil {
+	if zf.ForwardTo.IsNull == false {
 		nsInterface := convertForwardToInterface(zf.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := d.Set("forward_to", nil); err != nil {
 			return nil, err
 		}
 	}

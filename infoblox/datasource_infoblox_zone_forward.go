@@ -1,16 +1,19 @@
 package infoblox
 
 import (
+	"errors"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+)
+
+import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 func dataSourceZoneForward() *schema.Resource {
@@ -220,7 +223,7 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 		res["ns_group"] = *zf.NsGroup
 	}
 
-	if zf.NsGroup != nil {
+	if zf.ExternalNsGroup != nil {
 		res["external_ns_group"] = *zf.ExternalNsGroup
 	}
 
@@ -228,7 +231,7 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 		res["forwarders_only"] = *zf.ForwardersOnly
 	}
 
-	if zf.ForwardTo != nil {
+	if zf.ForwardTo.IsNull == false {
 		nsInterface := convertForwardToInterface(zf.ForwardTo)
 		res["forward_to"] = nsInterface
 	}
@@ -250,7 +253,7 @@ func convertForwardingServersToInterface(zf []*ibclient.Forwardingmemberserver) 
 		sMap["name"] = fs.Name
 		sMap["forwarders_only"] = fs.ForwardersOnly
 		sMap["use_override_forwarders"] = fs.UseOverrideForwarders
-		if fs.ForwardTo != nil {
+		if fs.ForwardTo.IsNull == false {
 			nsInterface := convertForwardToInterface(fs.ForwardTo)
 			sMap["forward_to"] = nsInterface
 		}
@@ -258,10 +261,9 @@ func convertForwardingServersToInterface(zf []*ibclient.Forwardingmemberserver) 
 	}
 	return fwServers, nil
 }
-
-func convertForwardToInterface(nameServers []ibclient.NameServer) []map[string]interface{} {
-	nsInterface := make([]map[string]interface{}, 0, len(nameServers))
-	for _, ns := range nameServers {
+func convertForwardToInterface(nameServers ibclient.NullForwardTo) []map[string]interface{} {
+	nsInterface := make([]map[string]interface{}, 0, len(nameServers.ForwardTo))
+	for _, ns := range nameServers.ForwardTo {
 		nsMap := make(map[string]interface{})
 		nsMap["address"] = ns.Address
 		nsMap["name"] = ns.Name
