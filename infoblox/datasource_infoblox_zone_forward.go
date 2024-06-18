@@ -1,19 +1,15 @@
 package infoblox
 
 import (
-	"errors"
-	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-)
-
-import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"strconv"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"strconv"
+	"time"
 )
 
 func dataSourceZoneForward() *schema.Resource {
