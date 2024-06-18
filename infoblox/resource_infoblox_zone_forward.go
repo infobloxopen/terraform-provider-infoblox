@@ -358,6 +358,17 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	if zoneForward.ForwardTo.ForwardTo != nil {
+		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
+		if err = d.Set("forward_to", nsInterface); err != nil {
+			return err
+		}
+	} else {
+		if err := d.Set("forward_to", nil); err != nil {
+			return err
+		}
+	}
+
 	if zoneForward.ForwardingServers.Servers != nil {
 		fwServerInterface, _ := convertForwardingServersToInterface(zoneForward.ForwardingServers.Servers)
 		if err := d.Set("forwarding_servers", fwServerInterface); err != nil {
@@ -657,7 +668,7 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 		}
 	}
 
-	if zf.ForwardTo.IsNull == false {
+	if zf.ForwardTo.ForwardTo != nil {
 		nsInterface := convertForwardToInterface(zf.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return nil, err
