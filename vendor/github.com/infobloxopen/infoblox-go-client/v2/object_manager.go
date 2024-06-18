@@ -21,7 +21,7 @@ type IBObjectManager interface {
 	CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, error)
 	CreateCNAMERecord(dnsview string, canonical string, recordname string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordCNAME, error)
 	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
-	CreateZoneForward(comment string, disable bool, eas EA, forwardTo []NameServer, forwardersOnly bool, forwardingServers []*Forwardingmemberserver, fqdn string, nsGroup string, view string, zoneFormat string) (*ZoneForward, error)
+	CreateZoneForward(comment string, disable bool, eas EA, forwardTo NullForwardTo, forwardersOnly bool, forwardingServers []*Forwardingmemberserver, fqdn string, nsGroup string, view string, zoneFormat string, externalNsGroup string) (*ZoneForward, error)
 	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
 	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	CreateMXRecord(dnsView string, fqdn string, mx string, preference uint32, ttl uint32, useTtl bool, comment string, eas EA) (*RecordMX, error)
@@ -99,7 +99,7 @@ type IBObjectManager interface {
 	UpdateTXTRecord(ref string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
-	UpdateZoneForward(ref string, comment string, disable bool, eas EA, forwardTo []NameServer, forwardersOnly bool, forwardingServers []*Forwardingmemberserver, nsGroup string) (*ZoneForward, error)
+	UpdateZoneForward(ref string, comment string, disable bool, eas EA, forwardTo NullForwardTo, forwardersOnly bool, forwardingServers *NullableForwardingServers, nsGroup string, externalNsGroup string) (*ZoneForward, error)
 	GetDnsMember(ref string) ([]Dns, error)
 	UpdateDnsStatus(ref string, status bool) (Dns, error)
 	GetDhcpMember(ref string) ([]Dhcp, error)
@@ -186,6 +186,7 @@ var getRecordTypeMap = map[string]func(ref string) IBObject{
 			zoneForward.ReturnFields(),
 			"zone_format",
 			"ns_group",
+			"external_ns_group",
 			"comment",
 			"disable",
 			"extattrs",

@@ -1,25 +1,78 @@
 package ibclient
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 )
+
+// Handle FORWARD_TO to be [] list
+type NullForwardTo struct {
+	ForwardTo []NameServer
+	IsNull    bool
+}
+
+func (nft NullForwardTo) MarshalJSON() ([]byte, error) {
+	if reflect.DeepEqual(nft.ForwardTo, []NameServer{}) {
+		return []byte("[]"), nil
+	}
+
+	return json.Marshal(nft.ForwardTo)
+}
+
+func (nft *NullForwardTo) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		nft.IsNull = true
+		nft.ForwardTo = nil
+		return nil
+	}
+	nft.IsNull = false
+	return json.Unmarshal(data, &nft.ForwardTo)
+}
+
+// Forwarding Server to be [] list
+type NullableForwardingServers struct {
+	Servers []*Forwardingmemberserver
+	IsNull  bool // Indicates if the entire slice should be null
+}
+
+func (nfs NullableForwardingServers) MarshalJSON() ([]byte, error) {
+	if reflect.DeepEqual(nfs.Servers, []*Forwardingmemberserver{}) {
+		return []byte("[]"), nil
+	}
+
+	return json.Marshal(nfs.Servers)
+}
+
+func (nfs *NullableForwardingServers) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		nfs.IsNull = true
+		nfs.Servers = nil
+		return nil
+	}
+	nfs.IsNull = false
+	return json.Unmarshal(data, &nfs.Servers)
+}
 
 func (objMgr *ObjectManager) CreateZoneForward(
 	comment string,
 	disable bool,
 	eas EA,
-	forwardTo []NameServer,
+	forwardTo NullForwardTo,
 	forwardersOnly bool,
 	forwardingServers []*Forwardingmemberserver,
 	fqdn string,
 	nsGroup string,
 	view string,
-	zoneFormat string) (*ZoneForward, error) {
-	if fqdn == "" || forwardTo == nil {
-		return nil, fmt.Errorf("FQDN and forwardTo fields are required to create a forward zone")
+	zoneFormat string,
+	externalNsGroup string) (*ZoneForward, error) {
+	// check if required fields are present
+	// Check for FQDN
+	if fqdn == "" {
+		return nil, fmt.Errorf("FQDN is required to create a forward zone")
 	}
 
-	zoneForward := NewZoneForward(comment, disable, eas, forwardTo, forwardersOnly, forwardingServers, fqdn, nsGroup, view, zoneFormat)
+	zoneForward := NewZoneForward(comment, disable, eas, forwardTo, forwardersOnly, forwardingServers, fqdn, nsGroup, view, zoneFormat, "", externalNsGroup)
 	ref, err := objMgr.connector.CreateObject(zoneForward)
 	if err != nil {
 		return nil, err
@@ -35,7 +88,6 @@ func (objMgr *ObjectManager) DeleteZoneForward(ref string) (string, error) {
 
 func (objMgr *ObjectManager) GetZoneForwardByRef(ref string) (*ZoneForward, error) {
 	zoneForward := NewEmptyZoneForward()
-	zoneForward.SetReturnFields(append(zoneForward.ReturnFields(), "zone_format", "ns_group", "comment", "disable", "extattrs", "forwarders_only", "forwarding_servers"))
 	err := objMgr.connector.GetObject(zoneForward, ref, NewQueryParams(false, nil), &zoneForward)
 	if err != nil {
 		return nil, err
@@ -47,7 +99,6 @@ func (objMgr *ObjectManager) GetZoneForwardFilters(filters map[string]string) ([
 
 	var res []ZoneForward
 	zoneForward := NewEmptyZoneForward()
-	zoneForward.SetReturnFields(append(zoneForward.ReturnFields(), "zone_format", "ns_group", "comment", "disable", "extattrs", "forwarders_only", "forwarding_servers"))
 
 	err := objMgr.connector.GetObject(
 		zoneForward, "", NewQueryParams(false, filters), &res)
@@ -58,103 +109,89 @@ func (objMgr *ObjectManager) GetZoneForwardFilters(filters map[string]string) ([
 	return res, err
 }
 
-//func (objMgr *ObjectManager) GetAllZoneForwardRecords(comment string, ea EA, fqdn string, view string, zoneFormat string) ([]ZoneForward, error) {
-//	if fqdn == "" || view == "" || zoneFormat == "" {
-//		return nil, fmt.Errorf("FQDN, view and zoneFormat fields are required to retrieve a forward zone")
-//	}
-//	var res []ZoneForward
-//
-//	zoneForward := NewZoneForward(comment, false, ea, nil, false, nil, fqdn, "", view, zoneFormat)
-//	if ea != nil && len(ea) > 0 {
-//		zoneForward.eaSearch = EASearch(ea)
-//	}
-//
-//	sf := map[string]string{
-//		"comment":     comment,
-//		"fqdn":        fqdn,
-//		"view":        view,
-//		"zone_format": zoneFormat,
-//	}
-//	queryParams := NewQueryParams(false, sf)
-//	err := objMgr.connector.GetObject(zoneForward, "", queryParams, &res)
-//
-//	if err != nil {
-//		return nil, err
-//	} else if res == nil || len(res) == 0 {
-//		return nil, NewNotFoundError(
-//			fmt.Sprintf("Zoneforward with comment: %s , fqdn: %s, zone_format: %s in view: %s is not found.", comment, fqdn, zoneFormat, view))
-//	}
-//	return res, nil
-//}
-
 func (objMgr *ObjectManager) UpdateZoneForward(
 	ref string,
 	comment string,
 	disable bool,
 	eas EA,
-	forwardTo []NameServer,
+	forwardTo NullForwardTo,
 	forwardersOnly bool,
-	forwardingServers []*Forwardingmemberserver,
-	nsGroup string) (*ZoneForward, error) {
+	forwardingServers *NullableForwardingServers,
+	nsGroup string,
+	externlNsGroup string) (*ZoneForward, error) {
 
 	zoneForward := NewEmptyZoneForward()
-	//fz, err := objMgr.GetZoneForwardByRef(ref)
-	//if err != nil {
-	//	return nil, err
-	//}
 
 	zoneForward.Comment = &comment
 	zoneForward.Disable = &disable
 	zoneForward.Ea = eas
 	zoneForward.ForwardTo = forwardTo
 	zoneForward.ForwardersOnly = &forwardersOnly
-	zoneForward.ForwardingServers = forwardingServers
+	if forwardingServers != nil && forwardingServers.Servers != nil {
+		zoneForward.ForwardingServers = &NullableForwardingServers{Servers: forwardingServers.Servers}
+	} else {
+		zoneForward.ForwardingServers = nil
+	}
 	if nsGroup != "" {
 		zoneForward.NsGroup = &nsGroup
 	} else {
 		zoneForward.NsGroup = nil
 	}
-
-	//fqdn := fz.Fqdn
-	//fz.Fqdn = ""
+	if externlNsGroup != "" {
+		zoneForward.ExternalNsGroup = &externlNsGroup
+	} else {
+		zoneForward.ExternalNsGroup = nil
+	}
 
 	new_ref, err := objMgr.connector.UpdateObject(zoneForward, ref)
 	if err != nil {
 		return nil, err
 	}
 	zoneForward.Ref = new_ref
-	//fz.Fqdn = fqdn
 	return zoneForward, nil
 
 }
 
 func NewEmptyZoneForward() *ZoneForward {
-	return &ZoneForward{}
+	zoneForward := &ZoneForward{}
+	zoneForward.SetReturnFields(append(zoneForward.ReturnFields(), "zone_format", "ns_group", "external_ns_group", "comment", "disable", "extattrs", "forwarders_only", "forwarding_servers"))
+	return zoneForward
 }
 
 func NewZoneForward(comment string,
 	disable bool,
 	eas EA,
-	forwardTo []NameServer,
+	forwardTo NullForwardTo,
 	forwardersOnly bool,
 	forwardingServers []*Forwardingmemberserver,
 	fqdn string,
 	nsGroup string,
 	view string,
-	zoneFormat string) *ZoneForward {
+	zoneFormat string,
+	ref string,
+	externalNsGroup string) *ZoneForward {
 
 	zoneForward := NewEmptyZoneForward()
+
 	zoneForward.Comment = &comment
 	zoneForward.Disable = &disable
 	zoneForward.Ea = eas
 	zoneForward.ForwardTo = forwardTo
 	zoneForward.ForwardersOnly = &forwardersOnly
-	zoneForward.ForwardingServers = forwardingServers
+	if forwardingServers != nil {
+		zoneForward.ForwardingServers = &NullableForwardingServers{Servers: forwardingServers}
+	}
+
 	zoneForward.Fqdn = fqdn
 	if nsGroup == "" {
 		zoneForward.NsGroup = nil
 	} else {
 		zoneForward.NsGroup = &nsGroup
+	}
+	if externalNsGroup == "" {
+		zoneForward.ExternalNsGroup = nil
+	} else {
+		zoneForward.ExternalNsGroup = &externalNsGroup
 	}
 	if view == "" {
 		view = "default"
@@ -164,6 +201,7 @@ func NewZoneForward(comment string,
 		zoneFormat = "FORWARD"
 	}
 	zoneForward.ZoneFormat = zoneFormat
+	zoneForward.Ref = ref
 
 	return zoneForward
 }
