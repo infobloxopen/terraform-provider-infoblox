@@ -158,7 +158,8 @@ func dataSourceZoneForwardRead(_ context.Context, d *schema.ResourceData, m inte
 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	res, err := objMgr.GetZoneForwardFilters(filters)
+	qp := ibclient.NewQueryParams(false, filters)
+	res, err := objMgr.GetZoneForwardFilters(*qp)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to get zone forward records: %w", err))
 	}
