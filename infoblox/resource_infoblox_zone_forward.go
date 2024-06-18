@@ -167,7 +167,6 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	_, nsGroupOk := d.GetOk("ns_group")
 	_, ExternalNsGroupOk := d.GetOk("external_ns_group")
 	fsInterface, forwardingServersOk := d.GetOk("forwarding_servers")
-	ftInterface, _ := d.GetOk("forward_to")
 	ftInterface, forwardToOk := d.GetOk("forward_to")
 
 	if nsGroupOk && forwardingServersOk {
