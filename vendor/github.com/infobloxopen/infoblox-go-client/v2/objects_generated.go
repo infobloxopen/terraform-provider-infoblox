@@ -22007,11 +22007,11 @@ type ZoneForward struct {
 	Ea EA `json:"extattrs"`
 
 	// A forward stub server name server group.
-	ExternalNsGroup *string `json:"external_ns_group,omitempty"`
+	ExternalNsGroup *string `json:"external_ns_group"`
 
 	// The information for the remote name servers to which you want the Infoblox
 	// appliance to forward queries for a specified domain name.
-	ForwardTo []NameServer `json:"forward_to,omitempty"`
+	ForwardTo NullForwardTo `json:"forward_to,omitempty"`
 
 	// Determines if the appliance sends queries to forwarders only, and not to
 	// other internal or Internet root servers.
@@ -22019,7 +22019,7 @@ type ZoneForward struct {
 
 	// The information for the Grid members to which you want the Infoblox
 	// appliance to forward queries for a specified domain name.
-	ForwardingServers []*Forwardingmemberserver `json:"forwarding_servers,omitempty"`
+	ForwardingServers *NullableForwardingServers `json:"forwarding_servers,omitempty"`
 
 	// The name of this DNS zone. For a reverse zone, this is in "address/cidr"
 	// format. For other zones, this is in FQDN format. This value can be in
@@ -22071,7 +22071,7 @@ type ZoneForward struct {
 	MsSyncMasterName string `json:"ms_sync_master_name,omitempty"`
 
 	// A forwarding member name server group.
-	NsGroup *string `json:"ns_group,omitempty"`
+	NsGroup *string `json:"ns_group"`
 
 	// The parent zone of this zone. Note that when searching for reverse zones,
 	// the "in-addr.arpa" notation should be used.
@@ -25433,10 +25433,10 @@ type Forwardingmemberserver struct {
 
 	// The information for the remote name server to which you want the Infoblox
 	// appliance to forward queries for a specified domain name.
-	ForwardTo []NameServer `json:"forward_to,omitempty"`
+	ForwardTo NullForwardTo `json:"forward_to,omitempty"`
 
 	// Use flag for: forward_to
-	UseOverrideForwarders bool `json:"use_override_forwarders,omitempty"`
+	UseOverrideForwarders bool `json:"use_override_forwarders"`
 }
 
 // GridAttackdetect represents Infoblox struct grid:attackdetect
