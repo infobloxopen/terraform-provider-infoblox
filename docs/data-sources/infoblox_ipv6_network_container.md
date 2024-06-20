@@ -7,11 +7,9 @@ object in NIOS:
 * `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
 * `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as stirng of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
 
-As there is new feature filters, the previous usage of combination of Network view and address of the network block in CIDR format has been removed.
+To retrieve information about Ipv6 network container that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `network`, `network_view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
-
+The following table describes the parameters you can define in an `infoblox_ipv6_network_container` data source block:
 ### Supported Arguments for filters
 
 -----
@@ -21,9 +19,7 @@ From the below list of supported arguments for filters,  use only the searchable
 | network_view | network_view | string | yes        |
 | comment      | comment      | string | yes        |
 
-!> Any of the combination from searchable fields in supported arguments list for fields are allowed.
-
-!> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+!> Aliases are the parameter names used in the prior releases of Infoblox IPAM Plug-In for Terraform. Do not use the alias names for parameters in the data source blocks. Using them can result in error scenarios.
 
 ### Example for using the filters:
  ```hcl
@@ -33,9 +29,6 @@ From the below list of supported arguments for filters,  use only the searchable
     }
  }
  ```
-
-!> From the above example, if the 'network_view' value is not specified, if same network container exists in one or more different network views, those
-all network containers will be fetched in results.
 
 !> If `null` or empty filters are passed, then all the network containers or objects associated with datasource like here `infoblox_ipv6_network_container`, will be fetched in results.
 

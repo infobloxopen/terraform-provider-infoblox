@@ -4,8 +4,8 @@ Use the `infoblox_host_record` data source to retrieve the following information
 
 * `dns_view`: the DNS view which the record's zone belongs to. Example: `default`
 * `fqdn`: the fully qualified domain name which the IP address is assigned to. `blues.test.com`
-* `ip4_addr`: the IPv4 address associated with the Host-record. Example: `10.0.0.32`
-* `ip6_addr`: the IPv6 address associated with the Host-record. Example: `2001:1890:1959:2710::32`
+* `ipv4_addr`: the IPv4 address associated with the Host-record. Example: `10.0.0.32`
+* `ipv6_addr`: the IPv6 address associated with the Host-record. Example: `2001:1890:1959:2710::32`
 * `mac_addr`: the MAC address associated with the Host-record. Example: `aa:bb:cc:dd:ee:11`
 * `zone`: the zone that contains the record in the specified DNS view. Example: `test.com`.
 * `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
@@ -15,10 +15,9 @@ Use the `infoblox_host_record` data source to retrieve the following information
 * `comment`: the description of the record. This is a regular comment. Example: `Temporary A-record`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"TestEA\":56,\"TestEA1\":\"kickoff\"}"`
 
-As there is new feature filters , the previous usage of combination of DNS view, IPv4 address and FQDN, has been removed.
+To retrieve information about host records that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+The following table describes the parameters you can define in an `infoblox_host_record` data source block:
 
 ### Supported Arguments for filters
 
@@ -30,12 +29,8 @@ From the below list of supported arguments for filters,  use only the searchable
 | network_view | network_view | string | yes        |
 | zone         | zone         | string | yes        |
 | comment      | comment      | string | yes        |
-| ipv4_addr    | ipv4_addr    | string | yes        |
-| ipv6_addr    | ipv6_addr    | string | yes        |
 
-!> Any of the combination from searchable fields in supported arguments list for fields are allowed.
-
-!> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+!> Aliases are the parameter names used in the prior releases of Infoblox IPAM Plug-In for Terraform. Do not use the alias names for parameters in the data source blocks. Using them can result in error scenarios.
 
 ### Example for using the filters:
 ```hcl
@@ -46,10 +41,7 @@ data "infoblox_host_record" "host_rec_filter" {
 }
 ```
 
-!> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
-all records will be fetched in results.
-
-!> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_a_record` will be fetched in results.
+!> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_host_record` will be fetched in results.
 
 ### Example of an Host-record Data Source Block
 
