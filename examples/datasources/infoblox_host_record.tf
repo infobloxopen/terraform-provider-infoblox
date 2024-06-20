@@ -9,6 +9,7 @@ resource "infoblox_ip_allocation" "allocation1" {
   fqdn = "host1.example.org"
   ipv4_addr = "10.10.0.7"
   ipv6_addr = "1::1"
+  ext_attrs = jsonencode({"Location" = "USA"})
 
   depends_on = [infoblox_zone_auth.zone1]
 }
@@ -29,4 +30,15 @@ data "infoblox_host_record" "host_rec_temp" {
 
 output "host_rec_res" {
   value = data.infoblox_host_record.host_rec_temp
+}
+
+// fetching Host-Records through EAs
+data "infoblox_host_record" "host_rec_ea" {
+  filters = {
+    "*Location" = "USA"
+  }
+}
+
+output "host_ea_out" {
+  value = data.infoblox_host_record.host_rec_ea
 }
