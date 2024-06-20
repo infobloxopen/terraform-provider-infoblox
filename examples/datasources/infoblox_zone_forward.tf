@@ -1,4 +1,4 @@
-resource "infoblox_zone_forward" "forward_zone10" {
+resource "infoblox_zone_forward" "forwardzone_forwardTo" {
   fqdn = "zone_forward.ex.org"
   forward_to {
     name = "test22.dz.ex.com"
@@ -17,7 +17,7 @@ data "infoblox_zone_forward" "data_zone_foward" {
     view = "default"
   }
   // This is just to ensure that the record has been be created
-  depends_on = [infoblox_zone_forward.forward_zone10]
+  depends_on = [infoblox_zone_forward.forwardzone_forwardTo]
 }
 
 // returns matching Zone Forward with fqdn and view, if any
@@ -26,7 +26,7 @@ output "zone_forward_data3" {
 }
 
 
-resource "infoblox_zone_forward" "forward_zone11" {
+resource "infoblox_zone_forward" "forwardzone_IPV4_nsGroup_externalNsGroup" {
   fqdn = "195.1.0.0/24"
   comment = "Forward zone IPV4"
   external_ns_group = "stub server"
@@ -35,17 +35,17 @@ resource "infoblox_zone_forward" "forward_zone11" {
 }
 
 // accessing Zone Forward by specifying fqdn, view and comment
-data "infoblox_zone_forward" "data_zone_foward2" {
+data "infoblox_zone_forward" "datazone_foward_IPV4_nsGroup_externalNsGroup" {
   filters = {
     fqdn = "195.1.0.0/24"
     view = "default"
     comment = "Forward zone IPV4"
   }
   // This is just to ensure that the record has been be created
-  depends_on = [infoblox_zone_forward.forward_zone11]
+  depends_on = [infoblox_zone_forward.forwardzone_IPV4_nsGroup_externalNsGroup]
 }
 
 // returns matching Zone Forward with fqdn, view and comment, if any
 output "zone_forward_data4" {
-  value = data.infoblox_zone_forward.data_zone_foward2
+  value = data.infoblox_zone_forward.datazone_foward_IPV4_nsGroup_externalNsGroup
 }
