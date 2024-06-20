@@ -7,7 +7,7 @@
 This is a provider plug-in for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plug-in enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.6.0)
+The latest version of Infoblox provider is [v2.7.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.7.0)
 
 ## Provider Features
 
@@ -30,6 +30,7 @@ The provider plug-in has NIOS DDI resources represented as Terraform resources a
 * Host record as a backend for the following operations:
     * Allocation and deallocation of an IP address from a Network (`infoblox_ip_allocation`)
     * Association and disassociation of an IP address from a VM (`infoblox_ip_association`)
+* Zone Forward (`infoblox_zone_forward`)
 
 All of the above resources are supported with `comment` and `ext_attrs` fields.
 DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` field.
@@ -50,6 +51,10 @@ DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` 
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
 * Zone Auth (`infoblox_zone_auth`)
+* Zone Forward (`infoblox_zone_forward`)
+* IPv6 Network (`infoblox_ipv6_network`)
+* IPv6 Network Container (`infoblox_ipv6_network_container`)
+* Host-record (`infoblox_host_record`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
 Data source of DNS records are supported with `ttl` and `zone` fields.
@@ -111,8 +116,14 @@ The limitations of Infoblox IPAM Plug-In for Terraform are as follows:
   are returned if you specify the name in the same text case. You must specify the name in lower case.
 * In plug-in versions prior to `v2.5.0`, the fetch functionality in data sources returns output for only one matching 
   object even if it finds multiple objects matching the search criteria.
+* When using the Terraform `import` block for a resource, a new Terraform internal ID is assigned to the resource when 
+  the `terraform plan` command is run for the first time. If a subsequent `terraform apply` is aborted, the record will 
+  still retain the `Terraform Internal ID` though the resource is not managed by Terraform.
 
 ## Best Practices
 
-* Infoblox recommends that you manage all resources supported by IPAM Plug-In for Terraform from Terraform only. Modifying a resource outside of Terraform may result in unexpected behavior.
-* If you need to manage a large number of resources, Infoblox recommends that you manage them across multiple workspaces instead of using a single state file to manage all resources. For more information, see [Managing Workspaces](https://developer.hashicorp.com/terraform/cli/workspaces) and [Structuring Terraform Configuration](https://www.hashicorp.com/blog/structuring-hashicorp-terraform-configuration-for-production).
+* Infoblox recommends that you manage all resources supported by IPAM Plug-In for Terraform from Terraform only. 
+  Modifying a resource outside of Terraform may result in unexpected behavior.
+* If you need to manage a large number of resources, Infoblox recommends that you manage them across multiple workspaces
+  instead of using a single state file to manage all resources. For more information, see [Managing Workspaces](https://developer.hashicorp.com/terraform/cli/workspaces) 
+  and [Structuring Terraform Configuration](https://www.hashicorp.com/blog/structuring-hashicorp-terraform-configuration-for-production).
