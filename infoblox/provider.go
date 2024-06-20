@@ -162,8 +162,8 @@ func Provider() *schema.Provider {
 			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
-				Description: "WAPI Version of Infoblox server defaults to v2.7.",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.9"),
+				Description: "WAPI Version of Infoblox server defaults to v2.9",
 			},
 			"port": {
 				Type:        schema.TypeString,

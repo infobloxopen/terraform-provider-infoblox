@@ -1,5 +1,86 @@
 # Infoblox IPAM Driver for Terraform
 
+## Prerequisites
+
+Whether you intend to use the published plug-in or the customized version that you have built yourself, you must complete the following prerequisites:
+
+- Install and set up a physical or virtual Infoblox NIOS appliance and has necessary licenses installed. Configure the access permissions for Terraform to interact with NIOS Grid objects.
+- To use the Infoblox IPAM Plug-In for Terraform, you must either define the following extensible attributes or install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
+```json
+{
+    "Tenant ID": "String Type",
+    "CMP Type": "String Type",
+    "Cloud API Owned": "List Type (Values True, False)"
+}
+```
+You may add other extensible attributes that you want to use.
+- Create an extensible attribute by name Terraform Internal ID of type string in Infoblox NIOS as given in below curl command.
+```bash
+curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
+```
+
+> **Note:**
+>
+>Either the Terraform Internal ID extensible attribute definition must be present in NIOS or IPAM Plug-In for Terraform 
+must be configured with superuser access for it to automatically create the extensible attribute. If not, the connection
+ to Terraform will fail.
+>
+>If you choose to create the Terraform Internal ID extensible attribute manually or by using the cURL command,
+the creation of the extensible attribute is not managed by IPAM Plug-In for Terraform.
+>
+>You must not modify the Terraform Internal ID for a resource under any circumstances. If it is modified, the resource
+ will no longer be managed by Terraform.
+
+
+## Configuring Infoblox Terraform IPAM Plug-In
+
+Terraform relies on an Infoblox provider to interact with NIOS Grid objects. You can either use the published Infoblox provider (Infoblox IPAM Plug-In for Terraform) available on the Terraform Registry page or develop a plug-in with features that are not available in the published plug-in.
+
+As a prerequisite, configure provider authentication to set up the required access permissions for Terraform to interact with NIOS Grid objects. Additionally, declare the version of IPAM Plug-In for Terraform in the .tf file to allow Terraform to automatically install the published plug-in available in the Terraform Registry.
+
+To configure IPAM Plug-In for Terraform for use, complete the following steps:
+
+In the .tf file, specify the plug-in version in the required_providers block as follows in .tf file:
+```hcl
+terraform {
+    required_providers {
+        infoblox = {
+            source  = "infobloxopen/infoblox"
+            version = ">= 2.7.0"
+        }
+    }
+}
+```
+
+Configure the credentials required to access the NIOS Grid as environment variables:
+
+```bash
+ $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
+ $ export INFOBLOX_USERNAME=<nios_username>
+ $ export INFOBLOX_PASSWORD=<nios_password>
+```
+
+Configure the credentials required to access the NIOS Grid as provider block in .tf file:
+```hcl
+provider "infoblox" {
+    server   = var.server
+    username = var.username
+    password = var.password
+}
+```
+
+Add other environment variables that you intend to use.
+You can set the following environment variables instead of defining them as attributes inside the provider block in the .tf file. Each of these environment variables has a corresponding attribute in the provider block.
+```
+PORT
+SSLMODE
+CONNECT_TIMEOUT
+POOL_CONNECTIONS
+WAPI_VERSION
+```
+
+Run the terraform init command in the directory where the .tf file is located to initialize the plug-in.
+
 ## Resources
 
 There are resources for the following objects, supported by the plugin:
@@ -16,6 +97,7 @@ There are resources for the following objects, supported by the plugin:
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
 * Zone Auth (`infoblox_zone_auth`)
+* Zone Forward (`infoblox_zone_forward`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
@@ -54,7 +136,9 @@ There are data sources for the following objects:
 
 * Network View (`infoblox_network_view`)
 * IPv4 Network (`infoblox_ipv4_network`)
+* IPv6 Network (`infoblox_ipv6_network`)
 * IPv4 Network Container (`infoblox_ipv4_network_container`)
+* IPv6 Network Container (`infoblox_ipv6_network_container`)
 * A-record (`infoblox_a_record`)
 * AAAA-record (`infoblox_aaaa_record`)
 * CNAME-record (`infoblox_cname_record`)
@@ -64,6 +148,8 @@ There are data sources for the following objects:
 * TXT-record (`infoblox_txt_record`)
 * SRV-record (`infoblox_srv_record`)
 * Zone Auth (`infoblox_zone_auth`)
+* Zone Forward (`infoblox_zone_forward`)
+* Host Record (`infoblox_host_record`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
