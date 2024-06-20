@@ -7,6 +7,7 @@
   - infoblox_zone_forward
   - infoblox_ipv6_network
   - infoblox_ipv6_network_container
+  - infoblox_host_record
 
 ## [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.6.0) (2024-04-17)
 - New Feature: Ability to manage drift through "Terraform Internal ID" Extensible Attributes in resources
