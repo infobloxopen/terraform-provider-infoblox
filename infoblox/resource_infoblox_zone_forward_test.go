@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"reflect"
 	"regexp"
 	"testing"
@@ -27,15 +28,6 @@ var testResourceZoneForwardRecord = `resource "infoblox_zone_forward" "testfz1" 
 var testResourceZoneForward = `resource "infoblox_zone_forward" "testfz1" {
     fqdn = "test_fz.ex.org"
     comment = "test sample forward zone"
-    ns_group = "test_ns_group"
-    forward_to {
-        name = "test123.dz.ex.com"
-        address = "10.0.0.1"
-    }
-    forward_to {
-        name = "test245.dz.ex.com"
-        address = "10.0.0.2"
-    }
     forwarding_servers {
         name = "infoblox.172_28_82_176"
         forwarders_only = true
@@ -108,52 +100,54 @@ func testForwardZoneCompare(t *testing.T, resourceName string, expectedZF *ibcli
 				"the value of 'fqdn' field is '%s', but expected '%s'",
 				rec.Fqdn, expectedZF.Fqdn)
 		}
-		if *rec.View != *expectedZF.View {
-			return fmt.Errorf(
-				"the value of 'view' field is '%s', but expected '%s'",
-				*rec.View, *expectedZF.View)
+		if rec.View != nil && expectedZF.View != nil {
+			if *rec.View != *expectedZF.View {
+				return fmt.Errorf(
+					"the value of 'view' field is '%s', but expected '%s'",
+					*rec.View, *expectedZF.View)
+			}
 		}
 		if rec.ZoneFormat != expectedZF.ZoneFormat {
 			return fmt.Errorf(
 				"the value of 'zone_format' field is '%s', but expected '%s'",
 				rec.ZoneFormat, expectedZF.ZoneFormat)
 		}
-		if rec.Comment != nil {
-			if *rec.Comment != "*expectedZF.Comment" {
+		if rec.Comment != nil && expectedZF.Comment != nil {
+			if *rec.Comment != *expectedZF.Comment {
 				return fmt.Errorf(
 					"the value of 'comment' field is '%s', but expected '%s'",
 					*rec.Comment, *expectedZF.Comment)
 			}
 		}
-		if rec.Disable != nil {
+		if rec.Disable != nil && expectedZF.Disable != nil {
 			if *rec.Disable != *expectedZF.Disable {
 				return fmt.Errorf(
 					"the value of 'disable' field is '%t', but expected '%t'",
 					*rec.Disable, *expectedZF.Disable)
 			}
 		}
-		if rec.ForwardersOnly != nil {
+		if rec.ForwardersOnly != nil && expectedZF.ForwardersOnly != nil {
 			if *rec.ForwardersOnly != *expectedZF.ForwardersOnly {
 				return fmt.Errorf(
 					"the value of 'forwarders_only' field is '%t', but expected '%t'",
 					*rec.ForwardersOnly, *expectedZF.ForwardersOnly)
 			}
 		}
-		if rec.NsGroup != nil {
+		if rec.NsGroup != nil && expectedZF.NsGroup != nil {
 			if *rec.NsGroup != *expectedZF.NsGroup {
 				return fmt.Errorf(
 					"the value of 'ns_group' field is '%s', but expected '%s'",
 					*rec.NsGroup, *expectedZF.NsGroup)
 			}
 		}
-		if rec.ForwardTo != nil {
+		if rec.ForwardTo.ForwardTo != nil && expectedZF.ForwardTo.ForwardTo != nil {
 			if !reflect.DeepEqual(rec.ForwardTo, expectedZF.ForwardTo) {
 				return fmt.Errorf(
 					"the value of 'forward_to' field is '%v', but expected '%v'",
 					rec.ForwardTo, expectedZF.ForwardTo)
 			}
 		}
-		if rec.ForwardingServers != nil {
+		if rec.ForwardingServers != nil && expectedZF.ForwardingServers != nil {
 			if !reflect.DeepEqual(rec.ForwardingServers, expectedZF.ForwardingServers) {
 				return fmt.Errorf(
 					"the value of 'forwarding_servers' field is '%v', but expected '%v'",
@@ -173,23 +167,22 @@ func TestAccResourceZoneForward(t *testing.T) {
 			{
 				Config: testResourceZoneForwardRecord,
 				Check: testForwardZoneCompare(t, "infoblox_zone_forward.testfz1", &ibclient.ZoneForward{
-					Fqdn: "test_fz.ex.org",
-					ForwardTo: []ibclient.NameServer{
-						{
-							Name:    "test123.dz.ex.com",
-							Address: "10.0.0.1",
-						},
-						{
-							Name:    "test245.dz.ex.com",
-							Address: "10.0.0.2",
-						},
-					},
+					Fqdn:       "test_fz.ex.org",
+					View:       utils.StringPtr("default"),
+					ZoneFormat: "FORWARD",
+					Comment:    utils.StringPtr("test sample forward zone"),
+					ForwardTo: ibclient.NullForwardTo{
+						IsNull: false,
+						ForwardTo: []ibclient.NameServer{
+							{Name: "test123.dz.ex.com", Address: "10.0.0.1"},
+							{Name: "test245.dz.ex.com", Address: "10.0.0.2"},
+						}},
 				}),
 			},
 			// negative test case
 			{
 				Config:      testResourceZoneForward,
-				ExpectError: regexp.MustCompile("ns_group and forwarding_servers are mutually exclusive"),
+				ExpectError: regexp.MustCompile("either external_ns_group or forward_to must be set"),
 			},
 		},
 	})
