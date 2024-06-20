@@ -1,5 +1,19 @@
 # Infoblox Go Client Release Notes
 
+## v2.7.0
+
+### Release Summary
+
+-  Create, Update, Delete and Get operations for zone-forward record is being added.
+
+### Major Changes
+
+- Upgraded go version from 1.17 to 1.21
+- Added Create, Update and Delete operations for zone-forward record.
+- Added `GetZoneForwardByRef` function to fetch zone-forward record by reference.
+- Added `GetZoneForwardFilters` function to fetch all zone-forward records with the given filters.
+- Added wrapper structs `NullableForwardingServers` and `NullForwardTo` to handle omitempty fields `Forwardingmemberserver` and `ForwardTo` of ZoneForward struct.
+
 ## v2.6.0
 
 ### Release Summary
