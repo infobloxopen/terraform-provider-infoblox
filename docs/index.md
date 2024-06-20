@@ -210,7 +210,7 @@ Filters will support `EA Search` i.e, fetches matching objects or records associ
  }
  ```
 Filters will also support Multi Value EA Search, where if the EA has more than one value, to be passed as comma seperated
-value as a string. In here EAs' can have multiple or multi values of types like 'string', 'integer', etc..
+value as a string. In here EAs' can have multiple or multi values of types like 'string', 'integer', etc.
 
 ### Example for using Multi Value EA Search:
 ```hcl
@@ -264,7 +264,7 @@ with a randomly generated value in the form of a UUID to the record.
 - For steps to add the extensible attribute, refer to the [Infoblox NIOS Documentation](https://docs.infoblox.com).
 - You may use the command-line tool `uuid` for Linux-based systems to generate a UUID.
 
-> The `Terraform Internal ID` extensible attribute is not shown in the terraform.tfstate file. Use it to create
+> The `Terraform Internal ID` extensible attribute is not shown in to terraform.tfstate file. Use it to create
    or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
    You must not add it in a resource block with other extensible attributes.
 
@@ -273,6 +273,17 @@ with a randomly generated value in the form of a UUID to the record.
 
 
 ### Utilizing the Import Block to Import Resources:
+
+As a prerequisite, for the object that you need to import, obtain the reference ID assigned to the object in NIOS.
+
+Define the import block in the Terraform Configuration (.tf) file of a resource that must be imported. In the .tf file of the resource to import, include the following block:
+
+```hcl
+import {
+  to = resource_type.resource_name
+  id = "reference_id"
+}
+```
 #### Example for importing A-records from a zone
 ```hcl
 //import all A-records from the zone /example1.org 
