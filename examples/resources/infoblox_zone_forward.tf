@@ -1,5 +1,5 @@
 //forward mapping zone, with minimum set of parameters
-resource "infoblox_zone_forward" "forward_zone1" {
+resource "infoblox_zone_forward" "forward_zone_forwardTo" {
   fqdn = "min_params.ex.org"
   forward_to {
     name = "test22.dz.ex.com"
@@ -12,7 +12,7 @@ resource "infoblox_zone_forward" "forward_zone1" {
 }
 
 //forward zone with full set of parameters
-resource "infoblox_zone_forward" "forward_zone2" {
+resource "infoblox_zone_forward" "forward_zone_full_parameters" {
   fqdn = "max_params.ex.org"
   view = "nondefault_view"
   zone_format = "FORWARD"
@@ -42,14 +42,14 @@ resource "infoblox_zone_forward" "forward_zone2" {
 }
 
 //forward zone with ns_group and external_ns_group
-resource "infoblox_zone_forward" "forward_zone3" {
+resource "infoblox_zone_forward" "forward_zone_nsGroup_externalNsGroup" {
   fqdn = "params_ns_ens.ex.org"
   ns_group = "test"
   external_ns_group = "stub server"
 }
 
 //forward zone with forwarding_servers and forward_to
-resource "infoblox_zone_forward" "forward_zone4" {
+resource "infoblox_zone_forward" "forward_zone_forwardTo_forwardingServers" {
   fqdn = "params_fs_ft.ex.org"
   forward_to {
     name = "test22.dz.ex.com"
@@ -71,7 +71,7 @@ resource "infoblox_zone_forward" "forward_zone4" {
 }
 
 //forward zone IPV4 reverse mapping zone
-resource "infoblox_zone_forward" "forward_zone5" {
+resource "infoblox_zone_forward" "forward_zone_IPV4_nsGroup_externalNsGroup_comment" {
   fqdn = "192.1.0.0/24"
   comment = "Forward zone IPV4"
   external_ns_group = "stub server"
@@ -80,7 +80,7 @@ resource "infoblox_zone_forward" "forward_zone5" {
 }
 
 //forward zone IPV6 reverse mapping zone
-resource "infoblox_zone_forward" "forward_zone6" {
+resource "infoblox_zone_forward" "forward_zone_IPV6_forwardTo_forwardingServers" {
   fqdn = "3001:db8::/64"
   comment = "Forward zone IPV6"
   zone_format = "IPV6"
