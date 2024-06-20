@@ -21,6 +21,7 @@ type IBObjectManager interface {
 	CreateZoneAuth(fqdn string, ea EA) (*ZoneAuth, error)
 	CreateCNAMERecord(dnsview string, canonical string, recordname string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordCNAME, error)
 	CreateDefaultNetviews(globalNetview string, localNetview string) (globalNetviewRef string, localNetviewRef string, err error)
+	CreateZoneForward(comment string, disable bool, eas EA, forwardTo NullForwardTo, forwardersOnly bool, forwardingServers *NullableForwardingServers, fqdn string, nsGroup string, view string, zoneFormat string, externalNsGroup string) (*ZoneForward, error)
 	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
 	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string) (*HostRecord, error)
 	CreateMXRecord(dnsView string, fqdn string, mx string, preference uint32, ttl uint32, useTtl bool, comment string, eas EA) (*RecordMX, error)
@@ -34,6 +35,7 @@ type IBObjectManager interface {
 	DeleteARecord(ref string) (string, error)
 	DeleteAAAARecord(ref string) (string, error)
 	DeleteZoneAuth(ref string) (string, error)
+	DeleteZoneForward(ref string) (string, error)
 	DeleteCNAMERecord(ref string) (string, error)
 	DeleteFixedAddress(ref string) (string, error)
 	DeleteHostRecord(ref string) (string, error)
@@ -74,6 +76,9 @@ type IBObjectManager interface {
 	GetTXTRecordByRef(ref string) (*RecordTXT, error)
 	GetZoneAuthByRef(ref string) (*ZoneAuth, error)
 	GetZoneDelegated(fqdn string) (*ZoneDelegated, error)
+	GetZoneDelegatedByRef(ref string) (*ZoneDelegated, error)
+	GetZoneForwardByRef(ref string) (*ZoneForward, error)
+	GetZoneForwardFilters(queryParams *QueryParams) ([]ZoneForward, error)
 	GetCapacityReport(name string) ([]CapacityReport, error)
 	GetUpgradeStatus(statusType string) ([]UpgradeStatus, error)
 	GetAllMembers() ([]Member, error)
@@ -94,6 +99,7 @@ type IBObjectManager interface {
 	UpdateTXTRecord(ref string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegate_to []NameServer) (*ZoneDelegated, error)
+	UpdateZoneForward(ref string, comment string, disable bool, eas EA, forwardTo NullForwardTo, forwardersOnly bool, forwardingServers *NullableForwardingServers, nsGroup string, externalNsGroup string) (*ZoneForward, error)
 	GetDnsMember(ref string) ([]Dns, error)
 	UpdateDnsStatus(ref string, status bool) (Dns, error)
 	GetDhcpMember(ref string) ([]Dhcp, error)
@@ -114,6 +120,7 @@ const (
 	NetworkViewConst      = "NetworkView"
 	NetworkConst          = "Network"
 	NetworkContainerConst = "NetworkContainer"
+	ZoneForwardConst      = "ZoneForward"
 )
 
 // Map of record type to its corresponding object
@@ -172,6 +179,21 @@ var getRecordTypeMap = map[string]func(ref string) IBObject{
 		r := regexp.MustCompile("^ipv6network\\/.+")
 		isIPv6 := r.MatchString(ref)
 		return NewNetwork("", "", isIPv6, "", nil)
+	},
+	ZoneForwardConst: func(ref string) IBObject {
+		zoneForward := &ZoneForward{}
+		zoneForward.SetReturnFields(append(
+			zoneForward.ReturnFields(),
+			"zone_format",
+			"ns_group",
+			"external_ns_group",
+			"comment",
+			"disable",
+			"extattrs",
+			"forwarders_only",
+			"forwarding_servers",
+		))
+		return zoneForward
 	},
 }
 
@@ -338,6 +360,18 @@ var getObjectWithSearchFieldsMap = map[string]func(recordType IBObject, objMgr *
 		}
 		return res, err
 	},
+	ZoneForwardConst: func(recordType IBObject, objMgr *ObjectManager, sf map[string]string) (interface{}, error) {
+		var res interface{}
+		if recordType.(*ZoneForward).Ref != "" {
+			return res, nil
+		}
+		var zoneForwardList []*ZoneForward
+		err := objMgr.connector.GetObject(NewEmptyZoneForward(), "", NewQueryParams(false, sf), &zoneForwardList)
+		if err == nil && len(zoneForwardList) > 0 {
+			res = zoneForwardList[0]
+		}
+		return res, err
+	},
 }
 
 type ObjectManager struct {
@@ -501,6 +535,17 @@ func (objMgr *ObjectManager) GetZoneAuth() ([]ZoneAuth, error) {
 	)
 
 	return res, err
+}
+
+// GetZoneDelegatedByRef returns the delegated zone by ref
+func (objMgr *ObjectManager) GetZoneDelegatedByRef(ref string) (*ZoneDelegated, error) {
+	zoneDelegated := NewZoneDelegated(ZoneDelegated{})
+	err := objMgr.connector.GetObject(
+		zoneDelegated, ref, NewQueryParams(false, nil), &zoneDelegated)
+	if err != nil {
+		return nil, err
+	}
+	return zoneDelegated, nil
 }
 
 // GetZoneDelegated returns the delegated zone

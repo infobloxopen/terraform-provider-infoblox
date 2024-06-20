@@ -162,8 +162,8 @@ func Provider() *schema.Provider {
 			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.7"),
-				Description: "WAPI Version of Infoblox server defaults to v2.7.",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.9"),
+				Description: "WAPI Version of Infoblox server defaults to v2.9",
 			},
 			"port": {
 				Type:        schema.TypeString,
@@ -209,10 +209,13 @@ func Provider() *schema.Provider {
 			"infoblox_srv_record":             resourceSRVRecord(),
 			"infoblox_dns_view":               resourceDNSView(),
 			"infoblox_zone_auth":              resourceZoneAuth(),
+			"infoblox_zone_forward":           resourceZoneForward(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
+			"infoblox_ipv6_network":           dataSourceIPv6Network(),
 			"infoblox_ipv4_network_container": dataSourceIpv4NetworkContainer(),
+			"infoblox_ipv6_network_container": dataSourceIpv6NetworkContainer(),
 			"infoblox_network_view":           dataSourceNetworkView(),
 			"infoblox_a_record":               dataSourceARecord(),
 			"infoblox_aaaa_record":            dataSourceAAAARecord(),
@@ -221,8 +224,10 @@ func Provider() *schema.Provider {
 			"infoblox_txt_record":             dataSourceTXTRecord(),
 			"infoblox_mx_record":              dataSourceMXRecord(),
 			"infoblox_srv_record":             dataSourceSRVRecord(),
+			"infoblox_host_record":            dataSourceHostRecord(),
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
 			"infoblox_dns_view":               dataSourceDNSView(),
+			"infoblox_zone_forward":           dataSourceZoneForward(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

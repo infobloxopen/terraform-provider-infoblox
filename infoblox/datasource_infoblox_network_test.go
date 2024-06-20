@@ -68,3 +68,49 @@ func TestAccDataSourceNetworkReadByEA(t *testing.T) {
 		},
 	})
 }
+
+func TestAccResourceIPv6NetworkCreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv6_network" "test_network" {
+                        cidr = "2001:db8::/64"
+                    }
+                `),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv6_network.test_network", "cidr", "2001:db8::/64"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceIPv6NetworkUpdate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv6_network" "test_network" {
+                        cidr = "2001:db8::/64"
+                        comment = "Initial comment"
+                    }
+                `),
+				Check: resource.TestCheckResourceAttr("infoblox_ipv6_network.test_network", "comment", "Initial comment"),
+			},
+			{
+				Config: fmt.Sprintf(`
+                    resource "infoblox_ipv6_network" "test_network" {
+                        cidr = "2001:db8::/64"
+                        comment = "Updated comment"
+                    }
+                `),
+				Check: resource.TestCheckResourceAttr("infoblox_ipv6_network.test_network", "comment", "Updated comment"),
+			},
+		},
+	})
+}

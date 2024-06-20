@@ -6,9 +6,9 @@ Working at code level requires you  to set up the environment, clone the code, b
 ## Building the Binary from Source Code and Using it
 Golang and Terraform installed in the system are basic requirements to build and test the plugin.
 
-* Install and set up Golang  version 1.17 or later from:
+* Install and set up Golang  version 1.21 or later from:
   `https://golang.org/doc/install`
-* Install Terraform CLI v0.14.x from:  
+* Install Terraform CLI v1.8.1+ from:  
   `https://www.terraform.io/downloads.html`
 * Clone the repo and build it as follows:
   ```
