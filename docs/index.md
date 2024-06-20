@@ -52,16 +52,18 @@ terraform {
 }
 ```
 
-Configure the credentials required to access the NIOS Grid as environment variables:
+Configure the credentials required to access the NIOS Grid as environment variables or provider block in .tf file:
+
 
 ```bash
+ # Using environment variable 
  $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
  $ export INFOBLOX_USERNAME=<nios_username>
  $ export INFOBLOX_PASSWORD=<nios_password>
 ```
 
-Configure the credentials required to access the NIOS Grid as provider block in .tf file:
 ```hcl
+// Using Provider block
 provider "infoblox" {
     server   = var.server
     username = var.username
@@ -262,9 +264,41 @@ with a randomly generated value in the form of a UUID to the record.
 - For steps to add the extensible attribute, refer to the [Infoblox NIOS Documentation](https://docs.infoblox.com).
 - You may use the command-line tool `uuid` for Linux-based systems to generate a UUID.
 
--> The `Terraform Internal ID` extensible attribute is not shown in the terraform.tfstate file. Use it to create
+> The `Terraform Internal ID` extensible attribute is not shown in the terraform.tfstate file. Use it to create
    or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
    You must not add it in a resource block with other extensible attributes.
 
-!> You must not delete (ex. with 'terraform destroy' command) an `infoblox_ip_association` resource right after importing, but you may do this after 'terraform apply'.
+> You must not delete (ex. with 'terraform destroy' command) an `infoblox_ip_association` resource right after importing, but you may do this after 'terraform apply'.
    The reason: after 'terraform import' the dependency between `infoblox_ip_association` and respective `infoblox_ip_allocation` is not established by Terraform.
+
+
+### Utilizing the Import Block to Import Resources:
+#### Example for importing A-records from a zone
+```hcl
+//import all A-records from the zone /example1.org 
+data "infoblox_a_record" "data_arec" {
+    filters = {
+      zone = "example1.org "
+      view = "default"
+  }
+}
+
+import {
+    for_each = data.infoblox_a_record.data_arec.results
+    id       = each.value.id
+    to       = infoblox_a_record.imported_records["${each.value.fqdn}"]
+}
+
+resource "infoblox_a_record" "imported_records" {
+    for_each = { for record in data.infoblox_a_record.data_arec.results : record.fqdn => record }
+    fqdn      = each.value.fqdn
+    ip_addr   = each.value.ip_addr
+    dns_view  = each.value.dns_view
+    ttl       = each.value.ttl
+    comment   = each.value.comment
+    ext_attrs = each.value.ext_attrs
+}
+```
+> **Note:**
+> 
+> When using the Terraform import block for a resource, a new Terraform internal ID is assigned to the resource when the terraform plan command is run for the first time. If a subsequent terraform apply is aborted, the record will still retain the Terraform Internal ID though the resource is not managed by Terraform.
