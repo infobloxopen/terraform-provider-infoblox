@@ -36,16 +36,17 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_srv_record" "srv_rec_filter" {
-    filters = {
-        name = "testsrv.demo.com"
-        view = "nondefault_dnsview" // associated DNS view
-        priority = 15
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_srv_record" "srv_rec_filter" {
+  filters = {
+    name     = "testsrv.demo.com"
+    view     = "nondefault_dnsview" // associated DNS view
+    priority = 15
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -56,30 +57,30 @@ all records will be fetched in results.
 
 ```hcl
 resource "infoblox_srv_record" "rec2" {
-    dns_view = "nondefault_dnsview1"
-    name = "_sip._udp.example2.org"
-    priority = 12
-    weight = 10
-    port = 5060
-    target = "sip.example2.org"
-    ttl = 3600
-    comment = "example SRV record"
-    ext_attrs = jsonencode({
-        "Location" = "65.8665701230204, -37.00791763398113"
-    })
+  dns_view = "nondefault_dnsview1"
+  name     = "_sip._udp.example2.org"
+  priority = 12
+  weight   = 10
+  port     = 5060
+  target   = "sip.example2.org"
+  ttl      = 3600
+  comment  = "example SRV record"
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
 }
 
 data "infoblox_srv_record" "ds1" {
-    filters = {
-      view = "nondefault_dnsview1"
-      name = "_sip._udp.example2.org"
-      port = 5060
-      target = "sip.example2.org"
-    }
+  filters = {
+    view   = "nondefault_dnsview1"
+    name   = "_sip._udp.example2.org"
+    port   = 5060
+    target = "sip.example2.org"
+  }
 
   // This is just to ensure that the record has been be created
   // using 'infoblox_srv_record' resource block before the data source will be queried.
-    depends_on = [infoblox_srv_record.rec2]
+  depends_on = [infoblox_srv_record.rec2]
 }
 
 output "srv_rec_res" {
@@ -94,7 +95,7 @@ output "srv_rec_name" {
 // accessing SRV-Record through EA's
 data "infoblox_srv_record" "srv_rec_ea" {
   filters = {
-    "*Owner" = "State Library"
+    "*Owner"   = "State Library"
     "*Expires" = "never"
   }
 }

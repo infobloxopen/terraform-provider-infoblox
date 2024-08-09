@@ -31,16 +31,17 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_mx_record" "mx_filter" {
-    filters = {
-        name = "samplemx.demo.com"
-        mail_exchanger = "mx1.secure-mail-provider.net"
-        view = "nondefault_dnsview" // associated DNS view
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_mx_record" "mx_filter" {
+  filters = {
+    name           = "samplemx.demo.com"
+    mail_exchanger = "mx1.secure-mail-provider.net"
+    view           = "nondefault_dnsview" // associated DNS view
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -51,12 +52,12 @@ all records will be fetched in results.
 
 ```hcl
 resource "infoblox_mx_record" "rec2" {
-  dns_view = "nondefault_dnsview1"
-  fqdn = "rec2.example2.org"
+  dns_view       = "nondefault_dnsview1"
+  fqdn           = "rec2.example2.org"
   mail_exchanger = "sample.test.com"
-  preference = 40
-  comment = "example MX-record"
-  ttl = 120
+  preference     = 40
+  comment        = "example MX-record"
+  ttl            = 120
   ext_attrs = jsonencode({
     "Location" = "Las Vegas"
   })
@@ -64,8 +65,8 @@ resource "infoblox_mx_record" "rec2" {
 
 data "infoblox_mx_record" "ds2" {
   filters = {
-    view = "nondefault_dnsview1"
-    name = "rec2.example2.org"
+    view           = "nondefault_dnsview1"
+    name           = "rec2.example2.org"
     mail_exchanger = "sample.test.com"
   }
 
@@ -87,7 +88,7 @@ output "mx_rec_name" {
 data "infoblox_mx_record" "mx_rec_ea" {
   filters = {
     "*Location" = "California"
-    "*TestEA" = "automate"
+    "*TestEA"   = "automate"
   }
 }
 

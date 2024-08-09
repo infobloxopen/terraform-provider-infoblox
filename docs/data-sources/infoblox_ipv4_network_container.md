@@ -2,6 +2,7 @@
 
 Use the data source to retrieve the following information for an IPv4 network container resource from the corresponding
 object in NIOS:
+
 * `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
 * `cidr`: the IPv4 network block of the network container. Example: `19.17.0.0/16`
 * `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
@@ -25,15 +26,16 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_ipv4_network_container" "nc_filter" {
-    filters = {
-        network = "10.11.0.0/16"
-        network_view = "nondefault_netview"
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_ipv4_network_container" "nc_filter" {
+  filters = {
+    network      = "10.11.0.0/16"
+    network_view = "nondefault_netview"
+  }
+}
+```
 
 !> From the above example, if the 'network_view' value is not specified, if same network container exists in one or more different network views, those
 all network containers will be fetched in results.
@@ -44,11 +46,11 @@ all network containers will be fetched in results.
 
 ```hcl
 resource "infoblox_ipv4_network_container" "nearby_org" {
-  cidr = "192.168.128.0/17"
+  cidr         = "192.168.128.0/17"
   network_view = "separate_tenants"
-  comment = "one of our clients"
+  comment      = "one of our clients"
   ext_attrs = jsonencode({
-    "Site" = "remote office"
+    "Site"    = "remote office"
     "Country" = "Australia"
   })
 }
@@ -56,7 +58,7 @@ resource "infoblox_ipv4_network_container" "nearby_org" {
 data "infoblox_ipv4_network_container" "nearby_nc" {
   filters = {
     network_view = "separate_tenants"
-    network = "192.168.128.0/17"
+    network      = "192.168.128.0/17"
   }
 
   // This is just to ensure that the network container has been be created
