@@ -1,5 +1,5 @@
 resource "infoblox_dns_view" "view1" {
-  name = "test_blog"
+  name    = "test_blog"
   comment = "strange test dnsview"
   ext_attrs = jsonencode({
     "Site" = "New Location"
