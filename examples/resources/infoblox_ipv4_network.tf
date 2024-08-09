@@ -10,6 +10,7 @@ resource "infoblox_ipv4_network" "net2" {
   reserve_ip   = 5
   gateway      = "10.1.0.254"
   comment      = "small network for testing"
+
   ext_attrs = jsonencode({
     "Site" = "bla-bla-bla... testing..."
   })
@@ -23,6 +24,7 @@ resource "infoblox_ipv4_network" "net3" {
   reserve_ip          = 2
   gateway             = "none" // no gateway defined for this network
   comment             = "even smaller network for testing"
+
   ext_attrs = jsonencode({
     "Site" = "any place you wish ..."
   })
@@ -33,9 +35,11 @@ resource "infoblox_ipv4_network" "ipv4_network1" {
   object              = "network"
   allocate_prefix_len = 26
   comment             = "network created"
+
   filter_params = jsonencode({
     "*Site" = "Nainital"
   })
+
   ext_attrs = jsonencode({
     Location = "Badrinath"
   })
@@ -46,9 +50,11 @@ resource "infoblox_ipv4_network" "ipv4_network2" {
   object              = "networkcontainer"
   allocate_prefix_len = 26
   comment             = "network created"
+
   filter_params = jsonencode({
     "*Site" = "Nainital"
   })
+
   ext_attrs = jsonencode({
     Location = "Badrinath"
   })

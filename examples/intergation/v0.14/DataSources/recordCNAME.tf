@@ -8,21 +8,21 @@ terraform {
   }
 }
 
-resource "infoblox_cname_record" "foo"{
-  alias="test.a.com"
-  canonical="test-name.a.com"	
-  comment = "CNAME example rec"
+resource "infoblox_cname_record" "foo" {
+  alias     = "test.a.com"
+  canonical = "test-name.a.com"
+  comment   = "CNAME example rec"
   ext_attrs = jsonencode({
     "Tenant ID" = "tf-plugin"
-    "Location" = "Test loc."
-    "Site" = "Test site"
+    "Location"  = "Test loc."
+    "Site"      = "Test site"
   })
 }
 
 data "infoblox_cname_record" "test" {
-	dns_view="default"
-	alias=infoblox_cname_record.foo.alias
-	canonical=infoblox_cname_record.foo.canonical
+  dns_view  = "default"
+  alias     = infoblox_cname_record.foo.alias
+  canonical = infoblox_cname_record.foo.canonical
 }
 
 output "id" {

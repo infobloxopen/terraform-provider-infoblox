@@ -1,12 +1,12 @@
 // creating an alias record resource
 resource "infoblox_alias_record" "alias_record" {
-  name = "alias-record.test.com"
+  name        = "alias-record.test.com"
   target_name = "hh.ll.com"
   target_type = "NAPTR"
-  comment = "example alias record"
-  dns_view = "default"
-  disable = true
-  ttl = 1200
+  comment     = "example alias record"
+  dns_view    = "default"
+  disable     = true
+  ttl         = 1200
   ext_attrs = jsonencode({
     "Site" = "Ireland"
   })
@@ -15,7 +15,7 @@ resource "infoblox_alias_record" "alias_record" {
 // accessing alias record by specifying name and comment
 data "infoblox_alias_record" "alias_read" {
   filters = {
-    name = infoblox_alias_record.alias_record.name
+    name    = infoblox_alias_record.alias_record.name
     comment = infoblox_alias_record.alias_record.comment
   }
 }
@@ -28,8 +28,8 @@ output "alias_record_res" {
 // accessing alias record by specifying dns_view, zone, target_name and target_type
 data "infoblox_alias_record" "alias_read1" {
   filters = {
-    view = "default"
-    zone = "test.com"
+    view        = "default"
+    zone        = "test.com"
     target_name = "hh.ll.com"
     target_type = "NAPTR"
   }

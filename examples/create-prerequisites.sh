@@ -9,18 +9,18 @@ CURL_AUTH="-u ${NIOS_USER}:${NIOS_PASSWORD}"
 
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/networkview" -d '{"name":"nondefault_netview"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/view" -d '{"network_view":"default","name":"nondefault_dnsview1"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/view" -d '{"network_view":"default", "name":"nondefault_dnsview1"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/view" -d '{"network_view":"nondefault_netview","name":"nondefault_dnsview2"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/view" -d '{"network_view":"nondefault_netview", "name":"nondefault_dnsview2"}'
 echo
 
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"default","fqdn":"example1.org"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"default", "fqdn":"example1.org"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"nondefault_dnsview1","fqdn":"example2.org"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"nondefault_dnsview1", "fqdn":"example2.org"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"default.nondefault_netview","fqdn":"example3.org"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"default.nondefault_netview", "fqdn":"example3.org"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"nondefault_dnsview2","fqdn":"example4.org"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"nondefault_dnsview2", "fqdn":"example4.org"}'
 echo
 
 # Create a custom network view and a zone for Dynamic allocation using next available IP and network.
@@ -29,15 +29,15 @@ echo
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/networkview" -d '{"name":"test"}'
 echo
 
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom","fqdn":"test.com"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom", "fqdn":"test.com"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom","fqdn":"ex.org"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom", "fqdn":"ex.org"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom","fqdn":"test_fwzone"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom", "fqdn":"test_fwzone"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom","fqdn":"example.com"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"custom", "fqdn":"example.com"}'
 echo
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"test","fqdn":"test.com"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"view":"test", "fqdn":"test.com"}'
 echo
 
 # Create a network and network container with extensible attributes for Next available functionality.
@@ -68,13 +68,13 @@ for view in default default.nondefault_netview nondefault_dnsview1 nondefault_dn
   done
 done
 
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Terraform Internal ID","type":"STRING"}'
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Terraform Internal ID", "type":"STRING"}'
 echo
 
 # Uncomment the lines below if you haven't got a Cloud Network Automation license installed, and there are no appropriate EAs defined at your appliance.
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"CMP Type","type":"STRING"}'
+#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"CMP Type", "type":"STRING"}'
 #echo
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Tenant ID","type":"STRING"}'
+#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Tenant ID", "type":"STRING"}'
 #echo
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Cloud API Owned","type":"ENUM","list_values":[{"value": "True"},{"value": "False"}]}'
+#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Cloud API Owned", "type":"ENUM", "list_values":[{"value": "True"},{"value": "False"}]}'
 #echo
