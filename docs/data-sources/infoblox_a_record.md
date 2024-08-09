@@ -2,24 +2,25 @@
 
 Use the `infoblox_a_record` data source to retrieve the following information for an A-Record if any, which is managed by a NIOS server:
 
-* `dns_view`: the DNS view which the record's zone belongs to. Example: `default`
-* `ip_addr`: the IPv4 address associated with the A-record. Example: `17.10.0.8`
-* `fqdn`: the fully qualified domain name which the IP address is assigned to. `blues.test.com`
-* `zone`: the zone that contains the record in the specified DNS view. Example: `test.com`.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
-* `comment`: the description of the record. This is a regular comment. Example: `Temporary A-record`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"TestEA\":56,\"TestEA1\":\"kickoff\"}"`
+- `dns_view`: the DNS view which the record's zone belongs to. Example: `default`
+- `ip_addr`: the IPv4 address associated with the A-record. Example: `17.10.0.8`
+- `fqdn`: the fully qualified domain name which the IP address is assigned to. `blues.test.com`
+- `zone`: the zone that contains the record in the specified DNS view. Example: `test.com`.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
+- `comment`: the description of the record. This is a regular comment. Example: `Temporary A-record`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"TestEA\":56,\"TestEA1\":\"kickoff\"}"`
 
 As there is new feature filters , the previous usage of combination of DNS view, IPv4 address and FQDN, has been removed.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field    | Alias    | Type   | Searchable |
-|----------|----------|--------|------------|
+| -------- | -------- | ------ | ---------- |
 | name     | fqdn     | string | yes        |
 | view     | dns_view | string | yes        |
 | zone     | zone     | string | yes        |
@@ -33,14 +34,14 @@ From the below list of supported arguments for filters,  use only the searchable
 
 ### Example for using the filters
 
- ```hcl
- data "infoblox_a_record" "a_rec_filter" {
-    filters = {
-        name = "testing.demo1.com"
-        view = "nondefault_dnsview" // associated DNS view
-    }
- }
- ```
+```hcl
+data "infoblox_a_record" "a_rec_filter" {
+  filters = {
+    name = "testing.demo1.com"
+    view = "nondefault_dnsview" // associated DNS view
+   }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -59,6 +60,7 @@ resource "infoblox_a_record" "vip_host" {
   comment  = "special host"
   dns_view = "nondefault_dnsview2"
   ttl      = 120 // 120s
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })

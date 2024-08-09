@@ -2,26 +2,26 @@
 
 Use the data source to retrieve the following information for SRV-record from the corresponding object in NIOS:
 
-* `dns_view`: the DNS view which the record's zone belongs to.
-* `name`: the record's name in the format, defined in RFC2782 document. Example: `_http._tcp.acme.com`
-* `target`: an FQDN of the host which is responsible for providing the service specified by `name`. Example: `www.acme.com`
-* `port`: a port number (0..65535) on the `target` host which the service expects requests on.
-* `priority`: a priority number, as described in RFC2782.
-* `weight`: a weight number, as described in RFC2782.
-* `zone`: the zone which the record belongs to.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
-* `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
+- `dns_view`: the DNS view which the record's zone belongs to.
+- `name`: the record's name in the format, defined in RFC2782 document. Example: `_http._tcp.acme.com`
+- `target`: an FQDN of the host which is responsible for providing the service specified by `name`. Example: `www.acme.com`
+- `port`: a port number (0..65535) on the `target` host which the service expects requests on.
+- `priority`: a priority number, as described in RFC2782.
+- `weight`: a weight number, as described in RFC2782.
+- `zone`: the zone which the record belongs to.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
+- `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
 
 | Field    | Alias    | Type   | Searchable |
-|----------|----------|--------|------------|
+| -------- | -------- | ------ | ---------- |
 | name     | fqdn     | string | yes        |
 | priority | priority | uint32 | yes        |
 | view     | dns_view | string | yes        |
@@ -65,6 +65,7 @@ resource "infoblox_srv_record" "rec2" {
   target   = "sip.example2.org"
   ttl      = 3600
   comment  = "example SRV record"
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })

@@ -2,23 +2,23 @@
 
 Use the data source to retrieve the following information for TXT-record from the corresponding object in NIOS:
 
-* `dns_view`: the DNS view which the record's zone belongs to.
-* `fqdn`: the fully qualified domain name which a textual value is assigned to. Example: `sampletxt.demo.com`
-* `text`: the text value for the TXT-record. Example: `some random next`
-* `zone`: the zone which the record belongs to.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
-* `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
+- `dns_view`: the DNS view which the record's zone belongs to.
+- `fqdn`: the fully qualified domain name which a textual value is assigned to. Example: `sampletxt.demo.com`
+- `text`: the text value for the TXT-record. Example: `some random next`
+- `zone`: the zone which the record belongs to.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
+- `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
 
 | Field   | Alias    | Type   | Searchable |
-|---------|----------|--------|------------|
+| ------- | -------- | ------ | ---------- |
 | name    | fqdn     | string | yes        |
 | text    | text     | string | yes        |
 | view    | dns_view | string | yes        |
@@ -56,6 +56,7 @@ resource "infoblox_txt_record" "rec3" {
   text     = "\"data for TXT-record #3\""
   ttl      = 300
   comment  = "example TXT record #3"
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })

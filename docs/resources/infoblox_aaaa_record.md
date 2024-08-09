@@ -4,17 +4,17 @@ The `infoblox_aaaa_record` resource associates a domain name with an IPv6 addres
 
 The following list describes the parameters you can define in the resource block of the record:
 
-* `fqdn`: required, specifies the fully qualified domain name for which you want to assign the IP address to. Example: `host43.zone12.org`
-* `network_view`: optional, specifies the network view to use when allocating an IP address from a network dynamically. If a value is not specified, the name `default` is used for the network view. For static allocation, do not use this field. Example: `networkview1`
-* `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is used for DNS view. Example: `dns_view_1`
-* `ttl`: optional, specifies the "time to live" value for the record. There is no default value for this parameter. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `600`
-* `comment`: optional, describes the record. Example: `static record #1`
-* `ext_attrs`: koptional, a set of NIOS extensible attributes that are attached to the record. Example: `jsonencode({})`
-* `ipv6_addr`: required only for static allocation, specifies the IPv6 address to associate with the AAAA-record. Example: `2001:db8::ff00:42:8329`.
-  * For allocating a static IP address, specify a valid IP address.
-  * For allocating a dynamic IP address, configure the `cidr` field instead of `ipv6_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
-* `cidr`: required only for dynamic allocation, specifies the network from which to allocate an IP address when the `ipv6_addr` field is empty. The address is in CIDR format. For static allocation, use `ipv6_addr` instead of `cidr`. Example: `2001::/64`.
-* `filter_params`: Required only if `ipv6_addr` and `cidr` are not set, specifies the extensible attributes of the parent network that must be used as filters to retrieve the next available IP address for creating the record object. Example: `jsonencode({"*Site": "Turkey"})`.
+- `fqdn`: required, specifies the fully qualified domain name for which you want to assign the IP address to. Example: `host43.zone12.org`
+- `network_view`: optional, specifies the network view to use when allocating an IP address from a network dynamically. If a value is not specified, the name `default` is used for the network view. For static allocation, do not use this field. Example: `networkview1`
+- `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is used for DNS view. Example: `dns_view_1`
+- `ttl`: optional, specifies the "time to live" value for the record. There is no default value for this parameter. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `600`
+- `comment`: optional, describes the record. Example: `static record #1`
+- `ext_attrs`: koptional, a set of NIOS extensible attributes that are attached to the record. Example: `jsonencode({})`
+- `ipv6_addr`: required only for static allocation, specifies the IPv6 address to associate with the AAAA-record. Example: `2001:db8::ff00:42:8329`.
+  - For allocating a static IP address, specify a valid IP address.
+  - For allocating a dynamic IP address, configure the `cidr` field instead of `ipv6_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
+- `cidr`: required only for dynamic allocation, specifies the network from which to allocate an IP address when the `ipv6_addr` field is empty. The address is in CIDR format. For static allocation, use `ipv6_addr` instead of `cidr`. Example: `2001::/64`.
+- `filter_params`: Required only if `ipv6_addr` and `cidr` are not set, specifies the extensible attributes of the parent network that must be used as filters to retrieve the next available IP address for creating the record object. Example: `jsonencode({"*Site": "Turkey"})`.
 
 !> To use upper case letters in `fqdn`, infoblox recommends that you use lower() function. Example: `lower("testEXAMPLE.zone1.com")`
 
@@ -34,6 +34,7 @@ resource "infoblox_aaaa_record" "aaaa_rec2" {
   comment   = "example static AAAA-record aaaa_rec2"
   dns_view  = "nondefault_dnsview2"
   ttl       = 120 // 120s
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -47,17 +48,20 @@ resource "infoblox_aaaa_record" "aaaa_rec3" {
   comment      = "example dynamic AAAA-record aaaa_rec3"
   dns_view     = "nondefault_dnsview1"
   ttl          = 0 // 0 = disable caching
-  ext_attrs    = jsonencode({})
+
+  ext_attrs = jsonencode({})
 }
 
 // dynamic AAAA-record with filter_params
 resource "infoblox_aaaa_record" "aaaa_rec3" {
-  fqdn = "dyn1.test.com"
+  fqdn    = "dyn1.test.com"
   comment = "example dynamic AAAA-record aaaa_rec3, updated"
-  ttl = 60
+  ttl     = 60
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
+
   filter_params = jsonencode({
     "*Site": "Turkey"
   })

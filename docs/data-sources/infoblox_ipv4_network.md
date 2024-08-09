@@ -2,19 +2,20 @@
 
 The data source for the network object allows you to get the following parameters for an IPv4 network resource:
 
-* `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
-* `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
-* `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
-* `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
+- `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
+- `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
+- `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
+- `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field        | Alias        | Type   | Searchable |
-|--------------|--------------|--------|------------|
+| ------------ | ------------ | ------ | ---------- |
 | network      | cidr         | string | yes        |
 | network_view | network_view | string | yes        |
 | comment      | comment      | string | yes        |
@@ -48,6 +49,7 @@ resource "infoblox_ipv4_network" "net2" {
   reserve_ip   = 5
   gateway      = "192.168.128.254"
   comment      = "small network for testing"
+
   ext_attrs = jsonencode({
     "Site" = "bla-bla-bla... testing..."
   })

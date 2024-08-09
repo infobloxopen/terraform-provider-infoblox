@@ -2,34 +2,35 @@
 
 Use the data source to retrieve the following information for PTR-record from the corresponding object in NIOS:
 
-* `dns_view`: the DNS view which the record's zone belongs to.
-* `ip_addr`: the IPv4 or IPv6 address associated with the PTR-record.
-* `record_name`: the name of the PTR-record in FQDN format, which can be used instead of an IP address. Example: `1.0.0.10.in-addr.arpa`.
-* `ptrdname`: the fully qualified domain name that the PTR-record points to. Example: `delivery.test.com`
-* `zone`: the zone which the record belongs to.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
-* `comment`: the description of the record. This is a regular comment. Example: `manager's PC`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\": \"never\"}"`.
+- `dns_view`: the DNS view which the record's zone belongs to.
+- `ip_addr`: the IPv4 or IPv6 address associated with the PTR-record.
+- `record_name`: the name of the PTR-record in FQDN format, which can be used instead of an IP address. Example: `1.0.0.10.in-addr.arpa`.
+- `ptrdname`: the fully qualified domain name that the PTR-record points to. Example: `delivery.test.com`
+- `zone`: the zone which the record belongs to.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
+- `comment`: the description of the record. This is a regular comment. Example: `manager's PC`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\": \"never\"}"`.
 
 As new feature filters are introduced, specifying combination DNS view , IPv4 address or IPv6 address or record name used instead of IP address
 and ptrdname is removed.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
-| Field    | Alias        | Type   | Searchable |
-|----------|--------------|--------|------------|
-| ptrdname | ptrdname     | string | yes        |
-| name     | record_name  | string | yes        |
-| view     | dns_view     | string | yes        |
-| ipv4addr | ip_addr      | string | yes        |
-| ipv6addr | ip_addr      | string | yes        |
-| ttl      | ttl          | uint32 | no         |
-| comment  | comment      | string | yes        |
-| zone     | zone         | string | yes        |
+---
+
+| Field    | Alias       | Type   | Searchable |
+| -------- | ----------- | ------ | ---------- |
+| ptrdname | ptrdname    | string | yes        |
+| name     | record_name | string | yes        |
+| view     | dns_view    | string | yes        |
+| ipv4addr | ip_addr     | string | yes        |
+| ipv6addr | ip_addr     | string | yes        |
+| ttl      | ttl         | uint32 | no         |
+| comment  | comment     | string | yes        |
+| zone     | zone        | string | yes        |
 
 !> From above list, both ipv4addr and ipv6addr are not allowed together in filters. Apart from this any other combination is allowed.
 
@@ -63,6 +64,7 @@ resource "infoblox_ptr_record" "host1" {
   ip_addr  = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   comment  = "workstation #3"
   ttl      = 300 # 5 minutes
+
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })

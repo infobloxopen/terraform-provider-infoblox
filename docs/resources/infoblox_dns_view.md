@@ -6,11 +6,11 @@ The resource represents the ‘view’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the `infoblox_dns_view` resource block:
 
-* `name`: required, specifies the name of the DNS View. Example: `nondefault_dnsview`.
-* `network_view`: optional, specifies the name of the Network View in which DNS View exists. If value is not specified ,the `default`
-will be considered as default networkview. Example: `custom_netview`.
-* `comment`: optional, describes the DNS view. Example: `example DNS view`.
-* `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to DNS view. Example: `jsonencode({})`.
+- `name`: required, specifies the name of the DNS View. Example: `nondefault_dnsview`.
+- `network_view`: optional, specifies the name of the Network View in which DNS View exists. If value is not specified ,the `default`
+  will be considered as default networkview. Example: `custom_netview`.
+- `comment`: optional, describes the DNS view. Example: `example DNS view`.
+- `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to DNS view. Example: `jsonencode({})`.
 
 You can update 'name' of the DNS view created in resource block, as it can be modified in NIOS.
 
@@ -27,6 +27,7 @@ resource "infoblox_dns_view" "view2" {
   name         = "customview"
   network_view = "default"
   comment      = "test dns view example"
+
   ext_attrs = jsonencode({
     "Site" = "Main test site"
   })
@@ -37,6 +38,7 @@ resource "infoblox_dns_view" "view3" {
   name         = "custom_view"
   network_view = "non_defaultview"
   comment      = "example under custom network view"
+
   ext_attrs = jsonencode({
     "Site" = "Cal Site"
   })

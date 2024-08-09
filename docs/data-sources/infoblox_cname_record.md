@@ -2,24 +2,25 @@
 
 Use the `infoblox_cname_record` data resource for the CNAME object to retrieve the following information for a CNAME record:
 
-* `dns_view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
-* `canonical`: the canonical name of the record in the FQDN format. Example: `debug.point.somewhere.in`
-* `alias`: the alias name of the record in the FQDN format. Example: `foo1.test.com`
-* `zone`: the zone that contains the record in the specified DNS view. Example: `test.com`.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `3600`.
-* `comment`: the text describing the record. This is a regular comment. Example: `Temporary CNAME-record`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Expiry\":\"Never\"}"`
+- `dns_view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
+- `canonical`: the canonical name of the record in the FQDN format. Example: `debug.point.somewhere.in`
+- `alias`: the alias name of the record in the FQDN format. Example: `foo1.test.com`
+- `zone`: the zone that contains the record in the specified DNS view. Example: `test.com`.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `3600`.
+- `comment`: the text describing the record. This is a regular comment. Example: `Temporary CNAME-record`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Expiry\":\"Never\"}"`
 
 As there is new feature filters , the previous usage of combination of DNS view, alias and canonical name, has been removed.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field     | Alias     | Type   | Searchable |
-|-----------|-----------|--------|------------|
+| --------- | --------- | ------ | ---------- |
 | name      | alias     | string | yes        |
 | view      | dns_view  | string | yes        |
 | canonical | canonical | string | yes        |
@@ -59,6 +60,7 @@ resource "infoblox_cname_record" "foo" {
   alias     = "foo.test.com"
   comment   = "we need to keep an eye on this strange host"
   ttl       = 0 // disable caching
+
   ext_attrs = jsonencode({
     Site     = "unknown"
     Location = "TBD"

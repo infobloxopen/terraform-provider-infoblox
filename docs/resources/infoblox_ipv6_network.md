@@ -6,15 +6,15 @@ the `allocate_prefix_len` parameter in the below list.
 
 The following list describes the parameters you can define in a `infoblox_ipv6_network` resource block:
 
-* `network_view`: optional, specifies the network view in which to create the network; the default value is `default`.
-* `cidr`: required only if `parent_cidr` is not set; specifies the network block to use for the network, in CIDR notation. Do not use an IPv4 CIDR for an IPv6 network. If you configure both `cidr` and `parent_cidr`, the value of `parent_cidr` is ignored.
-* `parent_cidr`: required only if `cidr` is not set; specifies the network container from which the network must be dynamically allocated. The network container must exist in the NIOS database, but not necessarily as a Terraform resource.
-* `allocate_prefix_len`: required only if `parent_cidr` is set; defines the length of the network part of the address for a network that should be allocated from a network container, which in turn is determined by `parent_cidr`.
-* `gateway`: optional, defines the IP address of the gateway within the network block. If a value is not set, the first IP address of the allocated network is assigned as the gateway address. If the value of the gateway parameter is set as `none`, no value is assigned.
-* `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network.
-* `reserve_ipv6`: optional, specifies the number of IPv6 addresses that you want to reserve in the IPv6 network. The default value is 0
-* `filter_params`: optional, specifies the extensible attributes of the parent network or network container that must be used as filters to retrieve the next available network for creating the network object. Example: `jsonencode({"*Site": "Turkey"})`.
-* `object`: optional, specifies the type of object from which to allocate the network. The values can be `network` or `networkcontainer`. The default value is `networkcontainer`.
+- `network_view`: optional, specifies the network view in which to create the network; the default value is `default`.
+- `cidr`: required only if `parent_cidr` is not set; specifies the network block to use for the network, in CIDR notation. Do not use an IPv4 CIDR for an IPv6 network. If you configure both `cidr` and `parent_cidr`, the value of `parent_cidr` is ignored.
+- `parent_cidr`: required only if `cidr` is not set; specifies the network container from which the network must be dynamically allocated. The network container must exist in the NIOS database, but not necessarily as a Terraform resource.
+- `allocate_prefix_len`: required only if `parent_cidr` is set; defines the length of the network part of the address for a network that should be allocated from a network container, which in turn is determined by `parent_cidr`.
+- `gateway`: optional, defines the IP address of the gateway within the network block. If a value is not set, the first IP address of the allocated network is assigned as the gateway address. If the value of the gateway parameter is set as `none`, no value is assigned.
+- `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network.
+- `reserve_ipv6`: optional, specifies the number of IPv6 addresses that you want to reserve in the IPv6 network. The default value is 0
+- `filter_params`: optional, specifies the extensible attributes of the parent network or network container that must be used as filters to retrieve the next available network for creating the network object. Example: `jsonencode({"*Site": "Turkey"})`.
+- `object`: optional, specifies the type of object from which to allocate the network. The values can be `network` or `networkcontainer`. The default value is `networkcontainer`.
 
 !> Once a network object is created, the `filter_params`, `reserve_ipv6` and `gateway` fields cannot be edited.
 
@@ -38,6 +38,7 @@ resource "infoblox_ipv6_network" "net2" {
   reserve_ipv6 = 10
   gateway      = "2002:1f93:0:4::1"
   comment      = "let's try IPv6"
+
   ext_attrs = jsonencode({
     "Site" = "somewhere in Antarctica"
   })
@@ -51,6 +52,7 @@ resource "infoblox_ipv6_network" "net3" {
   reserve_ipv6        = 20
   gateway             = "none" // no gateway defined for this network
   comment             = "the network for the Test Lab"
+
   ext_attrs = jsonencode({
     "Site" = "small inner cluster"
   })
@@ -59,15 +61,17 @@ resource "infoblox_ipv6_network" "net3" {
 //full set of parameters for dynamically allocated IPv6 network using filter_params
 resource "infoblox_ipv6_network" "ipv6network1" {
   allocate_prefix_len = 67
-  network_view = "nondefault_netview"
-  comment = "IPV6 NW within a NW container"
+  network_view        = "nondefault_netview"
+  comment             = "IPV6 NW within a NW container"
+
   filter_params = jsonencode({
     "*Site": "Blr"
   })
+
   ext_attrs = jsonencode({
     "Site" = "UK"
   })
-  object = "networkcontainer"
 
+  object = "networkcontainer"
 }
 ```

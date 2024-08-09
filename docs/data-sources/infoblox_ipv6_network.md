@@ -2,10 +2,10 @@
 
 The data source for the network object allows you to get the following parameters for an IPv6 network resource:
 
-* `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
-* `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `2002:1f93:0:4::/96`
-* `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
-* `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
+- `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
+- `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `2002:1f93:0:4::/96`
+- `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
+- `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
 
 To retrieve information about IPv6 network that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 
@@ -13,9 +13,10 @@ The following table describes the parameters you can define in an `infoblox_ipv6
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field        | Alias        | Type   | Searchable |
-|--------------|--------------|--------|------------|
+| ------------ | ------------ | ------ | ---------- |
 | network      | cidr         | string | yes        |
 | network_view | network_view | string | yes        |
 | comment      | comment      | string | yes        |
@@ -45,6 +46,7 @@ resource "infoblox_ipv6_network" "ipv6net1" {
   reserve_ipv6 = 10
   gateway      = "2002:1f93:0:4::1"
   comment      = "let's try IPv6"
+
   ext_attrs = jsonencode({
     "Site" = "Antarctica"
   })

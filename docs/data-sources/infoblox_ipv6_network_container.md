@@ -3,10 +3,10 @@
 Use the data source to retrieve the following information for an IPv6 network container resource from the corresponding
 object in NIOS:
 
-* `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
-* `cidr`: the IPv6 network block of the network container. Example: `2002:1f93:0:2::/96`
-* `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
-* `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as stirng of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
+- `network_view`: the network view which the network container exists in. Example: `nondefault_netview`
+- `cidr`: the IPv6 network block of the network container. Example: `2002:1f93:0:2::/96`
+- `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
+- `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as stirng of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
 
 To retrieve information about Ipv6 network container that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 
@@ -14,9 +14,10 @@ The following table describes the parameters you can define in an `infoblox_ipv6
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field        | Alias        | Type   | Searchable |
-|--------------|--------------|--------|------------|
+| ------------ | ------------ | ------ | ---------- |
 | network      | cidr         | string | yes        |
 | network_view | network_view | string | yes        |
 | comment      | comment      | string | yes        |
@@ -42,6 +43,7 @@ data "infoblox_ipv6_network_container" "nc_filter" {
 resource "infoblox_ipv6_network_container" "nc1" {
   cidr    = "2002:1f93:0:2::/96"
   comment = "new generation network segment"
+
   ext_attrs = jsonencode({
     "Site" = "space station"
   })

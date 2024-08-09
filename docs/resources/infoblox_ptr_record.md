@@ -4,17 +4,17 @@ The `infoblox_ptr_record` resource allows you to create PTR-records in forward-m
 
 The following list describes the parameters you can define for the `infoblox_ptr_record` resource block:
 
-* `ptrdname`: required, specifies the domain name in the FQDN format to which the record should point to. Example: `host1.example.com`.
-* `ip_addr`: required only for static allocation in reverse-mapping zones, specifies the IPv4 or IPv6 address for record creation in reverse-mapping zone. Example: `82.50.36.8`.
-  * For allocating a static IP address, specify a valid IP address.
-  * For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
-* `cidr`: required only for dynamic allocation in reverse-mapping zones, specifies the network address in CIDR format, under which the record must be created. For static allocation, do not use this field. Instead, define the `ip_addr` field. Example: `10.3.128.0/20`.
-* `network_view`: optional, specifies the network view to use when allocating an IP address from a network dynamically. If a value is not specified, the name `default` is used as the network view. For static allocation, do not use this field. Example: `netview1`.
-* `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is used as the DNS view. Example: `external_dnsview`.
-* `ttl`: optional, specifies the "time to live" value for the PTR-record. The parameter does not have a default value. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `10`.
-* `record_name`: required only in case of forward-mapping zones, specifies the domain name in FQDN format; it is the name of the DNS PTR-record. Example: `service1.zone21.org`.
-* `comment`: optional, describes the PTR-record. Example: `some unknown host`.
-* `ext_attrs`: optional, a set of NIOS extensible attributes that are attached to the PTR-record. Example: `jsonencode({})`.
+- `ptrdname`: required, specifies the domain name in the FQDN format to which the record should point to. Example: `host1.example.com`.
+- `ip_addr`: required only for static allocation in reverse-mapping zones, specifies the IPv4 or IPv6 address for record creation in reverse-mapping zone. Example: `82.50.36.8`.
+  - For allocating a static IP address, specify a valid IP address.
+  - For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
+- `cidr`: required only for dynamic allocation in reverse-mapping zones, specifies the network address in CIDR format, under which the record must be created. For static allocation, do not use this field. Instead, define the `ip_addr` field. Example: `10.3.128.0/20`.
+- `network_view`: optional, specifies the network view to use when allocating an IP address from a network dynamically. If a value is not specified, the name `default` is used as the network view. For static allocation, do not use this field. Example: `netview1`.
+- `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is used as the DNS view. Example: `external_dnsview`.
+- `ttl`: optional, specifies the "time to live" value for the PTR-record. The parameter does not have a default value. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `10`.
+- `record_name`: required only in case of forward-mapping zones, specifies the domain name in FQDN format; it is the name of the DNS PTR-record. Example: `service1.zone21.org`.
+- `comment`: optional, describes the PTR-record. Example: `some unknown host`.
+- `ext_attrs`: optional, a set of NIOS extensible attributes that are attached to the PTR-record. Example: `jsonencode({})`.
 
 -> When creating the PTR-record in a forward-mapping zone, `ptrdname` and `record_name` parameters are required, and `network_view` is optional. The corresponding forward-mapping zone must have been already created at the appropriate DNS view.
 
@@ -45,6 +45,7 @@ resource "infoblox_ptr_record" "ptr3" {
   ip_addr  = "2002:1f93::3"
   comment  = "workstation #3"
   ttl      = 300 # 5 minutes
+
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })
@@ -64,6 +65,7 @@ resource "infoblox_ptr_record" "ptr5" {
   cidr         = "10.1.0.0/24"
   comment      = "workstation #5"
   ttl          = 300 # 5 minutes
+
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })

@@ -2,18 +2,19 @@
 
 Use the data source to retrieve the following information for a network view resource from the corresponding object in NIOS:
 
-* `name`: the name of the network view to be specified. Example: `custom_netview`
-* `comment`: a description of the network view. This is a regular comment. Example: `From the outside`.
-* `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted string of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
+- `name`: the name of the network view to be specified. Example: `custom_netview`
+- `comment`: a description of the network view. This is a regular comment. Example: `From the outside`.
+- `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted string of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field   | Alias   | Type   | Searchable |
-|---------|---------|--------|------------|
+| ------- | ------- | ------ | ---------- |
 | name    | name    | string | yes        |
 | comment | comment | string | yes        |
 
@@ -39,6 +40,7 @@ data "infoblox_network_view" "nview_filter" {
 resource "infoblox_network_view" "inet_nv" {
   name    = "inet_visible_nv"
   comment = "Internet-facing networks"
+
   ext_attrs = jsonencode({
     "Location" = "the North pole"
   })
@@ -74,5 +76,4 @@ data "infoblox_network_view" "nview_ea" {
 output "nview_ea_out" {
   value = data.infoblox_network_view.nview_ea
 }
-
 ```

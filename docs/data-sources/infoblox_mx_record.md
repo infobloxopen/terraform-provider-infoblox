@@ -2,23 +2,24 @@
 
 Use the data source to retrieve the following information for MX-record from the corresponding object in NIOS:
 
-* `dns_view`: the DNS view which the record's zone belongs to.
-* `fqdn`: the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `samplemx.demo.com`
-* `mail_exchanger`: the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
-* `preference`: the preference number (0-65535) for this MX-record.
-* `zone`: the zone which the record belongs to.
-* `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
-* `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as stirng of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
+- `dns_view`: the DNS view which the record's zone belongs to.
+- `fqdn`: the DNS zone (as a fully qualified domain name) which a mail exchange host is assigned to. Example: `samplemx.demo.com`
+- `mail_exchanger`: the mail exchange host's fully qualified domain name. Example: `mx1.secure-mail-provider.net`
+- `preference`: the preference number (0-65535) for this MX-record.
+- `zone`: the zone which the record belongs to.
+- `ttl`: the "time to live" value of the record, in seconds. Example: `1800`.
+- `comment`: the description of the record. This is a regular comment. Example: `spare node for the service`.
+- `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as stirng of JSON map. Example: `"{\"Owner\":\"State Library\", \"Expires\":\"never\"}"`.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters, use only the searchable fields for retriving the matching records.
 
 ### Supported Arguments for filters
 
------
+---
+
 | Field          | Alias          | Type   | Searchable |
-|----------------|----------------|--------|------------|
+| -------------- | -------------- | ------ | ---------- |
 | name           | fqdn           | string | yes        |
 | mail_exchanger | mail_exchanger | string | yes        |
 | preference     | preference     | uint32 | yes        |
@@ -58,6 +59,7 @@ resource "infoblox_mx_record" "rec2" {
   preference     = 40
   comment        = "example MX-record"
   ttl            = 120
+
   ext_attrs = jsonencode({
     "Location" = "Las Vegas"
   })
