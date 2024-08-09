@@ -21,14 +21,15 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_network_view" "nview_filter" {
-    filters = {
-        name = "nondefault_netview"
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_network_view" "nview_filter" {
+  filters = {
+    name = "nondefault_netview"
+  }
+}
+```
 
 !> If `null` or empty filters are passed, then all the objects associated with datasource like here `infoblox_network_view` will be fetched in results.
 
@@ -36,7 +37,7 @@ From the below list of supported arguments for filters,  use only the searchable
 
 ```hcl
 resource "infoblox_network_view" "inet_nv" {
-  name = "inet_visible_nv"
+  name    = "inet_visible_nv"
   comment = "Internet-facing networks"
   ext_attrs = jsonencode({
     "Location" = "the North pole"
@@ -73,4 +74,5 @@ data "infoblox_network_view" "nview_ea" {
 output "nview_ea_out" {
   value = data.infoblox_network_view.nview_ea
 }
+
 ```

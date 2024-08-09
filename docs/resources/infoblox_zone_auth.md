@@ -26,10 +26,10 @@ Example: `10.1.0.0/24` for reverse zone and `zone1.com` for forward zone.
 ```hcl
 //forward mapping zone, with minimal set of parameters
 resource "infoblox_zone_auth" "zone1" {
-  fqdn = "test3.com"
-  view = "default"
+  fqdn        = "test3.com"
+  view        = "default"
   zone_format = "FORWARD"
-  comment = "Zone Auth created newly"
+  comment     = "Zone Auth created newly"
   ext_attrs = jsonencode({
     Location = "AcceptanceTerraform"
   })
@@ -37,17 +37,17 @@ resource "infoblox_zone_auth" "zone1" {
 
 //IPV4 reverse mapping zone, with full set of parameters
 resource "infoblox_zone_auth" "zone2" {
-  fqdn = "10.0.0.0/24"
-  view = "default"
-  zone_format = "IPV4"
-  ns_group = "nsgroup1"
+  fqdn              = "10.0.0.0/24"
+  view              = "default"
+  zone_format       = "IPV4"
+  ns_group          = "nsgroup1"
   restart_if_needed = true
-  soa_default_ttl = 37000
-  soa_expire = 92000
-  soa_negative_ttl = 900
-  soa_refresh = 2100
-  soa_retry = 800
-  comment = "IPV4 reverse zone auth created"
+  soa_default_ttl   = 37000
+  soa_expire        = 92000
+  soa_negative_ttl  = 900
+  soa_refresh       = 2100
+  soa_retry         = 800
+  comment           = "IPV4 reverse zone auth created"
   ext_attrs = jsonencode({
     Location = "TestTerraform"
   })
@@ -55,14 +55,13 @@ resource "infoblox_zone_auth" "zone2" {
 
 //IPV6 reverse mapping zone, with minimal set of parameters
 resource "infoblox_zone_auth" "zone3" {
-  fqdn = "2002:1100::/64"
-  view = "non_defaultview"
+  fqdn        = "2002:1100::/64"
+  view        = "non_defaultview"
   zone_format = "IPV6"
-  ns_group = "nsgroup2"
-  comment = "IPV6 reverse zone auth created"
+  ns_group    = "nsgroup2"
+  comment     = "IPV6 reverse zone auth created"
   ext_attrs = jsonencode({
     Location = "Random TF location"
   })
 }
 ```
-

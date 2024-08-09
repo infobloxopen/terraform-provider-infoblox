@@ -31,16 +31,17 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_aaaa_record" "aaaa_rec_filter" {
-    filters = {
-        name = "debug.test.com"
-        ipv6addr = "2002::100"
-        view = "nondefault_dnsview" // associated DNS view
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_aaaa_record" "aaaa_rec_filter" {
+  filters = {
+    name     = "debug.test.com"
+    ipv6addr = "2002::100"
+    view     = "nondefault_dnsview" // associated DNS view
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -54,10 +55,10 @@ You can reference this resource and retrieve information about it.
 
 ```hcl
 resource "infoblox_aaaa_record" "vip_host" {
-  fqdn = "very-interesting-host.example.com"
+  fqdn      = "very-interesting-host.example.com"
   ipv6_addr = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
-  comment = "some comment"
-  ttl = 120 // 120s
+  comment   = "some comment"
+  ttl       = 120 // 120s
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -65,8 +66,8 @@ resource "infoblox_aaaa_record" "vip_host" {
 
 data "infoblox_aaaa_record" "qa_rec_temp" {
   filters = {
-    name ="very-interesting-host.example.com"
-    ipv6addr ="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+    name     = "very-interesting-host.example.com"
+    ipv6addr = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
   // This is just to ensure that the record has been be created
@@ -86,7 +87,7 @@ output "qa_rec_addr" {
 // accessing AAAA-Record through EA's
 data "infoblox_aaaa_record" "qa_rec_ea" {
   filters = {
-    "*Site" = "sample test site"
+    "*Site"     = "sample test site"
     "*Location" = "65.8665701230204, -37.00791763398113"
   }
 }
