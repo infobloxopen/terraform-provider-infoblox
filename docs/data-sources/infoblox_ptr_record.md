@@ -35,16 +35,17 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_ptr_record" "ptr_rec_filter" {
-    filters = {
-        ptrdname = "testing.example.com"
-        view = "default" // associated DNS view
-        ipv4addr = "20.11.0.19"
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_ptr_record" "ptr_rec_filter" {
+  filters = {
+    ptrdname = "testing.example.com"
+    view     = "default" // associated DNS view
+    ipv4addr = "20.11.0.19"
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -59,9 +60,9 @@ You can reference this resource and retrieve information about it.
 ```hcl
 resource "infoblox_ptr_record" "host1" {
   ptrdname = "host.example.org"
-  ip_addr = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
-  comment = "workstation #3"
-  ttl = 300 # 5 minutes
+  ip_addr  = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+  comment  = "workstation #3"
+  ttl      = 300 # 5 minutes
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })
@@ -69,8 +70,8 @@ resource "infoblox_ptr_record" "host1" {
 
 data "infoblox_ptr_record" "host1" {
   filters = {
-    ptrdname="host.example.org"
-    ipv6addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
+    ptrdname = "host.example.org"
+    ipv6addr = "2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
   // This is just to ensure that the record has been be created
@@ -84,9 +85,9 @@ output "ptr_rec_res" {
 
 data "infoblox_ptr_record" "host2" {
   filters = {
-    view="default"
-    ptrdname="host.example.org"
-    name="0.6.a.a.7.2.f.d.2.e.2.1.d.0.c.e.0.0.b.c.5.7.2.0.4.1.0.d.5.0.a.2.ip6.arpa"
+    view     = "default"
+    ptrdname = "host.example.org"
+    name     = "0.6.a.a.7.2.f.d.2.e.2.1.d.0.c.e.0.0.b.c.5.7.2.0.4.1.0.d.5.0.a.2.ip6.arpa"
   }
 }
 

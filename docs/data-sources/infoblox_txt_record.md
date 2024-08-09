@@ -30,16 +30,17 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_txt_record" "txt_rec_filter" {
-    filters = {
-        name = "sampletxt.demo.com"
-        text = "\"some random text\""
-        view = "default" // associated DNS view
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_txt_record" "txt_rec_filter" {
+  filters = {
+    name = "sampletxt.demo.com"
+    text = "\"some random text\""
+    view = "default" // associated DNS view
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -51,17 +52,17 @@ all records will be fetched in results.
 ```hcl
 resource "infoblox_txt_record" "rec3" {
   dns_view = "nondefault_dnsview1"
-  fqdn = "example3.example2.org"
-  text = "\"data for TXT-record #3\""
-  ttl = 300
-  comment = "example TXT record #3"
+  fqdn     = "example3.example2.org"
+  text     = "\"data for TXT-record #3\""
+  ttl      = 300
+  comment  = "example TXT record #3"
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
 }
 
 data "infoblox_txt_record" "ds3" {
-  filters =  {
+  filters = {
     view = "nondefault_dnsview1"
     name = "example3.example2.org"
   }

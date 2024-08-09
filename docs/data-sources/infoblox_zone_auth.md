@@ -26,16 +26,18 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_zone_auth" "zone_filter" {
-    filters = {
-        fqdn = "testing.com"
-        view = "nondefault_dnsview" // associated DNS view
-        zone_format = "FORWARD"
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_zone_auth" "zone_filter" {
+  filters = {
+    fqdn        = "testing.com"
+    view        = "nondefault_dnsview" // associated DNS view
+    zone_format = "FORWARD"
+  }
+}
+```
+
 !> From the above example, if the 'view' value is not specified, if same zone name exists in one or more different DNS views, those
 all zones will be fetched in results.
 
@@ -45,11 +47,11 @@ all zones will be fetched in results.
 
 ```hcl
 resource "infoblox_zone_auth" "zone1" {
-  fqdn = "test3.com"
-  view = "default"
+  fqdn        = "test3.com"
+  view        = "default"
   zone_format = "FORWARD"
-  ns_group = "testGroup"
-  comment = "Zone Auth created newly"
+  ns_group    = "testGroup"
+  comment     = "Zone Auth created newly"
   ext_attrs = jsonencode({
     Location = "AcceptanceTerraform"
   })
@@ -57,8 +59,8 @@ resource "infoblox_zone_auth" "zone1" {
 
 data "infoblox_zone_auth" "dzone1" {
   filters = {
-    view = "default"
-    fqdn = "test3.com"
+    view        = "default"
+    fqdn        = "test3.com"
     zone_format = "FORWARD"
   }
 

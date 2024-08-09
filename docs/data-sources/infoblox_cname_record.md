@@ -31,15 +31,16 @@ From the below list of supported arguments for filters,  use only the searchable
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
-### Example for using the filters:
- ```hcl
- data "infoblox_cname_record" "cname_rec_filter" {
-    filters = {
-        name = "testing.demo1.com"
-        canonical = "delivery.random.street.in"
-    }
- }
- ```
+### Example for using the filters
+
+```hcl
+data "infoblox_cname_record" "cname_rec_filter" {
+  filters = {
+    name      = "testing.demo1.com"
+    canonical = "delivery.random.street.in"
+  }
+}
+```
 
 !> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
@@ -53,22 +54,22 @@ You can reference this resource and retrieve information about it.
 
 ```hcl
 resource "infoblox_cname_record" "foo" {
-  dns_view = "default.nondefault_netview"
+  dns_view  = "default.nondefault_netview"
   canonical = "strange-place.somewhere.in.the.net"
-  alias = "foo.test.com"
-  comment = "we need to keep an eye on this strange host"
-  ttl = 0 // disable caching
+  alias     = "foo.test.com"
+  comment   = "we need to keep an eye on this strange host"
+  ttl       = 0 // disable caching
   ext_attrs = jsonencode({
-    Site = "unknown"
+    Site     = "unknown"
     Location = "TBD"
   })
 }
 
-data "infoblox_cname_record" "cname_rec"{
+data "infoblox_cname_record" "cname_rec" {
   filters = {
-    name = "foo.test.com"
+    name      = "foo.test.com"
     canonical = "strange-place.somewhere.in.the.net"
-    view = "default.nondefault_netview"
+    view      = "default.nondefault_netview"
   }
 
   // This is just to ensure that the record has been be created
