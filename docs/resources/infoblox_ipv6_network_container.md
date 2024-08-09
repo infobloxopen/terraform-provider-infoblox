@@ -28,24 +28,24 @@ resource "infoblox_ipv6_network_container" "v6net_c1" {
 
 // full set of parameters for statically allocated IPv6 network container
 resource "infoblox_ipv6_network_container" "v6net_c2" {
-  cidr = "2002:1f93:0:2::/96"
+  cidr         = "2002:1f93:0:2::/96"
   network_view = "nondefault_netview"
-  comment = "new generation network segment"
+  comment      = "new generation network segment"
   ext_attrs = jsonencode({
-    "Site" = "space station"
+    "Site"    = "space station"
     "Country" = "Earth orbit"
   })
 }
 
 // full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv6_network_container" "v6net_c3" {
-  parent_cidr = infoblox_ipv6_network_container.v6net_c2.cidr
+  parent_cidr         = infoblox_ipv6_network_container.v6net_c2.cidr
   allocate_prefix_len = 97
-  network_view = infoblox_ipv6_network_container.v6net_c2.network_view
-  comment = "dynamic allocation of network container"
+  network_view        = infoblox_ipv6_network_container.v6net_c2.network_view
+  comment             = "dynamic allocation of network container"
   ext_attrs = jsonencode({
     "Tenant ID" = "terraform_test_tenant"
-    Site = "Test site"
+    Site        = "Test site"
   })
 }
 

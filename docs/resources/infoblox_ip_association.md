@@ -26,7 +26,7 @@ The following list describes the parameters you can define in the `infoblox_ip_a
 
   Example: `02:42:97:87:70:f9`.
 
-* `duid`: required only if the Host record has an IPv6 address, applies only for IPv6 addresses. 
+* `duid`: required only if the Host record has an IPv6 address, applies only for IPv6 addresses.
   It specifies the DHCPv6 Unique Identifier (DUID) of the address object.
   The default is an empty string. Example: `34:df:37:1a:d9:7f`
   (The DUID could be the same type of value as the MAC address of a network interface).
@@ -68,7 +68,7 @@ resource "infoblox_ip_association" "association3" {
   enable_dhcp = true // all systems go
 
   mac_addr = "12:43:fd:ba:9c:c9"
-  duid = "00:43:d2:0a:11:e6"
+  duid     = "00:43:d2:0a:11:e6"
 }
 
 resource "infoblox_ip_association" "association4" {

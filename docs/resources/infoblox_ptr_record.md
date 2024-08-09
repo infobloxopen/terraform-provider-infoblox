@@ -6,8 +6,8 @@ The following list describes the parameters you can define for the `infoblox_ptr
 
 * `ptrdname`: required, specifies the domain name in the FQDN format to which the record should point to. Example: `host1.example.com`.
 * `ip_addr`: required only for static allocation in reverse-mapping zones, specifies the IPv4 or IPv6 address for record creation in reverse-mapping zone. Example: `82.50.36.8`.
-    * For allocating a static IP address, specify a valid IP address.
-    * For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
+  * For allocating a static IP address, specify a valid IP address.
+  * For allocating a dynamic IP address, do not use this field. Instead, define the `cidr` field.
 * `cidr`: required only for dynamic allocation in reverse-mapping zones, specifies the network address in CIDR format, under which the record must be created. For static allocation, do not use this field. Instead, define the `ip_addr` field. Example: `10.3.128.0/20`.
 * `network_view`: optional, specifies the network view to use when allocating an IP address from a network dynamically. If a value is not specified, the name `default` is used as the network view. For static allocation, do not use this field. Example: `netview1`.
 * `dns_view`: optional, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is used as the DNS view. Example: `external_dnsview`.
@@ -30,11 +30,11 @@ The following list describes the parameters you can define for the `infoblox_ptr
 //   2) 'record_name' - in the form of a domain name (ex. 1.0.0.10.in-addr.arpa)
 resource "infoblox_ptr_record" "ptr1" {
   ptrdname = "rec1.example1.org"
-  ip_addr = "10.0.0.1"
+  ip_addr  = "10.0.0.1"
 }
 
 resource "infoblox_ptr_record" "ptr2" {
-  ptrdname = "rec2.example1.org"
+  ptrdname    = "rec2.example1.org"
   record_name = "2.0.0.10.in-addr.arpa"
 }
 
@@ -42,9 +42,9 @@ resource "infoblox_ptr_record" "ptr2" {
 resource "infoblox_ptr_record" "ptr3" {
   ptrdname = "rec3.example2.org"
   dns_view = "nondefault_dnsview1"
-  ip_addr = "2002:1f93::3"
-  comment = "workstation #3"
-  ttl = 300 # 5 minutes
+  ip_addr  = "2002:1f93::3"
+  comment  = "workstation #3"
+  ttl      = 300 # 5 minutes
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })
@@ -53,17 +53,17 @@ resource "infoblox_ptr_record" "ptr3" {
 // dynamically allocated PTR-record, minimal set of parameters
 resource "infoblox_ptr_record" "ptr4" {
   ptrdname = "rec4.example2.org"
-  cidr = "10.0.0.0/16"
+  cidr     = "10.0.0.0/16"
 }
 
 // dynamically allocated PTR-record, full set of parameters, non-default network view
 resource "infoblox_ptr_record" "ptr5" {
-  ptrdname = "rec5.example2.org"
-  dns_view = "nondefault_dnsview2"
+  ptrdname     = "rec5.example2.org"
+  dns_view     = "nondefault_dnsview2"
   network_view = "nondefault_netview"
-  cidr = "10.1.0.0/24"
-  comment = "workstation #5"
-  ttl = 300 # 5 minutes
+  cidr         = "10.1.0.0/24"
+  comment      = "workstation #5"
+  ttl          = 300 # 5 minutes
   ext_attrs = jsonencode({
     "Location" = "the main office"
   })
@@ -71,7 +71,7 @@ resource "infoblox_ptr_record" "ptr5" {
 
 // PTR-record in a forward-mapping zone
 resource "infoblox_ptr_record" "ptr6_forward" {
-  ptrdname = "example1.org"
+  ptrdname    = "example1.org"
   record_name = "www.example1.org"
 }
 ```

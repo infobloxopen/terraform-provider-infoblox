@@ -28,23 +28,23 @@ resource "infoblox_ipv4_network_container" "v4net_c1" {
 
 // full set of parameters for statically allocated IPv4 network container
 resource "infoblox_ipv4_network_container" "v4net_c2" {
-  cidr = "10.2.0.0/24" // we may allocate the same IP address range but in another network view
+  cidr         = "10.2.0.0/24" // we may allocate the same IP address range but in another network view
   network_view = "nondefault_netview"
-  comment = "one of our clients"
+  comment      = "one of our clients"
   ext_attrs = jsonencode({
-    "Site" = "remote office"
+    "Site"    = "remote office"
     "Country" = "Australia"
   })
 }
 
 // full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv4_network_container" "v4net_c3" {
-  parent_cidr = infoblox_ipv4_network_container.v4net_c2.cidr
+  parent_cidr         = infoblox_ipv4_network_container.v4net_c2.cidr
   allocate_prefix_len = 26
-  network_view = infoblox_ipv4_network_container.v4net_c2.network_view
-  comment = "dynamic allocation of network container"
+  network_view        = infoblox_ipv4_network_container.v4net_c2.network_view
+  comment             = "dynamic allocation of network container"
   ext_attrs = jsonencode({
-    "Site" = "remote office"
+    "Site"    = "remote office"
     "Country" = "Australia"
   })
 }

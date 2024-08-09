@@ -11,8 +11,8 @@ The following list describes the parameters you can define in the resource block
 * `comment`: optional, describes the record. Example: `static record #1`
 * `ext_attrs`: koptional, a set of NIOS extensible attributes that are attached to the record. Example: `jsonencode({})`
 * `ip_addr`: required only for static allocation, specifies the IPv4 address to associate with the A-record. Example: `91.84.20.6`.
-    * For allocating a static IP address, specify a valid IP address.
-    * For allocating a dynamic IP address, configure the `cidr` field instead of `ip_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
+  * For allocating a static IP address, specify a valid IP address.
+  * For allocating a dynamic IP address, configure the `cidr` field instead of `ip_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
 * `cidr`: required only for dynamic allocation, specifies the network from which to allocate an IP address when the `ip_addr` field is empty. The address is in CIDR format. For static allocation, use `ip_addr` instead of `cidr`. Example: `192.168.10.4/30`.
 * `filter_params`: required only if `ip_addr` and `cidr` are not set, specifies the extensible attributes of the parent network that must be used as filters to retrieve the next available IP address for creating the record object. Example: `jsonencode({"*Site": "Turkey"})`.
 
@@ -23,17 +23,17 @@ The following list describes the parameters you can define in the resource block
 ```hcl
 // static A-record, minimal set of parameters
 resource "infoblox_a_record" "a_rec1" {
-  fqdn = "static1.example1.org"
+  fqdn    = "static1.example1.org"
   ip_addr = "1.3.5.4" // not necessarily from a network existing in NIOS DB
 }
 
 // all the parameters for a static A-record
 resource "infoblox_a_record" "a_rec2" {
-  fqdn = "static2.example4.org"
-  ip_addr = "1.3.5.1"
-  comment = "example static A-record a_rec2"
+  fqdn     = "static2.example4.org"
+  ip_addr  = "1.3.5.1"
+  comment  = "example static A-record a_rec2"
   dns_view = "nondefault_dnsview2"
-  ttl = 120 // 120s
+  ttl      = 120 // 120s
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -41,13 +41,13 @@ resource "infoblox_a_record" "a_rec2" {
 
 // all the parameters for a dynamic A-record
 resource "infoblox_a_record" "a_rec3" {
-  fqdn = "dynamic1.example2.org"
-  cidr = infoblox_ipv4_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv4_network resource.
+  fqdn         = "dynamic1.example2.org"
+  cidr         = infoblox_ipv4_network.net2.cidr         // the network  must exist, you may use the example for infoblox_ipv4_network resource.
   network_view = infoblox_ipv4_network.net2.network_view // not necessarily in the same network view as the DNS view resides in.
-  comment = "example dynamic A-record a_rec3"
-  dns_view = "nondefault_dnsview1"
-  ttl = 0 // 0 = disable caching
-  ext_attrs = jsonencode({})
+  comment      = "example dynamic A-record a_rec3"
+  dns_view     = "nondefault_dnsview1"
+  ttl          = 0 // 0 = disable caching
+  ext_attrs    = jsonencode({})
 }
 
 // dynamic A-record with filter_params
