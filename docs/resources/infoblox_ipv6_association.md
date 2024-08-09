@@ -11,7 +11,7 @@ The `infoblox_ipv6_association` resource maps the IP address of a Host record cr
 The following list describes the parameters you can define in the resource block:
 
 * `fqdn`: required, specifies the name (in FQDN format) of a host for which an IP address needs to be allocated. When `enable_dns` is set to `true`, specify the zone name along with the host name in format: <hostname>.<zone>.
-  When `enable_dns` is set to `false`, specify only the host name: <hostname>. Example: ` ip-12-34-56-78.us-west-2.compute.internal`.
+  When `enable_dns` is set to `false`, specify only the host name: <hostname>. Example: `ip-12-34-56-78.us-west-2.compute.internal`.
 * `network_view`: optional, specifies the network view from which to get the specified network block. If a value is not specified, the default network view is considered. Example: `nview2`.
 * `dns_view`: optional, specifies the DNS view in which to create DNS resource records that are associated with the IP address. If a value is not specified, the default DNS view is considered. This parameter is relevant only when `enable_dns` is set to `true`. Example: `internal_view`.
 * `enable_dns`: optional, a flag that specifies whether DNS records associated with the resource must be created. The default value is `true`.
@@ -28,47 +28,47 @@ As the IP address association operation is dependent on the allocation operation
 
 ```hcl
 resource "infoblox_ipv6_allocation" "ipv6_allocation" {
-  network_view= "default"
-  cidr = infoblox_ipv6_network.ipv6_network.cidr
-  
+  network_view = "default"
+  cidr         = infoblox_ipv6_network.ipv6_network.cidr
+
   #Create Host Record with DNS and DHCP flags
-  dns_view="default"
-  fqdn="testipv6.aws.com"
+  dns_view   = "default"
+  fqdn       = "testipv6.aws.com"
   enable_dns = "true"
 
   comment = "tf IPv6 allocation"
   ext_attrs = jsonencode({
-    "Tenant ID" = "tf-plugin"
+    "Tenant ID"       = "tf-plugin"
     "Cloud API Owned" = "True"
-    "CMP Type"= "AWS"
-    "Network Name" = "ipv6-tf-network"
-    "VM Name" = "tf-ec2-instance-ipv6"
-    "Location" = "Test loc."
-    "Site" = "Test site"
-   })
+    "CMP Type"        = "AWS"
+    "Network Name"    = "ipv6-tf-network"
+    "VM Name"         = "tf-ec2-instance-ipv6"
+    "Location"        = "Test loc."
+    "Site"            = "Test site"
+  })
 }
 
-resource "infoblox_ipv6_association" "ipv6_associate"{
+resource "infoblox_ipv6_association" "ipv6_associate" {
   network_view = infoblox_ipv6_allocation.ipv6_allocation.network_view
-  ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
-  duid = aws_network_interface.ni.mac_address
+  ip_addr      = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
+  duid         = aws_network_interface.ni.mac_address
 
   #Create Host Record with DNS and DHCP flags
-  dns_view=infoblox_ipv6_allocation.ipv6_allocation.dns_view
-  fqdn=infoblox_ipv6_allocation.ipv6_allocation.fqdn
-  enable_dns = infoblox_ipv6_allocation.ipv6_allocation.enable_dns
+  dns_view    = infoblox_ipv6_allocation.ipv6_allocation.dns_view
+  fqdn        = infoblox_ipv6_allocation.ipv6_allocation.fqdn
+  enable_dns  = infoblox_ipv6_allocation.ipv6_allocation.enable_dns
   enable_dhcp = infoblox_ipv6_allocation.ipv6_allocation.enable_dhcp
 
-  comment = ""Associating of an IPv6 address""
+  comment = "Associating of an IPv6 address"
   ext_attrs = jsonencode({
-    "Tenant ID" = "tf-plugin"
+    "Tenant ID"       = "tf-plugin"
     "Cloud API Owned" = "True"
-    "CMP Type"= "AWS"
-    "Network Name" = "ipv6-tf-network"
-    "VM Name" = "tf-ec2-instance-ipv6"
-    "VM ID" = aws_instance.ec2-instance.id
-    "Location" = "Test loc."
-    "Site" = "Test site"
+    "CMP Type"        = "AWS"
+    "Network Name"    = "ipv6-tf-network"
+    "VM Name"         = "tf-ec2-instance-ipv6"
+    "VM ID"           = aws_instance.ec2-instance.id
+    "Location"        = "Test loc."
+    "Site"            = "Test site"
   })
 }
 ```
