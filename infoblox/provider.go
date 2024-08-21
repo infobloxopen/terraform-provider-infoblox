@@ -222,6 +222,7 @@ func Provider() *schema.Provider {
 			"infoblox_aaaa_record":            dataSourceAAAARecord(),
 			"infoblox_cname_record":           dataSourceCNameRecord(),
 			"infoblox_ptr_record":             dataSourcePtrRecord(),
+			"infoblox_zone_delegated":         dataSourceZoneDelegated(),
 			"infoblox_txt_record":             dataSourceTXTRecord(),
 			"infoblox_mx_record":              dataSourceMXRecord(),
 			"infoblox_srv_record":             dataSourceSRVRecord(),

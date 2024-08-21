@@ -261,12 +261,12 @@ func validateForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmem
 func validateForwardTo(ftSlice []interface{}) ([]ibclient.NameServer, error) {
 	nsStr, err := json.Marshal(ftSlice)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal forward_to: %s", err)
+		return nil, fmt.Errorf("failed to marshal nameservers: %s", err)
 	}
 	var forwardTo []ibclient.NameServer
 	err = json.Unmarshal(nsStr, &forwardTo)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal forward_to: %s", err)
+		return nil, fmt.Errorf("failed to unmarshal nameservers: %s", err)
 	}
 	return forwardTo, nil
 }
