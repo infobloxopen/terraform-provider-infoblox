@@ -169,11 +169,11 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	ftInterface, forwardToOk := d.GetOk("forward_to")
 
 	var forwardTo []ibclient.NameServer
-	var nullFWT ibclient.NullForwardTo
+	var nullFWT ibclient.NullableNameServers
 	if !externalNsGroupOk && !forwardToOk {
 		return fmt.Errorf("either external_ns_group or forward_to must be set")
 	} else if !forwardToOk {
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
 		ftSlice, ok := ftInterface.([]interface{})
 		if !ok {
@@ -184,7 +184,7 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: forwardTo}
 	}
 
 	fqdn := d.Get("fqdn").(string)
@@ -357,8 +357,8 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if zoneForward.ForwardTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
+	if zoneForward.ForwardTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zoneForward.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return err
 		}
@@ -427,11 +427,11 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var forwardTo []ibclient.NameServer
-	var nullFWT ibclient.NullForwardTo
+	var nullFWT ibclient.NullableNameServers
 	if !externalNsGroupOk && !forwardToOk {
 		return fmt.Errorf("either external_ns_group or forward_to must be set")
 	} else if !forwardToOk {
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
 		ftSlice, ok := ftInterface.([]interface{})
 		if !ok {
@@ -442,7 +442,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: forwardTo}
 	}
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -661,8 +661,8 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 		}
 	}
 
-	if zf.ForwardTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zf.ForwardTo)
+	if zf.ForwardTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zf.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return nil, err
 		}

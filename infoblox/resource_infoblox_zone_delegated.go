@@ -115,7 +115,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 	dtInterface, delegateToOk := d.GetOk("delegate_to")
 
 	var delegateTo []ibclient.NameServer
-	var nullDT ibclient.NullForwardTo
+	var nullDT ibclient.NullableNameServers
 	if !nsGroupOk && !delegateToOk {
 		return fmt.Errorf("either 'ns_group' or 'delegate_to' must be set")
 	}
@@ -126,7 +126,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		nullDT = ibclient.NullForwardTo{IsNull: false, ForwardTo: delegateTo}
+		nullDT = ibclient.NullableNameServers{IsNull: false, NameServers: delegateTo}
 	}
 
 	comment := d.Get("comment").(string)
@@ -269,8 +269,8 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if zoneDelegated.DelegateTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zoneDelegated.DelegateTo)
+	if zoneDelegated.DelegateTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zoneDelegated.DelegateTo)
 		if err = d.Set("delegate_to", nsInterface); err != nil {
 			return err
 		}
@@ -331,11 +331,11 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var delegateTo []ibclient.NameServer
-	var nullDT ibclient.NullForwardTo
+	var nullDT ibclient.NullableNameServers
 	if !nsGroupOk && !delegateToOk {
 		return fmt.Errorf("either ns_group or delegate_to must be set")
 	} else if !delegateToOk {
-		nullDT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+		nullDT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
 		dtSlice := dtInterface.(*schema.Set).List()
 		var err error
@@ -343,7 +343,7 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
-		nullDT = ibclient.NullForwardTo{IsNull: false, ForwardTo: delegateTo}
+		nullDT = ibclient.NullableNameServers{IsNull: false, NameServers: delegateTo}
 	}
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -552,8 +552,8 @@ func resourceZoneDelegatedImport(d *schema.ResourceData, m interface{}) ([]*sche
 		}
 	}
 
-	if zoneDelegated.DelegateTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zoneDelegated.DelegateTo)
+	if zoneDelegated.DelegateTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zoneDelegated.DelegateTo)
 		if err = d.Set("delegate_to", nsInterface); err != nil {
 			return nil, err
 		}

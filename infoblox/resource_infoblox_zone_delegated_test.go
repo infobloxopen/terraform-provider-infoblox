@@ -157,7 +157,7 @@ func testAccZoneDelegatedCompare(t *testing.T, resPath string, expectedRec *ibcl
 					*rec.NsGroup, *expectedRec.NsGroup)
 			}
 		}
-		if rec.DelegateTo.ForwardTo != nil && expectedRec.DelegateTo.ForwardTo != nil {
+		if rec.DelegateTo.NameServers != nil && expectedRec.DelegateTo.NameServers != nil {
 			if !reflect.DeepEqual(rec.DelegateTo, expectedRec.DelegateTo) {
 				return fmt.Errorf(
 					"the value of 'delegate_to' field is '%v', but expected '%v'",
@@ -181,9 +181,9 @@ func TestAccResourceZoneDelegated(t *testing.T) {
 				Config: testResourceZoneDelegatedRecord,
 				Check: testAccZoneDelegatedCompare(t, "infoblox_zone_delegated.testzd1", &ibclient.ZoneDelegated{
 					Fqdn: "test_zd.test3.com",
-					DelegateTo: ibclient.NullForwardTo{
+					DelegateTo: ibclient.NullableNameServers{
 						IsNull: false,
-						ForwardTo: []ibclient.NameServer{
+						NameServers: []ibclient.NameServer{
 							{Name: "ns2.infoblox.com", Address: "10.0.0.1"},
 						}},
 					ZoneFormat: "FORWARD",
