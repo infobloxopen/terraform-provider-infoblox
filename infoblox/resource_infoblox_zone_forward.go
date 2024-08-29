@@ -180,7 +180,7 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("forward_to is not a slice of Nameservers")
 		}
 		var err error
-		forwardTo, err = validateForwardTo(ftSlice)
+		forwardTo, err = validateNameServers(ftSlice)
 		if err != nil {
 			return err
 		}
@@ -258,7 +258,7 @@ func validateForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmem
 	return forwardingServer, nil
 }
 
-func validateForwardTo(ftSlice []interface{}) ([]ibclient.NameServer, error) {
+func validateNameServers(ftSlice []interface{}) ([]ibclient.NameServer, error) {
 	nsStr, err := json.Marshal(ftSlice)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal nameservers: %s", err)
@@ -438,7 +438,7 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("forward_to is not a slice of Nameservers")
 		}
 		var err error
-		forwardTo, err = validateForwardTo(ftSlice)
+		forwardTo, err = validateNameServers(ftSlice)
 		if err != nil {
 			return err
 		}

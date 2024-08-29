@@ -122,7 +122,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 	if delegateToOk {
 		dtSlice := dtInterface.(*schema.Set).List()
 		var err error
-		delegateTo, err = validateForwardTo(dtSlice)
+		delegateTo, err = validateNameServers(dtSlice)
 		if err != nil {
 			return err
 		}
@@ -339,7 +339,7 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 	} else {
 		dtSlice := dtInterface.(*schema.Set).List()
 		var err error
-		delegateTo, err = validateForwardTo(dtSlice)
+		delegateTo, err = validateNameServers(dtSlice)
 		if err != nil {
 			return err
 		}
