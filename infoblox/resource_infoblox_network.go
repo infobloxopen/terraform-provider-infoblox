@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"regexp"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"regexp"
 )
 
 var (
@@ -41,6 +41,20 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent network container block in cidr format to allocate from.",
+			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network container block's extensible attributes.",
+			},
+			"object": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The object type to allocate from the parent network container block.",
+				Default:     "networkcontainer",
+				ValidateFunc: validation.StringInSlice([]string{
+					"networkcontainer", "network",
+				}, false),
 			},
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
@@ -107,6 +121,8 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	}
 	networkViewName := d.Get("network_view").(string)
 	parentCidr := d.Get("parent_cidr").(string)
+	nextAvailableFilter := d.Get("filter_params").(string)
+	object := d.Get("object").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
 	reserveIPv4 := d.Get("reserve_ip").(int)
@@ -155,6 +171,21 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
 		d.Set("cidr", network.Cidr)
+
+	} else if cidr == "" && nextAvailableFilter != "" && prefixLen > 1 {
+		var (
+			eaMap map[string]string
+		)
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
+		}
+
+		network, err = objMgr.AllocateNetworkByEA(networkViewName, isIPv6, comment, extAttrs, eaMap, prefixLen, object)
+		if err != nil {
+			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
+		}
+
 	} else if cidr != "" {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
@@ -163,6 +194,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	} else {
 		return fmt.Errorf("creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified")
 	}
+
 	d.SetId(network.Ref)
 	if err = d.Set("internal_id", internalId.String()); err != nil {
 		return err
@@ -295,6 +327,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	var updateSuccessful bool
 	defer func() {
@@ -309,6 +342,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			prevParCIDR, _ := d.GetChange("parent_cidr")
 			prevGW, _ := d.GetChange("gateway")
 			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 			prevResIPv4, _ := d.GetChange("reserve_ip")
 			prevResIPv6, _ := d.GetChange("reserve_ipv6")
 			prevComment, _ := d.GetChange("comment")
@@ -319,6 +353,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			_ = d.Set("parent_cidr", prevParCIDR.(string))
 			_ = d.Set("gateway", prevGW.(string))
 			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
 			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
 			_ = d.Set("comment", prevComment.(string))
@@ -343,6 +378,9 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	}
 	if d.HasChange("gateway") {
 		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
+	}
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
 	}
 
 	networkViewName := d.Get("network_view").(string)

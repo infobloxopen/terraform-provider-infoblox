@@ -47,6 +47,11 @@ func resourceNetworkContainer() *schema.Resource {
 				Optional:    true,
 				Description: "The parent network container block in CIDR format to allocate from.",
 			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network container block's extensible attributes.",
+			},
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -94,6 +99,7 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	cidr := d.Get("cidr").(string)
 	parentCidr := d.Get("parent_cidr").(string)
 	prefixLen := d.Get("allocate_prefix_len").(int)
+	nextAvailableFilter := d.Get("filter_params").(string)
 	comment := d.Get("comment").(string)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
@@ -133,6 +139,18 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 		if err = d.Set("cidr", nc.Cidr); err != nil {
 			return err
 		}
+	} else if cidr == "" && nextAvailableFilter != "" && prefixLen > 1 {
+		var eaMap map[string]string
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
+		}
+
+		nc, err = objMgr.AllocateNetworkContainerByEA(nvName, isIPv6, comment, extAttrs, eaMap, prefixLen)
+		if err != nil {
+			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
+		}
+
 	} else if cidr != "" {
 		nc, err = objMgr.CreateNetworkContainer(nvName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
@@ -232,6 +250,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 			prevCIDR, _ := d.GetChange("cidr")
 			prevParCIDR, _ := d.GetChange("parent_cidr")
 			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 			prevComment, _ := d.GetChange("comment")
 			prevEa, _ := d.GetChange("ext_attrs")
 
@@ -239,6 +258,7 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 			_ = d.Set("cidr", prevCIDR.(string))
 			_ = d.Set("parent_cidr", prevParCIDR.(string))
 			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
@@ -261,6 +281,10 @@ func resourceNetworkContainerUpdate(d *schema.ResourceData, m interface{}) error
 
 	if d.HasChange("allocate_prefix_len") {
 		return fmt.Errorf("changing the value of 'allocate_prefix_len' field is not allowed")
+	}
+
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
 	}
 
 	nvName := d.Get("network_view").(string)
