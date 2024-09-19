@@ -263,12 +263,12 @@ func validateNameServers(ftSlice []interface{}) ([]ibclient.NameServer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal nameservers: %s", err)
 	}
-	var forwardTo []ibclient.NameServer
-	err = json.Unmarshal(nsStr, &forwardTo)
+	var nameServers []ibclient.NameServer
+	err = json.Unmarshal(nsStr, &nameServers)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal nameservers: %s", err)
 	}
-	return forwardTo, nil
+	return nameServers, nil
 }
 
 func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {

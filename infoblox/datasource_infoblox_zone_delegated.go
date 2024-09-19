@@ -180,9 +180,18 @@ func flattenZoneDelegated(zoneDelegated ibclient.ZoneDelegated) (map[string]inte
 	if zoneDelegated.NsGroup != nil {
 		res["ns_group"] = *zoneDelegated.NsGroup
 	}
-	if zoneDelegated.DelegatedTtl != nil {
-		res["delegated_ttl"] = *zoneDelegated.DelegatedTtl
+	if zoneDelegated.UseDelegatedTtl != nil {
+		if !*zoneDelegated.UseDelegatedTtl {
+			res["delegated_ttl"] = ttlUndef
+		}
 	}
+
+	if zoneDelegated.DelegatedTtl != nil && *zoneDelegated.DelegatedTtl > 0 {
+		res["delegated_ttl"] = *zoneDelegated.DelegatedTtl
+	} else {
+		res["delegated_ttl"] = ttlUndef
+	}
+
 	if zoneDelegated.DelegateTo.IsNull == false {
 		nsInterface := convertNullableNameServersToInterface(zoneDelegated.DelegateTo)
 		res["delegate_to"] = nsInterface

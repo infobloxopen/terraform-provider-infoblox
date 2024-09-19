@@ -489,6 +489,7 @@ func resourceZoneDelegatedImport(d *schema.ResourceData, m interface{}) ([]*sche
 		return nil, err
 	}
 
+	var ttl int
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
@@ -546,8 +547,17 @@ func resourceZoneDelegatedImport(d *schema.ResourceData, m interface{}) ([]*sche
 		}
 	}
 
+	if zoneDelegated.DelegatedTtl != nil && *zoneDelegated.DelegatedTtl > 0 {
+		ttl = int(*zoneDelegated.DelegatedTtl)
+	} else {
+		ttl = ttlUndef
+	}
+	if !*zoneDelegated.UseDelegatedTtl {
+		ttl = ttlUndef
+	}
+
 	if zoneDelegated.DelegatedTtl != nil {
-		if err = d.Set("delegated_ttl", *zoneDelegated.DelegatedTtl); err != nil {
+		if err = d.Set("delegated_ttl", ttl); err != nil {
 			return nil, err
 		}
 	}
