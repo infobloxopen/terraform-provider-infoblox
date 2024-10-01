@@ -45,6 +45,11 @@ func resourceAAAARecord() *schema.Resource {
 				Optional:    true, // making this optional because of possible dynamic IP allocation (CIDR)
 				Description: "IP address to associate with the AAAA-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
 			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network's Ip or extensible attributes.",
+			},
 			"network_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -104,12 +109,13 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	dnsViewName := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
-	if ipv6Addr == "" && cidr == "" {
-		return fmt.Errorf("either of 'ipv6_addr' and 'cidr' values is required")
+	nextAvailableFilter := d.Get("filter_params").(string)
+	if ipv6Addr == "" && cidr == "" && nextAvailableFilter == "" {
+		return fmt.Errorf("any one of 'ipv6_addr', 'cidr' and 'filter_params' values is required")
 	}
 
-	if ipv6Addr != "" && cidr != "" {
-		return fmt.Errorf("only one of 'ipv6_addr' and 'cidr' values is allowed to be defined")
+	if ipv6Addr != "" && cidr != "" && nextAvailableFilter != "" {
+		return fmt.Errorf("only one of 'ipv6_addr', 'cidr' and 'filter_params' values is allowed to be defined")
 	}
 
 	var ttl uint32
@@ -143,19 +149,26 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	recordAAAA, err := objMgr.CreateAAAARecord(
-		networkView,
-		dnsViewName,
-		fqdn,
-		cidr,
-		ipv6Addr,
-		useTtl,
-		ttl,
-		comment,
-		extAttrs)
+	var (
+		newRecordAAAA interface{}
+		eaMap         map[string]string
+	)
+
+	if nextAvailableFilter != "" {
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
+		}
+		newRecordAAAA, err = objMgr.AllocateNextAvailableIp(fqdn, "record:aaaa", eaMap, nil, false, true, extAttrs, comment, false, nil)
+
+	} else {
+		newRecordAAAA, err = objMgr.CreateAAAARecord(networkView, dnsViewName, fqdn, cidr, ipv6Addr, useTtl, ttl, comment, extAttrs)
+	}
 	if err != nil {
 		return fmt.Errorf("creation of AAAA-record under DNS view '%s' failed: %w", dnsViewName, err)
 	}
+
+	recordAAAA := newRecordAAAA.(*ibclient.RecordAAAA)
 	d.SetId(recordAAAA.Ref)
 
 	if err = d.Set("ref", recordAAAA.Ref); err != nil {
@@ -288,6 +301,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevDNSView, _ := d.GetChange("dns_view")
 			prevFQDN, _ := d.GetChange("fqdn")
 			prevIPAddr, _ := d.GetChange("ipv6_addr")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 			prevCIDR, _ := d.GetChange("cidr")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
@@ -297,6 +311,7 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("dns_view", prevDNSView.(string))
 			_ = d.Set("fqdn", prevFQDN.(string))
 			_ = d.Set("ipv6_addr", prevIPAddr.(string))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 			_ = d.Set("cidr", prevCIDR.(string))
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
@@ -315,6 +330,10 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
 	}
 
 	networkView := d.Get("network_view").(string)

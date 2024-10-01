@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -81,6 +82,17 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The host name for Host Record in FQDN format.",
+			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network's Ip or extensible attributes.",
+			},
+			"number_of_ip_allocations": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     1,
+				Description: "The number of IP addresses to allocate.",
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -168,9 +180,11 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
-	if ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "" {
+	nextAvailableFilter := d.Get("filter_params").(string)
+	num := d.Get("number_of_ip_allocations").(int)
+	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
-			" or IPv4/IPv6 cidr")
+			" or IPv4/IPv6 cidr or filter_params")
 	}
 
 	ZeroMacAddr := "00:00:00:00:00:00"
@@ -210,23 +224,31 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	internalId := generateInternalId()
 	extAttrs[eaNameForInternalId] = internalId.String()
 
-	// enableDns and enableDhcp flags used to create host record with respective flags.
-	// By default, enableDns is true.
-	hostRec, err := objMgr.CreateHostRecord(
-		enableDns,
-		false,
-		fqdn,
-		networkView,
-		dnsView,
-		ipv4Cidr, ipv6Cidr,
-		ipv4Addr, ipv6Addr,
-		macAddr, "",
-		useTtl, ttl,
-		comment,
-		extAttrs, []string{})
+	var (
+		newRecordHost interface{}
+		eaMap         map[string]string
+		//err error
+	)
+
+	if nextAvailableFilter != "" {
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
+		}
+		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, true, extAttrs, comment, false, &num)
+	} else {
+
+		// enableDns and enableDhcp flags used to create host record with respective flags.
+		// By default, enableDns is true.
+		newRecordHost, err = objMgr.CreateHostRecord(enableDns, false, fqdn, networkView, dnsView, ipv4Cidr,
+			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, []string{})
+	}
+
 	if err != nil {
 		return fmt.Errorf("error while creating a host record: %s", err.Error())
 	}
+	hostRec := newRecordHost.(*ibclient.HostRecord)
+
 	d.SetId(internalId.String())
 	if err = d.Set("ref", hostRec.Ref); err != nil {
 		return err
@@ -373,6 +395,8 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			prevIPv6Addr, _ := d.GetChange("ipv6_addr")
 			prevIPv4CIDR, _ := d.GetChange("ipv4_cidr")
 			prevIPv6CIDR, _ := d.GetChange("ipv6_cidr")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
+			prevNum, _ := d.GetChange("number_of_ip_allocations")
 			prevEnableDNS, _ := d.GetChange("enable_dns")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
@@ -385,6 +409,8 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			_ = d.Set("ipv6_addr", prevIPv6Addr.(string))
 			_ = d.Set("ipv4_cidr", prevIPv4CIDR.(string))
 			_ = d.Set("ipv6_cidr", prevIPv6CIDR.(string))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
+			_ = d.Set("number_of_ip_allocations", prevNum.(int))
 			_ = d.Set("enable_dns", prevEnableDNS.(bool))
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
@@ -410,6 +436,9 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	}
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
 	}
 
 	enableDNS := d.Get("enable_dns").(bool)
