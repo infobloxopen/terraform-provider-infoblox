@@ -23,7 +23,7 @@ func resourceZoneDelegated() *schema.Resource {
 				Description: "The FQDN of the delegated zone.",
 			},
 			"delegate_to": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "The Infoblox appliance redirects queries for data for the delegated zone to this remote name server.",
 				Elem: &schema.Resource{
@@ -120,7 +120,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("either 'ns_group' or 'delegate_to' must be set")
 	}
 	if delegateToOk {
-		dtSlice := dtInterface.(*schema.Set).List()
+		dtSlice := dtInterface.([]interface{})
 		var err error
 		delegateTo, err = validateNameServers(dtSlice)
 		if err != nil {
@@ -337,7 +337,7 @@ func resourceZoneDelegatedUpdate(d *schema.ResourceData, m interface{}) error {
 	} else if !delegateToOk {
 		nullDT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
-		dtSlice := dtInterface.(*schema.Set).List()
+		dtSlice := dtInterface.([]interface{})
 		var err error
 		delegateTo, err = validateNameServers(dtSlice)
 		if err != nil {
