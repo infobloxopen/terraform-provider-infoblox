@@ -1,5 +1,88 @@
 # Infoblox IPAM Driver for Terraform
 
+## Prerequisites
+
+Whether you intend to use the published plug-in or the customized version that you have built yourself, you must complete the following prerequisites:
+
+- Install and set up a physical or virtual Infoblox NIOS appliance and has necessary licenses installed. Configure the access permissions for Terraform to interact with NIOS Grid objects.
+- To use the Infoblox IPAM Plug-In for Terraform, you must either define the following extensible attributes or install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
+```json
+{
+    "Tenant ID": "String Type",
+    "CMP Type": "String Type",
+    "Cloud API Owned": "List Type (Values True, False)"
+}
+```
+You may add other extensible attributes that you want to use.
+- Create an extensible attribute by name Terraform Internal ID of type string in Infoblox NIOS as given in below curl command.
+```bash
+curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
+```
+
+> **Note:**
+>
+>Either the Terraform Internal ID extensible attribute definition must be present in NIOS or IPAM Plug-In for Terraform
+must be configured with superuser access for it to automatically create the extensible attribute. If not, the connection
+to Terraform will fail.
+>
+>If you choose to create the Terraform Internal ID extensible attribute manually or by using the cURL command,
+the creation of the extensible attribute is not managed by IPAM Plug-In for Terraform.
+>
+>You must not modify the Terraform Internal ID for a resource under any circumstances. If it is modified, the resource
+will no longer be managed by Terraform.
+
+
+## Configuring Infoblox Terraform IPAM Plug-In
+
+Terraform relies on an Infoblox provider to interact with NIOS Grid objects. You can either use the published Infoblox provider (Infoblox IPAM Plug-In for Terraform) available on the Terraform Registry page or develop a plug-in with features that are not available in the published plug-in.
+
+As a prerequisite, configure provider authentication to set up the required access permissions for Terraform to interact with NIOS Grid objects. Additionally, declare the version of IPAM Plug-In for Terraform in the .tf file to allow Terraform to automatically install the published plug-in available in the Terraform Registry.
+
+To configure IPAM Plug-In for Terraform for use, complete the following steps:
+
+In the .tf file, specify the plug-in version in the required_providers block as follows in .tf file:
+```hcl
+terraform {
+    required_providers {
+        infoblox = {
+            source  = "infobloxopen/infoblox"
+            version = ">= 2.7.0"
+        }
+    }
+}
+```
+
+Configure the credentials required to access the NIOS Grid as environment variables or provider block in .tf file:
+
+
+```bash
+ # Using environment variable 
+ $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
+ $ export INFOBLOX_USERNAME=<nios_username>
+ $ export INFOBLOX_PASSWORD=<nios_password>
+```
+
+```hcl
+// Using Provider block
+provider "infoblox" {
+    server   = var.server
+    username = var.username
+    password = var.password
+}
+```
+
+Add other environment variables that you intend to use.
+You can set the following environment variables instead of defining them as attributes inside the provider block in the .tf file. Each of these environment variables has a corresponding attribute in the provider block.
+```
+PORT
+SSLMODE
+CONNECT_TIMEOUT
+POOL_CONNECTIONS
+WAPI_VERSION
+```
+
+Run the terraform init command in the directory where the .tf file is located to initialize the plug-in.
+
 ## Resources
 
 There are resources for the following objects, supported by the plugin:
@@ -18,7 +101,7 @@ There are resources for the following objects, supported by the plugin:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
-* Zone delegated
+* * Zone Delegated (`infoblox_zone_delegated`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
@@ -70,12 +153,13 @@ There are data sources for the following objects:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host Record (`infoblox_host_record`)
+* * Zone Delegated (`infoblox_zone_delegated`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
 
 * `filters`: the schema, with passing combination of searchable fields are supported by NIOS server, which
-returns one or more matching objects from the NIOS server.
+  returns one or more matching objects from the NIOS server.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
 
@@ -183,11 +267,11 @@ with a randomly generated value in the form of a UUID to the record.
 - You may use the command-line tool `uuid` for Linux-based systems to generate a UUID.
 
 > The `Terraform Internal ID` extensible attribute is not shown in to terraform.tfstate file. Use it to create
-   or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
-   You must not add it in a resource block with other extensible attributes.
+or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
+You must not add it in a resource block with other extensible attributes.
 
 > You must not delete (ex. with 'terraform destroy' command) an `infoblox_ip_association` resource right after importing, but you may do this after 'terraform apply'.
-   The reason: after 'terraform import' the dependency between `infoblox_ip_association` and respective `infoblox_ip_allocation` is not established by Terraform.
+The reason: after 'terraform import' the dependency between `infoblox_ip_association` and respective `infoblox_ip_allocation` is not established by Terraform.
 
 
 ### Utilizing the Import Block to Import Resources:
@@ -229,5 +313,5 @@ resource "infoblox_a_record" "imported_records" {
 }
 ```
 > **Note:**
-> 
+>
 > When using the Terraform import block for a resource, a new Terraform internal ID is assigned to the resource when the terraform plan command is run for the first time. If a subsequent terraform apply is aborted, the record will still retain the Terraform Internal ID though the resource is not managed by Terraform.
