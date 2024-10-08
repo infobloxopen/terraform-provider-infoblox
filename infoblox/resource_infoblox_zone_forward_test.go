@@ -140,7 +140,7 @@ func testForwardZoneCompare(t *testing.T, resourceName string, expectedZF *ibcli
 					*rec.NsGroup, *expectedZF.NsGroup)
 			}
 		}
-		if rec.ForwardTo.ForwardTo != nil && expectedZF.ForwardTo.ForwardTo != nil {
+		if rec.ForwardTo.NameServers != nil && expectedZF.ForwardTo.NameServers != nil {
 			if !reflect.DeepEqual(rec.ForwardTo, expectedZF.ForwardTo) {
 				return fmt.Errorf(
 					"the value of 'forward_to' field is '%v', but expected '%v'",
@@ -171,9 +171,9 @@ func TestAccResourceZoneForward(t *testing.T) {
 					View:       utils.StringPtr("default"),
 					ZoneFormat: "FORWARD",
 					Comment:    utils.StringPtr("test sample forward zone"),
-					ForwardTo: ibclient.NullForwardTo{
+					ForwardTo: ibclient.NullableNameServers{
 						IsNull: false,
-						ForwardTo: []ibclient.NameServer{
+						NameServers: []ibclient.NameServer{
 							{Name: "test123.dz.ex.com", Address: "10.0.0.1"},
 							{Name: "test245.dz.ex.com", Address: "10.0.0.2"},
 						}},
