@@ -101,7 +101,7 @@ There are resources for the following objects, supported by the plugin:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
-* * Zone Delegated (`infoblox_zone_delegated`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
@@ -153,7 +153,7 @@ There are data sources for the following objects:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host Record (`infoblox_host_record`)
-* * Zone Delegated (`infoblox_zone_delegated`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
