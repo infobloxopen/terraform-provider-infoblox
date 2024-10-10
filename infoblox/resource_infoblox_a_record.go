@@ -51,6 +51,11 @@ func resourceARecord() *schema.Resource {
 				Computed:    true,
 				Description: "Network view to use when allocating an IP address from a network dynamically. For static allocation, leave this field empty.",
 			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network container block's extensible attributes.",
+			},
 			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -104,12 +109,13 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	dnsViewName := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
 	ipAddr := d.Get("ip_addr").(string)
-	if ipAddr == "" && cidr == "" {
-		return fmt.Errorf("either of 'ip_addr' and 'cidr' values is required")
+	nextAvailableFilter := d.Get("filter_params").(string)
+	if ipAddr == "" && cidr == "" && nextAvailableFilter == "" {
+		return fmt.Errorf("either of 'ip_addr' or 'cidr' or 'filter_values' values is required")
 	}
 
-	if ipAddr != "" && cidr != "" {
-		return fmt.Errorf("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+	if ipAddr != "" && cidr != "" && nextAvailableFilter == "" {
+		return fmt.Errorf("only one of 'ip_addr' or 'cidr' or 'filter_values' values is allowed to be defined")
 	}
 
 	var ttl uint32
@@ -143,18 +149,38 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newRecord, err := objMgr.CreateARecord(
-		networkView,
-		dnsViewName,
-		fqdn,
-		cidr,
-		ipAddr,
-		ttl,
-		useTtl,
-		comment,
-		extAttrs)
-	if err != nil {
-		return fmt.Errorf("creation of A-record under DNS view '%s' failed: %w", dnsViewName, err)
+	var newRecord *ibclient.RecordA
+	if cidr == "" && ipAddr == "" && nextAvailableFilter != "" {
+		var (
+			eaMap map[string]string
+		)
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
+		}
+		rec, err := objMgr.AllocateNextAvailableIp(fqdn, "record:a", eaMap, nil, false, false, extAttrs, comment, false, nil)
+		if err != nil {
+			return fmt.Errorf("error allocating next available IP: %w", err)
+		}
+		var ok bool
+		newRecord, ok = rec.(*ibclient.RecordA)
+		if !ok {
+			return fmt.Errorf("failed to convert rec to *ibclient.RecordA")
+		}
+	} else {
+		newRecord, err = objMgr.CreateARecord(
+			networkView,
+			dnsViewName,
+			fqdn,
+			cidr,
+			ipAddr,
+			ttl,
+			useTtl,
+			comment,
+			extAttrs)
+		if err != nil {
+			return fmt.Errorf("creation of A-record under DNS view '%s' failed: %w", dnsViewName, err)
+		}
 	}
 	d.SetId(newRecord.Ref)
 	if err = d.Set("ref", newRecord.Ref); err != nil {
@@ -163,7 +189,6 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("internal_id", internalId.String()); err != nil {
 		return err
 	}
-
 	if err = d.Set("ip_addr", newRecord.Ipv4Addr); err != nil {
 		return err
 	}
@@ -286,6 +311,7 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
 			prevEa, _ := d.GetChange("ext_attrs")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
@@ -297,6 +323,7 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("ext_attrs", prevEa.(string))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 		}
 	}()
 
@@ -309,6 +336,9 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("dns_view") {
 		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
+	}
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
 	}
 
 	networkView := d.Get("network_view").(string)
