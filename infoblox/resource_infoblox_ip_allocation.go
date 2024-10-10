@@ -134,6 +134,14 @@ func resourceIPAllocation() *schema.Resource {
 				Computed:    true,
 				Description: "NIOS object's reference, not to be set by a user.",
 			},
+			"aliases": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A set of IP allocation aliases",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -203,6 +211,11 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		macAddr = ZeroMacAddr
 	}
 
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -280,6 +293,15 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	alias := hostRec.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
 	if hostRec.Ipv4Addrs == nil || len(hostRec.Ipv4Addrs) < 1 {
 		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
 			return err
@@ -334,6 +356,15 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	alias := obj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -409,6 +440,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 			prevIpAdressType, _ := d.GetChange("ip_address_type")
 			prevEnableDNS, _ := d.GetChange("enable_dns")
+			prevAlias, _ := d.GetChange("aliases")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
 			prevDisable, _ := d.GetChange("disable")
@@ -424,6 +456,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 			_ = d.Set("ip_address_type", prevIpAdressType.(string))
 			_ = d.Set("enable_dns", prevEnableDNS.(bool))
+			_ = d.Set("aliases", prevAlias)
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("disable", prevDisable.(bool))
@@ -473,6 +506,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
 
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	ipv4Cidr := d.Get("ipv4_cidr").(string)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
@@ -536,7 +574,9 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		}
 		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
 			ipv6Addr = *hostRecObj.Ipv6Addrs[0].Ipv6Addr
-			duid = *hostRecObj.Ipv6Addrs[0].Duid
+			if hostRecObj.Ipv6Addrs[0].Duid != nil {
+				duid = *hostRecObj.Ipv6Addrs[0].Duid
+			}
 		}
 	}
 
@@ -616,6 +656,16 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			return err
 		}
 	}
+	alias := hostRecObj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
+
 	if hostRecObj.Ipv4Addrs == nil || len(hostRecObj.Ipv4Addrs) < 1 {
 		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
 			return err
@@ -737,6 +787,16 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 		if err = d.Set("ext_attrs", eaJSON); err != nil {
 			return nil, err
 		}
+	}
+
+	alias := obj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return nil, err
 	}
 
 	if err = d.Set("comment", obj.Comment); err != nil {
