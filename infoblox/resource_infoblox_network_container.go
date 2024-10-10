@@ -146,7 +146,7 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
 		}
 
-		nc, err = objMgr.AllocateNetworkContainerByEA(nvName, isIPv6, comment, extAttrs, eaMap, prefixLen)
+		nc, err = objMgr.AllocateNetworkContainerByEA(nvName, isIPv6, comment, extAttrs, eaMap, uint(prefixLen))
 		if err != nil {
 			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
 		}

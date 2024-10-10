@@ -3,6 +3,7 @@ package infoblox
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -88,11 +89,14 @@ func resourceIPAllocation() *schema.Resource {
 				Optional:    true,
 				Description: "The parent network's Ip or extensible attributes.",
 			},
-			"number_of_ip_allocations": {
-				Type:        schema.TypeInt,
+			"ip_address_type": {
+				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     1,
-				Description: "The number of IP addresses to allocate.",
+				Default:     "IPV6",
+				Description: "The type of IP address to allocate. Valid values are: IPV4, IPV6, Both",
+				ValidateFunc: validation.StringInSlice([]string{
+					"IPV4", "IPV6", "Both",
+				}, false),
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -111,6 +115,12 @@ func resourceIPAllocation() *schema.Resource {
 				Optional:    true,
 				Default:     "",
 				Description: "The extensible attributes for IP address allocation, as a map in JSON format",
+			},
+			"disable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Disables the AAAA-record if set to 'true'.",
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -181,7 +191,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipv4Addr := d.Get("ipv4_addr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
-	num := d.Get("number_of_ip_allocations").(int)
+	ipAdressType := d.Get("ip_address_type").(string)
 	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
 			" or IPv4/IPv6 cidr or filter_params")
@@ -205,6 +215,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
+	disable := d.Get("disable").(bool)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -235,7 +246,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
-		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, true, extAttrs, comment, false, &num)
+		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs, comment, disable, nil, ipAdressType)
 	} else {
 
 		// enableDns and enableDhcp flags used to create host record with respective flags.
@@ -396,10 +407,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			prevIPv4CIDR, _ := d.GetChange("ipv4_cidr")
 			prevIPv6CIDR, _ := d.GetChange("ipv6_cidr")
 			prevNextAvailableFilter, _ := d.GetChange("filter_params")
-			prevNum, _ := d.GetChange("number_of_ip_allocations")
+			prevIpAdressType, _ := d.GetChange("ip_address_type")
 			prevEnableDNS, _ := d.GetChange("enable_dns")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
+			prevDisable, _ := d.GetChange("disable")
 			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("network_view", prevNetView.(string))
@@ -410,10 +422,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			_ = d.Set("ipv4_cidr", prevIPv4CIDR.(string))
 			_ = d.Set("ipv6_cidr", prevIPv6CIDR.(string))
 			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
-			_ = d.Set("number_of_ip_allocations", prevNum.(int))
+			_ = d.Set("ip_address_type", prevIpAdressType.(string))
 			_ = d.Set("enable_dns", prevEnableDNS.(bool))
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("disable", prevDisable.(bool))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
