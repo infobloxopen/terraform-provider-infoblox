@@ -36,7 +36,8 @@ func testAccARecordCompare(
 	resPath string,
 	expectedRec *ibclient.RecordA,
 	notExpectedIpAddr string,
-	expectedCidr string) resource.TestCheckFunc {
+	expectedCidr string,
+	expectedFilterParams string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		res, found := s.RootModule().Resources[resPath]
@@ -148,13 +149,26 @@ func testAccARecordCompare(
 			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
 
+		actualFilterParams, exists := res.Primary.Attributes["filter_params"]
+		if expectedFilterParams != "" {
+			if !exists {
+				return fmt.Errorf("'filter_params' is expected to be defined but it is not")
+			}
+			if actualFilterParams != expectedFilterParams {
+				return fmt.Errorf(
+					"'filter_params' does not match: got '%s', expected '%s'",
+					actualFilterParams, expectedFilterParams)
+			}
+		} else if exists {
+			return fmt.Errorf("'filter_params' is expected to be undefined but it is not")
+		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
 
 var (
-	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' and 'cidr' values is required")
-	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to be defined")
+	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' or 'cidr' or 'filter_values' values is required")
+	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' or 'cidr' or 'filter_values' values is allowed to be defined")
 
 	regexpUpdateConflictIPv4      = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to update")
 	regexpNetviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'network_view' field is not allowed")
@@ -225,7 +239,7 @@ func TestAccResourceARecord(t *testing.T) {
 						UseTtl:   utils.BoolPtr(false),
 						Comment:  nil,
 						Ea:       nil,
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -262,7 +276,7 @@ func TestAccResourceARecord(t *testing.T) {
 							"Location": "New York",
 							"Site":     "HQ",
 						},
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -289,7 +303,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Ttl:      utils.Uint32Ptr(155),
 						UseTtl:   utils.BoolPtr(true),
 						Comment:  utils.StringPtr("test comment 2"),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -312,7 +326,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
 						UseTtl:   utils.BoolPtr(false),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -339,7 +353,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
 						UseTtl: utils.BoolPtr(false),
-					}, "10.10.0.1", "10.20.30.0/24"),
+					}, "10.10.0.1", "10.20.30.0/24", ""),
 				),
 			},
 			{
@@ -388,7 +402,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
 						UseTtl: utils.BoolPtr(false),
-					}, "", "10.20.33.0/24"),
+					}, "", "10.20.33.0/24", ""),
 				),
 			},
 			{
@@ -433,7 +447,7 @@ func TestAccResourceARecord(t *testing.T) {
 						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
 						UseTtl:   utils.BoolPtr(false),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -448,6 +462,44 @@ func TestAccResourceARecord(t *testing.T) {
 						depends_on = [infoblox_zone_auth.zone1]
 					}`),
 				ExpectError: regexpDnsviewUpdateNotAllowed,
+			},
+			{
+				Config: fmt.Sprintf(`
+				resource "infoblox_zone_auth" "zone1" {
+					fqdn = "test1.com"
+				}
+				resource "infoblox_ipv4_network" "net2" {
+					cidr = "10.1.0.0/24"
+					ext_attrs = jsonencode({
+ 						"Site" = "Blr"
+					})
+				}
+				resource "infoblox_a_record" "rec4" {
+					fqdn = "dynamic.test1.com"
+					filter_params = jsonencode({
+						"*Site" = "Blr"})
+					dns_view = "default"
+				}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccARecordCompare(t, "infoblox_a_record.rec4", &ibclient.RecordA{
+						Name:   utils.StringPtr("dynamic.test1.com"),
+						View:   "default",
+						UseTtl: utils.BoolPtr(false),
+					}, "", "", `{"*Site":"Blr"}`),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+				resource "infoblox_zone_auth" "zone1" {
+					fqdn = "test1.com"
+				}
+				resource "infoblox_a_record" "rec1" {
+					fqdn = "missing_fields.test1.com"
+					comment = "missing required fields"
+					dns_view = "default"
+					depends_on = [infoblox_zone_auth.zone1]
+				}`),
+				ExpectError: regexpRequiredMissingIPv4,
 			},
 		},
 	})
@@ -484,7 +536,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 					Ea: ibclient.EA{
 						"Location": "test location A",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// When extensible attributes are added by another tool,
 			// terraform shouldn't remove those EAs
@@ -547,7 +599,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 							"Location": "test location A",
 							"Site":     "Test site",
 						},
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			// Validate that inherited EA won't be removed if some field is updated in the resource
@@ -576,7 +628,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 						"Location": "test location A",
 						"Site":     "Test site",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// Validate that inherited EA can be updated
 			{
@@ -605,7 +657,7 @@ func TestAcc_resourceARecord_ea_inheritance(t *testing.T) {
 						"Location": "test location A",
 						"Site":     "new extensible site",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// Validate that inherited EA can be removed, if updated
 			{
