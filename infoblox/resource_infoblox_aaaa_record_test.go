@@ -36,7 +36,8 @@ func testAccAAAARecordCompare(
 	resPath string,
 	expectedRec *ibclient.RecordAAAA,
 	notExpectedIpAddr string,
-	expectedCidr string) resource.TestCheckFunc {
+	expectedCidr string,
+	expectedFilterParams string) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {
 		res, found := s.RootModule().Resources[resPath]
@@ -147,13 +148,27 @@ func testAccAAAARecordCompare(
 			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
 
+		actualFilterParams, exists := res.Primary.Attributes["filter_params"]
+		if expectedFilterParams != "" {
+			if !exists {
+				return fmt.Errorf("'filter_params' is expected to be defined but it is not")
+			}
+			if actualFilterParams != expectedFilterParams {
+				return fmt.Errorf(
+					"'filter_params' does not match: got '%s', expected '%s'",
+					actualFilterParams, expectedFilterParams)
+			}
+		} else if exists {
+			return fmt.Errorf("'filter_params' is expected to be undefined but it is not")
+		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
 
 var (
-	regexpRequiredMissingIPv6    = regexp.MustCompile("either of 'ipv6_addr' and 'cidr' values is required")
-	regexpCidrIpAddrConflictIPv6 = regexp.MustCompile("only one of 'ipv6_addr' and 'cidr' values is allowed to be defined")
+	regexpRequiredMissingIPv6    = regexp.MustCompile("any one of 'ipv6_addr', 'cidr' and 'filter_params' values is required")
+	regexpCidrIpAddrConflictIPv6 = regexp.MustCompile("only one of 'ipv6_addr', 'cidr' and 'filter_params' values is allowed to be defined")
 	regexpUpdateConflictIPv6     = regexp.MustCompile("only one of 'ipv6_addr' and 'cidr' values is allowed to update")
 )
 
@@ -208,7 +223,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						UseTtl:   utils.BoolPtr(false),
 						Comment:  nil,
 						Ea:       nil,
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -245,7 +260,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 							"Location": "New York",
 							"Site":     "HQ",
 						},
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -274,7 +289,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						Ttl:      utils.Uint32Ptr(155),
 						UseTtl:   utils.BoolPtr(true),
 						Comment:  utils.StringPtr("test comment 2"),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -299,7 +314,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
 						UseTtl:   utils.BoolPtr(false),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -328,7 +343,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
 						UseTtl: utils.BoolPtr(false),
-					}, "2000::1", "2000:1fde::/96"),
+					}, "2000::1", "2000:1fde::/96", ""),
 				),
 			},
 			{
@@ -381,7 +396,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						Name:   utils.StringPtr("name3.test.com"),
 						View:   "nondefault_view",
 						UseTtl: utils.BoolPtr(false),
-					}, "", "2000:1fcc::/96"),
+					}, "", "2000:1fcc::/96", ""),
 				),
 			},
 			{
@@ -435,7 +450,7 @@ func TestAccResourceAAAARecord(t *testing.T) {
 						Name:     utils.StringPtr("name3.test.com"),
 						View:     "nondefault_view",
 						UseTtl:   utils.BoolPtr(false),
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			{
@@ -451,6 +466,44 @@ func TestAccResourceAAAARecord(t *testing.T) {
 								depends_on = [infoblox_zone_auth.zone]
 							}`),
 				ExpectError: regexpDnsviewUpdateNotAllowed,
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test1.com"
+					}
+					resource "infoblox_ipv6_network" "net2" {
+						cidr = "2001:db8:abcd::/64"
+						ext_attrs = jsonencode({
+ 							"Site" = "Blr"
+						})
+					}
+					resource "infoblox_aaaa_record" "rec4" {
+						fqdn = "dynamic.test1.com"
+						filter_params = jsonencode({
+						"*Site" = "Blr"})
+						dns_view = "default"
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccAAAARecordCompare(t, "infoblox_aaaa_record.rec4", &ibclient.RecordAAAA{
+						Name:   utils.StringPtr("dynamic.test1.com"),
+						View:   "default",
+						UseTtl: utils.BoolPtr(false),
+					}, "", "", `{"*Site":"Blr"}`),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "infoblox_zone_auth" "zone1" {
+						fqdn = "test1.com"
+					}
+					resource "infoblox_aaaa_record" "rec1" {
+						fqdn = "missing_fields.test1.com"
+						comment = "missing required fields"
+						dns_view = "default"
+						depends_on = [infoblox_zone_auth.zone1]
+					}`),
+				ExpectError: regexpRequiredMissingIPv6,
 			},
 		},
 	})
@@ -486,7 +539,7 @@ func TestAcc_resourceAAAARecord_ea_inheritance(t *testing.T) {
 					Ea: ibclient.EA{
 						"Location": "test AAAA location",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// When extensible attributes are added by another tool,
 			// terraform shouldn't remove those EAs
@@ -549,7 +602,7 @@ func TestAcc_resourceAAAARecord_ea_inheritance(t *testing.T) {
 							"Location": "test AAAA location",
 							"Site":     "Testing Site",
 						},
-					}, "", ""),
+					}, "", "", ""),
 				),
 			},
 			// Validate that inherited EA won't be removed if some field is updated in the resource
@@ -578,7 +631,7 @@ func TestAcc_resourceAAAARecord_ea_inheritance(t *testing.T) {
 						"Location": "test AAAA location",
 						"Site":     "Testing Site",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// Validate that inherited EA can be updated
 			{
@@ -607,7 +660,7 @@ func TestAcc_resourceAAAARecord_ea_inheritance(t *testing.T) {
 						"Location": "test AAAA location",
 						"Site":     "New Testing Site",
 					},
-				}, "", ""),
+				}, "", "", ""),
 			},
 			// Validate that inherited EA can be removed, if updated
 			{
