@@ -489,6 +489,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 
 	enableDNS := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
+	dnsView = strings.TrimSpace(dnsView)
 	fqdn := d.Get("fqdn").(string)
 	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
 		return fmt.Errorf(
