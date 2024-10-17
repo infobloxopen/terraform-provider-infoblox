@@ -3,6 +3,7 @@ package infoblox
 import (
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
+	"regexp"
 	"sort"
 	"testing"
 
@@ -38,6 +39,30 @@ func (al v6addrsType) Less(i, j int) bool {
 func (al v6addrsType) Swap(i, j int) {
 	al[i], al[j] = al[j], al[i]
 }
+
+func validateAliases(expAliases, actAliases []string) error {
+	// Validate Aliases
+	if (expAliases == nil) != (actAliases == nil) {
+		return fmt.Errorf("one of the expected and actual aliases lists is 'nil' while the other one is not")
+	}
+	if expAliases != nil {
+		if len(expAliases) != len(actAliases) {
+			return fmt.Errorf("expected and actual aliases lists are not of equal length")
+		}
+		for i, expAlias := range expAliases {
+			if expAlias != actAliases[i] {
+				return fmt.Errorf(
+					"'aliases' at index %d does not match: expected '%s', got '%s'",
+					i, expAlias, actAliases[i])
+			}
+		}
+	}
+	return nil
+}
+
+var (
+	regexpFqdnDoesNotMatch = regexp.MustCompile("fqdn does not end with a domain name")
+)
 
 // must be used only with exp and act of the same length
 func validateV4Addrs(exp, act []ibclient.HostRecordIpv4Addr) error {
@@ -215,6 +240,9 @@ func validateIPAllocation(
 			}
 		}
 
+		if err := validateAliases(expectedValue.Aliases, ipAlloc.Aliases); err != nil {
+			return err
+		}
 		// the rest is about extensible attributes
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && ipAlloc.Ea != nil {
@@ -440,6 +468,121 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 							"Site":      "Test site",
 						},
 					},
+				),
+			},
+			{
+				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test1.com"
+				}
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ipv6_network" "net2" {
+					cidr = "2002:1f93:0:3::/96"
+				}
+				resource "infoblox_ip_allocation" "foo3" {
+					network_view = "default"
+					fqdn        = "testhostnameip5.test1.com"
+					ipv4_addr   = "10.0.0.2"
+					comment      = "IPv4 and IPv6 are allocated"
+					aliases      = ["alias3", "alias4.test1.com"]
+					ext_attrs    = jsonencode({
+						Site = "Test site"
+					})
+					depends_on = [infoblox_zone_auth.zone, infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+				}`,
+				ExpectError: regexpFqdnDoesNotMatch,
+			},
+			{
+				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test1.com"
+				}
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ipv6_network" "net2" {
+					cidr = "2002:1f93:0:3::/96"
+				}
+				resource "infoblox_ip_allocation" "foo3" {
+					network_view = "default"
+					fqdn        = "testhostnameip5.test1.com"
+					ipv4_addr   = "10.0.0.2"
+					comment      = "IPv4 and IPv6 are allocated"
+					aliases      = ["alias3.test1.com", "alias4.test1.com"]
+					ext_attrs    = jsonencode({
+						Site = "Test site"
+					})
+					depends_on = [infoblox_zone_auth.zone, infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo3",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip5.test1.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Site": "Test site",
+							},
+							Aliases: []string{
+								"alias3.test1.com",
+								"alias4.test1.com",
+							},
+						},
+					),
+				),
+			},
+			// Disable DNS in the second step, creating new resources.
+			{
+				Config: `
+				resource "infoblox_zone_auth" "zone2" {
+            		fqdn = "test2.com"
+        		}
+        		resource "infoblox_ipv4_network" "net2" {
+            		cidr = "11.0.0.0/24"
+        		}
+        		resource "infoblox_ipv6_network" "net2" {
+            		cidr = "2002:1f93:0:3::/96"
+        		}
+        		resource "infoblox_ip_allocation" "foo4" {
+            		network_view = "default"
+            		fqdn         = "testhostnameip5.test.com"
+            		ipv4_addr    = "11.0.0.2"
+            		enable_dns   = false
+            		comment      = "IPv4 and IPv6 are allocated"
+            		ipv4_cidr    = infoblox_ipv4_network.net2.cidr
+            		aliases       = ["alias3", "alias4.test2.com"]
+            		ext_attrs     = jsonencode({
+                		Site = "Test site"
+            		})
+            		depends_on   = [infoblox_zone_auth.zone2, infoblox_ipv4_network.net2, infoblox_ipv6_network.net2]
+        		}`,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo4",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr(" "),
+							EnableDns:   utils.BoolPtr(false),
+							Name:        utils.StringPtr("testhostnameip5.test.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("11.0.0.2", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Site": "Test site",
+							},
+							Aliases: []string{
+								"alias3",           // This will not expand to a FQDN since DNS is disabled
+								"alias4.test2.com", // alias4 already has FQDN
+							},
+						},
+					),
 				),
 			},
 		},
