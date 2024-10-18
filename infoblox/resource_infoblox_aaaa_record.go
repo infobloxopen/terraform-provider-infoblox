@@ -166,8 +166,8 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
-		newRecordAAAA, err = objMgr.AllocateNextAvailableIp(fqdn, "record:aaaa", eaMap, nil, false, extAttrs, comment, disable, nil, "IPV6")
-
+		newRecordAAAA, err = objMgr.AllocateNextAvailableIp(fqdn, "record:aaaa", eaMap, nil, false, extAttrs, comment, disable, nil, "IPV6",
+			false, false, "", "", networkView, "", false, ttl, nil)
 	} else {
 		newRecordAAAA, err = objMgr.CreateAAAARecord(networkView, dnsViewName, fqdn, cidr, ipv6Addr, useTtl, ttl, comment, extAttrs)
 	}

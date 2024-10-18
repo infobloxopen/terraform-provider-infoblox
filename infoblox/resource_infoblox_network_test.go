@@ -544,3 +544,65 @@ func TestAcc_resourceNetwork_ipv6(t *testing.T) {
 		},
 	})
 }
+
+var testResourceIPv4Network = `resource "infoblox_ipv4_network_container" "ipv4_network12" {
+  cidr = "182.11.0.0/24"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Darjeeling"
+  })
+}
+resource "infoblox_ipv4_network" "ipv4_network13"{
+	object = "networkcontainer"
+    allocate_prefix_len = 26 
+	comment = "network created"
+	filter_params = jsonencode({
+		"*Site" = "Darjeeling"
+	})
+	ext_attrs = jsonencode({
+    	Location = "Europe"
+  	})
+	depends_on = [infoblox_ipv4_network_container.ipv4_network12]
+}`
+
+func TestAcc_resourceNetwork_AllocateNetworkByEA_IPV4(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceIPv4Network,
+				Check: resource.ComposeTestCheckFunc(
+					validateNetwork("infoblox_ipv4_network.ipv4_network13",
+						&ibclient.Network{
+							NetviewName: "default",
+							Comment:     "network created",
+							Ea: ibclient.EA{
+								"Location": "Europe",
+							},
+						},
+					),
+				),
+			},
+			{
+				// Negative testcase
+				Config: `
+					resource "infoblox_ipv4_network" "ipv4_network14"{
+					network_view="default"
+					object = "networkcontainer"
+					comment = "network created"
+					allocate_prefix_len = 26
+					filter_params = jsonencode({
+						"*Site" = "Finland"
+					})
+					ext_attrs = jsonencode({
+						Location = "Europe"
+					})
+				}`,
+				ExpectError: regexp.MustCompile("did not return any result"),
+			},
+		},
+	})
+}

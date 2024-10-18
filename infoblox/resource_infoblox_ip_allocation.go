@@ -1,8 +1,10 @@
 package infoblox
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"strings"
 
@@ -23,6 +25,15 @@ func resourceIPAllocation() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: ipAllocationImporter,
 		},
+		CustomizeDiff: customdiff.All(
+			customdiff.ComputedIf("ipv4_addr", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				return d.Get("ipv4_addr") == ""
+			}),
+			customdiff.ComputedIf("ipv6_addr", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+				return d.Get("ipv6_addr") == ""
+			}),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -58,6 +69,9 @@ func resourceIPAllocation() *schema.Resource {
 				Default:  "",
 				Description: "IPv4 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					return newValue == ""
+				},
 			},
 			"allocated_ipv4_addr": {
 				Type:        schema.TypeString,
@@ -71,6 +85,9 @@ func resourceIPAllocation() *schema.Resource {
 				Default:  "",
 				Description: "IPv6 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					return newValue == ""
+				},
 			},
 			"allocated_ipv6_addr": {
 				Type:        schema.TypeString,
@@ -268,7 +285,8 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
-		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs, comment, disable, nil, ipAdressType)
+		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs,
+			comment, disable, nil, ipAdressType, enableDns, false, "", "", networkView, dnsView, useTtl, ttl, []string{})
 	} else {
 
 		// enableDns and enableDhcp flags used to create host record with respective flags.
@@ -321,7 +339,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	return nil
+	return resourceAllocationGet(d, m)
 }
 
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
@@ -528,6 +546,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
 
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	ipv4Cidr := d.Get("ipv4_cidr").(string)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
