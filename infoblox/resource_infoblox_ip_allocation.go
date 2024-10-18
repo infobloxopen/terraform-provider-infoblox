@@ -23,7 +23,6 @@ func resourceIPAllocation() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: ipAllocationImporter,
 		},
-
 		Schema: map[string]*schema.Schema{
 			"network_view": {
 				Type:        schema.TypeString,
@@ -216,6 +215,16 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	for i, alias := range aliases {
 		aliasStrs[i] = alias.(string)
 	}
+	// Check if enableDns is true, then validate the aliases
+	if enableDns {
+		parts := strings.SplitN(fqdn, ".", 2)
+		domain := parts[1]
+		for _, alias := range aliasStrs {
+			if !strings.HasSuffix(alias, "."+domain) {
+				return fmt.Errorf("fqdn does not end with a domain name")
+			}
+		}
+	}
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -265,7 +274,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		// enableDns and enableDhcp flags used to create host record with respective flags.
 		// By default, enableDns is true.
 		newRecordHost, err = objMgr.CreateHostRecord(enableDns, false, fqdn, networkView, dnsView, ipv4Cidr,
-			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, []string{})
+			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, aliasStrs)
 	}
 
 	if err != nil {
@@ -490,6 +499,11 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	enableDNS := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
 	fqdn := d.Get("fqdn").(string)
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
 		return fmt.Errorf(
 			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
@@ -501,16 +515,18 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		if !strings.ContainsRune(fqdn, '.') {
 			return fmt.Errorf("'fqdn' value must be an FQDN without a trailing dot")
 		}
+		parts := strings.SplitN(fqdn, ".", 2)
+		domain := parts[1]
+		for _, alias := range aliasStrs {
+			if !strings.HasSuffix(alias, "."+domain) {
+				return fmt.Errorf("fqdn does not end with a domain name")
+			}
+		}
 	}
 
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
 
-	aliases := d.Get("aliases").([]interface{})
-	aliasStrs := make([]string, len(aliases))
-	for i, alias := range aliases {
-		aliasStrs[i] = alias.(string)
-	}
 	ipv4Cidr := d.Get("ipv4_cidr").(string)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
@@ -631,7 +647,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid,
 		useTtl, ttl,
 		comment,
-		mergedEAs, []string{})
+		mergedEAs, aliasStrs)
 	if err != nil {
 		return fmt.Errorf(
 			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())
