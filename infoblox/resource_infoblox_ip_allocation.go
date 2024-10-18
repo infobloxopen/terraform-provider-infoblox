@@ -546,11 +546,6 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
 	internalId := newInternalResourceIdFromString(d.Get("internal_id").(string))
 
-	aliases := d.Get("aliases").([]interface{})
-	aliasStrs := make([]string, len(aliases))
-	for i, alias := range aliases {
-		aliasStrs[i] = alias.(string)
-	}
 	ipv4Cidr := d.Get("ipv4_cidr").(string)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
