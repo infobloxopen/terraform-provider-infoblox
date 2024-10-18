@@ -498,6 +498,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 
 	enableDNS := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
+	dnsView = strings.TrimSpace(dnsView)
 	fqdn := d.Get("fqdn").(string)
 	aliases := d.Get("aliases").([]interface{})
 	aliasStrs := make([]string, len(aliases))
