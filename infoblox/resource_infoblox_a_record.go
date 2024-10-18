@@ -158,7 +158,8 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
 		}
-		rec, err := objMgr.AllocateNextAvailableIp(fqdn, "record:a", eaMap, nil, false, extAttrs, comment, false, nil, "IPV4")
+		rec, err := objMgr.AllocateNextAvailableIp(fqdn, "record:a", eaMap, nil, false, extAttrs, comment, false, nil, "IPV4",
+			false, false, "", "", networkView, dnsViewName, useTtl, ttl, nil)
 		if err != nil {
 			return fmt.Errorf("error allocating next available IP: %w", err)
 		}

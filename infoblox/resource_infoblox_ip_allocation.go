@@ -286,7 +286,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
 		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs,
-			comment, disable, nil, ipAdressType, enableDns, false, "", "", networkView, dnsView, useTtl, ttl, []string{})
+			comment, disable, nil, ipAdressType, enableDns, false, "", "", networkView, dnsView, useTtl, ttl, aliasStrs)
 	} else {
 
 		// enableDns and enableDhcp flags used to create host record with respective flags.
