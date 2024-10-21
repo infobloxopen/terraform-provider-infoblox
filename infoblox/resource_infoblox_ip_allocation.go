@@ -108,8 +108,13 @@ func resourceIPAllocation() *schema.Resource {
 			"ip_address_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "IPV6",
 				Description: "The type of IP address to allocate. Valid values are: IPV4, IPV6, Both",
+				DefaultFunc: func() (interface{}, error) {
+					if filterParams, ok := resourceIPAllocation().Schema["filter_params"]; ok && filterParams.Default == nil {
+						return nil, nil
+					}
+					return "IPV4", nil
+				},
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPV4", "IPV6", "Both",
 				}, false),
@@ -136,7 +141,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "Disables the AAAA-record if set to 'true'.",
+				Description: "Disables the Host-record if set to 'true'.",
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -277,10 +282,9 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	var (
 		newRecordHost interface{}
 		eaMap         map[string]string
-		//err error
 	)
 
-	if nextAvailableFilter != "" {
+	if ipv4Addr == "" && ipv4Cidr == "" && ipv6Cidr == "" && ipv6Addr == "" && nextAvailableFilter != "" {
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
@@ -292,7 +296,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		// enableDns and enableDhcp flags used to create host record with respective flags.
 		// By default, enableDns is true.
 		newRecordHost, err = objMgr.CreateHostRecord(enableDns, false, fqdn, networkView, dnsView, ipv4Cidr,
-			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, aliasStrs)
+			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, aliasStrs, disable)
 	}
 
 	if err != nil {
@@ -574,6 +578,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	}
 
 	comment := d.Get("comment").(string)
+	disable := d.Get("disable").(bool)
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
@@ -666,7 +671,8 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid,
 		useTtl, ttl,
 		comment,
-		mergedEAs, aliasStrs)
+		mergedEAs,
+		aliasStrs, disable)
 	if err != nil {
 		return fmt.Errorf(
 			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())

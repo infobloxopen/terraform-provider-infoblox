@@ -161,7 +161,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		eaMap         map[string]string
 	)
 
-	if nextAvailableFilter != "" {
+	if cidr == "" && ipv6Addr == "" && nextAvailableFilter != "" {
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
