@@ -41,11 +41,17 @@ func resourceNetworkContainer() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The network container's address, in CIDR format.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"parent_cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent network container block in CIDR format to allocate from.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"filter_params": {
 				Type:        schema.TypeString,
