@@ -52,6 +52,9 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The IPv6 cidr from which an IPv6 address will be allocated.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"ipv4_addr": {
 				Type:     schema.TypeString,
@@ -72,6 +75,9 @@ func resourceIPAllocation() *schema.Resource {
 				Default:  "",
 				Description: "IPv6 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"allocated_ipv6_addr": {
 				Type:        schema.TypeString,

@@ -7,8 +7,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"net"
 	"regexp"
+	"strings"
 )
+
+func normalizeIPAddress(val interface{}) string {
+	splitIP := strings.SplitN(val.(string), "/", 2)
+	ipaddr := splitIP[0]
+	ip := net.ParseIP(ipaddr)
+	if len(splitIP) == 1 {
+		return ip.String()
+	}
+	return ip.String() + "/" + splitIP[1]
+}
 
 var (
 	networkIPv4Regexp = regexp.MustCompile("^network/.+")
@@ -67,6 +79,9 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The network block in cidr format.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"reserve_ip": {
 				Type:        schema.TypeInt,
