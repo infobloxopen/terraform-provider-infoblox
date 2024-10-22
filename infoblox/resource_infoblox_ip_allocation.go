@@ -90,7 +90,7 @@ func resourceIPAllocation() *schema.Resource {
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
 				StateFunc: func(val interface{}) string {
 					return normalizeIPAddress(val)
-				}
+				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 					return newValue == ""
 				},
@@ -249,7 +249,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		domain := parts[1]
 		for _, alias := range aliasStrs {
 			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("fqdn does not end with a domain name")
+				return fmt.Errorf("invalid alias format, alias should be in the format %s", alias+"."+domain)
 			}
 		}
 	}
@@ -548,7 +548,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		domain := parts[1]
 		for _, alias := range aliasStrs {
 			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("fqdn does not end with a domain name")
+				return fmt.Errorf("invalid alias format, alias should be in the format %s", alias+"."+domain)
 			}
 		}
 	}
