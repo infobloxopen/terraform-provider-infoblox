@@ -90,6 +90,7 @@ func resourceIPAllocation() *schema.Resource {
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
 				StateFunc: func(val interface{}) string {
 					return normalizeIPAddress(val)
+				}
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 					return newValue == ""
 				},
