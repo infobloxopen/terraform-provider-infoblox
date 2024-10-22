@@ -44,6 +44,9 @@ func resourceAAAARecord() *schema.Resource {
 				Computed:    true,
 				Optional:    true, // making this optional because of possible dynamic IP allocation (CIDR)
 				Description: "IP address to associate with the AAAA-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"filter_params": {
 				Type:        schema.TypeString,
@@ -60,6 +63,9 @@ func resourceAAAARecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Network to allocate an IP address from, when the 'ipv6_addr' field is empty (dynamic allocation). The address is in CIDR format. For static allocation, leave this field empty.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
