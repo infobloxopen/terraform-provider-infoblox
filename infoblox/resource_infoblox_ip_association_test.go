@@ -241,7 +241,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"test.com", "",
 						false, 0,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -298,7 +298,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						true, 0,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -354,7 +354,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						false, 0,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -411,7 +411,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						true, 10,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -467,7 +467,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						false, 0,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -524,7 +524,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						true, 10,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 			{
 				Config: `
@@ -581,7 +581,7 @@ func TestAcc_resourceipAssociation(t *testing.T) {
 						"", "",
 						true, 10,
 						"10.0.0.12 IP is allocated",
-						[]string{})),
+						[]string{}, false)),
 			},
 		},
 	})
