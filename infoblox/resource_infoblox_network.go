@@ -57,7 +57,7 @@ func resourceNetwork() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network container block's extensible attributes.",
+				Description: "The parent network/network-container block's extensible attributes.",
 			},
 			"object": {
 				Type:        schema.TypeString,
@@ -185,7 +185,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		if err != nil {
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
-		d.Set("cidr", network.Cidr)
+		if err = d.Set("cidr", network.Cidr); err != nil {
+			return err
+		}
 
 	} else if cidr == "" && nextAvailableFilter != "" && prefixLen > 1 {
 		var (
@@ -200,6 +202,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		if err != nil {
 			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
 		}
+		d.Set("cidr", network.Cidr)
 
 	} else if cidr != "" {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, isIPv6, comment, extAttrs)

@@ -56,7 +56,7 @@ func resourceNetworkContainer() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network container block's extensible attributes.",
+				Description: "The parent network/network-container block's extensible attributes.",
 			},
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
@@ -155,6 +155,9 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 		nc, err = objMgr.AllocateNetworkContainerByEA(nvName, isIPv6, comment, extAttrs, eaMap, uint(prefixLen))
 		if err != nil {
 			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
+		}
+		if err = d.Set("cidr", nc.Cidr); err != nil {
+			return err
 		}
 
 	} else if cidr != "" {

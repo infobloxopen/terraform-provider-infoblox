@@ -51,7 +51,7 @@ func resourceAAAARecord() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network's Ip or extensible attributes.",
+				Description: "The parent network block's extensible attributes.",
 			},
 			"network_view": {
 				Type:        schema.TypeString,

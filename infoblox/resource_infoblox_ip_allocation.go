@@ -109,7 +109,7 @@ func resourceIPAllocation() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network's Ip or extensible attributes.",
+				Description: "The parent network block's extensible attributes.",
 			},
 			"ip_address_type": {
 				Type:        schema.TypeString,
@@ -249,7 +249,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		domain := parts[1]
 		for _, alias := range aliasStrs {
 			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("invalid alias format, alias should be in the format %s", alias+"."+domain)
+				return fmt.Errorf("invalid alias format, alias is given as %s, but should be in the format %s", alias, alias+"."+domain)
 			}
 		}
 	}
@@ -548,7 +548,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		domain := parts[1]
 		for _, alias := range aliasStrs {
 			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("invalid alias format, alias should be in the format %s", alias+"."+domain)
+				return fmt.Errorf("invalid alias format, alias is given as %s, but should be in the format %s", alias, alias+"."+domain)
 			}
 		}
 	}
