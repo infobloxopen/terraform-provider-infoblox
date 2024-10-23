@@ -79,12 +79,6 @@ func resourceAAAARecord() *schema.Resource {
 				Default:     "",
 				Description: "Description of the AAAA-record.",
 			},
-			"disable": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Disables the AAAA-record if set to 'true'.",
-			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -142,7 +136,6 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
-	disable := d.Get("disable").(bool)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -172,7 +165,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
-		newRecordAAAA, err = objMgr.AllocateNextAvailableIp(fqdn, "record:aaaa", eaMap, nil, false, extAttrs, comment, disable, nil, "IPV6",
+		newRecordAAAA, err = objMgr.AllocateNextAvailableIp(fqdn, "record:aaaa", eaMap, nil, false, extAttrs, comment, false, nil, "IPV6",
 			false, false, "", "", networkView, dnsViewName, false, ttl, nil)
 	} else {
 		newRecordAAAA, err = objMgr.CreateAAAARecord(networkView, dnsViewName, fqdn, cidr, ipv6Addr, useTtl, ttl, comment, extAttrs)
@@ -318,7 +311,6 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevCIDR, _ := d.GetChange("cidr")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
-			prevDisable, _ := d.GetChange("disable")
 			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("network_view", prevNetView.(string))
@@ -329,7 +321,6 @@ func resourceAAAARecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("cidr", prevCIDR.(string))
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
-			_ = d.Set("disable", prevDisable.(bool))
 			_ = d.Set("ext_attrs", prevEa.(string))
 
 		}
