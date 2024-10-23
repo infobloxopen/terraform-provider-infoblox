@@ -3,7 +3,6 @@ package infoblox
 import (
 	"fmt"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
-	"regexp"
 	"sort"
 	"testing"
 
@@ -59,10 +58,6 @@ func validateAliases(expAliases, actAliases []string) error {
 	}
 	return nil
 }
-
-var (
-	regexpFqdnDoesNotMatch = regexp.MustCompile("fqdn does not end with a domain name")
-)
 
 // must be used only with exp and act of the same length
 func validateV4Addrs(exp, act []ibclient.HostRecordIpv4Addr) error {
@@ -487,30 +482,6 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 					ipv4_addr   = "10.0.0.2"
 					comment      = "IPv4 and IPv6 are allocated"
 					aliases      = ["alias3", "alias4.test1.com"]
-					ext_attrs    = jsonencode({
-						Site = "Test site"
-					})
-					depends_on = [infoblox_zone_auth.zone, infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
-				}`,
-				ExpectError: regexpFqdnDoesNotMatch,
-			},
-			{
-				Config: `
-				resource "infoblox_zone_auth" "zone" {
-					fqdn = "test1.com"
-				}
-				resource "infoblox_ipv4_network" "net1" {
-					cidr = "10.0.0.0/24"
-				}
-				resource "infoblox_ipv6_network" "net2" {
-					cidr = "2002:1f93:0:3::/96"
-				}
-				resource "infoblox_ip_allocation" "foo3" {
-					network_view = "default"
-					fqdn        = "testhostnameip5.test1.com"
-					ipv4_addr   = "10.0.0.2"
-					comment      = "IPv4 and IPv6 are allocated"
-					aliases      = ["alias3.test1.com", "alias4.test1.com"]
 					ext_attrs    = jsonencode({
 						Site = "Test site"
 					})
