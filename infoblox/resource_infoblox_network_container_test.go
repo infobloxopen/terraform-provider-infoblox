@@ -68,20 +68,22 @@ func validateNetworkContainer(
 				nc.Comment, expComment)
 		}
 
+		filterparams := res.Primary.Attributes["filter_params"]
 		expCidr := expectedValue.Cidr
-		//cidr is not passed in nextavailable network container test case
-		if expCidr == "" {
-			expCidr = res.Primary.Attributes["cidr"]
+		if len(filterparams) == 0 {
+			//cidr is not passed in nextavailable network container test case
 			if expCidr == "" {
-				return fmt.Errorf(
-					"the value of 'cidr' field is empty, but expected some value")
+				expCidr = res.Primary.Attributes["cidr"]
+				if expCidr == "" {
+					return fmt.Errorf(
+						"the value of 'cidr' field is empty, but expected some value")
+				}
 			}
-		}
-
-		if nc.Cidr != expCidr {
-			return fmt.Errorf(
-				"the value of 'cidr' field is '%s', but expected '%s'",
-				nc.Cidr, expCidr)
+			if nc.Cidr != expCidr {
+				return fmt.Errorf(
+					"the value of 'cidr' field is '%s', but expected '%s'",
+					nc.Cidr, expCidr)
+			}
 		}
 
 		// the rest is about extensible attributes
@@ -546,6 +548,67 @@ func TestAcc_resourceNetworkContainer_ipv4_ea_inheritance(t *testing.T) {
 						return nil
 					},
 				),
+			},
+		},
+	})
+}
+
+var testResourceIPv4NetworkContainer = `resource "infoblox_ipv4_network_container" "ipv4_network12" {
+  cidr = "25.11.0.0/24"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Darjeeling"
+  })
+}
+resource "infoblox_ipv4_network_container" "ipv4_network13"{
+    allocate_prefix_len = 26 
+	comment = "network container created"
+	filter_params = jsonencode({
+		"*Site" = "Darjeeling"
+	})
+	ext_attrs = jsonencode({
+    	Site = "Europe"
+  	})
+	depends_on = [infoblox_ipv4_network_container.ipv4_network12]
+}`
+
+func TestAcc_resourceNetworkContainer_AllocateNetworkByEA_IPV4(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceIPv4NetworkContainer,
+				Check: resource.ComposeTestCheckFunc(
+					validateNetworkContainer(
+						"infoblox_ipv4_network_container.ipv4_network13",
+						&ibclient.NetworkContainer{
+							NetviewName: "default",
+							Comment:     "network container created",
+							Ea: ibclient.EA{
+								"Site": "Europe",
+							},
+						},
+					),
+				),
+			},
+			{
+				// Negative testcase
+				Config: `
+					resource "infoblox_ipv4_network_container" "ipv4_network14"{
+					network_view="default"
+					comment = "network created"
+					allocate_prefix_len = 26
+					filter_params = jsonencode({
+						"*Site" = "Finland"
+					})
+					ext_attrs = jsonencode({
+						Site = "Europe"
+					})
+				}`,
+				ExpectError: regexp.MustCompile("did not return any result"),
 			},
 		},
 	})
