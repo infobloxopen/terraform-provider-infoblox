@@ -54,7 +54,7 @@ func resourceARecord() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network container block's extensible attributes.",
+				Description: "The parent network block's extensible attributes.",
 			},
 			"cidr": {
 				Type:        schema.TypeString,
