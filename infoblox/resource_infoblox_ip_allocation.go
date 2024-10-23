@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -13,6 +14,24 @@ import (
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
+
+func normalizeAlias(alias, domain string) string {
+	if !strings.HasSuffix(alias, "."+domain) {
+		return alias + "." + domain
+	}
+	return alias
+}
+
+// normalizeAndSortAliases normalizes each alias by appending the domain if missing and sorts the resulting list.
+func normalizeAndSortAliases(aliases []interface{}, domain string) []string {
+	var normalizedAliases []string
+	for _, alias := range aliases {
+		aliasStr := alias.(string)
+		normalizedAliases = append(normalizedAliases, normalizeAlias(aliasStr, domain))
+	}
+	sort.Strings(normalizedAliases)
+	return normalizedAliases
+}
 
 func resourceIPAllocation() *schema.Resource {
 	// TODO: move towards context-aware equivalents of these fields, as these are deprecated.
@@ -168,6 +187,19 @@ func resourceIPAllocation() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					enableDNS := d.Get("enable_dns").(bool)
+					if enableDNS {
+						fqdn := d.Get("fqdn").(string)
+						domain := strings.Join(strings.Split(fqdn, ".")[1:], ".")
+						oldAliases, newAliases := d.GetChange("aliases")
+						oldAliasesnew := normalizeAndSortAliases(oldAliases.([]interface{}), domain)
+						newAliasesnew := normalizeAndSortAliases(newAliases.([]interface{}), domain)
+						// Compare the sorted, normalized aliases
+						return strings.Join(oldAliasesnew, ",") == strings.Join(newAliasesnew, ",")
+					}
+					return oldValue == newValue
+				},
 			},
 		},
 	}
@@ -242,16 +274,6 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	aliasStrs := make([]string, len(aliases))
 	for i, alias := range aliases {
 		aliasStrs[i] = alias.(string)
-	}
-	// Check if enableDns is true, then validate the aliases
-	if enableDns {
-		parts := strings.SplitN(fqdn, ".", 2)
-		domain := parts[1]
-		for _, alias := range aliasStrs {
-			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("invalid alias format, alias is given as %s, but should be in the format %s", alias, alias+"."+domain)
-			}
-		}
 	}
 	var ttl uint32
 	useTtl := false
@@ -544,13 +566,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		if !strings.ContainsRune(fqdn, '.') {
 			return fmt.Errorf("'fqdn' value must be an FQDN without a trailing dot")
 		}
-		parts := strings.SplitN(fqdn, ".", 2)
-		domain := parts[1]
-		for _, alias := range aliasStrs {
-			if !strings.HasSuffix(alias, "."+domain) {
-				return fmt.Errorf("invalid alias format, alias is given as %s, but should be in the format %s", alias, alias+"."+domain)
-			}
-		}
+
 	}
 
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
