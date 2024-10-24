@@ -103,6 +103,12 @@ func dataSourceHostRecord() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"disable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+							Description: "Disables the Host-record if set to 'true'.",
+						},
 					},
 				},
 			},
@@ -116,7 +122,7 @@ func dataSourceHostRecordRead(ctx context.Context, d *schema.ResourceData, m int
 	var diags diag.Diagnostics
 
 	n := &ibclient.HostRecord{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "comment", "zone", "ttl", "configure_for_dns", "aliases"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "comment", "zone", "ttl", "configure_for_dns", "aliases", "disable"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
@@ -211,6 +217,11 @@ func flattenRecordHost(hostRecord ibclient.HostRecord) (map[string]interface{}, 
 	if hostRecord.Aliases != nil {
 		res["aliases"] = hostRecord.Aliases
 	}
+
+	if hostRecord.Disable != nil {
+		res["disable"] = *hostRecord.Disable
+	}
+
 	return res, nil
 
 }
