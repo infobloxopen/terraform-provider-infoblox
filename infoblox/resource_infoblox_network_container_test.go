@@ -68,22 +68,19 @@ func validateNetworkContainer(
 				nc.Comment, expComment)
 		}
 
-		filterparams := res.Primary.Attributes["filter_params"]
 		expCidr := expectedValue.Cidr
-		if len(filterparams) == 0 {
-			//cidr is not passed in nextavailable network container test case
+		//cidr is not passed in nextavailable network container test case
+		if expCidr == "" {
+			expCidr = res.Primary.Attributes["cidr"]
 			if expCidr == "" {
-				expCidr = res.Primary.Attributes["cidr"]
-				if expCidr == "" {
-					return fmt.Errorf(
-						"the value of 'cidr' field is empty, but expected some value")
-				}
-			}
-			if nc.Cidr != expCidr {
 				return fmt.Errorf(
-					"the value of 'cidr' field is '%s', but expected '%s'",
-					nc.Cidr, expCidr)
+					"the value of 'cidr' field is empty, but expected some value")
 			}
+		}
+		if nc.Cidr != expCidr {
+			return fmt.Errorf(
+				"the value of 'cidr' field is '%s', but expected '%s'",
+				nc.Cidr, expCidr)
 		}
 
 		// the rest is about extensible attributes
@@ -601,6 +598,67 @@ func TestAcc_resourceNetworkContainer_AllocateNetworkByEA_IPV4(t *testing.T) {
 					network_view="default"
 					comment = "network created"
 					allocate_prefix_len = 26
+					filter_params = jsonencode({
+						"*Site" = "Finland"
+					})
+					ext_attrs = jsonencode({
+						Site = "Europe"
+					})
+				}`,
+				ExpectError: regexp.MustCompile("did not return any result"),
+			},
+		},
+	})
+}
+
+var testResourceIPv6NetworkContainer = `resource "infoblox_ipv6_network_container" "ipv6_network12" {
+  cidr = "002:1f93:0:2::/96"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Darjeeling"
+  })
+}
+resource "infoblox_ipv6_network_container" "ipv6_network13"{
+    allocate_prefix_len = 97 
+	comment = "network container created"
+	filter_params = jsonencode({
+		"*Site" = "Darjeeling"
+	})
+	ext_attrs = jsonencode({
+    	Site = "Europe"
+  	})
+	depends_on = [infoblox_ipv6_network_container.ipv6_network12]
+}`
+
+func TestAcc_resourceNetworkContainer_AllocateNetworkByEA_IPV6(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceIPv6NetworkContainer,
+				Check: resource.ComposeTestCheckFunc(
+					validateNetworkContainer(
+						"infoblox_ipv6_network_container.ipv6_network13",
+						&ibclient.NetworkContainer{
+							NetviewName: "default",
+							Comment:     "network container created",
+							Ea: ibclient.EA{
+								"Site": "Europe",
+							},
+						},
+					),
+				),
+			},
+			{
+				// Negative testcase
+				Config: `
+					resource "infoblox_ipv6_network_container" "ipv6_network14"{
+					network_view="default"
+					comment = "network created"
+					allocate_prefix_len = 97
 					filter_params = jsonencode({
 						"*Site" = "Finland"
 					})

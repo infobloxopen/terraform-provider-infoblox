@@ -2,13 +2,13 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/infobloxopen/infoblox-go-client/v2/utils"
-	"sort"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
+	"regexp"
+	"sort"
+	"testing"
 )
 
 type v4addrsType []ibclient.HostRecordIpv4Addr
