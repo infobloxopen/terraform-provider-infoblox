@@ -162,6 +162,7 @@ func resourceAAAARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	if cidr == "" && ipv6Addr == "" && nextAvailableFilter != "" {
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkView
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}

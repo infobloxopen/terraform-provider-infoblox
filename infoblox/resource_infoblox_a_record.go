@@ -155,6 +155,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 			eaMap map[string]string
 		)
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkView
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
 		}
