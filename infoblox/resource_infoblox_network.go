@@ -194,6 +194,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			eaMap map[string]string
 		)
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkViewName
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
 		}

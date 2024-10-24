@@ -148,6 +148,7 @@ func resourceNetworkContainerCreate(d *schema.ResourceData, m interface{}, isIPv
 	} else if cidr == "" && nextAvailableFilter != "" && prefixLen > 1 {
 		var eaMap map[string]string
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = nvName
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
 		}

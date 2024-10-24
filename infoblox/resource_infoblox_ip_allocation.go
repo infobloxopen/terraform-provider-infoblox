@@ -314,6 +314,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 
 	if ipv4Addr == "" && ipv4Cidr == "" && ipv6Cidr == "" && ipv6Addr == "" && nextAvailableFilter != "" {
 		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkView
 		if err != nil {
 			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
 		}
