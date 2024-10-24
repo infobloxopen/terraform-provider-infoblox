@@ -92,7 +92,7 @@ func resourceIPAllocation() *schema.Resource {
 				Description: "IPv4 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					return newValue == ""
+					return newValue == "" && oldValue == newValue
 				},
 			},
 			"allocated_ipv4_addr": {
@@ -108,10 +108,13 @@ func resourceIPAllocation() *schema.Resource {
 				Description: "IPv6 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
 				StateFunc: func(val interface{}) string {
+					if val == "" {
+						return ""
+					}
 					return normalizeIPAddress(val)
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					return newValue == ""
+					return newValue == "" && oldValue == newValue
 				},
 			},
 			"allocated_ipv6_addr": {
