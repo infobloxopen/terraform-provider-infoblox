@@ -1,10 +1,8 @@
 package infoblox
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"sort"
 	"strings"
@@ -44,14 +42,6 @@ func resourceIPAllocation() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: ipAllocationImporter,
 		},
-		CustomizeDiff: customdiff.All(
-			customdiff.ComputedIf("ipv4_addr", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-				return d.Get("ipv4_addr") == ""
-			}),
-			customdiff.ComputedIf("ipv6_addr", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-				return d.Get("ipv6_addr") == ""
-			}),
-		),
 
 		Schema: map[string]*schema.Schema{
 			"network_view": {
@@ -91,9 +81,6 @@ func resourceIPAllocation() *schema.Resource {
 				Default:  "",
 				Description: "IPv4 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					return newValue == "" && oldValue == newValue
-				},
 			},
 			"allocated_ipv4_addr": {
 				Type:        schema.TypeString,
@@ -112,9 +99,6 @@ func resourceIPAllocation() *schema.Resource {
 						return ""
 					}
 					return normalizeIPAddress(val)
-				},
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					return newValue == "" && oldValue == newValue
 				},
 			},
 			"allocated_ipv6_addr": {
@@ -390,6 +374,7 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	_, nextAvailableFilterOk := d.GetOk("filter_params")
 	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
 		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
 			return err
@@ -398,7 +383,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
 			return err
 		}
-		if _, found := d.GetOk("ipv6_cidr"); !found {
+		_, found := d.GetOk("ipv6_cidr")
+		if !found && !nextAvailableFilterOk {
 			if err := d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
 				return err
 			}
@@ -412,7 +398,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
 			return err
 		}
-		if _, found := d.GetOk("ipv4_cidr"); !found {
+		_, found := d.GetOk("ipv4_cidr")
+		if !found && !nextAvailableFilterOk {
 			if err := d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
 				return err
 			}
@@ -580,6 +567,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
+	_, nextAvailableFilterOk := d.GetOk("filter_params")
 
 	// If 'ipv4_cidr' or 'ipv6_cidr' are unchanged, then nothing to update here.
 	// making them empty to skip dynamic allocation of a new IP address again.
@@ -634,11 +622,15 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid string
 	)
 	if needIpv4Addr || needIpv6Addr {
-		if _, ipv4CidrFlag := d.GetOk("ipv4_cidr"); ipv4CidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
+		_, ipv4CidrFlag := d.GetOk("ipv4_cidr")
+		if (ipv4CidrFlag || nextAvailableFilterOk) && len(hostRecObj.Ipv4Addrs) > 0 {
 			ipv4Addr = *hostRecObj.Ipv4Addrs[0].Ipv4Addr
-			macAddr = *hostRecObj.Ipv4Addrs[0].Mac
+			if hostRecObj.Ipv4Addrs[0].Mac != nil {
+				macAddr = *hostRecObj.Ipv4Addrs[0].Mac
+			}
 		}
-		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
+		_, ipv6CidrFlag := d.GetOk("ipv6_cidr")
+		if (ipv6CidrFlag || nextAvailableFilterOk) && len(hostRecObj.Ipv6Addrs) > 0 {
 			ipv6Addr = *hostRecObj.Ipv6Addrs[0].Ipv6Addr
 			if hostRecObj.Ipv6Addrs[0].Duid != nil {
 				duid = *hostRecObj.Ipv6Addrs[0].Duid
