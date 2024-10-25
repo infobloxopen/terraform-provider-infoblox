@@ -22,7 +22,7 @@ func dataSourceZoneDelegated() *schema.Resource {
 			"results": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "List of Forward Zones matching filters",
+				Description: "List of Delegated Zones matching filters",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {

@@ -25,3 +25,15 @@ resource "infoblox_ipv6_network_container" "ncv6" {
     Site = "Test site"
   })
 }
+
+// dynamically allocated IPv6 network container using next-available
+resource "infoblox_ipv6_network_container" "ipv6_network_container" {
+  allocate_prefix_len = 68
+  comment = "dynamic allocation of IPV6 network container"
+  filter_params = jsonencode({
+    "*Site": "Uzbekistan"
+  })
+  ext_attrs = jsonencode({
+    "Site" = "Europe"
+  })
+}

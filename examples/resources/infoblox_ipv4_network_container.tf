@@ -25,3 +25,17 @@ resource "infoblox_ipv4_network_container" "nc3" {
     "Country" = "Australia"
   })
 }
+
+// dynamically allocated IPv4 network container using next-available
+resource "infoblox_ipv4_network_container" "network_container" {
+  allocate_prefix_len = 26
+  network_view = "nondefault_netview"
+  comment = "new comment"
+  filter_params = jsonencode({
+    "*Site": "Blr"
+  })
+  ext_attrs = jsonencode({
+    "Site": "Davangere"
+    "Country" = "India"
+  })
+}

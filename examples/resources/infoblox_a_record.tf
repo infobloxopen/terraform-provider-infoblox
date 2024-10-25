@@ -26,3 +26,18 @@ resource "infoblox_a_record" "rec3" {
   ttl = 0 // 0 = disable caching
   ext_attrs = jsonencode({})
 }
+
+
+// dynamically created A-record using next_available_ip
+resource "infoblox_a_record" "recordA" {
+  fqdn = "gg11.test.com"
+  comment = "example dynamic A-record rec18"
+  ttl = 120
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+  network_view = "custom"
+}
