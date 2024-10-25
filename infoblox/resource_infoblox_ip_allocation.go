@@ -21,11 +21,14 @@ func normalizeAlias(alias, domain string) string {
 }
 
 // normalizeAndSortAliases normalizes each alias by appending the domain if missing and sorts the resulting list.
-func normalizeAndSortAliases(aliases []interface{}, domain string) []string {
+func normalizeAndSortAliases(aliases []interface{}, domain string, enableDNS bool) []string {
 	var normalizedAliases []string
 	for _, alias := range aliases {
 		aliasStr := alias.(string)
-		normalizedAliases = append(normalizedAliases, normalizeAlias(aliasStr, domain))
+		if enableDNS {
+			aliasStr = normalizeAlias(aliasStr, domain)
+		}
+		normalizedAliases = append(normalizedAliases, aliasStr)
 	}
 	sort.Strings(normalizedAliases)
 	return normalizedAliases
@@ -175,17 +178,17 @@ func resourceIPAllocation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					enableDNS := d.Get("enable_dns").(bool)
-					if enableDNS {
-						fqdn := d.Get("fqdn").(string)
-						domain := strings.Join(strings.Split(fqdn, ".")[1:], ".")
-						oldAliases, newAliases := d.GetChange("aliases")
-						oldAliasesnew := normalizeAndSortAliases(oldAliases.([]interface{}), domain)
-						newAliasesnew := normalizeAndSortAliases(newAliases.([]interface{}), domain)
-						// Compare the sorted, normalized aliases
-						return strings.Join(oldAliasesnew, ",") == strings.Join(newAliasesnew, ",")
+					if oldValue == newValue {
+						return true
 					}
-					return oldValue == newValue
+					enableDNS := d.Get("enable_dns").(bool)
+					fqdn := d.Get("fqdn").(string)
+					domain := strings.Join(strings.Split(fqdn, ".")[1:], ".")
+					oldAliases, newAliases := d.GetChange("aliases")
+					oldAliasesNew := normalizeAndSortAliases(oldAliases.([]interface{}), domain, enableDNS)
+					newAliasesNew := normalizeAndSortAliases(newAliases.([]interface{}), domain, enableDNS)
+					// Compare the sorted aliases
+					return strings.Join(oldAliasesNew, ",") == strings.Join(newAliasesNew, ",")
 				},
 			},
 		},
