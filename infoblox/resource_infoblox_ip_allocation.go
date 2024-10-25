@@ -178,6 +178,9 @@ func resourceIPAllocation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
 					if oldValue == newValue {
 						return true
 					}
