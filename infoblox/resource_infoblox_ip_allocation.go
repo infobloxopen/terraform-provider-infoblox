@@ -89,7 +89,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Value which comes from 'ipv4_addr' (if specified) or from auto-allocation function (using 'ipv4_cidr').",
+				Description: "Value which comes from 'ipv4_addr' (if specified) or from auto-allocation function (using 'ipv4_cidr' or 'filter_params').",
 			},
 			"ipv6_addr": {
 				Type:     schema.TypeString,
@@ -108,7 +108,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Value which comes from 'ipv6_addr' (if specified) or from auto-allocation function (using 'ipv6_cidr').",
+				Description: "Value which comes from 'ipv6_addr' (if specified) or from auto-allocation function (using 'ipv6_cidr' or 'filter_params').",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
@@ -118,12 +118,12 @@ func resourceIPAllocation() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network block's extensible attributes.",
+				Description: "The parent network block's extensible attributes. This field is used for dynamic allocation along with 'ip_address_type' field.",
 			},
 			"ip_address_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The type of IP address to allocate. Valid values are: IPV4, IPV6, Both",
+				Description: "The type of IP address to allocate. This filed is used only when 'filter_params' field is used. Valid values are: IPV4, IPV6, Both. Default value is IPV4",
 				DefaultFunc: func() (interface{}, error) {
 					if filterParams, ok := resourceIPAllocation().Schema["filter_params"]; ok && filterParams.Default == nil {
 						return nil, nil
@@ -156,7 +156,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				Description: "Disables the Host-record if set to 'true'.",
+				Description: "Disables the Host record if set to 'true'.",
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -178,6 +178,9 @@ func resourceIPAllocation() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
 					if oldValue == newValue {
 						return true
 					}

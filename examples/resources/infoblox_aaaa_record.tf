@@ -26,3 +26,32 @@ resource "infoblox_aaaa_record" "rec3" {
   ttl = 0 // 0 = disable caching
   ext_attrs = jsonencode({})
 }
+
+// dynamically created AAAA-record using next_available_ip
+resource "infoblox_aaaa_record" "recordAAAA" {
+  fqdn = "aaa123.test.com"
+  comment = "example dynamic AAAA-record rec18"
+  ttl = 120
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+  network_view = "test"
+}
+
+// dynamically created AAAA-record using next_available_ip with dns_view
+resource "infoblox_aaaa_record" "recordaaaa" {
+  fqdn = "aaa123.test.com"
+  comment = "example dynamic AAAA-record rec18"
+  ttl = 120
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+  network_view = "custom"
+  dns_view = "default.custom"
+}

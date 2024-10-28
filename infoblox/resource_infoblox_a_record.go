@@ -40,10 +40,11 @@ func resourceARecord() *schema.Resource {
 				Description: "FQDN for the A-record.",
 			},
 			"ip_addr": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true, // making this optional because of possible dynamic IP allocation (CIDR)
-				Description: "IP address to associate with the A-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields.",
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true, // making this optional because of possible dynamic IP allocation (CIDR)
+				Description: "IP address to associate with the A-record. For static allocation, set the field with a valid IP address. For dynamic allocation, leave this field empty and set 'cidr' and 'network_view' fields" +
+					"or 'filter_params' and optional 'network_view' fields.",
 			},
 			"network_view": {
 				Type:        schema.TypeString,
@@ -54,7 +55,7 @@ func resourceARecord() *schema.Resource {
 			"filter_params": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The parent network block's extensible attributes.",
+				Description: "The parent network block's extensible attributes (dynamic allocation). For static allocation, leave this field empty.",
 			},
 			"cidr": {
 				Type:        schema.TypeString,

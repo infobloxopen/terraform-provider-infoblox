@@ -62,7 +62,7 @@ func resourceNetwork() *schema.Resource {
 			"object": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The object type to allocate from the parent network container block.",
+				Description: "The parent object from which the network will be allocated. Valid values are 'networkcontainer' and 'network'. Default value is 'networkcontainer'.",
 				Default:     "networkcontainer",
 				ValidateFunc: validation.StringInSlice([]string{
 					"networkcontainer", "network",

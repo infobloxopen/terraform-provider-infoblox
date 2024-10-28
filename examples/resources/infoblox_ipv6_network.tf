@@ -27,3 +27,31 @@ resource "infoblox_ipv6_network" "net3" {
     "Site" = "small inner cluster"
   })
 }
+
+// dynamically allocated IPv6 network within a networkconatiner using next-available
+resource "infoblox_ipv6_network" "ipv6network1" {
+  allocate_prefix_len = 67
+  network_view = "nondefault_netview"
+  comment = "IPV6 NW within a NW container"
+  filter_params = jsonencode({
+    "*Site": "Blr"
+  })
+  ext_attrs = jsonencode({
+    "Site" = "UK"
+  })
+  object = "networkcontainer"
+}
+
+// dynamically allocated IPv6 network within a network using next-available
+resource "infoblox_ipv6_network" "ipv6network2" {
+  allocate_prefix_len = 67
+  network_view = "nondefault_netview"
+  comment = "IPV6 NW within a NW"
+  filter_params = jsonencode({
+    "*Site": "Blr"
+  })
+  ext_attrs = jsonencode({
+    "Site" = "UK"
+  })
+  object = "network"
+}

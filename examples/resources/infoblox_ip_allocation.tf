@@ -57,3 +57,51 @@ resource "infoblox_ip_allocation" "allocation5" {
   ipv6_cidr = infoblox_ipv6_network.net2.cidr
   ipv4_cidr = infoblox_ipv4_network.net2.cidr
 }
+
+// dynamic allocation of IPV6 Host record using next-available
+resource "infoblox_ip_allocation" "allocation6" {
+  fqdn = "host5.test.com"
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ip_address_type = "IPV6"
+  enable_dns = true
+  ttl = 60
+}
+
+// dynamic allocation of IPV4 Host record using next-available
+resource "infoblox_ip_allocation" "allocation7" {
+  fqdn = "host6.test.com"
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ip_address_type = "IPV4"
+  enable_dns = true
+  ttl = 60
+}
+
+// dynamic allocation of both IPV4 and IPV6 Host record using next-available
+resource "infoblox_ip_allocation" "allocation8" {
+  fqdn = "host7.test.com"
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ip_address_type = "Both"
+  enable_dns = true
+  ttl = 60
+}
+
+// static allocation of both IPV4 and IPV6 Host record with aliases
+resource "infoblox_ip_allocation" "allocation9" {
+  network_view = "custom"
+  enable_dns = true
+  fqdn = "host8.test.com"
+  aliases = ["alias1"]
+  ipv6_addr = "2002:93::1234"
+  ipv4_addr = "10.1.1.0"
+  ttl = 120
+  comment = "another host record, statically allocated"
+  ext_attrs = jsonencode({
+    "Tenant ID" = "tenant_3261798"
+  })
+}
