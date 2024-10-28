@@ -126,7 +126,7 @@ func resourceIPAllocation() *schema.Resource {
 				Description: "The type of IP address to allocate. This filed is used only when 'filter_params' field is used. Valid values are: IPV4, IPV6, Both. Default value is IPV4",
 				DefaultFunc: func() (interface{}, error) {
 					if filterParams, ok := resourceIPAllocation().Schema["filter_params"]; ok && filterParams.Default == nil {
-						return nil, nil
+						return "IPV4", nil
 					}
 					return "IPV4", nil
 				},
