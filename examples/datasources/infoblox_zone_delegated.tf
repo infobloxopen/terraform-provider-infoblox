@@ -1,13 +1,13 @@
 //creating Zone delegated resource
 resource "infoblox_zone_delegated" "zone_delegated" {
-  fqdn = "zone_delegate.test_fwzone"
+  fqdn    = "zone_delegate.test_fwzone"
   comment = "zone delegated IPV4"
   delegate_to {
-    name = "test22.dz.ex.com"
+    name    = "test22.dz.ex.com"
     address = "10.0.0.1"
   }
   delegate_to {
-    name = "test2.dz.ex.com"
+    name    = "test2.dz.ex.com"
     address = "10.0.0.2"
   }
 }
@@ -15,8 +15,8 @@ resource "infoblox_zone_delegated" "zone_delegated" {
 // accessing Zone delegated by specifying fqdn, view and comment
 data "infoblox_zone_delegated" "data_zone_delegated" {
   filters = {
-    fqdn = "zone_delegate.test_fwzone"
-    view = "default"
+    fqdn    = "zone_delegate.test_fwzone"
+    view    = "default"
     comment = "zone delegated IPV4"
   }
   // This is just to ensure that the record has been be created
