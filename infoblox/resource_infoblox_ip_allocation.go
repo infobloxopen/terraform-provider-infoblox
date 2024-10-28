@@ -124,12 +124,6 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The type of IP address to allocate. This filed is used only when 'filter_params' field is used. Valid values are: IPV4, IPV6, Both. Default value is IPV4",
-				DefaultFunc: func() (interface{}, error) {
-					if filterParams, ok := resourceIPAllocation().Schema["filter_params"]; ok && filterParams.Default == nil {
-						return "IPV4", nil
-					}
-					return "IPV4", nil
-				},
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPV4", "IPV6", "Both",
 				}, false),
@@ -252,6 +246,9 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipv6Addr := d.Get("ipv6_addr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
 	ipAdressType := d.Get("ip_address_type").(string)
+	if nextAvailableFilter != "" && ipAdressType == "" {
+		ipAdressType = "IPV4"
+	}
 	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
 			" or IPv4/IPv6 cidr or filter_params")
@@ -313,6 +310,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs,
 			comment, disable, nil, ipAdressType, enableDns, false, "", "", networkView, dnsView, useTtl, ttl, aliasStrs)
+		d.Set("ip_address_type", ipAdressType)
 	} else {
 
 		// enableDns and enableDhcp flags used to create host record with respective flags.
@@ -541,6 +539,9 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	}
 	if d.HasChange("filter_params") {
 		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
+	}
+	if d.HasChange("ip_address_type") {
+		return fmt.Errorf("changing the value of 'ip_address_type' field is not allowed")
 	}
 
 	enableDNS := d.Get("enable_dns").(bool)

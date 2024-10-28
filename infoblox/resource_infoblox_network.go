@@ -63,7 +63,6 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent object from which the network will be allocated. Valid values are 'networkcontainer' and 'network'. Default value is 'networkcontainer'.",
-				Default:     "networkcontainer",
 				ValidateFunc: validation.StringInSlice([]string{
 					"networkcontainer", "network",
 				}, false),
@@ -138,6 +137,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	parentCidr := d.Get("parent_cidr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
 	object := d.Get("object").(string)
+	if nextAvailableFilter != "" && object == "" {
+		object = "networkcontainer"
+	}
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
 	reserveIPv4 := d.Get("reserve_ip").(int)
@@ -204,6 +206,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
 		}
 		d.Set("cidr", network.Cidr)
+		d.Set("object", object)
 
 	} else if cidr != "" {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, isIPv6, comment, extAttrs)
@@ -362,6 +365,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			prevGW, _ := d.GetChange("gateway")
 			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
 			prevNextAvailableFilter, _ := d.GetChange("filter_params")
+			prevObject, _ := d.GetChange("object")
 			prevResIPv4, _ := d.GetChange("reserve_ip")
 			prevResIPv6, _ := d.GetChange("reserve_ipv6")
 			prevComment, _ := d.GetChange("comment")
@@ -373,6 +377,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			_ = d.Set("gateway", prevGW.(string))
 			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
 			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
+			_ = d.Set("object", prevObject.(string))
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
 			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
 			_ = d.Set("comment", prevComment.(string))
@@ -400,6 +405,9 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	}
 	if d.HasChange("filter_params") {
 		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
+	}
+	if d.HasChange("object") {
+		return fmt.Errorf("changing the value of 'object' field is not allowed")
 	}
 
 	networkViewName := d.Get("network_view").(string)
