@@ -14,6 +14,7 @@ Use the `infoblox_host_record` data source to retrieve the following information
 * `enable_dhcp`: the flag to enable or disable the DHCP record. Example: `true`.
 * `comment`: the description of the record. This is a regular comment. Example: `Temporary A-record`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"TestEA\":56,\"TestEA1\":\"kickoff\"}"`
+* `disable`: the flag that specifies whether the record is disabled. Example: `false`.
 
 To retrieve information about host records that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 

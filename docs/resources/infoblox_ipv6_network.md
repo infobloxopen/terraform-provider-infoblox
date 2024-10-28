@@ -13,10 +13,15 @@ The following list describes the parameters you can define in a `infoblox_ipv6_n
 * `gateway`: optional, defines the IP address of the gateway within the network block. If a value is not set, the first IP address of the allocated network is assigned as the gateway address. If the value of the gateway parameter is set as `none`, no value is assigned.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network.
 * `reserve_ipv6`: optional, specifies the number of IPv6 addresses that you want to reserve in the IPv6 network. The default value is 0
+* `filter_params`: optional, specifies the extensible attributes of the parent network or network container that must be used as filters to retrieve the next available network for creating the network object. Example: `jsonencode({"*Site": "Turkey"})`.
+* `object`: optional, specifies the type of object from which to allocate the network. The values can be `network` or `networkcontainer`. The default value is `networkcontainer`.
 
 !> Once a network object is created, the `reserve_ipv6` and `gateway` fields cannot be edited.
 
 !> IP addresses that are reserved by setting the `reserve_ipv6` field are used for network maintenance by the cloud providers. Therefore, Infoblox does not recommend using these IP addresses for other purposes.
+
+!> The object parameter is applicable only if filter_params is configured.
+!> If the object parameter is set to network, after the creation of the network object, the parent network object will be converted to a network container object.
 
 ### Examples of an IPv6 Network Block
 
@@ -49,5 +54,20 @@ resource "infoblox_ipv6_network" "net3" {
   ext_attrs = jsonencode({
     "Site" = "small inner cluster"
   })
+}
+
+//full set of parameters for dynamically allocated IPv6 network using filter_params
+resource "infoblox_ipv6_network" "ipv6network1" {
+  allocate_prefix_len = 67
+  network_view = "nondefault_netview"
+  comment = "IPV6 NW within a NW container"
+  filter_params = jsonencode({
+    "*Site": "Blr"
+  })
+  ext_attrs = jsonencode({
+    "Site" = "UK"
+  })
+  object = "networkcontainer"
+
 }
 ```
