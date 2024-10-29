@@ -1,5 +1,19 @@
 # Infoblox Go Client Release Notes
 
+## v2.8.0
+
+### Release Summary
+
+- This release introduces several significant enhancements and new features aimed at improving record management and
+  network configuration capabilities.
+
+### Minor Changes
+
+- Added Create, Update and Delete operations for ZoneDelegated record.
+- Added structs `IpNextAvailable` for Next Available IP with extensible attribute for A, AAAA, and Host Record.
+- Added support for the Next Available Network with Extensible Attributes for Network and Network Container.
+- Added Aliases and disable field in HostRecord struct.
+
 ## v2.7.0
 
 ### Release Summary

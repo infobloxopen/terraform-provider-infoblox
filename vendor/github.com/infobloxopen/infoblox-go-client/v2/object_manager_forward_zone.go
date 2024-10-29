@@ -6,30 +6,6 @@ import (
 	"reflect"
 )
 
-// Handle FORWARD_TO to be [] list
-type NullForwardTo struct {
-	ForwardTo []NameServer
-	IsNull    bool
-}
-
-func (nft NullForwardTo) MarshalJSON() ([]byte, error) {
-	if reflect.DeepEqual(nft.ForwardTo, []NameServer{}) {
-		return []byte("[]"), nil
-	}
-
-	return json.Marshal(nft.ForwardTo)
-}
-
-func (nft *NullForwardTo) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
-		nft.IsNull = true
-		nft.ForwardTo = nil
-		return nil
-	}
-	nft.IsNull = false
-	return json.Unmarshal(data, &nft.ForwardTo)
-}
-
 // Forwarding Server to be [] list
 type NullableForwardingServers struct {
 	Servers []*Forwardingmemberserver
@@ -58,7 +34,7 @@ func (objMgr *ObjectManager) CreateZoneForward(
 	comment string,
 	disable bool,
 	eas EA,
-	forwardTo NullForwardTo,
+	forwardTo NullableNameServers,
 	forwardersOnly bool,
 	forwardingServers *NullableForwardingServers,
 	fqdn string,
@@ -118,7 +94,7 @@ func (objMgr *ObjectManager) UpdateZoneForward(
 	comment string,
 	disable bool,
 	eas EA,
-	forwardTo NullForwardTo,
+	forwardTo NullableNameServers,
 	forwardersOnly bool,
 	forwardingServers *NullableForwardingServers,
 	nsGroup string,
@@ -165,7 +141,7 @@ func NewEmptyZoneForward() *ZoneForward {
 func NewZoneForward(comment string,
 	disable bool,
 	eas EA,
-	forwardTo NullForwardTo,
+	forwardTo NullableNameServers,
 	forwardersOnly bool,
 	forwardingServers *NullableForwardingServers,
 	fqdn string,
