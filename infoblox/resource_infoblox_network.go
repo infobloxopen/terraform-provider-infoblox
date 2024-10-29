@@ -63,9 +63,20 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The parent object from which the network will be allocated. Valid values are 'networkcontainer' and 'network'. Default value is 'networkcontainer'.",
+				Default:     "networkcontainer",
 				ValidateFunc: validation.StringInSlice([]string{
 					"networkcontainer", "network",
 				}, false),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if d.Get("filter_params") != "" && newValue == "" {
+						if oldValue == "networkcontainer" {
+							return true
+						}
+					} else if d.Get("filter_params") == "" {
+						return true
+					}
+					return oldValue == newValue
+				},
 			},
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
@@ -137,8 +148,8 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	parentCidr := d.Get("parent_cidr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
 	object := d.Get("object").(string)
-	if nextAvailableFilter != "" && object == "" {
-		object = "networkcontainer"
+	if nextAvailableFilter == "" {
+		d.Set("object", "")
 	}
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
@@ -622,6 +633,10 @@ func resourceNetworkImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	}
 
 	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("object", ""); err != nil {
 		return nil, err
 	}
 

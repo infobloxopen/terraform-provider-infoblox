@@ -127,6 +127,17 @@ func resourceIPAllocation() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPV4", "IPV6", "Both",
 				}, false),
+				Default: "IPV4",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if d.Get("filter_params") != "" && newValue == "" {
+						if oldValue == "IPV4" {
+							return true
+						}
+					} else if d.Get("filter_params") == "" {
+						return true
+					}
+					return oldValue == newValue
+				},
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -246,8 +257,8 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipv6Addr := d.Get("ipv6_addr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
 	ipAdressType := d.Get("ip_address_type").(string)
-	if nextAvailableFilter != "" && ipAdressType == "" {
-		ipAdressType = "IPV4"
+	if nextAvailableFilter == "" {
+		d.Set("ip_address_type", "")
 	}
 	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
@@ -457,6 +468,10 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err = d.Set("fqdn", obj.Name); err != nil {
+		return err
+	}
+
+	if err = d.Set("disable", obj.Disable); err != nil {
 		return err
 	}
 
@@ -882,6 +897,14 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 	}
 
 	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("disable", obj.Disable); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("ip_address_type", ""); err != nil {
 		return nil, err
 	}
 
