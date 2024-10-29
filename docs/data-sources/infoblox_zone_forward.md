@@ -6,7 +6,7 @@ Use the `infoblox_zone_forward` data source to retrieve the following informatio
 * `view`: The name of the DNS view in which the zone resides. Example: `external`.
 * `comment`: The Description of Forward Zone Object. Example: `random forward zone`.
 * `ext_attrs`: The set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Location\":\"unknown\",\"TestEA\":\"ZoneTesting\"}"`.
-* `zone_format`: Determines the format of corresponding zone. Valid values are `FORWARD`, `IPV4` and `IPV6`. Default value: `FORWARD`.
+* `zone_format`: Determines the format of corresponding zone. Valid values are `FORWARD`, `IPV4` and `IPV6`.
 * `ns_group`: Specifies the name server group that serves DNS for this zone. Example: `demoGrp`.
 * `external_ns_group`: Specifies the name of the forward stub server. Example: `stubGroup`.
 * `disable`: Specifies whether the zone is disabled. Default value: `false`.
