@@ -177,7 +177,7 @@ resource "infoblox_ip_allocation" "allocation5" {
 // dynamic allocation of both IPv4 and IPv6 host records using filter_params with aliases
 resource "infoblox_ip_allocation" "rec_host17" {
   fqdn = "new777.test.com"
-  aliases = [www.test.com]
+  aliases = ["www.test.com"]
   disable = false
   //Extensible attributes of parent network 
   filter_params = jsonencode({
