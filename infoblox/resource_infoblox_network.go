@@ -149,7 +149,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	nextAvailableFilter := d.Get("filter_params").(string)
 	object := d.Get("object").(string)
 	if nextAvailableFilter == "" {
-		d.Set("object", "")
+		if err := d.Set("object", ""); err != nil {
+			return err
+		}
 	}
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)

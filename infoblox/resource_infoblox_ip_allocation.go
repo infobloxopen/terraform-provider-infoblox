@@ -258,7 +258,10 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	nextAvailableFilter := d.Get("filter_params").(string)
 	ipAdressType := d.Get("ip_address_type").(string)
 	if nextAvailableFilter == "" {
-		d.Set("ip_address_type", "")
+		if err := d.Set("ip_address_type", ""); err != nil {
+			return err
+
+		}
 	}
 	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
