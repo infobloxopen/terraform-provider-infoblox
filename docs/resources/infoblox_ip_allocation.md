@@ -47,9 +47,14 @@ The following list describes the parameters you can define in the `infoblox_ip_a
   Use this parameter only when `ipv6_cidr` is not specified. The allocated IP address will be marked as ‘Used’ in NIOS Grid Manager.
   The default value is an empty string. If you specify both `ipv6_addr` and `ipv6_cidr`, then the `ipv6_addr` address is allocated and `ipv6_cidr` is ignored.
   Example: `2000:1148::10`.
+* `filter_params`: required for dynamic allocation only if `ipv4_addr`, `ipv4_cidr`, `ipv6_addr` and `ipv6_cidr` are not set, specifies the extensible attributes of the parent network that must be used as filters to retrieve the next available IP address for creating the host record object.
+  The content is formatted as a string of a JSON map. Example: `jsonencode({"*Site": "Turkey"})`.
+* `ip_address_type`: required only when filter_params is used, Specifies the type of IP address to allocate. The valid values are, `IPV4`, `IPV6`, and `Both`. The default value is `IPv4`.
 * `ttl`: optional, specifies the 'time to live' value for the DNS record. This parameter is relevant only when `enable_dns` is set to `true`.
   If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS records for this resource. Example: `3600`.
+* `disable`: optional,specifies whether the record disabled or not. The default value is `false`. Example: `true`.
 * `comment`: optional, specifies the human-readable description of the resource. Example: `Front-end cloud node`.
+* `aliases`: optional, specifies the list of aliases for the host record. Example: `["alias1", "alias2"]`.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the NIOS resource.
   An extensible attribute must be a JSON map translated into a string value. Example:
 ```
@@ -167,5 +172,19 @@ resource "infoblox_ip_allocation" "allocation5" {
   fqdn = "host5.example4.org"
   ipv6_cidr = infoblox_ipv6_network.net2.cidr
   ipv4_cidr = infoblox_ipv4_network.net2.cidr
+}
+
+// dynamic allocation of both IPv4 and IPv6 host records using filter_params with aliases
+resource "infoblox_ip_allocation" "rec_host17" {
+  fqdn = "new777.test.com"
+  aliases = ["www.test.com"]
+  disable = false
+  //Extensible attributes of parent network 
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
+  ip_address_type = "Both"
+  enable_dns = true
+  ttl = 60
 }
 ```

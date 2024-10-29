@@ -12,10 +12,11 @@ resource block:
 * `allocate_prefix_len`: required only if `parent_cidr` is set, defines length of netmask for a network container that should be allocated from network container, determined by `parent_cidr`.
 * `comment`: optional, describes the network container.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that will be attached to the network container.
+* `filter_params`: required for dynamic allocation when `parent_cidr` is not used, specifies the extensible attributes of the parent network container that must be used as filters to retrieve the next available network for creating the network container object. Example: `jsonencode({"*Site": "Turkey"})`.
 
 !> Once the network container is created, the `network_view` and `cidr` parameter values cannot be changed by performing an `update` operation.
 
-!> Once the network container is created dynamically, the `parent_cidr` and `allocate_prefix_len` parameter values cannot be changed.
+!> Once the network container is created dynamically, the `parent_cidr`, `filter_params` and `allocate_prefix_len` parameter values cannot be changed.
 
 ### Examples of the Network Container Resource
 
@@ -45,6 +46,15 @@ resource "infoblox_ipv4_network_container" "v4net_c3" {
   ext_attrs = jsonencode({
     "Site" = "remote office"
     "Country" = "Australia"
+  })
+}
+
+// dynamic allocation of IPv4 network container resource using filter_params
+resource "infoblox_ipv4_network_container" "network_container_ipv4" {
+  allocate_prefix_len = 26
+  comment = "IPv4 network container created with next available network"
+  filter_params = jsonencode({
+    "*Site": "Blr"
   })
 }
 ```
