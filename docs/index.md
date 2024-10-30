@@ -21,15 +21,15 @@ curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https:/
 
 > **Note:**
 >
->Either the Terraform Internal ID extensible attribute definition must be present in NIOS or IPAM Plug-In for Terraform 
+>Either the Terraform Internal ID extensible attribute definition must be present in NIOS or IPAM Plug-In for Terraform
 must be configured with superuser access for it to automatically create the extensible attribute. If not, the connection
- to Terraform will fail.
+to Terraform will fail.
 >
 >If you choose to create the Terraform Internal ID extensible attribute manually or by using the cURL command,
 the creation of the extensible attribute is not managed by IPAM Plug-In for Terraform.
 >
 >You must not modify the Terraform Internal ID for a resource under any circumstances. If it is modified, the resource
- will no longer be managed by Terraform.
+will no longer be managed by Terraform.
 
 
 ## Configuring Infoblox Terraform IPAM Plug-In
@@ -101,6 +101,7 @@ There are resources for the following objects, supported by the plugin:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
@@ -152,12 +153,13 @@ There are data sources for the following objects:
 * Zone Auth (`infoblox_zone_auth`)
 * Zone Forward (`infoblox_zone_forward`)
 * Host Record (`infoblox_host_record`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
 
 * `filters`: the schema, with passing combination of searchable fields are supported by NIOS server, which
-returns one or more matching objects from the NIOS server.
+  returns one or more matching objects from the NIOS server.
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
 
@@ -265,11 +267,11 @@ with a randomly generated value in the form of a UUID to the record.
 - You may use the command-line tool `uuid` for Linux-based systems to generate a UUID.
 
 > The `Terraform Internal ID` extensible attribute is not shown in to terraform.tfstate file. Use it to create
-   or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
-   You must not add it in a resource block with other extensible attributes.
+or import the `infoblox_ip_allocation` and `infoblox_ip_association` resources.
+You must not add it in a resource block with other extensible attributes.
 
 > You must not delete (ex. with 'terraform destroy' command) an `infoblox_ip_association` resource right after importing, but you may do this after 'terraform apply'.
-   The reason: after 'terraform import' the dependency between `infoblox_ip_association` and respective `infoblox_ip_allocation` is not established by Terraform.
+The reason: after 'terraform import' the dependency between `infoblox_ip_association` and respective `infoblox_ip_allocation` is not established by Terraform.
 
 
 ### Utilizing the Import Block to Import Resources:
@@ -311,5 +313,5 @@ resource "infoblox_a_record" "imported_records" {
 }
 ```
 > **Note:**
-> 
+>
 > When using the Terraform import block for a resource, a new Terraform internal ID is assigned to the resource when the terraform plan command is run for the first time. If a subsequent terraform apply is aborted, the record will still retain the Terraform Internal ID though the resource is not managed by Terraform.

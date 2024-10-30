@@ -2,13 +2,13 @@ package infoblox
 
 import (
 	"fmt"
-	"github.com/infobloxopen/infoblox-go-client/v2/utils"
-	"sort"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"github.com/infobloxopen/infoblox-go-client/v2/utils"
+	"regexp"
+	"sort"
+	"testing"
 )
 
 type v4addrsType []ibclient.HostRecordIpv4Addr
@@ -37,6 +37,26 @@ func (al v6addrsType) Less(i, j int) bool {
 
 func (al v6addrsType) Swap(i, j int) {
 	al[i], al[j] = al[j], al[i]
+}
+
+func validateAliases(expAliases, actAliases []string) error {
+	// Validate Aliases
+	if (expAliases == nil) != (actAliases == nil) {
+		return fmt.Errorf("one of the expected and actual aliases lists is 'nil' while the other one is not")
+	}
+	if expAliases != nil {
+		if len(expAliases) != len(actAliases) {
+			return fmt.Errorf("expected and actual aliases lists are not of equal length")
+		}
+		for i, expAlias := range expAliases {
+			if expAlias != actAliases[i] {
+				return fmt.Errorf(
+					"'aliases' at index %d does not match: expected '%s', got '%s'",
+					i, expAlias, actAliases[i])
+			}
+		}
+	}
+	return nil
 }
 
 // must be used only with exp and act of the same length
@@ -215,6 +235,9 @@ func validateIPAllocation(
 			}
 		}
 
+		if err := validateAliases(expectedValue.Aliases, ipAlloc.Aliases); err != nil {
+			return err
+		}
 		// the rest is about extensible attributes
 		expectedEAs := expectedValue.Ea
 		if expectedEAs == nil && ipAlloc.Ea != nil {
@@ -440,6 +463,97 @@ func TestAcc_resourceIPAllocation(t *testing.T) {
 							"Site":      "Test site",
 						},
 					},
+				),
+			},
+			{
+				Config: `
+				resource "infoblox_zone_auth" "zone" {
+					fqdn = "test1.com"
+				}
+				resource "infoblox_ipv4_network" "net1" {
+					cidr = "10.0.0.0/24"
+				}
+				resource "infoblox_ipv6_network" "net2" {
+					cidr = "2002:1f93:0:3::/96"
+				}
+				resource "infoblox_ip_allocation" "foo3" {
+					network_view = "default"
+					fqdn        = "testhostnameip5.test1.com"
+					ipv4_addr   = "10.0.0.2"
+					comment      = "IPv4 and IPv6 are allocated"
+					aliases      = ["alias3", "alias4.test1.com"]
+					ext_attrs    = jsonencode({
+						Site = "Test site"
+					})
+					depends_on = [infoblox_zone_auth.zone, infoblox_ipv4_network.net1, infoblox_ipv6_network.net2]
+				}`,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo3",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip5.test1.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("10.0.0.2", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Site": "Test site",
+							},
+							Aliases: []string{
+								"alias3.test1.com",
+								"alias4.test1.com",
+							},
+						},
+					),
+				),
+			},
+			// Disable DNS in the second step, creating new resources.
+			{
+				Config: `
+				resource "infoblox_zone_auth" "zone2" {
+            		fqdn = "test2.com"
+        		}
+        		resource "infoblox_ipv4_network" "net2" {
+            		cidr = "11.0.0.0/24"
+        		}
+        		resource "infoblox_ipv6_network" "net2" {
+            		cidr = "2002:1f93:0:3::/96"
+        		}
+        		resource "infoblox_ip_allocation" "foo4" {
+            		network_view = "default"
+            		fqdn         = "testhostnameip5.test.com"
+            		ipv4_addr    = "11.0.0.2"
+            		enable_dns   = false
+            		comment      = "IPv4 and IPv6 are allocated"
+            		ipv4_cidr    = infoblox_ipv4_network.net2.cidr
+            		aliases       = ["alias3", "alias4.test2.com"]
+            		ext_attrs     = jsonencode({
+                		Site = "Test site"
+            		})
+            		depends_on   = [infoblox_zone_auth.zone2, infoblox_ipv4_network.net2, infoblox_ipv6_network.net2]
+        		}`,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.foo4",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr(" "),
+							EnableDns:   utils.BoolPtr(false),
+							Name:        utils.StringPtr("testhostnameip5.test.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("11.0.0.2", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("IPv4 and IPv6 are allocated"),
+							Ea: ibclient.EA{
+								"Site": "Test site",
+							},
+							Aliases: []string{
+								"alias3",           // This will not expand to a FQDN since DNS is disabled
+								"alias4.test2.com", // alias4 already has FQDN
+							},
+						},
+					),
 				),
 			},
 		},
@@ -735,4 +849,171 @@ func testAccCheckIPAllocationDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+var testResourceIPAllocationIPV4 = `resource "infoblox_ipv4_network" "ipv4_network12" {
+  cidr = "189.11.0.0/24"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Darjeeling"
+  })
+}
+resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
+resource "infoblox_ip_allocation" "ipv4"{
+	fqdn = "testhostnameip5.test.com"
+	comment = "host record created"
+	filter_params = jsonencode({
+		"*Site" = "Darjeeling"
+	})
+	ext_attrs = jsonencode({
+    	Site = "Europe"
+  	})
+	ip_address_type="IPV4"
+	depends_on = [infoblox_ipv4_network.ipv4_network12,infoblox_zone_auth.zone]
+}`
+var testResourceIPAllocationIPV6 = `resource "infoblox_ipv6_network" "ipv6_network12" {
+  cidr = "2002:1f93:0:4::/96"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Bengaluru"
+  })
+}
+resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
+resource "infoblox_ip_allocation" "ipv6"{
+	fqdn = "testhostnameip6.test.com"
+	comment = "host record created"
+	filter_params = jsonencode({
+		"*Site" = "Bengaluru"
+	})
+	ext_attrs = jsonencode({
+    	Site = "Europe"
+  	})
+	ip_address_type="IPV6"
+	depends_on = [infoblox_ipv6_network.ipv6_network12,infoblox_zone_auth.zone]
+}`
+var testResourceIPAllocationIPV6IPV4 = `resource "infoblox_ipv6_network" "ipv6_network12" {
+  cidr = "2002:1f93:0:4::/96"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Bengaluru"
+  })
+}
+resource "infoblox_ipv4_network" "ipv4_network12" {
+  cidr = "189.11.0.0/24"
+  network_view = "default"
+  comment = "small network for testing"
+  ext_attrs = jsonencode({
+    "Site" = "Bengaluru"
+  })
+}
+resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                }
+resource "infoblox_ip_allocation" "both"{
+	fqdn = "testhostnameip7.test.com"
+	comment = "host record created"
+	filter_params = jsonencode({
+		"*Site" = "Bengaluru"
+	})
+	ext_attrs = jsonencode({
+    	Site = "Europe"
+  	})
+	ip_address_type="Both"
+	depends_on = [infoblox_ipv6_network.ipv6_network12,infoblox_zone_auth.zone,infoblox_ipv4_network.ipv4_network12]
+}`
+
+func TestAcc_resourceNetwork_AllocateNetworkByEA_IPV4_IP_Allocation(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testResourceIPAllocationIPV4,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.ipv4",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip5.test.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("189.11.0.1", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("host record created"),
+							Ea: ibclient.EA{
+								"Site": "Europe",
+							},
+						},
+					),
+				),
+			},
+			{
+				Config: testResourceIPAllocationIPV6,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.ipv6",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip6.test.com"),
+							Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2002:1f93:0:4::1", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("host record created"),
+							Ea: ibclient.EA{
+								"Site": "Europe",
+							},
+						},
+					),
+				),
+			},
+			{
+				Config: testResourceIPAllocationIPV6IPV4,
+				Check: resource.ComposeTestCheckFunc(
+					validateIPAllocation(
+						"infoblox_ip_allocation.both",
+						&ibclient.HostRecord{
+							NetworkView: "default",
+							View:        utils.StringPtr("default"),
+							EnableDns:   utils.BoolPtr(true),
+							Name:        utils.StringPtr("testhostnameip7.test.com"),
+							Ipv4Addrs:   []ibclient.HostRecordIpv4Addr{*ibclient.NewHostRecordIpv4Addr("189.11.0.1", "", false, "")},
+							Ipv6Addrs:   []ibclient.HostRecordIpv6Addr{*ibclient.NewHostRecordIpv6Addr("2002:1f93:0:4::1", "", false, "")},
+							UseTtl:      utils.BoolPtr(false),
+							Comment:     utils.StringPtr("host record created"),
+							Ea: ibclient.EA{
+								"Site": "Europe",
+							},
+						},
+					)),
+			},
+			{
+				// Negative testcase
+				Config: `
+					resource "infoblox_zone_auth" "zone" {
+					fqdn = "test.com"
+                	}
+					resource "infoblox_ip_allocation" "ipv4_1"{
+					fqdn = "testhostnameip6.test.com"
+					network_view="default"
+					comment = "host record created"
+					filter_params = jsonencode({
+						"*Site" = "Finland"
+					})
+					ext_attrs = jsonencode({
+						Site = "Europe"
+					})
+				}`,
+				ExpectError: regexp.MustCompile("did not return any result"),
+			},
+		},
+	})
 }

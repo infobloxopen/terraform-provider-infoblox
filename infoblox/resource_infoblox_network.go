@@ -5,10 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"regexp"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"net"
+	"regexp"
+	"strings"
 )
+
+func normalizeIPAddress(val interface{}) string {
+	splitIP := strings.SplitN(val.(string), "/", 2)
+	ipaddr := splitIP[0]
+	ip := net.ParseIP(ipaddr)
+	if len(splitIP) == 1 {
+		return ip.String()
+	}
+	return ip.String() + "/" + splitIP[1]
+}
 
 var (
 	networkIPv4Regexp = regexp.MustCompile("^network/.+")
@@ -42,6 +54,30 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 				Description: "The parent network container block in cidr format to allocate from.",
 			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network/network-container block's extensible attributes.",
+			},
+			"object": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent object from which the network will be allocated. Valid values are 'networkcontainer' and 'network'. Default value is 'networkcontainer'.",
+				Default:     "networkcontainer",
+				ValidateFunc: validation.StringInSlice([]string{
+					"networkcontainer", "network",
+				}, false),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if d.Get("filter_params") != "" && newValue == "" {
+						if oldValue == "networkcontainer" {
+							return true
+						}
+					} else if d.Get("filter_params") == "" {
+						return true
+					}
+					return oldValue == newValue
+				},
+			},
 			"allocate_prefix_len": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -53,6 +89,9 @@ func resourceNetwork() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The network block in cidr format.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"reserve_ip": {
 				Type:        schema.TypeInt,
@@ -107,6 +146,13 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	}
 	networkViewName := d.Get("network_view").(string)
 	parentCidr := d.Get("parent_cidr").(string)
+	nextAvailableFilter := d.Get("filter_params").(string)
+	object := d.Get("object").(string)
+	if nextAvailableFilter == "" {
+		if err := d.Set("object", ""); err != nil {
+			return err
+		}
+	}
 	prefixLen := d.Get("allocate_prefix_len").(int)
 	cidr := d.Get("cidr").(string)
 	reserveIPv4 := d.Get("reserve_ip").(int)
@@ -154,7 +200,27 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		if err != nil {
 			return fmt.Errorf("Allocation of network block failed in network view (%s) : %s", networkViewName, err)
 		}
+		if err = d.Set("cidr", network.Cidr); err != nil {
+			return err
+		}
+
+	} else if cidr == "" && nextAvailableFilter != "" && prefixLen > 1 {
+		var (
+			eaMap map[string]string
+		)
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkViewName
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network container: %s", err)
+		}
+
+		network, err = objMgr.AllocateNetworkByEA(networkViewName, isIPv6, comment, extAttrs, eaMap, uint(prefixLen), object)
+		if err != nil {
+			return fmt.Errorf("allocation of network block failed in network with extra attributes (%s) : %s", nextAvailableFilter, err)
+		}
 		d.Set("cidr", network.Cidr)
+		d.Set("object", object)
+
 	} else if cidr != "" {
 		network, err = objMgr.CreateNetwork(networkViewName, cidr, isIPv6, comment, extAttrs)
 		if err != nil {
@@ -163,6 +229,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	} else {
 		return fmt.Errorf("creation of network block failed: neither cidr nor parentCidr with allocate_prefix_len was specified")
 	}
+
 	d.SetId(network.Ref)
 	if err = d.Set("internal_id", internalId.String()); err != nil {
 		return err
@@ -295,6 +362,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	var updateSuccessful bool
 	defer func() {
@@ -309,6 +377,8 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			prevParCIDR, _ := d.GetChange("parent_cidr")
 			prevGW, _ := d.GetChange("gateway")
 			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
+			prevObject, _ := d.GetChange("object")
 			prevResIPv4, _ := d.GetChange("reserve_ip")
 			prevResIPv6, _ := d.GetChange("reserve_ipv6")
 			prevComment, _ := d.GetChange("comment")
@@ -319,6 +389,8 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			_ = d.Set("parent_cidr", prevParCIDR.(string))
 			_ = d.Set("gateway", prevGW.(string))
 			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
+			_ = d.Set("object", prevObject.(string))
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
 			_ = d.Set("reserve_ipv6", prevResIPv6.(int))
 			_ = d.Set("comment", prevComment.(string))
@@ -343,6 +415,12 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	}
 	if d.HasChange("gateway") {
 		return fmt.Errorf("changing the value of 'gateway' field is not allowed")
+	}
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
+	}
+	if d.HasChange("object") {
+		return fmt.Errorf("changing the value of 'object' field is not allowed")
 	}
 
 	networkViewName := d.Get("network_view").(string)
@@ -557,6 +635,10 @@ func resourceNetworkImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	}
 
 	if err = d.Set("cidr", obj.Cidr); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("object", ""); err != nil {
 		return nil, err
 	}
 

@@ -169,22 +169,22 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 	ftInterface, forwardToOk := d.GetOk("forward_to")
 
 	var forwardTo []ibclient.NameServer
-	var nullFWT ibclient.NullForwardTo
+	var nullFWT ibclient.NullableNameServers
 	if !externalNsGroupOk && !forwardToOk {
 		return fmt.Errorf("either external_ns_group or forward_to must be set")
 	} else if !forwardToOk {
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
 		ftSlice, ok := ftInterface.([]interface{})
 		if !ok {
 			return fmt.Errorf("forward_to is not a slice of Nameservers")
 		}
 		var err error
-		forwardTo, err = validateForwardTo(ftSlice)
+		forwardTo, err = validateNameServers(ftSlice)
 		if err != nil {
 			return err
 		}
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: forwardTo}
 	}
 
 	fqdn := d.Get("fqdn").(string)
@@ -258,17 +258,17 @@ func validateForwardingServers(fsSlice []interface{}) ([]*ibclient.Forwardingmem
 	return forwardingServer, nil
 }
 
-func validateForwardTo(ftSlice []interface{}) ([]ibclient.NameServer, error) {
+func validateNameServers(ftSlice []interface{}) ([]ibclient.NameServer, error) {
 	nsStr, err := json.Marshal(ftSlice)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal forward_to: %s", err)
+		return nil, fmt.Errorf("failed to marshal nameservers: %s", err)
 	}
-	var forwardTo []ibclient.NameServer
-	err = json.Unmarshal(nsStr, &forwardTo)
+	var nameServers []ibclient.NameServer
+	err = json.Unmarshal(nsStr, &nameServers)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal forward_to: %s", err)
+		return nil, fmt.Errorf("failed to unmarshal nameservers: %s", err)
 	}
-	return forwardTo, nil
+	return nameServers, nil
 }
 
 func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
@@ -357,8 +357,8 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if zoneForward.ForwardTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zoneForward.ForwardTo)
+	if zoneForward.ForwardTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zoneForward.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return err
 		}
@@ -427,22 +427,22 @@ func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var forwardTo []ibclient.NameServer
-	var nullFWT ibclient.NullForwardTo
+	var nullFWT ibclient.NullableNameServers
 	if !externalNsGroupOk && !forwardToOk {
 		return fmt.Errorf("either external_ns_group or forward_to must be set")
 	} else if !forwardToOk {
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: []ibclient.NameServer{}}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: []ibclient.NameServer{}}
 	} else {
 		ftSlice, ok := ftInterface.([]interface{})
 		if !ok {
 			return fmt.Errorf("forward_to is not a slice of Nameservers")
 		}
 		var err error
-		forwardTo, err = validateForwardTo(ftSlice)
+		forwardTo, err = validateNameServers(ftSlice)
 		if err != nil {
 			return err
 		}
-		nullFWT = ibclient.NullForwardTo{IsNull: false, ForwardTo: forwardTo}
+		nullFWT = ibclient.NullableNameServers{IsNull: false, NameServers: forwardTo}
 	}
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -661,8 +661,8 @@ func resourceZoneForwardImport(d *schema.ResourceData, m interface{}) ([]*schema
 		}
 	}
 
-	if zf.ForwardTo.ForwardTo != nil {
-		nsInterface := convertForwardToInterface(zf.ForwardTo)
+	if zf.ForwardTo.NameServers != nil {
+		nsInterface := convertNullableNameServersToInterface(zf.ForwardTo)
 		if err = d.Set("forward_to", nsInterface); err != nil {
 			return nil, err
 		}

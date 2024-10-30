@@ -31,6 +31,7 @@ The provider plug-in has NIOS DDI resources represented as Terraform resources a
     * Allocation and deallocation of an IP address from a Network (`infoblox_ip_allocation`)
     * Association and disassociation of an IP address from a VM (`infoblox_ip_association`)
 * Zone Forward (`infoblox_zone_forward`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 All of the above resources are supported with `comment` and `ext_attrs` fields.
 DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` field.
@@ -55,6 +56,7 @@ DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` 
 * IPv6 Network (`infoblox_ipv6_network`)
 * IPv6 Network Container (`infoblox_ipv6_network_container`)
 * Host-record (`infoblox_host_record`)
+* Zone Delegated (`infoblox_zone_delegated`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
 Data source of DNS records are supported with `ttl` and `zone` fields.

@@ -14,6 +14,7 @@ The following list describes the parameters you can define in the resource block
   * For allocating a static IP address, specify a valid IP address.
   * For allocating a dynamic IP address, configure the `cidr` field instead of `ipv6_addr` . Optionally, specify a `network_view` if you do not want to allocate it in the network view `default`.
 * `cidr`: required only for dynamic allocation, specifies the network from which to allocate an IP address when the `ipv6_addr` field is empty. The address is in CIDR format. For static allocation, use `ipv6_addr` instead of `cidr`. Example: `2001::/64`.
+* `filter_params`: Required only if `ipv6_addr` and `cidr` are not set, specifies the extensible attributes of the parent network that must be used as filters to retrieve the next available IP address for creating the record object. Example: `jsonencode({"*Site": "Turkey"})`.
 
 !> To use upper case letters in `fqdn`, infoblox recommends that you use lower() function. Example: `lower("testEXAMPLE.zone1.com")`
 
@@ -47,5 +48,18 @@ resource "infoblox_aaaa_record" "aaaa_rec3" {
   dns_view = "nondefault_dnsview1"
   ttl = 0 // 0 = disable caching
   ext_attrs = jsonencode({})
+}
+
+// dynamic AAAA-record with filter_params
+resource "infoblox_aaaa_record" "aaaa_rec3" {
+  fqdn = "dyn1.test.com"
+  comment = "example dynamic AAAA-record aaaa_rec3, updated"
+  ttl = 60
+  ext_attrs = jsonencode({
+    "Location" = "65.8665701230204, -37.00791763398113"
+  })
+  filter_params = jsonencode({
+    "*Site": "Turkey"
+  })
 }
 ```

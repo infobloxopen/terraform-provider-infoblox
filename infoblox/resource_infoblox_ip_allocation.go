@@ -1,7 +1,10 @@
 package infoblox
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -9,6 +12,27 @@ import (
 
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
+
+func normalizeAlias(alias, domain string) string {
+	if !strings.HasSuffix(alias, "."+domain) {
+		return alias + "." + domain
+	}
+	return alias
+}
+
+// normalizeAndSortAliases normalizes each alias by appending the domain if missing and sorts the resulting list.
+func normalizeAndSortAliases(aliases []interface{}, domain string, enableDNS bool) []string {
+	var normalizedAliases []string
+	for _, alias := range aliases {
+		aliasStr := alias.(string)
+		if enableDNS {
+			aliasStr = normalizeAlias(aliasStr, domain)
+		}
+		normalizedAliases = append(normalizedAliases, aliasStr)
+	}
+	sort.Strings(normalizedAliases)
+	return normalizedAliases
+}
 
 func resourceIPAllocation() *schema.Resource {
 	// TODO: move towards context-aware equivalents of these fields, as these are deprecated.
@@ -50,6 +74,9 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The IPv6 cidr from which an IPv6 address will be allocated.",
+				StateFunc: func(val interface{}) string {
+					return normalizeIPAddress(val)
+				},
 			},
 			"ipv4_addr": {
 				Type:     schema.TypeString,
@@ -62,7 +89,7 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Value which comes from 'ipv4_addr' (if specified) or from auto-allocation function (using 'ipv4_cidr').",
+				Description: "Value which comes from 'ipv4_addr' (if specified) or from auto-allocation function (using 'ipv4_cidr' or 'filter_params').",
 			},
 			"ipv6_addr": {
 				Type:     schema.TypeString,
@@ -70,17 +97,47 @@ func resourceIPAllocation() *schema.Resource {
 				Default:  "",
 				Description: "IPv6 address of cloud instance." +
 					"Set a valid IP address for static allocation and leave empty if dynamically allocated.",
+				StateFunc: func(val interface{}) string {
+					if val == "" {
+						return ""
+					}
+					return normalizeIPAddress(val)
+				},
 			},
 			"allocated_ipv6_addr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "Value which comes from 'ipv6_addr' (if specified) or from auto-allocation function (using 'ipv6_cidr').",
+				Description: "Value which comes from 'ipv6_addr' (if specified) or from auto-allocation function (using 'ipv6_cidr' or 'filter_params').",
 			},
 			"fqdn": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The host name for Host Record in FQDN format.",
+			},
+			"filter_params": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The parent network block's extensible attributes. This field is used for dynamic allocation along with 'ip_address_type' field.",
+			},
+			"ip_address_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The type of IP address to allocate. This filed is used only when 'filter_params' field is used. Valid values are: IPV4, IPV6, Both. Default value is IPV4",
+				ValidateFunc: validation.StringInSlice([]string{
+					"IPV4", "IPV6", "Both",
+				}, false),
+				Default: "IPV4",
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if d.Get("filter_params") != "" && newValue == "" {
+						if oldValue == "IPV4" {
+							return true
+						}
+					} else if d.Get("filter_params") == "" {
+						return true
+					}
+					return oldValue == newValue
+				},
 			},
 			"ttl": {
 				Type:        schema.TypeInt,
@@ -100,6 +157,12 @@ func resourceIPAllocation() *schema.Resource {
 				Default:     "",
 				Description: "The extensible attributes for IP address allocation, as a map in JSON format",
 			},
+			"disable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Disables the Host record if set to 'true'.",
+			},
 			"internal_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -111,6 +174,30 @@ func resourceIPAllocation() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "NIOS object's reference, not to be set by a user.",
+			},
+			"aliases": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A set of IP allocation aliases",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
+					if oldValue == newValue {
+						return true
+					}
+					enableDNS := d.Get("enable_dns").(bool)
+					fqdn := d.Get("fqdn").(string)
+					domain := strings.Join(strings.Split(fqdn, ".")[1:], ".")
+					oldAliases, newAliases := d.GetChange("aliases")
+					oldAliasesNew := normalizeAndSortAliases(oldAliases.([]interface{}), domain, enableDNS)
+					newAliasesNew := normalizeAndSortAliases(newAliases.([]interface{}), domain, enableDNS)
+					// Compare the sorted aliases
+					return strings.Join(oldAliasesNew, ",") == strings.Join(newAliasesNew, ",")
+				},
 			},
 		},
 	}
@@ -168,9 +255,17 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
-	if ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "" {
+	nextAvailableFilter := d.Get("filter_params").(string)
+	ipAdressType := d.Get("ip_address_type").(string)
+	if nextAvailableFilter == "" {
+		if err := d.Set("ip_address_type", ""); err != nil {
+			return err
+
+		}
+	}
+	if (ipv4Cidr == "" && ipv6Cidr == "" && ipv4Addr == "" && ipv6Addr == "") && nextAvailableFilter == "" {
 		return fmt.Errorf("allocation through host address record creation needs an IPv4/IPv6 address" +
-			" or IPv4/IPv6 cidr")
+			" or IPv4/IPv6 cidr or filter_params")
 	}
 
 	ZeroMacAddr := "00:00:00:00:00:00"
@@ -179,6 +274,11 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		macAddr = ZeroMacAddr
 	}
 
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	var ttl uint32
 	useTtl := false
 	tempVal := d.Get("ttl")
@@ -191,6 +291,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	}
 
 	comment := d.Get("comment").(string)
+	disable := d.Get("disable").(bool)
 
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -210,23 +311,33 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 	internalId := generateInternalId()
 	extAttrs[eaNameForInternalId] = internalId.String()
 
-	// enableDns and enableDhcp flags used to create host record with respective flags.
-	// By default, enableDns is true.
-	hostRec, err := objMgr.CreateHostRecord(
-		enableDns,
-		false,
-		fqdn,
-		networkView,
-		dnsView,
-		ipv4Cidr, ipv6Cidr,
-		ipv4Addr, ipv6Addr,
-		macAddr, "",
-		useTtl, ttl,
-		comment,
-		extAttrs, []string{})
+	var (
+		newRecordHost interface{}
+		eaMap         map[string]string
+	)
+
+	if ipv4Addr == "" && ipv4Cidr == "" && ipv6Cidr == "" && ipv6Addr == "" && nextAvailableFilter != "" {
+		err = json.Unmarshal([]byte(nextAvailableFilter), &eaMap)
+		eaMap["network_view"] = networkView
+		if err != nil {
+			return fmt.Errorf("error unmarshalling extra attributes of network: %s", err)
+		}
+		newRecordHost, err = objMgr.AllocateNextAvailableIp(fqdn, "record:host", eaMap, nil, false, extAttrs,
+			comment, disable, nil, ipAdressType, enableDns, false, "", "", networkView, dnsView, useTtl, ttl, aliasStrs)
+		d.Set("ip_address_type", ipAdressType)
+	} else {
+
+		// enableDns and enableDhcp flags used to create host record with respective flags.
+		// By default, enableDns is true.
+		newRecordHost, err = objMgr.CreateHostRecord(enableDns, false, fqdn, networkView, dnsView, ipv4Cidr,
+			ipv6Cidr, ipv4Addr, ipv6Addr, macAddr, "", useTtl, ttl, comment, extAttrs, aliasStrs, disable)
+	}
+
 	if err != nil {
 		return fmt.Errorf("error while creating a host record: %s", err.Error())
 	}
+	hostRec := newRecordHost.(*ibclient.HostRecord)
+
 	d.SetId(internalId.String())
 	if err = d.Set("ref", hostRec.Ref); err != nil {
 		return err
@@ -247,6 +358,15 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	alias := hostRec.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
 	if hostRec.Ipv4Addrs == nil || len(hostRec.Ipv4Addrs) < 1 {
 		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
 			return err
@@ -257,7 +377,7 @@ func resourceAllocationRequest(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	return nil
+	return resourceAllocationGet(d, m)
 }
 
 func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
@@ -272,6 +392,7 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	_, nextAvailableFilterOk := d.GetOk("filter_params")
 	if obj.Ipv6Addrs == nil || len(obj.Ipv6Addrs) < 1 {
 		if err := d.Set("allocated_ipv6_addr", ""); err != nil {
 			return err
@@ -280,7 +401,8 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("allocated_ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
 			return err
 		}
-		if _, found := d.GetOk("ipv6_cidr"); !found {
+		_, found := d.GetOk("ipv6_cidr")
+		if !found && !nextAvailableFilterOk {
 			if err := d.Set("ipv6_addr", obj.Ipv6Addrs[0].Ipv6Addr); err != nil {
 				return err
 			}
@@ -294,13 +416,23 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("allocated_ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
 			return err
 		}
-		if _, found := d.GetOk("ipv4_cidr"); !found {
+		_, found := d.GetOk("ipv4_cidr")
+		if !found && !nextAvailableFilterOk {
 			if err := d.Set("ipv4_addr", obj.Ipv4Addrs[0].Ipv4Addr); err != nil {
 				return err
 			}
 		}
 	}
 
+	alias := obj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -342,6 +474,10 @@ func resourceAllocationGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	if err = d.Set("disable", obj.Disable); err != nil {
+		return err
+	}
+
 	if obj.Ttl != nil {
 		ttl = int(*obj.Ttl)
 	}
@@ -373,9 +509,13 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			prevIPv6Addr, _ := d.GetChange("ipv6_addr")
 			prevIPv4CIDR, _ := d.GetChange("ipv4_cidr")
 			prevIPv6CIDR, _ := d.GetChange("ipv6_cidr")
+			prevNextAvailableFilter, _ := d.GetChange("filter_params")
+			prevIpAdressType, _ := d.GetChange("ip_address_type")
 			prevEnableDNS, _ := d.GetChange("enable_dns")
+			prevAlias, _ := d.GetChange("aliases")
 			prevTTL, _ := d.GetChange("ttl")
 			prevComment, _ := d.GetChange("comment")
+			prevDisable, _ := d.GetChange("disable")
 			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("network_view", prevNetView.(string))
@@ -385,9 +525,13 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			_ = d.Set("ipv6_addr", prevIPv6Addr.(string))
 			_ = d.Set("ipv4_cidr", prevIPv4CIDR.(string))
 			_ = d.Set("ipv6_cidr", prevIPv6CIDR.(string))
+			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
+			_ = d.Set("ip_address_type", prevIpAdressType.(string))
 			_ = d.Set("enable_dns", prevEnableDNS.(bool))
+			_ = d.Set("aliases", prevAlias)
 			_ = d.Set("ttl", prevTTL.(int))
 			_ = d.Set("comment", prevComment.(string))
+			_ = d.Set("disable", prevDisable.(bool))
 			_ = d.Set("ext_attrs", prevEa.(string))
 		}
 	}()
@@ -411,10 +555,22 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
 	}
+	if d.HasChange("filter_params") {
+		return fmt.Errorf("changing the value of 'filter_params' field is not allowed")
+	}
+	if d.HasChange("ip_address_type") {
+		return fmt.Errorf("changing the value of 'ip_address_type' field is not allowed")
+	}
 
 	enableDNS := d.Get("enable_dns").(bool)
 	dnsView := d.Get("dns_view").(string)
+	dnsView = strings.TrimSpace(dnsView)
 	fqdn := d.Get("fqdn").(string)
+	aliases := d.Get("aliases").([]interface{})
+	aliasStrs := make([]string, len(aliases))
+	for i, alias := range aliases {
+		aliasStrs[i] = alias.(string)
+	}
 	if d.HasChange("dns_view") && !d.HasChange("enable_dns") {
 		return fmt.Errorf(
 			"changing the value of 'dns_view' field is allowed only for the case of changing 'enable_dns' option")
@@ -426,6 +582,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		if !strings.ContainsRune(fqdn, '.') {
 			return fmt.Errorf("'fqdn' value must be an FQDN without a trailing dot")
 		}
+
 	}
 
 	// internalId != nil here, because getOrFindHostRec() checks for this and returns an error otherwise.
@@ -435,6 +592,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	ipv6Cidr := d.Get("ipv6_cidr").(string)
 	ipv4Addr := d.Get("ipv4_addr").(string)
 	ipv6Addr := d.Get("ipv6_addr").(string)
+	_, nextAvailableFilterOk := d.GetOk("filter_params")
 
 	// If 'ipv4_cidr' or 'ipv6_cidr' are unchanged, then nothing to update here.
 	// making them empty to skip dynamic allocation of a new IP address again.
@@ -459,6 +617,7 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 	}
 
 	comment := d.Get("comment").(string)
+	disable := d.Get("disable").(bool)
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
@@ -488,13 +647,19 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid string
 	)
 	if needIpv4Addr || needIpv6Addr {
-		if _, ipv4CidrFlag := d.GetOk("ipv4_cidr"); ipv4CidrFlag && len(hostRecObj.Ipv4Addrs) > 0 {
+		_, ipv4CidrFlag := d.GetOk("ipv4_cidr")
+		if (ipv4CidrFlag || nextAvailableFilterOk) && len(hostRecObj.Ipv4Addrs) > 0 {
 			ipv4Addr = *hostRecObj.Ipv4Addrs[0].Ipv4Addr
-			macAddr = *hostRecObj.Ipv4Addrs[0].Mac
+			if hostRecObj.Ipv4Addrs[0].Mac != nil {
+				macAddr = *hostRecObj.Ipv4Addrs[0].Mac
+			}
 		}
-		if _, ipv6CidrFlag := d.GetOk("ipv6_cidr"); ipv6CidrFlag && len(hostRecObj.Ipv6Addrs) > 0 {
+		_, ipv6CidrFlag := d.GetOk("ipv6_cidr")
+		if (ipv6CidrFlag || nextAvailableFilterOk) && len(hostRecObj.Ipv6Addrs) > 0 {
 			ipv6Addr = *hostRecObj.Ipv6Addrs[0].Ipv6Addr
-			duid = *hostRecObj.Ipv6Addrs[0].Duid
+			if hostRecObj.Ipv6Addrs[0].Duid != nil {
+				duid = *hostRecObj.Ipv6Addrs[0].Duid
+			}
 		}
 	}
 
@@ -549,7 +714,8 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 		macAddr, duid,
 		useTtl, ttl,
 		comment,
-		mergedEAs, []string{})
+		mergedEAs,
+		aliasStrs, disable)
 	if err != nil {
 		return fmt.Errorf(
 			"error while updating the host record with ID '%s': %s", d.Id(), err.Error())
@@ -574,6 +740,16 @@ func resourceAllocationUpdate(d *schema.ResourceData, m interface{}) (err error)
 			return err
 		}
 	}
+	alias := hostRecObj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return err
+	}
+
 	if hostRecObj.Ipv4Addrs == nil || len(hostRecObj.Ipv4Addrs) < 1 {
 		if err := d.Set("allocated_ipv4_addr", ""); err != nil {
 			return err
@@ -697,6 +873,16 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 		}
 	}
 
+	alias := obj.Aliases
+	aliasesInterface := make([]interface{}, len(alias))
+	for i, a := range alias {
+		aliasesInterface[i] = a
+	}
+
+	if err = d.Set("aliases", aliasesInterface); err != nil {
+		return nil, err
+	}
+
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return nil, err
 	}
@@ -714,6 +900,14 @@ func ipAllocationImporter(d *schema.ResourceData, m interface{}) ([]*schema.Reso
 	}
 
 	if err = d.Set("fqdn", obj.Name); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("disable", obj.Disable); err != nil {
+		return nil, err
+	}
+
+	if err = d.Set("ip_address_type", ""); err != nil {
 		return nil, err
 	}
 

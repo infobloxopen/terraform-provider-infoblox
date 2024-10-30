@@ -21,7 +21,8 @@ func (objMgr *ObjectManager) CreateHostRecord(
 	ttl uint32,
 	comment string,
 	eas EA,
-	aliases []string) (*HostRecord, error) {
+	aliases []string,
+	disable bool) (*HostRecord, error) {
 
 	if ipv4Addr == "" && ipv4cidr != "" {
 		if netview == "" {
@@ -56,7 +57,7 @@ func (objMgr *ObjectManager) CreateHostRecord(
 	}
 	recordHost = NewHostRecord(
 		netview, recordName, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
-		eas, enabledns, dnsview, "", "", useTtl, ttl, comment, aliases)
+		eas, enabledns, dnsview, "", "", useTtl, ttl, comment, aliases, disable)
 	ref, err := objMgr.connector.CreateObject(recordHost)
 	if err != nil {
 		return nil, err
@@ -83,6 +84,7 @@ func (objMgr *ObjectManager) SearchHostRecordByAltId(
 	}
 
 	recordHost := NewEmptyHostRecord()
+	recordHost.SetReturnFields(append(recordHost.ReturnFields(), "disable"))
 	if ref != "" {
 		if err := objMgr.connector.GetObject(recordHost, ref, NewQueryParams(false, nil), &recordHost); err != nil {
 			if _, ok := err.(*NotFoundError); !ok {
@@ -166,7 +168,7 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 	ttl uint32,
 	comment string,
 	eas EA,
-	aliases []string) (*HostRecord, error) {
+	aliases []string, disable bool) (*HostRecord, error) {
 
 	recordHostIpv4AddrSlice := []HostRecordIpv4Addr{}
 	recordHostIpv6AddrSlice := []HostRecordIpv6Addr{}
@@ -243,7 +245,7 @@ func (objMgr *ObjectManager) UpdateHostRecord(
 	}
 	updateHostRecord := NewHostRecord(
 		"", name, "", "", recordHostIpv4AddrSlice, recordHostIpv6AddrSlice,
-		eas, enabledns, dnsView, "", hostRref, useTtl, ttl, comment, aliases)
+		eas, enabledns, dnsView, "", hostRref, useTtl, ttl, comment, aliases, disable)
 	ref, err := objMgr.connector.UpdateObject(updateHostRecord, hostRref)
 	if err != nil {
 		return nil, err

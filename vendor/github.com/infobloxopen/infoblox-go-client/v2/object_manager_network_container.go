@@ -107,6 +107,39 @@ func (objMgr *ObjectManager) AllocateNetworkContainer(
 	}
 }
 
+func (objMgr *ObjectManager) AllocateNetworkContainerByEA(
+	netview string, isIPv6 bool, comment string, eas EA, eaMap map[string]string, prefixLen uint) (*NetworkContainer, error) {
+
+	var object string
+	object = getNetworkObjectType(isIPv6, "networkcontainer", "ipv6networkcontainer")
+
+	nextAvailableNetworkInfo := NetworkContainerNextAvailableInfo{
+		Function:     "next_available_network",
+		ResultField:  "networks",
+		Object:       object,
+		ObjectParams: eaMap,
+		Params:       map[string]uint{"cidr": prefixLen},
+	}
+
+	net := NetworkContainerNextAvailable{
+		Network:     &nextAvailableNetworkInfo,
+		objectType:  object,
+		Comment:     comment,
+		Ea:          eas,
+		NetviewName: netview,
+	}
+	ref, err := objMgr.connector.CreateObject(&net)
+
+	if err != nil {
+		return nil, err
+	}
+	if isIPv6 {
+		return BuildIPv6NetworkContainerFromRef(ref)
+	} else {
+		return BuildNetworkContainerFromRef(ref)
+	}
+}
+
 func (objMgr *ObjectManager) DeleteNetworkContainer(ref string) (string, error) {
 	ncRegExp := regexp.MustCompile("^(ipv6)?networkcontainer\\/.+")
 	if !ncRegExp.MatchString(ref) {

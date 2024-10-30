@@ -219,6 +219,9 @@ func resourceIpAssociationCreateUpdateCommon(
 
 	var (
 		comment string
+		disable bool
+		ttl     uint32
+		alias   []string
 	)
 
 	if hostRec.Ea != nil {
@@ -235,7 +238,17 @@ func resourceIpAssociationCreateUpdateCommon(
 	if hostRec.Comment != nil {
 		comment = *hostRec.Comment
 	}
+	if hostRec.Disable != nil {
+		disable = *hostRec.Disable
+	}
 
+	if hostRec.Aliases != nil {
+		alias = hostRec.Aliases
+	}
+
+	if hostRec.Ttl != nil {
+		ttl = *hostRec.Ttl
+	}
 	_, err = objMgr.UpdateHostRecord(
 		hostRec.Ref,
 		*hostRec.EnableDns,
@@ -246,9 +259,9 @@ func resourceIpAssociationCreateUpdateCommon(
 		"", "",
 		ipV4Addr, ipV6Addr,
 		mac, duid,
-		*hostRec.UseTtl, *hostRec.Ttl,
+		*hostRec.UseTtl, ttl,
 		comment,
-		hostRec.Ea, []string{})
+		hostRec.Ea, alias, disable)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to update the resource with ID '%s' (host record with internal ID '%s'): %s",

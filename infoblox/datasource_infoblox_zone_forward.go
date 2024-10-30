@@ -229,7 +229,7 @@ func flattenZoneForward(zf ibclient.ZoneForward) (map[string]interface{}, error)
 	}
 
 	if zf.ForwardTo.IsNull == false {
-		nsInterface := convertForwardToInterface(zf.ForwardTo)
+		nsInterface := convertNullableNameServersToInterface(zf.ForwardTo)
 		res["forward_to"] = nsInterface
 	}
 
@@ -251,16 +251,17 @@ func convertForwardingServersToInterface(zf []*ibclient.Forwardingmemberserver) 
 		sMap["forwarders_only"] = fs.ForwardersOnly
 		sMap["use_override_forwarders"] = fs.UseOverrideForwarders
 		if fs.ForwardTo.IsNull == false {
-			nsInterface := convertForwardToInterface(fs.ForwardTo)
+			nsInterface := convertNullableNameServersToInterface(fs.ForwardTo)
 			sMap["forward_to"] = nsInterface
 		}
 		fwServers = append(fwServers, sMap)
 	}
 	return fwServers, nil
 }
-func convertForwardToInterface(nameServers ibclient.NullForwardTo) []map[string]interface{} {
-	nsInterface := make([]map[string]interface{}, 0, len(nameServers.ForwardTo))
-	for _, ns := range nameServers.ForwardTo {
+
+func convertNullableNameServersToInterface(nameServers ibclient.NullableNameServers) []map[string]interface{} {
+	nsInterface := make([]map[string]interface{}, 0, len(nameServers.NameServers))
+	for _, ns := range nameServers.NameServers {
 		nsMap := make(map[string]interface{})
 		nsMap["address"] = ns.Address
 		nsMap["name"] = ns.Name
