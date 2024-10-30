@@ -167,8 +167,8 @@ func testAccARecordCompare(
 }
 
 var (
-	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' or 'cidr' or 'filter_values' values is required")
-	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' or 'cidr' or 'filter_values' values is allowed to be defined")
+	regexpRequiredMissingIPv4    = regexp.MustCompile("either of 'ip_addr' or 'cidr' or 'filter_params' values is required")
+	regexpCidrIpAddrConflictIPv4 = regexp.MustCompile("only one of 'ip_addr' or 'cidr' or 'filter_params' values is allowed to be defined")
 
 	regexpUpdateConflictIPv4      = regexp.MustCompile("only one of 'ip_addr' and 'cidr' values is allowed to update")
 	regexpNetviewUpdateNotAllowed = regexp.MustCompile("changing the value of 'network_view' field is not allowed")

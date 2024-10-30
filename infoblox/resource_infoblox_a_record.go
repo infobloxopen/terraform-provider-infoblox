@@ -112,11 +112,11 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	ipAddr := d.Get("ip_addr").(string)
 	nextAvailableFilter := d.Get("filter_params").(string)
 	if ipAddr == "" && cidr == "" && nextAvailableFilter == "" {
-		return fmt.Errorf("either of 'ip_addr' or 'cidr' or 'filter_values' values is required")
+		return fmt.Errorf("either of 'ip_addr' or 'cidr' or 'filter_params' values is required")
 	}
 
 	if ipAddr != "" && cidr != "" && nextAvailableFilter == "" {
-		return fmt.Errorf("only one of 'ip_addr' or 'cidr' or 'filter_values' values is allowed to be defined")
+		return fmt.Errorf("only one of 'ip_addr' or 'cidr' or 'filter_params' values is allowed to be defined")
 	}
 
 	var ttl uint32
