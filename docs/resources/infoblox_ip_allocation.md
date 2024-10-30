@@ -92,7 +92,7 @@ resource "infoblox_ip_allocation" "ip_allocation" {
 
 When you perform a `create` or an `update` operation using this allocation resource, the following read-only parameters are computed:
 
-* `allocated_ipv4_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv4 CIDR.
+* `allocated_ipv4_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv4 CIDR or `filter_params`.
   If you allocated a static IP address, this value is the IP address that you specified in the `ipv4_addr` field.
   You can reference this field for the IP address when using other resources. Example:
 ```hcl
@@ -103,8 +103,17 @@ resource "infoblox_ip_aloocation" "allocation1" {
 }
 # You can add a reference for the IP address as follows: infoblox_ip_allocation.allocation1.allocated_ipv4_addr
 ```
+```hcl
+resource "infoblox_ip_allocation" "ipv4_allocation_with_ea" {
+  fqdn = local.vm_name
+  //Extensible attributes of parent network 
+  filter_params = jsonencode({
+    "*Site": local.site
+  })
+}
+```
 
-* `allocated_ipv6_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv6 CIDR.
+* `allocated_ipv6_addr`: if you allocated a dynamic IP address, this value is the IP address allocated from the specified IPv6 CIDR or `filter_params`.
   If you allocated a static IP address, this value is the IP address that you specified `ipv6_addr` field.
   You can reference this field for the IP address when using other resources. See the previous description for an example.
 
