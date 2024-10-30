@@ -16,7 +16,7 @@ The following list describes the parameters you can define in a `infoblox_ipv6_n
 * `filter_params`: optional, specifies the extensible attributes of the parent network or network container that must be used as filters to retrieve the next available network for creating the network object. Example: `jsonencode({"*Site": "Turkey"})`.
 * `object`: optional, specifies the type of object from which to allocate the network. The values can be `network` or `networkcontainer`. The default value is `networkcontainer`.
 
-!> Once a network object is created, the `reserve_ipv6` and `gateway` fields cannot be edited.
+!> Once a network object is created, the `filter_params`, `reserve_ipv6` and `gateway` fields cannot be edited.
 
 !> IP addresses that are reserved by setting the `reserve_ipv6` field are used for network maintenance by the cloud providers. Therefore, Infoblox does not recommend using these IP addresses for other purposes.
 
