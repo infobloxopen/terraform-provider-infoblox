@@ -1,4 +1,14 @@
 # Changelog
+
+## [v2.8.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.8.0) (2024-10-30)
+- New Feature: 
+  - Support for Creating Objects with the Next Available IP Address and Next Available Network Obtained Using the Extensible Attribute Filter.
+  - Add support for aliases and disable flag in Host Records.
+- New Resources:
+  - infoblox_zone_delegated
+- New Datasources:
+  - infoblox_zone_delegated
+
 ## [v2.7.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.7.0) (2024-06-20)
 - New Feature: Added support for Import block.
 - New Resources:
