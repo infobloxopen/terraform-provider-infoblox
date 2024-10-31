@@ -14,13 +14,13 @@ The following list describes the parameters you can define in the `infoblox_cnam
 ### Example of a CNAME-record Resource
 
 ```hcl
-// CNAME-record, minimal set of parameters
+# CNAME-record, minimal set of parameters
 resource "infoblox_cname_record" "cname_rec1" {
   canonical = "bla-bla-bla.somewhere.in.the.net"
   alias = "hq-server.example1.org"
 }
 
-// CNAME-record, full set of parameters
+# CNAME-record, full set of parameters
 resource "infoblox_cname_record" "cname_rec2" {
   dns_view = "default.nondefault_netview"
   canonical = "strange-place.somewhere.in.the.net"

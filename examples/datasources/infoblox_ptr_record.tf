@@ -14,8 +14,8 @@ data "infoblox_ptr_record" "host1" {
     ipv6addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_ptr_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_ptr_record' resource block before the data source will be queried.
   depends_on = [infoblox_ptr_record.host1]
 }
 

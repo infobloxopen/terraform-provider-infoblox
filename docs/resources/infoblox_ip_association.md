@@ -65,7 +65,7 @@ resource "infoblox_ip_association" "association2" {
 resource "infoblox_ip_association" "association3" {
   internal_id = infoblox_ip_allocation.allocation5.id
 
-  enable_dhcp = true // all systems go
+  enable_dhcp = true # all systems go
 
   mac_addr = "12:43:fd:ba:9c:c9"
   duid = "00:43:d2:0a:11:e6"
@@ -74,14 +74,14 @@ resource "infoblox_ip_association" "association3" {
 resource "infoblox_ip_association" "association4" {
   internal_id = infoblox_ip_allocation.allocation3.id
 
-  enable_dhcp = true // all systems go
+  enable_dhcp = true # all systems go
 
-  // DHCP will be enabled for IPv4 ...
+  # DHCP will be enabled for IPv4 ...
   mac_addr = "09:01:03:d3:db:2a"
 
-  // ... and disabled for IPv6
+  # ... and disabled for IPv6
   # duid = "10:2a:9f:dd:3e:0a"
-  // yes, DUID will be de-associated, but you can uncomment this later
-  // if you will decide to enable DHCP for IPv6
+  # yes, DUID will be de-associated, but you can uncomment this later
+  # if you will decide to enable DHCP for IPv6
 }
 ```

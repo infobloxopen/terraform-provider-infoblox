@@ -29,7 +29,7 @@ resource "infoblox_ipv4_allocation" "alloc1" {
   network_view=infoblox_network_view.nv1.network_view
   cidr=infoblox_ipv4_network.subnet1.cidr
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv4.aws.com"
   enable_dns = "false"

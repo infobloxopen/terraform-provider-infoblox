@@ -16,14 +16,14 @@ The following list describes the parameters you can define in the resource block
 ## Examples
 
 ```hcl
-// MX-record, minimal set of parameters
+# MX-record, minimal set of parameters
 resource "infoblox_mx_record" "rec1" {
   fqdn = "big-big-company.com"
   mail_exchanger = "mx1.secure-mail-provider.net"
   preference = 30
 }
 
-// MX-record, full set of parameters
+# MX-record, full set of parameters
 resource "infoblox_mx_record" "rec2" {
   dns_view = "nondefault_dnsview1"
   fqdn = "rec2.example2.org"

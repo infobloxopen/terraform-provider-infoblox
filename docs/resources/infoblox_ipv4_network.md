@@ -26,12 +26,12 @@ The following list describes the parameters you can define in a `infoblox_ipv4_n
 ### Examples of an IPv4 Network Block
 
 ```hcl
-// statically allocated IPv4 network, minimal set of parameters
+# Statically allocated IPv4 network, minimal set of parameters
 resource "infoblox_ipv4_network" "net1" {
   cidr = "10.0.0.0/16"
 }
 
-// full set of parameters for statically allocated IPv4 network
+# Full set of parameters for statically allocated IPv4 network
 resource "infoblox_ipv4_network" "net2" {
   cidr = "10.1.0.0/24"
   network_view = "nondefault_netview"
@@ -43,20 +43,20 @@ resource "infoblox_ipv4_network" "net2" {
   })
 }
 
-// full set of parameters for dynamically allocated IPv4 network
+# Full set of parameters for dynamically allocated IPv4 network
 resource "infoblox_ipv4_network" "net3" {
-  parent_cidr = infoblox_ipv4_network_container.v4net_c1.cidr // reference to the resource from another example
-  allocate_prefix_len = 26 // 24 (existing network container) + 2 (new network), prefix
-  network_view = "default" // we may omit this but it is not a mistake to specify explicitly
+  parent_cidr = infoblox_ipv4_network_container.v4net_c1.cidr # reference to the resource from another example
+  allocate_prefix_len = 26 # 24 (existing network container) + 2 (new network), prefix
+  network_view = "default" # we may omit this but it is not a mistake to specify explicitly
   reserve_ip = 2
-  gateway = "none" // no gateway defined for this network
+  gateway = "none" # no gateway defined for this network
   comment = "even smaller network for testing"
   ext_attrs = jsonencode({
     "Site" = "any place you wish ..."
   })
 }
 
-// full set of parameters for dynamically allocated IPv4 network using next-available
+# Full set of parameters for dynamically allocated IPv4 network using next-available
 resource "infoblox_ipv4_network" "ipv4network1" {
   allocate_prefix_len = 26
   network_view = "nondefault_netview"

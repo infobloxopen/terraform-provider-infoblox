@@ -21,12 +21,12 @@ resource block:
 ### Examples of the Network Container Resource
 
 ```hcl
-// statically allocated IPv6 network container, minimal set of parameters
+# Statically allocated IPv6 network container, minimal set of parameters
 resource "infoblox_ipv6_network_container" "v6net_c1" {
   cidr = "2002:1f93:0:1::/96"
 }
 
-// full set of parameters for statically allocated IPv6 network container
+# Full set of parameters for statically allocated IPv6 network container
 resource "infoblox_ipv6_network_container" "v6net_c2" {
   cidr = "2002:1f93:0:2::/96"
   network_view = "nondefault_netview"
@@ -37,7 +37,7 @@ resource "infoblox_ipv6_network_container" "v6net_c2" {
   })
 }
 
-// full set of parameters for dynamic allocation of network containers
+# Full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv6_network_container" "v6net_c3" {
   parent_cidr = infoblox_ipv6_network_container.v6net_c2.cidr
   allocate_prefix_len = 97
@@ -49,7 +49,7 @@ resource "infoblox_ipv6_network_container" "v6net_c3" {
   })
 }
 
-// dynamic allocation of IPv6 network container resource using filter_params
+# Dynamic allocation of IPv6 network container resource using filter_params
 resource "infoblox_ipv6_network_container" "network_container_ipv6" {
   allocate_prefix_len = 68
   comment = "IPv6 network container created with next available network"

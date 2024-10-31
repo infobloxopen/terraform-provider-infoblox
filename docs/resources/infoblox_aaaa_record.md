@@ -21,13 +21,13 @@ The following list describes the parameters you can define in the resource block
 ### Examples of an AAAA-record Block
 
 ```hcl
-// static AAAA-record, minimal set of parameters
+# Static AAAA-record, minimal set of parameters
 resource "infoblox_aaaa_record" "aaaa_rec1" {
   fqdn = "static1.example1.org"
   ipv6_addr = "2002:1111::1401" // not necessarily from a network existing in NIOS DB
 }
 
-// all the parameters for a static AAAA-record
+# All the parameters for a static AAAA-record
 resource "infoblox_aaaa_record" "aaaa_rec2" {
   fqdn = "static2.example4.org"
   ipv6_addr = "2002:1111::1402"
@@ -39,7 +39,7 @@ resource "infoblox_aaaa_record" "aaaa_rec2" {
   })
 }
 
-// all the parameters for a dynamic AAAA-record
+# All the parameters for a dynamic AAAA-record
 resource "infoblox_aaaa_record" "aaaa_rec3" {
   fqdn = "dynamic1.example2.org"
   cidr = infoblox_ipv6_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv6_network resource.
@@ -50,7 +50,7 @@ resource "infoblox_aaaa_record" "aaaa_rec3" {
   ext_attrs = jsonencode({})
 }
 
-// dynamic AAAA-record with filter_params
+# Dynamic AAAA-record with filter_params
 resource "infoblox_aaaa_record" "aaaa_rec3" {
   fqdn = "dyn1.test.com"
   comment = "example dynamic AAAA-record aaaa_rec3, updated"

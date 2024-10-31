@@ -37,7 +37,6 @@ resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
   })
 }
 
-
 # Allocate a network in Infoblox Grid under provided parent CIDR
 resource "infoblox_ipv4_network" "ipv4_network"{
   network_view = "default"

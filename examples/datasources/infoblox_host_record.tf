@@ -32,7 +32,7 @@ output "host_rec_res" {
   value = data.infoblox_host_record.host_rec_temp
 }
 
-// fetching Host-Records through EAs
+# Fetching Host-Records through EAs
 data "infoblox_host_record" "host_rec_ea" {
   filters = {
     "*Location" = "USA"

@@ -54,4 +54,4 @@ resource "infoblox_aaaa_record" "aaaa_record_2" {
 resource "infoblox_aaaa_record" "aaaa_record_3" {
   ipv6_addr="2000:03"           # "2000::/64" network MUST exist at NIOS
   fqdn="aaaa_record.aws.com"    # "aws.com" zone MUST exist at NIOS
-} 
+}

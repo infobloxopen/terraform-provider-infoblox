@@ -39,7 +39,7 @@ data "infoblox_ipv6_network" "readNet1" {
 ### Example of a Network Data Source Block
 
 ```hcl
-// This is just to ensure that the network has been be created
+# This is just to ensure that the network has been be created
 resource "infoblox_ipv6_network" "ipv6net1" {
   cidr = "2002:1f93:0:4::/96"
   reserve_ipv6 = 10
@@ -54,11 +54,11 @@ data "infoblox_ipv6_network" "readNet1" {
   filters = {
     network = "2002:1f93:0:4::/96"
   }
-  // using 'infoblox_ipv6_network' resource block before the data source will be queried.
+  # Using 'infoblox_ipv6_network' resource block before the data source will be queried.
   depends_on = [infoblox_ipv6_network.ipv6net1]
 }
 
-// accessing IPv6 network through EA's
+# Accessing IPv6 network through EA's
 data "infoblox_ipv6_network" "readnet2" {
   filters = {
     "*Site" = "Antarctica"
@@ -66,12 +66,12 @@ data "infoblox_ipv6_network" "readnet2" {
   depends_on = [infoblox_ipv6_network.ipv6net1]
 }
 
-// throws matching IPv6 network.
+# Throws matching IPv6 network.
 output "ipv6net_res" {
   value = data.infoblox_ipv6_network.readNet1
 }
 
-// throws matching IPv4 networks with EA, if any
+# Throws matching IPv4 networks with EA, if any
 output "ipv6net_res1" {
   value = data.infoblox_ipv6_network.readnet2
 }

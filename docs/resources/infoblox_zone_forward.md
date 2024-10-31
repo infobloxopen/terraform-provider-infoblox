@@ -43,7 +43,7 @@ forwarding_servers {
 ### Examples of a Zone Forward Block
 
 ```hcl
-//forward mapping zone, with minimum set of parameters
+# Forward mapping zone, with minimum set of parameters
 resource "infoblox_zone_forward" "forward_zone_forwardTo" {
   fqdn = "min_params.ex.org"
   forward_to {
@@ -56,7 +56,7 @@ resource "infoblox_zone_forward" "forward_zone_forwardTo" {
   }
 }
 
-//forward zone with full set of parameters
+# Forward zone with full set of parameters
 resource "infoblox_zone_forward" "forward_zone_full_parameters" {
   fqdn = "max_params.ex.org"
   view = "nondefault_view"
@@ -86,7 +86,7 @@ resource "infoblox_zone_forward" "forward_zone_full_parameters" {
   }
 }
 
-//forward zone with ns_group, external_ns_group and extra attribute Site
+# Forward zone with ns_group, external_ns_group and extra attribute Site
 resource "infoblox_zone_forward" "forward_zone_nsGroup_externalNsGroup" {
   fqdn = "params_ns_ens.ex.org"
   ns_group = "test"
@@ -96,4 +96,3 @@ resource "infoblox_zone_forward" "forward_zone_nsGroup_externalNsGroup" {
   })
 }
 ```
-
