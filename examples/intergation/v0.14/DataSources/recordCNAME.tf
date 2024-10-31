@@ -44,4 +44,3 @@ output "comment" {
 output "ext_attrs" {
   value = data.infoblox_cname_record.test.ext_attrs
 }
-

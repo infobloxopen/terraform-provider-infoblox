@@ -72,9 +72,9 @@ curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/exte
 echo
 
 # Uncomment the lines below if you haven't got a Cloud Network Automation license installed, and there are no appropriate EAs defined at your appliance.
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"CMP Type","type":"STRING"}'
-#echo
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Tenant ID","type":"STRING"}'
-#echo
-#curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Cloud API Owned","type":"ENUM","list_values":[{"value": "True"},{"value": "False"}]}'
-#echo
+# curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"CMP Type","type":"STRING"}'
+# echo
+# curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Tenant ID","type":"STRING"}'
+# echo
+# curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Cloud API Owned","type":"ENUM","list_values":[{"value": "True"},{"value": "False"}]}'
+# echo

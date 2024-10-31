@@ -24,14 +24,14 @@ resource "infoblox_ip_allocation" "internal_ip_allocation_reception_1" {
   network_view = local.internal_netview_name
   fqdn = "reception-1.${local.default_internal_dns_zone}"
   dns_view = local.internal_default_dnsview
-  enable_dns = true // It is true by default so may be omitted as well.
+  enable_dns = true # It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
 }
 
 resource "infoblox_ip_association" "internal_ip_association_reception_1" {
-  internal_id = infoblox_ip_allocation.internal_ip_allocation_reception_1.internal_id // This is how to set this field correctly.
-  enable_dhcp = true // It is false by default so we should enable it explicitly.
+  internal_id = infoblox_ip_allocation.internal_ip_allocation_reception_1.internal_id # This is how to set this field correctly.
+  enable_dhcp = true # It is false by default so we should enable it explicitly.
   duid = local.internal_reception_1_nic1_duid
   mac_addr = local.internal_reception_1_nic1_mac
 }
@@ -40,14 +40,14 @@ resource "infoblox_ip_allocation" "internal_ip_allocation_reception_2" {
   network_view = local.internal_netview_name
   fqdn = "reception-2.${local.default_internal_dns_zone}"
   dns_view = local.internal_default_dnsview
-  enable_dns = true // It is true by default so may be omitted as well.
+  enable_dns = true # It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
 }
 
 resource "infoblox_ip_association" "internal_ip_association_reception_2" {
-  internal_id = infoblox_ip_allocation.internal_ip_allocation_reception_2.internal_id // This is how to set this field correctly.
-  enable_dhcp = true // It is false by default so we should enable it explicitly.
+  internal_id = infoblox_ip_allocation.internal_ip_allocation_reception_2.internal_id # This is how to set this field correctly.
+  enable_dhcp = true # It is false by default so we should enable it explicitly.
   duid = local.internal_reception_2_nic1_duid
   mac_addr = local.internal_reception_2_nic1_mac
 }
@@ -56,14 +56,14 @@ resource "infoblox_ip_allocation" "internal_ip_allocation_user_1" {
   network_view = local.internal_netview_name
   fqdn = "user-1.${local.default_internal_dns_zone}"
   dns_view = local.internal_default_dnsview
-  enable_dns = true // It is true by default so may be omitted as well.
+  enable_dns = true # It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
 }
 
 resource "infoblox_ip_association" "internal_ip_association_user_1" {
-  internal_id = infoblox_ip_allocation.internal_ip_allocation_user_1.internal_id // This is how to set this field correctly.
-  enable_dhcp = true // It is false by default so we should enable it explicitly.
+  internal_id = infoblox_ip_allocation.internal_ip_allocation_user_1.internal_id # This is how to set this field correctly.
+  enable_dhcp = true # It is false by default so we should enable it explicitly.
   duid = local.internal_user_1_nic1_duid
   mac_addr = local.internal_user_1_nic1_mac
 }
@@ -72,14 +72,14 @@ resource "infoblox_ip_allocation" "internal_ip_allocation_user_2" {
   network_view = local.internal_netview_name
   fqdn = "user-2.${local.default_internal_dns_zone}"
   dns_view = local.internal_default_dnsview
-  enable_dns = true // It is true by default so may be omitted as well.
+  enable_dns = true # It is true by default so may be omitted as well.
   ipv4_cidr = infoblox_ipv4_network.internal_ipv4_pool.cidr
   ipv6_cidr = infoblox_ipv6_network.internal_ipv6_pool.cidr
 }
 
 resource "infoblox_ip_association" "internal_ip_association_user_2" {
-  internal_id = infoblox_ip_allocation.internal_ip_allocation_user_2.internal_id // This is how to set this field correctly.
-  enable_dhcp = true // It is false by default so we should enable it explicitly.
+  internal_id = infoblox_ip_allocation.internal_ip_allocation_user_2.internal_id # This is how to set this field correctly.
+  enable_dhcp = true # It is false by default so we should enable it explicitly.
   duid = local.internal_user_2_nic1_duid
   mac_addr = local.internal_user_2_nic1_mac
 }

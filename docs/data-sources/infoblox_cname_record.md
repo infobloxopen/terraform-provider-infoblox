@@ -57,7 +57,7 @@ resource "infoblox_cname_record" "foo" {
   canonical = "strange-place.somewhere.in.the.net"
   alias = "foo.test.com"
   comment = "we need to keep an eye on this strange host"
-  ttl = 0 // disable caching
+  ttl = 0 # disable caching
   ext_attrs = jsonencode({
     Site = "unknown"
     Location = "TBD"
@@ -71,8 +71,8 @@ data "infoblox_cname_record" "cname_rec"{
     view = "default.nondefault_netview"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_cname_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_cname_record' resource block before the data source will be queried.
   depends_on = [infoblox_cname_record.foo]
 }
 
@@ -82,17 +82,17 @@ output "cname_rec_out" {
 
 // accessing individual field in results
 output "cname_rec_alias" {
-  value = data.infoblox_cname_record.cname_rec.results.0.alias //zero represents index of json object from results list
+  value = data.infoblox_cname_record.cname_rec.results.0.alias # zero represents index of json object from results list
 }
 
-// accessing CNAME-Record through EA's
+# Accessing CNAME-Record through EA's
 data "infoblox_cname_record" "cname_rec_ea" {
   filters = {
     "*Location" = "Cali"
   }
 }
 
-// throws matching CNAME records with EA, if any
+# Throws matching CNAME records with EA, if any
 output "cname_rec_res" {
   value = data.infoblox_cname_record.cname_rec_ea
 }

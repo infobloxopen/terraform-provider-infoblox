@@ -59,8 +59,8 @@ data "infoblox_ipv4_network_container" "nearby_nc" {
     network = "192.168.128.0/17"
   }
 
-  // This is just to ensure that the network container has been be created
-  // using 'infoblox_ipv4_network_container' resource block before the data source will be queried.
+  # This is just to ensure that the network container has been be created
+  # using 'infoblox_ipv4_network_container' resource block before the data source will be queried.
   depends_on = [infoblox_ipv4_network_container.nearby_org]
 }
 
@@ -68,19 +68,19 @@ output "nc_res" {
   value = data.infoblox_ipv4_network_container.nearby_nc
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "nc_cidr_out" {
-  value = data.infoblox_ipv4_network_container.nearby_nc.results.0.cidr //zero represents index of json object from results list
+  value = data.infoblox_ipv4_network_container.nearby_nc.results.0.cidr # zero represents index of json object from results list
 }
 
-// accessing IPv4 Network Container through EA's
+# Accessing IPv4 Network Container through EA's
 data "infoblox_ipv4_network_container" "nc_ea" {
   filters = {
     "*Site" = "GMC Site"
   }
 }
 
-// throws matching IPv4 Network Containers with EA, if any
+# Throws matching IPv4 Network Containers with EA, if any
 output "nc_ea_out" {
   value = data.infoblox_ipv4_network_container.nc_ea
 }

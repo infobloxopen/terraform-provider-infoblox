@@ -21,13 +21,13 @@ The following list describes the parameters you can define in the resource block
 ### Examples of an A-record Block
 
 ```hcl
-// static A-record, minimal set of parameters
+# Static A-record, minimal set of parameters
 resource "infoblox_a_record" "a_rec1" {
   fqdn = "static1.example1.org"
   ip_addr = "1.3.5.4" // not necessarily from a network existing in NIOS DB
 }
 
-// all the parameters for a static A-record
+# All the parameters for a static A-record
 resource "infoblox_a_record" "a_rec2" {
   fqdn = "static2.example4.org"
   ip_addr = "1.3.5.1"
@@ -39,7 +39,7 @@ resource "infoblox_a_record" "a_rec2" {
   })
 }
 
-// all the parameters for a dynamic A-record
+# All the parameters for a dynamic A-record
 resource "infoblox_a_record" "a_rec3" {
   fqdn = "dynamic1.example2.org"
   cidr = infoblox_ipv4_network.net2.cidr // the network  must exist, you may use the example for infoblox_ipv4_network resource.
@@ -50,7 +50,7 @@ resource "infoblox_a_record" "a_rec3" {
   ext_attrs = jsonencode({})
 }
 
-// dynamic A-record with filter_params
+# Dynamic A-record with filter_params
 resource "infoblox_a_record" "rec"{
   fqdn = "very-interesting-host.example.com"
   ext_attrs = jsonencode({

@@ -32,7 +32,7 @@ delegate_to {
 ### Examples of a Zone Delegated Block
 
 ```hcl
-// zone delegated, with fqdn and delegate_to 
+# Zone delegated, with fqdn and delegate_to 
 resource "infoblox_zone_delegated" "subdomain" {
   fqdn = "subdomain.example.com"
   delegate_to {
@@ -45,13 +45,13 @@ resource "infoblox_zone_delegated" "subdomain" {
   }
 }
 
-// zone delegated, with fqdn and ns_group
+# Zone delegated, with fqdn and ns_group
 resource "infoblox_zone_delegated" "zone_delegated2" {
   fqdn = "min_params.ex.org"
   ns_group = "test"
 }
 
-// zone delegated with full set of parameters
+# Zone delegated with full set of parameters
 resource "infoblox_zone_delegated" "zone_delegated3" {
   fqdn = "max_params.ex.org"
   view = "nondefault_view"
@@ -69,7 +69,7 @@ resource "infoblox_zone_delegated" "zone_delegated3" {
   disable = true
 }
 
-// zone delegated IPV6 reverse mapping zone
+# Zone delegated IPV6 reverse mapping zone
 resource "infoblox_zone_delegated" "zone_delegated4" {
   fqdn = "3001:db8::/64"
   comment = "zone delegated IPV6"

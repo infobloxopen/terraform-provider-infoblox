@@ -58,8 +58,8 @@ data "infoblox_ipv4_network" "nearby_network" {
     network = "192.168.128.0/20"
     network_view = "nondefault_netview"
   }
-  // This is just to ensure that the network has been be created
-  // using 'infoblox_ipv4_network' resource block before the data source will be queried.
+  # This is just to ensure that the network has been be created
+  # using 'infoblox_ipv4_network' resource block before the data source will be queried.
   depends_on = [infoblox_ipv4_network.net2]
 }
 
@@ -67,19 +67,19 @@ output "ipv4_net1" {
   value = data.infoblox_ipv4_network.nearby_network
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "ipv4_net2" {
-  value = data.infoblox_ipv4_network.nearby_network.results.0.cidr //zero represents index of json object from results list
+  value = data.infoblox_ipv4_network.nearby_network.results.0.cidr # zero represents index of json object from results list
 }
 
-// accessing IPv4 network through EA's
+# Accessing IPv4 network through EA's
 data "infoblox_ipv4_network" "ipv4_net_ea" {
   filters = {
     "*Site" = "Custom network site"
   }
 }
 
-// throws matching IPv4 networks with EA, if any
+# Throws matching IPv4 networks with EA, if any
 output "net_ea_out" {
   value = data.infoblox_ipv4_network.ipv4_net_ea
 }

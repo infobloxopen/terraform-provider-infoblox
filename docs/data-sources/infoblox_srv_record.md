@@ -77,8 +77,8 @@ data "infoblox_srv_record" "ds1" {
       target = "sip.example2.org"
     }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_srv_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_srv_record' resource block before the data source will be queried.
     depends_on = [infoblox_srv_record.rec2]
 }
 
@@ -86,12 +86,12 @@ output "srv_rec_res" {
   value = data.infoblox_srv_record.ds1
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "srv_rec_name" {
-  value = data.infoblox_srv_record.ds1.results.0.name //zero represents index of json object from results list
+  value = data.infoblox_srv_record.ds1.results.0.name # zero represents index of json object from results list
 }
 
-// accessing SRV-Record through EA's
+# Accessing SRV-Record through EA's
 data "infoblox_srv_record" "srv_rec_ea" {
   filters = {
     "*Owner" = "State Library"
@@ -99,7 +99,7 @@ data "infoblox_srv_record" "srv_rec_ea" {
   }
 }
 
-// throws matching SRV-Records with EA, if any
+# Throws matching SRV-Records with EA, if any
 output "srv_rec_out" {
   value = data.infoblox_srv_record.srv_rec_ea
 }

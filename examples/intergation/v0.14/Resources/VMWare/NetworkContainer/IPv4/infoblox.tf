@@ -10,4 +10,3 @@ resource "infoblox_ipv4_network_container" "IPv4_nw_c" {
     Site = "Test site"
   })
 }
-

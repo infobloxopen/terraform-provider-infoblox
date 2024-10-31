@@ -14,13 +14,13 @@ The following list describes the parameters you can define in the resource block
 ## Examples
 
 ```hcl
-// TXT-Record, minimal set of parameters
+# TXT-Record, minimal set of parameters
 resource "infoblox_txt_record" "rec1" {
   fqdn = "sample1.example.org"
   text = "\"this is just a sample\""
 }
 
-// some parameters for a TXT-Record
+# Some parameters for a TXT-Record
 resource "infoblox_txt_record" "rec2" {
   dns_view = "default" // may be omitted
   fqdn = "sample2.example.org"
@@ -28,7 +28,7 @@ resource "infoblox_txt_record" "rec2" {
   ttl = 120 // 120s
 }
 
-// all the parameters for a TXT-Record
+# All the parameters for a TXT-Record
 resource "infoblox_txt_record" "rec3" {
   dns_view = "nondefault_dnsview1"
   fqdn = "example3.example2.org"

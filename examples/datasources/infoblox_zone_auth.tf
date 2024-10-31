@@ -7,7 +7,7 @@ resource "infoblox_zone_auth" "zone1"{
     Location =  "Test Zone Location"
   })
 }
-//EA search example for Zone Auth datasource
+# EA search example for Zone Auth datasource
 data "infoblox_zone_auth" "dzone1" {
   filters = {
     "*Location" = "Test Zone Location"
@@ -15,7 +15,7 @@ data "infoblox_zone_auth" "dzone1" {
   depends_on = [infoblox_zone_auth.zone1]
 }
 
-//Generic example using filters, Zone Auth datasource
+# Generic example using filters, Zone Auth datasource
 data "infoblox_zone_auth" "acctest" {
   filters = {
     view = "default"
@@ -28,7 +28,7 @@ output "ZoneA" {
   value = data.infoblox_zone_auth.dzone1
 }
 
-//example for specific value fetching in output
+# Example for specific value fetching in output
 output "ZoneB" {
   value = data.infoblox_zone_auth.acctest.results.0.fqdn
 }

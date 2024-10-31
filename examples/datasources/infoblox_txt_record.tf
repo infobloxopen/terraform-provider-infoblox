@@ -15,8 +15,8 @@ data "infoblox_txt_record" "ds3" {
     name = "example3.example2.org"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_txt_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_txt_record' resource block before the data source will be queried.
   depends_on = [infoblox_txt_record.rec3]
 }
 
