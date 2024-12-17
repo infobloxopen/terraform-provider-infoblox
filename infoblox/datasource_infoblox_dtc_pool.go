@@ -269,12 +269,16 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["lb_alternate_method"] = pool.LbAlternateMethod
 	}
 	if pool.LbAlternateTopology != nil {
+<<<<<<< HEAD
 		var topology ibclient.DtcTopology
 		err := connector.GetObject(&ibclient.DtcTopology{}, *pool.LbAlternateTopology, nil, &topology)
 		if err != nil {
 			return nil, fmt.Errorf("error getting %s DtcTopology object: %s", *pool.LbAlternateTopology, err)
 		}
 		res["lb_alternate_topology"] = topology.Name
+=======
+		res["lb_alternate_topology"] = *pool.LbAlternateTopology
+>>>>>>> 27572b0 (implementation of DTC LBDN resource and datasource and DTC Pool datasource)
 	}
 	if pool.LbDynamicRatioAlternate != nil && pool.LbAlternateMethod == "DYNAMIC_RATIO" {
 		lbDynamicRatioAlternate, err := serializeSettingDynamicRatio(pool.LbDynamicRatioAlternate, connector)
