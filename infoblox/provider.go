@@ -162,8 +162,8 @@ func Provider() *schema.Provider {
 			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.9"),
-				Description: "WAPI Version of Infoblox server defaults to v2.9",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.13.5"),
+				Description: "WAPI Version of Infoblox server defaults to v2.13.5",
 			},
 			"port": {
 				Type:        schema.TypeString,
@@ -211,6 +211,7 @@ func Provider() *schema.Provider {
 			"infoblox_dns_view":               resourceDNSView(),
 			"infoblox_zone_auth":              resourceZoneAuth(),
 			"infoblox_zone_forward":           resourceZoneForward(),
+			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -230,6 +231,8 @@ func Provider() *schema.Provider {
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
 			"infoblox_dns_view":               dataSourceDNSView(),
 			"infoblox_zone_forward":           dataSourceZoneForward(),
+			"infoblox_dtc_lbdn":               dataSourceDtcLbdnRecord(),
+			"infoblox_dtc_pool":               datasourceDtcPool(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
