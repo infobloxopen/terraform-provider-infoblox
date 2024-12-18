@@ -131,7 +131,7 @@ func flattenIpv4Network(network ibclient.Ipv4Network) (map[string]interface{}, e
 	}
 
 	if network.Options != nil {
-		for _ , opt := range network.Options {
+		for _, opt := range network.Options {
 			if opt.Name == "routers" {
 				res["gateway"] = opt.Value
 				break
@@ -169,14 +169,14 @@ func flattenIpv6Network(network ibclient.Ipv6Network) (map[string]interface{}, e
 	}
 
 	if network.Options != nil {
-		for _ , opt := range network.Options {
+		for _, opt := range network.Options {
 			if opt.Name == "routers" {
 				res["gateway"] = opt.Value
 				break
 			}
 		}
 	}
-	
+
 	return res, nil
 }
 
