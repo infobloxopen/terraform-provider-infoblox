@@ -49,6 +49,11 @@ func dataSourceNetwork() *schema.Resource {
 							Computed:    true,
 							Description: "The Extensible attributes for network datasource, as a map in JSON format",
 						},
+						"gateway": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The Gateway IP Address (identified using Options routers)",
+						},
 					},
 				},
 			},
@@ -125,6 +130,15 @@ func flattenIpv4Network(network ibclient.Ipv4Network) (map[string]interface{}, e
 		res["comment"] = *network.Comment
 	}
 
+	if network.Options != nil {
+		for _ , opt := range network.Options {
+			if opt.Name == "routers" {
+				res["gateway"] = opt.Value
+				break
+			}
+		}
+	}
+
 	return res, nil
 }
 
@@ -154,6 +168,15 @@ func flattenIpv6Network(network ibclient.Ipv6Network) (map[string]interface{}, e
 		res["comment"] = *network.Comment
 	}
 
+	if network.Options != nil {
+		for _ , opt := range network.Options {
+			if opt.Name == "routers" {
+				res["gateway"] = opt.Value
+				break
+			}
+		}
+	}
+	
 	return res, nil
 }
 
