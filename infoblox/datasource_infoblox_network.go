@@ -68,6 +68,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	n := &ibclient.Ipv4Network{}
 	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "options"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
@@ -187,6 +188,7 @@ func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	n := &ibclient.Ipv6Network{}
 	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "options"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
