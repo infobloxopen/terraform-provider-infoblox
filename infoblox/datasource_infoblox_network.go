@@ -51,7 +51,7 @@ func dataSourceNetwork() *schema.Resource {
 						},
 						"gateway": {
 							Type:        schema.TypeString,
-							Computed:    true,
+							Optional:    true,
 							Description: "The Gateway IP Address (identified using Options routers)",
 						},
 					},
