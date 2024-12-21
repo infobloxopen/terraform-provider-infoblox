@@ -361,9 +361,13 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	topology, ok := d.GetOk("topology")
-	if dtcLbdn.Topology != nil && ok {
-		if err = d.Set("topology", topology.(string)); err != nil {
+	if dtcLbdn.Topology != nil {
+		var res ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *dtcLbdn.Topology, nil, &res)
+		if err != nil {
+			return fmt.Errorf("failed to get %s topology: %w", *dtcLbdn.Topology, err)
+		}
+		if err = d.Set("topology", *res.Name); err != nil {
 			return err
 		}
 	}
@@ -722,9 +726,13 @@ func resourceDtcLbdnImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 		}
 	}
 
-	topology, ok := d.GetOk("topology")
-	if lbdn.Topology != nil && ok {
-		if err = d.Set("topology", topology.(string)); err != nil {
+	if lbdn.Topology != nil {
+		var res ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *lbdn.Topology, nil, &res)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get %s topology: %w", *lbdn.Topology, err)
+		}
+		if err = d.Set("topology", *res.Name); err != nil {
 			return nil, err
 		}
 	}

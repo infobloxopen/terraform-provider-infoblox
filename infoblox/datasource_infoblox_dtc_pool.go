@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"strconv"
-	"strings"
+	//"strings"
 	"time"
 )
 
@@ -254,7 +254,11 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["comment"] = *pool.Comment
 	}
 	if pool.ConsolidatedMonitors != nil {
-		res["consolidated_monitors"] = convertConsolidatedMonitorsToInterface(pool.ConsolidatedMonitors, connector)
+		consolidatedMonitors, err := convertConsolidatedMonitorsToInterface(pool.ConsolidatedMonitors, connector)
+		if err != nil {
+			return nil, err
+		}
+		res["consolidated_monitors"] = consolidatedMonitors
 	}
 	if pool.Disable != nil {
 		res["disable"] = *pool.Disable
@@ -289,7 +293,11 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["quorum"] = *pool.Quorum
 	}
 	if pool.Servers != nil {
-		res["servers"] = convertDtcServerLinksToInterface(pool.Servers, connector)
+		servers, err := convertDtcServerLinksToInterface(pool.Servers, connector)
+		if err != nil {
+			return nil, err
+		}
+		res["servers"] = servers
 	}
 	if pool.UseTtl != nil {
 		if !*pool.UseTtl {
@@ -305,61 +313,61 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 	return res, nil
 }
 
-func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) []map[string]interface{} {
-	slInterface := make([]map[string]interface{}, 0, len(serverLinks))
-	for _, sl := range serverLinks {
-		slMap := make(map[string]interface{})
-		var serverResult ibclient.DtcServer
-		err := connector.GetObject(&ibclient.DtcServer{}, sl.Server, nil, &serverResult)
-		//check for this err thing this is wrong to return nil
-		if err != nil {
-			return nil
-		}
-		slMap["server"] = serverResult.Name
-		slMap["ratio"] = sl.Ratio
-		slInterface = append(slInterface, slMap)
-	}
-	return slInterface
-}
-
-func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) []map[string]interface{} {
-	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
-	for _, monitor := range monitors {
-		monitorMap := make(map[string]interface{})
-		var monitorResult ibclient.DtcMonitorHttp
-		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Monitor, nil, &monitorResult)
-		if err != nil {
-			return nil
-		}
-		referenceParts := strings.Split(monitor.Monitor, ":")
-		monitorType := strings.Split(referenceParts[2], "/")[0]
-		monitorMap["monitor_name"] = monitorResult.Name
-		monitorMap["monitor_type"] = monitorType
-		monitorMap["members"] = monitor.Members
-		monitorMap["availability"] = monitor.Availability
-		monitorMap["full_health_communication"] = monitor.FullHealthCommunication
-		monitorsInterface = append(monitorsInterface, monitorMap)
-	}
-	return monitorsInterface
-}
-
-func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector ibclient.IBConnector) []map[string]interface{} {
-	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
-	for _, monitor := range monitors {
-		monitorMap := make(map[string]interface{})
-		var monitorResult ibclient.DtcMonitorHttp
-		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Ref, nil, &monitorResult)
-		if err != nil {
-			return nil
-		}
-		referenceParts := strings.Split(monitor.Ref, ":")
-		monitorType := strings.Split(referenceParts[2], "/")[0]
-		monitorMap["monitor_name"] = monitorResult.Name
-		monitorMap["monitor_type"] = monitorType
-		monitorsInterface = append(monitorsInterface, monitorMap)
-	}
-	return monitorsInterface
-}
+//func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) []map[string]interface{} {
+//	slInterface := make([]map[string]interface{}, 0, len(serverLinks))
+//	for _, sl := range serverLinks {
+//		slMap := make(map[string]interface{})
+//		var serverResult ibclient.DtcServer
+//		err := connector.GetObject(&ibclient.DtcServer{}, sl.Server, nil, &serverResult)
+//		//check for this err thing this is wrong to return nil
+//		if err != nil {
+//			return nil
+//		}
+//		slMap["server"] = serverResult.Name
+//		slMap["ratio"] = sl.Ratio
+//		slInterface = append(slInterface, slMap)
+//	}
+//	return slInterface
+//}
+//
+//func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) []map[string]interface{} {
+//	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
+//	for _, monitor := range monitors {
+//		monitorMap := make(map[string]interface{})
+//		var monitorResult ibclient.DtcMonitorHttp
+//		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Monitor, nil, &monitorResult)
+//		if err != nil {
+//			return nil
+//		}
+//		referenceParts := strings.Split(monitor.Monitor, ":")
+//		monitorType := strings.Split(referenceParts[2], "/")[0]
+//		monitorMap["monitor_name"] = monitorResult.Name
+//		monitorMap["monitor_type"] = monitorType
+//		monitorMap["members"] = monitor.Members
+//		monitorMap["availability"] = monitor.Availability
+//		monitorMap["full_health_communication"] = monitor.FullHealthCommunication
+//		monitorsInterface = append(monitorsInterface, monitorMap)
+//	}
+//	return monitorsInterface
+//}
+//
+//func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector ibclient.IBConnector) []map[string]interface{} {
+//	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
+//	for _, monitor := range monitors {
+//		monitorMap := make(map[string]interface{})
+//		var monitorResult ibclient.DtcMonitorHttp
+//		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Ref, nil, &monitorResult)
+//		if err != nil {
+//			return nil
+//		}
+//		referenceParts := strings.Split(monitor.Ref, ":")
+//		monitorType := strings.Split(referenceParts[2], "/")[0]
+//		monitorMap["monitor_name"] = monitorResult.Name
+//		monitorMap["monitor_type"] = monitorType
+//		monitorsInterface = append(monitorsInterface, monitorMap)
+//	}
+//	return monitorsInterface
+//}
 
 func convertToMapList(input []interface{}) []map[string]interface{} {
 	var result []map[string]interface{}
@@ -388,55 +396,4 @@ func convertToMapList(input []interface{}) []map[string]interface{} {
 		}
 	}
 	return result
-}
-
-func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
-	if sd == nil {
-		return "", fmt.Errorf("SettingDynamicratio is nil")
-	}
-	referenceParts := strings.Split(sd.Monitor, ":")
-	monitorType := strings.Split(referenceParts[2], "/")[0]
-	var monitorResult ibclient.DtcMonitorHttp
-	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
-	if err != nil {
-		return "", err
-	}
-	monitorName := monitorResult.Name
-	//monitorName := referenceParts[3]
-	sdMap := map[string]interface{}{
-		"method":                sd.Method,
-		"monitor_name":          monitorName,
-		"monitor_type":          monitorType,
-		"monitor_metric":        sd.MonitorMetric,
-		"monitor_weighing":      sd.MonitorWeighing,
-		"invert_monitor_metric": sd.InvertMonitorMetric,
-	}
-
-	if len(sdMap) == 0 {
-		return "", nil
-	}
-
-	sdJSON, err := json.Marshal(sdMap)
-	if err != nil {
-		return "", err
-	}
-	return string(sdJSON), nil
-}
-
-func ConvertDynamicRatioPreferred(jsonStr string) (map[string]interface{}, error) {
-	var lbDynamicRatioPreferred map[string]interface{}
-	if jsonStr != "" {
-		err := json.Unmarshal([]byte(jsonStr), &lbDynamicRatioPreferred)
-		if err != nil {
-			return nil, err
-		}
-		monitor := ibclient.Monitor{
-			Name: lbDynamicRatioPreferred["monitor_name"].(string),
-			Type: lbDynamicRatioPreferred["monitor_type"].(string),
-		}
-		delete(lbDynamicRatioPreferred, "monitor_name")
-		delete(lbDynamicRatioPreferred, "monitor_type")
-		lbDynamicRatioPreferred["monitor"] = monitor
-	}
-	return lbDynamicRatioPreferred, nil
 }
