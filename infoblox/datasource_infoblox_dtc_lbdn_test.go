@@ -6,27 +6,15 @@ import (
 	"testing"
 )
 
-//func TestAccDataSourceDtcLbdn(t *testing.T) {
-//	resource.Test(t, resource.TestCase{
-//		PreCheck:  func() { testAccPreCheck(t) },
-//		Providers: testAccProviders,
-//		Steps: []resource.TestStep{
-//			{
-//				Config: testAccDataSourceDtcLbdn,
-//				Check: resource.ComposeTestCheckFunc(
-//					resource.TestCheckResourceAttr("data.infoblox_dns_view.acctest", "results.0.name", "non_defaultview"),
-//					resource.TestCheckResourceAttr("data.infoblox_dns_view.acctest", "results.0.network_view", "default"),
-//					resource.TestCheckResourceAttr("data.infoblox_dns_view.acctest", "results.0.comment", "test dns view example"),
-//				),
-//			},
-//		},
-//	})
-//}
-
-var testAccDataSourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn5" {
+var testAccDataSourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn_src_1" {
     name = "testLbdn444"
   	lb_method = "RATIO"
-    types = ["A", "AAAA"]
+    }
+    data "infoblox_dtc_lbdn" "testLbdn_src_read1" {	
+	filters = {
+	    name = infoblox_dtc_lbdn.testLbdn_src_1.name
+    }
+    depends_on = [infoblox_dtc_lbdn.testLbdn_src_1]
 }`)
 
 var testAccDatasourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn_src" {
@@ -64,6 +52,24 @@ data "infoblox_dtc_lbdn" "testLbdn_src_read" {
     depends_on = [infoblox_dtc_lbdn.testLbdn_src]
 }`)
 
+func TestAccDataSourceDtcLbdn(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceDtcLbdn,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read1", "results.0.name", "testLbdn444"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read1", "results.0.lb_method", "RATIO"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read1", "results.0.types.0", "A"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read1", "results.0.types.1", "AAAA"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceDtcLbdnSearchByEA(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -85,7 +91,7 @@ func TestAccDataSourceDtcLbdnSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.pools.2.pool", "test-pool"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.pools.2.ratio", "6"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.ttl", "120"),
-					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.disable", "false"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.disable", "true"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.types.0", "A"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.types.1", "AAAA"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.types.2", "CNAME"),

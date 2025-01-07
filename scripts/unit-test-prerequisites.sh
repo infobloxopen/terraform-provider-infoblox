@@ -20,18 +20,17 @@ echo
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Network Name","type":"STRING"}'
 echo
 
-# create a pool, zone_auth with nameserver, topology for DTC LBDN
-curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/dtc:pool" -d '{"name":"pool-test","lb_preferred_method":"GLOBAL_AVAILABILITY"}'
-echo
+# create a pool, zone_auth with grid primary, topology for DTC LBDN
+pool=$(curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/dtc:pool" -d '{"name":"pool-test","lb_preferred_method":"GLOBAL_AVAILABILITY"}')
 
 members=$(curl -k -X GET -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/member")
 echo
 host_name=$(echo $members | grep -o '"host_name": *"[^"]*' | head -1 | awk -F'"' '{print $4}')
 echo $host_name
 
-curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"name":"testZone.com"}'
+curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/zone_auth" -d '{"name":"testZone.com","grid_primary":{"name":"$hostname"}}'
 echo
 
-curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/topology" -d '{"name":"test-topology"}'
+curl -k -X POST -H 'Content-Type: application/json' -u $CURL_AUTH "${WAPI_URL}/dtc:topology" -d '{"name":"test-topo","rules":[{"dest_type":"POOL","destination_link":"$pool"}]}'
 echo
 

@@ -134,12 +134,8 @@ func resourceDtcLbdnRecord() *schema.Resource {
 					if d.Get("types") == nil && oldValue == newValue {
 						return true
 					}
-					//if newValue == "0" {
-					//	return false
-					//}
 					return reflect.DeepEqual(oldTypes, newTypes)
 				},
-				//ForceNew: true,
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -272,6 +268,7 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 
 	var dtcLbdn *ibclient.DtcLbdn
 	var listInterface []interface{}
+	connector := m.(ibclient.IBConnector)
 
 	recJson, err := json.Marshal(rec)
 	if err != nil {
@@ -301,7 +298,10 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	if dtcLbdn.AuthZones != nil {
-		authZoneInterface := ConvertAuthZonesToInterface(dtcLbdn)
+		authZoneInterface, err := ConvertAuthZonesToInterface(connector, dtcLbdn)
+		if err != nil {
+			return fmt.Errorf("failed to convert auth zones to interface: %w", err)
+		}
 		if err = d.Set("auth_zones", authZoneInterface); err != nil {
 			return err
 		}
@@ -350,7 +350,6 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
-	connector := m.(ibclient.IBConnector)
 	if dtcLbdn.Pools != nil {
 		poolsInterface, err := convertPoolsToInterface(dtcLbdn, connector)
 		if err != nil {
@@ -388,15 +387,20 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func ConvertAuthZonesToInterface(dtcLbdn *ibclient.DtcLbdn) []interface{} {
+func ConvertAuthZonesToInterface(connector ibclient.IBConnector, dtcLbdn *ibclient.DtcLbdn) ([]interface{}, error) {
 	if len(dtcLbdn.AuthZones) == 0 {
-		return nil
+		return nil, nil
 	}
 	authZoneInterface := make([]interface{}, len(dtcLbdn.AuthZones))
 	for i, authZone := range dtcLbdn.AuthZones {
-		authZoneInterface[i] = authZone.Fqdn
+		var res ibclient.ZoneAuth
+		err := connector.GetObject(&ibclient.ZoneAuth{}, authZone.Ref, nil, &res)
+		if err != nil {
+			return nil, err
+		}
+		authZoneInterface[i] = res.Fqdn
 	}
-	return authZoneInterface
+	return authZoneInterface, nil
 }
 
 func convertSliceToInterface(list []string) []interface{} {
@@ -667,7 +671,10 @@ func resourceDtcLbdnImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 		}
 	}
 	if lbdn.AuthZones != nil {
-		authZoneInterface := ConvertAuthZonesToInterface(lbdn)
+		authZoneInterface, err := ConvertAuthZonesToInterface(connector, lbdn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert auth zones to interface: %w", err)
+		}
 		if err = d.Set("auth_zones", authZoneInterface); err != nil {
 			return nil, err
 		}
