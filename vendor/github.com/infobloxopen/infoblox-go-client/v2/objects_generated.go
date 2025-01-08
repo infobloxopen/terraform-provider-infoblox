@@ -8054,6 +8054,9 @@ type Ipv6Network struct {
 
 	// The list of zones associated with this network.
 	ZoneAssociations []*Zoneassociation `json:"zone_associations,omitempty"`
+
+    // The network utilization in percentage.
+    Utilization uint32 `json:"utilization,omitempty"`
 }
 
 func (Ipv6Network) ObjectType() string {

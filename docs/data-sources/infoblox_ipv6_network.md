@@ -6,7 +6,8 @@ The data source for the network object allows you to get the following parameter
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `2002:1f93:0:4::/96`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
-
+* `gateway`: the gateway IP defined in network options (routers'). Example: `192.0.17.1`
+* `utilization`: The network utilization in percentage * 10. Example: `500` for `50%` of network utilization
 
 To retrieve information about IPv6 network that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 

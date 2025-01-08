@@ -6,6 +6,7 @@ The data source for the network object allows you to get the following parameter
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
+* `gateway`: the gateway IP defined in network options (routers'). Example: `192.0.17.1`
 
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
