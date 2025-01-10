@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"strconv"
+	"strings"
+
 	//"strings"
 	"time"
 )
@@ -311,4 +313,99 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 	}
 
 	return res, nil
+}
+
+func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
+	slInterface := make([]map[string]interface{}, 0, len(serverLinks))
+	for _, sl := range serverLinks {
+		slMap := make(map[string]interface{})
+		var serverResult ibclient.DtcServer
+		err := connector.GetObject(&ibclient.DtcServer{}, sl.Server, nil, &serverResult)
+		if err != nil {
+			return nil, err
+		}
+		slMap["server"] = serverResult.Name
+		slMap["ratio"] = sl.Ratio
+		slInterface = append(slInterface, slMap)
+	}
+	return slInterface, nil
+}
+
+func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
+	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
+	for _, monitor := range monitors {
+		monitorMap := make(map[string]interface{})
+		var monitorResult ibclient.DtcMonitorHttp
+		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Monitor, nil, &monitorResult)
+		if err != nil {
+			return nil, err
+		}
+		var monitorType string
+		if monitor.Monitor != "" {
+			referenceParts := strings.Split(monitor.Monitor, ":")
+			monitorType = strings.Split(referenceParts[2], "/")[0]
+		}
+		monitorMap["monitor_name"] = monitorResult.Name
+		monitorMap["monitor_type"] = monitorType
+		monitorMap["members"] = monitor.Members
+		monitorMap["availability"] = monitor.Availability
+		monitorMap["full_health_communication"] = monitor.FullHealthCommunication
+		monitorsInterface = append(monitorsInterface, monitorMap)
+	}
+	return monitorsInterface, nil
+}
+
+func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector ibclient.IBConnector) []map[string]interface{} {
+	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
+	for _, monitor := range monitors {
+		monitorMap := make(map[string]interface{})
+		var monitorResult ibclient.DtcMonitorHttp
+		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Ref, nil, &monitorResult)
+		if err != nil {
+			return nil
+		}
+		referenceParts := strings.Split(monitor.Ref, ":")
+		monitorType := strings.Split(referenceParts[2], "/")[0]
+		monitorMap["monitor_name"] = monitorResult.Name
+		monitorMap["monitor_type"] = monitorType
+		monitorsInterface = append(monitorsInterface, monitorMap)
+	}
+	return monitorsInterface
+}
+
+func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
+	referenceParts := strings.Split(sd.Monitor, ":")
+	if len(referenceParts) < 3 {
+		return "", fmt.Errorf("invalid monitor format: %s", sd.Monitor)
+	}
+	monitorTypeParts := strings.Split(referenceParts[2], "/")
+	if len(monitorTypeParts) < 1 {
+		return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
+	}
+	monitorType := monitorTypeParts[0]
+	var monitorResult ibclient.DtcMonitorHttp
+	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
+	if err != nil {
+		return "", err
+	}
+	monitorName := monitorResult.Name
+	sdMap := map[string]interface{}{
+		"method":                sd.Method,
+		"monitor_name":          monitorName,
+		"monitor_type":          monitorType,
+		"monitor_metric":        sd.MonitorMetric,
+		"monitor_weighing":      sd.MonitorWeighing,
+		"invert_monitor_metric": sd.InvertMonitorMetric,
+	}
+
+	if len(sdMap) == 0 {
+		return "", nil
+	}
+
+	sdJSON, err := json.Marshal(sdMap)
+	if err != nil {
+		return "", err
+	}
+
+	return string(sdJSON), nil
 }
