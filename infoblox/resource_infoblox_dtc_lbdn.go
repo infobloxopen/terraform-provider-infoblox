@@ -131,7 +131,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 					oldTypes, newTypes := d.GetChange("types")
-					if d.Get("types") == nil && oldValue == newValue {
+					if d.Get("types") == nil && oldValue != newValue {
 						return true
 					}
 					return reflect.DeepEqual(oldTypes, newTypes)

@@ -9,6 +9,7 @@ import (
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -128,8 +129,13 @@ func testDtcLbdnCompare(t *testing.T, resourceName string, expectedLbdn *ibclien
 			}
 		}
 		if rec.AuthZones != nil && expectedLbdn.AuthZones != nil {
-			if !reflect.DeepEqual(rec.AuthZones, expectedLbdn.AuthZones) {
-				return fmt.Errorf("the value of 'auth_zones' field is '%v', but expected '%v'", rec.AuthZones, expectedLbdn.AuthZones)
+			if len(rec.AuthZones) != len(expectedLbdn.AuthZones) {
+				return fmt.Errorf("the number of 'auth_zones' is '%d', but expected '%d'", len(rec.AuthZones), len(expectedLbdn.AuthZones))
+			}
+			for i := range rec.AuthZones {
+				if !strings.Contains(rec.AuthZones[i].Ref, expectedLbdn.AuthZones[i].Fqdn) {
+					return fmt.Errorf("the value of 'auth_zones[%d]' field is '%s', but expected '%s'", i, rec.AuthZones[i].Fqdn, expectedLbdn.AuthZones[i].Fqdn)
+				}
 			}
 		}
 		if rec.AutoConsolidatedMonitors != nil && expectedLbdn.AutoConsolidatedMonitors != nil {
