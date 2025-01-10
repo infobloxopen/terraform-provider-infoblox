@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"strings"
 )
 
 func suppressDynamicRatioDiff(k, old, new string, d *schema.ResourceData) bool {
@@ -57,43 +56,6 @@ func convertInterfaceToList(input []interface{}) []map[string]interface{} {
 		}
 	}
 	return result
-}
-
-func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
-	referenceParts := strings.Split(sd.Monitor, ":")
-	if len(referenceParts) < 3 {
-		return "", fmt.Errorf("invalid monitor format: %s", sd.Monitor)
-	}
-	monitorTypeParts := strings.Split(referenceParts[2], "/")
-	if len(monitorTypeParts) < 1 {
-		return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
-	}
-	monitorType := monitorTypeParts[0]
-	var monitorResult ibclient.DtcMonitorHttp
-	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
-	if err != nil {
-		return "", err
-	}
-	monitorName := monitorResult.Name
-	sdMap := map[string]interface{}{
-		"method":                sd.Method,
-		"monitor_name":          monitorName,
-		"monitor_type":          monitorType,
-		"monitor_metric":        sd.MonitorMetric,
-		"monitor_weighing":      sd.MonitorWeighing,
-		"invert_monitor_metric": sd.InvertMonitorMetric,
-	}
-
-	if len(sdMap) == 0 {
-		return "", nil
-	}
-
-	sdJSON, err := json.Marshal(sdMap)
-	if err != nil {
-		return "", err
-	}
-
-	return string(sdJSON), nil
 }
 
 func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interface{}, error) {
@@ -370,7 +332,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	monitors := ConvertInterfaceToMonitors(monitorsInterface)
 
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
-	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferred(lbDynamicRatioJson)
+	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
 	if err != nil {
 		return err
 	}
