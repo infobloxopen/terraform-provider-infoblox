@@ -8,6 +8,28 @@ import (
 	"strings"
 )
 
+func suppressDynamicRatioDiff(k, old, new string, d *schema.ResourceData) bool {
+	var oldData, newData map[string]interface{}
+	if err := json.Unmarshal([]byte(old), &oldData); err != nil {
+		return false
+	}
+	if err := json.Unmarshal([]byte(new), &newData); err != nil {
+		return false
+	}
+	if oldData["method"] == "ROUND_TRIP_DELAY" {
+		if newData["monitor_metric"] == "" {
+			return false
+		}
+		if newData["monitor_weighing"] == "RATIO" {
+			return false
+		}
+		if newData["invert_monitor_metric"] == false {
+			return false
+		}
+	}
+	return true
+}
+
 func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
 	slInterface := make([]map[string]interface{}, 0, len(serverLinks))
 	for _, sl := range serverLinks {
@@ -23,6 +45,7 @@ func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, con
 	}
 	return slInterface, nil
 }
+
 func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
 	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
 	for _, monitor := range monitors {
@@ -46,6 +69,7 @@ func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolid
 	}
 	return monitorsInterface, nil
 }
+
 func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector ibclient.IBConnector) []map[string]interface{} {
 	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
 	for _, monitor := range monitors {
@@ -63,6 +87,7 @@ func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector i
 	}
 	return monitorsInterface
 }
+
 func convertInterfaceToList(input []interface{}) []map[string]interface{} {
 	var result []map[string]interface{}
 
@@ -91,16 +116,23 @@ func convertInterfaceToList(input []interface{}) []map[string]interface{} {
 	}
 	return result
 }
+
 func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
 	referenceParts := strings.Split(sd.Monitor, ":")
-	monitorType := strings.Split(referenceParts[2], "/")[0]
+	if len(referenceParts) < 3 {
+		return "", fmt.Errorf("invalid monitor format: %s", sd.Monitor)
+	}
+	monitorTypeParts := strings.Split(referenceParts[2], "/")
+	if len(monitorTypeParts) < 1 {
+		return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
+	}
+	monitorType := monitorTypeParts[0]
 	var monitorResult ibclient.DtcMonitorHttp
 	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
 	if err != nil {
 		return "", err
 	}
 	monitorName := monitorResult.Name
-	//monitorName := referenceParts[3]
 	sdMap := map[string]interface{}{
 		"method":                sd.Method,
 		"monitor_name":          monitorName,
@@ -121,7 +153,8 @@ func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ib
 
 	return string(sdJSON), nil
 }
-func ConvertDynamicRatioPreferred(jsonStr string) (map[string]interface{}, error) {
+
+func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interface{}, error) {
 	var lbDynamicRatioPreferred map[string]interface{}
 	if jsonStr != "" {
 		err := json.Unmarshal([]byte(jsonStr), &lbDynamicRatioPreferred)
@@ -138,6 +171,7 @@ func ConvertDynamicRatioPreferred(jsonStr string) (map[string]interface{}, error
 	}
 	return lbDynamicRatioPreferred, nil
 }
+
 func ConvertInterfaceToServers(serversInterface []interface{}) []*ibclient.DtcServerLink {
 	var servers []*ibclient.DtcServerLink
 	for _, serverInterface := range serversInterface {
@@ -167,6 +201,7 @@ func ConvertInterfaceToMonitors(monitorsInterface []interface{}) []ibclient.Moni
 
 	return monitors
 }
+
 func resourceDtcPool() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDtcPoolCreate,
@@ -236,6 +271,13 @@ func resourceDtcPool() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					autoConsolidated, ok := d.GetOk("auto_consolidated_monitors")
+					if ok && autoConsolidated.(bool) {
+						return true // Suppress differences when auto_consolidated_monitors is true
+					}
+					return false
+				},
 			},
 			"disable": {
 				Type:        schema.TypeBool,
@@ -255,12 +297,10 @@ func resourceDtcPool() *schema.Resource {
 				Description: "Load Balancing Preferred Method of the DTC pool.",
 			},
 			"lb_dynamic_ratio_preferred": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return d.Get("lb_preferred_method").(string) != "DYNAMIC_RATIO"
-				},
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
+				DiffSuppressFunc: suppressDynamicRatioDiff,
 			},
 			"lb_preferred_topology": {
 				Type:        schema.TypeString,
@@ -274,12 +314,10 @@ func resourceDtcPool() *schema.Resource {
 				Description: "The alternate load balancing method. Use this to select a method type from the pool if the preferred method does not return any results.",
 			},
 			"lb_dynamic_ratio_alternate": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return d.Get("lb_alternate_method").(string) != "DYNAMIC_RATIO"
-				},
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
+				DiffSuppressFunc: suppressDynamicRatioDiff,
 			},
 			"lb_alternate_topology": {
 				Type:        schema.TypeString,
@@ -350,6 +388,7 @@ func resourceDtcPool() *schema.Resource {
 		},
 	}
 }
+
 func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	if intId := d.Get("internal_id"); intId.(string) != "" {
 		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
@@ -389,7 +428,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	monitors := ConvertInterfaceToMonitors(monitorsInterface)
 
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
-	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferred(lbDynamicRatioJson)
+	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
 	if err != nil {
 		return err
 	}
@@ -405,10 +444,10 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	lbAlternateTopologyValue := d.Get("lb_alternate_topology").(string)
 	var lbAlternateTopology *string
 	if lbAlternateTopologyValue != "" {
-		lbAlternateTopology = &lbPreferredTopologyValue
+		lbAlternateTopology = &lbAlternateTopologyValue
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
-	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferred(lbDynamicRatioAlternateJson)
+	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
 	if err != nil {
 		return err
 	}
@@ -429,10 +468,10 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	return resourceDtcPoolGet(d, m)
 }
+
 func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
-	//extAttrs := make(map[string]interface{})
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
 		return err
@@ -512,7 +551,6 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("monitors", monitorsInterface); err != nil {
 		return err
 	}
-	//topologyPreferredName := strings.Split(*dtcPool.LbAlternateTopology, ":")[2]
 	if dtcPool.LbPreferredTopology != nil {
 		var topologies ibclient.DtcTopology
 		err = connector.GetObject(&ibclient.DtcTopology{}, *dtcPool.LbPreferredTopology, nil, &topologies)
@@ -565,6 +603,7 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 
 	var updateSuccessful bool
@@ -634,7 +673,7 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	monitors := ConvertInterfaceToMonitors(monitorsInterface)
 
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
-	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferred(lbDynamicRatioJson)
+	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
 	if err != nil {
 		return err
 	}
@@ -650,10 +689,10 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	lbAlternateTopologyValue := d.Get("lb_alternate_topology").(string)
 	var lbAlternateTopology *string
 	if lbAlternateTopologyValue != "" {
-		lbAlternateTopology = &lbPreferredTopologyValue
+		lbAlternateTopology = &lbAlternateTopologyValue
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
-	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferred(lbDynamicRatioAlternateJson)
+	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
 	if err != nil {
 		return err
 	}
@@ -724,9 +763,9 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("internal_id", newInternalId.String()); err != nil {
 		return err
 	}
-	//return nil
 	return resourceDtcPoolGet(d, m)
 }
+
 func resourceDtcPoolDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -767,6 +806,7 @@ func resourceDtcPoolDelete(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceDtcPoolImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	var ttl int
 	extAttrJSON := d.Get("ext_attrs").(string)
