@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"reflect"
 )
@@ -80,10 +81,11 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				},
 			},
 			"persistence": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Default:     0,
-				Description: "Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      0,
+				Description:  "Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.",
+				ValidateFunc: validation.IntBetween(0, 7200),
 			},
 			"pools": {
 				Type:        schema.TypeList,
@@ -97,9 +99,10 @@ func resourceDtcLbdnRecord() *schema.Resource {
 							Description: "The pool to link with.",
 						},
 						"ratio": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: "The weight of pool.",
+							Type:         schema.TypeInt,
+							Required:     true,
+							Description:  "The weight of pool.",
+							ValidateFunc: validation.IntBetween(1, 65535),
 						},
 					},
 				},
@@ -110,6 +113,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				Default:  1,
 				Description: "The LBDN pattern match priority for “overlapping” DTC LBDN objects. LBDNs are “overlapping” if " +
 					"they are simultaneously assigned to a zone and have patterns that can match the same FQDN. The matching LBDN with highest priority (lowest ordinal) will be used.",
+				ValidateFunc: validation.IntBetween(1, 3),
 			},
 			"topology": {
 				Type:        schema.TypeString,
@@ -131,15 +135,11 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 					oldTypes, newTypes := d.GetChange("types")
-					if d.Get("types") == nil && oldValue == newValue {
+					if d.Get("types") == nil && oldValue != newValue {
 						return true
 					}
-					//if newValue == "0" {
-					//	return false
-					//}
 					return reflect.DeepEqual(oldTypes, newTypes)
 				},
-				//ForceNew: true,
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -186,15 +186,9 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 		patternsList[i] = pattern.(string)
 	}
 	tempPersistence := d.Get("persistence").(int)
-	if err := ibclient.CheckIntRange("preference", tempPersistence, 0, 65535); err != nil {
-		return err
-	}
 	persistence := uint32(tempPersistence)
 
 	tempPriority := d.Get("priority").(int)
-	if err := ibclient.CheckIntRange("preference", tempPriority, 0, 65535); err != nil {
-		return err
-	}
 	priority := uint32(tempPriority)
 
 	topology := d.Get("topology").(string)
@@ -272,6 +266,7 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 
 	var dtcLbdn *ibclient.DtcLbdn
 	var listInterface []interface{}
+	connector := m.(ibclient.IBConnector)
 
 	recJson, err := json.Marshal(rec)
 	if err != nil {
@@ -301,7 +296,10 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	if dtcLbdn.AuthZones != nil {
-		authZoneInterface := ConvertAuthZonesToInterface(dtcLbdn)
+		authZoneInterface, err := ConvertAuthZonesToInterface(connector, dtcLbdn)
+		if err != nil {
+			return fmt.Errorf("failed to convert auth zones to interface: %w", err)
+		}
 		if err = d.Set("auth_zones", authZoneInterface); err != nil {
 			return err
 		}
@@ -350,7 +348,6 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
-	connector := m.(ibclient.IBConnector)
 	if dtcLbdn.Pools != nil {
 		poolsInterface, err := convertPoolsToInterface(dtcLbdn, connector)
 		if err != nil {
@@ -361,9 +358,13 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	topology, ok := d.GetOk("topology")
-	if dtcLbdn.Topology != nil && ok {
-		if err = d.Set("topology", topology.(string)); err != nil {
+	if dtcLbdn.Topology != nil {
+		var res ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *dtcLbdn.Topology, nil, &res)
+		if err != nil {
+			return fmt.Errorf("failed to get %s topology: %w", *dtcLbdn.Topology, err)
+		}
+		if err = d.Set("topology", *res.Name); err != nil {
 			return err
 		}
 	}
@@ -384,15 +385,20 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func ConvertAuthZonesToInterface(dtcLbdn *ibclient.DtcLbdn) []interface{} {
+func ConvertAuthZonesToInterface(connector ibclient.IBConnector, dtcLbdn *ibclient.DtcLbdn) ([]interface{}, error) {
 	if len(dtcLbdn.AuthZones) == 0 {
-		return nil
+		return nil, nil
 	}
 	authZoneInterface := make([]interface{}, len(dtcLbdn.AuthZones))
 	for i, authZone := range dtcLbdn.AuthZones {
-		authZoneInterface[i] = authZone.Fqdn
+		var res ibclient.ZoneAuth
+		err := connector.GetObject(&ibclient.ZoneAuth{}, authZone.Ref, nil, &res)
+		if err != nil {
+			return nil, err
+		}
+		authZoneInterface[i] = res.Fqdn
 	}
-	return authZoneInterface
+	return authZoneInterface, nil
 }
 
 func convertSliceToInterface(list []string) []interface{} {
@@ -500,15 +506,9 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 		patternsList[i] = pattern.(string)
 	}
 	tempPersistence := d.Get("persistence").(int)
-	if err = ibclient.CheckIntRange("preference", tempPersistence, 0, 65535); err != nil {
-		return err
-	}
 	persistence := uint32(tempPersistence)
 
 	tempPriority := d.Get("priority").(int)
-	if err = ibclient.CheckIntRange("preference", tempPriority, 0, 65535); err != nil {
-		return err
-	}
 	priority := uint32(tempPriority)
 
 	topology := d.Get("topology").(string)
@@ -663,7 +663,10 @@ func resourceDtcLbdnImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 		}
 	}
 	if lbdn.AuthZones != nil {
-		authZoneInterface := ConvertAuthZonesToInterface(lbdn)
+		authZoneInterface, err := ConvertAuthZonesToInterface(connector, lbdn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert auth zones to interface: %w", err)
+		}
 		if err = d.Set("auth_zones", authZoneInterface); err != nil {
 			return nil, err
 		}
@@ -722,9 +725,13 @@ func resourceDtcLbdnImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 		}
 	}
 
-	topology, ok := d.GetOk("topology")
-	if lbdn.Topology != nil && ok {
-		if err = d.Set("topology", topology.(string)); err != nil {
+	if lbdn.Topology != nil {
+		var res ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *lbdn.Topology, nil, &res)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get %s topology: %w", *lbdn.Topology, err)
+		}
+		if err = d.Set("topology", *res.Name); err != nil {
 			return nil, err
 		}
 	}
@@ -766,9 +773,6 @@ func validatePoolsLink(poolsLink []interface{}) ([]*ibclient.DtcPoolLink, error)
 			dtcPoolLink.Pool = pool
 		}
 		if tempRatio, ok := itemMap["ratio"].(int); ok {
-			if err := ibclient.CheckIntRange("preference", tempRatio, 0, 65535); err != nil {
-				return nil, err
-			}
 			dtcPoolLink.Ratio = uint32(tempRatio)
 		}
 		dtcPoolLinks = append(dtcPoolLinks, dtcPoolLink)

@@ -107,7 +107,6 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						"priority": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							//Default:  1,
 							Description: "The LBDN pattern match priority for “overlapping” DTC LBDN objects. LBDNs are “overlapping” if " +
 								"they are simultaneously assigned to a zone and have patterns that can match the same FQDN. The matching LBDN with highest priority (lowest ordinal) will be used.",
 						},
@@ -201,7 +200,10 @@ func flattenDtcLbdn(lbdn ibclient.DtcLbdn, connector ibclient.IBConnector) (map[
 		res["disable"] = *lbdn.Disable
 	}
 	if lbdn.AuthZones != nil {
-		authZones := ConvertAuthZonesToInterface(&lbdn)
+		authZones, err := ConvertAuthZonesToInterface(connector, &lbdn)
+		if err != nil {
+			return nil, err
+		}
 		res["auth_zones"] = authZones
 	}
 
@@ -229,7 +231,12 @@ func flattenDtcLbdn(lbdn ibclient.DtcLbdn, connector ibclient.IBConnector) (map[
 		res["priority"] = lbdn.Priority
 	}
 	if lbdn.Topology != nil {
-		res["topology"] = *lbdn.Topology
+		var topology ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *lbdn.Topology, nil, &topology)
+		if err != nil {
+			return nil, fmt.Errorf("error getting %s DtcTopology object: %s", *lbdn.Topology, err)
+		}
+		res["topology"] = *topology.Name
 	}
 	if lbdn.Types != nil {
 		res["types"] = convertSliceToInterface(lbdn.Types)

@@ -9,6 +9,8 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"strconv"
 	"strings"
+
+	//"strings"
 	"time"
 )
 
@@ -254,7 +256,11 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["comment"] = *pool.Comment
 	}
 	if pool.ConsolidatedMonitors != nil {
-		res["consolidated_monitors"] = convertConsolidatedMonitorsToInterface(pool.ConsolidatedMonitors, connector)
+		consolidatedMonitors, err := convertConsolidatedMonitorsToInterface(pool.ConsolidatedMonitors, connector)
+		if err != nil {
+			return nil, err
+		}
+		res["consolidated_monitors"] = consolidatedMonitors
 	}
 	if pool.Disable != nil {
 		res["disable"] = *pool.Disable
@@ -289,7 +295,11 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["quorum"] = *pool.Quorum
 	}
 	if pool.Servers != nil {
-		res["servers"] = convertDtcServerLinksToInterface(pool.Servers, connector)
+		servers, err := convertDtcServerLinksToInterface(pool.Servers, connector)
+		if err != nil {
+			return nil, err
+		}
+		res["servers"] = servers
 	}
 	if pool.UseTtl != nil {
 		if !*pool.UseTtl {
@@ -305,34 +315,36 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 	return res, nil
 }
 
-func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) []map[string]interface{} {
+func convertDtcServerLinksToInterface(serverLinks []*ibclient.DtcServerLink, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
 	slInterface := make([]map[string]interface{}, 0, len(serverLinks))
 	for _, sl := range serverLinks {
 		slMap := make(map[string]interface{})
 		var serverResult ibclient.DtcServer
 		err := connector.GetObject(&ibclient.DtcServer{}, sl.Server, nil, &serverResult)
-		//check for this err thing this is wrong to return nil
 		if err != nil {
-			return nil
+			return nil, err
 		}
 		slMap["server"] = serverResult.Name
 		slMap["ratio"] = sl.Ratio
 		slInterface = append(slInterface, slMap)
 	}
-	return slInterface
+	return slInterface, nil
 }
 
-func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) []map[string]interface{} {
+func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolidatedMonitorHealth, connector ibclient.IBConnector) ([]map[string]interface{}, error) {
 	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
 	for _, monitor := range monitors {
 		monitorMap := make(map[string]interface{})
 		var monitorResult ibclient.DtcMonitorHttp
 		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Monitor, nil, &monitorResult)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-		referenceParts := strings.Split(monitor.Monitor, ":")
-		monitorType := strings.Split(referenceParts[2], "/")[0]
+		var monitorType string
+		if monitor.Monitor != "" {
+			referenceParts := strings.Split(monitor.Monitor, ":")
+			monitorType = strings.Split(referenceParts[2], "/")[0]
+		}
 		monitorMap["monitor_name"] = monitorResult.Name
 		monitorMap["monitor_type"] = monitorType
 		monitorMap["members"] = monitor.Members
@@ -340,7 +352,7 @@ func convertConsolidatedMonitorsToInterface(monitors []*ibclient.DtcPoolConsolid
 		monitorMap["full_health_communication"] = monitor.FullHealthCommunication
 		monitorsInterface = append(monitorsInterface, monitorMap)
 	}
-	return monitorsInterface
+	return monitorsInterface, nil
 }
 
 func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector ibclient.IBConnector) []map[string]interface{} {
@@ -361,48 +373,22 @@ func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector i
 	return monitorsInterface
 }
 
-func convertToMapList(input []interface{}) []map[string]interface{} {
-	var result []map[string]interface{}
-
-	for _, item := range input {
-		if itemMap, ok := item.(map[string]interface{}); ok {
-			monitor := ibclient.Monitor{
-				Name: itemMap["monitor_name"].(string),
-				Type: itemMap["monitor_type"].(string),
-			}
-			// Remove monitor_name and monitor_type from the map
-			delete(itemMap, "monitor_name")
-			delete(itemMap, "monitor_type")
-			// Append the Monitor struct to the map
-			itemMap["monitor"] = monitor
-			if members, ok1 := itemMap["members"].([]interface{}); ok1 {
-				var membersStr []string
-				for _, member := range members {
-					if memberStr, ok2 := member.(string); ok2 {
-						membersStr = append(membersStr, memberStr)
-					}
-				}
-				itemMap["members"] = membersStr
-			}
-			result = append(result, itemMap)
-		}
-	}
-	return result
-}
-
 func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
-	if sd == nil {
-		return "", fmt.Errorf("SettingDynamicratio is nil")
-	}
 	referenceParts := strings.Split(sd.Monitor, ":")
-	monitorType := strings.Split(referenceParts[2], "/")[0]
+	if len(referenceParts) < 3 {
+		return "", fmt.Errorf("invalid monitor format: %s", sd.Monitor)
+	}
+	monitorTypeParts := strings.Split(referenceParts[2], "/")
+	if len(monitorTypeParts) < 1 {
+		return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
+	}
+	monitorType := monitorTypeParts[0]
 	var monitorResult ibclient.DtcMonitorHttp
 	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
 	if err != nil {
 		return "", err
 	}
 	monitorName := monitorResult.Name
-	//monitorName := referenceParts[3]
 	sdMap := map[string]interface{}{
 		"method":                sd.Method,
 		"monitor_name":          monitorName,
@@ -420,23 +406,6 @@ func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ib
 	if err != nil {
 		return "", err
 	}
-	return string(sdJSON), nil
-}
 
-func ConvertDynamicRatioPreferred(jsonStr string) (map[string]interface{}, error) {
-	var lbDynamicRatioPreferred map[string]interface{}
-	if jsonStr != "" {
-		err := json.Unmarshal([]byte(jsonStr), &lbDynamicRatioPreferred)
-		if err != nil {
-			return nil, err
-		}
-		monitor := ibclient.Monitor{
-			Name: lbDynamicRatioPreferred["monitor_name"].(string),
-			Type: lbDynamicRatioPreferred["monitor_type"].(string),
-		}
-		delete(lbDynamicRatioPreferred, "monitor_name")
-		delete(lbDynamicRatioPreferred, "monitor_type")
-		lbDynamicRatioPreferred["monitor"] = monitor
-	}
-	return lbDynamicRatioPreferred, nil
+	return string(sdJSON), nil
 }

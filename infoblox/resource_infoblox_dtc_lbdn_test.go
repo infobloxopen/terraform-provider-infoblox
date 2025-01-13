@@ -9,13 +9,14 @@ import (
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"reflect"
 	"regexp"
+	"strings"
 	"testing"
 )
 
 var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
     name = "testLbdn123"
     auth_zones = ["test.com"]
-  	comment = "test"
+  	comment = "test lbdn with max params"
   	ext_attrs = jsonencode({
     	"Location" = "65.8665701230204, -37.00791763398113"
   	})
@@ -33,7 +34,7 @@ var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
     	pool = "test-pool"
     	ratio = 6
   	}
-    topology = "test_topology"
+    topology = "test-topo"
   	ttl = 120
   	disable = true
   	types = ["A", "AAAA", "CNAME"]
@@ -128,8 +129,13 @@ func testDtcLbdnCompare(t *testing.T, resourceName string, expectedLbdn *ibclien
 			}
 		}
 		if rec.AuthZones != nil && expectedLbdn.AuthZones != nil {
-			if !reflect.DeepEqual(rec.AuthZones, expectedLbdn.AuthZones) {
-				return fmt.Errorf("the value of 'auth_zones' field is '%v', but expected '%v'", rec.AuthZones, expectedLbdn.AuthZones)
+			if len(rec.AuthZones) != len(expectedLbdn.AuthZones) {
+				return fmt.Errorf("the number of 'auth_zones' is '%d', but expected '%d'", len(rec.AuthZones), len(expectedLbdn.AuthZones))
+			}
+			for i := range rec.AuthZones {
+				if !strings.Contains(rec.AuthZones[i].Ref, expectedLbdn.AuthZones[i].Fqdn) {
+					return fmt.Errorf("the value of 'auth_zones[%d]' field is '%s', but expected '%s'", i, rec.AuthZones[i].Fqdn, expectedLbdn.AuthZones[i].Fqdn)
+				}
 			}
 		}
 		if rec.AutoConsolidatedMonitors != nil && expectedLbdn.AutoConsolidatedMonitors != nil {
@@ -151,7 +157,7 @@ func testDtcLbdnCompare(t *testing.T, resourceName string, expectedLbdn *ibclien
 			}
 		}
 		if rec.Pools != nil && expectedLbdn.Pools != nil {
-			if !reflect.DeepEqual(rec.Pools, expectedLbdn.Pools) {
+			if !comparePools(rec.Pools, expectedLbdn.Pools, connector) {
 				return fmt.Errorf("the value of 'pools' field is '%v', but expected '%v'", rec.Pools, expectedLbdn.Pools)
 			}
 		}
@@ -161,8 +167,13 @@ func testDtcLbdnCompare(t *testing.T, resourceName string, expectedLbdn *ibclien
 			}
 		}
 		if rec.Topology != nil && expectedLbdn.Topology != nil {
-			if *rec.Topology != *expectedLbdn.Topology {
-				return fmt.Errorf("the value of 'topology' field is '%s', but expected '%s'", *rec.Topology, *expectedLbdn.Topology)
+			var topology ibclient.DtcTopology
+			err := connector.GetObject(&ibclient.DtcTopology{}, *rec.Topology, nil, &topology)
+			if err != nil {
+				return fmt.Errorf("error getting topology object: %s", *rec.Topology)
+			}
+			if *expectedLbdn.Topology != *topology.Name {
+				return fmt.Errorf("the value of 'topology' field is '%s', but expected '%s'", *topology.Name, *expectedLbdn.Topology)
 			}
 		}
 		if rec.Types != nil && expectedLbdn.Types != nil {
@@ -184,18 +195,58 @@ func testDtcLbdnCompare(t *testing.T, resourceName string, expectedLbdn *ibclien
 	}
 }
 
+func comparePools(pools1, pools2 []*ibclient.DtcPoolLink, connector ibclient.IBConnector) bool {
+	if len(pools1) != len(pools2) {
+		return false
+	}
+	for i := range pools1 {
+		var pool1 ibclient.DtcPool
+		err1 := connector.GetObject(&ibclient.DtcPool{}, pools1[i].Pool, nil, &pool1)
+		if err1 != nil {
+			return false
+		}
+		if *pool1.Name != pools2[i].Pool || pools1[i].Ratio != pools2[i].Ratio {
+			return false
+		}
+	}
+	return true
+}
+
 func TestAccResourceDtcLbdn(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testDtcLbdnDestroy,
 		Steps: []resource.TestStep{
+			// minimum params
 			{
 				Config: testResourceDtcLbdn2,
 				Check: testDtcLbdnCompare(t, "infoblox_dtc_lbdn.testLbdn2", &ibclient.DtcLbdn{
 					Name:     utils.StringPtr("testLbdn456"),
 					LbMethod: "RATIO",
 					Types:    []string{"A", "AAAA"},
+				}),
+			},
+			// maximum params
+			{
+				Config: testResourceDtcLbdn,
+				Check: testDtcLbdnCompare(t, "infoblox_dtc_lbdn.testLbdn1", &ibclient.DtcLbdn{
+					Name:      utils.StringPtr("testLbdn123"),
+					LbMethod:  "TOPOLOGY",
+					Topology:  utils.StringPtr("test-topo"),
+					AuthZones: []*ibclient.ZoneAuth{{Fqdn: "test.com"}},
+					Comment:   utils.StringPtr("test lbdn with max params"),
+					Types:     []string{"A", "AAAA", "CNAME"},
+					Pools: []*ibclient.DtcPoolLink{
+						{Pool: "pool2", Ratio: 2},
+						{Pool: "rrpool", Ratio: 3},
+						{Pool: "test-pool", Ratio: 6}},
+					Patterns:    []string{"test.com*", "info.com*"},
+					Persistence: utils.Uint32Ptr(60),
+					Priority:    utils.Uint32Ptr(1),
+					Ttl:         utils.Uint32Ptr(120),
+					Disable:     utils.BoolPtr(true),
+					Ea:          map[string]interface{}{"Location": "65.8665701230204, -37.00791763398113"},
 				}),
 			},
 			// negative test case
