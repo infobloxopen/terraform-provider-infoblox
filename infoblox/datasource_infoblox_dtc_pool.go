@@ -269,7 +269,12 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["lb_alternate_method"] = pool.LbAlternateMethod
 	}
 	if pool.LbAlternateTopology != nil {
-		res["lb_alternate_topology"] = *pool.LbAlternateTopology
+		var topology ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *pool.LbAlternateTopology, nil, &topology)
+		if err != nil {
+			return nil, fmt.Errorf("error getting %s DtcTopology object: %s", *pool.LbAlternateTopology, err)
+		}
+		res["lb_alternate_topology"] = topology.Name
 	}
 	if pool.LbDynamicRatioAlternate != nil && pool.LbAlternateMethod == "DYNAMIC_RATIO" {
 		lbDynamicRatioAlternate, err := serializeSettingDynamicRatio(pool.LbDynamicRatioAlternate, connector)
@@ -286,7 +291,12 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["lb_dynamic_ratio_preferred"] = lbDynamicRatioPreferred
 	}
 	if pool.LbPreferredTopology != nil {
-		res["lb_preferred_topology"] = *pool.LbPreferredTopology
+		var topology ibclient.DtcTopology
+		err := connector.GetObject(&ibclient.DtcTopology{}, *pool.LbPreferredTopology, nil, &topology)
+		if err != nil {
+			return nil, fmt.Errorf("error getting %s DtcTopology object: %s", *pool.LbPreferredTopology, err)
+		}
+		res["lb_preferred_topology"] = topology.Name
 	}
 	if pool.Monitors != nil {
 		res["monitors"] = convertMonitorsToInterface(pool.Monitors, connector)

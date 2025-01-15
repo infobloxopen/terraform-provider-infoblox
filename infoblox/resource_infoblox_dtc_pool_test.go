@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
+	"reflect"
 	"testing"
 )
 
@@ -91,6 +92,88 @@ func testAccDtcPoolCompare(
 		} else if expectedRec.Comment != nil {
 			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
+		if rec.LbPreferredMethod == "TOPOLOGY" {
+			if *rec.LbPreferredTopology != *expectedRec.LbPreferredTopology {
+				return fmt.Errorf("'lb_preferred_topology' does not match: got '%s' , expected '%s'", *rec.LbPreferredTopology, *expectedRec.LbPreferredTopology)
+			}
+		}
+		if rec.LbAlternateMethod == "TOPOLOGY" {
+			if *rec.LbAlternateTopology != *expectedRec.LbAlternateTopology {
+				return fmt.Errorf("'lb_alternate_topology' does not match: got '%s' , expected '%s'", *rec.LbAlternateTopology, *expectedRec.LbAlternateTopology)
+			}
+		}
+		if rec.Monitors != nil && expectedRec.Monitors != nil {
+			if len(rec.Monitors) != len(expectedRec.Monitors) {
+				return fmt.Errorf("the length of 'monitors' field is '%d' but expected '%d'", len(rec.Monitors), len(expectedRec.Monitors))
+			}
+
+			for i := range rec.Monitors {
+				if !reflect.DeepEqual(rec.Monitors[i].Ref, expectedRec.Monitors[i].Ref) {
+					return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.Monitors[i].Ref, expectedRec.Monitors[i].Ref)
+				}
+			}
+		}
+		if rec.Servers != nil && expectedRec.Servers != nil {
+			if len(rec.Servers) != len(expectedRec.Servers) {
+				return fmt.Errorf("the length of 'servers' field is '%d' but expected '%d'", len(rec.Servers), len(expectedRec.Servers))
+			}
+
+			for i := range rec.Servers {
+				if !reflect.DeepEqual(rec.Servers[i], expectedRec.Servers[i]) {
+					return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.Servers[i], expectedRec.Servers[i])
+				}
+			}
+		}
+		if rec.LbDynamicRatioPreferred != nil && expectedRec.LbDynamicRatioPreferred != nil {
+			if !reflect.DeepEqual(rec.LbDynamicRatioPreferred, expectedRec.LbDynamicRatioPreferred) {
+				return fmt.Errorf(
+					"the value of 'lb_dynamic_preferred' field is '%v', but expected '%v'",
+					rec.LbDynamicRatioPreferred, expectedRec.LbDynamicRatioPreferred)
+			}
+		}
+		if rec.LbDynamicRatioAlternate != nil && expectedRec.LbDynamicRatioAlternate != nil {
+			if !reflect.DeepEqual(rec.LbDynamicRatioAlternate, expectedRec.LbDynamicRatioAlternate) {
+				return fmt.Errorf(
+					"the value of 'lb_dynamic_alternate' field is '%v', but expected '%v'",
+					rec.LbDynamicRatioAlternate, expectedRec.LbDynamicRatioAlternate)
+			}
+		}
+		if rec.UseTtl != nil {
+			if expectedRec.UseTtl == nil {
+				return fmt.Errorf("'use_ttl' is expected to be undefined but it is not")
+			}
+			if *rec.UseTtl != *expectedRec.UseTtl {
+				return fmt.Errorf(
+					"'use_ttl' does not match: got '%t', expected '%t'",
+					*rec.UseTtl, *expectedRec.UseTtl)
+			}
+			if *rec.UseTtl {
+				if *rec.Ttl != *expectedRec.Ttl {
+					return fmt.Errorf(
+						"'TTL' usage does not match: got '%d', expected '%d'",
+						rec.Ttl, expectedRec.Ttl)
+				}
+			}
+		}
+		if rec.Quorum != nil {
+			if *rec.Quorum != *expectedRec.Quorum {
+				return fmt.Errorf(
+					"quorum value does not match: got '%d', expected '%d'", *rec.Quorum, *expectedRec.Quorum)
+			}
+		}
+		if rec.Availability != expectedRec.Availability {
+			return fmt.Errorf(
+				"availability value does not match: got '%v', expected '%v'", rec.Availability, expectedRec.Availability)
+		}
+		if rec.AutoConsolidatedMonitors != nil {
+			if !(*rec.AutoConsolidatedMonitors) {
+				for i := range rec.ConsolidatedMonitors {
+					if !reflect.DeepEqual(rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i]) {
+						return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i])
+					}
+				}
+			}
+		}
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
@@ -116,6 +199,10 @@ func TestAccResourceDtcPool(t *testing.T) {
 						Name:              utils.StringPtr("dtc_pool"),
 						Comment:           utils.StringPtr("pool creation"),
 						LbPreferredMethod: "ROUND_ROBIN",
+						Quorum:            utils.Uint32Ptr(0),
+						Ttl:               utils.Uint32Ptr(0),
+						UseTtl:            utils.BoolPtr(false),
+						Availability:      "ALL",
 					}),
 				),
 			},
@@ -155,14 +242,23 @@ func TestAccResourceDtcPool(t *testing.T) {
 							MonitorWeighing:     "PRIORITY",
 							InvertMonitorMetric: true,
 						},
+						Ttl:          utils.Uint32Ptr(0),
+						UseTtl:       utils.BoolPtr(false),
+						Quorum:       utils.Uint32Ptr(0),
+						Availability: "ALL",
 					})),
-			}, {
+			},
+			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_dtc_pool" "pool3"{
 					name = "dtc_pool3"
 					comment = "pool creation"
-					lb_preferred_method= TOPOLOGY
-					lb_preferred_topology= "topology_ruleset"
+					lb_preferred_method= "TOPOLOGY"
+					lb_preferred_topology= "topology_ruleset1"
+					servers{
+    					server = "dummy-server.com"
+    					ratio=3
+  					}
 					lb_alternate_method = "DYNAMIC_RATIO"
 					lb_dynamic_ratio_alternate =jsonencode({
 						"monitor_name"="snmp"
@@ -174,9 +270,159 @@ func TestAccResourceDtcPool(t *testing.T) {
 				})
 				monitors{
 						monitor_name = "snmp"
-     					monitor_type="snmp"
-				}	
+						monitor_type="snmp"
+				}
+				monitors{
+						monitor_name = "http"
+						monitor_type="http"
+				}
 				}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDtcPoolCompare(t, "infoblox_dtc_pool.pool3", &ibclient.DtcPool{
+						Name:                utils.StringPtr("dtc_pool3"),
+						Comment:             utils.StringPtr("pool creation"),
+						LbPreferredMethod:   "TOPOLOGY",
+						LbPreferredTopology: utils.StringPtr("dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdG9wb2xvZ3lfcnVsZXNldDE:topology_ruleset1"),
+						LbAlternateMethod:   "DYNAMIC_RATIO",
+						Monitors: []*ibclient.DtcMonitorHttp{
+							{
+								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							},
+							{
+								Ref: "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+							},
+						},
+						LbDynamicRatioAlternate: &ibclient.SettingDynamicratio{
+							Monitor:             "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							Method:              "MONITOR",
+							MonitorMetric:       ".1.2",
+							MonitorWeighing:     "PRIORITY",
+							InvertMonitorMetric: true,
+						},
+						Servers: []*ibclient.DtcServerLink{
+							{
+								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlci5jb20:dummy-server.com",
+								Ratio:  3,
+							},
+						},
+						Ttl:          utils.Uint32Ptr(0),
+						UseTtl:       utils.BoolPtr(false),
+						Quorum:       utils.Uint32Ptr(0),
+						Availability: "ALL",
+					})),
+			},
+			{
+				Config: fmt.Sprintf(
+					`resource "infoblox_dtc_pool" "pool4"{
+							name = "dtc_pool4"
+							comment = "pool creation"
+							lb_preferred_method="TOPOLOGY"
+							lb_preferred_topology= "topology_ruleset1"
+							servers{
+    							server = "dummy-server.com"
+    							ratio=3
+							}
+							servers{
+    							server = "dummy-server2.com"
+    							ratio=4
+  							}
+							monitors{
+								monitor_name = "snmp"
+								monitor_type="snmp"
+							}
+							lb_alternate_method="DYNAMIC_RATIO"
+							lb_dynamic_ratio_alternate =jsonencode({
+								"monitor_name"="snmp"
+								"monitor_type"="snmp"
+								"method"="ROUND_TRIP_DELAY"
+				})
+						}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDtcPoolCompare(t, "infoblox_dtc_pool.pool4", &ibclient.DtcPool{
+						Name:                utils.StringPtr("dtc_pool4"),
+						Comment:             utils.StringPtr("pool creation"),
+						LbPreferredMethod:   "TOPOLOGY",
+						LbPreferredTopology: utils.StringPtr("dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdG9wb2xvZ3lfcnVsZXNldDE:topology_ruleset1"),
+						LbAlternateMethod:   "DYNAMIC_RATIO",
+						LbDynamicRatioAlternate: &ibclient.SettingDynamicratio{
+							Monitor:             "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							Method:              "ROUND_TRIP_DELAY",
+							MonitorMetric:       "", //default values for monitor_metric , monitor_weighing and invert_monitor_metric when method is ROUND_TRIP_DELAY
+							MonitorWeighing:     "RATIO",
+							InvertMonitorMetric: false,
+						},
+						Servers: []*ibclient.DtcServerLink{
+							{
+								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlci5jb20:dummy-server.com",
+								Ratio:  3,
+							},
+							{
+								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlcjIuY29t:dummy-server2.com",
+								Ratio:  4,
+							},
+						},
+						Monitors: []*ibclient.DtcMonitorHttp{
+							{
+								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							},
+						},
+						Ttl:          utils.Uint32Ptr(0),
+						UseTtl:       utils.BoolPtr(false),
+						Quorum:       utils.Uint32Ptr(0),
+						Availability: "ALL",
+					})),
+			},
+			{
+				Config: fmt.Sprintf(
+					`resource "infoblox_dtc_pool" "pool5"{
+						name = "dtc_pool5"
+						comment = "pool creation"
+						lb_preferred_method="ROUND_ROBIN"
+						monitors{
+						monitor_name = "snmp"
+						monitor_type="snmp"
+						}
+						monitors{
+						monitor_name = "http"
+						monitor_type="http"
+						}
+						availability = "QUORUM"
+						quorum = 2
+						ttl = 120
+						auto_consolidated_monitors= true
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDtcPoolCompare(t, "infoblox_dtc_pool.pool5", &ibclient.DtcPool{
+						Name:              utils.StringPtr("dtc_pool5"),
+						Comment:           utils.StringPtr("pool creation"),
+						LbPreferredMethod: "ROUND_ROBIN",
+						Monitors: []*ibclient.DtcMonitorHttp{
+							{
+								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							},
+							{
+								Ref: "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+							},
+						},
+						ConsolidatedMonitors: []*ibclient.DtcPoolConsolidatedMonitorHealth{
+							{
+								Monitor:                 "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Availability:            "ALL",
+								FullHealthCommunication: true,
+								Members:                 []string{},
+							},
+							{
+								Monitor:                 "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+								Availability:            "ALL",
+								FullHealthCommunication: true,
+								Members:                 []string{},
+							},
+						},
+						Quorum:       utils.Uint32Ptr(2),
+						Ttl:          utils.Uint32Ptr(120),
+						UseTtl:       utils.BoolPtr(true),
+						Availability: "QUORUM",
+					})),
 			},
 		},
 	})
