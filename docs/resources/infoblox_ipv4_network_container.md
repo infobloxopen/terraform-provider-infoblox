@@ -21,14 +21,14 @@ resource block:
 ### Examples of the Network Container Resource
 
 ```hcl
-// statically allocated IPv4 network container, minimal set of parameters
+# Statically allocated IPv4 network container, minimal set of parameters
 resource "infoblox_ipv4_network_container" "v4net_c1" {
   cidr = "10.2.0.0/24"
 }
 
-// full set of parameters for statically allocated IPv4 network container
+# Full set of parameters for statically allocated IPv4 network container
 resource "infoblox_ipv4_network_container" "v4net_c2" {
-  cidr = "10.2.0.0/24" // we may allocate the same IP address range but in another network view
+  cidr = "10.2.0.0/24" # we may allocate the same IP address range but in another network view
   network_view = "nondefault_netview"
   comment = "one of our clients"
   ext_attrs = jsonencode({
@@ -37,7 +37,7 @@ resource "infoblox_ipv4_network_container" "v4net_c2" {
   })
 }
 
-// full set of parameters for dynamic allocation of network containers
+# Full set of parameters for dynamic allocation of network containers
 resource "infoblox_ipv4_network_container" "v4net_c3" {
   parent_cidr = infoblox_ipv4_network_container.v4net_c2.cidr
   allocate_prefix_len = 26
@@ -49,7 +49,7 @@ resource "infoblox_ipv4_network_container" "v4net_c3" {
   })
 }
 
-// dynamic allocation of IPv4 network container resource using filter_params
+# Dynamic allocation of IPv4 network container resource using filter_params
 resource "infoblox_ipv4_network_container" "network_container_ipv4" {
   allocate_prefix_len = 26
   comment = "IPv4 network container created with next available network"

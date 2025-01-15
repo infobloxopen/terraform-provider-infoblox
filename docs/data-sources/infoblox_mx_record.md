@@ -69,8 +69,8 @@ data "infoblox_mx_record" "ds2" {
     mail_exchanger = "sample.test.com"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_mx_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_mx_record' resource block before the data source will be queried.
   depends_on = [infoblox_mx_record.rec2]
 }
 
@@ -78,12 +78,12 @@ output "mx_rec_res" {
   value = data.infoblox_mx_record.ds2
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "mx_rec_name" {
   value = data.infoblox_mx_record.ds2.results.0.fqdn //zero represents index of json object from results list
 }
 
-// accessing MX-Record through EA's
+# Accessing MX-Record through EA's
 data "infoblox_mx_record" "mx_rec_ea" {
   filters = {
     "*Location" = "California"
@@ -91,7 +91,7 @@ data "infoblox_mx_record" "mx_rec_ea" {
   }
 }
 
-// throws matching MX-Records with EA, if any
+# Throws matching MX-Records with EA, if any
 output "mx_rec_out" {
   value = data.infoblox_mx_record.mx_rec_ea
 }

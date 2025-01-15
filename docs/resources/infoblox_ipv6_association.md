@@ -53,7 +53,7 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
   duid = aws_network_interface.ni.mac_address
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view=infoblox_ipv6_allocation.ipv6_allocation.dns_view
   fqdn=infoblox_ipv6_allocation.ipv6_allocation.fqdn
   enable_dns = infoblox_ipv6_allocation.ipv6_allocation.enable_dns

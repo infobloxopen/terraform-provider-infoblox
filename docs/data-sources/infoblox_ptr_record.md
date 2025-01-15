@@ -73,8 +73,8 @@ data "infoblox_ptr_record" "host1" {
     ipv6addr="2a05:d014:275:cb00:ec0d:12e2:df27:aa60"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_ptr_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_ptr_record' resource block before the data source will be queried.
   depends_on = [infoblox_ptr_record.host1]
 }
 
@@ -94,19 +94,19 @@ output "ptr_host_res" {
   value = data.infoblox_ptr_record.host2
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "ptr_rec_name" {
-  value = data.infoblox_ptr_record.host2.results.0.ptrdname //zero represents index of json object from results list
+  value = data.infoblox_ptr_record.host2.results.0.ptrdname # zero represents index of json object from results list
 }
 
-// accessing PTR-Record through EA's
+# Accessing PTR-Record through EA's
 data "infoblox_ptr_record" "ptr_rec_ea" {
   filters = {
     "*Owner" = "State Library"
   }
 }
 
-// throws PTR-Records with EA, if any
+# Throws PTR-Records with EA, if any
 output "ptr_rec_out" {
   value = data.infoblox_ptr_record.ptr_rec_ea
 }

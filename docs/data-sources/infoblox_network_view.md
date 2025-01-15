@@ -48,8 +48,8 @@ data "infoblox_network_view" "inet_nv" {
     name = "inet_visible_nv"
   }
 
-  // This is just to ensure that the network view has been be created
-  // using 'infoblox_network_view' resource block before the data source will be queried.
+  # This is just to ensure that the network view has been be created
+  # using 'infoblox_network_view' resource block before the data source will be queried.
   depends_on = [infoblox_network_view.inet_nv]
 }
 
@@ -57,19 +57,19 @@ output "nview_res" {
   value = data.infoblox_network_view.inet_nv
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "nview_name" {
   value = data.infoblox_network_view.inet_nv.results.0.name //zero represents index of json object from results list
 }
 
-// accessing IPv4 network through EA's
+# Accessing IPv4 network through EA's
 data "infoblox_network_view" "nview_ea" {
   filters = {
     "*Administrator" = "jsw@telecom.ca"
   }
 }
 
-// throws matching Network Views with EA, if any
+# Throws matching Network Views with EA, if any
 output "nview_ea_out" {
   value = data.infoblox_network_view.nview_ea
 }

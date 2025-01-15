@@ -20,8 +20,8 @@ data "infoblox_srv_record" "ds1" {
         target = "sip.example2.org"
     }
 
-    // This is just to ensure that the record has been be created
-    // using 'infoblox_srv_record' resource block before the data source will be queried.
+    # This is just to ensure that the record has been be created
+    # using 'infoblox_srv_record' resource block before the data source will be queried.
     depends_on = [infoblox_srv_record.rec2]
 }
 

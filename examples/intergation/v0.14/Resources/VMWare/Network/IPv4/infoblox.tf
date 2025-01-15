@@ -14,4 +14,3 @@ resource "infoblox_ipv4_network" "ipv4_network"{
     Site = "Test site"
   })
 }
-

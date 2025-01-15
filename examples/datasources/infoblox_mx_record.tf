@@ -17,8 +17,8 @@ data "infoblox_mx_record" "ds2" {
         mail_exchanger = "sample.test.com"
     }
 
-    // This is just to ensure that the record has been be created
-    // using 'infoblox_mx_record' resource block before the data source will be queried.
+    # This is just to ensure that the record has been be created
+    # using 'infoblox_mx_record' resource block before the data source will be queried.
     depends_on = [infoblox_mx_record.rec2]
 }
 

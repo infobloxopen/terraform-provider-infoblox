@@ -17,4 +17,3 @@ resource "infoblox_network_view" "TestNetworkView" {
     "Site" = "Test site"
   })
 }
-

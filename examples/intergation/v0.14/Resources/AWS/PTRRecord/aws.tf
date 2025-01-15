@@ -28,8 +28,7 @@ resource "aws_subnet" "subnet" {
   }
 }
 
-
-#Create Network Interface
+# Create Network Interface
 resource "aws_network_interface" "ni" {
   subnet_id   = aws_subnet.subnet.id
   private_ips = [infoblox_ipv4_allocation.ipv4_allocation.ip_addr]

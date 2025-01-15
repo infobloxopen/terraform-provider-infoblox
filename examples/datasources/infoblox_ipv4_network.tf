@@ -8,7 +8,7 @@ data "infoblox_ipv4_network" "net1" {
 }
 
 
-// Search by extensible is available, just specify the EA key starting with asterisk in filters
+# Search by extensible is available, just specify the EA key starting with asterisk in filters
 data "infoblox_ipv4_network" "net1" {
   filters = {
     "*Building" = "Cali"

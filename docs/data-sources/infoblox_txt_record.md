@@ -66,8 +66,8 @@ data "infoblox_txt_record" "ds3" {
     name = "example3.example2.org"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_txt_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_txt_record' resource block before the data source will be queried.
   depends_on = [infoblox_txt_record.rec3]
 }
 
@@ -75,12 +75,12 @@ output "txt_rec_res" {
   value = data.infoblox_txt_record.ds3
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "txt_rec_mes" {
-  value = data.infoblox_txt_record.ds3.results.0.text //zero represents index of json object from results list
+  value = data.infoblox_txt_record.ds3.results.0.text # zero represents index of json object from results list
 }
 
-// accessing TXT-Record through EA's
+# Accessing TXT-Record through EA's
 data "infoblox_txt_record" "txt_rec_ea" {
   filters = {
     "*Location" = "Unknown"

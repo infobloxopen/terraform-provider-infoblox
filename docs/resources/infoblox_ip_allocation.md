@@ -75,7 +75,7 @@ resource "infoblox_ip_allocation" "ip_allocation" {
   ipv4_addr = "10.0.0.32"
   ipv6_addr = "2001:1890:1959:2710::32"
 
-  #Create Host Record with DNS flags
+  # Create Host Record with DNS flags
   dns_view="default"
   fqdn="testipv4v6"
   enable_dns = "false"
@@ -106,7 +106,7 @@ resource "infoblox_ip_aloocation" "allocation1" {
 ```hcl
 resource "infoblox_ip_allocation" "ipv4_allocation_with_ea" {
   fqdn = local.vm_name
-  //Extensible attributes of parent network 
+  # Extensible attributes of parent network 
   filter_params = jsonencode({
     "*Site": local.site
   })
@@ -123,15 +123,15 @@ You can use static and dynamic allocation methods independently to assign IPv4 a
 resource.
 
 ```hcl
-// IP address allocation, minimal set of parameters
+# IP address allocation, minimal set of parameters
 resource "infoblox_ip_allocation" "allocation1" {
-  dns_view = "default" // this time the parameter is not optional, because...
-  # enable_dns = true // ... this is 'true', by default
+  dns_view = "default" # this time the parameter is not optional, because...
+  # enable_dns = true # ... this is 'true', by default
   fqdn = "host1.example1.org" // this resource type is implemented as a host record on NIOS side
   ipv4_addr = "1.2.3.4"
 }
 
-// Wide set of parameters
+# Wide set of parameters
 resource "infoblox_ip_allocation" "allocation2" {
   dns_view = "nondefault_dnsview1"
   fqdn = "host2.example2.org"
@@ -143,10 +143,10 @@ resource "infoblox_ip_allocation" "allocation2" {
   })
 }
 
-// IPv4 and IPv6 at the same time
+# IPv4 and IPv6 at the same time
 resource "infoblox_ip_allocation" "allocation3" {
   dns_view = "nondefault_dnsview2"
-  network_view = "nondefault_netview" // we have to mention the exact network view which the DNS view belongs to
+  network_view = "nondefault_netview" # we have to mention the exact network view which the DNS view belongs to
   fqdn = "host3.example4.org"
   ipv6_addr = "2002:1f93::12:40"
   ipv4_addr = "1.2.3.40"
@@ -159,22 +159,22 @@ resource "infoblox_ip_allocation" "allocation3" {
 
 resource "infoblox_ip_allocation" "allocation4" {
   enable_dns = false
-  # dns_view = "nondefault_dnsview2" // dns_view makes no sense when enable_dns = false and
-  // you MUST remove it or comment out
-  network_view = "nondefault_netview" // we have to mention the exact network view which the DNS view belongs to
-  fqdn = "host4" // just one name component, because there is no host-to-DNS-zone assignment
+  # dns_view = "nondefault_dnsview2" # dns_view makes no sense when enable_dns = false and
+  # you MUST remove it or comment out
+  network_view = "nondefault_netview" # we have to mention the exact network view which the DNS view belongs to
+  fqdn = "host4" # just one name component, because there is no host-to-DNS-zone assignment
 
-  // either of the IP addresses must belong to an existing
-  // network (not a network container) in the GIVEN network view,
-  // because of enable_dns = false
+  # Either of the IP addresses must belong to an existing
+  # network (not a network container) in the GIVEN network view,
+  # because of enable_dns = false
   ipv6_addr = "2002:1f93::12:40"
   ipv4_addr = "10.1.0.60"
 
-  // we must ensure that appropriate network exists by the time this resource is being created
+  # We must ensure that appropriate network exists by the time this resource is being created
   depends_on = [infoblox_ipv4_network.net1]
 }
 
-// dynamic allocation
+# Dynamic allocation
 resource "infoblox_ip_allocation" "allocation5" {
   dns_view = "nondefault_dnsview2"
   network_view = "nondefault_netview"
@@ -183,12 +183,12 @@ resource "infoblox_ip_allocation" "allocation5" {
   ipv4_cidr = infoblox_ipv4_network.net2.cidr
 }
 
-// dynamic allocation of both IPv4 and IPv6 host records using filter_params with aliases
+# Dynamic allocation of both IPv4 and IPv6 host records using filter_params with aliases
 resource "infoblox_ip_allocation" "rec_host17" {
   fqdn = "new777.test.com"
   aliases = ["www.test.com"]
   disable = false
-  //Extensible attributes of parent network 
+  # Extensible attributes of parent network 
   filter_params = jsonencode({
     "*Site": "Turkey"
   })

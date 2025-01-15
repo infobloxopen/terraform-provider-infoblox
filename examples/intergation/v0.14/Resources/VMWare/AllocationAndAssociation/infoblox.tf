@@ -61,7 +61,7 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   network_view= "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv4.vmware.com"
   enable_dns = "false"
@@ -82,7 +82,7 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   duid = "00:00:00:00:00:00:00:00"
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv6.vmware.com"
   enable_dns = "false"
@@ -103,7 +103,7 @@ resource "infoblox_ip_allocation" "ip_allocation" {
   ipv4_cidr = infoblox_ipv4_network.ipv4_network.cidr
   ipv6_cidr = infoblox_ipv6_network.ipv6_network.cidr
 
-  #Create Host Record with DNS flags
+  # Create Host Record with DNS flags
   dns_view="default"
   fqdn="testip.example.com"
   enable_dns = "false"
@@ -125,7 +125,7 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
   mac_addr = vsphere_virtual_machine.vm_ipv4.network_interface[0].mac_address
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv4.vmware.com"
   enable_dns = "false"
@@ -148,7 +148,7 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
   duid = vsphere_virtual_machine.vm_ipv6.network_interface[0].mac_address
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv6.vmware.com"
   enable_dns = "false"
@@ -169,6 +169,6 @@ resource "infoblox_ip_association" "ip_associate"{
   mac_addr = vsphere_virtual_machine.vm_ip_v4_v6.network_interface[0].mac_address
   duid = vsphere_virtual_machine.vm_ip_v4_v6.network_interface[0].mac_address
   internal_id = infoblox_ip_allocation.ip_allocation.internal_id
-  #Update Host Record with DHCP flags
+  # Update Host Record with DHCP flags
   enable_dhcp = "false"
 }
