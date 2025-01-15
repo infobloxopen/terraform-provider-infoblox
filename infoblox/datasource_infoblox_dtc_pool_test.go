@@ -31,6 +31,7 @@ func TestAccDataSourceDtcPool(t *testing.T) {
 			}},
 	})
 }
+
 func TestAccDataSourceDtcPoolSearchByEA(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -76,6 +77,9 @@ func TestAccDataSourceDtcPoolSearchByEA(t *testing.T) {
 									availability = "QUORUM"
 									quorum = 2
 									ttl = 120
+									ext_attrs = jsonencode({
+    								"Site" = "Blr"
+  									})
 						}
 						data "infoblox_dtc_pool" "testPool_read" {	
 						filters = {
@@ -115,6 +119,7 @@ func TestAccDataSourceDtcPoolSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_dtc_pool.testPool_read", "results.0.availability", "QUORUM"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_pool.testPool_read", "results.0.quorum", "2"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_pool.testPool_read", "results.0.ttl", "120"),
+					resource.TestCheckResourceAttrPair("data.infoblox_dtc_pool.testPool_read", "results.0.ext_attrs.Site", "infoblox_dtc_pool.pool12", "ext_attrs.Site"),
 				),
 			}},
 	})
