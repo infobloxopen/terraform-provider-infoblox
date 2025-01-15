@@ -8,6 +8,7 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 	"reflect"
+	"regexp"
 	"testing"
 )
 
@@ -178,7 +179,8 @@ func testAccDtcPoolCompare(
 	}
 }
 
-//var regexRequiredMissingPool = regexp.MustCompile("name and lbPreferredMethod must be provided to create a pool")
+var regexMissingLbDynamicRatioPreferred = regexp.MustCompile("lbDynamicRatioPreferred cannot be nil when lbPreferredMethod is set to DYNAMIC_RATIO")
+var regexMissingLbPreferredTopology = regexp.MustCompile("lbPreferredTopology cannot be nil when lbPreferredMethod is set to TOPOLOGY")
 
 func TestAccResourceDtcPool(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -186,6 +188,23 @@ func TestAccResourceDtcPool(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testDtcPoolDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`resource "infoblox_dtc_pool" "pool" {
+							name = "dtc_pool"
+							comment="pool creation"
+							lb_preferred_method = "DYNAMIC_RATIO"
+							}
+`),
+				ExpectError: regexMissingLbDynamicRatioPreferred,
+			},
+			{
+				Config: fmt.Sprintf(`resource "infoblox_dtc_pool" "pool_neg"{
+									name = "dtc_pool"
+							comment="pool creation"
+							lb_preferred_method = "TOPOLOGY"
+				}`),
+				ExpectError: regexMissingLbPreferredTopology,
+			},
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_dtc_pool" "pool1" {
