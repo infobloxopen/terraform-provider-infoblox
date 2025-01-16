@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -35,10 +36,20 @@ func resourceDtcServer() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceDtcServerImport,
 		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		},
 		Schema: map[string]*schema.Schema{
 			"auto_create_host_record": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     true,
 				Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.\n\n",
 			},
 			"comment": {
@@ -102,6 +113,7 @@ func resourceDtcServer() *schema.Resource {
 			"use_sni_hostname": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     false,
 				Description: "Use flag for: sni_hostname",
 			},
 			"ref": {
@@ -120,6 +132,11 @@ func resourceDtcServer() *schema.Resource {
 	}
 }
 func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
+	// Check if internal_id is set manually
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	comment := d.Get("comment").(string)
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
@@ -150,6 +167,9 @@ func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(newDtcServer.Ref)
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 	if err = d.Set("ref", newDtcServer.Ref); err != nil {
 		return err
 	}
