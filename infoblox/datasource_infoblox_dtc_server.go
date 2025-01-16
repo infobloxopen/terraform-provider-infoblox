@@ -116,7 +116,7 @@ func dataSourceDtcServerRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	res, err := objMgr.GetAllDtcServer(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get Dtc servers: %w", err))
+		return diag.FromErr(err)
 	}
 	if res == nil {
 		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for zone forward"))

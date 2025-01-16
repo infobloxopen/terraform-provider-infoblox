@@ -148,7 +148,7 @@ func dataSourceDtcLbdnRecordRead(ctx context.Context, d *schema.ResourceData, m 
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllDtcLbdn(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get DTC LBDN records: %w", err))
+		return diag.FromErr(err)
 	}
 
 	if res == nil {
