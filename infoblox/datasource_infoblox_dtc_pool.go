@@ -201,7 +201,7 @@ func dataSourceDtcPoolRecordRead(ctx context.Context, d *schema.ResourceData, m 
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllDtcPool(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get DTC pool records: %w", err))
+		return diag.FromErr(err)
 	}
 
 	if res == nil {

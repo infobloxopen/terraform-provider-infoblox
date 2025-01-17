@@ -27,6 +27,7 @@ func convertDtcServerMonitorsToInterface(monitors []*ibclient.DtcServerMonitor, 
 	}
 	return monitorsInterface
 }
+
 func resourceDtcServer() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDtcServerCreate,
@@ -131,6 +132,7 @@ func resourceDtcServer() *schema.Resource {
 		},
 	}
 }
+
 func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 	// Check if internal_id is set manually
 	if intId := d.Get("internal_id"); intId.(string) != "" {
@@ -175,6 +177,7 @@ func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	return resourceDtcServerGet(d, m)
 }
+
 func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -243,6 +246,7 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	}
 	return nil
 }
+
 func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	var updateSuccessful bool
 	defer func() {
@@ -328,6 +332,9 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	dtcServer, err = objMgr.UpdateDtcServer(d.Id(), comment, name, host, AutoCreateHostRecord, Disable, newExtAttrs, dtcServerMonitor, sniHostname, useSniHostname)
+	if err != nil {
+		return fmt.Errorf("error updating dtc-server: %w", err)
+	}
 	updateSuccessful = true
 	d.SetId(dtcServer.Ref)
 	if err = d.Set("ref", dtcServer.Ref); err != nil {
@@ -338,6 +345,7 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	return resourceDtcServerGet(d, m)
 }
+
 func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -378,6 +386,7 @@ func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -440,5 +449,10 @@ func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 		return nil, err
 	}
 
+	d.SetId(obj.Ref)
+	err = resourceDtcServerUpdate(d, m)
+	if err != nil {
+		return nil, err
+	}
 	return []*schema.ResourceData{d}, nil
 }
