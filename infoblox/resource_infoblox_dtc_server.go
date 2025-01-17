@@ -1,6 +1,7 @@
 package infoblox
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,6 +27,7 @@ func convertDtcServerMonitorsToInterface(monitors []*ibclient.DtcServerMonitor, 
 	}
 	return monitorsInterface
 }
+
 func resourceDtcServer() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDtcServerCreate,
@@ -35,10 +37,20 @@ func resourceDtcServer() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceDtcServerImport,
 		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		},
 		Schema: map[string]*schema.Schema{
 			"auto_create_host_record": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     true,
 				Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.\n\n",
 			},
 			"comment": {
@@ -102,6 +114,7 @@ func resourceDtcServer() *schema.Resource {
 			"use_sni_hostname": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Default:     false,
 				Description: "Use flag for: sni_hostname",
 			},
 			"ref": {
@@ -119,7 +132,13 @@ func resourceDtcServer() *schema.Resource {
 		},
 	}
 }
+
 func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
+	// Check if internal_id is set manually
+	if intId := d.Get("internal_id"); intId.(string) != "" {
+		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
+	}
+
 	comment := d.Get("comment").(string)
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
@@ -150,11 +169,15 @@ func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(newDtcServer.Ref)
+	if err = d.Set("internal_id", internalId.String()); err != nil {
+		return err
+	}
 	if err = d.Set("ref", newDtcServer.Ref); err != nil {
 		return err
 	}
 	return resourceDtcServerGet(d, m)
 }
+
 func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
@@ -223,6 +246,7 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	}
 	return nil
 }
+
 func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	var updateSuccessful bool
 	defer func() {
@@ -308,6 +332,9 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	dtcServer, err = objMgr.UpdateDtcServer(d.Id(), comment, name, host, AutoCreateHostRecord, Disable, newExtAttrs, dtcServerMonitor, sniHostname, useSniHostname)
+	if err != nil {
+		return fmt.Errorf("error updating dtc-server: %w", err)
+	}
 	updateSuccessful = true
 	d.SetId(dtcServer.Ref)
 	if err = d.Set("ref", dtcServer.Ref); err != nil {
@@ -318,6 +345,7 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	return resourceDtcServerGet(d, m)
 }
+
 func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -358,6 +386,7 @@ func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 
 	return nil
 }
+
 func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -420,5 +449,10 @@ func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 		return nil, err
 	}
 
+	d.SetId(obj.Ref)
+	err = resourceDtcServerUpdate(d, m)
+	if err != nil {
+		return nil, err
+	}
 	return []*schema.ResourceData{d}, nil
 }
