@@ -182,6 +182,14 @@ func datasourceDtcPool() *schema.Resource {
 							Default:     ttlUndef,
 							Description: "TTL value for the Dtc Pool.",
 						},
+						"health": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: "The Pool health information.",
+						},
 					},
 				},
 			},
@@ -321,7 +329,9 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 	} else {
 		res["ttl"] = ttlUndef
 	}
-
+	if pool.Health != nil {
+		res["health"] = ConvertDtcHealthToMap(pool.Health)
+	}
 	return res, nil
 }
 

@@ -129,6 +129,14 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"health": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: "The LBDN health information.",
+						},
 					},
 				},
 			},
@@ -250,6 +258,9 @@ func flattenDtcLbdn(lbdn ibclient.DtcLbdn, connector ibclient.IBConnector) (map[
 		res["ttl"] = *lbdn.Ttl
 	} else {
 		res["ttl"] = ttlUndef
+	}
+	if lbdn.Health != nil {
+		res["health"] = ConvertDtcHealthToMap(lbdn.Health)
 	}
 	return res, nil
 }
