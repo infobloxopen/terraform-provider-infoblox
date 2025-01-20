@@ -269,16 +269,12 @@ func flattenDtcPool(pool ibclient.DtcPool, connector ibclient.IBConnector) (map[
 		res["lb_alternate_method"] = pool.LbAlternateMethod
 	}
 	if pool.LbAlternateTopology != nil {
-<<<<<<< HEAD
 		var topology ibclient.DtcTopology
 		err := connector.GetObject(&ibclient.DtcTopology{}, *pool.LbAlternateTopology, nil, &topology)
 		if err != nil {
 			return nil, fmt.Errorf("error getting %s DtcTopology object: %s", *pool.LbAlternateTopology, err)
 		}
 		res["lb_alternate_topology"] = topology.Name
-=======
-		res["lb_alternate_topology"] = *pool.LbAlternateTopology
->>>>>>> 27572b0 (implementation of DTC LBDN resource and datasource and DTC Pool datasource)
 	}
 	if pool.LbDynamicRatioAlternate != nil && pool.LbAlternateMethod == "DYNAMIC_RATIO" {
 		lbDynamicRatioAlternate, err := serializeSettingDynamicRatio(pool.LbDynamicRatioAlternate, connector)
@@ -389,20 +385,21 @@ func convertMonitorsToInterface(monitors []*ibclient.DtcMonitorHttp, connector i
 
 func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ibclient.IBConnector) (string, error) {
 	referenceParts := strings.Split(sd.Monitor, ":")
-	if len(referenceParts) < 3 {
-		return "", fmt.Errorf("invalid monitor format: %s", sd.Monitor)
+	var monitorType, monitorName string
+	if len(referenceParts) > 1 {
+		monitorTypeParts := strings.Split(referenceParts[2], "/")
+		if len(monitorTypeParts) < 1 {
+			return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
+		}
+		monitorType = monitorTypeParts[0]
+		var monitorResult ibclient.DtcMonitorHttp
+		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
+		if err != nil {
+			return "", err
+		}
+		monitorName = *monitorResult.Name
 	}
-	monitorTypeParts := strings.Split(referenceParts[2], "/")
-	if len(monitorTypeParts) < 1 {
-		return "", fmt.Errorf("invalid monitor type format: %s", referenceParts[2])
-	}
-	monitorType := monitorTypeParts[0]
-	var monitorResult ibclient.DtcMonitorHttp
-	err := connector.GetObject(&ibclient.DtcMonitorHttp{}, sd.Monitor, nil, &monitorResult)
-	if err != nil {
-		return "", err
-	}
-	monitorName := monitorResult.Name
+
 	sdMap := map[string]interface{}{
 		"method":                sd.Method,
 		"monitor_name":          monitorName,
@@ -415,11 +412,9 @@ func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ib
 	if len(sdMap) == 0 {
 		return "", nil
 	}
-
 	sdJSON, err := json.Marshal(sdMap)
 	if err != nil {
 		return "", err
 	}
-
 	return string(sdJSON), nil
 }

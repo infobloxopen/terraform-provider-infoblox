@@ -65,12 +65,15 @@ func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interfa
 		if err != nil {
 			return nil, err
 		}
-		monitor := ibclient.Monitor{
-			Name: lbDynamicRatioPreferred["monitor_name"].(string),
-			Type: lbDynamicRatioPreferred["monitor_type"].(string),
+		monitor := ibclient.Monitor{}
+		if monitorName, ok := lbDynamicRatioPreferred["monitor_name"]; ok {
+			monitor.Name = monitorName.(string)
+			delete(lbDynamicRatioPreferred, "monitor_name")
 		}
-		delete(lbDynamicRatioPreferred, "monitor_name")
-		delete(lbDynamicRatioPreferred, "monitor_type")
+		if monitorType, ok := lbDynamicRatioPreferred["monitor_type"]; ok {
+			monitor.Type = monitorType.(string)
+			delete(lbDynamicRatioPreferred, "monitor_type")
+		}
 		lbDynamicRatioPreferred["monitor"] = monitor
 	}
 	return lbDynamicRatioPreferred, nil
