@@ -1,6 +1,27 @@
 package ibclient
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
+
+func (d *DtcServer) MarshalJSON() ([]byte, error) {
+	type Alias DtcServer
+	aux := &struct {
+		Monitors []*DtcServerMonitor `json:"monitors"`
+		*Alias
+	}{
+		Alias: (*Alias)(d),
+	}
+
+	if len(d.Monitors) == 0 {
+		aux.Monitors = []*DtcServerMonitor{}
+	} else {
+		aux.Monitors = d.Monitors
+	}
+
+	return json.Marshal(aux)
+}
 
 func NewEmptyDtcServer() *DtcServer {
 	dtcServer := &DtcServer{}

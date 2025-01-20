@@ -50,17 +50,37 @@ func getMonitorReference(monitorName string, monitorType string, objMgr *ObjectM
 func (d *DtcPool) MarshalJSON() ([]byte, error) {
 	type Alias DtcPool
 	aux := &struct {
-		Monitors []string `json:"monitors,omitempty"`
+		Monitors             []string                            `json:"monitors"`
+		Servers              []*DtcServerLink                    `json:"servers"`
+		ConsolidatedMonitors []*DtcPoolConsolidatedMonitorHealth `json:"consolidated_monitors"`
 		*Alias
 	}{
 		Alias: (*Alias)(d),
 	}
 	// Convert Monitors to a slice of strings
-	for _, zone := range d.Monitors {
-		if zone != nil {
-			aux.Monitors = append(aux.Monitors, zone.Ref)
+	if len(d.Monitors) == 0 {
+		aux.Monitors = []string{}
+	} else {
+		for _, monitor := range d.Monitors {
+			if monitor != nil {
+				aux.Monitors = append(aux.Monitors, monitor.Ref)
+			}
 		}
 	}
+
+	// Unsetting Servers and ConsolidatedMonitors if they are empty
+	if len(d.Servers) == 0 {
+		aux.Servers = []*DtcServerLink{}
+	} else {
+		aux.Servers = d.Servers
+	}
+
+	if len(d.ConsolidatedMonitors) == 0 || *d.AutoConsolidatedMonitors == false {
+		aux.ConsolidatedMonitors = []*DtcPoolConsolidatedMonitorHealth{}
+	} else {
+		aux.ConsolidatedMonitors = d.ConsolidatedMonitors
+	}
+
 	return json.Marshal(aux)
 }
 
