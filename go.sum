@@ -93,8 +93,8 @@ github.com/hashicorp/terraform-svchost v0.1.1 h1:EZZimZ1GxdqFRinZ1tpJwVxxt49xc/S
 github.com/hashicorp/terraform-svchost v0.1.1/go.mod h1:mNsjQfZyf/Jhz35v6/0LWcv26+X7JPS+buii2c9/ctc=
 github.com/hashicorp/yamux v0.1.1 h1:yrQxtgseBDrq9Y652vSRDvsKCJKOUD+GzTS4Y0Y8pvE=
 github.com/hashicorp/yamux v0.1.1/go.mod h1:CtWFDAQgb7dxtzFs4tWbplKIe2jSi3+5vKbgIO0SLnQ=
-github.com/infobloxopen/infoblox-go-client/v2 v2.8.1-0.20250116105837-10bea58524d0 h1:bR3O/fYf0zAfuY9mck8u/76CTA1RrLJ9il0DceHM2q0=
-github.com/infobloxopen/infoblox-go-client/v2 v2.8.1-0.20250116105837-10bea58524d0/go.mod h1:NeNJpz09efw/edzqkVivGv1bWqBXTomqYBRFbP+XBqg=
+github.com/infobloxopen/infoblox-go-client/v2 v2.8.1-0.20250120064915-97ea8531c16b h1:17LSfsGMetG76GwSFe3hWKV+oXquuV028Gd3D3KsySY=
+github.com/infobloxopen/infoblox-go-client/v2 v2.8.1-0.20250120064915-97ea8531c16b/go.mod h1:NeNJpz09efw/edzqkVivGv1bWqBXTomqYBRFbP+XBqg=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jhump/protoreflect v1.15.1 h1:HUMERORf3I3ZdX05WaQ6MIpd/NJ434hTp5YiKgfCL6c=
