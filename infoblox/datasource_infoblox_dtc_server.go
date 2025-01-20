@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+func ConvertDtcHealthToMap(dtcHealth *ibclient.DtcHealth) map[string]string {
+	if dtcHealth == nil {
+		return nil
+	}
+
+	return map[string]string{
+		"availability":  dtcHealth.Availability,
+		"enabled_state": dtcHealth.EnabledState,
+		"description":   dtcHealth.Description,
+	}
+}
+
 func dataSourceDtcServer() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDtcServerRead,
@@ -97,6 +109,14 @@ func dataSourceDtcServer() *schema.Resource {
 							Optional:    true,
 							Description: "Use flag for: sni_hostname",
 						},
+						"health": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: "The Server health information.",
+						},
 					},
 				},
 			},
@@ -177,6 +197,9 @@ func flattenDtcServer(dtcServer ibclient.DtcServer, connector ibclient.IBConnect
 	}
 	if dtcServer.UseSniHostname != nil {
 		res["use_sni_hostname"] = *dtcServer.UseSniHostname
+	}
+	if dtcServer.Health != nil {
+		res["health"] = ConvertDtcHealthToMap(dtcServer.Health)
 	}
 	return res, nil
 }
