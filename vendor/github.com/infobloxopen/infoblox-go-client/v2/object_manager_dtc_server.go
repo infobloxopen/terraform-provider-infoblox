@@ -42,8 +42,13 @@ func (objMgr *ObjectManager) CreateDtcServer(
 	sniHostname string,
 	useSniHostname bool,
 ) (*DtcServer, error) {
+
+	if name == "" || host == "" {
+		return nil, fmt.Errorf("name and host fields are required to create a dtc server")
+	}
 	if (useSniHostname && sniHostname == "") || (!useSniHostname && sniHostname != "") {
-		return nil, fmt.Errorf("if 'use_sni_hostname' is enabled then 'sni_hostname' must be provided or if 'sni_hostname' is provided then 'use_sni_hostname' must be enabled")
+		return nil, fmt.Errorf("'sni_hostname' must be provided when 'use_sni_hostname' is enabled, " +
+			"and 'use_sni_hostname' must be enabled if 'sni_hostname' is provided")
 	}
 	var serverMonitors []*DtcServerMonitor
 	for _, userMonitor := range monitors {
@@ -116,7 +121,8 @@ func (objMgr *ObjectManager) UpdateDtcServer(
 	sniHostname string,
 	useSniHostname bool) (*DtcServer, error) {
 	if (useSniHostname && sniHostname == "") || (!useSniHostname && sniHostname != "") {
-		return nil, fmt.Errorf("If 'use_sni_hostname' is enabled then 'sni_hostname' must be provided or if 'sni_hostname' is provided then 'use_sni_hostname' must be enabled ")
+		return nil, fmt.Errorf("'sni_hostname' must be provided when 'use_sni_hostname' is enabled, " +
+			"and 'use_sni_hostname' must be enabled if 'sni_hostname' is provided")
 	}
 	var serverMonitors []*DtcServerMonitor
 	for _, userMonitor := range monitors {
