@@ -1,32 +1,37 @@
 package infoblox
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-func suppressDynamicRatioDiff(k, old, new string, d *schema.ResourceData) bool {
-	var oldData, newData map[string]interface{}
-	if err := json.Unmarshal([]byte(old), &oldData); err != nil {
-		return false
+func addDefaultValues(input string) (string, error) {
+	var data map[string]interface{}
+	err := json.Unmarshal([]byte(input), &data)
+	if err != nil {
+		return "", err
 	}
-	if err := json.Unmarshal([]byte(new), &newData); err != nil {
-		return false
+	if _, ok := data["invert_monitor_metric"]; !ok {
+		data["invert_monitor_metric"] = false
 	}
-	if oldData["method"] == "ROUND_TRIP_DELAY" {
-		if newData["monitor_metric"] == "" {
-			return false
-		}
-		if newData["monitor_weighing"] == "RATIO" {
-			return false
-		}
-		if newData["invert_monitor_metric"] == false {
-			return false
-		}
+	if _, ok := data["method"]; !ok {
+		data["method"] = "MONITOR"
 	}
-	return true
+	if _, ok := data["monitor_metric"]; !ok {
+		data["monitor_metric"] = ""
+	}
+	if _, ok := data["monitor_weighing"]; !ok {
+		data["monitor_weighing"] = "RATIO"
+	}
+
+	output, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
 }
 
 func convertInterfaceToList(input []interface{}) []map[string]interface{} {
@@ -118,6 +123,15 @@ func resourceDtcPool() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceDtcPoolImport,
 		},
+		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
+			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
+				err := d.SetNewComputed("internal_id")
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -204,10 +218,17 @@ func resourceDtcPool() *schema.Resource {
 				Description: "Load Balancing Preferred Method of the DTC pool.",
 			},
 			"lb_dynamic_ratio_preferred": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Description:      "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
-				DiffSuppressFunc: suppressDynamicRatioDiff,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
+				StateFunc: func(val interface{}) string {
+					input := val.(string)
+					output, err := addDefaultValues(input)
+					if err != nil {
+						return input // Return the original input in case of error
+					}
+					return output
+				},
 			},
 			"lb_preferred_topology": {
 				Type:        schema.TypeString,
@@ -221,10 +242,17 @@ func resourceDtcPool() *schema.Resource {
 				Description: "The alternate load balancing method. Use this to select a method type from the pool if the preferred method does not return any results.",
 			},
 			"lb_dynamic_ratio_alternate": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Description:      "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
-				DiffSuppressFunc: suppressDynamicRatioDiff,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
+				StateFunc: func(val interface{}) string {
+					input := val.(string)
+					output, err := addDefaultValues(input)
+					if err != nil {
+						return input // Return the original input in case of error
+					}
+					return output
+				},
 			},
 			"lb_alternate_topology": {
 				Type:        schema.TypeString,
