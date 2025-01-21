@@ -43,25 +43,22 @@ func dataSourceDtcServer() *schema.Resource {
 						},
 						"auto_create_host_record": {
 							Type:        schema.TypeBool,
-							Optional:    true,
+							Computed:    true,
 							Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.\n\n",
 						},
 						"comment": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Description of the Dtc server.",
 						},
 						"disable": {
 							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Computed:    true,
 							Description: "Determines if the zone is disabled or not.",
 						},
 						"ext_attrs": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Extensible attributes of the  Dtc Server to be added/updated, as a map in JSON format",
 						},
 						"host": {
@@ -71,7 +68,7 @@ func dataSourceDtcServer() *schema.Resource {
 						},
 						"monitors": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "List of IP/FQDN and monitor pairs to be used for additional monitoring.\n\n",
 							Elem: &schema.Resource{
 								//check the required part once
@@ -101,17 +98,17 @@ func dataSourceDtcServer() *schema.Resource {
 						},
 						"sni_hostname": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The hostname for Server Name Indication (SNI) in FQDN format.",
 						},
 						"use_sni_hostname": {
 							Type:        schema.TypeBool,
-							Optional:    true,
+							Computed:    true,
 							Description: "Use flag for: sni_hostname",
 						},
 						"health": {
 							Type:     schema.TypeMap,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
