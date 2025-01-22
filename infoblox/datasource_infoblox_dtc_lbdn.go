@@ -36,7 +36,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"auth_zones": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "List of linked auth zones.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -44,26 +44,22 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"auto_consolidated_monitors": {
 							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Computed:    true,
 							Description: "Flag for enabling auto managing DTC Consolidated Monitors on related DTC Pools.",
 						},
 						"comment": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Description of the DTC LBDN record.",
 						},
 						"ext_attrs": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Extensible attributes of the DTC LBDN record to be added/updated, as a map in JSON format.",
 						},
 						"disable": {
 							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Computed:    true,
 							Description: "Determines whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled.",
 						},
 						"lb_method": {
@@ -73,7 +69,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"patterns": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "LBDN wildcards for pattern match.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -81,13 +77,12 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"persistence": {
 							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     0,
+							Computed:    true,
 							Description: "Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.",
 						},
 						"pools": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "The maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -106,24 +101,23 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"priority": {
 							Type:     schema.TypeInt,
-							Optional: true,
+							Computed: true,
 							Description: "The LBDN pattern match priority for “overlapping” DTC LBDN objects. LBDNs are “overlapping” if " +
 								"they are simultaneously assigned to a zone and have patterns that can match the same FQDN. The matching LBDN with highest priority (lowest ordinal) will be used.",
 						},
 						"topology": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The topology rules for TOPOLOGY method.",
 						},
 						"ttl": {
 							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     ttlUndef,
+							Computed:    true,
 							Description: "The Time To Live (TTL) value for the DTC LBDN. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 						},
 						"types": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "The list of resource record types supported by LBDN. Valid values are A, AAAA, CNAME, NAPTR, SRV. Default value is A and AAAA",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -131,7 +125,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"health": {
 							Type:     schema.TypeMap,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},

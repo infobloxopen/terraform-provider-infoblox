@@ -38,25 +38,22 @@ func datasourceDtcPool() *schema.Resource {
 						},
 						"auto_consolidated_monitors": {
 							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Computed:    true,
 							Description: "Flag for enabling auto managing DTC Consolidated Monitors in DTC Pool.",
 						},
 						"availability": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "ALL",
+							Computed:    true,
 							Description: "A resource in the pool is available if ANY, at least QUORUM, or ALL monitors for the pool say that it is up.",
 						},
 						"comment": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Description of the Dtc pool.",
 						},
 						"consolidated_monitors": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "List of monitors and associated members statuses of which are shared across members and consolidated in server availability determination.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -80,12 +77,12 @@ func datasourceDtcPool() *schema.Resource {
 									},
 									"availability": {
 										Type:        schema.TypeString,
-										Optional:    true,
+										Computed:    true,
 										Description: "Servers assigned to a pool with monitor defined are healthy if ANY or ALL members report healthy status.",
 									},
 									"full_health_communication": {
 										Type:        schema.TypeBool,
-										Optional:    true,
+										Computed:    true,
 										Description: "Flag for switching health performing and sharing behavior to perform health checks on each DTC grid member that serves related LBDN(s) and send them across all DTC grid members from both selected and non-selected lists.",
 									},
 								},
@@ -93,14 +90,12 @@ func datasourceDtcPool() *schema.Resource {
 						},
 						"disable": {
 							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
+							Computed:    true,
 							Description: "Determines if the zone is disabled or not.",
 						},
 						"ext_attrs": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
+							Computed:    true,
 							Description: "Extensible attributes of the  Dtc Pool to be added/updated, as a map in JSON format",
 						},
 						"lb_preferred_method": {
@@ -110,32 +105,32 @@ func datasourceDtcPool() *schema.Resource {
 						},
 						"lb_dynamic_ratio_preferred": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
 						},
 						"lb_preferred_topology": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The preferred topology for load balancing.",
 						},
 						"lb_alternate_method": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The alternate load balancing method. Use this to select a method type from the pool if the preferred method does not return any results.",
 						},
 						"lb_dynamic_ratio_alternate": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
 						},
 						"lb_alternate_topology": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "The alternate topology for load balancing.",
 						},
 						"monitors": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "Monitors associated with the DTC pool.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -154,7 +149,7 @@ func datasourceDtcPool() *schema.Resource {
 						},
 						"servers": {
 							Type:        schema.TypeList,
-							Optional:    true,
+							Computed:    true,
 							Description: "Servers of the DTC pool.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -173,18 +168,17 @@ func datasourceDtcPool() *schema.Resource {
 						},
 						"quorum": {
 							Type:        schema.TypeInt,
-							Optional:    true,
+							Computed:    true,
 							Description: "For availability mode QUORUM, at least this many monitors must report the resource as up for it to be available",
 						},
 						"ttl": {
 							Type:        schema.TypeInt,
-							Optional:    true,
-							Default:     ttlUndef,
+							Computed:    true,
 							Description: "TTL value for the Dtc Pool.",
 						},
 						"health": {
 							Type:     schema.TypeMap,
-							Optional: true,
+							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
