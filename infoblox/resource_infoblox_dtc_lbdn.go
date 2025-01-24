@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"reflect"
+	"sort"
 )
 
 func resourceDtcLbdnRecord() *schema.Resource {
@@ -41,6 +42,10 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				Description: "List of linked auth zones.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					oldList, newList := d.GetChange("auth_zones")
+					return suppressDiffWhenSortedListsAreEqual(oldList, newList)
 				},
 			},
 			"auto_consolidated_monitors": {
@@ -78,6 +83,10 @@ func resourceDtcLbdnRecord() *schema.Resource {
 				Description: "LBDN wildcards for pattern match.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					oldList, newList := d.GetChange("patterns")
+					return suppressDiffWhenSortedListsAreEqual(oldList, newList)
 				},
 			},
 			"persistence": {
@@ -569,7 +578,7 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZoneList, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, topology, typesList, ttl, useTtl)
 	if err != nil {
-		return fmt.Errorf("failed to update DTC LBDN with %s, ", err.Error())
+		return err
 	}
 
 	updateSuccessful = true
@@ -779,4 +788,28 @@ func validatePoolsLink(poolsLink []interface{}) ([]*ibclient.DtcPoolLink, error)
 	}
 
 	return dtcPoolLinks, nil
+}
+
+func suppressDiffWhenSortedListsAreEqual(oldList interface{}, newList interface{}) bool {
+	oldListStr, okOld := oldList.([]interface{})
+	newListStr, okNew := newList.([]interface{})
+
+	if !okOld || !okNew {
+		return false
+	}
+
+	oldStrs := make([]string, len(oldListStr))
+	newStrs := make([]string, len(newListStr))
+
+	for i, v := range oldListStr {
+		oldStrs[i] = v.(string)
+	}
+	for i, v := range newListStr {
+		newStrs[i] = v.(string)
+	}
+
+	sort.Strings(oldStrs)
+	sort.Strings(newStrs)
+
+	return reflect.DeepEqual(oldStrs, newStrs)
 }

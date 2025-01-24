@@ -8,6 +8,23 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
+func defaultLbDynamicRatio() (interface{}, error) {
+	defaultValues := map[string]interface{}{
+		"invert_monitor_metric": false,
+		"method":                "MONITOR",
+		"monitor_metric":        "",
+		"monitor_name":          "",
+		"monitor_type":          "",
+		"monitor_weighing":      "RATIO",
+	}
+
+	jsonData, err := json.Marshal(defaultValues)
+	if err != nil {
+		return nil, err
+	}
+	return string(jsonData), nil
+}
+
 func addDefaultValues(input string) (string, error) {
 	var data map[string]interface{}
 	err := json.Unmarshal([]byte(input), &data)
@@ -72,10 +89,16 @@ func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interfa
 		}
 		monitor := ibclient.Monitor{}
 		if monitorName, ok := lbDynamicRatioPreferred["monitor_name"]; ok {
+			if monitorName == "" {
+				return nil, fmt.Errorf("monitor_name is required")
+			}
 			monitor.Name = monitorName.(string)
 			delete(lbDynamicRatioPreferred, "monitor_name")
 		}
 		if monitorType, ok := lbDynamicRatioPreferred["monitor_type"]; ok {
+			if monitorType == "" {
+				return nil, fmt.Errorf("monitor_type is required")
+			}
 			monitor.Type = monitorType.(string)
 			delete(lbDynamicRatioPreferred, "monitor_type")
 		}
@@ -128,6 +151,18 @@ func resourceDtcPool() *schema.Resource {
 				err := d.SetNewComputed("internal_id")
 				if err != nil {
 					return err
+				}
+			}
+			if d.Get("lb_preferred_method").(string) == "DYNAMIC_RATIO" {
+				monitors := d.Get("monitors").([]interface{})
+				if len(monitors) == 0 {
+					return fmt.Errorf("lb_dynamic_ratio_preferred cannot be set when no monitors are defined")
+				}
+			}
+			if d.Get("lb_alternate_method").(string) == "DYNAMIC_RATIO" {
+				monitors := d.Get("monitors").([]interface{})
+				if len(monitors) == 0 {
+					return fmt.Errorf("lb_dynamic_ratio_alternate cannot be set when no monitors are defined")
 				}
 			}
 			return nil
@@ -221,6 +256,14 @@ func resourceDtcPool() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The DTC Pool settings for dynamic ratio when it’s selected as preferred method.",
+				DefaultFunc: defaultLbDynamicRatio,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					preferredMethod := d.Get("lb_preferred_method").(string)
+					if preferredMethod != "DYNAMIC_RATIO" {
+						return true // Suppress diff when lb_preferred_method is NOT "DYNAMIC_RATIO"
+					}
+					return false
+				},
 				StateFunc: func(val interface{}) string {
 					input := val.(string)
 					output, err := addDefaultValues(input)
@@ -245,6 +288,18 @@ func resourceDtcPool() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
+				DefaultFunc: defaultLbDynamicRatio,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					preferredMethod := d.Get("lb_preferred_method").(string)
+					alternateMethod := d.Get("lb_alternate_method").(string)
+					if preferredMethod == "TOPOLOGY" && alternateMethod != "DYNAMIC_RATIO" {
+						return true
+					}
+					if alternateMethod != "DYNAMIC_RATIO" {
+						return true
+					}
+					return false
+				},
 				StateFunc: func(val interface{}) string {
 					input := val.(string)
 					output, err := addDefaultValues(input)
@@ -365,7 +420,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
 	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
 	if err != nil {
-		return err
+		return fmt.Errorf("lb_dynamic_ratio_preferred : %s", err.Error())
 	}
 	lbPreferredTopologyValue := d.Get("lb_preferred_topology").(string)
 	var lbPreferredTopology *string
@@ -384,7 +439,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
 	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
 	if err != nil {
-		return err
+		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}
 	quorum := uint32(d.Get("quorum").(int))
 	connector := m.(ibclient.IBConnector)
@@ -513,7 +568,7 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("lb_alternate_method", dtcPool.LbAlternateMethod); err != nil {
 		return err
 	}
-	if dtcPool.LbDynamicRatioAlternate != nil && dtcPool.LbAlternateMethod == "DYNAMIC_RATIO" {
+	if dtcPool.LbDynamicRatioAlternate != nil && dtcPool.LbAlternateMethod == "DYNAMIC_RATIO" && dtcPool.LbPreferredMethod == "TOPOLOGY" {
 		dynamicRatioInterface, _ := serializeSettingDynamicRatio(dtcPool.LbDynamicRatioAlternate, connector)
 		if err := d.Set("lb_dynamic_ratio_alternate", dynamicRatioInterface); err != nil {
 			return err
@@ -610,7 +665,7 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
 	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
 	if err != nil {
-		return err
+		return fmt.Errorf("lb_dynamic_ratio_preferred : %s", err.Error())
 	}
 	lbPreferredTopologyValue := d.Get("lb_preferred_topology").(string)
 	var lbPreferredTopology *string
@@ -629,7 +684,7 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
 	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
 	if err != nil {
-		return err
+		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}
 	quorum := uint32(d.Get("quorum").(int))
 
