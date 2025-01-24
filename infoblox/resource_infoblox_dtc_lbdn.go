@@ -201,6 +201,9 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 	priority := uint32(tempPriority)
 
 	topology := d.Get("topology").(string)
+	if lbMethod == "TOPOLOGY" && topology == "" {
+		return fmt.Errorf("topology field is required when load balancing method is set to TOPOLOGY")
+	}
 
 	types := d.Get("types").([]interface{})
 	typesList := make([]string, len(types))
@@ -238,7 +241,7 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// Create the DTC LBDN record
-	newRecord, err := objMgr.CreateDtcLbdn(name, authZoneList, comment, disable, autoConsolidatedMonitors, extAttrs, lbMethod, patternsList, persistence, pools, priority, topology, typesList, ttl, useTtl)
+	newRecord, err := objMgr.CreateDtcLbdn(name, authZoneList, comment, disable, autoConsolidatedMonitors, extAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("failed to create DTC LBDN record: %w", err)
 	}
@@ -575,8 +578,11 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
+	if lbMethod == "TOPOLOGY" && topology == "" {
+		return fmt.Errorf("topology field is required when load balancing method is set to TOPOLOGY")
+	}
 
-	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZoneList, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, topology, typesList, ttl, useTtl)
+	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZoneList, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("failed to update DTC LBDN: %s.", err.Error())
 	}
