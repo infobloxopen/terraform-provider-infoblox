@@ -65,7 +65,7 @@ func (objMgr *ObjectManager) CreateDtcServer(
 ) (*DtcServer, error) {
 
 	if name == "" || host == "" {
-		return nil, fmt.Errorf("name and host fields are required to create a dtc server")
+		return nil, fmt.Errorf("name and host fields are required to create a Dtc Server object")
 	}
 	if (useSniHostname && sniHostname == "") || (!useSniHostname && sniHostname != "") {
 		return nil, fmt.Errorf("'sni_hostname' must be provided when 'use_sni_hostname' is enabled, " +
@@ -76,7 +76,7 @@ func (objMgr *ObjectManager) CreateDtcServer(
 		monitor, okMonitor := userMonitor["monitor"].(Monitor)
 		monitorHost, _ := userMonitor["host"].(string)
 		if !okMonitor {
-			return nil, fmt.Errorf("\"Required field missing: monitor")
+			return nil, fmt.Errorf("required field missing: monitor")
 		}
 		monitorRef, err := getMonitorReference(monitor.Name, monitor.Type, objMgr)
 		if err != nil {
@@ -104,7 +104,7 @@ func (objMgr *ObjectManager) GetAllDtcServer(queryParams *QueryParams) ([]DtcSer
 	server := NewEmptyDtcServer()
 	err := objMgr.connector.GetObject(server, "", queryParams, &res)
 	if err != nil {
-		return nil, fmt.Errorf("error getting DtcServer object, err: %s", err)
+		return nil, fmt.Errorf("error getting Dtc Server object, err: %s", err)
 	}
 	return res, nil
 }
@@ -150,7 +150,7 @@ func (objMgr *ObjectManager) UpdateDtcServer(
 		monitor, okMonitor := userMonitor["monitor"].(Monitor)
 		monitorHost, _ := userMonitor["host"].(string)
 		if !okMonitor {
-			return nil, fmt.Errorf("\"Required field missing: monitor")
+			return nil, fmt.Errorf("required field missing: monitor")
 		}
 		monitorRef, err := getMonitorReference(monitor.Name, monitor.Type, objMgr)
 		if err != nil {
