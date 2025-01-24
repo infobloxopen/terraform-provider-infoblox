@@ -293,7 +293,10 @@ func resourceDtcPool() *schema.Resource {
 					preferredMethod := d.Get("lb_preferred_method").(string)
 					alternateMethod := d.Get("lb_alternate_method").(string)
 					if preferredMethod == "TOPOLOGY" && alternateMethod != "DYNAMIC_RATIO" {
-						return true // Suppress diff when lb_preferred_method is NOT "DYNAMIC_RATIO"
+						return true
+					}
+					if alternateMethod != "DYNAMIC_RATIO" {
+						return true
 					}
 					return false
 				},
