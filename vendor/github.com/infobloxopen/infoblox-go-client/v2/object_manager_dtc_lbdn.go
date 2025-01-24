@@ -6,6 +6,11 @@ import (
 	"regexp"
 )
 
+type AuthZonesLink struct {
+	Fqdn     string
+	DnsViews []string
+}
+
 func (d *DtcLbdn) MarshalJSON() ([]byte, error) {
 	type Alias DtcLbdn
 	aux := &struct {
@@ -75,7 +80,7 @@ func (d *DtcLbdn) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (objMgr *ObjectManager) CreateDtcLbdn(name string, authZones []string, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
+func (objMgr *ObjectManager) CreateDtcLbdn(name string, authZones []AuthZonesLink, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
 	lbMethod string, patterns []string, persistence uint32, pools []*DtcPoolLink, priority uint32, topology *string, types []string, ttl uint32, usettl bool) (*DtcLbdn, error) {
 
 	if name == "" || lbMethod == "" {
@@ -171,20 +176,24 @@ func getPools(pools []*DtcPoolLink, objMgr *ObjectManager) ([]*DtcPoolLink, erro
 	return dtcPoolLink, nil
 }
 
-func getAuthZones(authZones []string, objMgr *ObjectManager) ([]*ZoneAuth, error) {
+func getAuthZones(authZones []AuthZonesLink, objMgr *ObjectManager) ([]*ZoneAuth, error) {
 	var zones []*ZoneAuth
-	for i := 0; i < len(authZones); i++ {
-		sf := map[string]string{
-			"fqdn": authZones[i],
-		}
-		var zoneAuth []ZoneAuth
-		err := objMgr.connector.GetObject(&ZoneAuth{}, "", NewQueryParams(false, sf), &zoneAuth)
-		if err != nil {
-			return nil, fmt.Errorf("error getting ZoneAuth object %s, err: %s", authZones[i], err)
-		}
+	for _, authZone := range authZones {
+		for _, dnsView := range authZone.DnsViews {
+			sf := map[string]string{
+				"fqdn": authZone.Fqdn,
+				"view": dnsView,
+			}
 
-		if len(zoneAuth) > 0 {
-			zones = append(zones, &zoneAuth[0])
+			var zoneAuth []ZoneAuth
+			err := objMgr.connector.GetObject(&ZoneAuth{}, "", NewQueryParams(false, sf), &zoneAuth)
+			if err != nil {
+				return nil, fmt.Errorf("error getting ZoneAuth object %s in %s DNS view, err: %s", authZone.Fqdn, dnsView, err)
+			}
+
+			if len(zoneAuth) > 0 {
+				zones = append(zones, &zoneAuth[0])
+			}
 		}
 	}
 	return zones, nil
@@ -263,7 +272,7 @@ func (objMgr *ObjectManager) GetDtcLbdnByRef(ref string) (*DtcLbdn, error) {
 	return dtcLbdn, nil
 }
 
-func (objMgr *ObjectManager) UpdateDtcLbdn(ref string, name string, authZones []string, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
+func (objMgr *ObjectManager) UpdateDtcLbdn(ref string, name string, authZones []AuthZonesLink, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
 	lbMethod string, patterns []string, persistence uint32, pools []*DtcPoolLink, priority uint32, topology *string, types []string, ttl uint32, usettl bool) (*DtcLbdn, error) {
 
 	if lbMethod == "TOPOLOGY" && topology == nil {

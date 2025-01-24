@@ -39,13 +39,23 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			"auth_zones": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of linked auth zones.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					oldList, newList := d.GetChange("auth_zones")
-					return suppressDiffWhenSortedListsAreEqual(oldList, newList)
+				Description: "List of linked auth zones with their respective views.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fqdn": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Fully qualified domain name of an Authoritative zone.",
+						},
+						"dns_view": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: "The DNS views in which the zone is available.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
 				},
 			},
 			"auto_consolidated_monitors": {
@@ -166,6 +176,36 @@ func resourceDtcLbdnRecord() *schema.Resource {
 	}
 }
 
+func validateAuthZonesLink(authZones []interface{}) ([]ibclient.AuthZonesLink, error) {
+	if authZones == nil {
+		return nil, nil
+	}
+	authZoneList := make([]ibclient.AuthZonesLink, 0, len(authZones))
+	for _, item := range authZones {
+		// Assert the type of item to map[string]interface{}
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("item is not of type map[string]interface{}")
+		}
+
+		// Create a new AuthZone and populate its fields
+		authZone := ibclient.AuthZonesLink{}
+		if fqdn, ok := itemMap["fqdn"].(string); ok {
+			authZone.Fqdn = fqdn
+		}
+		if views, ok := itemMap["dns_view"].([]interface{}); ok {
+			viewList := make([]string, len(views))
+			for i, v := range views {
+				viewList[i] = v.(string)
+			}
+			authZone.DnsViews = viewList
+		}
+		authZoneList = append(authZoneList, authZone)
+	}
+
+	return authZoneList, nil
+}
+
 func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 	// Check if internal_id is set manually
 	if intId := d.Get("internal_id"); intId.(string) != "" {
@@ -174,10 +214,11 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	authZones := d.Get("auth_zones").([]interface{})
-	authZoneList := make([]string, len(authZones))
-	for i, authZone := range authZones {
-		authZoneList[i] = authZone.(string)
+	authZonesLink, err := validateAuthZonesLink(authZones)
+	if err != nil {
+		return fmt.Errorf("failed to validate auth_zones: %w", err)
 	}
+
 	autoConsolidatedMonitors := d.Get("auto_consolidated_monitors").(bool)
 	comment := d.Get("comment").(string)
 	disable := d.Get("disable").(bool)
@@ -201,9 +242,6 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 	priority := uint32(tempPriority)
 
 	topology := d.Get("topology").(string)
-	if lbMethod == "TOPOLOGY" && topology == "" {
-		return fmt.Errorf("topology field is required when load balancing method is set to TOPOLOGY")
-	}
 
 	types := d.Get("types").([]interface{})
 	typesList := make([]string, len(types))
@@ -241,7 +279,7 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// Create the DTC LBDN record
-	newRecord, err := objMgr.CreateDtcLbdn(name, authZoneList, comment, disable, autoConsolidatedMonitors, extAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
+	newRecord, err := objMgr.CreateDtcLbdn(name, authZonesLink, comment, disable, autoConsolidatedMonitors, extAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("failed to create DTC LBDN record: %w", err)
 	}
@@ -397,22 +435,6 @@ func resourceDtcLbdnGet(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func ConvertAuthZonesToInterface(connector ibclient.IBConnector, dtcLbdn *ibclient.DtcLbdn) ([]interface{}, error) {
-	if len(dtcLbdn.AuthZones) == 0 {
-		return nil, nil
-	}
-	authZoneInterface := make([]interface{}, len(dtcLbdn.AuthZones))
-	for i, authZone := range dtcLbdn.AuthZones {
-		var res ibclient.ZoneAuth
-		err := connector.GetObject(&ibclient.ZoneAuth{}, authZone.Ref, nil, &res)
-		if err != nil {
-			return nil, err
-		}
-		authZoneInterface[i] = res.Fqdn
-	}
-	return authZoneInterface, nil
-}
-
 func convertSliceToInterface(list []string) []interface{} {
 	if len(list) == 0 {
 		return nil
@@ -440,6 +462,37 @@ func convertPoolsToInterface(dtcLbdn *ibclient.DtcLbdn, connector ibclient.IBCon
 		poolsInterface[i] = poolInterface
 	}
 	return poolsInterface, nil
+}
+
+func ConvertAuthZonesToInterface(connector ibclient.IBConnector, dtcLbdn *ibclient.DtcLbdn) ([]interface{}, error) {
+	if len(dtcLbdn.AuthZones) == 0 {
+		return nil, nil
+	}
+
+	authZoneMap := make(map[string][]string)
+	for _, authZone := range dtcLbdn.AuthZones {
+		var res ibclient.ZoneAuth
+		err := connector.GetObject(&ibclient.ZoneAuth{}, authZone.Ref, nil, &res)
+		if err != nil {
+			return nil, err
+		}
+
+		if views, exists := authZoneMap[res.Fqdn]; exists {
+			authZoneMap[res.Fqdn] = append(views, *res.View)
+		} else {
+			authZoneMap[res.Fqdn] = []string{*res.View}
+		}
+	}
+
+	authZoneList := make([]interface{}, 0, len(authZoneMap))
+	for fqdn, views := range authZoneMap {
+		authZoneList = append(authZoneList, map[string]interface{}{
+			"fqdn":     fqdn,
+			"dns_view": convertSliceToInterface(views),
+		})
+	}
+
+	return authZoneList, nil
 }
 
 func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
@@ -497,10 +550,11 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	authZones := d.Get("auth_zones").([]interface{})
-	authZoneList := make([]string, len(authZones))
-	for i, authZone := range authZones {
-		authZoneList[i] = authZone.(string)
+	authZonesLink, err := validateAuthZonesLink(authZones)
+	if err != nil {
+		return fmt.Errorf("failed to validate auth_zones: %w", err)
 	}
+
 	autoConsolidatedMonitors := d.Get("auto_consolidated_monitors").(bool)
 	comment := d.Get("comment").(string)
 	disable := d.Get("disable").(bool)
@@ -578,11 +632,8 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	if lbMethod == "TOPOLOGY" && topology == "" {
-		return fmt.Errorf("topology field is required when load balancing method is set to TOPOLOGY")
-	}
 
-	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZoneList, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
+	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZonesLink, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, &topology, typesList, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("failed to update DTC LBDN: %s.", err.Error())
 	}
