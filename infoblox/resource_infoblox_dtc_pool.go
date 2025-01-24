@@ -13,9 +13,6 @@ func defaultLbDynamicRatio() (interface{}, error) {
 	defaultValues := map[string]interface{}{
 		"invert_monitor_metric": false,
 		"method":                "MONITOR",
-		"monitor_metric":        "",
-		"monitor_name":          "",
-		"monitor_type":          "",
 		"monitor_weighing":      "RATIO",
 	}
 
@@ -37,9 +34,6 @@ func addDefaultValues(input string) (string, error) {
 	}
 	if _, ok := data["method"]; !ok {
 		data["method"] = "MONITOR"
-	}
-	if _, ok := data["monitor_metric"]; !ok {
-		data["monitor_metric"] = ""
 	}
 	if _, ok := data["monitor_weighing"]; !ok {
 		data["monitor_weighing"] = "RATIO"
@@ -81,7 +75,7 @@ func convertInterfaceToList(input []interface{}) []map[string]interface{} {
 	return result
 }
 
-func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interface{}, error) {
+func ConvertDynamicRatioPreferredToInterface(jsonStr string, preferredMethod string, alternateMethod string) (map[string]interface{}, error) {
 	var lbDynamicRatioPreferred map[string]interface{}
 	if jsonStr != "" {
 		err := json.Unmarshal([]byte(jsonStr), &lbDynamicRatioPreferred)
@@ -89,19 +83,31 @@ func ConvertDynamicRatioPreferredToInterface(jsonStr string) (map[string]interfa
 			return nil, err
 		}
 		monitor := ibclient.Monitor{}
-		if monitorName, ok := lbDynamicRatioPreferred["monitor_name"]; ok {
-			if monitorName == "" {
+		if (preferredMethod == "TOPOLOGY" && alternateMethod == "DYNAMIC_RATIO") || preferredMethod == "DYNAMIC_RATIO" {
+			monitorName, ok := lbDynamicRatioPreferred["monitor_name"]
+			if !ok || monitorName == "" {
 				return nil, fmt.Errorf("monitor_name is required")
 			}
 			monitor.Name = monitorName.(string)
 			delete(lbDynamicRatioPreferred, "monitor_name")
-		}
-		if monitorType, ok := lbDynamicRatioPreferred["monitor_type"]; ok {
-			if monitorType == "" {
+			monitorType, ok1 := lbDynamicRatioPreferred["monitor_type"]
+			if !ok1 || monitorType == "" {
 				return nil, fmt.Errorf("monitor_type is required")
 			}
 			monitor.Type = monitorType.(string)
 			delete(lbDynamicRatioPreferred, "monitor_type")
+		}
+		if preferredMethod != "TOPOLOGY" {
+			monitorName, ok := lbDynamicRatioPreferred["monitor_name"]
+			if ok {
+				monitor.Name = monitorName.(string)
+				delete(lbDynamicRatioPreferred, "monitor_name")
+			}
+			monitorType, ok1 := lbDynamicRatioPreferred["monitor_type"]
+			if ok1 {
+				monitor.Type = monitorType.(string)
+				delete(lbDynamicRatioPreferred, "monitor_type")
+			}
 		}
 		lbDynamicRatioPreferred["monitor"] = monitor
 	}
@@ -160,7 +166,7 @@ func resourceDtcPool() *schema.Resource {
 					return fmt.Errorf("lb_dynamic_ratio_preferred cannot be set when no monitors are defined")
 				}
 			}
-			if d.Get("lb_alternate_method").(string) == "DYNAMIC_RATIO" {
+			if d.Get("lb_alternate_method").(string) == "DYNAMIC_RATIO" && d.Get("lb_preferred_method").(string) == "TOPOLOGY" {
 				monitors := d.Get("monitors").([]interface{})
 				if len(monitors) == 0 {
 					return fmt.Errorf("lb_dynamic_ratio_alternate cannot be set when no monitors are defined")
@@ -306,11 +312,7 @@ func resourceDtcPool() *schema.Resource {
 				Description: "The DTC Pool settings for dynamic ratio when it’s selected as alternate method.",
 				DefaultFunc: defaultLbDynamicRatio,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					preferredMethod := d.Get("lb_preferred_method").(string)
 					alternateMethod := d.Get("lb_alternate_method").(string)
-					if preferredMethod == "TOPOLOGY" && alternateMethod != "DYNAMIC_RATIO" {
-						return true
-					}
 					if alternateMethod != "DYNAMIC_RATIO" {
 						return true
 					}
@@ -434,7 +436,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	monitors := ConvertInterfaceToMonitors(monitorsInterface)
 
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
-	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
+	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson, lbPreferredMethod, "")
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_preferred : %s", err.Error())
 	}
@@ -457,7 +459,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 		lbAlternateTopology = &lbAlternateTopologyValue
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
-	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
+	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson, lbPreferredMethod, lbAlternateMethod)
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}
@@ -596,7 +598,7 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("lb_alternate_method", dtcPool.LbAlternateMethod); err != nil {
 		return err
 	}
-	if dtcPool.LbDynamicRatioAlternate != nil && dtcPool.LbAlternateMethod == "DYNAMIC_RATIO" && dtcPool.LbPreferredMethod == "TOPOLOGY" {
+	if dtcPool.LbDynamicRatioAlternate != nil && dtcPool.LbAlternateMethod == "DYNAMIC_RATIO" {
 		dynamicRatioInterface, _ := serializeSettingDynamicRatio(dtcPool.LbDynamicRatioAlternate, connector)
 		if err := d.Set("lb_dynamic_ratio_alternate", dynamicRatioInterface); err != nil {
 			return err
@@ -691,7 +693,7 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	monitors := ConvertInterfaceToMonitors(monitorsInterface)
 
 	lbDynamicRatioJson := d.Get("lb_dynamic_ratio_preferred").(string)
-	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson)
+	lbDynamicRatioPreferred, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioJson, lbPreferredMethod, "")
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_preferred : %s", err.Error())
 	}
@@ -715,7 +717,7 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 		lbAlternateTopology = &lbAlternateTopologyValue
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
-	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson)
+	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson, lbAlternateMethod, lbAlternateMethod)
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}

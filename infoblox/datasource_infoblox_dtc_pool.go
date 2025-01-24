@@ -405,11 +405,18 @@ func serializeSettingDynamicRatio(sd *ibclient.SettingDynamicratio, connector ib
 	}
 	sdMap := map[string]interface{}{
 		"method":                sd.Method,
-		"monitor_name":          monitorName,
-		"monitor_type":          monitorType,
-		"monitor_metric":        sd.MonitorMetric,
 		"monitor_weighing":      sd.MonitorWeighing,
 		"invert_monitor_metric": sd.InvertMonitorMetric,
+	}
+
+	if monitorName != "" {
+		sdMap["monitor_name"] = monitorName
+	}
+	if monitorType != "" {
+		sdMap["monitor_type"] = monitorType
+	}
+	if sd.MonitorMetric != "" {
+		sdMap["monitor_metric"] = sd.MonitorMetric
 	}
 	if len(sdMap) == 0 {
 		return "", nil
