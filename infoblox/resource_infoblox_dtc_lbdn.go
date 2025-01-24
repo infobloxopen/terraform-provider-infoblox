@@ -90,7 +90,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			"pools": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Collection of load balanced servers",
+				Description: "Pools associated with the LBDN are collections of load-balanced servers",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pool": {
