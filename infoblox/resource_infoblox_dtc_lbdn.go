@@ -90,7 +90,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			"pools": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "The maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.",
+				Description: "Collection of load balanced servers",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pool": {
@@ -569,7 +569,7 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	lbdn, err = objMgr.UpdateDtcLbdn(d.Id(), name, authZoneList, comment, disable, autoConsolidatedMonitors, newExtAttrs, lbMethod, patternsList, persistence, pools, priority, topology, typesList, ttl, useTtl)
 	if err != nil {
-		return fmt.Errorf("failed to update DTC LBDN with %s, ", err.Error())
+		return fmt.Errorf("failed to update DTC LBDN: %s.", err.Error())
 	}
 
 	updateSuccessful = true

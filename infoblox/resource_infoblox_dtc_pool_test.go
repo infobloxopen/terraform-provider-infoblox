@@ -179,8 +179,8 @@ func testAccDtcPoolCompare(
 	}
 }
 
-var regexMissingLbDynamicRatioPreferred = regexp.MustCompile("lbDynamicRatioPreferred cannot be nil when lbPreferredMethod is set to DYNAMIC_RATIO")
-var regexMissingLbPreferredTopology = regexp.MustCompile("lbPreferredTopology cannot be nil when lbPreferredMethod is set to TOPOLOGY")
+var regexMissingLbDynamicRatioPreferred = regexp.MustCompile("LbDynamicRatioPreferred cannot be nil when the preferred load balancing method is set to DYNAMIC_RATIO")
+var regexMissingLbPreferredTopology = regexp.MustCompile("preferred topology cannot be nil when preferred load balancing method is set to TOPOLOGY")
 
 func TestAccResourceDtcPool(t *testing.T) {
 	resource.Test(t, resource.TestCase{
