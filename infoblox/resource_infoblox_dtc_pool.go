@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 )
 
 func defaultLbDynamicRatio() (interface{}, error) {
@@ -229,8 +230,23 @@ func resourceDtcPool() *schema.Resource {
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					autoConsolidated, ok := d.GetOk("auto_consolidated_monitors")
-					if ok && autoConsolidated.(bool) {
-						return true // Suppress differences when auto_consolidated_monitors is true
+					oldVal, newVal := d.GetChange("consolidated_monitors")
+					oldValSlice, oldOk := oldVal.([]interface{})
+					newValSlice, newOk := newVal.([]interface{})
+					if autoConsolidated.(bool) {
+						// Suppress the diff for consolidated_monitors
+						if ok && autoConsolidated.(bool) {
+							//if oldOk && newOk && len(oldValSlice) != 0 && len(newValSlice) == 0 {
+							if oldOk && newOk {
+								if reflect.DeepEqual(oldValSlice, newValSlice) {
+									return true
+								}
+							}
+						}
+					} else {
+						if oldOk && !newOk {
+							return false
+						}
 					}
 					return false
 				},
@@ -429,6 +445,10 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	lbAlternateMethod := d.Get("lb_alternate_method").(string)
 	autoConsolidatedMonitors := d.Get("auto_consolidated_monitors").(bool)
+	//consolidatedMonitors := d.Get("consolidated_monitors").([]interface{})
+	if autoConsolidatedMonitors && d.Get("consolidated_monitors") == "" {
+		return fmt.Errorf("consolidated_monitors must be empty when auto_consolidated_monitors is enabled")
+	}
 	disable := d.Get("disable").(bool)
 	availability := d.Get("availability").(string)
 	lbAlternateTopologyValue := d.Get("lb_alternate_topology").(string)
@@ -504,6 +524,14 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	}
 	if !*dtcPool.UseTtl {
 		ttl = ttlUndef
+	}
+	if err = d.Set("availability", dtcPool.Availability); err != nil {
+		return err
+	}
+	if dtcPool.Quorum != nil {
+		if err = d.Set("quorum", *dtcPool.Quorum); err != nil {
+			return err
+		}
 	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return err
@@ -674,6 +702,11 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	lbAlternateMethod := d.Get("lb_alternate_method").(string)
 	autoConsolidatedMonitors := d.Get("auto_consolidated_monitors").(bool)
+	_, ok := d.GetOk("consolidated_monitors")
+	// if autoConsolidatedMonitors is True and consolidated_monitors is given in tf file, then return an error
+	if autoConsolidatedMonitors && ok && d.HasChange("consolidated_monitors") {
+		return fmt.Errorf("either consolidated_monitors or auto_consolidated_monitors should be set")
+	}
 	disable := d.Get("disable").(bool)
 	availability := d.Get("availability").(string)
 	lbAlternateTopologyValue := d.Get("lb_alternate_topology").(string)
@@ -740,6 +773,18 @@ func resourceDtcPoolUpdate(d *schema.ResourceData, m interface{}) error {
 	newExtAttrs, err = mergeEAs(dtcPool.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
 		return err
+	}
+	// to unset consolidated_monitors, pass empty slice
+	_, isCmPresent := d.GetOk("consolidated_monitors")
+	if !isCmPresent && d.HasChange("consolidated_monitors") {
+		consolidatedMonitors = make([]map[string]interface{}, 0)
+	}
+	// if auto_consolidated_monitors is set and dtcPool has previous data for consolidated_monitors, then set consolidated_monitors to nil
+	if autoConsolidatedMonitors && dtcPool.ConsolidatedMonitors != nil {
+		consolidatedMonitors = nil
+	}
+	if !autoConsolidatedMonitors && d.Get("consolidated_monitors") == "" {
+		consolidatedMonitors = nil
 	}
 	dtcPool, err = objMgr.UpdateDtcPool(d.Id(), comment, name, lbPreferredMethod, lbDynamicRatioPreferred, servers, monitors, lbPreferredTopology, lbAlternateMethod, lbAlternateTopology, lbDynamicRatioAlternate, newExtAttrs, autoConsolidatedMonitors, availability, consolidatedMonitors, ttl, useTtl, disable, quorum)
 	if err != nil {
@@ -845,6 +890,14 @@ func resourceDtcPoolImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 		}
 	}
 
+	if err = d.Set("availability", obj.Availability); err != nil {
+		return nil, err
+	}
+	if obj.Quorum != nil {
+		if err = d.Set("quorum", *obj.Quorum); err != nil {
+			return nil, err
+		}
+	}
 	if err = d.Set("ttl", ttl); err != nil {
 		return nil, err
 	}
