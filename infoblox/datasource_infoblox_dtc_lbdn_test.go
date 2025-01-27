@@ -19,7 +19,10 @@ var testAccDataSourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLb
 
 var testAccDatasourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn_src" {
     name = "testLbdn888"
-    auth_zones = ["test.com"]
+    auth_zones {
+        fqdn = "test.com"
+        dns_view = ["default"]
+    }
   	comment = "test lbdn with max params"
   	ext_attrs = jsonencode({
         "Site" = "Malpe"
@@ -80,7 +83,8 @@ func TestAccDataSourceDtcLbdnSearchByEA(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.#", "1"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.name", "testLbdn888"),
-					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0", "test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.fqdn", "test.com"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.dns_view.0", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.comment", "test lbdn with max params"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.lb_method", "TOPOLOGY"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.topology", "test-topo"),

@@ -15,7 +15,10 @@ import (
 
 var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
     name = "testLbdn123"
-    auth_zones = ["test.com"]
+    auth_zones {
+        fqdn = "test.com"
+        dns_view = ["default"]
+    }
   	comment = "test lbdn with max params"
   	ext_attrs = jsonencode({
     	"Location" = "65.8665701230204, -37.00791763398113"
@@ -43,7 +46,7 @@ var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
 }`
 
 var testResourceDtcLbdn2 = `resource "infoblox_dtc_lbdn" "testLbdn2" {
-    name = "testLbdn456"
+    name = "testLbdn4567"
   	lb_method = "RATIO"
     types = ["A", "AAAA"]
 }`
@@ -222,7 +225,7 @@ func TestAccResourceDtcLbdn(t *testing.T) {
 			{
 				Config: testResourceDtcLbdn2,
 				Check: testDtcLbdnCompare(t, "infoblox_dtc_lbdn.testLbdn2", &ibclient.DtcLbdn{
-					Name:     utils.StringPtr("testLbdn456"),
+					Name:     utils.StringPtr("testLbdn4567"),
 					LbMethod: "RATIO",
 					Types:    []string{"A", "AAAA"},
 				}),
@@ -252,7 +255,7 @@ func TestAccResourceDtcLbdn(t *testing.T) {
 			// negative test case
 			{
 				Config:      testResourceDtcLbdn3,
-				ExpectError: regexp.MustCompile("topology field is required when lbMethod is TOPOLOGY"),
+				ExpectError: regexp.MustCompile("topology field is required to retreive a unique Dtc Topology record"),
 			},
 		},
 	})

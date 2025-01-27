@@ -36,10 +36,24 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						},
 						"auth_zones": {
 							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "List of linked auth zones.",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Optional:    true,
+							Description: "List of linked auth zones with their respective views.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fqdn": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Fully qualified domain name of an Authoritative zone.",
+									},
+									"dns_view": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "The DNS views in which the zone is available.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
 							},
 						},
 						"auto_consolidated_monitors": {
