@@ -9,16 +9,16 @@ resource "infoblox_dtc_lbdn" "lbdn_minimal_parameters" {
 resource "infoblox_dtc_lbdn" "lbdn_full_set_parameters" {
   name = "testLbdn11"
   auth_zones {
+    fqdn = "info.com"
+    dns_view = "default.view2"
+  }
+  auth_zones {
     fqdn = "test.com"
     dns_view = "default"
   }
   auth_zones {
     fqdn = "test.com"
     dns_view = "default.dnsview1"
-  }
-  auth_zones {
-    fqdn = "info.com"
-    dns_view = "default.view2"
   }
   comment = "test"
   ext_attrs = jsonencode({
@@ -44,19 +44,4 @@ resource "infoblox_dtc_lbdn" "lbdn_full_set_parameters" {
   types = ["A", "AAAA", "CNAME"]
   persistence = 60
   priority = 1
-}
-
-data "infoblox_dtc_lbdn" "readlbdn" {
-  filters = {
-    name = "testLbdn11"
-#    comment = "test LBDN"
-  }
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_dtc_lbdn' resource block before the data source will be queried.
-#  depends_on = [infoblox_dtc_lbdn.lbdn_record]
-}
-
-// returns matching LBDN with name and comment, if any
-output "lbdn_res" {
-  value = data.infoblox_dtc_lbdn.readlbdn
 }
