@@ -44,7 +44,7 @@ func dataSourceDtcServer() *schema.Resource {
 						"auto_create_host_record": {
 							Type:        schema.TypeBool,
 							Computed:    true,
-							Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.\n\n",
+							Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.",
 						},
 						"comment": {
 							Type:        schema.TypeString,
@@ -54,7 +54,7 @@ func dataSourceDtcServer() *schema.Resource {
 						"disable": {
 							Type:        schema.TypeBool,
 							Computed:    true,
-							Description: "Determines if the zone is disabled or not.",
+							Description: "Determines if the DTC Server is disabled or not.",
 						},
 						"ext_attrs": {
 							Type:        schema.TypeString,
@@ -69,7 +69,7 @@ func dataSourceDtcServer() *schema.Resource {
 						"monitors": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "List of IP/FQDN and monitor pairs to be used for additional monitoring.\n\n",
+							Description: "List of IP/FQDN and monitor pairs to be used for additional monitoring.",
 							Elem: &schema.Resource{
 								//check the required part once
 								Schema: map[string]*schema.Schema{
