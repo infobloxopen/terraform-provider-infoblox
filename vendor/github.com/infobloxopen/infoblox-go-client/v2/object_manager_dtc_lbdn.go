@@ -7,8 +7,8 @@ import (
 )
 
 type AuthZonesLink struct {
-	Fqdn     string
-	DnsViews []string
+	Fqdn    string
+	DnsView string
 }
 
 func (d *DtcLbdn) MarshalJSON() ([]byte, error) {
@@ -179,21 +179,17 @@ func getPools(pools []*DtcPoolLink, objMgr *ObjectManager) ([]*DtcPoolLink, erro
 func getAuthZones(authZones []AuthZonesLink, objMgr *ObjectManager) ([]*ZoneAuth, error) {
 	var zones []*ZoneAuth
 	for _, authZone := range authZones {
-		for _, dnsView := range authZone.DnsViews {
-			sf := map[string]string{
-				"fqdn": authZone.Fqdn,
-				"view": dnsView,
-			}
-
-			var zoneAuth []ZoneAuth
-			err := objMgr.connector.GetObject(&ZoneAuth{}, "", NewQueryParams(false, sf), &zoneAuth)
-			if err != nil {
-				return nil, fmt.Errorf("error getting ZoneAuth object %s in %s DNS view, err: %s", authZone.Fqdn, dnsView, err)
-			}
-
-			if len(zoneAuth) > 0 {
-				zones = append(zones, &zoneAuth[0])
-			}
+		sf := map[string]string{
+			"fqdn": authZone.Fqdn,
+			"view": authZone.DnsView,
+		}
+		var zoneAuth []ZoneAuth
+		err := objMgr.connector.GetObject(&ZoneAuth{}, "", NewQueryParams(false, sf), &zoneAuth)
+		if err != nil {
+			return nil, fmt.Errorf("error getting ZoneAuth object %s in %s DNS view, err: %s", authZone.Fqdn, authZone.DnsView, err)
+		}
+		if len(zoneAuth) > 0 {
+			zones = append(zones, &zoneAuth[0])
 		}
 	}
 	return zones, nil
