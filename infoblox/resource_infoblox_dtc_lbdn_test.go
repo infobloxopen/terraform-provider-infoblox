@@ -17,7 +17,7 @@ var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
     name = "testLbdn123"
     auth_zones {
         fqdn = "test.com"
-        dns_view = ["default"]
+        dns_view = "default"
     }
   	comment = "test lbdn with max params"
   	ext_attrs = jsonencode({

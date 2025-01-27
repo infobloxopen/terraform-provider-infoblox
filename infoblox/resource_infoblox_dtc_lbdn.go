@@ -48,12 +48,9 @@ func resourceDtcLbdnRecord() *schema.Resource {
 							Description: "Fully qualified domain name of an Authoritative zone.",
 						},
 						"dns_view": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeString,
 							Required:    true,
-							Description: "The DNS views in which the zone is available.",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
+							Description: "The DNS view in which the zone is available.",
 						},
 					},
 				},
@@ -193,12 +190,8 @@ func validateAuthZonesLink(authZones []interface{}) ([]ibclient.AuthZonesLink, e
 		if fqdn, ok := authZoneMap["fqdn"].(string); ok {
 			authZone.Fqdn = fqdn
 		}
-		if views, ok := authZoneMap["dns_view"].([]interface{}); ok {
-			viewList := make([]string, len(views))
-			for i, v := range views {
-				viewList[i] = v.(string)
-			}
-			authZone.DnsViews = viewList
+		if dnsView, ok := authZoneMap["dns_view"].(string); ok {
+			authZone.DnsView = dnsView
 		}
 		authZoneList = append(authZoneList, authZone)
 	}
@@ -469,27 +462,19 @@ func ConvertAuthZonesToInterface(connector ibclient.IBConnector, dtcLbdn *ibclie
 		return nil, nil
 	}
 
-	authZoneMap := make(map[string][]string)
-	for _, authZone := range dtcLbdn.AuthZones {
+	authZoneList := make([]interface{}, len(dtcLbdn.AuthZones))
+	for i, authZone := range dtcLbdn.AuthZones {
 		var res ibclient.ZoneAuth
 		err := connector.GetObject(&ibclient.ZoneAuth{}, authZone.Ref, nil, &res)
 		if err != nil {
 			return nil, err
 		}
 
-		if views, exists := authZoneMap[res.Fqdn]; exists {
-			authZoneMap[res.Fqdn] = append(views, *res.View)
-		} else {
-			authZoneMap[res.Fqdn] = []string{*res.View}
+		authZoneMap := map[string]interface{}{
+			"fqdn":     res.Fqdn,
+			"dns_view": res.View,
 		}
-	}
-
-	authZoneList := make([]interface{}, 0, len(authZoneMap))
-	for fqdn, views := range authZoneMap {
-		authZoneList = append(authZoneList, map[string]interface{}{
-			"fqdn":     fqdn,
-			"dns_view": convertSliceToInterface(views),
-		})
+		authZoneList[i] = authZoneMap
 	}
 
 	return authZoneList, nil

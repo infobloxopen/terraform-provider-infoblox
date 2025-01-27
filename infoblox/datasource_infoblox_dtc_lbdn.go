@@ -46,12 +46,9 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 										Description: "Fully qualified domain name of an Authoritative zone.",
 									},
 									"dns_view": {
-										Type:        schema.TypeList,
+										Type:        schema.TypeString,
 										Required:    true,
-										Description: "The DNS views in which the zone is available.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
+										Description: "The DNS view in which the zone is available.",
 									},
 								},
 							},

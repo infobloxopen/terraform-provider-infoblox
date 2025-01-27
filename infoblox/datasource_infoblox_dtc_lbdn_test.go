@@ -21,7 +21,7 @@ var testAccDatasourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLb
     name = "testLbdn888"
     auth_zones {
         fqdn = "test.com"
-        dns_view = ["default"]
+        dns_view = "default"
     }
   	comment = "test lbdn with max params"
   	ext_attrs = jsonencode({
@@ -84,7 +84,7 @@ func TestAccDataSourceDtcLbdnSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.#", "1"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.name", "testLbdn888"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.fqdn", "test.com"),
-					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.dns_view.0", "default"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.dns_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.comment", "test lbdn with max params"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.lb_method", "TOPOLOGY"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.topology", "test-topo"),
