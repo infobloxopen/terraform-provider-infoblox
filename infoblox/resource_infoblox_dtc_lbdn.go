@@ -181,19 +181,19 @@ func validateAuthZonesLink(authZones []interface{}) ([]ibclient.AuthZonesLink, e
 		return nil, nil
 	}
 	authZoneList := make([]ibclient.AuthZonesLink, 0, len(authZones))
-	for _, item := range authZones {
-		// Assert the type of item to map[string]interface{}
-		itemMap, ok := item.(map[string]interface{})
+	for _, zone := range authZones {
+		// Assert the type of zone to map[string]interface{}
+		authZoneMap, ok := zone.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("item is not of type map[string]interface{}")
+			return nil, fmt.Errorf("authZone is not of type map[string]interface{}")
 		}
 
 		// Create a new AuthZone and populate its fields
 		authZone := ibclient.AuthZonesLink{}
-		if fqdn, ok := itemMap["fqdn"].(string); ok {
+		if fqdn, ok := authZoneMap["fqdn"].(string); ok {
 			authZone.Fqdn = fqdn
 		}
-		if views, ok := itemMap["dns_view"].([]interface{}); ok {
+		if views, ok := authZoneMap["dns_view"].([]interface{}); ok {
 			viewList := make([]string, len(views))
 			for i, v := range views {
 				viewList[i] = v.(string)
@@ -826,19 +826,19 @@ func validatePoolsLink(poolsLink []interface{}) ([]*ibclient.DtcPoolLink, error)
 		return nil, nil
 	}
 	dtcPoolLinks := make([]*ibclient.DtcPoolLink, 0, len(poolsLink))
-	for _, item := range poolsLink {
-		// Assert the type of item to map[string]interface{}
-		itemMap, ok := item.(map[string]interface{})
+	for _, poolLink := range poolsLink {
+		// Assert the type of poolLink to map[string]interface{}
+		poolsMap, ok := poolLink.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("item is not of type map[string]interface{}")
+			return nil, fmt.Errorf("pools is not of type map[string]interface{}")
 		}
 
 		// Create a new DtcPoolLink and populate its fields
 		dtcPoolLink := &ibclient.DtcPoolLink{}
-		if pool, ok := itemMap["pool"].(string); ok {
+		if pool, ok := poolsMap["pool"].(string); ok {
 			dtcPoolLink.Pool = pool
 		}
-		if tempRatio, ok := itemMap["ratio"].(int); ok {
+		if tempRatio, ok := poolsMap["ratio"].(int); ok {
 			dtcPoolLink.Ratio = uint32(tempRatio)
 		}
 		dtcPoolLinks = append(dtcPoolLinks, dtcPoolLink)
