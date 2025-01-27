@@ -460,6 +460,9 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
 	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson, lbPreferredMethod, lbAlternateMethod)
+
+	consolidatedMonitorsInterface := d.Get("consolidated_monitors").([]interface{})
+	consolidatedMonitors := convertInterfaceToList(consolidatedMonitorsInterface)
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}
@@ -467,7 +470,7 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newDtcPool, err := objMgr.CreateDtcPool(comment, name, lbPreferredMethod, lbDynamicRatioPreferred, servers, monitors, lbPreferredTopology, lbAlternateMethod, lbAlternateTopology, lbDynamicRatioAlternate, extAttrs, autoConsolidatedMonitors, availability, ttl, useTtl, disable, quorum)
+	newDtcPool, err := objMgr.CreateDtcPool(comment, name, lbPreferredMethod, lbDynamicRatioPreferred, servers, monitors, lbPreferredTopology, lbAlternateMethod, lbAlternateTopology, lbDynamicRatioAlternate, extAttrs, autoConsolidatedMonitors, consolidatedMonitors, availability, ttl, useTtl, disable, quorum)
 	if err != nil {
 		return err
 	}
