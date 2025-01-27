@@ -94,7 +94,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						"pools": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "Pools associated with an LBDN are collections of load-balanced servers",
+							Description: "Pools associated with an LBDN are collections of load-balanced servers.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"pool": {
@@ -113,7 +113,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						"priority": {
 							Type:     schema.TypeInt,
 							Computed: true,
-							Description: "The LBDN pattern match priority for “overlapping” DTC LBDN objects. LBDNs are “overlapping” if " +
+							Description: "The LBDN pattern match priority for overlapping DTC LBDN objects. LBDNs are “overlapping” if " +
 								"they are simultaneously assigned to a zone and have patterns that can match the same FQDN. The matching LBDN with highest priority (lowest ordinal) will be used.",
 						},
 						"topology": {
@@ -129,7 +129,7 @@ func dataSourceDtcLbdnRecord() *schema.Resource {
 						"types": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The list of resource record types supported by LBDN. Valid values are A, AAAA, CNAME, NAPTR, SRV. Default value is A and AAAA",
+							Description: "The list of resource record types supported by LBDN. Valid values are A, AAAA, CNAME, NAPTR, SRV. Default value is A and AAAA.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
