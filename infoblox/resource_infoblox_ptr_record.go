@@ -253,13 +253,13 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	var tenantID string
-	if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
-		tenantID = tempVal.(string)
-	}
+	// var tenantID string
+	// if tempVal, ok := extAttrs[eaNameForTenantId]; ok {
+	// 	tenantID = tempVal.(string)
+	// }
 
-	connector := m.(ibclient.IBConnector)
-	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
+	// connector := m.(ibclient.IBConnector)
+	// objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	rec, err := searchObjectByRefOrInternalId("PTR", d, m)
 	if err != nil {
@@ -315,17 +315,17 @@ func resourcePTRRecordGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("ref", obj.Ref); err != nil {
 		return err
 	}
-	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
-		dnsView, err := objMgr.GetDNSView(obj.View)
-		if err != nil {
-			return fmt.Errorf(
-				"error while retrieving information about DNS view '%s': %s",
-				obj.View, err)
-		}
-		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
-			return err
-		}
-	}
+	// if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+	// 	dnsView, err := objMgr.GetDNSView(obj.View)
+	// 	if err != nil {
+	// 		return fmt.Errorf(
+	// 			"error while retrieving information about DNS view '%s': %s",
+	// 			obj.View, err)
+	// 	}
+	// 	if err = d.Set("network_view", dnsView.NetworkView); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
 		return err
@@ -654,17 +654,17 @@ func resourcePTRRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	if err = d.Set("dns_view", obj.View); err != nil {
 		return nil, err
 	}
-	if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
-		dnsView, err := objMgr.GetDNSView(obj.View)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"error while retrieving information about DNS view '%s': %s",
-				obj.View, err)
-		}
-		if err = d.Set("network_view", dnsView.NetworkView); err != nil {
-			return nil, err
-		}
-	}
+	// if val, ok := d.GetOk("network_view"); !ok || val.(string) == "" {
+	// 	dnsView, err := objMgr.GetDNSView(obj.View)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf(
+	// 			"error while retrieving information about DNS view '%s': %s",
+	// 			obj.View, err)
+	// 	}
+	// 	if err = d.Set("network_view", dnsView.NetworkView); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	if err = d.Set("ptrdname", obj.PtrdName); err != nil {
 		return nil, err
