@@ -16,7 +16,7 @@ Whether you intend to use the published plug-in or the customized version that y
 You may add other extensible attributes that you want to use.
 - Create an extensible attribute by name Terraform Internal ID of type string in Infoblox NIOS as given in below curl command.
 ```bash
-curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
+curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12.3/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
 ```
 
 > **Note:**
