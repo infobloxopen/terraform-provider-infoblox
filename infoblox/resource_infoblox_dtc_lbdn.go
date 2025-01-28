@@ -144,17 +144,10 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			},
 			"types": {
 				Type:        schema.TypeList,
-				Optional:    true,
+				Required:    true,
 				Description: "The list of resource record types supported by LBDN. Valid values are A, AAAA, CNAME, NAPTR, SRV. Default value is A and AAAA",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-				},
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					oldTypes, newTypes := d.GetChange("types")
-					if d.Get("types") == nil && oldValue != newValue {
-						return true
-					}
-					return reflect.DeepEqual(oldTypes, newTypes)
 				},
 			},
 			"internal_id": {
@@ -238,6 +231,9 @@ func resourceDtcLbdnCreate(d *schema.ResourceData, m interface{}) error {
 
 	types := d.Get("types").([]interface{})
 	typesList := make([]string, len(types))
+	if len(types) == 0 {
+		return fmt.Errorf("at least one record type should be selected")
+	}
 	for i, j := range types {
 		typesList[i] = j.(string)
 	}
@@ -566,6 +562,9 @@ func resourceDtcLbdnUpdate(d *schema.ResourceData, m interface{}) error {
 
 	types := d.Get("types").([]interface{})
 	typesList := make([]string, len(types))
+	if len(types) == 0 {
+		return fmt.Errorf("at least one record type should be selected")
+	}
 	for i, j := range types {
 		typesList[i] = j.(string)
 	}
