@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"math"
+	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -469,4 +471,68 @@ func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m int
 
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", tenantID)
 	return objMgr.SearchObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
+}
+
+func suppressDiffWhenSorted(oldList interface{}, newList interface{}, key1 string, key2 string) bool {
+	oldListSlice, okOld := oldList.([]interface{})
+	newListSlice, okNew := newList.([]interface{})
+	if !okOld || !okNew {
+		return false
+	}
+	if len(oldListSlice) == 0 || len(newListSlice) == 0 {
+		return false
+	}
+	// If both lists are empty, they are equal
+	if len(oldListSlice) == 0 && len(newListSlice) == 0 {
+		return true
+	}
+	// Determine the type of the first element
+	switch oldListSlice[0].(type) {
+	case string:
+		// Convert lists to string slices and sort
+		oldStrs := make([]string, len(oldListSlice))
+		newStrs := make([]string, len(newListSlice))
+
+		for i, v := range oldListSlice {
+			oldStrs[i] = v.(string)
+		}
+		for i, v := range newListSlice {
+			newStrs[i] = v.(string)
+		}
+
+		sort.Strings(oldStrs)
+		sort.Strings(newStrs)
+
+		return reflect.DeepEqual(oldStrs, newStrs)
+
+	case map[string]interface{}:
+		// Sort list of structs based on key1 and key2
+		sort.Slice(oldListSlice, func(i, j int) bool {
+			a, aOk := oldListSlice[i].(map[string]interface{})
+			b, bOk := oldListSlice[j].(map[string]interface{})
+			if !aOk || !bOk {
+				return false
+			}
+			// Compare key1 first, then key2
+			if a[key1].(string) == b[key1].(string) {
+				return a[key2].(string) < b[key2].(string)
+			}
+			return a[key1].(string) < b[key1].(string)
+		})
+
+		sort.Slice(newListSlice, func(i, j int) bool {
+			a, aOk := newListSlice[i].(map[string]interface{})
+			b, bOk := newListSlice[j].(map[string]interface{})
+			if !aOk || !bOk {
+				return false
+			}
+			// Compare key1 first, then key2
+			if a[key1].(string) == b[key1].(string) {
+				return a[key2].(string) < b[key2].(string)
+			}
+			return a[key1].(string) < b[key1].(string)
+		})
+	}
+	// Compare sorted lists
+	return reflect.DeepEqual(oldListSlice, newListSlice)
 }

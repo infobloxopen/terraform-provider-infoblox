@@ -350,6 +350,13 @@ func resourceDtcPool() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
+					oldList, newList := d.GetChange("monitors")
+					return suppressDiffWhenSorted(oldList, newList, "monitor_name", "monitor_type")
+				},
 			},
 			"servers": {
 				Type:        schema.TypeList,
