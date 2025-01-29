@@ -4,7 +4,7 @@ NIOS_SERVER="${NIOS_SERVER:-192.168.1.2:443}"
 NIOS_USER="${NIOS_USER:-admin}"
 NIOS_PASSWORD="${NIOS_PASSWORD:-infoblox}"
 
-WAPI_URL="https://${NIOS_SERVER}/wapi/v2.11.1"
+WAPI_URL="https://${NIOS_SERVER}/wapi/v2.12.3"
 CURL_AUTH="-u ${NIOS_USER}:${NIOS_PASSWORD}"
 
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/networkview" -d '{"name":"nondefault_netview"}'

@@ -54,6 +54,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: suppressAuthZonesOrder,
 			},
 			"auto_consolidated_monitors": {
 				Type:        schema.TypeBool,
@@ -164,6 +165,44 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			},
 		},
 	}
+}
+
+func suppressAuthZonesOrder(k, old, new string, d *schema.ResourceData) bool {
+	var oldList, newList []map[string]interface{}
+	oldVal, newVal := d.GetChange("auth_zones")
+
+	// Convert oldValList and newValList to JSON strings
+	oldValBytes, err := json.Marshal(oldVal)
+	if err != nil {
+		return false
+	}
+	newValBytes, err := json.Marshal(newVal)
+	if err != nil {
+		return false
+	}
+
+	if err := json.Unmarshal(oldValBytes, &oldList); err != nil {
+		return false
+	}
+	if err := json.Unmarshal(newValBytes, &newList); err != nil {
+		return false
+	}
+
+	// Sort the old and new lists based on fqdn and dns_view
+	sort.Slice(oldList, func(i, j int) bool {
+		if oldList[i]["fqdn"].(string) == oldList[j]["fqdn"].(string) {
+			return oldList[i]["dns_view"].(string) < oldList[j]["dns_view"].(string)
+		}
+		return oldList[i]["fqdn"].(string) < oldList[j]["fqdn"].(string)
+	})
+	sort.Slice(newList, func(i, j int) bool {
+		if newList[i]["fqdn"].(string) == newList[j]["fqdn"].(string) {
+			return newList[i]["dns_view"].(string) < newList[j]["dns_view"].(string)
+		}
+		return newList[i]["fqdn"].(string) < newList[j]["fqdn"].(string)
+	})
+
+	return reflect.DeepEqual(oldList, newList)
 }
 
 func validateAuthZonesLink(authZones []interface{}) ([]ibclient.AuthZonesLink, error) {
