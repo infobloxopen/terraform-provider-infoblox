@@ -473,7 +473,7 @@ func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m int
 	return objMgr.SearchObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
 }
 
-func suppressDiffWhenSorted(oldList interface{}, newList interface{}, key1 string, key2 string) bool {
+func CompareSortedList(oldList interface{}, newList interface{}, key1 string, key2 string) bool {
 	oldListSlice, okOld := oldList.([]interface{})
 	newListSlice, okNew := newList.([]interface{})
 	if !okOld || !okNew {
@@ -489,50 +489,46 @@ func suppressDiffWhenSorted(oldList interface{}, newList interface{}, key1 strin
 	// Determine the type of the first element
 	switch oldListSlice[0].(type) {
 	case string:
-		// Convert lists to string slices and sort
-		oldStrs := make([]string, len(oldListSlice))
-		newStrs := make([]string, len(newListSlice))
-
-		for i, v := range oldListSlice {
-			oldStrs[i] = v.(string)
-		}
-		for i, v := range newListSlice {
-			newStrs[i] = v.(string)
-		}
-
-		sort.Strings(oldStrs)
-		sort.Strings(newStrs)
-
-		return reflect.DeepEqual(oldStrs, newStrs)
+		return sortAndCompareStringSlices(oldListSlice, newListSlice)
 
 	case map[string]interface{}:
-		// Sort list of structs based on key1 and key2
-		sort.Slice(oldListSlice, func(i, j int) bool {
-			a, aOk := oldListSlice[i].(map[string]interface{})
-			b, bOk := oldListSlice[j].(map[string]interface{})
-			if !aOk || !bOk {
-				return false
-			}
-			// Compare key1 first, then key2
-			if a[key1].(string) == b[key1].(string) {
-				return a[key2].(string) < b[key2].(string)
-			}
-			return a[key1].(string) < b[key1].(string)
-		})
-
-		sort.Slice(newListSlice, func(i, j int) bool {
-			a, aOk := newListSlice[i].(map[string]interface{})
-			b, bOk := newListSlice[j].(map[string]interface{})
-			if !aOk || !bOk {
-				return false
-			}
-			// Compare key1 first, then key2
-			if a[key1].(string) == b[key1].(string) {
-				return a[key2].(string) < b[key2].(string)
-			}
-			return a[key1].(string) < b[key1].(string)
-		})
+		sortByKeys(oldListSlice, key1, key2)
+		sortByKeys(newListSlice, key1, key2)
 	}
-	// Compare sorted lists
 	return reflect.DeepEqual(oldListSlice, newListSlice)
+}
+
+// sortAndCompareStringSlices sorts two slices of strings and compares them
+func sortAndCompareStringSlices(oldListSlice, newListSlice []interface{}) bool {
+	oldStrs := make([]string, len(oldListSlice))
+	newStrs := make([]string, len(newListSlice))
+
+	for i, v := range oldListSlice {
+		oldStrs[i] = v.(string)
+	}
+	for i, v := range newListSlice {
+		newStrs[i] = v.(string)
+	}
+
+	sort.Strings(oldStrs)
+	sort.Strings(newStrs)
+
+	return reflect.DeepEqual(oldStrs, newStrs)
+}
+
+// sortByKeys sorts a slice of maps based on key1 and key2
+func sortByKeys(list []interface{}, key1, key2 string) {
+	sort.Slice(list, func(i, j int) bool {
+		a, aOk := list[i].(map[string]interface{})
+		b, bOk := list[j].(map[string]interface{})
+		if !aOk || !bOk {
+			return false
+		}
+
+		// Compare key1 first, then key2
+		if a[key1].(string) == b[key1].(string) {
+			return a[key2].(string) < b[key2].(string)
+		}
+		return a[key1].(string) < b[key1].(string)
+	})
 }

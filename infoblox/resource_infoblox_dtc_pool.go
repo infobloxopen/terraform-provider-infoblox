@@ -355,7 +355,7 @@ func resourceDtcPool() *schema.Resource {
 						return false
 					}
 					oldList, newList := d.GetChange("monitors")
-					return suppressDiffWhenSorted(oldList, newList, "monitor_name", "monitor_type")
+					return CompareSortedList(oldList, newList, "monitor_name", "monitor_type")
 				},
 			},
 			"servers": {

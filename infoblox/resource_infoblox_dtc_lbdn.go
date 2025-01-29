@@ -57,7 +57,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 						return false
 					}
 					oldList, newList := d.GetChange("auth_zones")
-					return suppressDiffWhenSorted(oldList, newList, "fqdn", "dns_view")
+					return CompareSortedList(oldList, newList, "fqdn", "dns_view")
 				},
 			},
 			"auto_consolidated_monitors": {
@@ -101,7 +101,7 @@ func resourceDtcLbdnRecord() *schema.Resource {
 						return false
 					}
 					oldList, newList := d.GetChange("patterns")
-					return suppressDiffWhenSorted(oldList, newList, "", "")
+					return CompareSortedList(oldList, newList, "", "")
 				},
 			},
 			"persistence": {
