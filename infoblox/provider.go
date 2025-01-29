@@ -479,12 +479,12 @@ func CompareSortedList(oldList interface{}, newList interface{}, key1 string, ke
 	if !okOld || !okNew {
 		return false
 	}
-	if len(oldListSlice) == 0 || len(newListSlice) == 0 {
-		return false
-	}
 	// If both lists are empty, they are equal
 	if len(oldListSlice) == 0 && len(newListSlice) == 0 {
 		return true
+	}
+	if len(oldListSlice) == 0 || len(newListSlice) == 0 {
+		return false
 	}
 	// Determine the type of the first element
 	switch oldListSlice[0].(type) {
