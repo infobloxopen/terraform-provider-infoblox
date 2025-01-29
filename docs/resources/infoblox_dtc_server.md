@@ -11,8 +11,8 @@ The following list describes the parameters you can define in the resource block
 * `sni_hostname`: optional, specifies the hostname for Server Name Indication (SNI) in FQDN format. Example: `test.example.com`.
 * `use_sni_hostname`: optional, specifies the flag to enable the use of SNI hostname. Default value: `false`.
 * `comment`: optional, description of the DTC Server. Example: `custom DTC Server`.
-* `ext_attrs`: optional, set of the Extensible attributes of the Server, as a map in JSON format. Example: `jsonencode({})`.
-* `monitors`: optional, specifies the List of IP/FQDN and monitor pairs to be used for additional monitoring. Example:
+* `ext_attrs`: optional, set of the Extensible attributes of the Server, as a map in JSON format. Example: `jsonencode({\"Site\":\"Kapu\"})`.
+* `monitors`: optional, specifies the List of IP/FQDN and monitor pairs to be used for additional monitoring. `monitors` has the following three fields `monitor_name`, `monitor_type` and `host`. Example:
 ```terraform
 monitors {
     monitor_name = "https"
@@ -20,6 +20,9 @@ monitors {
     host = "12.12.1.1"
   }
 ```
+* `monitor_name`: required, specifies the name of the monitor used for monitoring. Example: `https`.
+* `monitor_type`: required, specifies the type of the monitor used for monitoring. Example: `https`.
+* `host`: required, specifies the IP address or FQDN of the server used for monitoring. Example: `12.1.1.10`
 
 ### Examples of a DTC Server Block
 

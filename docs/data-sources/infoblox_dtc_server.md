@@ -3,15 +3,35 @@
 Use the `infoblox_dtc_server` data source to retrieve the following information for a DTC Server if any, which is managed by a NIOS server:
 
 * `name`: The name of th DTC Server. Example: `test-server`.
-* `auto_create_host_record`: Flag to enable the auto-creation of a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.
-* `host`: The address or FQDN of the server.
-* `monitors`: List of IP/FQDN and monitor pairs to be used for additional monitoring.
-* `disable`: Flag to determine whether the DTC Server is disabled or not. When this is set to False, the fixed address is enabled.
-* `sni_hostname`: The hostname for Server Name Indication (SNI) in FQDN format.
-* `use_sni_hostname`: Flag to enable the use of SNI hostname.
-* `health`: The DTC Server health information.
-* `comment`: The description of the DTC Server. This is a regular comment. Example `this is some text`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":\"Kapu\"}"`.
+* `auto_create_host_record`: Flag to enable the auto-creation of a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes. Example: `true`.
+* `host`: The address or FQDN of the server. Example: `10.1.1.1`.
+* `monitors`: List of IP/FQDN and monitor pairs to be used for additional monitoring. `monitors` has the following three fields `monitor_name`, `monitor_type` and `host`. Example:
+```terraform
+monitors {
+    monitor_name = "https"
+    monitor_type = "https"
+    host = "12.12.1.1"
+  }
+```
+* `monitor_name`: The name of the monitor used for monitoring. Example: `http`.
+* `monitor_type`: The type of the monitor used for monitoring. Example: `http`.
+* `host`: The IP address or FQDN of the server used for monitoring. Example: `12.10.1.0`.
+* `disable`: Flag to determine whether the DTC Server is disabled or not. When this is set to False, the fixed address is enabled. Example: `true`.
+* `sni_hostname`: The hostname for Server Name Indication (SNI) in FQDN format. Example: `test.com`.
+* `use_sni_hostname`: Flag to enable the use of SNI hostname. Example: `true`.
+* `health`: The DTC Server health information. Example:
+```terraform
+health { 
+  availability = "NONE"
+  description = ""
+  enabled_state = "DISABLED"
+}
+```
+* `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+* `description`: The textual description of the DTC Server object’s status. Default value: `""`. Example: `test health`.
+* `enabled_state`: The enabled state of the DTC Server. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
+* `comment`: The description of the DTC Server. This is a regular comment. Example: `test Dtc Server`.
+* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment`, `host`, `sni_hostname` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.

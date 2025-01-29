@@ -3,6 +3,7 @@ resource "infoblox_dtc_lbdn" "lbdn_record" {
   name = "testLbdn3"
   lb_method = "ROUND_ROBIN"
   comment = "test LBDN"
+  types = ["A"]
 }
 
 // accessing LBDN by specifying name and comment

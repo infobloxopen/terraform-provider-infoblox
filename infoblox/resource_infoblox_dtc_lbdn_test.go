@@ -14,7 +14,7 @@ import (
 )
 
 var testResourceDtcLbdn = `resource "infoblox_dtc_lbdn" "testLbdn1" {
-    name = "testLbdn123"
+    name = "testLbdn1234"
     auth_zones {
         fqdn = "test.com"
         dns_view = "default"
@@ -54,6 +54,7 @@ var testResourceDtcLbdn2 = `resource "infoblox_dtc_lbdn" "testLbdn2" {
 var testResourceDtcLbdn3 = `resource "infoblox_dtc_lbdn" "testLbdn3" {
     name = "testLbdn789"
   	lb_method = "TOPOLOGY"
+    types = ["A"]
 }`
 
 func testDtcLbdnDestroy(s *terraform.State) error {
@@ -234,7 +235,7 @@ func TestAccResourceDtcLbdn(t *testing.T) {
 			{
 				Config: testResourceDtcLbdn,
 				Check: testDtcLbdnCompare(t, "infoblox_dtc_lbdn.testLbdn1", &ibclient.DtcLbdn{
-					Name:      utils.StringPtr("testLbdn123"),
+					Name:      utils.StringPtr("testLbdn1234"),
 					LbMethod:  "TOPOLOGY",
 					Topology:  utils.StringPtr("test-topo"),
 					AuthZones: []*ibclient.ZoneAuth{{Fqdn: "test.com"}},

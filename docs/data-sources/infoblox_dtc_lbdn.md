@@ -2,21 +2,47 @@
 
 Use the `infoblox_dtc_lbdn` data source to retrieve the following information for a DTC LBDN if any, which is managed by a NIOS server:
 
-* `name`: The name of th DTC LBDN. Example: `test-lbdn`.
-* `auth_zones`: List of linked auth zones with their respective views.
-* `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors on related DTC Pools.
-* `disable`: Flag to determine whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled.
-* `lb_method`: The load balancing method. Used to select pool. Valid values are GLOBAL_AVAILABILITY, RATIO, ROUND_ROBIN, SOURCE_IP_HASH and TOPOLOGY.
-* `pools`: Pools associated with an LBDN are collections of load-balanced servers.
-* `Patterns`: LBDN wildcards for pattern match.
-* `persistence`: Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching.
-* `priority`: The LBDN pattern match priority for overlapping DTC LBDN objects.
-* `ttl`: The Time To Live (TTL) value for the DTC LBDN. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.
-* `topology`: The topology rules for TOPOLOGY method.
-* `types`: The list of resource record types supported by LBDN. Valid values are `"A", "AAAA", "CNAME", "NAPTR", "SRV"`. Default value is `"A"` and `"AAAA"`.
-* `health`: The LBDN health information.
-* `comment`: The description of the DTC LBDN. This is a regular comment. Example `this is some text`.
-* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":\"Kapu\"}"`.
+* `name`: The name of th DTC LBDN. Example: `testLbdn`.
+* `auth_zones`: List of linked auth zones with their respective views. `auth_zones` has the following two fields `fqdn` and `dns_view`. Example:
+```terraform
+auth_zones {
+    fqdn = "example.com"
+    dns_view = "default"
+  }
+```
+* `fqdn`: The name of the auth-zone to link with. Example: `example.com`.
+* `dns_view`: The DNS view on which the auth-zone is available. Example: `default`.
+* `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors on related DTC Pools. Example: `false`.
+* `disable`: Flag to determine whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled. Example: `false`.
+* `lb_method`: The load balancing method. Used to select pool. Valid values are GLOBAL_AVAILABILITY, RATIO, ROUND_ROBIN, SOURCE_IP_HASH and TOPOLOGY. Example: `ROUND_ROBIN`.
+* `pools`: Pools associated with an LBDN are collections of load-balanced servers. `pools` has the following two fields `pool` and `ratio`. Example:
+```terraform
+pools {
+    pool = "pool1"
+    ratio = "2"
+  }
+```
+* `pool`: The name of the linked pool. Example: `pool1`.
+* `ratio`: The weight of the linked pool. Example: `2`.
+* `Patterns`: LBDN wildcards for pattern match. Example: `["*.example.com","*test.com"]`.
+* `persistence`: Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching. Example: `60`.
+* `priority`: The LBDN pattern match priority for overlapping DTC LBDN objects. Example: `1`.
+* `ttl`: The Time To Live (TTL) value for the DTC LBDN. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Example: `60`.
+* `topology`: The topology rules for TOPOLOGY method. Example: `test-topo`.
+* `types`: The list of resource record types supported by LBDN. Example: `["A","AAAA","CNAME","NAPTR","SRV"]`.
+* `health`: The LBDN health information. Example:
+```terraform
+health { 
+  availability = "NONE"
+  description = ""
+  enabled_state = "DISABLED"
+}
+```
+* `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+* `description`: The textual description of the LBDN object’s status. Default value: `""`. Example: `test health`.
+* `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
+* `comment`: The description of the DTC LBDN. This is a regular comment. Example: `test LBDN`.
+* `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
