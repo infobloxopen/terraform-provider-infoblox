@@ -516,19 +516,18 @@ func sortAndCompareStringSlices(oldListSlice, newListSlice []interface{}) bool {
 	return reflect.DeepEqual(oldStrs, newStrs)
 }
 
-// sortByKeys sorts a slice of maps based on key1 and key2
 func sortByKeys(list []interface{}, key1, key2 string) {
 	sort.Slice(list, func(i, j int) bool {
-		a, aOk := list[i].(map[string]interface{})
-		b, bOk := list[j].(map[string]interface{})
-		if !aOk || !bOk {
+		slice1, ok1 := list[i].(map[string]interface{})
+		slice2, ok2 := list[j].(map[string]interface{})
+		if !ok1 || !ok2 {
 			return false
 		}
 
 		// Compare key1 first, then key2
-		if a[key1].(string) == b[key1].(string) {
-			return a[key2].(string) < b[key2].(string)
+		if slice1[key1].(string) == slice2[key1].(string) {
+			return slice1[key2].(string) < slice2[key2].(string)
 		}
-		return a[key1].(string) < b[key1].(string)
+		return slice1[key1].(string) < slice2[key1].(string)
 	})
 }
