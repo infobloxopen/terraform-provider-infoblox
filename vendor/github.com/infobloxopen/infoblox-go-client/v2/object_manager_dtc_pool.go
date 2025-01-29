@@ -202,6 +202,7 @@ func (objMgr *ObjectManager) CreateDtcPool(
 	lbDynamicRatioAlternate map[string]interface{},
 	eas EA,
 	autoConsolidatedMonitors bool,
+	userMonitors []map[string]interface{},
 	availability string,
 	ttl uint32,
 	useTTL bool,
@@ -295,8 +296,44 @@ func (objMgr *ObjectManager) CreateDtcPool(
 		lbDynamicRatioAlternateMethod = nil
 	}
 
+	var consolidatedMonitors []*DtcPoolConsolidatedMonitorHealth
+	if userMonitors != nil {
+		if len(userMonitors) == 0 {
+			consolidatedMonitors = []*DtcPoolConsolidatedMonitorHealth{}
+		} else {
+			for _, userMonitor := range userMonitors {
+				monitor, okMonitor := userMonitor["monitor"].(Monitor)
+				monitorAvailability, okAvail := userMonitor["availability"].(string)
+				fullHealthComm, _ := userMonitor["full_health_communication"].(bool)
+				members, okMember := userMonitor["members"].([]string)
+				if !okMonitor {
+					return nil, fmt.Errorf("required field missing: monitor")
+				}
+
+				if !okAvail {
+					return nil, fmt.Errorf("required field missing: availability")
+				}
+
+				if !okMember {
+					return nil, fmt.Errorf("required field missing: members")
+				}
+				monitorRef, err := getMonitorReference(monitor.Name, monitor.Type, objMgr)
+				if err != nil {
+					return nil, err
+				}
+
+				consolidatedMonitor := &DtcPoolConsolidatedMonitorHealth{
+					Members:                 members,
+					Monitor:                 monitorRef,
+					Availability:            monitorAvailability,
+					FullHealthCommunication: fullHealthComm,
+				}
+				consolidatedMonitors = append(consolidatedMonitors, consolidatedMonitor)
+			}
+		}
+	}
 	// Create the DtcPool
-	poolDtc := NewDtcPool(comment, name, lbPreferredMethod, lbDynamicRatioPreferredMethod, servers, monitorResults, lbPreferredTopology, lbAlternateMethod, lbAlternateTopology, lbDynamicRatioAlternateMethod, eas, autoConsolidatedMonitors, availability, nil, ttl, useTTL, disable, quorum)
+	poolDtc := NewDtcPool(comment, name, lbPreferredMethod, lbDynamicRatioPreferredMethod, servers, monitorResults, lbPreferredTopology, lbAlternateMethod, lbAlternateTopology, lbDynamicRatioAlternateMethod, eas, autoConsolidatedMonitors, availability, consolidatedMonitors, ttl, useTTL, disable, quorum)
 	ref, err := objMgr.connector.CreateObject(poolDtc)
 	if err != nil {
 		return nil, err
