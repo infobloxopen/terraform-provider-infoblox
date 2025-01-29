@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"reflect"
-	"sort"
 )
 
 func resourceDtcLbdnRecord() *schema.Resource {
@@ -54,7 +52,13 @@ func resourceDtcLbdnRecord() *schema.Resource {
 						},
 					},
 				},
-				DiffSuppressFunc: suppressAuthZonesOrder,
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
+					oldList, newList := d.GetChange("auth_zones")
+					return CompareSortedList(oldList, newList, "fqdn", "dns_view")
+				},
 			},
 			"auto_consolidated_monitors": {
 				Type:        schema.TypeBool,
@@ -93,8 +97,11 @@ func resourceDtcLbdnRecord() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" {
+						return false
+					}
 					oldList, newList := d.GetChange("patterns")
-					return suppressDiffWhenSortedListsAreEqual(oldList, newList)
+					return CompareSortedList(oldList, newList, "", "")
 				},
 			},
 			"persistence": {
@@ -165,44 +172,6 @@ func resourceDtcLbdnRecord() *schema.Resource {
 			},
 		},
 	}
-}
-
-func suppressAuthZonesOrder(k, old, new string, d *schema.ResourceData) bool {
-	var oldList, newList []map[string]interface{}
-	oldVal, newVal := d.GetChange("auth_zones")
-
-	// Convert oldValList and newValList to JSON strings
-	oldValBytes, err := json.Marshal(oldVal)
-	if err != nil {
-		return false
-	}
-	newValBytes, err := json.Marshal(newVal)
-	if err != nil {
-		return false
-	}
-
-	if err := json.Unmarshal(oldValBytes, &oldList); err != nil {
-		return false
-	}
-	if err := json.Unmarshal(newValBytes, &newList); err != nil {
-		return false
-	}
-
-	// Sort the old and new lists based on fqdn and dns_view
-	sort.Slice(oldList, func(i, j int) bool {
-		if oldList[i]["fqdn"].(string) == oldList[j]["fqdn"].(string) {
-			return oldList[i]["dns_view"].(string) < oldList[j]["dns_view"].(string)
-		}
-		return oldList[i]["fqdn"].(string) < oldList[j]["fqdn"].(string)
-	})
-	sort.Slice(newList, func(i, j int) bool {
-		if newList[i]["fqdn"].(string) == newList[j]["fqdn"].(string) {
-			return newList[i]["dns_view"].(string) < newList[j]["dns_view"].(string)
-		}
-		return newList[i]["fqdn"].(string) < newList[j]["fqdn"].(string)
-	})
-
-	return reflect.DeepEqual(oldList, newList)
 }
 
 func validateAuthZonesLink(authZones []interface{}) ([]ibclient.AuthZonesLink, error) {
@@ -868,28 +837,4 @@ func validatePoolsLink(poolsLink []interface{}) ([]*ibclient.DtcPoolLink, error)
 	}
 
 	return dtcPoolLinks, nil
-}
-
-func suppressDiffWhenSortedListsAreEqual(oldList interface{}, newList interface{}) bool {
-	oldListStr, okOld := oldList.([]interface{})
-	newListStr, okNew := newList.([]interface{})
-
-	if !okOld || !okNew {
-		return false
-	}
-
-	oldStrs := make([]string, len(oldListStr))
-	newStrs := make([]string, len(newListStr))
-
-	for i, v := range oldListStr {
-		oldStrs[i] = v.(string)
-	}
-	for i, v := range newListStr {
-		newStrs[i] = v.(string)
-	}
-
-	sort.Strings(oldStrs)
-	sort.Strings(newStrs)
-
-	return reflect.DeepEqual(oldStrs, newStrs)
 }
