@@ -1,6 +1,7 @@
 # DTC LBDN Resource
 
-The `infoblox_dtc_lbdn` resource associates a DTC LBDN.The resource represents the ‘dtc:lbdn’ WAPI object in NIOS.
+The `infoblox_dtc_lbdn` resource enables you to perform `create`, `update` and `delete` operations on DTC LBDN in a NIOS appliance.
+The resource represents the ‘dtc:lbdn’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the resource block of the DTC LBDN object:
 

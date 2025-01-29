@@ -1,6 +1,7 @@
 # DTC Server Resource
 
-The `infoblox_dtc_server` resource associates a DTC Server.The resource represents the ‘dtc:server’ WAPI object in NIOS.
+The `infoblox_dtc_server` resource enables you to perform `create`, `update` and `delete` operations on DTC Server in a NIOS appliance.
+The resource represents the ‘dtc:server’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the resource block of the DTC Server object:
 
