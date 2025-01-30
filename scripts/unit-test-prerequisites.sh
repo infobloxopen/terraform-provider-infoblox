@@ -1,8 +1,8 @@
 #!/bin/bash
 
-NIOS_SERVER="${NIOS_SERVER:-172.28.82.164:443}"
+NIOS_SERVER="${NIOS_SERVER:-192.168.1.2:443}"
 NIOS_USER="${NIOS_USER:-admin}"
-NIOS_PASSWORD="${NIOS_PASSWORD:-Infoblox@123}"
+NIOS_PASSWORD="${NIOS_PASSWORD:-infoblox}"
 
 WAPI_URL="https://${NIOS_SERVER}/wapi/v2.12.3"
 CURL_AUTH="-u ${NIOS_USER}:${NIOS_PASSWORD}"
@@ -23,7 +23,7 @@ echo
 # create a pool, zone_auth, server and topology for DTC LBDN, Pool and servers
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/dtc:server" -d "{\"name\":\"dummy-server2\",\"host\":\"12.10.10.1\"}"
 
-curl -k -X POST -H 'Content-Type: application/json'  $CURL_AUTH "${WAPI_URL}/dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp" -d '{"oids":[{"condition":"EXACT","first":"4","type":"INTEGER","oid":".1.2"}]}'
+curl -k -X PUT -H 'Content-Type: application/json'  $CURL_AUTH "${WAPI_URL}/dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp" -d '{"oids":[{"condition":"EXACT","first":"4","type":"INTEGER","oid":".1.2"}]}'
 echo
 
 server=$(curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/dtc:server" -d "{\"name\":\"dummy-server.com\",\"host\":\"12.10.10.1\"}")
@@ -48,3 +48,4 @@ echo $host_name
 
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"fqdn\":\"test.com\",\"grid_primary\":[{\"name\":\"$host_name\"}]}"
 echo
+
