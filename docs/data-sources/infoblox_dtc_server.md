@@ -73,7 +73,7 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Example of DTC Server Data Source Block
 
 ```hcl
-resource "infoblox_dtc_server" "server" {
+resource "infoblox_dtc_server" "server_record" {
   name = "server2"
   host = "11.11.1.1"
   comment = "test DTC server"
@@ -91,20 +91,16 @@ resource "infoblox_dtc_server" "server" {
   }
 }
 
-data "infoblox_dtc_server" "server" {
+data "infoblox_dtc_server" "server_read" {
   filters = {
-    name = "testserver"
-    comment = "test Server"
-    host = "11.11.1.1"
+    name = infoblox_dtc_server.server_record.name
+    comment = infoblox_dtc_server.server_record.comment
+    host = infoblox_dtc_server.server_record.host
   }
-  
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_dtc_server' resource block before the data source will be queried.
-  depends_on = [infoblox_dtc_server.server]
 }
 
 output "server_res" {
-  value = data.infoblox_dtc_server.server
+  value = data.infoblox_dtc_server.server_read
 }
 
 // accessing individual field in results

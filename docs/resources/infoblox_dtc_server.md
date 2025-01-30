@@ -32,13 +32,13 @@ monitors {
 
 ```hcl
 // creating a DTC server record with minimal set of parameters
-resource "infoblox_dtc_server" "server1" {
+resource "infoblox_dtc_server" "server_minimum_parameters" {
   name = "server1"
   host = "12.12.1.1"
 }
 
 // creating a DTC Server record with full set of parameters
-resource "infoblox_dtc_server" "server2" {
+resource "infoblox_dtc_server" "server_full_set_parameters" {
   name = "server2"
   host = "11.11.1.1"
   comment = "test DTC server"

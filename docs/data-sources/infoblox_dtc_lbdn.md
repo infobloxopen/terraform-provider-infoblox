@@ -79,7 +79,7 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Example of DTC LBDN Data Source Block
 
 ```hcl
-resource "infoblox_dtc_lbdn" "lbdn" {
+resource "infoblox_dtc_lbdn" "lbdn_record" {
   name = "testLbdn"
   lb_method = "ROUND_ROBIN"
   comment = "test LBDN"
@@ -89,19 +89,15 @@ resource "infoblox_dtc_lbdn" "lbdn" {
   })
 }
 
-data "infoblox_dtc_lbdn" "lbdn" {
+data "infoblox_dtc_lbdn" "lbdn_read" {
   filters = {
-    name = "testLbdn"
-    comment = "test LBDN"
+    name = infoblox_dtc_lbdn.lbdn_record.name
+    comment = infoblox_dtc_lbdn.lbdn_record.comment
   }
-  
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_dtc_lbdn' resource block before the data source will be queried.
-  depends_on = [infoblox_dtc_lbdn.lbdn]
 }
 
 output "lbdn_res" {
-  value = data.infoblox_dtc_lbdn.lbdn
+  value = data.infoblox_dtc_lbdn.lbdn_read
 }
 
 // accessing individual field in results
