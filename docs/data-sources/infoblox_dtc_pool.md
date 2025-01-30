@@ -2,8 +2,8 @@
 
 Use the `infoblox_dtc_pool` data source to retrieve the following information for an DTC Pool Record if any, which is managed by a NIOS server:
 
-* `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors in DTC Pool. Default value : `false`
-* `availability`: A resource in the pool is available if `ANY`, at least `QUORUM`, or `ALL` monitors for the pool say that it is up. Default value : `ALL`
+* `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors in DTC Pool. Default value: `false`
+* `availability`: A resource in the pool is available if `ANY`, at least `QUORUM`, or `ALL` monitors for the pool say that it is up. Default value: `ALL`
 * `comment`: The comment for the DTC Pool; maximum 256 characters. Example: `pool creation`
 * `consolidated_monitors`: List of monitors and associated members statuses of which are shared across members and consolidated in server availability determination.
 
@@ -26,10 +26,10 @@ consolidated_monitors{
     full_health_communication= true
   }
 ```
-* `disable`: Determines whether the DTC Pool is disabled or not. When this is set to False, the fixed address is enabled. Default value : `false`
+* `disable`: Determines whether the DTC Pool is disabled or not. When this is set to False, the fixed address is enabled. Default value: `false`
 * `extattrs`: Extensible attributes associated with the object. Example: `"{\"*Site\":\"Antarctica\"}"`
 * `lb_alternate_method`: The alternate load balancing method. Use this to select a method type from the pool if the preferred method does not return any results. Valid values are `ALL_AVAILABLE` , `DYNAMIC_RATIO` , `GLOBAL_AVAILABILITY` , `NONE` , `RATIO` , `ROUND_ROBIN` , `SOURCE_IP_HASH` , `TOPOLOGY`.
-* `lb_alternate_topology`: The alternate topology for load balancing. The name of the topology ruleset. Example : `topology_name`
+* `lb_alternate_topology`: The alternate topology for load balancing. The name of the topology ruleset. Example: `topology_name`
 * `lb_dynamic_ratio_alternate`: The DTC Pool settings for dynamic ratio when it’s selected as alternate method.
   The fields to define alternate dynamic ratio are `method` , `monitor_metric` , `monitor_weighing` , `monitor_name` , `monitor_type` and `invert_monitor_metric`.
 
@@ -60,15 +60,15 @@ lb_dynamic_ratio_alternate = jsonencode({
 
   `method`: The method of the DTC dynamic ratio load balancing. Valid values are `MONITOR` and `ROUND_TRIP_DELAY`
 
-  `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing. Type : string. Example :`.1.2`
+  `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing. Type: string. Example: `.1.2`
 
   `monitor_weighing`: The DTC monitor weight. ‘PRIORITY’ means that all clients will be forwarded to the least loaded server. ‘RATIO’ means that distribution will be calculated based on dynamic weights. Valid values are `PRIORITY` and `RATIO` . Default value is `RATIO`
 
   `invert_monitor_metric`: Determines whether the inverted values of the DTC SNMP monitor metric will be used. Default value: `false`
 
-  `monitor_name`: The name of the monitor. Example : `https`
+  `monitor_name`: The name of the monitor. Example: `https`
 
-  `montior_type`: The type of the monitor. Example : `http`
+  `montior_type`: The type of the monitor. Example: `http`
 
 ```terraform
 lb_dynamic_ratio_preferred = jsonencode({
@@ -84,9 +84,9 @@ lb_dynamic_ratio_preferred = jsonencode({
 * `lb_preferred_topology`: The preferred topology for load balancing. The name of the topology ruleset. Example : `topology_name`
 * `monitors`: The monitors related to pool. An array of the following objects: `dtc:monitor:http`, `dtc:monitor:icmp`, `dtc:monitor:tcp`, `dtc:monitor:pdp`, `dtc:monitor:sip`, `dtc:monitor:snmp`.
 
-  `monitor_name`: The name of the monitor. Example : `https`
+  `monitor_name`: The name of the monitor. Example: `https`
 
-  `montior_type`: The type of the monitor. Example : `http`
+  `montior_type`: The type of the monitor. Example: `http`
 
 ```terraform
 monitors{
@@ -94,7 +94,7 @@ monitors{
         monitor_type="snmp"
       }
 ```
-* `name`: The DTC Pool display name. Example  : `dtc_pool`
+* `name`: The DTC Pool display name. Example: `dtc_pool`
 * `quorum`: For `availability` mode QUORUM, at least this many monitors must report the resource as up for it to be available. Example : `2`
 * `servers`: The servers related to the pool.
 
@@ -120,7 +120,7 @@ health {
 ```
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name` corresponding to object.
-From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
+From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
 ### Supported Arguments for filters
 
