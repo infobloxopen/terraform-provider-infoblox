@@ -5,7 +5,14 @@ Use the `infoblox_dtc_server` data source to retrieve the following information 
 * `name`: The name of th DTC Server. Example: `test-server`.
 * `auto_create_host_record`: Flag to enable the auto-creation of a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes. Example: `true`.
 * `host`: The address or FQDN of the server. Example: `10.1.1.1`.
-* `monitors`: List of IP/FQDN and monitor pairs to be used for additional monitoring. `monitors` has the following three fields `monitor_name`, `monitor_type` and `host`. Example:
+* `monitors`: List of IP/FQDN and monitor pairs to be used for additional monitoring. `monitors` has the following three fields `monitor_name`, `monitor_type` and `host`. The description of the fields of `monitors` is as follows:
+  
+  `monitor_name`: required, specifies the name of the monitor used for monitoring. Example: `https`.
+
+  `monitor_type`: required, specifies the type of the monitor used for monitoring. Example: `https`.
+
+  `host`: required, specifies the IP address or FQDN of the server used for monitoring. Example: `12.1.1.10`
+
 ```terraform
 monitors {
     monitor_name = "https"
@@ -13,13 +20,16 @@ monitors {
     host = "12.12.1.1"
   }
 ```
-* `monitor_name`: The name of the monitor used for monitoring. Example: `http`.
-* `monitor_type`: The type of the monitor used for monitoring. Example: `http`.
-* `host`: The IP address or FQDN of the server used for monitoring. Example: `12.10.1.0`.
 * `disable`: Flag to determine whether the DTC Server is disabled or not. When this is set to False, the fixed address is enabled. Example: `true`.
 * `sni_hostname`: The hostname for Server Name Indication (SNI) in FQDN format. Example: `test.com`.
 * `use_sni_hostname`: Flag to enable the use of SNI hostname. Example: `true`.
-* `health`: The DTC Server health information. Example:
+* `health`: The DTC Server health information. The description of the fields of `health` is as follows:
+
+  `availability`: The availability color status. Default value: `NONE`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+  
+  `description`: The textual description of the DTC Server object’s status. Default value: `""`. Example: `test health`.
+
+  `enabled_state`: The enabled state of the DTC Server. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 ```terraform
 health { 
   availability = "NONE"
@@ -27,9 +37,6 @@ health {
   enabled_state = "DISABLED"
 }
 ```
-* `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
-* `description`: The textual description of the DTC Server object’s status. Default value: `""`. Example: `test health`.
-* `enabled_state`: The enabled state of the DTC Server. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 * `comment`: The description of the DTC Server. This is a regular comment. Example: `test Dtc Server`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 

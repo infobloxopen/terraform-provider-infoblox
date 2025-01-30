@@ -15,22 +15,30 @@ auth_zones {
 * `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors on related DTC Pools. Example: `false`.
 * `disable`: Flag to determine whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled. Example: `false`.
 * `lb_method`: The load balancing method. Used to select pool. Valid values are GLOBAL_AVAILABILITY, RATIO, ROUND_ROBIN, SOURCE_IP_HASH and TOPOLOGY. Example: `ROUND_ROBIN`.
-* `pools`: Pools associated with an LBDN are collections of load-balanced servers. `pools` has the following two fields `pool` and `ratio`. Example:
+* `pools`: Pools associated with an LBDN are collections of load-balanced servers. `pools` has the following two fields `pool` and `ratio`. The description of the fields of `pools` is as follows:
+  
+  `pool`: The name of the pool. Example: `pool1`.
+  
+  `ratio`: The weight of the pool. Example: `2`.
 ```terraform
 pools {
     pool = "pool1"
     ratio = "2"
   }
 ```
-* `pool`: The name of the linked pool. Example: `pool1`.
-* `ratio`: The weight of the linked pool. Example: `2`.
 * `Patterns`: LBDN wildcards for pattern match. Example: `["*.example.com","*test.com"]`.
 * `persistence`: Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching. Example: `60`.
 * `priority`: The LBDN pattern match priority for overlapping DTC LBDN objects. Example: `1`.
 * `ttl`: The Time To Live (TTL) value for the DTC LBDN. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Example: `60`.
 * `topology`: The topology rules for TOPOLOGY method. Example: `test-topo`.
 * `types`: The list of resource record types supported by LBDN. Example: `["A","AAAA","CNAME","NAPTR","SRV"]`.
-* `health`: The LBDN health information. Example:
+* `health`: The LBDN health information. The description of the fields of `health` is as follows:
+
+  `availability`: The availability color status. Default value: `NONE`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+
+  `description`: The textual description of the LBDN object’s status. Default value: `""`. Example: `test health`.
+
+  `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 ```terraform
 health { 
   availability = "NONE"
@@ -38,9 +46,6 @@ health {
   enabled_state = "DISABLED"
 }
 ```
-* `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
-* `description`: The textual description of the LBDN object’s status. Default value: `""`. Example: `test health`.
-* `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 * `comment`: The description of the DTC LBDN. This is a regular comment. Example: `test LBDN`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
