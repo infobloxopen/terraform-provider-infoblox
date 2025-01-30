@@ -21,7 +21,7 @@ curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/exte
 echo
 
 # create a pool, zone_auth, server and topology for DTC LBDN, Pool and servers
-curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/dtc:server" -d "{\"name\":\"dummy-server2\",\"host\":\"12.10.10.1\"}"
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/dtc:server" -d "{\"name\":\"dummy-server2.com\",\"host\":\"12.10.10.1\"}"
 
 curl -k -X PUT -H 'Content-Type: application/json'  $CURL_AUTH "${WAPI_URL}/dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp" -d '{"oids":[{"condition":"EXACT","first":"4","type":"INTEGER","oid":".1.2"}]}'
 echo
@@ -48,4 +48,3 @@ echo $host_name
 
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"fqdn\":\"test.com\",\"grid_primary\":[{\"name\":\"$host_name\"}]}"
 echo
-
