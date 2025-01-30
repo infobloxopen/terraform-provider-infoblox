@@ -81,6 +81,13 @@ func testAccDtcPoolCompare(
 		if rec.LbPreferredMethod != expectedRec.LbPreferredMethod {
 			return fmt.Errorf("'lb_preferred_method' does not match: got '%s', expected '%s'", rec.LbPreferredMethod, expectedRec.LbPreferredMethod)
 		}
+		if rec.AutoConsolidatedMonitors != nil {
+			if expectedRec.AutoConsolidatedMonitors != nil {
+				if *rec.AutoConsolidatedMonitors != *expectedRec.AutoConsolidatedMonitors {
+					return fmt.Errorf("'auto_consolidated_monitors' does not match: got '%v', expected '%v'", rec.AutoConsolidatedMonitors, expectedRec.AutoConsolidatedMonitors)
+				}
+			}
+		}
 		if rec.Comment != nil {
 			if expectedRec.Comment == nil {
 				return fmt.Errorf("'comment' is expected to be undefined but it is not")
@@ -93,14 +100,24 @@ func testAccDtcPoolCompare(
 		} else if expectedRec.Comment != nil {
 			return fmt.Errorf("'comment' is expected to be defined but it is not")
 		}
-		if rec.LbPreferredMethod == "TOPOLOGY" {
-			if *rec.LbPreferredTopology != *expectedRec.LbPreferredTopology {
-				return fmt.Errorf("'lb_preferred_topology' does not match: got '%s' , expected '%s'", *rec.LbPreferredTopology, *expectedRec.LbPreferredTopology)
+		if rec.LbPreferredTopology != nil && expectedRec.LbPreferredTopology != nil {
+			var topology ibclient.DtcTopology
+			err := connector.GetObject(&ibclient.DtcTopology{}, *rec.LbPreferredTopology, nil, &topology)
+			if err != nil {
+				return fmt.Errorf("error getting topology object: %s", *rec.LbPreferredTopology)
+			}
+			if *expectedRec.LbPreferredTopology != *topology.Name {
+				return fmt.Errorf("the value of 'topology' field is '%s', but expected '%s'", *topology.Name, *expectedRec.LbPreferredTopology)
 			}
 		}
-		if rec.LbAlternateMethod == "TOPOLOGY" {
-			if *rec.LbAlternateTopology != *expectedRec.LbAlternateTopology {
-				return fmt.Errorf("'lb_alternate_topology' does not match: got '%s' , expected '%s'", *rec.LbAlternateTopology, *expectedRec.LbAlternateTopology)
+		if rec.LbAlternateTopology != nil && expectedRec.LbAlternateTopology != nil {
+			var topology ibclient.DtcTopology
+			err := connector.GetObject(&ibclient.DtcTopology{}, *rec.LbAlternateTopology, nil, &topology)
+			if err != nil {
+				return fmt.Errorf("error getting topology object: %s", *rec.LbAlternateTopology)
+			}
+			if *expectedRec.LbAlternateTopology != *topology.Name {
+				return fmt.Errorf("the value of 'topology' field is '%s', but expected '%s'", *topology.Name, *expectedRec.LbAlternateTopology)
 			}
 		}
 		if rec.Monitors != nil && expectedRec.Monitors != nil {
@@ -109,6 +126,14 @@ func testAccDtcPoolCompare(
 			}
 
 			for i := range rec.Monitors {
+				var monitorResult ibclient.DtcMonitorHttp
+				err := connector.GetObject(&ibclient.DtcMonitorHttp{}, rec.Monitors[i].Ref, nil, &monitorResult)
+				if err != nil {
+					return fmt.Errorf("error getting monitor object: %s", rec.Monitors[i].Ref)
+				}
+				if monitorResult.Name != nil {
+					rec.Monitors[i].Ref = *monitorResult.Name
+				}
 				if !reflect.DeepEqual(rec.Monitors[i].Ref, expectedRec.Monitors[i].Ref) {
 					return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.Monitors[i].Ref, expectedRec.Monitors[i].Ref)
 				}
@@ -120,12 +145,28 @@ func testAccDtcPoolCompare(
 			}
 
 			for i := range rec.Servers {
+				var serverResult ibclient.DtcServer
+				err := connector.GetObject(&ibclient.DtcServer{}, rec.Servers[i].Server, nil, &serverResult)
+				if err != nil {
+					return fmt.Errorf("error getting server object: %s", rec.Servers[i].Server)
+				}
+				if serverResult.Name != nil {
+					rec.Servers[i].Server = *serverResult.Name
+				}
 				if !reflect.DeepEqual(rec.Servers[i], expectedRec.Servers[i]) {
 					return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.Servers[i], expectedRec.Servers[i])
 				}
 			}
 		}
 		if rec.LbDynamicRatioPreferred != nil && expectedRec.LbDynamicRatioPreferred != nil {
+			var monitorResult ibclient.DtcMonitorHttp
+			err := connector.GetObject(&ibclient.DtcMonitorHttp{}, rec.LbDynamicRatioPreferred.Monitor, nil, &monitorResult)
+			if err != nil {
+				return fmt.Errorf("error getting monitor object: %s", rec.LbDynamicRatioPreferred.Monitor)
+			}
+			if monitorResult.Name != nil {
+				rec.LbDynamicRatioPreferred.Monitor = *monitorResult.Name
+			}
 			if !reflect.DeepEqual(rec.LbDynamicRatioPreferred, expectedRec.LbDynamicRatioPreferred) {
 				return fmt.Errorf(
 					"the value of 'lb_dynamic_preferred' field is '%v', but expected '%v'",
@@ -133,6 +174,14 @@ func testAccDtcPoolCompare(
 			}
 		}
 		if rec.LbDynamicRatioAlternate != nil && expectedRec.LbDynamicRatioAlternate != nil {
+			var monitorResult ibclient.DtcMonitorHttp
+			err := connector.GetObject(&ibclient.DtcMonitorHttp{}, rec.LbDynamicRatioAlternate.Monitor, nil, &monitorResult)
+			if err != nil {
+				return fmt.Errorf("error getting monitor object: %s", rec.LbDynamicRatioAlternate.Monitor)
+			}
+			if monitorResult.Name != nil {
+				rec.LbDynamicRatioAlternate.Monitor = *monitorResult.Name
+			}
 			if !reflect.DeepEqual(rec.LbDynamicRatioAlternate, expectedRec.LbDynamicRatioAlternate) {
 				return fmt.Errorf(
 					"the value of 'lb_dynamic_alternate' field is '%v', but expected '%v'",
@@ -167,20 +216,27 @@ func testAccDtcPoolCompare(
 				"availability value does not match: got '%v', expected '%v'", rec.Availability, expectedRec.Availability)
 		}
 		if rec.AutoConsolidatedMonitors != nil {
-			if !(*rec.AutoConsolidatedMonitors) {
-				for i := range rec.ConsolidatedMonitors {
-					if !reflect.DeepEqual(rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i]) {
-						return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i])
-					}
+			for i := range rec.ConsolidatedMonitors {
+				var monitorResult ibclient.DtcMonitorHttp
+				err := connector.GetObject(&ibclient.DtcMonitorHttp{}, rec.ConsolidatedMonitors[i].Monitor, nil, &monitorResult)
+				if err != nil {
+					return fmt.Errorf("error getting monitor object: %s", rec.ConsolidatedMonitors[i].Monitor)
+				}
+				if monitorResult.Name != nil {
+					rec.ConsolidatedMonitors[i].Monitor = *monitorResult.Name
+				}
+				if !reflect.DeepEqual(rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i]) {
+					return fmt.Errorf("difference found at index %d: got '%v' but expected '%v'", i, rec.ConsolidatedMonitors[i], expectedRec.ConsolidatedMonitors[i])
 				}
 			}
 		}
+
 		return validateEAs(rec.Ea, expectedRec.Ea)
 	}
 }
 
-var regexMissingLbDynamicRatioPreferred = regexp.MustCompile("LbDynamicRatioPreferred cannot be nil when the preferred load balancing method is set to DYNAMIC_RATIO")
 var regexMissingLbPreferredTopology = regexp.MustCompile("preferred topology cannot be nil when preferred load balancing method is set to TOPOLOGY")
+var regexMissingMonitors = regexp.MustCompile("lb_dynamic_ratio_preferred cannot be set when no monitors are defined")
 
 func TestAccResourceDtcPool(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -195,7 +251,7 @@ func TestAccResourceDtcPool(t *testing.T) {
 							lb_preferred_method = "DYNAMIC_RATIO"
 							}
 `),
-				ExpectError: regexMissingLbDynamicRatioPreferred,
+				ExpectError: regexMissingMonitors,
 			},
 			{
 				Config: fmt.Sprintf(`resource "infoblox_dtc_pool" "pool_neg"{
@@ -208,14 +264,14 @@ func TestAccResourceDtcPool(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "infoblox_dtc_pool" "pool1" {
-						name                 = "dtc_pool"
+						name                 = "dtc_pool34"
 						comment              = "pool creation"
 						lb_preferred_method  = "ROUND_ROBIN"
 					}
 				`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDtcPoolCompare(t, "infoblox_dtc_pool.pool1", &ibclient.DtcPool{
-						Name:              utils.StringPtr("dtc_pool"),
+						Name:              utils.StringPtr("dtc_pool34"),
 						Comment:           utils.StringPtr("pool creation"),
 						LbPreferredMethod: "ROUND_ROBIN",
 						Quorum:            utils.Uint32Ptr(0),
@@ -251,11 +307,11 @@ func TestAccResourceDtcPool(t *testing.T) {
 						LbPreferredMethod: "DYNAMIC_RATIO",
 						Monitors: []*ibclient.DtcMonitorHttp{
 							{
-								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Ref: "snmp",
 							},
 						},
 						LbDynamicRatioPreferred: &ibclient.SettingDynamicratio{
-							Monitor:             "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							Monitor:             "snmp",
 							Method:              "MONITOR",
 							MonitorMetric:       ".1.2",
 							MonitorWeighing:     "PRIORITY",
@@ -301,18 +357,18 @@ func TestAccResourceDtcPool(t *testing.T) {
 						Name:                utils.StringPtr("dtc_pool3"),
 						Comment:             utils.StringPtr("pool creation"),
 						LbPreferredMethod:   "TOPOLOGY",
-						LbPreferredTopology: utils.StringPtr("dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdG9wb2xvZ3lfcnVsZXNldDE:topology_ruleset1"),
+						LbPreferredTopology: utils.StringPtr("topology_ruleset1"),
 						LbAlternateMethod:   "DYNAMIC_RATIO",
 						Monitors: []*ibclient.DtcMonitorHttp{
 							{
-								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Ref: "snmp",
 							},
 							{
-								Ref: "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+								Ref: "http",
 							},
 						},
 						LbDynamicRatioAlternate: &ibclient.SettingDynamicratio{
-							Monitor:             "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							Monitor:             "snmp",
 							Method:              "MONITOR",
 							MonitorMetric:       ".1.2",
 							MonitorWeighing:     "PRIORITY",
@@ -320,7 +376,7 @@ func TestAccResourceDtcPool(t *testing.T) {
 						},
 						Servers: []*ibclient.DtcServerLink{
 							{
-								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlci5jb20:dummy-server.com",
+								Server: "dummy-server.com",
 								Ratio:  3,
 							},
 						},
@@ -361,10 +417,10 @@ func TestAccResourceDtcPool(t *testing.T) {
 						Name:                utils.StringPtr("dtc_pool4"),
 						Comment:             utils.StringPtr("pool creation"),
 						LbPreferredMethod:   "TOPOLOGY",
-						LbPreferredTopology: utils.StringPtr("dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdG9wb2xvZ3lfcnVsZXNldDE:topology_ruleset1"),
+						LbPreferredTopology: utils.StringPtr("topology_ruleset1"),
 						LbAlternateMethod:   "DYNAMIC_RATIO",
 						LbDynamicRatioAlternate: &ibclient.SettingDynamicratio{
-							Monitor:             "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+							Monitor:             "snmp",
 							Method:              "ROUND_TRIP_DELAY",
 							MonitorMetric:       "", //default values for monitor_metric , monitor_weighing and invert_monitor_metric when method is ROUND_TRIP_DELAY
 							MonitorWeighing:     "RATIO",
@@ -372,17 +428,17 @@ func TestAccResourceDtcPool(t *testing.T) {
 						},
 						Servers: []*ibclient.DtcServerLink{
 							{
-								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlci5jb20:dummy-server.com",
+								Server: "dummy-server.com",
 								Ratio:  3,
 							},
 							{
-								Server: "dtc:server/ZG5zLmlkbnNfc2VydmVyJGR1bW15LXNlcnZlcjIuY29t:dummy-server2.com",
+								Server: "dummy-server2.com",
 								Ratio:  4,
 							},
 						},
 						Monitors: []*ibclient.DtcMonitorHttp{
 							{
-								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Ref: "snmp",
 							},
 						},
 						Ttl:          utils.Uint32Ptr(0),
@@ -417,21 +473,21 @@ func TestAccResourceDtcPool(t *testing.T) {
 						LbPreferredMethod: "ROUND_ROBIN",
 						Monitors: []*ibclient.DtcMonitorHttp{
 							{
-								Ref: "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Ref: "snmp",
 							},
 							{
-								Ref: "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+								Ref: "http",
 							},
 						},
 						ConsolidatedMonitors: []*ibclient.DtcPoolConsolidatedMonitorHealth{
 							{
-								Monitor:                 "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp",
+								Monitor:                 "snmp",
 								Availability:            "ALL",
 								FullHealthCommunication: true,
 								Members:                 []string{},
 							},
 							{
-								Monitor:                 "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http",
+								Monitor:                 "http",
 								Availability:            "ALL",
 								FullHealthCommunication: true,
 								Members:                 []string{},
@@ -441,6 +497,60 @@ func TestAccResourceDtcPool(t *testing.T) {
 						Ttl:          utils.Uint32Ptr(120),
 						UseTtl:       utils.BoolPtr(true),
 						Availability: "QUORUM",
+					})),
+			},
+			{
+				Config: fmt.Sprintf(
+					`resource "infoblox_dtc_pool" "pool6"{
+						name = "dtc_pool6"
+						comment = "pool creation"
+						lb_preferred_method="ROUND_ROBIN"
+						monitors{
+						monitor_name = "snmp"
+						monitor_type="snmp"
+						}
+						monitors{
+						monitor_name = "http"
+						monitor_type="http"
+						}
+						availability = "QUORUM"
+						quorum = 2
+						ttl = 120
+						consolidated_monitors{
+			        		monitor_name = "http"
+         					monitor_type = "http"
+							members = ["infoblox.localdomain"]
+							availability= "ALL"
+							full_health_communication= true
+					       }
+						disable= true
+					}`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDtcPoolCompare(t, "infoblox_dtc_pool.pool6", &ibclient.DtcPool{
+						Name:              utils.StringPtr("dtc_pool6"),
+						Comment:           utils.StringPtr("pool creation"),
+						LbPreferredMethod: "ROUND_ROBIN",
+						Monitors: []*ibclient.DtcMonitorHttp{
+							{
+								Ref: "snmp",
+							},
+							{
+								Ref: "http",
+							},
+						},
+						ConsolidatedMonitors: []*ibclient.DtcPoolConsolidatedMonitorHealth{
+							{
+								Monitor:                 "http",
+								Availability:            "ALL",
+								FullHealthCommunication: true,
+								Members:                 []string{"infoblox.localdomain"},
+							},
+						},
+						Quorum:       utils.Uint32Ptr(2),
+						Ttl:          utils.Uint32Ptr(120),
+						UseTtl:       utils.BoolPtr(true),
+						Availability: "QUORUM",
+						Disable:      utils.BoolPtr(true),
 					})),
 			},
 		},
