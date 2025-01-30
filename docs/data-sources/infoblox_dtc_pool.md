@@ -110,7 +110,13 @@ servers{
 ```
 
 * `ttl`: The Time To Live (TTL) value for the DTC Pool. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Example: `600`
-* `health`: The LBDN health information. Example:
+* `health`: The Pool health information. Example:
+
+  `availability`: The availability color status. Default value: `NONE`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+
+  `description`: The textual description of the Pool object's status. Default value: `""`. Example: `test health`.
+
+  `enabled_state`: The enabled state of the Pool. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 ```terraform
 health {
   availability = "NONE"
@@ -118,7 +124,9 @@ health {
   enabled_state = "DISABLED"
 }
 ```
-
+  `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+  `description`: The textual description of the LBDN object's status. Default value: `""`. Example: `test health`.
+  `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
