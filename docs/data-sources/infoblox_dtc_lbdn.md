@@ -55,24 +55,41 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field   | Alias   | Type   | Searchable |
-|---------|---------|--------|------------|
-| name    | name    | string | yes        |
-| comment | comment | string | yes        |
+| Field   | Alias         | Type   | Searchable |
+|---------|---------------|--------|------------|
+| name    | name          | string | yes        |
+| comment | comment       | string | yes        |
+
+These fields are used only for searching. They are not actual members of the object and therefore the server does not return 
+these fields with this name unless they are nested return fields.
+-----
+| Field   | Alias         | Type   | Searchable |
+|---------|---------------|--------|------------|
+| -       | fqdn          | string | yes        |
+| -       | status_member | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
 
 ### Example for using the filters:
- ```hcl
- data "infoblox_dtc_lbdn" "lbdn_filter" {
-    filters = {
-        name = "test-lbdn"
-        comment = "sample LBDN"
-    }
- }
- ```
+```hcl
+data "infoblox_dtc_lbdn" "lbdn_filter" {   
+  filters = {
+    name = "test-lbdn"
+    comment = "sample LBDN"
+  }
+}
+```
+
+```hcl
+data "infoblox_dtc_lbdn" "lbdn_filter" {   
+  filters = {
+    fqdn = "test.com"
+    status_member = "infoblox.localdomain"
+  }
+}
+```
 
 !> If `null` or empty filters are passed, then all the objects associated with datasource like here `infoblox_dtc_lbdn` will be fetched in results.
 
