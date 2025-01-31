@@ -191,7 +191,7 @@ func TestAccResourceDtcServer(t *testing.T) {
 			// negative test case
 			{
 				Config:      testResourceDtcServer3,
-				ExpectError: regexp.MustCompile("name and host fields are required to create a dtc server"),
+				ExpectError: regexp.MustCompile("name and host fields are required to create a Dtc Server object"),
 			},
 		},
 	})
