@@ -14,12 +14,11 @@ The following list describes the parameters you can define in the resource block
 * `comment`: optional, description of the DTC Server. Example: `custom DTC Server`.
 * `ext_attrs`: optional, set of the Extensible attributes of the Server, as a map in JSON format. Example: `jsonencode({\"Site\":\"Kapu\"})`.
 * `monitors`: optional, specifies the List of IP/FQDN and monitor pairs to be used for additional monitoring. `monitors` has the following three fields `monitor_name`, `monitor_type` and `host`. The description of the fields of `monitors` is as follows:
+  * `monitor_name`: required, specifies the name of the monitor used for monitoring. Example: `https`.
+  * `monitor_type`: required, specifies the type of the monitor used for monitoring. Example: `https`.
+  * `host`: required, specifies the IP address or FQDN of the server used for monitoring. Example: `12.1.1.10`
 
-  `monitor_name`: required, specifies the name of the monitor used for monitoring. Example: `https`.
-  
-  `monitor_type`: required, specifies the type of the monitor used for monitoring. Example: `https`.
-  
-  `host`: required, specifies the IP address or FQDN of the server used for monitoring. Example: `12.1.1.10`
+Example for `monitors`:
 ```terraform
 monitors {
     monitor_name = "https"

@@ -18,11 +18,10 @@ The following list describes the parameters you can define in the resource block
   Zero indicates that the record should not be cached. Example: `60`
 * `types`: required, specifies the list of resource record types supported by LBDN. Valid values are: `"A","AAAA","CNAME","NAPTR","SRV"`. Atleast one of the valid values must be given.
 * `pools`: optional, specifies the pools associated with the LBDN. `pools` has the following two fields `pool` and `ratio`.The description of the fields of `pools` is as follows:
-  
-  `pool`: required, specifies the name of the pool. Example: `pool1`.
+  * `pool`: required, specifies the name of the pool. Example: `pool1`.
+  * `ratio`: required, specifies the weight of the pool. Example: `2`.
 
-  `ratio`: required, specifies the weight of the pool. Example: `2`.
-
+Example for `pools`:
 ```terraform
 pools {
     pool = "pool1"
@@ -31,16 +30,17 @@ pools {
 ```
 
 * `auth_zones`: optional, specifies the list of linked auth zones. `auth_zones` has the following two fields `fqdn` and `dns_view`. The description of the fields of `auth_zones` is as follows:
-  
-  `fqdn`: required, specifies the name of the auth-zone to link with. Example: `example.com`.
-  
-  `dns_view`: required, specifies the DNS view on which the auth-zone is available. Example: `default`.
+  * `fqdn`: required, specifies the name of the auth-zone to link with. Example: `example.com`.
+  * `dns_view`: required, specifies the DNS view on which the auth-zone is available. Example: `default`.
+
+Example for `auth_zones`:
 ```terraform
 auth_zones {
     fqdn = "example.com"
     dns_view = "default"
   }
 ```
+
 * `comment`: optional, description of the DTC LBDN. Example: `custom DTC LBDN`.
 * `ext_attrs`: optional, set of the Extensible attributes of the LBDN, as a map in JSON format. Example: `jsonencode({})`.
 

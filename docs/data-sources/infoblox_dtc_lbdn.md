@@ -3,29 +3,33 @@
 Use the `infoblox_dtc_lbdn` data source to retrieve the following information for a DTC LBDN if any, which is managed by a NIOS server:
 
 * `name`: The name of th DTC LBDN. Example: `testLbdn`.
-* `auth_zones`: List of linked auth zones with their respective views. `auth_zones` has the following two fields `fqdn` and `dns_view`. Example:
+* `auth_zones`: List of linked auth zones with their respective views. `auth_zones` has the following two fields `fqdn` and `dns_view`.
+  * `fqdn`: The name of the auth-zone to link with. Example: `example.com`.
+  * `dns_view`: The DNS view on which the auth-zone is available. Example: `default`.
+
+Example for `auth_zones`:
 ```terraform
 auth_zones {
     fqdn = "example.com"
     dns_view = "default"
   }
 ```
-* `fqdn`: The name of the auth-zone to link with. Example: `example.com`.
-* `dns_view`: The DNS view on which the auth-zone is available. Example: `default`.
+
 * `auto_consolidated_monitors`: Flag for enabling auto managing DTC Consolidated Monitors on related DTC Pools. Example: `false`.
 * `disable`: Flag to determine whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled. Example: `false`.
 * `lb_method`: The load balancing method. Used to select pool. Valid values are GLOBAL_AVAILABILITY, RATIO, ROUND_ROBIN, SOURCE_IP_HASH and TOPOLOGY. Example: `ROUND_ROBIN`.
 * `pools`: Pools associated with an LBDN are collections of load-balanced servers. `pools` has the following two fields `pool` and `ratio`. The description of the fields of `pools` is as follows:
-  
-  `pool`: The name of the pool. Example: `pool1`.
-  
-  `ratio`: The weight of the pool. Example: `2`.
+  * `pool`: The name of the pool. Example: `pool1`.
+  * `ratio`: The weight of the pool. Example: `2`.
+
+Example for `pools`:
 ```terraform
 pools {
     pool = "pool1"
     ratio = "2"
   }
 ```
+
 * `Patterns`: LBDN wildcards for pattern match. Example: `["*.example.com","*test.com"]`.
 * `persistence`: Maximum time, in seconds, for which client specific LBDN responses will be cached. Zero specifies no caching. Example: `60`.
 * `priority`: The LBDN pattern match priority for overlapping DTC LBDN objects. Example: `1`.
@@ -33,12 +37,11 @@ pools {
 * `topology`: The topology rules for TOPOLOGY method. Example: `test-topo`.
 * `types`: The list of resource record types supported by LBDN. Example: `["A","AAAA","CNAME","NAPTR","SRV"]`.
 * `health`: The LBDN health information. The description of the fields of `health` is as follows:
+  * `availability`: The availability color status. Default value: `NONE`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
+  * `description`: The textual description of the LBDN object’s status. Default value: `""`. Example: `test health`.
+  * `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
 
-  `availability`: The availability color status. Default value: `NONE`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
-
-  `description`: The textual description of the LBDN object’s status. Default value: `""`. Example: `test health`.
-
-  `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
+Example for `health`:
 ```terraform
 health { 
   availability = "NONE"
@@ -46,6 +49,7 @@ health {
   enabled_state = "DISABLED"
 }
 ```
+
 * `comment`: The description of the DTC LBDN. This is a regular comment. Example: `test LBDN`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
