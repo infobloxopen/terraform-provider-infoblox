@@ -571,12 +571,16 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("auto_consolidated_monitors", dtcPool.AutoConsolidatedMonitors); err != nil {
 		return err
 	}
-	consolidatedMonitorsInterface, err := convertConsolidatedMonitorsToInterface(dtcPool.ConsolidatedMonitors, connector)
-	if err != nil {
-		return err
-	}
-	if err = d.Set("consolidated_monitors", consolidatedMonitorsInterface); err != nil {
-		return err
+	if dtcPool.AutoConsolidatedMonitors != nil {
+		if !(*dtcPool.AutoConsolidatedMonitors) {
+			consolidatedMonitorsInterface, err := convertConsolidatedMonitorsToInterface(dtcPool.ConsolidatedMonitors, connector)
+			if err != nil {
+				return err
+			}
+			if err = d.Set("consolidated_monitors", consolidatedMonitorsInterface); err != nil {
+				return err
+			}
+		}
 	}
 	slInterface, err := convertDtcServerLinksToInterface(dtcPool.Servers, connector)
 	if err != nil {
@@ -936,12 +940,16 @@ func resourceDtcPoolImport(d *schema.ResourceData, m interface{}) ([]*schema.Res
 	if err = d.Set("auto_consolidated_monitors", obj.AutoConsolidatedMonitors); err != nil {
 		return nil, err
 	}
-	consolidatedMonitorsInterface, err := convertConsolidatedMonitorsToInterface(obj.ConsolidatedMonitors, connector)
-	if err != nil {
-		return nil, err
-	}
-	if err = d.Set("consolidated_monitors", consolidatedMonitorsInterface); err != nil {
-		return nil, err
+	if obj.AutoConsolidatedMonitors != nil {
+		if !(*obj.AutoConsolidatedMonitors) {
+			consolidatedMonitorsInterface, err := convertConsolidatedMonitorsToInterface(obj.ConsolidatedMonitors, connector)
+			if err != nil {
+				return nil, err
+			}
+			if err = d.Set("consolidated_monitors", consolidatedMonitorsInterface); err != nil {
+				return nil, err
+			}
+		}
 	}
 	slInterface, err := convertDtcServerLinksToInterface(obj.Servers, connector)
 	if err != nil {
