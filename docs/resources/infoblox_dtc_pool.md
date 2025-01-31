@@ -173,7 +173,7 @@ resource "infoblox_dtc_pool" "pool" {
     availability= "ALL"
     full_health_communication= true
   }
-  disble = true
+  disable = true
 }
 
 //parameters for DTC pool when preferred load balancing is DYNAMIC_RATIO

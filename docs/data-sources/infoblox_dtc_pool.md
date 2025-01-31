@@ -124,19 +124,18 @@ health {
   enabled_state = "DISABLED"
 }
 ```
-  `availability`: The availability color status. Default value: `None`. Valid values are one of these: `BLUE`, `GREEN`, `GRAY`, `NONE`, `RED` and `YELLOW`.
-  `description`: The textual description of the LBDN object's status. Default value: `""`. Example: `test health`.
-  `enabled_state`: The enabled state of the LBDN. Default value: `ENABLED`. Valid values are one of these: `DISABLED`, `DISABLED_BY_PARENT`, `ENABLED` and `NONE`.
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name` corresponding to object.
+
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`,`comment` and  `status_member` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
 ### Supported Arguments for filters
 
 -----
-| Field        | Alias        | Type   | Searchable |
-|--------------|--------------|--------|------------|
-| name         | name         | string | yes        |
-| comment      | comment      | string | yes        |
+| Field         | Alias         | Type   | Searchable |
+|---------------|---------------|--------|------------|
+| name          | name          | string | yes        |
+| comment       | comment       | string | yes        |
+| status_member | status_member | string | yes        |
 -----
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
@@ -149,13 +148,14 @@ From the below list of supported arguments for filters,  use only the searchable
     filters = {
         name = "pool-test.com"
         comment = "pool creation"
+        status_member = "infoblox.localdomain"
     }
  }
  ```
 ### Example of the DTC Pool Data Source Block
 
 ```hcl
-resource "infoblox_dtc_pool" "pool12"{
+resource "infoblox_dtc_pool" "pool"{
   name="pool-test.com"	  
   comment="pool creation"	  
   lb_preferred_method="TOPOLOGY"	  
@@ -202,15 +202,15 @@ resource "infoblox_dtc_pool" "pool12"{
     availability= "ALL"
     full_health_communication= true
   }
-  disble = true 
+  disable = true 
 }
 
 
 data "infoblox_dtc_pool" "testPool_read" {
   filters = {
-    name = "pool-test.com"
+    name = infoblox_dtc_pool.pool.name
+    status_member = "infoblox.localdomain"
   }
-  depends_on=[infoblox_dtc_pool.pool12]
 }
 
 output "dtc_rec_res" {

@@ -1,4 +1,4 @@
-resource "infoblox_dtc_pool" "dtc_pool"{
+resource "infoblox_dtc_pool" "pool"{
   name="pool-test.com"
   comment="pool creation"
   lb_preferred_method="TOPOLOGY"
@@ -45,15 +45,15 @@ resource "infoblox_dtc_pool" "dtc_pool"{
     availability= "ALL"
     full_health_communication= true
   }
-  disble = true
+  disable = true
 }
 
 
 data "infoblox_dtc_pool" "testPool_read" {
   filters = {
-    name = "pool-test.com"
+    name = infoblox_dtc_pool.pool.name
+    status_member = "infoblox.localdomain"
   }
-  depends_on=[infoblox_dtc_pool.dtc_pool]
 }
 
 output "dtc_rec_res" {
