@@ -11,15 +11,19 @@ The following list describes the parameters you can define in the `infoblox_dtc_
 * `comment`: optional, The comment for the DTC Pool; maximum 256 characters. Example: `pool creation`
 * `consolidated_monitors`: optional, List of monitors and associated members statuses of which are shared across members and consolidated in server availability determination.
 
-  `monitor_name`: name of the monitor Example:` https`
+  * `monitor_name`: Name of the monitor. Example: `https`.
 
-  `montior_type`: Type of the monitor Example: `http`
+  * `monitor_type`: Type of the monitor. Example: `http`.
 
-  `members`: Members whose monitor statuses are shared across other members in a pool. Example: `["infoblox.localdomain"]`
+  * `members`: Members whose monitor statuses are shared across other members in a pool.  
+    Example: `["infoblox.localdomain"]`.
 
-  `availability`: Servers assigned to a pool with monitor defined are healthy if ANY or ALL members report healthy status. Valid values are `ALL` and `ANY`
+  * `availability`: Servers assigned to a pool with a monitor defined are healthy if ANY or ALL members report a healthy status.  
+    Valid values are `ALL` and `ANY`.
 
-  `full_health_communication`: Flag for switching health performing and sharing behavior to perform health checks on each DTC grid member that serves related LBDN(s) and send them across all DTC grid members from both selected and non-selected lists.
+  * `full_health_communication`: Flag for switching health performing and sharing behavior  
+    to perform health checks on each DTC grid member that serves related LBDN(s) and send them  
+    across all DTC grid members from both selected and non-selected lists.
 
 ```terraform
 consolidated_monitors{
@@ -37,17 +41,23 @@ consolidated_monitors{
 * `lb_dynamic_ratio_alternate`: optional, The DTC Pool settings for dynamic ratio when it’s selected as alternate method.
   The fields to define alternate dynamic ratio are `method` , `monitor_metric` , `monitor_weighing` , `monitor_name` , `monitor_type` and `invert_monitor_metric`.
 
-  `method`: The method of the DTC dynamic ratio load balancing. Valid values are `MONITOR` and `ROUND_TRIP_DELAY`
+  * `method`: The method of the DTC dynamic ratio load balancing.  
+    Valid values are `MONITOR` and `ROUND_TRIP_DELAY`.
 
-  `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing Type : string . Example: `.1.2`
+  * `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing.  
+    Type: string. Example: `.1.2`.
 
-  `monitor_weighing`: The DTC monitor weight. ‘PRIORITY’ means that all clients will be forwarded to the least loaded server. ‘RATIO’ means that distribution will be calculated based on dynamic weights. Valid values are `PRIORITY` and `RATIO` . Default value is `RATIO`
+  * `monitor_weighing`: The DTC monitor weight. ‘PRIORITY’ means that all clients will be forwarded to the least loaded server.  
+    ‘RATIO’ means that distribution will be calculated based on dynamic weights.  
+    Valid values are `PRIORITY` and `RATIO`. Default value is `RATIO`.
 
-  `invert_monitor_metric`: Determines whether the inverted values of the DTC SNMP monitor metric will be used. Default value: `false`
+  * `invert_monitor_metric`: Determines whether the inverted values of the DTC SNMP monitor metric will be used.  
+    Default value: `false`.
 
-  `monitor_name`: The name of the monitor . Example: `https`
+  * `monitor_name`: The name of the monitor. Example: `https`.
 
-  `montior_type`: The type of the monitor . Example: `http`
+  * `monitor_type`: The type of the monitor. Example: `http`.
+
 
 ```terraform
 lb_dynamic_ratio_alternate = jsonencode({
@@ -62,17 +72,23 @@ lb_dynamic_ratio_alternate = jsonencode({
 * `lb_dynamic_ratio_preferred`: optional, The DTC Pool settings for dynamic ratio when it’s selected as preferred method.
   The fields to define alternate dynamic ratio are `method` , `monitor_metric` , `monitor_weighing` , `monitor_name` , `monitor_type` and `invert_monitor_metric`.
 
-  `method`: The method of the DTC dynamic ratio load balancing. Valid values are `MONITOR` and `ROUND_TRIP_DELAY`
+  * `method`: The method of the DTC dynamic ratio load balancing.  
+    Valid values are `MONITOR` and `ROUND_TRIP_DELAY`.
 
-  `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing Type: string. Example: `.1.2`
+  * `monitor_metric`: The metric of the DTC SNMP monitor that will be used for dynamic weighing.  
+    Type: string. Example: `.1.2`.
 
-  `monitor_weighing`: The DTC monitor weight. ‘PRIORITY’ means that all clients will be forwarded to the least loaded server. ‘RATIO’ means that distribution will be calculated based on dynamic weights. Valid values are `PRIORITY` and `RATIO` . Default value is `RATIO`
+  * `monitor_weighing`: The DTC monitor weight. ‘PRIORITY’ means that all clients will be forwarded to the least loaded server.  
+    ‘RATIO’ means that distribution will be calculated based on dynamic weights.  
+    Valid values are `PRIORITY` and `RATIO`. Default value is `RATIO`.
 
-  `invert_monitor_metric`: Determines whether the inverted values of the DTC SNMP monitor metric will be used. Default value: `false`
+  * `invert_monitor_metric`: Determines whether the inverted values of the DTC SNMP monitor metric will be used.  
+    Default value: `false`.
 
-  `monitor_name`: The name of the monitor. Example: `https`
+  * `monitor_name`: The name of the monitor. Example: `https`.
 
-  `montior_type`: The type of the monitor. Example: `http`
+  * `monitor_type`: The type of the monitor. Example: `http`.
+
 
 ```terraform
 lb_dynamic_ratio_preferred = jsonencode({
@@ -88,9 +104,10 @@ lb_dynamic_ratio_preferred = jsonencode({
 * `lb_preferred_topology`: optional, The preferred topology for load balancing. The name of the topology ruleset. Example: `topology_name`
 * `monitors`: optional, The monitors related to pool. An array of the following objects: `dtc:monitor:http`, `dtc:monitor:icmp`, `dtc:monitor:tcp`, `dtc:monitor:pdp`, `dtc:monitor:sip`, `dtc:monitor:snmp`.
 
-  `monitor_name`: The name of the monitor. Example: `https`
+  * `monitor_name`: The name of the monitor. Example: `https`
 
-  `montior_type`: The type of the monitor. Example: `http`
+  * `monitor_type`: The type of the monitor. Example: `http`
+
 
 ```terraform
 monitors{
@@ -102,9 +119,10 @@ monitors{
 * `quorum`: optional, For `availability` mode QUORUM, at least this many monitors must report the resource as up for it to be available Example: `2`
 * `servers`: optional, The servers related to the pool.
 
-  `server`: Name of the server. Example: `dummy-server.com`
+  * `server`: Name of the server. Example: `dummy-server.com`
 
-  `ratio`: The weight of server. Example: `3`
+  * `ratio`: The weight of the server. Example: `3`
+
 
 ```terraform
 servers{
@@ -181,16 +199,16 @@ resource "infoblox_dtc_pool" "test_pool3" {
   name = "Pool64"
   monitors{
     monitor_name = "snmp"
-    monitor_type="snmp"
+    monitor_type = "snmp"
   }
   lb_preferred_method = "DYNAMIC_RATIO"
   lb_dynamic_ratio_preferred = jsonencode({
-    "monitor_name"="snmp"
-    "monitor_type"="snmp"
-    "method"="MONITOR"
-    "monitor_metric"=".1.2"
-    "monitor_weighing"="PRIORITY"
-    "invert_monitor_metric"=true
+    "monitor_name" = "snmp"
+    "monitor_type" = "snmp"
+    "method" = "MONITOR"
+    "monitor_metric" = ".1.2"
+    "monitor_weighing" = "PRIORITY"
+    "invert_monitor_metric" = true
   })
 }
 
