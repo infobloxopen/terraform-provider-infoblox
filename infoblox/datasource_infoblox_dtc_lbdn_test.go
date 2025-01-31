@@ -9,6 +9,7 @@ import (
 var testAccDataSourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn_src_1" {
     name = "testLbdn444"
   	lb_method = "RATIO"
+    types = ["A", "AAAA"]
     }
     data "infoblox_dtc_lbdn" "testLbdn_src_read1" {	
 	filters = {
@@ -18,7 +19,7 @@ var testAccDataSourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLb
 }`)
 
 var testAccDatasourceDtcLbdn = fmt.Sprintf(`resource "infoblox_dtc_lbdn" "testLbdn_src" {
-    name = "testLbdn888"
+    name = "testLbdn8888"
     auth_zones {
         fqdn = "test.com"
         dns_view = "default"
@@ -82,7 +83,7 @@ func TestAccDataSourceDtcLbdnSearchByEA(t *testing.T) {
 				Config: testAccDatasourceDtcLbdn,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.#", "1"),
-					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.name", "testLbdn888"),
+					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.name", "testLbdn8888"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.fqdn", "test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.auth_zones.0.dns_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_dtc_lbdn.testLbdn_src_read", "results.0.comment", "test lbdn with max params"),
