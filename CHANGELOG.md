@@ -1,5 +1,15 @@
 # Changelog
 
+## [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.9.0) (2025-1-31)
+- New Resources:
+  - infoblox_dtc_lbdn
+  - infoblox_dtc_pool
+  - infoblox_dtc_server
+- New Datasources:
+  - infoblox_dtc_lbdn
+  - infoblox_dtc_pool
+  - infoblox_dtc_server
+
 ## [v2.8.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.8.0) (2024-10-30)
 - New Feature: 
   - Support for Creating Objects with the Next Available IP Address and Next Available Network Obtained Using the Extensible Attribute Filter.
