@@ -1,4 +1,4 @@
-//creating Zone delegated resource
+# Creating Zone delegated resource
 resource "infoblox_zone_delegated" "zone_delegated" {
   fqdn    = "zone_delegate.test_fwzone"
   comment = "zone delegated IPV4"
@@ -12,18 +12,18 @@ resource "infoblox_zone_delegated" "zone_delegated" {
   }
 }
 
-// accessing Zone delegated by specifying fqdn, view and comment
+# Accessing Zone delegated by specifying fqdn, view and comment
 data "infoblox_zone_delegated" "data_zone_delegated" {
   filters = {
     fqdn    = "zone_delegate.test_fwzone"
     view    = "default"
     comment = "zone delegated IPV4"
   }
-  // This is just to ensure that the record has been be created
+  # This is just to ensure that the record has been be created
   depends_on = [infoblox_zone_delegated.zone_delegated]
 }
 
-// returns matching Zone delegated with fqdn and view, if any
+# Returns matching Zone delegated with fqdn and view, if any
 output "zone_delegated_data3" {
   value = data.infoblox_zone_delegated.data_zone_delegated
 }

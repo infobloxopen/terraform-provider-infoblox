@@ -37,7 +37,6 @@ resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
   })
 }
 
-
 # Allocate a network in Infoblox Grid under provided parent CIDR
 resource "infoblox_ipv4_network" "ipv4_network"{
   network_view = "default"
@@ -71,13 +70,12 @@ resource "infoblox_ipv6_network" "ipv6_network"{
   })
 }
 
-
 # Allocate IP from network
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   network_view= "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv4.aws.com"
   enable_dns = "false"
@@ -98,7 +96,7 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   cidr = infoblox_ipv6_network.ipv6_network.cidr
   duid = "00:00:00:00:00:00:00:00"
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv6.aws.com"
   enable_dns = "false"
@@ -120,7 +118,7 @@ resource "infoblox_ip_allocation" "ip_allocation" {
   ipv6_cidr = infoblox_ipv6_network.ipv6_network.cidr
   duid = "00:00:00:00:00:00:00:01"
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testip.example.com"
   enable_dns = "false"
@@ -143,7 +141,7 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
   mac_addr = aws_network_interface.ni.mac_address
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv4.aws.com"
   enable_dns = "false"
@@ -166,7 +164,7 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   ip_addr = infoblox_ipv6_allocation.ipv6_allocation.ip_addr
   duid = aws_network_interface.ni.mac_address
 
-  #Create Host Record with DNS and DHCP flags
+  # Create Host Record with DNS and DHCP flags
   dns_view="default"
   fqdn="testipv6.aws.com"
   enable_dns = "false"

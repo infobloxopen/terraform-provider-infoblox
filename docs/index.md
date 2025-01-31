@@ -180,12 +180,12 @@ resource "infoblox_a_record" "vip_host" {
 data "infoblox_a_record" "a_rec_temp" {
   filters = {
     name = "very-interesting-host.example.com"
-    ipv4addr = "10.3.1.65" //alias is ip_addr
+    ipv4addr = "10.3.1.65" # alias is ip_addr
     view = "nondefault_dnsview2"
   }
 
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_a_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_a_record' resource block before the data source will be queried.
   depends_on = [infoblox_a_record.vip_host]
 }
 
@@ -193,9 +193,9 @@ output "a_rec_res" {
   value = data.infoblox_a_record.a_rec_temp
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "a_rec_name" {
-  value = data.infoblox_a_record.a_rec_temp.results.0.fqdn //zero represents index of json object from results list
+  value = data.infoblox_a_record.a_rec_temp.results.0.fqdn # zero represents index of json object from results list
 }
 ```
 
@@ -288,7 +288,7 @@ import {
 ```
 #### Example for importing A-records from a zone
 ```hcl
-//import all A-records from the zone /example1.org 
+# Import all A-records from the zone /example1.org 
 data "infoblox_a_record" "data_arec" {
     filters = {
       zone = "example1.org "

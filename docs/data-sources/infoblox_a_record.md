@@ -57,7 +57,7 @@ resource "infoblox_a_record" "vip_host" {
   ip_addr = "10.3.1.65"
   comment = "special host"
   dns_view = "nondefault_dnsview2"
-  ttl = 120 // 120s
+  ttl = 120 # 120s
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -71,8 +71,8 @@ data "infoblox_a_record" "a_rec_temp" {
     view = "nondefault_dnsview2"
   }
   
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_a_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_a_record' resource block before the data source will be queried.
   depends_on = [infoblox_a_record.vip_host]
 }
 
@@ -80,12 +80,12 @@ output "a_rec_res" {
   value = data.infoblox_a_record.a_rec_temp
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "a_rec_name" {
-  value = data.infoblox_a_record.a_rec_temp.results.0.fqdn //zero represents index of json object from results list
+  value = data.infoblox_a_record.a_rec_temp.results.0.fqdn # zero represents index of json object from results list
 }
 
-// accessing A-Record through EA's
+# Accessing A-Record through EA's
 data "infoblox_a_record" "a_rec_ea" {
   filters = {
     "*Site" = "some test site"
@@ -97,4 +97,3 @@ output "a_rec_out" {
   value = data.infoblox_a_record.a_rec_ea
 }
 ```
-

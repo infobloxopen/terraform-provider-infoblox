@@ -62,11 +62,11 @@ resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   cidr = infoblox_ipv4_network.ipv4_network.cidr
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv4 allocation"
   ext_attrs = jsonencode({
@@ -84,11 +84,11 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   duid = "00:00:00:00:00:00:00:00"
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv6 allocation"
   ext_attrs = jsonencode({
@@ -108,11 +108,11 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   mac_addr = vsphere_virtual_machine.vm_ipv4.network_interface[0].mac_address
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv4 Association"
   ext_attrs = jsonencode({
@@ -132,11 +132,11 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   duid = vsphere_virtual_machine.vm_ipv6.network_interface[0].mac_address
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv6 Association"
   ext_attrs = jsonencode({
@@ -158,9 +158,9 @@ resource "infoblox_ptr_record" "ib_ptr_record_ipv4" {
   record_name = "tf-vmware-ipv4.vmware.com"
 
   # Record in reverse mapping zone
-  #network_view = "default"
-  #cidr = infoblox_ipv4_network.ipv4_network.cidr
-  #ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
+  # network_view = "default"
+  # cidr = infoblox_ipv4_network.ipv4_network.cidr
+  # ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
 
   comment = "PTR record created"
   ext_attrs = jsonencode({
@@ -181,9 +181,9 @@ resource "infoblox_ptr_record" "ib_ptr_record_ipv6" {
   record_name = "tf-vmware-ipv6.vmware.com"
 
   # Record in reverse mapping zone
-  #network_view = "default"
-  #cidr = infoblox_ipv4_network.ipv4_network.cidr
-  #ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
+  # network_view = "default"
+  # cidr = infoblox_ipv4_network.ipv4_network.cidr
+  # ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
 
   comment = "PTR record created"
   ext_attrs = jsonencode({

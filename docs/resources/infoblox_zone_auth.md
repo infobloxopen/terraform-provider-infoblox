@@ -24,7 +24,7 @@ Example: `10.1.0.0/24` for reverse zone and `zone1.com` for forward zone.
 ### Examples of a Zone Auth Block
 
 ```hcl
-//forward mapping zone, with minimal set of parameters
+# Forward mapping zone, with minimal set of parameters
 resource "infoblox_zone_auth" "zone1" {
   fqdn = "test3.com"
   view = "default"
@@ -35,7 +35,7 @@ resource "infoblox_zone_auth" "zone1" {
   })
 }
 
-//IPV4 reverse mapping zone, with full set of parameters
+# IPV4 reverse mapping zone, with full set of parameters
 resource "infoblox_zone_auth" "zone2" {
   fqdn = "10.0.0.0/24"
   view = "default"
@@ -53,7 +53,7 @@ resource "infoblox_zone_auth" "zone2" {
   })
 }
 
-//IPV6 reverse mapping zone, with minimal set of parameters
+# IPV6 reverse mapping zone, with minimal set of parameters
 resource "infoblox_zone_auth" "zone3" {
   fqdn = "2002:1100::/64"
   view = "non_defaultview"
@@ -65,4 +65,3 @@ resource "infoblox_zone_auth" "zone3" {
   })
 }
 ```
-

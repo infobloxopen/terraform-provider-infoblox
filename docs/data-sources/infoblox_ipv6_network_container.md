@@ -35,7 +35,7 @@ The following table describes the parameters you can define in an `infoblox_ipv6
 ### Example of an IPv4 Network Container Data Source Block
 
 ```hcl
-// This is just to ensure that the network container has been be created
+# This is just to ensure that the network container has been be created
 resource "infoblox_ipv6_network_container" "nc1" {
   cidr = "2002:1f93:0:2::/96"
   comment = "new generation network segment"
@@ -48,7 +48,7 @@ data "infoblox_ipv6_network_container" "nc2" {
   filters = {
     network = "2002:1f93:0:2::/96"
   }
-  // using 'infoblox_ipv6_network_container' resource block before the data source will be queried.
+  # Using 'infoblox_ipv6_network_container' resource block before the data source will be queried.
   depends_on = [infoblox_ipv6_network_container.nc1]
 }
 
@@ -56,16 +56,16 @@ data "infoblox_ipv6_network_container" "nc_ea_search" {
   filters = {
     "*Site" = "space station"
   }
-  // using 'infoblox_ipv6_network_container' resource block before the data source will be queried.
+  # Using 'infoblox_ipv6_network_container' resource block before the data source will be queried.
   depends_on = [infoblox_ipv6_network_container.nc1]
 }
 
-// accessing IPv6 network container through network block
+# Accessing IPv6 network container through network block
 output "nc1_output" {
   value = data.infoblox_ipv6_network_container.nc2
 }
 
-// accessing IPv6 network container through EA's
+# Accessing IPv6 network container through EA's
 output "nc1_comment" {
   value = data.infoblox_ipv6_network_container.nc_ea_search
 }  

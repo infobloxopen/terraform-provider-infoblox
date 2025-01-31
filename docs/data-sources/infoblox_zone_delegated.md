@@ -69,22 +69,21 @@ resource "infoblox_zone_delegated" "delegatedzone_delegateTo" {
   })
 }
 
-// accessing Zone Delegated by specifying fqdn, view and extra attribute Site
+# Accessing Zone Delegated by specifying fqdn, view and extra attribute Site
 data "infoblox_zone_delegated" "data_zone_delegated" {
   filters = {
     fqdn = "zone_delegated.ex.org"
     view = "default"
     "*Site" = "Antarctica"
   }
-  // This is just to ensure that the record has been be created
+  # This is just to ensure that the record has been be created
   depends_on = [infoblox_zone_delegated.delegatedzone_delegateTo]
 }
 
-// returns matching Zone Delegated with fqdn and view, if any
+# Returns matching Zone Delegated with fqdn and view, if any
 output "zone_delegated_data3" {
   value = data.infoblox_zone_delegated.data_zone_delegated
 }
-
 
 resource "infoblox_zone_delegated" "delegatedzone_IPV4_nsGroup" {
   fqdn = "195.1.0.0/24"
@@ -93,18 +92,18 @@ resource "infoblox_zone_delegated" "delegatedzone_IPV4_nsGroup" {
   ns_group = "test"
 }
 
-// accessing Zone Delegated by specifying fqdn, view and comment
+# Accessing Zone Delegated by specifying fqdn, view and comment
 data "infoblox_zone_delegated" "datazone_delegated_fqdn_view_comment" {
   filters = {
     fqdn = "195.1.0.0/24"
     view = "default"
     comment = "Delegated zone IPV4"
   }
-  // This is just to ensure that the record has been be created
+  # This is just to ensure that the record has been be created
   depends_on = [infoblox_zone_delegated.delegatedzone_IPV4_nsGroup]
 }
 
-// returns matching Zone Delegated with fqdn, view and comment, if any
+# Returns matching Zone Delegated with fqdn, view and comment, if any
 output "zone_delegated_data4" {
   value = data.infoblox_zone_delegated.datazone_delegated_fqdn_view_comment
 }

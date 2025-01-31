@@ -51,7 +51,7 @@ This example defines a data source of type `infoblox_host_record` and the name "
 You can reference this resource and retrieve information about it.
 
 ```hcl
-// This is just to ensure that the record has been be created
+# This is just to ensure that the record has been be created
 resource "infoblox_zone_auth" "zone1" {
   fqdn = "example.org"
   view = "default"
@@ -80,17 +80,17 @@ data "infoblox_host_record" "host_rec_temp" {
   filters = {
     name = "host1.example.org"
   }
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_host_record' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_host_record' resource block before the data source will be queried.
   depends_on = [infoblox_ip_association.association1]
 }
 
-// accessing Host-record through name
+# Accessing Host-record through name
 output "host_rec_res" {
   value = data.infoblox_host_record.host_rec_temp
 }
 
-// fetching Host-Records through EAs
+# Fetching Host-Records through EAs
 data "infoblox_host_record" "host_rec_ea" {
   filters = {
     "*Location" = "USA"
@@ -101,4 +101,3 @@ output "host_ea_out" {
   value = data.infoblox_host_record.host_rec_ea
 }
 ```
-

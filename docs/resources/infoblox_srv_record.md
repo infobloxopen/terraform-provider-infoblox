@@ -18,7 +18,7 @@ The following list describes the parameters you can define in the resource block
 ## Examples
 
 ```hcl
-// minimal set of parameters
+# Minimal set of parameters
 resource "infoblox_srv_record" "rec1" {
     name = "_http._tcp.example.org"
     priority = 100
@@ -27,7 +27,7 @@ resource "infoblox_srv_record" "rec1" {
     target = "www.example.org"
 } 
 
-// all set of parameters for SRV record
+# All set of parameters for SRV record
 resource "infoblox_srv_record" "rec2" {
     dns_view = "nondefault_dnsview1"
     name = "_sip._udp.example2.org"

@@ -41,7 +41,6 @@ resource "infoblox_ipv6_network_container" "IPv6_nw_c" {
   })
 }
 
-
 # Allocate a network in Infoblox Grid under provided parent CIDR
 resource "infoblox_ipv4_network" "ipv4_network"{
   network_view = "default"
@@ -79,18 +78,17 @@ resource "infoblox_ipv6_network" "ipv6_network"{
   })
 }
 
-
 # Allocate IP from network
 resource "infoblox_ipv4_allocation" "ipv4_allocation"{
   network_view= "default"
   cidr = infoblox_ipv4_network.ipv4_network.cidr
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
   
   comment = "tf IPv4 allocation"
   ext_attrs = jsonencode({
@@ -110,11 +108,11 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   duid = "00:00:00:00:00:00:00:00"
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv6 allocation"
   ext_attrs = jsonencode({
@@ -128,7 +126,6 @@ resource "infoblox_ipv6_allocation" "ipv6_allocation" {
   })
 }
 
-
 # Update Grid with VM data
 resource "infoblox_ipv4_association" "ipv4_associate"{
   network_view = "default"
@@ -137,11 +134,11 @@ resource "infoblox_ipv4_association" "ipv4_associate"{
   mac_addr = aws_network_interface.ni.mac_address
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv4 Association"
   ext_attrs = jsonencode({
@@ -163,11 +160,11 @@ resource "infoblox_ipv6_association" "ipv6_associate"{
   duid = aws_network_interface.ni.mac_address
   host_name = "test"
 
-  #Create Host Record with DNS and DHCP flags
-  #dns_view="default"
-  #zone="aws.com"
-  #enable_dns = "false"
-  #enable_dhcp = "false"
+  # Create Host Record with DNS and DHCP flags
+  # dns_view="default"
+  # zone="aws.com"
+  # enable_dns = "false"
+  # enable_dhcp = "false"
 
   comment = "tf IPv6 Association"
   ext_attrs = jsonencode({
@@ -191,9 +188,9 @@ resource "infoblox_ptr_record" "ib_ptr_record"{
   record_name = "tf-ec2-instance-ipv4.aws.com"
 
   # Record in reverse mapping zone
-  #network_view = "default"
-  #cidr = infoblox_ipv4_network.ipv4_network.cidr
-  #ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
+  # network_view = "default"
+  # cidr = infoblox_ipv4_network.ipv4_network.cidr
+  # ip_addr = infoblox_ipv4_allocation.ipv4_allocation.ip_addr
 
   ttl = 3600
 

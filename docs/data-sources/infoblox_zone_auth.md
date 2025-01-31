@@ -62,8 +62,8 @@ data "infoblox_zone_auth" "dzone1" {
     zone_format = "FORWARD"
   }
 
-  // This is just to ensure that the zone has been be created
-  // using 'infoblox_zone_auth' resource block before the data source will be queried.
+  # This is just to ensure that the zone has been be created
+  # using 'infoblox_zone_auth' resource block before the data source will be queried.
   depends_on = [infoblox_zone_auth.zone1]
 }
 
@@ -71,19 +71,19 @@ output "zauth_res" {
   value = data.infoblox_zone_auth.dzone1
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "zauth_name" {
-  value = data.infoblox_zone_auth.dzone1.results.0.fqdn //zero represents index of json object from results list
+  value = data.infoblox_zone_auth.dzone1.results.0.fqdn # zero represents index of json object from results list
 }
 
-// accessing Zone Auth through EA's
+# Accessing Zone Auth through EA's
 data "infoblox_zone_auth" "zauth_ea" {
   filters = {
     "*Location" = "AcceptanceTerraform"
   }
 }
 
-// throws matching Zones with EA, if any
+# Throws matching Zones with EA, if any
 output "zauth_out" {
   value = data.infoblox_zone_auth.zauth_ea
 }

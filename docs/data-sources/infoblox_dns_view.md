@@ -53,8 +53,8 @@ data "infoblox_dns_view" "dsview" {
     network_view = "nondefault_netview"
   }
   
-  // This is just to ensure that the record has been be created
-  // using 'infoblox_dns_view' resource block before the data source will be queried.
+  # This is just to ensure that the record has been be created
+  # using 'infoblox_dns_view' resource block before the data source will be queried.
   depends_on = [infoblox_dns_view.view1]
 }
 
@@ -62,12 +62,12 @@ output "dsview_res" {
   value = data.infoblox_dns_view.dsview
 }
 
-// accessing individual field in results
+# Accessing individual field in results
 output "dsview_name" {
-  value = data.infoblox_dns_view.dsview_res.results.0.name //zero represents index of json object from results list
+  value = data.infoblox_dns_view.dsview_res.results.0.name # zero represents index of json object from results list
 }
 
-// accessing DNS Views through EA's
+# Accessing DNS Views through EA's
 data "infoblox_dns_view" "dsview_ea" {
   filters = {
     "*TestEA" = "SampleEA"
