@@ -131,11 +131,20 @@ From the below list of supported arguments for filters,  use only the searchable
 ### Supported Arguments for filters
 
 -----
-| Field         | Alias         | Type   | Searchable |
-|---------------|---------------|--------|------------|
-| name          | name          | string | yes        |
-| comment       | comment       | string | yes        |
-| status_member | status_member | string | yes        |
+| Field   | Alias         | Type   | Searchable |
+|---------|---------------|--------|------------|
+| name    | name          | string | yes        |
+| comment | comment       | string | yes        |
+
+-----
+
+These fields are used only for searching. 
+They are not actual members of the object and therefore the server does not return these fields with this name unless they are nested return fields.
+
+-----
+| Field | Alias         | Type   | Searchable |
+|-------|---------------|--------|------------|
+| -     | status_member | string | yes        |
 -----
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
@@ -148,9 +157,16 @@ From the below list of supported arguments for filters,  use only the searchable
     filters = {
         name = "pool-test.com"
         comment = "pool creation"
-        status_member = "infoblox.localdomain"
     }
  }
+ ```
+
+```hcl
+data "infoblox_dtc_pool" "pool_filter" {
+  filters = {
+    status_member = "infoblox.localdomain"
+  }
+}
  ```
 ### Example of the DTC Pool Data Source Block
 
