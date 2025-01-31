@@ -189,12 +189,12 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	rec, err := searchObjectByRefOrInternalId("DtcServer", d, m)
 	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return ibclient.NewNotFoundError(fmt.Sprintf(
-				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
-		} else {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
 			d.SetId("")
 			return nil
+		} else {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
 		}
 	}
 	var dtcServer *ibclient.DtcServer
@@ -244,6 +244,10 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("use_sni_hostname", dtcServer.UseSniHostname); err != nil {
 		return err
 	}
+	if err = d.Set("ref", dtcServer.Ref); err != nil {
+		return err
+	}
+	d.SetId(dtcServer.Ref)
 	return nil
 }
 

@@ -510,12 +510,12 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	rec, err := searchObjectByRefOrInternalId("DtcPool", d, m)
 	if err != nil {
-		if _, ok := err.(*ibclient.NotFoundError); !ok {
-			return ibclient.NewNotFoundError(fmt.Sprintf(
-				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
-		} else {
+		if _, ok := err.(*ibclient.NotFoundError); ok {
 			d.SetId("")
 			return nil
+		} else {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
 		}
 	}
 	var dtcPool *ibclient.DtcPool
@@ -643,6 +643,10 @@ func resourceDtcPoolGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	if err = d.Set("ref", dtcPool.Ref); err != nil {
+		return err
+	}
+	d.SetId(dtcPool.Ref)
 	return nil
 }
 
