@@ -90,8 +90,7 @@ complete the following prerequisites:
   * `CMP Type`: String Type 
   * `Cloud API Owned`: List Type (Values: True, False)
 * To use the Infoblox IPAM Plug-In for Terraform, you must either define the extensible attribute `Terraform Internal ID`.
-  in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`. For more details refer to the prerequisites in [index.md](docs/index.md)
-  for more details refer to the [Infoblox NIOS Documentation](https://docs.infoblox.com/space/NIOS/35400616/NIOS).
+  in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`. For more details refer to the prerequisites in [index.md](docs/index.md) or [Infoblox NIOS Documentation](https://docs.infoblox.com/space/NIOS/35400616/NIOS).
   ```shell
   curl -k -u <SUPERUSER>:<PASSWORD> -H "Content-Type: application/json" -X POST https://<NIOS_GRID_IP>/wapi/<WAPI_VERSION>/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
   ```
