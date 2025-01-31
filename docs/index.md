@@ -16,10 +16,10 @@ Whether you intend to use the published plug-in or the customized version that y
 ### **Creating the Terraform Internal ID Extensible Attribute**
 Create the Terraform Internal ID Extensible Attribute in NIOS using one of the following methods. Only a NIOS admin with superuser privileges can create extensible attributes in NIOS.
 - Create the extensible attribute manually in Infoblox NIOS Grid Manager. For steps, refer to the Adding Extensible Attributes topic in the [Infoblox NIOS Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
-
-If the user you want to manage is a cloud member, then enable the following option for the extensible attribute:
-    - In Grid Manager, on the **Administration tab > Extensible Attributes** tab, edit the extensible attribute.
-    - On the **Additional Properties** tab, enable **Allow cloud members to have the following access to this extensible attribute** and select **Read/Write (and disallow Write access from the GUI and the standard API)**.
+    
+  If the user you want to manage is a cloud member, then enable the following option for the extensible attribute:
+  - In Grid Manager, on the **Administration tab > Extensible Attributes** tab, edit the extensible attribute.
+  - On the **Additional Properties** tab, enable **Allow cloud members to have the following access to this extensible attribute** and select **Read/Write (and disallow Write access from the GUI and the standard API)**.
 - Use the following cURL command to create the extensible attribute as a read-only attribute in NIOS:
 
     ```bash
