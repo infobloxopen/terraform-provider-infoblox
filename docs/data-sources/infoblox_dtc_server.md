@@ -53,12 +53,11 @@ From the below list of supported arguments for filters,  use only the searchable
 | host         | host         | string | yes        |
 | sni_hostname | sni_hostname | string | yes        |
 
-These fields are used only for searching. They are not actual members of the object and therefore the server does not return
-these fields with this name unless they are nested return fields.
+This field used only for searching. This is not an actual member of the object and therefore the server does not return
+this field with this name unless it is a nested return field.
 -----
 | Field   | Alias         | Type   | Searchable |
 |---------|---------------|--------|------------|
-| -       | fqdn          | string | yes        |
 | -       | status_member | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
@@ -78,7 +77,6 @@ data "infoblox_dtc_server" "server_filter" {
 ```hcl
 data "infoblox_dtc_lbdn" "lbdn_filter" {   
   filters = {
-    fqdn = "test.com"
     status_member = "infoblox.localdomain"
   }
 }
