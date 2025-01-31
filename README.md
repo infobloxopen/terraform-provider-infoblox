@@ -7,7 +7,7 @@
 This is a provider plug-in for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plug-in enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.8.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.8.0)
+The latest version of Infoblox provider is [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.9.0)
 
 ## Provider Features
 
@@ -32,6 +32,9 @@ The provider plug-in has NIOS DDI resources represented as Terraform resources a
     * Association and disassociation of an IP address from a VM (`infoblox_ip_association`)
 * Zone Forward (`infoblox_zone_forward`)
 * Zone Delegated (`infoblox_zone_delegated`)
+* DTC LBDN (`infoblox_dtc_lbdn`)
+* DTC Pool (`infoblox_dtc_pool`)
+* DTC Server (`infoblox_dtc_server`)
 
 All of the above resources are supported with `comment` and `ext_attrs` fields.
 DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` field.
@@ -57,6 +60,9 @@ DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` 
 * IPv6 Network Container (`infoblox_ipv6_network_container`)
 * Host-record (`infoblox_host_record`)
 * Zone Delegated (`infoblox_zone_delegated`)
+* DTC LBDN (`infoblox_dtc_lbdn`)
+* DTC Pool (`infoblox_dtc_pool`)
+* DTC Server (`infoblox_dtc_server`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
 Data source of DNS records are supported with `ttl` and `zone` fields.

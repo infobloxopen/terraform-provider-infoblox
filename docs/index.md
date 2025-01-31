@@ -13,11 +13,23 @@ Whether you intend to use the published plug-in or the customized version that y
     "Cloud API Owned": "List Type (Values True, False)"
 }
 ```
-You may add other extensible attributes that you want to use.
-- Create an extensible attribute by name Terraform Internal ID of type string in Infoblox NIOS as given in below curl command.
-```bash
-curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12.3/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
-```
+### **Creating the Terraform Internal ID Extensible Attribute**
+Create the Terraform Internal ID Extensible Attribute in NIOS using one of the following methods. Only a NIOS admin with superuser privileges can create extensible attributes in NIOS.
+- Create the extensible attribute manually in Infoblox NIOS Grid Manager. For steps, refer to the Adding Extensible Attributes topic in the [Infoblox NIOS Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
+    
+  If the user you want to manage is a cloud member, then enable the following option for the extensible attribute:
+  - In Grid Manager, on the **Administration tab > Extensible Attributes** tab, edit the extensible attribute.
+  - On the **Additional Properties** tab, enable **Allow cloud members to have the following access to this extensible attribute** and select **Read/Write (and disallow Write access from the GUI and the standard API)**.
+- Use the following cURL command to create the extensible attribute as a read-only attribute in NIOS:
+
+    ```bash
+    curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12.3/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
+    ```
+
+  - If the user you want to manage is a cloud member, then include the flag C for cloud API.
+  - If you are using multiple flags in the command, ensure that the flags are written in correct order. For more information about flags, refer to the Extensible Attribute Definition object in the [Infoblox WAPI Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
+
+- Enable IPAM Plug-In for Terraform to automatically create the extensible attribute by configuring the terraform Infoblox provider with credentials of a NIOS admin user with superuser privileges. For more information, see [Configure the Access Permissions](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
 
 > **Note:**
 >
@@ -46,7 +58,7 @@ terraform {
     required_providers {
         infoblox = {
             source  = "infobloxopen/infoblox"
-            version = ">= 2.8.0"
+            version = ">= 2.9.0"
         }
     }
 }
@@ -56,7 +68,7 @@ Configure the credentials required to access the NIOS Grid as environment variab
 
 
 ```bash
- # Using environment variable 
+ # Using environment variable
  $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
  $ export INFOBLOX_USERNAME=<nios_username>
  $ export INFOBLOX_PASSWORD=<nios_password>
@@ -102,6 +114,9 @@ There are resources for the following objects, supported by the plugin:
 * Zone Forward (`infoblox_zone_forward`)
 * Host record (`infoblox_ip_allocation` / `infoblox_ip_association`)
 * Zone Delegated (`infoblox_zone_delegated`)
+* DTC LBDN (`infoblox_dtc_lbdn`)
+* DTC Pool (`infoblox_dtc_pool`)
+* DTC Server (`infoblox_dtc_server`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
@@ -154,6 +169,9 @@ There are data sources for the following objects:
 * Zone Forward (`infoblox_zone_forward`)
 * Host Record (`infoblox_host_record`)
 * Zone Delegated (`infoblox_zone_delegated`)
+* DTC LBDN (`infoblox_dtc_lbdn`)
+* DTC Pool (`infoblox_dtc_pool`)
+* DTC Server (`infoblox_dtc_server`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.
@@ -288,7 +306,7 @@ import {
 ```
 #### Example for importing A-records from a zone
 ```hcl
-//import all A-records from the zone /example1.org 
+//import all A-records from the zone /example1.org
 data "infoblox_a_record" "data_arec" {
     filters = {
       zone = "example1.org "
