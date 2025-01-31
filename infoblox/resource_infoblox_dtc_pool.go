@@ -51,13 +51,17 @@ func convertInterfaceToList(input []interface{}) []map[string]interface{} {
 
 	for _, item := range input {
 		if itemMap, ok := item.(map[string]interface{}); ok {
-			monitor := ibclient.Monitor{
-				Name: itemMap["monitor_name"].(string),
-				Type: itemMap["monitor_type"].(string),
+			monitor := ibclient.Monitor{}
+			monitorName, ok1 := itemMap["monitor_name"]
+			if ok1 {
+				monitor.Name = monitorName.(string)
+				delete(itemMap, "monitor_name")
 			}
-			// Remove monitor_name and monitor_type from the map
-			delete(itemMap, "monitor_name")
-			delete(itemMap, "monitor_type")
+			monitorType, ok2 := itemMap["monitor_type"]
+			if ok2 {
+				monitor.Type = monitorType.(string)
+				delete(itemMap, "monitor_type")
+			}
 			// Append the Monitor struct to the map
 			itemMap["monitor"] = monitor
 			if members, ok1 := itemMap["members"].([]interface{}); ok1 {
@@ -253,6 +257,10 @@ func resourceDtcPool() *schema.Resource {
 						if oldOk && !newOk {
 							return false
 						}
+						if new == "0" {
+							return false
+						}
+						return CompareSortedList(oldVal, newVal, "monitor_name", "monitor_type")
 					}
 					return false
 				},
@@ -467,11 +475,14 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	lbDynamicRatioAlternateJson := d.Get("lb_dynamic_ratio_alternate").(string)
 	lbDynamicRatioAlternate, err := ConvertDynamicRatioPreferredToInterface(lbDynamicRatioAlternateJson, lbPreferredMethod, lbAlternateMethod)
-
-	consolidatedMonitorsInterface := d.Get("consolidated_monitors").([]interface{})
-	consolidatedMonitors := convertInterfaceToList(consolidatedMonitorsInterface)
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
+	}
+	consolidatedMonitorsInterface := d.Get("consolidated_monitors").([]interface{})
+	consolidatedMonitors := convertInterfaceToList(consolidatedMonitorsInterface)
+
+	if autoConsolidatedMonitors && len(consolidatedMonitors) != 0 {
+		return fmt.Errorf("either consolidated_monitors or auto_consolidated_monitors should be set")
 	}
 	quorum := uint32(d.Get("quorum").(int))
 	connector := m.(ibclient.IBConnector)
