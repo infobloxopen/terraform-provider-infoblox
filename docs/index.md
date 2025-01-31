@@ -14,18 +14,22 @@ Whether you intend to use the published plug-in or the customized version that y
 }
 ```
 ### **Creating the Terraform Internal ID Extensible Attribute**
-(Create the Terraform Internal ID Extensible Attribute in NIOS using one of the following methods. Only a NIOS admin with superuser privileges can create extensible attributes in NIOS.)
-- Create the extensible attribute manually in Infoblox NIOS Grid Manager. For steps, refer to the Adding Extensible Attributes topic in the Infoblox NIOS Documentation.
+Create the Terraform Internal ID Extensible Attribute in NIOS using one of the following methods. Only a NIOS admin with superuser privileges can create extensible attributes in NIOS.
+- Create the extensible attribute manually in Infoblox NIOS Grid Manager. For steps, refer to the Adding Extensible Attributes topic in the [Infoblox NIOS Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
+
 If the user you want to manage is a cloud member, then enable the following option for the extensible attribute:
     - In Grid Manager, on the Administration tab > Extensible Attributes tab, edit the extensible attribute.
     - On the Additional Properties tab, enable Allow cloud members to have the following access to this extensible attribute and select Read/Write (and disallow Write access from the GUI and the standard API).
 - Use the following cURL command to create the extensible attribute as a read-only attribute in NIOS:
+
 ```bash
 curl -k -u <user>:<password> -H "Content-Type: application/json" -X POST https://<Grid_IP>/wapi/v2.12.3/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
 ```
-    - If the user you want to manage is a cloud member, then include the flag C for cloud API.
-    - If you are using multiple flags in the command, ensure that the flags are written in correct order. For more information about flags, refer to the Extensible Attribute Definition object in the Infoblox WAPI documentation.
-- Enable IPAM Plug-In for Terraform to automatically create the extensible attribute by configuring the terraform Infoblox provider with credentials of a NIOS admin user with superuser privileges. For more information, see Configure the Access Permissions.
+
+  - If the user you want to manage is a cloud member, then include the flag C for cloud API.
+  - If you are using multiple flags in the command, ensure that the flags are written in correct order. For more information about flags, refer to the Extensible Attribute Definition object in the [Infoblox WAPI Documentation](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
+
+- Enable IPAM Plug-In for Terraform to automatically create the extensible attribute by configuring the terraform Infoblox provider with credentials of a NIOS admin user with superuser privileges. For more information, see [Configure the Access Permissions](https://infoblox-docs.atlassian.net/wiki/spaces/ipamdriverterraform10draft/pages/17268877).
 
 > **Note:**
 >
@@ -64,7 +68,7 @@ Configure the credentials required to access the NIOS Grid as environment variab
 
 
 ```bash
- # Using environment variable 
+ # Using environment variable
  $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
  $ export INFOBLOX_USERNAME=<nios_username>
  $ export INFOBLOX_PASSWORD=<nios_password>
@@ -302,7 +306,7 @@ import {
 ```
 #### Example for importing A-records from a zone
 ```hcl
-//import all A-records from the zone /example1.org 
+//import all A-records from the zone /example1.org
 data "infoblox_a_record" "data_arec" {
     filters = {
       zone = "example1.org "
