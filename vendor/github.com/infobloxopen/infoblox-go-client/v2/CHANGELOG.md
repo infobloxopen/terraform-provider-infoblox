@@ -1,5 +1,15 @@
 # Infoblox Go Client Release Notes
 
+## v2.9.0
+
+### Release Summary
+
+- This release introduces several significant enhancements and new features aimed at management and DTC Pool, LBDN and Server objects.
+
+### Minor Changes
+
+- Added Create, Read, Update and Delete operations for DTC LBDN, Pool and Server records.
+
 ## v2.8.0
 
 ### Release Summary
