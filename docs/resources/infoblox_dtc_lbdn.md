@@ -52,6 +52,7 @@ resource "infoblox_dtc_lbdn" "lbdn_minimal_parameters" {
   name = "testLbdn2"
   lb_method = "ROUND_ROBIN"
   topology = "test-topo"
+  types = ["A"]
 }
 
 // creating a DTC LBDN record with full set of parameters

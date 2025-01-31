@@ -49,7 +49,7 @@ health {
 * `comment`: The description of the DTC LBDN. This is a regular comment. Example: `test LBDN`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment` corresponding to object.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment`, `fqdn` and `status_member` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
 ### Supported Arguments for filters
@@ -101,6 +101,11 @@ resource "infoblox_dtc_lbdn" "lbdn_record" {
   lb_method = "ROUND_ROBIN"
   comment = "test LBDN"
   topology = "test-topo"
+  types = ["A","AAAA","CNAME","NAPTR","SRV"]
+  auth_zones {
+    fqdn = "example.com"
+    dns_view = "default"
+  }
   ext_attrs = jsonencode({
     "Site" = "Antarctica"
   })
@@ -110,6 +115,8 @@ data "infoblox_dtc_lbdn" "lbdn_read" {
   filters = {
     name = infoblox_dtc_lbdn.lbdn_record.name
     comment = infoblox_dtc_lbdn.lbdn_record.comment
+    fqdn = "example.com"
+    status_member = "infoblox.localdomain"
   }
 }
 

@@ -40,7 +40,7 @@ health {
 * `comment`: The description of the DTC Server. This is a regular comment. Example: `test Dtc Server`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"*Site\":\"Antarctica\"}"`
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment`, `host`, `sni_hostname` corresponding to object.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `comment`, `host`, `sni_hostname` and `status_member` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
 ### Supported Arguments for filters
@@ -110,6 +110,7 @@ data "infoblox_dtc_server" "server_read" {
     name = infoblox_dtc_server.server_record.name
     comment = infoblox_dtc_server.server_record.comment
     host = infoblox_dtc_server.server_record.host
+    status_member = "infoblox.localdomain"
   }
 }
 
