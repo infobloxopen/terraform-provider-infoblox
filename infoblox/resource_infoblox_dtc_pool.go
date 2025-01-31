@@ -462,10 +462,6 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	lbAlternateMethod := d.Get("lb_alternate_method").(string)
 	autoConsolidatedMonitors := d.Get("auto_consolidated_monitors").(bool)
-	//consolidatedMonitors := d.Get("consolidated_monitors").([]interface{})
-	if autoConsolidatedMonitors && d.Get("consolidated_monitors") == "" {
-		return fmt.Errorf("consolidated_monitors must be empty when auto_consolidated_monitors is enabled")
-	}
 	disable := d.Get("disable").(bool)
 	availability := d.Get("availability").(string)
 	lbAlternateTopologyValue := d.Get("lb_alternate_topology").(string)
@@ -478,12 +474,13 @@ func resourceDtcPoolCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("lb_dynamic_ratio_alternate : %s", err.Error())
 	}
-	consolidatedMonitorsInterface := d.Get("consolidated_monitors").([]interface{})
-	consolidatedMonitors := convertInterfaceToList(consolidatedMonitorsInterface)
-
-	if autoConsolidatedMonitors && len(consolidatedMonitors) != 0 {
+	consolidatedMonitorsInterface, ok1 := d.GetOk("consolidated_monitors")
+	if autoConsolidatedMonitors && ok1 {
 		return fmt.Errorf("either consolidated_monitors or auto_consolidated_monitors should be set")
 	}
+	consolidatedMonitorsList := consolidatedMonitorsInterface.([]interface{})
+	consolidatedMonitors := convertInterfaceToList(consolidatedMonitorsList)
+
 	quorum := uint32(d.Get("quorum").(int))
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
