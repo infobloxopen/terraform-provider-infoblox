@@ -1,6 +1,7 @@
 # Changelog
 
 ## [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.9.0) (2025-1-31)
+- Upgraded the base WAPI version to v2.12.3.
 - New Resources:
   - infoblox_dtc_lbdn
   - infoblox_dtc_pool
