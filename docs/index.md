@@ -92,6 +92,7 @@ CONNECT_TIMEOUT
 POOL_CONNECTIONS
 WAPI_VERSION
 ```
+> **Note:** Plugin version **v2.9.0** includes an upgrade to the base WAPI version to **v2.12.3**.
 
 Run the terraform init command in the directory where the .tf file is located to initialize the plug-in.
 
