@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"math"
+	"reflect"
+	"sort"
 	"strings"
 	"time"
 )
@@ -162,8 +164,8 @@ func Provider() *schema.Provider {
 			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.9"),
-				Description: "WAPI Version of Infoblox server defaults to v2.9",
+				DefaultFunc: schema.EnvDefaultFunc("WAPI_VERSION", "2.12.3"),
+				Description: "WAPI Version of Infoblox server defaults to v2.12.3",
 			},
 			"port": {
 				Type:        schema.TypeString,
@@ -211,6 +213,9 @@ func Provider() *schema.Provider {
 			"infoblox_dns_view":               resourceDNSView(),
 			"infoblox_zone_auth":              resourceZoneAuth(),
 			"infoblox_zone_forward":           resourceZoneForward(),
+			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
+			"infoblox_dtc_pool":               resourceDtcPool(),
+			"infoblox_dtc_server":             resourceDtcServer(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -230,6 +235,9 @@ func Provider() *schema.Provider {
 			"infoblox_zone_auth":              dataSourceZoneAuth(),
 			"infoblox_dns_view":               dataSourceDNSView(),
 			"infoblox_zone_forward":           dataSourceZoneForward(),
+			"infoblox_dtc_lbdn":               dataSourceDtcLbdnRecord(),
+			"infoblox_dtc_pool":               datasourceDtcPool(),
+			"infoblox_dtc_server":             dataSourceDtcServer(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
@@ -463,4 +471,63 @@ func searchObjectByRefOrInternalId(objType string, d *schema.ResourceData, m int
 
 	objMgr := ibclient.NewObjectManager(m.(ibclient.IBConnector), "Terraform", tenantID)
 	return objMgr.SearchObjectByAltId(objType, ref, actualIntId.String(), eaNameForInternalId)
+}
+
+func CompareSortedList(oldList interface{}, newList interface{}, key1 string, key2 string) bool {
+	oldListSlice, okOld := oldList.([]interface{})
+	newListSlice, okNew := newList.([]interface{})
+	if !okOld || !okNew {
+		return false
+	}
+	// If both lists are empty, they are equal
+	if len(oldListSlice) == 0 && len(newListSlice) == 0 {
+		return true
+	}
+	if len(oldListSlice) == 0 || len(newListSlice) == 0 {
+		return false
+	}
+	// Determine the type of the first element
+	switch oldListSlice[0].(type) {
+	case string:
+		return sortAndCompareStringSlices(oldListSlice, newListSlice)
+
+	case map[string]interface{}:
+		sortByKeys(oldListSlice, key1, key2)
+		sortByKeys(newListSlice, key1, key2)
+	}
+	return reflect.DeepEqual(oldListSlice, newListSlice)
+}
+
+// sortAndCompareStringSlices sorts two slices of strings and compares them
+func sortAndCompareStringSlices(oldListSlice, newListSlice []interface{}) bool {
+	oldStrs := make([]string, len(oldListSlice))
+	newStrs := make([]string, len(newListSlice))
+
+	for i, v := range oldListSlice {
+		oldStrs[i] = v.(string)
+	}
+	for i, v := range newListSlice {
+		newStrs[i] = v.(string)
+	}
+
+	sort.Strings(oldStrs)
+	sort.Strings(newStrs)
+
+	return reflect.DeepEqual(oldStrs, newStrs)
+}
+
+func sortByKeys(list []interface{}, key1, key2 string) {
+	sort.Slice(list, func(i, j int) bool {
+		slice1, ok1 := list[i].(map[string]interface{})
+		slice2, ok2 := list[j].(map[string]interface{})
+		if !ok1 || !ok2 {
+			return false
+		}
+
+		// Compare key1 first, then key2
+		if slice1[key1].(string) == slice2[key1].(string) {
+			return slice1[key2].(string) < slice2[key2].(string)
+		}
+		return slice1[key1].(string) < slice2[key1].(string)
+	})
 }
