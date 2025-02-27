@@ -216,6 +216,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               resourceDtcPool(),
 			"infoblox_dtc_server":             resourceDtcServer(),
+			"infoblox_alias_record":           resourceAliasRecord(),
 			"infoblox_ns_record":              resourceNSRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -239,6 +240,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               dataSourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               datasourceDtcPool(),
 			"infoblox_dtc_server":             dataSourceDtcServer(),
+			"infoblox_alias_record":           dataSourceAliasRecord(),
 			"infoblox_ns_record":              dataSourceNSRecord(),
 		},
 		ConfigureContextFunc: providerConfigure,
