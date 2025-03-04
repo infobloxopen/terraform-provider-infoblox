@@ -14,10 +14,10 @@ addresses {
 * `view`: The name of the DNS view in which the record resides.The default value is The default DNS view. Example: `external`
 * `ms_delegation_name`: The MS delegation point name. The default value is Empty string. Example: `delegation.com`
 * `creator`: The record creator. Valid values are `STATIC` and `SYSTEM`. Example: `STATIC`
-* `dns_name`: The name of the NS record in punycode format. Example : `test.com`
+* `dns_name`: The name of the NS record in punycode format. Example: `test.com`
 * `policy`: The host name policy for the record. Example: `Allow Underscore`
 * `zone`: The name of the zone in which the record resides. Example: `test.com`
-* `cloud_info`: Structure containing all cloud API related information for this object. Example : `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
+* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
 
 ### Supported Arguments for filters
 
