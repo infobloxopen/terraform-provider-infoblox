@@ -2,6 +2,7 @@ package infoblox
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -87,6 +88,11 @@ func dataSourceNSRecord() *schema.Resource {
 							Computed:    true,
 							Description: "The MS delegation point name.",
 						},
+						"cloud_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Structure containing all cloud API related information for this object.",
+						},
 					},
 				},
 			},
@@ -153,6 +159,55 @@ func flattenRecordNS(recordNS ibclient.RecordNS) (map[string]interface{}, error)
 		res["addresses"] = addressInterface
 	}
 
+	if recordNS.CloudInfo != nil {
+		cloudInfo, err := serializeGridCloudapiInfo(recordNS.CloudInfo)
+		if err != nil {
+			return nil, err
+		}
+		res["cloud_info"] = cloudInfo
+	}
 	return res, nil
 
+}
+
+func serializeGridCloudapiInfo(gci *ibclient.GridCloudapiInfo) (string, error) {
+	// Create a map to hold the serialized values
+	gciMap := map[string]interface{}{}
+
+	// Check and add fields to the map if they are non-zero
+	if gci.DelegatedMember != nil {
+		// If DelegatedMember exists, add it to the map
+		gciMap["delegated_member"] = gci.DelegatedMember
+	}
+	if gci.DelegatedScope != "" {
+		gciMap["delegated_scope"] = gci.DelegatedScope
+	}
+	if gci.DelegatedRoot != "" {
+		gciMap["delegated_root"] = gci.DelegatedRoot
+	}
+	gciMap["owned_by_adaptor"] = gci.OwnedByAdaptor // boolean field, will be added regardless
+	if gci.Usage != "" {
+		gciMap["usage"] = gci.Usage
+	}
+	if gci.Tenant != "" {
+		gciMap["tenant"] = gci.Tenant
+	}
+	if gci.MgmtPlatform != "" {
+		gciMap["mgmt_platform"] = gci.MgmtPlatform
+	}
+	if gci.AuthorityType != "" {
+		gciMap["authority_type"] = gci.AuthorityType
+	}
+
+	// If no fields to serialize, return an empty string
+	if len(gciMap) == 0 {
+		return "", nil
+	}
+	// Marshal the map to JSON
+	gciJSON, err := json.Marshal(gciMap)
+	if err != nil {
+		return "", err
+	}
+	// Return the serialized JSON string
+	return string(gciJSON), nil
 }

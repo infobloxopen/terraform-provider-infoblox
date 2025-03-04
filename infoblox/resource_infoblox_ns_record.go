@@ -109,12 +109,14 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevNameServer, _ := d.GetChange("nameserver")
 			prevView, _ := d.GetChange("view")
 			prevAddresses, _ := d.GetChange("addresses")
+			prevMsDelegationName, _ := d.GetChange("ms_delegation_name")
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
 			_ = d.Set("name", prevName.(string))
 			_ = d.Set("view", prevView.(string))
 			_ = d.Set("nameserver", prevNameServer.(string))
 			_ = d.Set("address", prevAddresses)
+			_ = d.Set("ms_delegation_name", prevMsDelegationName.(string))
 		}
 	}()
 	if d.HasChange("internal_id") {
@@ -137,7 +139,7 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	rec, err := objMgr.UpdateNSRecord(
 		d.Id(), "", nameserver, "", addresses, msDelegationName)
 	if err != nil {
-		return fmt.Errorf("error updating MX-Record: %s", err)
+		return fmt.Errorf("error updating NS-Record: %s", err)
 	}
 	updateSuccessful = true
 	d.SetId(rec.Ref)
