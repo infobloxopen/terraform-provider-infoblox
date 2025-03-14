@@ -219,6 +219,7 @@ func Provider() *schema.Provider {
 			"infoblox_ipv4_fixed_address":     resourceFixedRecord(),
 			"infoblox_alias_record":           resourceAliasRecord(),
 			"infoblox_ns_record":              resourceNSRecord(),
+			"infoblox_ipv4_shared_network":    resourceIpv4SharedNetwork(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -244,6 +245,7 @@ func Provider() *schema.Provider {
 			"infoblox_ipv4_fixed_address":     dataSourceFixedAddress(),
 			"infoblox_alias_record":           dataSourceAliasRecord(),
 			"infoblox_ns_record":              dataSourceNSRecord(),
+			"infoblox_ipv4_shared_network":    dataSourceIpv4SharedNetwork(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
