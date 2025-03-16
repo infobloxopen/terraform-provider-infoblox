@@ -216,6 +216,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               resourceDtcPool(),
 			"infoblox_dtc_server":             resourceDtcServer(),
+			"infoblox_ipv4_fixed_address":     resourceFixedRecord(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -238,6 +239,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               dataSourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               datasourceDtcPool(),
 			"infoblox_dtc_server":             dataSourceDtcServer(),
+			"infoblox_ipv4_fixed_address":     dataSourceFixedAddress(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
