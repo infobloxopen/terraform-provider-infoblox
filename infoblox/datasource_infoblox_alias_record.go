@@ -90,6 +90,11 @@ func dataSourceAliasRecord() *schema.Resource {
 							Computed:    true,
 							Description: "The name of the zone in which the record resides. Example: “zone.com”.",
 						},
+						"cloud_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Structure containing all cloud API related information for this object.",
+						},
 					},
 				},
 			},
@@ -176,6 +181,13 @@ func flattenAliasRecord(aliasRecord ibclient.RecordAlias) (interface{}, error) {
 		res["ttl"] = *aliasRecord.Ttl
 	} else {
 		res["ttl"] = ttlUndef
+	}
+	if aliasRecord.CloudInfo != nil {
+		cloudInfo, err := serializeGridCloudApiInfo(aliasRecord.CloudInfo)
+		if err != nil {
+			return nil, err
+		}
+		res["cloud_info"] = cloudInfo
 	}
 
 	return res, nil
