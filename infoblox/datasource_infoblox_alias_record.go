@@ -109,7 +109,7 @@ func datasourceAliasRecordRead(ctx context.Context, d *schema.ResourceData, m in
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllAliasRecord(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed getting Alias-record: %w", err))
+		return diag.FromErr(err)
 	}
 
 	if res == nil {

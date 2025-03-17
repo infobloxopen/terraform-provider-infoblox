@@ -14,6 +14,7 @@ var testAccDataSourceAliasRecord = fmt.Sprintf(`resource "infoblox_alias_record"
     data "infoblox_alias_record" "read_alias" {	
 	filters = {
 	    name = infoblox_alias_record.record1.name
+		view = infoblox_alias_record.record1.dns_view 
     }
 }`)
 

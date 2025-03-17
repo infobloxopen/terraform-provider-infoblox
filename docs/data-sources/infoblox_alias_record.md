@@ -24,7 +24,7 @@ From the below list of supported arguments for filters,  use only the searchable
 | Field       | Alias       | Type   | Searchable |
 |-------------|-------------|--------|------------|
 | name        | name        | string | yes        |
-| dns_view    | dns_view    | string | yes        |
+| view        | dns_view    | string | yes        |
 | target_name | target_name | string | yes        |
 | target_type | target_type | uint   | yes        |
 | comment     | comment     | string | yes        |
@@ -72,7 +72,7 @@ data "infoblox_alias_record" "alias_read"{
   filters = {
     name = infoblox_alias_record.alias_record.name
     target_name = infoblox_alias_record.alias_record.target_name
-    dns_view = infoblox_alias_record.alias_record.dns_view
+    view = infoblox_alias_record.alias_record.dns_view
   }
 }
 
