@@ -10,7 +10,7 @@ The following list describes the parameters you can define in the `infoblox_alia
 * `target_type`: required, specifies the type of the target object. Valid values are: `A`, `AAAA`, `MX`, `NAPTR`, `PTR`, `SPF`, `SRV` and `TXT`.
 * `ttl`: optional, specifies the "time to live" value for the alias-record. There is no default value for this parameter. If a value is not specified, then in NIOS, the value is inherited from the parent zone of the DNS record for this resource. A TTL value of 0 (zero) means caching should be disabled for this record. Example: `3600`.
 * `disable`: optional, specifies whether the alias record is disabled or not. Default value is `false`.
-* `view`: required, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is set as the DNS view. Example: `dns_view_1`.
+* `dns_view`: required, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is set as the DNS view. Example: `dns_view_1`.
 * `comment`: optional, describes the alias-record. Example: `an example alias-record`.
 * `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the alias-record. Example: `jsonencode({})`.
 
@@ -30,7 +30,7 @@ resource "infoblox_alias_record" "alias_record_full_params" {
   target_name = "kk.ll.com"
   target_type = "AAAA"
   comment = "example alias record"
-  view = "default.view2"
+  dns_view = "view2"
   disable = false
   ttl = 120
   ext_attrs = jsonencode({

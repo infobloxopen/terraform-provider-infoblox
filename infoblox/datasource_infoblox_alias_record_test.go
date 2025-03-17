@@ -22,7 +22,7 @@ var testAccDataSourceAliasRecord1 = fmt.Sprintf(`resource "infoblox_alias_record
     comment = "test alias record"
     target_name = "bb.kk.com"
 	target_type = "NAPTR"
-	view = "default"
+	dns_view = "default"
 	ttl = 36000
 	disable = true
 	ext_attrs = jsonencode({
@@ -46,7 +46,7 @@ func TestAccDataSourceAliasRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias", "results.0.name", "alias_read1.test.com"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias", "results.0.target_name", "aa.bb.com"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias", "results.0.target_type", "AAAA"),
-					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias", "results.0.view", "default"),
+					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias", "results.0.dns_view", "default"),
 				),
 			},
 		},
@@ -66,7 +66,7 @@ func TestAccDataSourceAliasRecordEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.comment", "test alias record"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.target_name", "bb.kk.com"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.target_type", "NAPTR"),
-					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.view", "default"),
+					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.dns_view", "default"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.ttl", "36000"),
 					resource.TestCheckResourceAttr("data.infoblox_alias_record.read_alias2", "results.0.disable", "true"),
 					resource.TestCheckResourceAttrPair("data.infoblox_alias_record.read_alias2", "results.0.ext_attrs.Site", "infoblox_alias_record.record2", "ext_attrs.Site"),

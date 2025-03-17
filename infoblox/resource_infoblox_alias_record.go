@@ -53,7 +53,7 @@ func resourceAliasRecord() *schema.Resource {
 				Required:    true,
 				Description: "Type of the target object.",
 			},
-			"view": {
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     defaultDNSView,
@@ -99,7 +99,7 @@ func resourceAliasRecordCreate(d *schema.ResourceData, m interface{}) error {
 	disable := d.Get("disable").(bool)
 	targetName := d.Get("target_name").(string)
 	targetType := d.Get("target_type").(string)
-	view := d.Get("view").(string)
+	dnsView := d.Get("dns_view").(string)
 
 	var ttl uint32
 	useTtl := false
@@ -131,7 +131,7 @@ func resourceAliasRecordCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// create alias record
-	aliasRecord, err := objMgr.CreateAliasRecord(name, view, targetName, targetType, comment, disable, extAttrs, ttl, useTtl)
+	aliasRecord, err := objMgr.CreateAliasRecord(name, dnsView, targetName, targetType, comment, disable, extAttrs, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("failed to create alias record: %w", err)
 	}
@@ -211,7 +211,7 @@ func resourceAliasRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	if recordAlias.View != nil {
-		if err = d.Set("view", *recordAlias.View); err != nil {
+		if err = d.Set("dns_view", *recordAlias.View); err != nil {
 			return err
 		}
 	}
@@ -245,7 +245,7 @@ func resourceAliasRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevDisable, _ := d.GetChange("disable")
 			prevTargetName, _ := d.GetChange("target_name")
 			prevTargetType, _ := d.GetChange("target_type")
-			prevView, _ := d.GetChange("view")
+			prevDnsView, _ := d.GetChange("dns_view")
 			prevTTL, _ := d.GetChange("ttl")
 			prevExtAttrs, _ := d.GetChange("ext_attrs")
 
@@ -254,7 +254,7 @@ func resourceAliasRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("disable", prevDisable)
 			_ = d.Set("target_name", prevTargetName)
 			_ = d.Set("target_type", prevTargetType)
-			_ = d.Set("view", prevView)
+			_ = d.Set("dns_view", prevDnsView)
 			_ = d.Set("ttl", prevTTL)
 			_ = d.Set("ext_attrs", prevExtAttrs)
 		}
@@ -282,7 +282,7 @@ func resourceAliasRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	disable := d.Get("disable").(bool)
 	targetName := d.Get("target_name").(string)
 	targetType := d.Get("target_type").(string)
-	view := d.Get("view").(string)
+	dnsView := d.Get("dns_view").(string)
 
 	var ttl uint32
 	useTtl := false
@@ -295,8 +295,8 @@ func resourceAliasRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("TTL value must be 0 or higher")
 	}
 
-	if d.HasChange("view") {
-		return fmt.Errorf("changing the value of 'view' field is not allowed")
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 
 	connector := m.(ibclient.IBConnector)
@@ -336,7 +336,7 @@ func resourceAliasRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	updatedRecord, err := objMgr.UpdateAliasRecord(d.Id(), name, view, targetName, targetType, comment, disable, newExtAttrs, ttl, useTtl)
+	updatedRecord, err := objMgr.UpdateAliasRecord(d.Id(), name, dnsView, targetName, targetType, comment, disable, newExtAttrs, ttl, useTtl)
 	if err != nil {
 		return fmt.Errorf("Failed to update alias Record with %s, ", err.Error())
 	}
@@ -448,7 +448,7 @@ func resourceAliasRecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 		return nil, err
 	}
 	if aliasRecord.View != nil {
-		if err = d.Set("view", *aliasRecord.View); err != nil {
+		if err = d.Set("dns_view", *aliasRecord.View); err != nil {
 			return nil, err
 		}
 	}

@@ -54,7 +54,7 @@ func dataSourceAliasRecord() *schema.Resource {
 							Computed:    true,
 							Description: "Type of the target object.",
 						},
-						"view": {
+						"dns_view": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Name of the DNS view in which the alias record is created.",
@@ -109,7 +109,7 @@ func datasourceAliasRecordRead(ctx context.Context, d *schema.ResourceData, m in
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllAliasRecord(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get alias records: %w", err))
+		return diag.FromErr(fmt.Errorf("failed getting Alias-record: %w", err))
 	}
 
 	if res == nil {
@@ -155,7 +155,7 @@ func flattenAliasRecord(aliasRecord ibclient.RecordAlias) (interface{}, error) {
 		"ext_attrs":       string(ea),
 		"target_name":     aliasRecord.TargetName,
 		"target_type":     aliasRecord.TargetType,
-		"view":            *aliasRecord.View,
+		"dns_view":        *aliasRecord.View,
 		"dns_name":        aliasRecord.DnsName,
 		"dns_target_name": aliasRecord.DnsTargetName,
 		"creator":         aliasRecord.Creator,

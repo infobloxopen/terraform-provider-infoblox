@@ -11,7 +11,7 @@ resource "infoblox_alias_record" "alias_record_full_params" {
   target_name = "kk.ll.com"
   target_type = "AAAA"
   comment = "example alias record"
-  view = "default.view2"
+  dns_view = "view2"
   disable = false
   ttl = 120
   ext_attrs = jsonencode({

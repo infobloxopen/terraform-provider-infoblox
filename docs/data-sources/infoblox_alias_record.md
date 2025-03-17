@@ -3,7 +3,7 @@
 Use the `infoblox_alias_record` data resource for the Alias record to retrieve the following information for a Alias record:
 
 * `name`: the alias name of the record in the FQDN format. Example: `foo1.test.com`
-* `view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
+* `dns_view`: the DNS view which the record's zone belongs to. Example: `nondefault_dnsview`
 * `target_name`: the name of the target in FQDN format. Example: `aa.test.com`
 * `target_type`: the type of the target object. Valid values are: `A`, `AAAA`, `MX`, `NAPTR`, `PTR`, `SPF`, `SRV` and `TXT`.
 * `zone`: the name of the zone in which the record exists. Example: `test.com`.
@@ -15,7 +15,7 @@ Use the `infoblox_alias_record` data resource for the Alias record to retrieve t
 * `creator`: the creator of the record. Valid value is `STATIC`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":\"Greece\"}"`
 
-For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view`, `zone`, `comment`, `target_name`, and `target_type`  corresponding to object.
+For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `dns_view`, `zone`, `comment`, `target_name`, and `target_type`  corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.
 
 ### Supported Arguments for filters
@@ -24,7 +24,7 @@ From the below list of supported arguments for filters,  use only the searchable
 | Field       | Alias       | Type   | Searchable |
 |-------------|-------------|--------|------------|
 | name        | name        | string | yes        |
-| view        | dns_view    | string | yes        |
+| dns_view    | dns_view    | string | yes        |
 | target_name | target_name | string | yes        |
 | target_type | target_type | uint   | yes        |
 | comment     | comment     | string | yes        |
@@ -44,7 +44,7 @@ data "infoblox_alias_record" "alias_read" {
 }
  ```
 
-!> From the above example, if the 'view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
+!> From the above example, if the 'dns_view' alias 'dns_view' value is not specified, if same record exists in one or more different DNS views, those
 all records will be fetched in results.
 
 !> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_alias_record`, will be fetched in results.
@@ -60,7 +60,7 @@ resource "infoblox_alias_record" "alias_record" {
   target_name = "hh.ll.com"
   target_type = "NAPTR"
   comment = "example alias record"
-  view = "default"
+  dns_view = "default"
   disable = true
   ttl = 1200
   ext_attrs = jsonencode({
@@ -72,7 +72,7 @@ data "infoblox_alias_record" "alias_read"{
   filters = {
     name = infoblox_alias_record.alias_record.name
     target_name = infoblox_alias_record.alias_record.target_name
-    view = infoblox_alias_record.alias_record.view
+    dns_view = infoblox_alias_record.alias_record.dns_view
   }
 }
 

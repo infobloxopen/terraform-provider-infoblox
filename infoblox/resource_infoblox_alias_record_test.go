@@ -16,7 +16,7 @@ var testResourceAliasRecord = `resource "infoblox_alias_record" "record1" {
     comment = "test alias record"
     target_name = "aa.gg.com"
 	target_type = "PTR"
-	view = "default"
+	dns_view = "default"
 	ttl = 3600
 	disable = false
 	ext_attrs = jsonencode({
@@ -112,7 +112,7 @@ func testAliasRecordCompare(t *testing.T, resourceName string, aliasRecord *ibcl
 		if rec.View != nil && aliasRecord.View != nil {
 			if *rec.View != *aliasRecord.View {
 				return fmt.Errorf(
-					"the value of 'view' field is '%s', but expected '%s'",
+					"the value of 'dns_view' field is '%s', but expected '%s'",
 					*rec.View, *aliasRecord.View)
 			}
 		}
@@ -168,11 +168,6 @@ func TestAccResourceAliasRecord(t *testing.T) {
 					Name:       utils.StringPtr("alias5678.test.com"),
 					TargetName: utils.StringPtr("aa.bb.com"),
 					TargetType: "A",
-					//View:       utils.StringPtr("default"),
-					//Ttl:       utils.Uint32Ptr(3600),
-					//Disable:   utils.BoolPtr(false),
-					//Ea:        map[string]interface{}{"Location": "65.8665701230204, -37.00791763398113"},
-					//Comment: utils.StringPtr("test alias record"),
 				}),
 			},
 			// negative test case
