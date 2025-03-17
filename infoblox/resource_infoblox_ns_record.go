@@ -58,10 +58,10 @@ func resourceNSRecord() *schema.Resource {
 					return CompareSortedList(oldList, newList, "address", "auto_create_ptr")
 				},
 			},
-			"view": {
+			"dns_view": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
+				Default:     defaultDNSView,
 				Description: "The name of the DNS view in which the record resides.Example: “external”.",
 				//validation function to check for leading or trailing zeros
 				StateFunc: trimWhitespace,
@@ -85,12 +85,12 @@ func resourceNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 	nameserver := d.Get("nameserver").(string)
 	addressesInterface := d.Get("addresses").([]interface{})
 	addresses := ConvertInterfaceToZoneNameServers(addressesInterface)
-	view := d.Get("view").(string)
+	dnsView := d.Get("dns_view").(string)
 	msDelegationName := d.Get("ms_delegation_name").(string)
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	recordNS, err := objMgr.CreateNSRecord(name, nameserver, view, addresses, msDelegationName)
+	recordNS, err := objMgr.CreateNSRecord(name, nameserver, dnsView, addresses, msDelegationName)
 	if err != nil {
 		return err
 	}
@@ -107,13 +107,13 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		if !updateSuccessful {
 			prevName, _ := d.GetChange("name")
 			prevNameServer, _ := d.GetChange("nameserver")
-			prevView, _ := d.GetChange("view")
+			prevDnsView, _ := d.GetChange("dns_view")
 			prevAddresses, _ := d.GetChange("addresses")
 			prevMsDelegationName, _ := d.GetChange("ms_delegation_name")
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
 			_ = d.Set("name", prevName.(string))
-			_ = d.Set("view", prevView.(string))
+			_ = d.Set("dns_view", prevDnsView.(string))
 			_ = d.Set("nameserver", prevNameServer.(string))
 			_ = d.Set("address", prevAddresses)
 			_ = d.Set("ms_delegation_name", prevMsDelegationName.(string))
@@ -125,8 +125,8 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("name") {
 		return fmt.Errorf("changing the value of 'name' field is not allowed")
 	}
-	if d.HasChange("view") {
-		return fmt.Errorf("changing the value of 'view' field is not allowed")
+	if d.HasChange("dns_view") {
+		return fmt.Errorf("changing the value of 'dns_view' field is not allowed")
 	}
 
 	nameserver := d.Get("nameserver").(string)
@@ -164,7 +164,7 @@ func resourceNSRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("nameserver", recordNS.Nameserver); err != nil {
 		return err
 	}
-	if err = d.Set("view", recordNS.View); err != nil {
+	if err = d.Set("dns_view", recordNS.View); err != nil {
 		return err
 	}
 	if recordNS.Addresses != nil {
@@ -209,7 +209,7 @@ func resourceNSRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.Re
 	if err = d.Set("nameserver", obj.Nameserver); err != nil {
 		return nil, err
 	}
-	if err = d.Set("view", obj.View); err != nil {
+	if err = d.Set("dns_view", obj.View); err != nil {
 		return nil, err
 	}
 	if err = d.Set("ms_delegation_name", obj.MsDelegationName); err != nil {

@@ -58,7 +58,7 @@ func dataSourceNSRecord() *schema.Resource {
 								},
 							},
 						},
-						"view": {
+						"dns_view": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The name of the DNS view in which the record resides.Example: “external”.",
@@ -112,7 +112,7 @@ func dataSourceNSRecordRead(ctx context.Context, d *schema.ResourceData, m inter
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllRecordNS(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed getting NS-record: %s", err.Error()))
+		return diag.FromErr(err)
 	}
 
 	if res == nil {
@@ -146,7 +146,7 @@ func flattenRecordNS(recordNS ibclient.RecordNS) (map[string]interface{}, error)
 	res := map[string]interface{}{
 		"id":                 recordNS.Ref,
 		"zone":               recordNS.Zone,
-		"view":               recordNS.View,
+		"dns_view":           recordNS.View,
 		"name":               recordNS.Name,
 		"creator":            recordNS.Creator,
 		"policy":             recordNS.Policy,

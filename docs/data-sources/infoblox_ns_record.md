@@ -11,7 +11,7 @@ addresses {
   auto_create_ptr = true
 }
 ```
-* `view`: The name of the DNS view in which the record resides.The default value is The default DNS view. Example: `external`
+* `dns_view`: The name of the DNS view in which the record resides.The default value is The default DNS view. Example: `external`
 * `ms_delegation_name`: The MS delegation point name. The default value is Empty string. Example: `delegation.com`
 * `creator`: The record creator. Valid values are `STATIC` and `SYSTEM`. Example: `STATIC`
 * `dns_name`: The name of the NS record in punycode format. Example: `test.com`
@@ -27,7 +27,7 @@ addresses {
 | name       | name       | string | yes        |
 | nameserver | nameserver | string | yes        |
 | creator    | creator    | string | yes        |
-| view       | view       | string | yes        |
+| view       | dns_view   | string | yes        |
 | zone       | zone       | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
@@ -54,7 +54,7 @@ resource "infoblox_ns_record" "ns"{
     address = "2.3.2.5"
     auto_create_ptr=true
   }
-  view = "default"
+  dns_view = "default"
 }
 
 data "infoblox_ns_record" "testNs_read" {
