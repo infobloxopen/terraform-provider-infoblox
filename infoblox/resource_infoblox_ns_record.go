@@ -115,7 +115,7 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("name", prevName.(string))
 			_ = d.Set("dns_view", prevDnsView.(string))
 			_ = d.Set("nameserver", prevNameServer.(string))
-			_ = d.Set("address", prevAddresses)
+			_ = d.Set("addresses", prevAddresses)
 			_ = d.Set("ms_delegation_name", prevMsDelegationName.(string))
 		}
 	}()
