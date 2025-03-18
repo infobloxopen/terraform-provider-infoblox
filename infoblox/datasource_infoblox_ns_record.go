@@ -160,7 +160,7 @@ func flattenRecordNS(recordNS ibclient.RecordNS) (map[string]interface{}, error)
 	}
 
 	if recordNS.CloudInfo != nil {
-		cloudInfo, err := serializeGridCloudapiInfo(recordNS.CloudInfo)
+		cloudInfo, err := serializeGridCloudApiInfo(recordNS.CloudInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +170,7 @@ func flattenRecordNS(recordNS ibclient.RecordNS) (map[string]interface{}, error)
 
 }
 
-func serializeGridCloudapiInfo(gci *ibclient.GridCloudapiInfo) (string, error) {
+func serializeGridCloudApiInfo(gci *ibclient.GridCloudapiInfo) (string, error) {
 	// Create a map to hold the serialized values
 	gciMap := map[string]interface{}{}
 
