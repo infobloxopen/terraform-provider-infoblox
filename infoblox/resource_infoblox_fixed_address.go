@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"strings"
 )
 
 func resourceFixedRecord() *schema.Resource {
@@ -82,10 +83,13 @@ func resourceFixedRecord() *schema.Resource {
 				Optional:    true,
 				Description: "The MAC address value for this fixed address.",
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					oldValue = strings.ToUpper(oldValue)
+					newValue = strings.ToUpper(newValue)
 					if d.Get("match_client").(string) != "MAC_ADDRESS" && newValue != "" {
 						return true
 					}
-					return false
+					// Suppress diff if MAC addresses match after normalization
+					return oldValue == newValue
 				},
 			},
 			"match_client": {
@@ -194,6 +198,9 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 	matchClient := d.Get("match_client").(string)
 	name := d.Get("name").(string)
 	network := d.Get("network").(string)
+	if ipAddr == "" && network == "" {
+		return fmt.Errorf("either 'ipv4addr' or 'network' fields needs to provided to allocate a fixed address")
+	}
 	networkView := d.Get("network_view").(string)
 
 	optionsInterface := d.Get("options").([]interface{})

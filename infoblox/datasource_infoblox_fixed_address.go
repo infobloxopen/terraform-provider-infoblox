@@ -204,6 +204,7 @@ func flattenFixedAddress(fixedAddress ibclient.FixedAddress) (map[string]interfa
 		"disable":                        fixedAddress.Disable,
 		"dhcp_client_identifier":         fixedAddress.DhcpClientIdentifier,
 		"ext_attrs":                      string(ea),
+		"name":                           fixedAddress.Name,
 	}
 	if fixedAddress.Options != nil {
 		res["options"] = convertDhcpOptionsToInterface(fixedAddress.Options)
