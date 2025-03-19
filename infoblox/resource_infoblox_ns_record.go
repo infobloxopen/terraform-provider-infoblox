@@ -66,12 +66,6 @@ func resourceNSRecord() *schema.Resource {
 				//validation function to check for leading or trailing zeros
 				StateFunc: trimWhitespace,
 			},
-			"ms_delegation_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The MS delegation point name.",
-				Default:     "",
-			},
 			"ref": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -86,11 +80,10 @@ func resourceNSRecordCreate(d *schema.ResourceData, m interface{}) error {
 	addressesInterface := d.Get("addresses").([]interface{})
 	addresses := ConvertInterfaceToZoneNameServers(addressesInterface)
 	dnsView := d.Get("dns_view").(string)
-	msDelegationName := d.Get("ms_delegation_name").(string)
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
-	recordNS, err := objMgr.CreateNSRecord(name, nameserver, dnsView, addresses, msDelegationName)
+	recordNS, err := objMgr.CreateNSRecord(name, nameserver, dnsView, addresses, "")
 	if err != nil {
 		return err
 	}
@@ -109,14 +102,12 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevNameServer, _ := d.GetChange("nameserver")
 			prevDnsView, _ := d.GetChange("dns_view")
 			prevAddresses, _ := d.GetChange("addresses")
-			prevMsDelegationName, _ := d.GetChange("ms_delegation_name")
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
 			_ = d.Set("name", prevName.(string))
 			_ = d.Set("dns_view", prevDnsView.(string))
 			_ = d.Set("nameserver", prevNameServer.(string))
 			_ = d.Set("addresses", prevAddresses)
-			_ = d.Set("ms_delegation_name", prevMsDelegationName.(string))
 		}
 	}()
 	if d.HasChange("internal_id") {
@@ -131,13 +122,12 @@ func resourceNSRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	nameserver := d.Get("nameserver").(string)
 	addressesInterface := d.Get("addresses").([]interface{})
-	msDelegationName := d.Get("ms_delegation_name").(string)
 	addresses := ConvertInterfaceToZoneNameServers(addressesInterface)
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
 	rec, err := objMgr.UpdateNSRecord(
-		d.Id(), "", nameserver, "", addresses, msDelegationName)
+		d.Id(), "", nameserver, "", addresses, "")
 	if err != nil {
 		return fmt.Errorf("error updating NS-Record: %s", err)
 	}
@@ -210,9 +200,6 @@ func resourceNSRecordImport(d *schema.ResourceData, m interface{}) ([]*schema.Re
 		return nil, err
 	}
 	if err = d.Set("dns_view", obj.View); err != nil {
-		return nil, err
-	}
-	if err = d.Set("ms_delegation_name", obj.MsDelegationName); err != nil {
 		return nil, err
 	}
 	if obj.Addresses != nil {

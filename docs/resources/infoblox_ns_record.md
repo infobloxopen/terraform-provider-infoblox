@@ -15,7 +15,6 @@ addresses {
 }
 ```
 * `dns_view`: optional, The name of the DNS view in which the record resides.The default value is The default DNS view. Example: `external`
-* `ms_delegation_name`: optional, The MS delegation point name. The default value is Empty string. Example: `delegation.com`
 
 ### Examples of a NS Record Block
 
@@ -29,6 +28,5 @@ resource "infoblox_ns_record" "ns" {
     auto_create_ptr=true
   }
   dns_view = "default"
-  ms_delegation_name = "delegation_zone"
 }
 ```

@@ -11,7 +11,7 @@ resource "infoblox_ns_record" "ns"{
 data "infoblox_ns_record" "testNs_read" {
   filters = {
     name = infoblox_ns_record.ns.name
-    view="default"
+    view = infoblox_ns_record.ns.dns_view
     nameserver=infoblox_ns_record.ns.nameserver
   }
 }
