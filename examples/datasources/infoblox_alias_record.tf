@@ -28,7 +28,7 @@ output "alias_record_res" {
 // accessing alias record by specifying dns_view, zone, target_name and target_type
 data "infoblox_alias_record" "alias_read1" {
   filters = {
-    dns_view = "default"
+    view = "default"
     zone = "test.com"
     target_name = "hh.ll.com"
     target_type = "NAPTR"

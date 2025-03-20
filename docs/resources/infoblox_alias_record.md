@@ -1,6 +1,6 @@
 # Alias-record Resource
 
-The `infoblox_dtc_alias` resource enables you to perform `create`, `update` and `delete` operations on Alias Record in a NIOS appliance.
+The `infoblox_alias_record` resource enables you to perform `create`, `update` and `delete` operations on Alias Record in a NIOS appliance.
 The resource represents the ‘record:alias’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the `infoblox_alias_record` resource block:
@@ -12,7 +12,7 @@ The following list describes the parameters you can define in the `infoblox_alia
 * `disable`: optional, specifies whether the alias record is disabled or not. Default value is `false`.
 * `dns_view`: required, specifies the DNS view in which the zone exists. If a value is not specified, the name `default` is set as the DNS view. Example: `dns_view_1`.
 * `comment`: optional, describes the alias-record. Example: `an example alias-record`.
-* `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the alias-record. Example: `jsonencode({})`.
+* `ext_attrs`: optional, specifies the set of NIOS extensible attributes that are attached to the alias-record. Example: `jsonencode({"Site":"Singapore"})`.
 
 ### Example of an Alias-record Resource
 

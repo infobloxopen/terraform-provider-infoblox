@@ -19,3 +19,15 @@ resource "infoblox_alias_record" "alias_record_full_params" {
   })
 }
 
+// creating an alias record with ipv4 reverse mapping zone
+resource "infoblox_alias_record" "alias_record_reverse_ipv4" {
+  name = "alias.0.0.192.in-addr.arpa"
+  target_name = "test.info.com"
+  target_type = "AAAA"
+  comment = "example alias record"
+  disable = false
+  ttl = 120
+  ext_attrs = jsonencode({
+    "Site" = "MOROCCO"
+  })
+}
