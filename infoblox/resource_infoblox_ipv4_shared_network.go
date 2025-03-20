@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -60,13 +61,9 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 					Type: schema.TypeString,
 				},
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					// Suppress differences if the network references are the same without metadata
-					//return stripNetworkMetadata(old) == stripNetworkMetadata(new)
 					oldVal, newVal := d.GetChange("networks")
 					oldList := oldVal.([]interface{})
 					newList := newVal.([]interface{})
-					//sort.Strings(oldList)
-					//sort.Strings(newList)
 					return compareNetworkReferences(oldList, newList)
 				},
 			},
@@ -119,6 +116,70 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					oldVal, newVal := d.GetChange("options")
+
+					// Ensure oldVal and newVal are not nil
+					if oldVal == nil || newVal == nil {
+						return false
+					}
+
+					oldList, okOld := oldVal.([]interface{})
+					newList, okNew := newVal.([]interface{})
+
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					// Helper function to check if an option is the default value
+					isDefault := func(opt map[string]interface{}) bool {
+						return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
+					}
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					for i := range filteredOldList {
+						oldOptMap := filteredOldList[i].(map[string]interface{})
+						newOptMap := filteredNewList[i].(map[string]interface{})
+						if !reflect.DeepEqual(oldOptMap, newOptMap) {
+							return false
+						}
+					}
+
+					// Check for changes in subfields of default elements
+					if len(oldList) == len(newList) {
+						for i := range oldList {
+							oldOptMap := oldList[i].(map[string]interface{})
+							newOptMap := newList[i].(map[string]interface{})
+							if isDefault(oldOptMap) && !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+
+					return true
 				},
 			},
 			"internal_id": {
