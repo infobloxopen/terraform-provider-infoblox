@@ -15,7 +15,7 @@ var testAccDataSourceFixedAddress = fmt.Sprintf(`
 										value        = "43200"
 										vendor_class = "DHCP"
 										num          = 51
-										use_option   = true
+										use_option   = false
 									}
 							depends_on=[infoblox_ipv4_network.net3]
 							}
@@ -47,7 +47,7 @@ var testAccDataSourceFixedAddressEASearch = fmt.Sprintf(`
     								value        = "43200"
     								vendor_class = "DHCP"
     								num          = 51
-    								use_option   = true
+    								use_option   = false
   								}
   								options {
     								name = "routers"
@@ -88,7 +88,7 @@ func TestAccDataSourceFixedAddress(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.value", "43200"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.vendor_class", "DHCP"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.num", "51"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.use_option", "true")),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.use_option", "false")),
 			},
 		},
 	})
@@ -106,12 +106,12 @@ func TestAccDataSourceFixedAddressSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.value", "43200"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.vendor_class", "DHCP"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.num", "51"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.use_option", "true"),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.0.use_option", "false"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.name", "routers"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.value", "18.0.0.2"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.vendor_class", "DHCP"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.num", "3"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.use_option", "true"),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.use_option", "false"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.comment", "fixed address"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.match_client", "CLIENT_ID"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.dhcp_client_identifier", "23"),

@@ -149,6 +149,7 @@ func resourceFixedRecord() *schema.Resource {
 						"vendor_class": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Default:     "DHCP",
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
@@ -403,10 +404,25 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	// Get by Ref
-	recA, err := objMgr.GetFixedAddressByRef(d.Id())
+	var fixedAddress *ibclient.FixedAddress
+
+	rec, err := searchObjectByRefOrInternalId("FixedAddress", d, m)
 	if err != nil {
-		return fmt.Errorf("failed to read Fixed address for update operation: %w", err)
+		if _, ok := err.(*ibclient.NotFoundError); !ok {
+			return ibclient.NewNotFoundError(fmt.Sprintf(
+				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
+		} else {
+			d.SetId("")
+			return nil
+		}
+	}
+	recJson, err := json.Marshal(rec)
+	if err != nil {
+		return fmt.Errorf("failed to marshal fixedAddress : %s", err.Error())
+	}
+	err = json.Unmarshal(recJson, &fixedAddress)
+	if err != nil {
+		return fmt.Errorf("failed getting fixed addresss: %s", err.Error())
 	}
 
 	// If 'internal_id' is not set, then generate a new one and set it to the EA.
@@ -417,32 +433,15 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	newInternalId := newInternalResourceIdFromString(internalId)
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
-	newExtAttrs, err = mergeEAs(recA.Ea, newExtAttrs, oldExtAttrs, connector)
+	newExtAttrs, err = mergeEAs(fixedAddress.Ea, newExtAttrs, oldExtAttrs, connector)
 
-	obj, err := objMgr.UpdateFixedAddress(
-		d.Id(),
-		"",
-		name,
-		network,
-		ipv4addr,
-		matchClient,
-		mac,
-		comment,
-		newExtAttrs,
-		agentCircuitId,
-		agentRemoteId,
-		clientIdentifierPrependZero,
-		dhcpClientIdentifier,
-		disable,
-		options,
-		useOptions,
-	)
+	fixedAddress, err = objMgr.UpdateFixedAddress(d.Id(), "", name, network, ipv4addr, matchClient, mac, comment, newExtAttrs, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, options, useOptions)
 	if err != nil {
 		return fmt.Errorf("error updating Fixed address: %w", err)
 	}
 	updateSuccessful = true
-	d.SetId(obj.Ref)
-	if err = d.Set("ref", obj.Ref); err != nil {
+	d.SetId(fixedAddress.Ref)
+	if err = d.Set("ref", fixedAddress.Ref); err != nil {
 		return err
 	}
 	if err = d.Set("internal_id", newInternalId.String()); err != nil {

@@ -153,7 +153,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 							value        = "43200"
 							vendor_class = "DHCP"
 							num          = 51
-							use_option   = true
+							use_option   = false
 						}
 
 						depends_on = [infoblox_ipv4_network.net1]
@@ -169,7 +169,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 							Value:       "43200",
 							VendorClass: "DHCP",
 							Num:         51,
-							UseOption:   true,
+							UseOption:   false,
 						}},
 						Disable:     utils.BoolPtr(false),
 						NetviewName: "default",
@@ -214,7 +214,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 						Value:       "43200",
 						VendorClass: "DHCP",
 						Num:         51,
-						UseOption:   true,
+						UseOption:   false,
 					},
 						{
 							Name:        "routers",
@@ -240,7 +240,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 								value        = "43200"
 								vendor_class = "DHCP"
 								num          = 51
-								use_option   = true
+								use_option   = false
 							}
 								depends_on = [infoblox_ipv4_network.net3]
 							}`),
@@ -252,7 +252,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 						Value:       "43200",
 						VendorClass: "DHCP",
 						Num:         51,
-						UseOption:   true,
+						UseOption:   false,
 					},
 					},
 					Cidr:        "17.0.0.0/24",
@@ -270,7 +270,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 								value        = "43200"
 								vendor_class = "DHCP"
 								num          = 51
-								use_option   = true
+								use_option   = false
 							}
 					}`),
 				ExpectError: regexpCreateErrorIPV4FixedAddress,
@@ -297,7 +297,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
     								value        = "43200"
     								vendor_class = "DHCP"
     								num          = 51
-    								use_option   = true
+    								use_option   = false
   								}
   								options {
     								name = "routers"
@@ -323,7 +323,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 							Value:       "43200",
 							VendorClass: "DHCP",
 							Num:         51,
-							UseOption:   true,
+							UseOption:   false,
 						},
 							{
 								Name:        "routers",
