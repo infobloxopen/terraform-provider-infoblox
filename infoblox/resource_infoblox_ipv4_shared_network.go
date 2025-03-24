@@ -28,6 +28,139 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 					return err
 				}
 			}
+
+			// Helper function to check if an option is the default value
+			isDefault := func(opt map[string]interface{}) bool {
+				return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
+			}
+
+			// Check if newList contains dhcp-lease-time
+			containsDhcpLeaseTime := func(opt map[string]interface{}) bool {
+				if opt["name"] == "dhcp-lease-time" {
+					return true
+				}
+				return false
+			}
+
+			// Get the old and new values for the options field
+			oldVal, newVal := d.GetChange("options")
+
+			// Ensure oldVal and newVal are not nil
+			if oldVal == nil || newVal == nil {
+				return nil
+			}
+
+			oldList, okOld := oldVal.([]interface{})
+			newList, okNew := newVal.([]interface{})
+
+			// Ensure type assertions are successful
+			if !okOld || !okNew {
+				return nil
+			}
+
+			// If newList is empty, set it to an empty list to clear old values
+			if len(newList) == 0 {
+				if err := d.SetNew("options", []interface{}{}); err != nil {
+					return err
+				}
+				return nil
+			}
+
+			// Add default values to oldList if they are missing
+			defaultOpt := map[string]interface{}{
+				"name":         "dhcp-lease-time",
+				"num":          51,
+				"use_option":   false,
+				"value":        "43200",
+				"vendor_class": "DHCP",
+			}
+
+			hasDefaultOld := false
+			oldListContainsDhcpLeaseTime := false
+			for _, oldOpt := range oldList {
+				if containsDhcpLeaseTime(oldOpt.(map[string]interface{})) {
+					oldListContainsDhcpLeaseTime = true
+				}
+				if isDefault(oldOpt.(map[string]interface{})) {
+					hasDefaultOld = true
+					break
+				}
+			}
+
+			if !hasDefaultOld && !oldListContainsDhcpLeaseTime {
+				oldList = append(oldList, defaultOpt)
+			}
+
+			// Add default values to newList if they are missing
+			hasDefaultNew := false
+			newListContainsDhcpLeaseTime := false
+			for _, newOpt := range newList {
+				if containsDhcpLeaseTime(newOpt.(map[string]interface{})) {
+					newListContainsDhcpLeaseTime = true
+				}
+				if isDefault(newOpt.(map[string]interface{})) {
+					hasDefaultNew = true
+					break
+				}
+			}
+
+			if !hasDefaultNew && !newListContainsDhcpLeaseTime {
+				newList = append(newList, defaultOpt)
+			}
+
+			// Filter out default values from both old and new lists for comparison
+			filteredOldList := []interface{}{}
+			for _, oldOpt := range oldList {
+				oldOptMap, ok := oldOpt.(map[string]interface{})
+				if ok && !isDefault(oldOptMap) {
+					filteredOldList = append(filteredOldList, oldOpt)
+				}
+			}
+
+			filteredNewList := []interface{}{}
+			for _, newOpt := range newList {
+				newOptMap, ok := newOpt.(map[string]interface{})
+				if ok && !isDefault(newOptMap) {
+					filteredNewList = append(filteredNewList, newOpt)
+				}
+			}
+
+			// Compare the filtered lists
+			if len(filteredOldList) != len(filteredNewList) {
+				if err := d.SetNew("options", newList); err != nil {
+					return err
+				}
+				return nil
+			}
+
+			for i := range filteredOldList {
+				oldOptMap := filteredOldList[i].(map[string]interface{})
+				newOptMap := filteredNewList[i].(map[string]interface{})
+				// Iterate through newList and check if num is 0, find the corresponding old option and set the num attribute to its old value
+				if newOptMap["num"] == 0 {
+					newList[i].(map[string]interface{})["num"] = oldOptMap["num"]
+				}
+				if !reflect.DeepEqual(oldOptMap, newOptMap) {
+					if err := d.SetNew("options", newList); err != nil {
+						return err
+					}
+					return nil
+				}
+			}
+
+			// Ensure that the plan shows changes when non-default values are removed
+			if len(filteredNewList) == 0 && len(filteredOldList) > 0 {
+				if err := d.SetNew("options", newList); err != nil {
+					return err
+				}
+				return nil
+			}
+
+			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
+			if err := d.SetNew("options", oldList); err != nil {
+				return err
+			}
+
 			return nil
 		},
 		Schema: map[string]*schema.Schema{
@@ -82,6 +215,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Description: "An array of DHCP option structs that lists the DHCP options associated with the object. An option sets the" +
 					"value of a DHCP option that has been defined in an option space. DHCP options describe network configuration settings" +
 					"and various services available on the network. These options occur as variable-length fields at the end of DHCP messages." +
@@ -101,6 +235,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						"use_option": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
 								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
 								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
@@ -113,73 +248,10 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						"vendor_class": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Default:     "DHCP",
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
-				},
-				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					oldVal, newVal := d.GetChange("options")
-
-					// Ensure oldVal and newVal are not nil
-					if oldVal == nil || newVal == nil {
-						return false
-					}
-
-					oldList, okOld := oldVal.([]interface{})
-					newList, okNew := newVal.([]interface{})
-
-					// Ensure type assertions are successful
-					if !okOld || !okNew {
-						return false
-					}
-
-					// Helper function to check if an option is the default value
-					isDefault := func(opt map[string]interface{}) bool {
-						return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
-					}
-
-					// Filter out default values from both old and new lists
-					filteredOldList := []interface{}{}
-					for _, oldOpt := range oldList {
-						oldOptMap, ok := oldOpt.(map[string]interface{})
-						if ok && !isDefault(oldOptMap) {
-							filteredOldList = append(filteredOldList, oldOpt)
-						}
-					}
-
-					filteredNewList := []interface{}{}
-					for _, newOpt := range newList {
-						newOptMap, ok := newOpt.(map[string]interface{})
-						if ok && !isDefault(newOptMap) {
-							filteredNewList = append(filteredNewList, newOpt)
-						}
-					}
-
-					// Compare the filtered lists
-					if len(filteredOldList) != len(filteredNewList) {
-						return false
-					}
-
-					for i := range filteredOldList {
-						oldOptMap := filteredOldList[i].(map[string]interface{})
-						newOptMap := filteredNewList[i].(map[string]interface{})
-						if !reflect.DeepEqual(oldOptMap, newOptMap) {
-							return false
-						}
-					}
-
-					// Check for changes in subfields of default elements
-					if len(oldList) == len(newList) {
-						for i := range oldList {
-							oldOptMap := oldList[i].(map[string]interface{})
-							newOptMap := newList[i].(map[string]interface{})
-							if isDefault(oldOptMap) && !reflect.DeepEqual(oldOptMap, newOptMap) {
-								return false
-							}
-						}
-					}
-
-					return true
 				},
 			},
 			"internal_id": {
