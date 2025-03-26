@@ -235,7 +235,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						"use_option": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  false,
+							Default:  true,
 							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
 								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
 								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
@@ -491,6 +491,10 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 			_ = d.Set("ext_attrs", prevExtAttrs)
 		}
 	}()
+
+	if d.HasChange("network_view") {
+		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
+	}
 
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
