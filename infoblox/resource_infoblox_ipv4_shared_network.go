@@ -291,7 +291,9 @@ func compareNetworkReferences(oldList, newList []interface{}) bool {
 	sort.Strings(newCidrs)
 
 	for i, _ := range oldCidrs {
-		return oldCidrs[i] == newCidrs[i]
+		if oldCidrs[i] != newCidrs[i] {
+			return false
+		}
 	}
 	return true
 
