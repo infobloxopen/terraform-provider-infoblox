@@ -75,6 +75,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				"vendor_class": "DHCP",
 			}
 
+			// check if state-file file has dhcp-lease-time option and if it had default values
 			hasDefaultOld := false
 			oldListContainsDhcpLeaseTime := false
 			for _, oldOpt := range oldList {
@@ -87,11 +88,12 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				}
 			}
 
+			// if the old list does not contain user provided or default dhcp-lease-time, add default values to the list
 			if !hasDefaultOld && !oldListContainsDhcpLeaseTime {
 				oldList = append(oldList, defaultOpt)
 			}
 
-			// Add default values to newList if they are missing
+			// check if tf file has dhcp-lease-time option and if it has default values
 			hasDefaultNew := false
 			newListContainsDhcpLeaseTime := false
 			for _, newOpt := range newList {
@@ -104,6 +106,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				}
 			}
 
+			// Add default values to newList if it does not contain default or user provided dhcp-lease-time
 			if !hasDefaultNew && !newListContainsDhcpLeaseTime {
 				newList = append(newList, defaultOpt)
 			}
@@ -125,7 +128,17 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				}
 			}
 
-			// Compare the filtered lists
+			// Sort the lists by the specified sub-field (e.g., "value")
+			sortOptions := func(options []interface{}, field string) {
+				sort.SliceStable(options, func(i, j int) bool {
+					return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
+				})
+			}
+
+			sortOptions(filteredOldList, "value")
+			sortOptions(filteredNewList, "value")
+
+			// Compare the filtered lists and set options to newList
 			if len(filteredOldList) != len(filteredNewList) {
 				if err := d.SetNew("options", newList); err != nil {
 					return err
@@ -133,12 +146,16 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				return nil
 			}
 
+			// Iterate through newList and check if num/name is 0/empty, find the corresponding old option and
+			//set the num/name attribute to its old value
 			for i := range filteredOldList {
 				oldOptMap := filteredOldList[i].(map[string]interface{})
 				newOptMap := filteredNewList[i].(map[string]interface{})
-				// Iterate through newList and check if num is 0, find the corresponding old option and set the num attribute to its old value
 				if newOptMap["num"] == 0 {
 					newList[i].(map[string]interface{})["num"] = oldOptMap["num"]
+				}
+				if newOptMap["name"] == "" {
+					newList[i].(map[string]interface{})["name"] = oldOptMap["name"]
 				}
 				if !reflect.DeepEqual(oldOptMap, newOptMap) {
 					if err := d.SetNew("options", newList); err != nil {
