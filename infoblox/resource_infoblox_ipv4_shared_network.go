@@ -252,7 +252,6 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						"use_option": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  true,
 							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
 								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
 								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
@@ -289,9 +288,6 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 
 // Helper function to compare network references
 func compareNetworkReferences(oldList, newList []interface{}) bool {
-	if len(oldList) != len(newList) {
-		return false
-	}
 	oldNetworks := make([]string, len(oldList))
 	newNetworks := make([]string, len(newList))
 	oldCidrs := make([]string, 0)
@@ -307,6 +303,9 @@ func compareNetworkReferences(oldList, newList []interface{}) bool {
 	sort.Strings(oldCidrs)
 	sort.Strings(newCidrs)
 
+	if len(oldCidrs) != len(newCidrs) {
+		return false
+	}
 	for i, _ := range oldCidrs {
 		if oldCidrs[i] != newCidrs[i] {
 			return false
