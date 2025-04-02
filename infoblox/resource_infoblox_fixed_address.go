@@ -197,6 +197,9 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 	ipAddr := d.Get("ipv4addr").(string)
 	mac := d.Get("mac").(string)
 	matchClient := d.Get("match_client").(string)
+	if matchClient == "MAC_ADDRESS" && mac == "" {
+		return fmt.Errorf("MAC address is required when match_client set to MAC_ADDRESS")
+	}
 	name := d.Get("name").(string)
 	network := d.Get("network").(string)
 	if ipAddr == "" && network == "" {
