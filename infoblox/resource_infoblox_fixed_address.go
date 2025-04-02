@@ -88,6 +88,9 @@ func resourceFixedRecord() *schema.Resource {
 					if d.Get("match_client").(string) != "MAC_ADDRESS" && newValue != "" {
 						return true
 					}
+					if d.Get("match_client").(string) == "RESERVED" && oldValue == "00:00:00:00:00:00" {
+						return true
+					}
 					// Suppress diff if MAC addresses match after normalization
 					return oldValue == newValue
 				},
