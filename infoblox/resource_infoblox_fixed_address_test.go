@@ -314,7 +314,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 						IPv4Address:                 "18.0.0.1",
 						MatchClient:                 "CLIENT_ID",
 						DhcpClientIdentifier:        "23",
-						ClientIdentifierPrependZero: true,
+						ClientIdentifierPrependZero: utils.BoolPtr(true),
 						Name:                        "fixed_address_1",
 						Comment:                     "fixed address",
 						Cidr:                        "18.0.0.0/24",
