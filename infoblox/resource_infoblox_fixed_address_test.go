@@ -71,14 +71,20 @@ func testAccFixedAddressCompare(t *testing.T, resourceName string, expectedFixed
 				"the value of 'ipv4addr' field is '%s', but expected '%s'",
 				rec.IPv4Address, expectedFixedAddress.IPv4Address)
 		}
-		if rec.Name != expectedFixedAddress.Name {
-			return fmt.Errorf("the value of 'name' field is '%s' , but expected is '%s'", rec.Name, expectedFixedAddress.Name)
+		if rec.Name != nil && expectedFixedAddress.Name != nil {
+			if *rec.Name != *expectedFixedAddress.Name {
+				return fmt.Errorf("the value of 'name' field is '%s', but expected is '%s'", *rec.Name, *expectedFixedAddress.Name)
+			}
 		}
-		if rec.Mac != expectedFixedAddress.Mac {
-			return fmt.Errorf("the value of 'mac' field is '%s' , but expected is '%s'", rec.Mac, expectedFixedAddress.Mac)
+		if rec.Mac != nil && expectedFixedAddress.Mac != nil {
+			if *rec.Mac != *expectedFixedAddress.Mac {
+				return fmt.Errorf("the value of 'mac' field is '%s', but expected is '%s'", *rec.Mac, *expectedFixedAddress.Mac)
+			}
 		}
-		if rec.MatchClient != expectedFixedAddress.MatchClient {
-			return fmt.Errorf("the value of 'matchcleint' field is '%s', but expected '%s'", rec.MatchClient, expectedFixedAddress.MatchClient)
+		if rec.MatchClient != nil && expectedFixedAddress.MatchClient != nil {
+			if *rec.MatchClient != *expectedFixedAddress.MatchClient {
+				return fmt.Errorf("the value of 'matchclient' field is '%s', but expected '%s'", *rec.MatchClient, *expectedFixedAddress.MatchClient)
+			}
 		}
 		if rec.NetviewName != expectedFixedAddress.NetviewName {
 			return fmt.Errorf("the value of 'network_view'field is '%s', but expected '%s'", rec.NetviewName, expectedFixedAddress.NetviewName)
@@ -86,21 +92,29 @@ func testAccFixedAddressCompare(t *testing.T, resourceName string, expectedFixed
 		if rec.Comment != expectedFixedAddress.Comment {
 			return fmt.Errorf("the value of 'comment' field is '%s', but expected '%s'", rec.Comment, expectedFixedAddress.Comment)
 		}
-		if rec.AgentCircuitId != expectedFixedAddress.AgentCircuitId {
-			return fmt.Errorf("the value of 'agent_circuit_id' field is '%s', but expected '%s'", rec.AgentCircuitId, expectedFixedAddress.AgentCircuitId)
+		if rec.AgentCircuitId != nil && expectedFixedAddress.AgentCircuitId != nil {
+			if *rec.AgentCircuitId != *expectedFixedAddress.AgentCircuitId {
+				return fmt.Errorf("the value of 'agent_circuit_id' field is '%s', but expected '%s'", *rec.AgentCircuitId, *expectedFixedAddress.AgentCircuitId)
+			}
 		}
-		if rec.AgentRemoteId != expectedFixedAddress.AgentRemoteId {
-			return fmt.Errorf("the value of 'agent_remote_id' field is '%s', but expected '%s'", rec.AgentRemoteId, expectedFixedAddress.AgentRemoteId)
+		if rec.AgentRemoteId != nil && expectedFixedAddress.AgentRemoteId != nil {
+			if *rec.AgentRemoteId != *expectedFixedAddress.AgentRemoteId {
+				return fmt.Errorf("the value of 'agent_remote_id' field is '%s', but expected '%s'", *rec.AgentRemoteId, *expectedFixedAddress.AgentRemoteId)
+			}
 		}
 		if rec.Options != nil && expectedFixedAddress.Options != nil {
 			if len(rec.Options) != len(expectedFixedAddress.Options) {
 				return fmt.Errorf("the length of 'options' field is '%d' but expected '%d'", len(rec.Options), len(expectedFixedAddress.Options))
 			}
-			if rec.ClientIdentifierPrependZero != expectedFixedAddress.ClientIdentifierPrependZero {
-				return fmt.Errorf("the value of 'client_identifier_prepend_zero' field is '%t', but expected '%t'", rec.ClientIdentifierPrependZero, expectedFixedAddress.ClientIdentifierPrependZero)
+			if rec.ClientIdentifierPrependZero != nil && expectedFixedAddress.ClientIdentifierPrependZero != nil {
+				if *rec.ClientIdentifierPrependZero != *expectedFixedAddress.ClientIdentifierPrependZero {
+					return fmt.Errorf("the value of 'client_identifier_prepend_zero' field is '%t', but expected '%t'", *rec.ClientIdentifierPrependZero, *expectedFixedAddress.ClientIdentifierPrependZero)
+				}
 			}
-			if rec.DhcpClientIdentifier != expectedFixedAddress.DhcpClientIdentifier {
-				return fmt.Errorf("the value of 'dhcp_client_identifier' field is '%s' , but expected '%s'", rec.DhcpClientIdentifier, expectedFixedAddress.DhcpClientIdentifier)
+			if rec.DhcpClientIdentifier != nil && expectedFixedAddress.DhcpClientIdentifier != nil {
+				if *rec.DhcpClientIdentifier != *expectedFixedAddress.DhcpClientIdentifier {
+					return fmt.Errorf("the value of 'dhcp_client_identifier' field is '%s', but expected '%s'", *rec.DhcpClientIdentifier, *expectedFixedAddress.DhcpClientIdentifier)
+				}
 			}
 			for i := range rec.Options {
 				if !reflect.DeepEqual(rec.Options[i], expectedFixedAddress.Options[i]) {
@@ -161,8 +175,8 @@ func TestAccResourceFixedAddress(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccFixedAddressCompare(t, "infoblox_ipv4_fixed_address.fix1", &ibclient.FixedAddress{
 						IPv4Address:    "15.0.0.2",
-						MatchClient:    "CIRCUIT_ID",
-						AgentCircuitId: "32",
+						MatchClient:    utils.StringPtr("CIRCUIT_ID"),
+						AgentCircuitId: utils.StringPtr("32"),
 						Cidr:           "15.0.0.0/24",
 						Options: []*ibclient.Dhcpoption{{
 							Name:        "dhcp-lease-time",
@@ -205,8 +219,8 @@ func TestAccResourceFixedAddress(t *testing.T) {
 					}`),
 				Check: resource.ComposeTestCheckFunc(testAccFixedAddressCompare(t, "infoblox_ipv4_fixed_address.fix2", &ibclient.FixedAddress{
 					IPv4Address:   "16.0.0.1",
-					MatchClient:   "REMOTE_ID",
-					AgentRemoteId: "35",
+					MatchClient:   utils.StringPtr("REMOTE_ID"),
+					AgentRemoteId: utils.StringPtr("35"),
 					Cidr:          "16.0.0.0/24",
 					NetviewName:   "default",
 					Options: []*ibclient.Dhcpoption{{
@@ -246,7 +260,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 							}`),
 				Check: resource.ComposeTestCheckFunc(testAccFixedAddressCompare(t, "infoblox_ipv4_fixed_address.fix3", &ibclient.FixedAddress{
 					IPv4Address: "17.0.0.9",
-					Mac:         "00:0c:24:2e:8f:2a",
+					Mac:         utils.StringPtr("00:0c:24:2e:8f:2a"),
 					Options: []*ibclient.Dhcpoption{{
 						Name:        "dhcp-lease-time",
 						Value:       "43200",
@@ -256,7 +270,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 					},
 					},
 					Cidr:        "17.0.0.0/24",
-					MatchClient: "MAC_ADDRESS",
+					MatchClient: utils.StringPtr("MAC_ADDRESS"),
 					NetviewName: "default",
 				})),
 			},
@@ -306,16 +320,16 @@ func TestAccResourceFixedAddress(t *testing.T) {
     								value = "18.0.0.2"
     								vendor_class = "DHCP"
   								}
-  								use_option = true
+  								use_options = true
 								depends_on = [infoblox_ipv4_network.net2]
 								}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccFixedAddressCompare(t, "infoblox_ipv4_fixed_address.fix5", &ibclient.FixedAddress{
 						IPv4Address:                 "18.0.0.1",
-						MatchClient:                 "CLIENT_ID",
-						DhcpClientIdentifier:        "23",
+						MatchClient:                 utils.StringPtr("CLIENT_ID"),
+						DhcpClientIdentifier:        utils.StringPtr("23"),
 						ClientIdentifierPrependZero: utils.BoolPtr(true),
-						Name:                        "fixed_address_1",
+						Name:                        utils.StringPtr("fixed_address_1"),
 						Comment:                     "fixed address",
 						Cidr:                        "18.0.0.0/24",
 						Options: []*ibclient.Dhcpoption{{
