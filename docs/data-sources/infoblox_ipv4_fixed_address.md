@@ -16,6 +16,7 @@ The `infoblox_ipv4_fixed_address` data source to retrieve the following informat
 * `network`: The network to which this fixed address belongs, in IPv4 Address/CIDR format. Example: `10.0.0.0/24`
 * `network_view`: The name of the network view in which this fixed address resides. The default value is The default network view. Example: `default`
 * `options`: An array of DHCP option structs that lists the DHCP options associated with the object.
+* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
 ```terraform
 options {
     name         = "dhcp-lease-time"
@@ -91,7 +92,7 @@ resource "infoblox_ipv4_fixed_address" "fix4"{
     value = "18.0.0.2"
     vendor_class = "DHCP"
   }
-  use_option = true
+  use_options = true
   depends_on=[infoblox_ipv4_network.net2]
 }
 data "infoblox_ipv4_fixed_address" "testFixedAddress_read1" {

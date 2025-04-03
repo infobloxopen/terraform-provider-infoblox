@@ -60,7 +60,7 @@ resource "infoblox_ipv4_fixed_address" "fix4"{
     value = "18.0.0.2"
     vendor_class = "DHCP"
   }
-  use_option = true
+  use_options = true
   depends_on=[infoblox_ipv4_network.net2]
 }
 resource "infoblox_ipv4_network" "net2" {

@@ -129,10 +129,15 @@ func dataSourceFixedAddress() *schema.Resource {
 								},
 							},
 						},
-						"use_option": {
+						"use_options": {
 							Type:        schema.TypeBool,
 							Computed:    true,
 							Description: "Use option is a flag that indicates whether the options field are used or not.",
+						},
+						"cloud_info": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Structure containing all cloud API related information for this object.",
 						},
 					},
 				},
@@ -200,7 +205,7 @@ func flattenFixedAddress(fixedAddress ibclient.FixedAddress) (map[string]interfa
 		"agent_circuit_id":               fixedAddress.AgentCircuitId,
 		"agent_remote_id":                fixedAddress.AgentRemoteId,
 		"client_identifier_prepend_zero": fixedAddress.ClientIdentifierPrependZero,
-		"use_option":                     fixedAddress.UseOptions,
+		"use_options":                    fixedAddress.UseOptions,
 		"disable":                        fixedAddress.Disable,
 		"dhcp_client_identifier":         fixedAddress.DhcpClientIdentifier,
 		"ext_attrs":                      string(ea),
@@ -209,5 +214,54 @@ func flattenFixedAddress(fixedAddress ibclient.FixedAddress) (map[string]interfa
 	if fixedAddress.Options != nil {
 		res["options"] = convertDhcpOptionsToInterface(fixedAddress.Options)
 	}
+	if fixedAddress.CloudInfo != nil {
+		cloudInfo, err := serializeGridCloudApiInfo(fixedAddress.CloudInfo)
+		if err != nil {
+			return nil, err
+		}
+		res["cloud_info"] = cloudInfo
+	}
 	return res, nil
+}
+
+func serializeGridCloudApiInfo(gci *ibclient.GridCloudapiInfo) (string, error) {
+	// Create a map to hold the serialized values
+	gciMap := map[string]interface{}{}
+
+	// Check and add fields to the map if they are non-zero
+	if gci.DelegatedMember != nil {
+		// If DelegatedMember exists, add it to the map
+		gciMap["delegated_member"] = gci.DelegatedMember
+	}
+	if gci.DelegatedScope != "" {
+		gciMap["delegated_scope"] = gci.DelegatedScope
+	}
+	if gci.DelegatedRoot != "" {
+		gciMap["delegated_root"] = gci.DelegatedRoot
+	}
+	gciMap["owned_by_adaptor"] = gci.OwnedByAdaptor // boolean field, will be added regardless
+	if gci.Usage != "" {
+		gciMap["usage"] = gci.Usage
+	}
+	if gci.Tenant != "" {
+		gciMap["tenant"] = gci.Tenant
+	}
+	if gci.MgmtPlatform != "" {
+		gciMap["mgmt_platform"] = gci.MgmtPlatform
+	}
+	if gci.AuthorityType != "" {
+		gciMap["authority_type"] = gci.AuthorityType
+	}
+
+	// If no fields to serialize, return an empty string
+	if len(gciMap) == 0 {
+		return "", nil
+	}
+	// Marshal the map to JSON
+	gciJSON, err := json.Marshal(gciMap)
+	if err != nil {
+		return "", err
+	}
+	// Return the serialized JSON string
+	return string(gciJSON), nil
 }
