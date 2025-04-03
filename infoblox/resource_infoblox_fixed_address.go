@@ -165,7 +165,7 @@ func resourceFixedRecord() *schema.Resource {
 					return CompareSortedList(oldList, newList, "name", "num")
 				},
 			},
-			"use_option": {
+			"use_options": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
@@ -212,7 +212,7 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 
 	optionsInterface := d.Get("options").([]interface{})
 	options := ConvertInterfaceToDhcpOptions(optionsInterface)
-	useOptions := d.Get("use_option").(bool)
+	useOptions := d.Get("use_options").(bool)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -292,8 +292,10 @@ func resourceFixedRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("ipv4addr", fixedAddress.IPv4Address); err != nil {
 		return err
 	}
-	if err = d.Set("mac", fixedAddress.Mac); err != nil {
-		return err
+	if fixedAddress.MatchClient != nil && (*fixedAddress.MatchClient == "MAC_ADDRESS" || *fixedAddress.MatchClient == "RESERVED") {
+		if err = d.Set("mac", fixedAddress.Mac); err != nil {
+			return err
+		}
 	}
 	if err = d.Set("match_client", fixedAddress.MatchClient); err != nil {
 		return err
@@ -308,19 +310,40 @@ func resourceFixedRecordRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err = d.Set("agent_circuit_id", fixedAddress.AgentCircuitId); err != nil {
-		return err
+	if fixedAddress.MatchClient != nil && *fixedAddress.MatchClient == "CIRCUIT_ID" {
+		if err = d.Set("agent_circuit_id", fixedAddress.AgentCircuitId); err != nil {
+			return err
+		}
+	} else {
+		if err = d.Set("agent_circuit_id", ""); err != nil {
+			return err
+		}
 	}
-	if err = d.Set("agent_remote_id", fixedAddress.AgentRemoteId); err != nil {
-		return err
+	if fixedAddress.MatchClient != nil && *fixedAddress.MatchClient == "REMOTE_ID" {
+		if err = d.Set("agent_remote_id", fixedAddress.AgentRemoteId); err != nil {
+			return err
+		}
+	} else {
+		if err = d.Set("agent_remote_id", ""); err != nil {
+			return err
+		}
 	}
-	if err = d.Set("client_identifier_prepend_zero", fixedAddress.ClientIdentifierPrependZero); err != nil {
-		return err
+	if fixedAddress.MatchClient != nil && *fixedAddress.MatchClient == "CLIENT_ID" {
+		if err = d.Set("client_identifier_prepend_zero", fixedAddress.ClientIdentifierPrependZero); err != nil {
+			return err
+		}
+		if err = d.Set("dhcp_client_identifier", fixedAddress.DhcpClientIdentifier); err != nil {
+			return err
+		}
+	} else {
+		if err = d.Set("client_identifier_prepend_zero", false); err != nil {
+			return err
+		}
+		if err = d.Set("dhcp_client_identifier", ""); err != nil {
+			return err
+		}
 	}
-	if err = d.Set("dhcp_client_identifier", fixedAddress.DhcpClientIdentifier); err != nil {
-		return err
-	}
-	if err = d.Set("use_option", fixedAddress.UseOptions); err != nil {
+	if err = d.Set("use_options", fixedAddress.UseOptions); err != nil {
 		return err
 	}
 	if err = d.Set("options", convertDhcpOptionsToInterface(fixedAddress.Options)); err != nil {
@@ -348,7 +371,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			prevAgentRemoteId, _ := d.GetChange("agent_remote_id")
 			prevClientIdentifierPrependZero, _ := d.GetChange("client_identifier_prepend_zero")
 			prevDhcpClientIdentifier, _ := d.GetChange("dhcp_client_identifier")
-			prevUseOption, _ := d.GetChange("use_option")
+			prevUseOption, _ := d.GetChange("use_options")
 			prevOptions, _ := d.GetChange("options")
 			prevExtAttrsJSON, _ := d.GetChange("ext_attrs")
 
@@ -364,7 +387,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("agent_remote_id", prevAgentRemoteId.(string))
 			_ = d.Set("client_identifier_prepend_zero", prevClientIdentifierPrependZero.(bool))
 			_ = d.Set("dhcp_client_identifier", prevDhcpClientIdentifier.(string))
-			_ = d.Set("use_option", prevUseOption.(bool))
+			_ = d.Set("use_options", prevUseOption.(bool))
 			_ = d.Set("options", prevOptions)
 			_ = d.Set("ext_attrs", prevExtAttrsJSON.(string))
 
@@ -379,6 +402,11 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	network := d.Get("network").(string)
 	ipv4addr := d.Get("ipv4addr").(string)
+	if d.HasChange("ipv4addr") && d.HasChange("network") {
+		ipv4addr = d.Get("ipv4addr").(string)
+	} else if d.HasChange("network") {
+		ipv4addr = ""
+	}
 	mac := d.Get("mac").(string)
 	name := d.Get("name").(string)
 	comment := d.Get("comment").(string)
@@ -388,7 +416,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	agentRemoteId := d.Get("agent_remote_id").(string)
 	clientIdentifierPrependZero := d.Get("client_identifier_prepend_zero").(bool)
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
-	useOptions := d.Get("use_option").(bool)
+	useOptions := d.Get("use_options").(bool)
 	optionsInterface := d.Get("options").([]interface{})
 	options := ConvertInterfaceToDhcpOptions(optionsInterface)
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
@@ -561,7 +589,7 @@ func resourceFixedRecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 	if err = d.Set("dhcp_client_identifier", obj.DhcpClientIdentifier); err != nil {
 		return nil, err
 	}
-	if err = d.Set("use_option", obj.UseOptions); err != nil {
+	if err = d.Set("use_options", obj.UseOptions); err != nil {
 		return nil, err
 	}
 	OptionsInterface := convertDhcpOptionsToInterface(obj.Options)
