@@ -34,14 +34,6 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
 			}
 
-			// Check if newList contains dhcp-lease-time
-			containsDhcpLeaseTime := func(opt map[string]interface{}) bool {
-				if opt["name"] == "dhcp-lease-time" {
-					return true
-				}
-				return false
-			}
-
 			// Get the old and new values for the options field
 			oldVal, newVal := d.GetChange("options")
 
@@ -77,11 +69,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 
 			// check if state-file file has dhcp-lease-time option and if it had default values
 			hasDefaultOld := false
-			oldListContainsDhcpLeaseTime := false
 			for _, oldOpt := range oldList {
-				if containsDhcpLeaseTime(oldOpt.(map[string]interface{})) {
-					oldListContainsDhcpLeaseTime = true
-				}
 				if isDefault(oldOpt.(map[string]interface{})) {
 					hasDefaultOld = true
 					break
@@ -89,17 +77,13 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 			}
 
 			// if the old list does not contain user provided or default dhcp-lease-time, add default values to the list
-			if !hasDefaultOld && !oldListContainsDhcpLeaseTime {
+			if !hasDefaultOld {
 				oldList = append(oldList, defaultOpt)
 			}
 
 			// check if tf file has dhcp-lease-time option and if it has default values
 			hasDefaultNew := false
-			newListContainsDhcpLeaseTime := false
 			for _, newOpt := range newList {
-				if containsDhcpLeaseTime(newOpt.(map[string]interface{})) {
-					newListContainsDhcpLeaseTime = true
-				}
 				if isDefault(newOpt.(map[string]interface{})) {
 					hasDefaultNew = true
 					break
@@ -107,7 +91,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 			}
 
 			// Add default values to newList if it does not contain default or user provided dhcp-lease-time
-			if !hasDefaultNew && !newListContainsDhcpLeaseTime {
+			if !hasDefaultNew {
 				newList = append(newList, defaultOpt)
 			}
 
@@ -135,49 +119,40 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				})
 			}
 
-			sortOptions(filteredOldList, "value")
-			sortOptions(filteredNewList, "value")
+			sortOptions(filteredOldList, "name")
+			sortOptions(filteredNewList, "name")
 
 			// Compare the filtered lists and set options to newList
 			if len(filteredOldList) != len(filteredNewList) {
-				if err := d.SetNew("options", newList); err != nil {
+				if err := d.SetNew("options", filteredNewList); err != nil {
 					return err
 				}
 				return nil
 			}
 
-			// Iterate through newList and check if num/name is 0/empty, find the corresponding old option and
-			//set the num/name attribute to its old value
-			for i := range filteredOldList {
-				oldOptMap := filteredOldList[i].(map[string]interface{})
-				newOptMap := filteredNewList[i].(map[string]interface{})
-				if newOptMap["num"] == 0 {
-					newList[i].(map[string]interface{})["num"] = oldOptMap["num"]
-				}
-				if newOptMap["name"] == "" {
-					newList[i].(map[string]interface{})["name"] = oldOptMap["name"]
-				}
-				if !reflect.DeepEqual(oldOptMap, newOptMap) {
-					if err := d.SetNew("options", newList); err != nil {
-						return err
-					}
-					return nil
-				}
-			}
-
 			// Ensure that the plan shows changes when non-default values are removed
 			if len(filteredNewList) == 0 && len(filteredOldList) > 0 {
-				if err := d.SetNew("options", newList); err != nil {
+				if err := d.SetNew("options", filteredNewList); err != nil {
 					return err
 				}
 				return nil
 			}
 
 			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
+			if !reflect.DeepEqual(filteredNewList, filteredOldList) {
+				// add default options if not present in the new list
+				if !hasDefaultNew {
+					filteredNewList = append(filteredNewList, defaultOpt)
+				}
+				if err := d.SetNew("options", filteredNewList); err != nil {
+					return err
+				}
+				return nil
+			}
+			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
 			if err := d.SetNew("options", oldList); err != nil {
 				return err
 			}
-
 			return nil
 		},
 		Schema: map[string]*schema.Schema{
@@ -252,6 +227,7 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						"use_option": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
 								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
 								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
