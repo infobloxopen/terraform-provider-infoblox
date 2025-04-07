@@ -216,7 +216,6 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               resourceDtcPool(),
 			"infoblox_dtc_server":             resourceDtcServer(),
-			"infoblox_ipv4_shared_network":    resourceIpv4SharedNetwork(),
 			"infoblox_alias_record":           resourceAliasRecord(),
 			"infoblox_ns_record":              resourceNSRecord(),
 			"infoblox_ipv4_shared_network":    resourceIpv4SharedNetwork(),
