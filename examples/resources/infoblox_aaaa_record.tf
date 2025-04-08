@@ -11,6 +11,7 @@ resource "infoblox_aaaa_record" "rec2" {
   comment   = "example static AAAA-record rec2"
   dns_view  = "nondefault_dnsview2"
   ttl       = 120 // 120s
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -24,34 +25,40 @@ resource "infoblox_aaaa_record" "rec3" {
   comment      = "example dynamic AAAA-record rec3"
   dns_view     = "nondefault_dnsview1"
   ttl          = 0 // 0 = disable caching
-  ext_attrs    = jsonencode({})
+
+  ext_attrs = jsonencode({})
 }
 
 // dynamically created AAAA-record using next_available_ip
 resource "infoblox_aaaa_record" "recordAAAA" {
-  fqdn    = "aaa123.test.com"
-  comment = "example dynamic AAAA-record rec18"
-  ttl     = 120
+  fqdn         = "aaa123.test.com"
+  comment      = "example dynamic AAAA-record rec18"
+  ttl          = 120
+  network_view = "test"
+
   filter_params = jsonencode({
     "*Site" : "Turkey"
   })
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
-  network_view = "test"
 }
 
 // dynamically created AAAA-record using next_available_ip with dns_view
 resource "infoblox_aaaa_record" "recordaaaa" {
-  fqdn    = "aaa123.test.com"
-  comment = "example dynamic AAAA-record rec18"
-  ttl     = 120
+  fqdn         = "aaa123.test.com"
+  comment      = "example dynamic AAAA-record rec18"
+  ttl          = 120
+  network_view = "custom"
+  dns_view     = "default.custom"
+
   filter_params = jsonencode({
     "*Site" : "Turkey"
   })
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
-  network_view = "custom"
-  dns_view     = "default.custom"
+
 }

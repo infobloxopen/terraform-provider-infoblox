@@ -1,6 +1,7 @@
 resource "infoblox_ipv6_network_container" "nc1" {
-  cidr = "2002:1f93:0:2::/96"
+  cidr    = "2002:1f93:0:2::/96"
   comment = "new generation network segment"
+
   ext_attrs = jsonencode({
     "Site" = "space station"
   })

@@ -1,6 +1,6 @@
 # Region being used to create the resources
 provider "aws" {
-  region  = "us-west-1"
+  region = "us-west-1"
 }
 
 # Create a Virtual Private Cloud

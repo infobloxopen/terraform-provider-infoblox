@@ -1,6 +1,7 @@
 resource "infoblox_network_view" "inet_nv" {
-  name = "inet_visible_nv"
+  name    = "inet_visible_nv"
   comment = "Internet-facing networks"
+
   ext_attrs = jsonencode({
     "Location" = "the North pole"
   })

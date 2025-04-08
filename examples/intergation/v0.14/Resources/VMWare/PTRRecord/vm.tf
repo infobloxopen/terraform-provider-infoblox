@@ -1,8 +1,8 @@
 provider "vsphere" {
-   allow_unverified_ssl = true
+  allow_unverified_ssl = true
 }
 
-data "vsphere_datacenter" "dc"{
+data "vsphere_datacenter" "dc" {
   name = "Blr-Devlab"
 }
 
@@ -32,10 +32,10 @@ resource "vsphere_virtual_machine" "vm_ipv4" {
   name             = infoblox_ipv4_allocation.ipv4_allocation.host_name
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
-  num_cpus = 2
-  memory   = 1024
-  guest_id = data.vsphere_virtual_machine.template.guest_id
-  scsi_type = data.vsphere_virtual_machine.template.scsi_type
+  num_cpus         = 2
+  memory           = 1024
+  guest_id         = data.vsphere_virtual_machine.template.guest_id
+  scsi_type        = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {
     network_id   = data.vsphere_network.network.id
@@ -69,14 +69,14 @@ resource "vsphere_virtual_machine" "vm_ipv4" {
 }
 
 resource "vsphere_virtual_machine" "vm_ipv6" {
-  name             = infoblox_ipv6_allocation.ipv6_allocation.host_name
-  resource_pool_id = data.vsphere_resource_pool.pool.id
-  datastore_id     = data.vsphere_datastore.datastore.id
+  name                       = infoblox_ipv6_allocation.ipv6_allocation.host_name
+  resource_pool_id           = data.vsphere_resource_pool.pool.id
+  datastore_id               = data.vsphere_datastore.datastore.id
   wait_for_guest_net_timeout = 0
   #wait_for_guest_ip_timeout  = 5
-  num_cpus = 2
-  memory   = 1024
-  guest_id = data.vsphere_virtual_machine.template.guest_id
+  num_cpus  = 2
+  memory    = 1024
+  guest_id  = data.vsphere_virtual_machine.template.guest_id
   scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
   network_interface {

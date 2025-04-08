@@ -6,7 +6,7 @@ terraform {
       version = "~> 2.50.0"
     }
     infoblox = {
-      source = "infobloxopen/infoblox"
+      source  = "infobloxopen/infoblox"
       version = ">=2.0"
     }
   }

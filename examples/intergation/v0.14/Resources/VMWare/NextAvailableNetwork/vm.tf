@@ -1,11 +1,11 @@
 # Provider details
 provider "vsphere" {
-   allow_unverified_ssl = true
+  allow_unverified_ssl = true
 }
 
 # Create a datacenter
-data"vsphere_datacenter" "dc"{
- name = "vRA-DC"
+data "vsphere_datacenter" "dc" {
+  name = "vRA-DC"
 }
 
 # Create a datastore

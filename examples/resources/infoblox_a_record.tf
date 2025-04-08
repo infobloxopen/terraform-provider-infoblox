@@ -11,6 +11,7 @@ resource "infoblox_a_record" "rec2" {
   comment  = "example static A-record rec2"
   dns_view = "nondefault_dnsview2"
   ttl      = 120 // 120s
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
@@ -30,14 +31,17 @@ resource "infoblox_a_record" "rec3" {
 
 // dynamically created A-record using next_available_ip
 resource "infoblox_a_record" "recordA" {
-  fqdn    = "gg11.test.com"
-  comment = "example dynamic A-record rec18"
-  ttl     = 120
+  fqdn         = "gg11.test.com"
+  comment      = "example dynamic A-record rec18"
+  ttl          = 120
+  network_view = "custom"
+
   filter_params = jsonencode({
     "*Site" : "Turkey"
   })
+
   ext_attrs = jsonencode({
     "Location" = "65.8665701230204, -37.00791763398113"
   })
-  network_view = "custom"
+
 }

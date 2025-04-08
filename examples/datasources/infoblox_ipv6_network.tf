@@ -1,8 +1,8 @@
 resource "infoblox_ipv6_network" "ipv6net1" {
-  cidr = "2002:1f93:0:4::/96"
+  cidr         = "2002:1f93:0:4::/96"
   reserve_ipv6 = 10
-  gateway = "2002:1f93:0:4::1"
-  comment = "let's try IPv6"
+  gateway      = "2002:1f93:0:4::1"
+  comment      = "let's try IPv6"
   ext_attrs = jsonencode({
     "Site" = "Antarctica"
   })
