@@ -302,6 +302,9 @@ func resourceRangeRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("use_options", networkRange.UseOptions); err != nil {
 		return err
 	}
+	if err = d.Set("template", networkRange.Template); err != nil {
+		return err
+	}
 	d.SetId(networkRange.Ref)
 	return nil
 }
@@ -325,6 +328,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 			prevUseOptions, _ := d.GetChange("use_options")
 			prevServerAssociationType, _ := d.GetChange("server_association_type")
 			prevFailOverAssociation, _ := d.GetChange("failover_association")
+			prevTemplate, _ := d.GetChange("template")
 
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
@@ -341,6 +345,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("use_options", prevUseOptions.(bool))
 			_ = d.Set("server_association_type", prevServerAssociationType.(string))
 			_ = d.Set("failover_association", prevFailOverAssociation.(string))
+			_ = d.Set("template", prevTemplate.(string))
 		}
 	}()
 	if d.HasChange("internal_id") {
