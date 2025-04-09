@@ -49,6 +49,11 @@ func dataSourceNetwork() *schema.Resource {
 							Computed:    true,
 							Description: "The Extensible attributes for network datasource, as a map in JSON format",
 						},
+						"gateway": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The Gateway IP Address (identified using Options routers)",
+						},
 					},
 				},
 			},
@@ -63,6 +68,7 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	n := &ibclient.Ipv4Network{}
 	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "options"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
@@ -125,6 +131,15 @@ func flattenIpv4Network(network ibclient.Ipv4Network) (map[string]interface{}, e
 		res["comment"] = *network.Comment
 	}
 
+	if network.Options != nil {
+		for _, opt := range network.Options {
+			if opt.Name == "routers" {
+				res["gateway"] = opt.Value
+				break
+			}
+		}
+	}
+
 	return res, nil
 }
 
@@ -154,6 +169,15 @@ func flattenIpv6Network(network ibclient.Ipv6Network) (map[string]interface{}, e
 		res["comment"] = *network.Comment
 	}
 
+	if network.Options != nil {
+		for _, opt := range network.Options {
+			if opt.Name == "routers" {
+				res["gateway"] = opt.Value
+				break
+			}
+		}
+	}
+
 	return res, nil
 }
 
@@ -164,6 +188,7 @@ func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	n := &ibclient.Ipv6Network{}
 	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "options"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
