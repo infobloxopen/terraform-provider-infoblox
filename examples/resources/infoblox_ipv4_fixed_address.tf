@@ -26,10 +26,10 @@ resource "infoblox_ipv4_fixed_address" "fix4"{
         value = "18.0.0.2"
         vendor_class = "DHCP"
     }
-    use_option = true
-    depends_on=[infoblox_ipv4_network.net2]
+    use_options = true
+    depends_on=[infoblox_ipv4_network.net4]
 }
-resource "infoblox_ipv4_network" "net2" {
+resource "infoblox_ipv4_network" "net4" {
     cidr = "18.0.0.0/24"
 }
 //creates a fixed address by explicitly providing the `ipv4addr` value instead of using the next available IP function.
@@ -43,8 +43,8 @@ resource "infoblox_ipv4_fixed_address" "fix3"{
         num          = 51
         use_option   = true
     }
-    depends_on=[infoblox_ipv4_network.net3]
+    depends_on=[infoblox_ipv4_network.net5]
 }
-resource "infoblox_ipv4_network" "net3" {
+resource "infoblox_ipv4_network" "net5" {
     cidr = "17.0.0.0/24"
 }
