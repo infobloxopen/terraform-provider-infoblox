@@ -409,6 +409,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	mac := d.Get("mac").(string)
 	name := d.Get("name").(string)
+	networkView := d.Get("network_view").(string)
 	comment := d.Get("comment").(string)
 	disable := d.Get("disable").(bool)
 	matchClient := d.Get("match_client").(string)
@@ -469,7 +470,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 
 	newExtAttrs, err = mergeEAs(fixedAddress.Ea, newExtAttrs, oldExtAttrs, connector)
 
-	fixedAddress, err = objMgr.UpdateFixedAddress(d.Id(), "", name, network, ipv4addr, matchClient, mac, comment, newExtAttrs, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, options, useOptions)
+	fixedAddress, err = objMgr.UpdateFixedAddress(d.Id(), networkView, name, network, ipv4addr, matchClient, mac, comment, newExtAttrs, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, options, useOptions)
 	if err != nil {
 		return fmt.Errorf("error updating Fixed address: %w", err)
 	}
