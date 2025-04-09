@@ -211,7 +211,7 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
 
 	optionsInterface := d.Get("options").([]interface{})
-	options := ConvertInterfaceToDhcpOptions(optionsInterface)
+	options := validateDhcpOptions(optionsInterface)
 	useOptions := d.Get("use_options").(bool)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -419,7 +419,7 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
 	useOptions := d.Get("use_options").(bool)
 	optionsInterface := d.Get("options").([]interface{})
-	options := ConvertInterfaceToDhcpOptions(optionsInterface)
+	options := validateDhcpOptions(optionsInterface)
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
@@ -605,33 +605,4 @@ func resourceFixedRecordImport(d *schema.ResourceData, m interface{}) ([]*schema
 		return nil, err
 	}
 	return []*schema.ResourceData{d}, nil
-}
-func ConvertInterfaceToDhcpOptions(optionsInterface []interface{}) []*ibclient.Dhcpoption {
-	var options []*ibclient.Dhcpoption
-	for _, optionInterface := range optionsInterface {
-		option := optionInterface.(map[string]interface{})
-		dhcpOption := &ibclient.Dhcpoption{
-			Name:        option["name"].(string),
-			Num:         uint32(option["num"].(int)),
-			VendorClass: option["vendor_class"].(string),
-			Value:       option["value"].(string),
-			UseOption:   option["use_option"].(bool),
-		}
-		options = append(options, dhcpOption)
-	}
-	return options
-}
-
-func convertDhcpOptionsToInterface(options []*ibclient.Dhcpoption) []map[string]interface{} {
-	optionsInterface := make([]map[string]interface{}, 0, len(options))
-	for _, option := range options {
-		optionMap := make(map[string]interface{})
-		optionMap["name"] = option.Name
-		optionMap["num"] = option.Num
-		optionMap["vendor_class"] = option.VendorClass
-		optionMap["value"] = option.Value
-		optionMap["use_option"] = option.UseOption
-		optionsInterface = append(optionsInterface, optionMap)
-	}
-	return optionsInterface
 }
