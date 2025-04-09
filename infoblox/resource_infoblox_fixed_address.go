@@ -211,7 +211,10 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 	networkView := d.Get("network_view").(string)
 
 	optionsInterface := d.Get("options").([]interface{})
-	options := validateDhcpOptions(optionsInterface)
+	options, err := validateDhcpOptions(optionsInterface)
+	if err != nil {
+		return err
+	}
 	useOptions := d.Get("use_options").(bool)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -419,7 +422,10 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
 	useOptions := d.Get("use_options").(bool)
 	optionsInterface := d.Get("options").([]interface{})
-	options := validateDhcpOptions(optionsInterface)
+	options, err := validateDhcpOptions(optionsInterface)
+	if err != nil {
+		return err
+	}
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
