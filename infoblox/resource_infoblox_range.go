@@ -130,6 +130,41 @@ func resourceRange() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The member that will provide service for this range.",
+				// DiffSuppressFunc that compares only the fields that are explicitly set in the configuration
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if old == new {
+						return true
+					}
+
+					var oldData, newData map[string]interface{}
+
+					if err := json.Unmarshal([]byte(old), &oldData); err != nil {
+						return false
+					}
+					if err := json.Unmarshal([]byte(new), &newData); err != nil {
+						return false
+					}
+
+					// Get the config value to check which fields were explicitly set
+					configValue := d.GetRawConfig().GetAttr("member")
+					if configValue.IsNull() {
+						return true
+					}
+
+					var configData map[string]interface{}
+					if err := json.Unmarshal([]byte(configValue.AsString()), &configData); err != nil {
+						return false
+					}
+
+					// Compare only the fields that were set in the configuration
+					for k := range configData {
+						if oldData[k] != newData[k] {
+							return false
+						}
+					}
+
+					return true
+				},
 			},
 			"use_options": {
 				Type:        schema.TypeBool,
