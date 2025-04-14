@@ -364,6 +364,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	optionsInterface := d.Get("options").([]interface{})
 	options := ConvertInterfaceToDhcpOptions(optionsInterface)
 	member := d.Get("member").(string)
+	networkView := d.Get("network_view").(string)
 	memberStructure, err := ConvertJSONToDhcpMember(member)
 	if err != nil {
 		return err
@@ -420,7 +421,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	newExtAttrs, err = mergeEAs(networkRange.Ea, newExtAttrs, oldExtAttrs, connector)
-	networkRange, err = objMgr.UpdateNetworkRange(d.Id(), comment, name, network, startAddr, endAddr, disable, newExtAttrs, memberStructure, failoverAssociation, options, useOptions, serverAssociationType)
+	networkRange, err = objMgr.UpdateNetworkRange(d.Id(), comment, name, network, startAddr, endAddr, disable, newExtAttrs, memberStructure, failoverAssociation, options, useOptions, serverAssociationType, networkView)
 	if err != nil {
 		return fmt.Errorf("Failed to update network range with %s, ", err.Error())
 	}
