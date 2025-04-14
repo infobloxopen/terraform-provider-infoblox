@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NIOS_SERVER="${NIOS_SERVER:-192.168.1.2:443}"
+NIOS_SERVER="${NIOS_SERVER:-10.197.147.146:443}"
 NIOS_USER="${NIOS_USER:-admin}"
 NIOS_PASSWORD="${NIOS_PASSWORD:-infoblox}"
 
@@ -47,4 +47,7 @@ host_name=$(echo $members | grep -o '"host_name": *"[^"]*' | head -1 | awk -F'"'
 echo $host_name
 
 curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/zone_auth" -d "{\"fqdn\":\"test.com\",\"grid_primary\":[{\"name\":\"$host_name\"}]}"
+echo
+
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/network" -d "{\"network\":\"17.0.0.0/24\",\"members\":[{\"_struct\":\"dhcpmember\",\"name\":\"infoblox.localdomain\"}]}"
 echo

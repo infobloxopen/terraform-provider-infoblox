@@ -1,10 +1,3 @@
-resource "infoblox_network_view" "netview_range" {
-  name = "custom_network_view"
-}
-resource "infoblox_ipv4_network" "net_range" {
-  cidr = "17.0.0.0/24"
-  network_view = infoblox_network_view.netview_range.name
-}
 resource "infoblox_range" "range3" {
   start_addr = "17.0.0.221"
   end_addr   = "17.0.0.240"
@@ -15,8 +8,8 @@ resource "infoblox_range" "range3" {
     num          = 51
     use_option   = true
   }
-  network              = infoblox_ipv4_network.net_range.cidr
-  network_view = infoblox_ipv4_network.net_range.network_view
+  network              = "17.0.0.0/24"
+  network_view = "default"
   comment              = "test comment"
   name                 = "test_range"
   disable              = false
