@@ -115,6 +115,18 @@ func dataSourceRangeTemplate() *schema.Resource {
 							Description: "The member that will provide service for this range. server_association_type needs to be set to ‘MEMBER’ if you want" +
 								"the server specified here to serve the range.",
 						},
+						"cloud_api_compatible": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "This flag controls whether this template can be used to create network objects in a cloud-computing deployment.",
+						},
+						"ms_server": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: "The Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` +" +
+								"if you want the server specified here to serve the range. For searching by this field you should use a HTTP method that contains a" +
+								"body (POST or PUT) with MS DHCP server structure and the request should have option _method=GET.",
+						},
 						"ext_attrs": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -185,6 +197,7 @@ func flattenRangeTemplate(rangeTemplate ibclient.Rangetemplate, connector ibclie
 		"number_of_addresses":     int(*rangeTemplate.NumberOfAddresses),
 		"offset":                  int(*rangeTemplate.Offset),
 		"server_association_type": rangeTemplate.ServerAssociationType,
+		"cloud_api_compatible":    rangeTemplate.CloudApiCompatible,
 	}
 	if rangeTemplate.Comment != nil {
 		res["comment"] = *rangeTemplate.Comment
@@ -201,6 +214,9 @@ func flattenRangeTemplate(rangeTemplate ibclient.Rangetemplate, connector ibclie
 	}
 	if rangeTemplate.Member != nil {
 		res["member"] = convertDhcpMemberToMap(rangeTemplate.Member)
+	}
+	if rangeTemplate.MsServer != nil {
+		res["ms_server"] = rangeTemplate.MsServer.Ipv4Addr
 	}
 	return res, nil
 }

@@ -250,6 +250,19 @@ func resourceRangeTemplate() *schema.Resource {
 				Default:     "",
 				Description: "Extensible attributes of the  Range Template Record to be added/updated, as a map in JSON format",
 			},
+			"cloud_api_compatible": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "This flag controls whether this template can be used to create network objects in a cloud-computing deployment.",
+			},
+			"ms_server": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: "The Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` +" +
+					"if you want the server specified here to serve the range. For searching by this field you should use a HTTP method that contains a" +
+					"body (POST or PUT) with MS DHCP server structure and the request should have option _method=GET.",
+			},
 			"internal_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -285,8 +298,8 @@ func resourceRangeTemplateCreate(d *schema.ResourceData, m interface{}) error {
 	serverAssociationType := d.Get("server_association_type").(string)
 	failoverAssociation := d.Get("failover_association").(string)
 	member := d.Get("member").(map[string]interface{})
-	//var dhcpMemeber *ibclient.Dhcpmember
-
+	cloudApiCompatible := d.Get("cloud_api_compatible").(bool)
+	msServer := d.Get("ms_server").(string)
 	dhcpMemeber, err := ConvertMapToDhcpMember(member)
 	if err != nil {
 		return fmt.Errorf("failed to convert member to dhcpmember: %w", err)
@@ -308,7 +321,7 @@ func resourceRangeTemplateCreate(d *schema.ResourceData, m interface{}) error {
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
 	// Create the Range Template record
-	newRecord, err := objMgr.CreateRangeTemplate(name, uint32(numberOfAddresses), uint32(offset), comment, extAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber)
+	newRecord, err := objMgr.CreateRangeTemplate(name, uint32(numberOfAddresses), uint32(offset), comment, extAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
 	if err != nil {
 		return fmt.Errorf("failed to create Range Template record: %w", err)
 	}
@@ -409,6 +422,14 @@ func resourceRangeTemplateRead(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
+	if err = d.Set("cloud_api_compatible", rangeTemplate.CloudApiCompatible); err != nil {
+		return err
+	}
+	if rangeTemplate.MsServer != nil {
+		if err = d.Set("ms_server", rangeTemplate.MsServer.Ipv4Addr); err != nil {
+			return err
+		}
+	}
 	if err = d.Set("ref", rangeTemplate.Ref); err != nil {
 		return err
 	}
@@ -430,6 +451,8 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 			prevFailoverAssociation, _ := d.GetChange("failover_association")
 			prevMember, _ := d.GetChange("member")
 			prevExtAttrs, _ := d.GetChange("ext_attrs")
+			prevCloudApiCompatible, _ := d.GetChange("cloud_api_compatible")
+			prevMsServer, _ := d.GetChange("ms_server")
 
 			_ = d.Set("name", prevName.(string))
 			_ = d.Set("number_of_addresses", prevNumberOfAddresses.(int))
@@ -441,6 +464,8 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("failover_association", prevFailoverAssociation.(string))
 			_ = d.Set("member", prevMember.(map[string]interface{}))
 			_ = d.Set("ext_attrs", prevExtAttrs.(string))
+			_ = d.Set("cloud_api_compatible", prevCloudApiCompatible.(bool))
+			_ = d.Set("ms_server", prevMsServer.(string))
 		}
 	}()
 
@@ -471,6 +496,8 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	serverAssociationType := d.Get("server_association_type").(string)
 	failoverAssociation := d.Get("failover_association").(string)
+	cloudApiCompatible := d.Get("cloud_api_compatible").(bool)
+	msServer := d.Get("ms_server").(string)
 	member := d.Get("member").(map[string]interface{})
 	dhcpMemeber, err := ConvertMapToDhcpMember(member)
 	if err != nil {
@@ -512,7 +539,7 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber)
+	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
 	if err != nil {
 		return fmt.Errorf("failed to update Range Template: %s.", err.Error())
 	}
@@ -643,6 +670,14 @@ func resourceRangeTemplateImport(d *schema.ResourceData, m interface{}) ([]*sche
 			return nil, err
 		}
 	}
+	if err = d.Set("cloud_api_compatible", rangeTemplate.CloudApiCompatible); err != nil {
+		return nil, err
+	}
+	if rangeTemplate.MsServer != nil {
+		if err = d.Set("ms_server", rangeTemplate.MsServer.Ipv4Addr); err != nil {
+			return nil, err
+		}
+	}
 
 	d.SetId(rangeTemplate.Ref)
 
@@ -678,7 +713,6 @@ func convertDhcpMemberToMap(member *ibclient.Dhcpmember) interface{} {
 	if member == nil {
 		return nil
 	}
-
 	return map[string]interface{}{
 		"name":     member.Name,
 		"ipv4addr": member.Ipv4Addr,
