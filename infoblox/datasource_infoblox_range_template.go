@@ -204,17 +204,3 @@ func flattenRangeTemplate(rangeTemplate ibclient.Rangetemplate, connector ibclie
 	}
 	return res, nil
 }
-
-func convertDhcpOptionsToInterface(dhcpOptions []*ibclient.Dhcpoption) []map[string]interface{} {
-	options := make([]map[string]interface{}, 0, len(dhcpOptions))
-	for _, option := range dhcpOptions {
-		sMap := make(map[string]interface{})
-		sMap["name"] = option.Name
-		sMap["num"] = option.Num
-		sMap["value"] = option.Value
-		sMap["vendor_class"] = option.VendorClass
-		sMap["use_option"] = option.UseOption
-		options = append(options, sMap)
-	}
-	return options
-}

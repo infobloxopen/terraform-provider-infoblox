@@ -6,6 +6,7 @@ Use the `infoblox_range_template` data resource for the Range Template record to
 * `number_of_addresses`: The number of addresses for this range. Example: `100`.
 * `offset`: The start address offset for the range. Example: `30`.
 * `use_options`: Use flag for options. Example: `true`.
+* `cloud_api_compatible`: The flag controls whether this template can be used to create network objects in a cloud-computing deployment. Example: `true`.
 * `options`: An array of DHCP option structs that lists the DHCP options associated with the object. Example:
 ```terraform
 option { 
@@ -25,7 +26,7 @@ option {
 
 Example for `member`:
 ```terraform
-member { 
+member = { 
     name = "infoblox.localdomain"
     ipv4addr = "11.22.33.44"
     ipv6addr = "2403:8600:80cf:e10c:3a00::1192"
@@ -74,6 +75,7 @@ resource "infoblox_range_template" "range_template_record" {
   number_of_addresses = 40
   offset = 30
   comment = "Temporary Range Template"
+  cloud_api_compatible = false
   use_options = true
   ext_attrs = jsonencode({
     "Site" = "Kobe"

@@ -9,6 +9,7 @@ resource "infoblox_range_template" "range_template_full_set_parameters" {
   number_of_addresses = 40
   offset = 30
   comment = "Temporary Range Template"
+  cloud_api_compatible = true
   use_options = true
   ext_attrs = jsonencode({
     "Site" = "Kobe"

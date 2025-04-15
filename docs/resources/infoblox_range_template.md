@@ -9,6 +9,7 @@ The following list describes the parameters you can define in the resource block
 * `number_of_addresses`: required, specifies the number of addresses for this range. Example: `100`.
 * `offset`: required, specifies the start address offset for the range. Example: `30`.
 * `use_options`: optional, specifies the use flag for options. Example: `true`.
+* `cloud_api_compatible`: optional, specifies the flag controls whether this template can be used to create network objects in a cloud-computing deployment. Default: `false`. If the user is a cloud-user, then `cloud_api_compatible` needs to be passed `true` to create a range template.
 * `options`: optional, specifies an array of DHCP option structs that lists the DHCP options associated with the object. Example:
 ```terraform
 option { 
@@ -28,12 +29,16 @@ option {
 
 Example for `member`:
 ```terraform
-member {
+member = {
     name = "infoblox.localdomain"
     ipv4addr = "11.10.1.0"
     ipv6addr = "2403:8600:80cf:e10c:3a00::1192"
   }
 ```
+
+!> If the user is a cloud-user, then they need Terraform internal ID with cloud permission and enable cloud delegation for the user to create a range template.
+
+!> if the user is a non cloud-user, they need to have  Terraform internal ID without cloud permission.
 
 ### Examples of a Range Template Block
 
@@ -51,6 +56,7 @@ resource "infoblox_range_template" "range_template_full_set_parameters" {
   number_of_addresses = 40
   offset = 30
   comment = "Temporary Range Template"
+  cloud_api_compatible = true
   use_options = true
   ext_attrs = jsonencode({
     "Site" = "Kobe"

@@ -685,38 +685,3 @@ func convertDhcpMemberToMap(member *ibclient.Dhcpmember) interface{} {
 		"ipv6addr": member.Ipv6Addr,
 	}
 }
-
-func validateDhcpOptions(dhcpOptions []interface{}) ([]*ibclient.Dhcpoption, error) {
-	if dhcpOptions == nil {
-		return nil, nil
-	}
-	dhcpOptionsList := make([]*ibclient.Dhcpoption, 0, len(dhcpOptions))
-	for _, option := range dhcpOptions {
-		// Assert the type of dhcpOption to map[string]interface{}
-		dhcpOptionsMap, ok := option.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("dhcpOption is not of type map[string]interface{}")
-		}
-
-		// Create a new dhcpOption and populate its fields
-		dhcpOption := ibclient.Dhcpoption{}
-		if name, ok := dhcpOptionsMap["name"].(string); ok {
-			dhcpOption.Name = name
-		}
-		if value, ok := dhcpOptionsMap["value"].(string); ok {
-			dhcpOption.Value = value
-		}
-		if num, ok := dhcpOptionsMap["num"].(int); ok {
-			dhcpOption.Num = uint32(num)
-		}
-		if vendorClass, ok := dhcpOptionsMap["vendor_class"].(string); ok {
-			dhcpOption.VendorClass = vendorClass
-		}
-		if useOption, ok := dhcpOptionsMap["use_option"].(bool); ok {
-			dhcpOption.UseOption = useOption
-		}
-		dhcpOptionsList = append(dhcpOptionsList, &dhcpOption)
-	}
-
-	return dhcpOptionsList, nil
-}
