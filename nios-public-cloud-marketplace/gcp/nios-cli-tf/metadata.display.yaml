@@ -1,0 +1,152 @@
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: marketplace-tools-display
+  annotations:
+    autogenSpecType: SINGLE_VM
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Google Cloud Marketplace Terraform Module
+    source:
+      repo: https://github.com/infobloxopen/terraform-provider-infoblox.git
+      sourceType: git
+      dir: /nios-public-cloud-marketplace/gcp/nios-cli-tf/
+  ui:
+    input:
+      variables:
+        boot_disk_size:
+          name: boot_disk_size
+          title: Boot disk size in GB
+          max: 10000
+          section: boot_disk
+          xGoogleProperty:
+            type: ET_GCE_DISK_SIZE
+            gceDiskSize:
+              diskTypeVariable: boot_disk_type
+        boot_disk_type:
+          name: boot_disk_type
+          title: Boot disk type
+          section: boot_disk
+          xGoogleProperty:
+            type: ET_GCE_DISK_TYPE
+            zoneProperty: zone
+        enable_cloud_api:
+          name: enable_cloud_api
+          title: Allow full access to all of Google Cloud Platform APIs on the VM
+          section: api_access
+          booleanGroup: cloud_platform_api_access
+        external_ips:
+          name: external_ips
+          title: External IP
+          tooltip: An external IP address associated with this instance. Selecting "None" will result in the instance having no external internet access. <a href="https://cloud.google.com/compute/docs/configure-instance-ip-addresses">Learn more</a>
+          minItems: 1
+          maxItems: 8
+          section: networking
+          xGoogleProperty:
+            type: ET_GCE_EXTERNAL_IP
+            gceExternalIp:
+              networkVariable: networks
+              allowStaticIps: true
+        goog_cm_deployment_name:
+          name: goog_cm_deployment_name
+          title: Goog Cm Deployment Name
+        labels:
+          name: labels
+          title: Labels
+          invisible: true
+        machine_type:
+          name: machine_type
+          title: Machine type
+          xGoogleProperty:
+            type: ET_GCE_MACHINE_TYPE
+            zoneProperty: zone
+            gceMachineType:
+              minCpu: 8
+              minRamGb: 52
+        metadata:
+          name: metadata
+          title: Metadata
+          invisible: true
+        networks:
+          name: networks
+          title: Network name
+          minItems: 1
+          maxItems: 4
+          section: networking
+          xGoogleProperty:
+            type: ET_GCE_NETWORK
+            gceNetwork:
+              allowSharedVpcs: true
+              machineTypeVariable: machine_type
+        project_id:
+          name: project_id
+          title: Project Id
+          invisible: true
+        source_image:
+          name: source_image
+          title: Image version
+          xGoogleProperty:
+            type: ET_GCE_DISK_IMAGE
+          enumValueLabels:
+            - label: infoblox-nios-905-byol
+              value: projects/infoblox-public-436917/global/images/infoblox-nios-905-byol
+            - label: infoblox-nios-906-byol
+              value: projects/infoblox-public-436917/global/images/infoblox-nios-906-53318-byol
+        sub_networks:
+          name: subnetworks
+          title: Subnetwork name
+          minItems: 1
+          maxItems: 4
+          section: networking
+          xGoogleProperty:
+            type: ET_GCE_SUBNETWORK
+            zoneProperty: zone
+            gceSubnetwork:
+              networkVariable: networks
+        security_rules:
+          name: security_rules
+          title: Security Rules
+          section: networking
+          xGoogleProperty:
+            type: ET_GCE_FIREWALL
+            gceFirewall:
+              networkVariable: networks
+          varType: |-
+            list(object({
+              name         = string
+              description  = string
+              direction    = string
+              priority     = number
+              network      = string
+              action       = string
+              source_ranges = list(string)
+              target_tags  = list(string)
+              protocol     = string
+              ports        = list(string)
+            }))
+          defaultValue: [] 
+        tags:
+          name: tags
+          title: Tags
+          invisible: true
+        zone:
+          name: zone
+          title: Zone
+          xGoogleProperty:
+            type: ET_GCE_ZONE
+      sections:
+        - name: boot_disk
+          title: Boot Disk
+          tooltip: Each instance requires a disk to boot from.
+        - name: networking
+          title: Networking
+        - name: api_access
+          title: API Access
+          tooltip: Applications running on the VM can call Google Cloud APIs. Select the API access you want to allow. <a href="https://cloud.google.com/compute/docs/authentication">Learn more</a>
+        - name: nios_detail
+          title: NIOS Server
+      booleanGroups:
+        - name: cloud_platform_api_access
+          title: Google Cloud Platform API
+
