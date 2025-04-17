@@ -378,19 +378,27 @@ func NewNetworkContainerNextAvailable(ncav *NetworkContainerNextAvailableInfo, i
 }
 
 type FixedAddress struct {
-	IBBase      `json:"-"`
-	objectType  string
-	Ref         string `json:"_ref,omitempty"`
-	NetviewName string `json:"network_view,omitempty"`
-	Cidr        string `json:"network,omitempty"`
-	Comment     string `json:"comment"`
-	IPv4Address string `json:"ipv4addr,omitempty"`
-	IPv6Address string `json:"ipv6addr,omitempty"`
-	Duid        string `json:"duid,omitempty"`
-	Mac         string `json:"mac,omitempty"`
-	Name        string `json:"name,omitempty"`
-	MatchClient string `json:"match_client,omitempty"`
-	Ea          EA     `json:"extattrs"`
+	IBBase                      `json:"-"`
+	objectType                  string
+	Ref                         string            `json:"_ref,omitempty"`
+	NetviewName                 string            `json:"network_view,omitempty"`
+	Cidr                        string            `json:"network,omitempty"`
+	Comment                     string            `json:"comment"`
+	IPv4Address                 string            `json:"ipv4addr,omitempty"`
+	IPv6Address                 string            `json:"ipv6addr,omitempty"`
+	Duid                        string            `json:"duid,omitempty"`
+	Mac                         *string           `json:"mac,omitempty"`
+	Name                        *string           `json:"name,omitempty"`
+	MatchClient                 *string           `json:"match_client,omitempty"`
+	AgentCircuitId              *string           `json:"agent_circuit_id,omitempty"`
+	AgentRemoteId               *string           `json:"agent_remote_id,omitempty"`
+	ClientIdentifierPrependZero *bool             `json:"client_identifier_prepend_zero,omitempty"`
+	Options                     []*Dhcpoption     `json:"options,omitempty"`
+	UseOptions                  *bool             `json:"use_options,omitempty"`
+	CloudInfo                   *GridCloudapiInfo `json:"cloud_info,omitempty"`
+	Disable                     *bool             `json:"disable,omitempty"`
+	DhcpClientIdentifier        *string           `json:"dhcp_client_identifier,omitempty"`
+	Ea                          EA                `json:"extattrs"`
 }
 
 func (fa FixedAddress) ObjectType() string {
@@ -405,7 +413,7 @@ func NewEmptyFixedAddress(isIPv6 bool) *FixedAddress {
 		res.returnFields = []string{"extattrs", "ipv6addr", "duid", "name", "network", "network_view", "comment"}
 	} else {
 		res.objectType = "fixedaddress"
-		res.returnFields = []string{"extattrs", "ipv4addr", "mac", "name", "network", "network_view", "comment"}
+		res.returnFields = []string{"extattrs", "ipv4addr", "mac", "name", "network", "network_view", "comment", "match_client", "agent_circuit_id", "agent_remote_id", "client_identifier_prepend_zero", "options", "use_options", "cloud_info", "disable", "dhcp_client_identifier"}
 	}
 	return res
 }
@@ -420,13 +428,21 @@ func NewFixedAddress(
 	eas EA,
 	ref string,
 	isIPv6 bool,
-	comment string) *FixedAddress {
+	comment string,
+	agentCircuitId string,
+	agentRemoteId string,
+	clientIdentifierPrependZero bool,
+	dhcpClientIdentifier string,
+	disable bool,
+	Options []*Dhcpoption,
+	useOptions bool,
+) *FixedAddress {
 
 	res := NewEmptyFixedAddress(isIPv6)
 	res.NetviewName = netView
-	res.Name = name
+	res.Name = &name
 	res.Cidr = cidr
-	res.MatchClient = clients
+	res.MatchClient = &clients
 	res.Ea = eas
 	res.Ref = ref
 	res.Comment = comment
@@ -435,8 +451,15 @@ func NewFixedAddress(
 		res.Duid = macOrDuid
 	} else {
 		res.IPv4Address = ipAddr
-		res.Mac = macOrDuid
+		res.Mac = &macOrDuid
 	}
+	res.AgentCircuitId = &agentCircuitId
+	res.AgentRemoteId = &agentRemoteId
+	res.ClientIdentifierPrependZero = &clientIdentifierPrependZero
+	res.DhcpClientIdentifier = &dhcpClientIdentifier
+	res.Disable = &disable
+	res.Options = Options
+	res.UseOptions = &useOptions
 	return res
 }
 
@@ -449,13 +472,87 @@ func NewEmptyDNSView() *View {
 type Network struct {
 	IBBase      `json:"-"`
 	objectType  string
-	Ref         string `json:"_ref,omitempty"`
-	NetviewName string `json:"network_view,omitempty"`
-	Cidr        string `json:"network,omitempty"`
-	Ea          EA     `json:"extattrs"`
-	Comment     string `json:"comment"`
+	Ref         string          `json:"_ref,omitempty"`
+	NetviewName string          `json:"network_view,omitempty"`
+	Cidr        string          `json:"network,omitempty"`
+	Ea          EA              `json:"extattrs"`
+	Comment     string          `json:"comment"`
+	Members     []NetworkMember `json:"members,omitempty"`
+}
+type NetworkMember struct {
+	DhcpMember   *Dhcpmember   `json:"dhcpmember,omitempty"`
+	MsDhcpServer *Msdhcpserver `json:"msdhcpserver,omitempty"`
 }
 
+// Custom JSON Marshaling
+func (nm NetworkMember) MarshalJSON() ([]byte, error) {
+	if nm.DhcpMember != nil {
+		return json.Marshal(struct {
+			Struct   string `json:"_struct"`
+			Name     string `json:"name,omitempty"`
+			Ipv4Addr string `json:"ipv4addr,omitempty"`
+			Ipv6Addr string `json:"ipv6addr,omitempty"`
+		}{
+			Struct:   "dhcpmember",
+			Name:     nm.DhcpMember.Name,
+			Ipv4Addr: nm.DhcpMember.Ipv4Addr,
+			Ipv6Addr: nm.DhcpMember.Ipv6Addr,
+		})
+	} else if nm.MsDhcpServer != nil {
+		return json.Marshal(struct {
+			Struct   string `json:"_struct"`
+			Ipv4Addr string `json:"ipv4addr,omitempty"`
+		}{
+			Struct:   "msdhcpserver",
+			Ipv4Addr: nm.MsDhcpServer.Ipv4Addr,
+		})
+	}
+	return json.Marshal(struct{}{})
+}
+func (nm *NetworkMember) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	var structType string
+	if err := json.Unmarshal(raw["_struct"], &structType); err != nil {
+		return err
+	}
+
+	switch structType {
+	case "dhcpmember":
+		var dhcpMember struct {
+			Name     string `json:"name,omitempty"`
+			Ipv4Addr string `json:"ipv4addr,omitempty"`
+			Ipv6Addr string `json:"ipv6addr,omitempty"`
+		}
+		if err := json.Unmarshal(data, &dhcpMember); err != nil {
+			return err
+		}
+		nm.DhcpMember = &Dhcpmember{
+			Name:     dhcpMember.Name,
+			Ipv4Addr: dhcpMember.Ipv4Addr,
+			Ipv6Addr: dhcpMember.Ipv6Addr,
+		}
+		nm.MsDhcpServer = nil
+	case "msdhcpserver":
+		var msDhcpServer struct {
+			Ipv4Addr string `json:"ipv4addr,omitempty"`
+		}
+		if err := json.Unmarshal(data, &msDhcpServer); err != nil {
+			return err
+		}
+		nm.MsDhcpServer = &Msdhcpserver{
+			Ipv4Addr: msDhcpServer.Ipv4Addr,
+		}
+		nm.DhcpMember = nil
+	default:
+		return fmt.Errorf("unknown struct type: %s", structType)
+	}
+
+	return nil
+}
 func (n Network) ObjectType() string {
 	return n.objectType
 }

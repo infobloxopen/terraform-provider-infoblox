@@ -37,6 +37,39 @@ type NullableNameServers struct {
 	IsNull      bool
 }
 
+func (d Dhcpoption) MarshalJSON() ([]byte, error) {
+	type Alias Dhcpoption
+	aux := &struct {
+		Value     string `json:"value"`
+		UseOption bool   `json:"use_option"`
+		*Alias
+	}{
+		Value:     d.Value,
+		UseOption: d.UseOption,
+		Alias:     (*Alias)(&d),
+	}
+	return json.Marshal(aux)
+}
+
+func (d *Dhcpoption) UnmarshalJSON(data []byte) error {
+	type Alias Dhcpoption
+	aux := &struct {
+		Value     string `json:"value"`
+		UseOption bool   `json:"use_option"`
+		*Alias
+	}{
+		Alias: (*Alias)(d),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	d.Value = aux.Value
+	d.UseOption = aux.UseOption
+	return nil
+}
+
 func (ns NullableNameServers) MarshalJSON() ([]byte, error) {
 	if reflect.DeepEqual(ns.NameServers, []NameServer{}) {
 		return []byte("[]"), nil
