@@ -1,6 +1,7 @@
 # Changelog
 
 ## [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.9.0) (2025-1-31)
+
 - Upgraded the base WAPI version to v2.12.3.
 - New Resources:
   - infoblox_dtc_lbdn
@@ -12,7 +13,8 @@
   - infoblox_dtc_server
 
 ## [v2.8.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.8.0) (2024-10-30)
-- New Feature: 
+
+- New Feature:
   - Support for Creating Objects with the Next Available IP Address and Next Available Network Obtained Using the Extensible Attribute Filter.
   - Add support for aliases and disable flag in Host Records.
 - New Resources:
@@ -21,6 +23,7 @@
   - infoblox_zone_delegated
 
 ## [v2.7.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.7.0) (2024-06-20)
+
 - New Feature: Added support for Import block.
 - New Resources:
   - infoblox_zone_forward
@@ -31,11 +34,13 @@
   - infoblox_host_record
 
 ## [v2.6.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.6.0) (2024-04-17)
+
 - New Feature: Ability to manage drift through "Terraform Internal ID" Extensible Attributes in resources
 - Bugfixes
   - Fixed Host record import with empty MAC or DUID.
-  
+
 ## [v2.5.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.5.0) (2023-10-30)
+
 - Resources are reworked aganist the changes from auto generated objects in go-client
 - New Feature: ability to search through Extensible Attributes in datasources
 - Additionally, added Multi Value Extensible Attributes search support
@@ -49,11 +54,13 @@
   - infoblox_zone_auth
 
 ## [v2.4.1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.1) (2023-06-20)
+
 - A/AAAA Record resources reworked:
   - removed limitation on updating 'cidr' field
 - Bugfixes
 
 ## [v2.4.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.4.0) (2023-05-29)
+
 - IPV4/IPV6 Network Container resources reworked:
   - 'parent_cidr' and 'allocate_prefix_len' are added for dynamic allocation
   - both the resources now support the dynamic allocation determined by 'parent_cidr'
@@ -61,6 +68,7 @@
 - Bugfixes
 
 ## [v2.3.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.3.0) (2023-04-13)
+
 - Minimal required Go-lang version is bumped up
 - infoblox_ptr_record resource's behaviour changes (see the documentation changes for the details)
 - 'dns_view' and 'network_view' fields are now optional for all the `resources and data sources
@@ -75,6 +83,7 @@
 - Bugfixes
 
 ## [v2.2.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.2.0) (2022-12-07)
+
 - New feature: ability to import resources from existing NIOS objects
 - New Data sources:
   - infoblox_aaaa_record
@@ -177,16 +186,16 @@
 
 **Closed issues:**
 
-- a\_record generated with duplicate domain name [\#71](https://github.com/infobloxopen/terraform-provider-infoblox/issues/71)
+- a_record generated with duplicate domain name [\#71](https://github.com/infobloxopen/terraform-provider-infoblox/issues/71)
 - Error creating A Record from network block [\#62](https://github.com/infobloxopen/terraform-provider-infoblox/issues/62)
 - Too many errors [\#61](https://github.com/infobloxopen/terraform-provider-infoblox/issues/61)
-- Resource: infoblox\_cname\_record by default appending zone information to alias record [\#60](https://github.com/infobloxopen/terraform-provider-infoblox/issues/60)
+- Resource: infoblox_cname_record by default appending zone information to alias record [\#60](https://github.com/infobloxopen/terraform-provider-infoblox/issues/60)
 - Improved documentation [\#55](https://github.com/infobloxopen/terraform-provider-infoblox/issues/55)
-- terraform doesn't change a HostRecord name when the vm\_name is changed in the block, only the EA vm\_name is changed, not the actual name [\#54](https://github.com/infobloxopen/terraform-provider-infoblox/issues/54)
+- terraform doesn't change a HostRecord name when the vm_name is changed in the block, only the EA vm_name is changed, not the actual name [\#54](https://github.com/infobloxopen/terraform-provider-infoblox/issues/54)
 - Add HostRecord function [\#53](https://github.com/infobloxopen/terraform-provider-infoblox/issues/53)
 - terraform doesn't like it when a managed IP gets removed from infoblox by hand [\#52](https://github.com/infobloxopen/terraform-provider-infoblox/issues/52)
-- infoblox\_ip\_association causing crash [\#49](https://github.com/infobloxopen/terraform-provider-infoblox/issues/49)
-- infoblox\_ip\_allocation fails - doesn't know what to do with vm\_name field [\#48](https://github.com/infobloxopen/terraform-provider-infoblox/issues/48)
+- infoblox_ip_association causing crash [\#49](https://github.com/infobloxopen/terraform-provider-infoblox/issues/49)
+- infoblox_ip_allocation fails - doesn't know what to do with vm_name field [\#48](https://github.com/infobloxopen/terraform-provider-infoblox/issues/48)
 - Terraform Provider Development Program - Review [\#45](https://github.com/infobloxopen/terraform-provider-infoblox/issues/45)
 - "stock" go make build fails [\#43](https://github.com/infobloxopen/terraform-provider-infoblox/issues/43)
 - API error [\#32](https://github.com/infobloxopen/terraform-provider-infoblox/issues/32)
@@ -247,6 +256,4 @@
 - Modified makefile to build and gofmtcheck [\#3](https://github.com/infobloxopen/terraform-provider-infoblox/pull/3) ([jkraj](https://github.com/jkraj))
 - Support for network and ip allocation [\#1](https://github.com/infobloxopen/terraform-provider-infoblox/pull/1) ([saiprasannasastry](https://github.com/saiprasannasastry))
 
-
-
-\* *This Changelog was automatically generated       by [github_changelog_generator]      (https://github.com/github-changelog-generator/github-changelog-generator)*
+\* _This Changelog was automatically generated by [github_changelog_generator] (https://github.com/github-changelog-generator/github-changelog-generator)_

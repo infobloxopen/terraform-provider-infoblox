@@ -8,22 +8,22 @@ terraform {
   }
 }
 
-resource "infoblox_ipv4_network" "ipv4_network"{
+resource "infoblox_ipv4_network" "ipv4_network" {
   network_view = "default"
-  cidr = "10.0.0.0/24"
+  cidr         = "10.0.0.0/24"
 
   comment = "tf IPv4 network updated"
   ext_attrs = jsonencode({
-    "Tenant ID" = "tf-plugin"
+    "Tenant ID"    = "tf-plugin"
     "Network Name" = "TestDataSource"
-    "Location" = "Test loc."
-    "Site" = "Test site"
+    "Location"     = "Test loc."
+    "Site"         = "Test site"
   })
 }
 
 data "infoblox_ipv4_network" "test" {
   network_view = "default"
-  cidr = infoblox_ipv4_network.ipv4_network.cidr
+  cidr         = infoblox_ipv4_network.ipv4_network.cidr
 }
 
 output "id" {

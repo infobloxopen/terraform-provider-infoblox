@@ -1,6 +1,6 @@
 # Region being used to create the resources
 provider "aws" {
-  region  = "us-west-1"
+  region = "us-west-1"
 }
 
 # Create a Virtual Private Cloud
@@ -15,12 +15,12 @@ resource "aws_vpc" "vpc" {
 
 # Create a Subnet
 resource "aws_subnet" "subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = infoblox_ipv4_network.ipv4_network.cidr
-  ipv6_cidr_block =  infoblox_ipv6_network.ipv6_network.cidr
-  availability_zone = "us-west-1a"
+  vpc_id                          = aws_vpc.vpc.id
+  cidr_block                      = infoblox_ipv4_network.ipv4_network.cidr
+  ipv6_cidr_block                 = infoblox_ipv6_network.ipv6_network.cidr
+  availability_zone               = "us-west-1a"
   assign_ipv6_address_on_creation = false
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch         = false
 
   tags = {
     Name   = "tf-subnet"

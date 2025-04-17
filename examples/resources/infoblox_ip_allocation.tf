@@ -13,6 +13,7 @@ resource "infoblox_ip_allocation" "allocation2" {
   ipv6_addr = "2002:1f93::1234"
   ttl       = 120
   comment   = "another host record, statically allocated"
+
   ext_attrs = jsonencode({
     "Tenant ID" = "tenant_3261798"
   })
@@ -27,6 +28,7 @@ resource "infoblox_ip_allocation" "allocation3" {
   ipv4_addr    = "1.2.3.40"
   ttl          = 0
   comment      = "still statically allocated, but IPv4 and IPv6 together"
+
   ext_attrs = jsonencode({
     "Tenant ID" = "tenant_3261798"
   })
@@ -60,35 +62,39 @@ resource "infoblox_ip_allocation" "allocation5" {
 
 // dynamic allocation of IPV6 Host record using next-available
 resource "infoblox_ip_allocation" "allocation6" {
-  fqdn = "host5.test.com"
-  filter_params = jsonencode({
-    "*Site" : "Turkey"
-  })
+  fqdn            = "host5.test.com"
   ip_address_type = "IPV6"
   enable_dns      = true
   ttl             = 60
+
+  filter_params = jsonencode({
+    "*Site" : "Turkey"
+  })
 }
 
 // dynamic allocation of IPV4 Host record using next-available
 resource "infoblox_ip_allocation" "allocation7" {
-  fqdn = "host6.test.com"
-  filter_params = jsonencode({
-    "*Site" : "Turkey"
-  })
+  fqdn            = "host6.test.com"
   ip_address_type = "IPV4"
   enable_dns      = true
   ttl             = 60
+
+  filter_params = jsonencode({
+    "*Site" : "Turkey"
+  })
 }
 
 // dynamic allocation of both IPV4 and IPV6 Host record using next-available
 resource "infoblox_ip_allocation" "allocation8" {
-  fqdn = "host7.test.com"
-  filter_params = jsonencode({
-    "*Site" : "Turkey"
-  })
+  fqdn            = "host7.test.com"
   ip_address_type = "Both"
   enable_dns      = true
   ttl             = 60
+
+  filter_params = jsonencode({
+    "*Site" : "Turkey"
+  })
+
 }
 
 // static allocation of both IPV4 and IPV6 Host record with aliases
@@ -101,6 +107,7 @@ resource "infoblox_ip_allocation" "allocation9" {
   ipv4_addr    = "10.1.1.0"
   ttl          = 120
   comment      = "another host record, statically allocated"
+
   ext_attrs = jsonencode({
     "Tenant ID" = "tenant_3261798"
   })

@@ -1,9 +1,9 @@
 provider "vsphere" {
-   allow_unverified_ssl = true
+  allow_unverified_ssl = true
 }
 
-data"vsphere_datacenter" "dc"{
- name = "vRA-DC"
+data "vsphere_datacenter" "dc" {
+  name = "vRA-DC"
 }
 
 data "vsphere_datastore" "datastore" {

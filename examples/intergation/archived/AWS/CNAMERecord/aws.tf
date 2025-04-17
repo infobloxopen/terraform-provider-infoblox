@@ -1,6 +1,6 @@
 # Region being used to create the resources
 provider "aws" {
-  region  = "us-west-1"
+  region = "us-west-1"
 }
 
 #Create a Virtual Private Cloud
@@ -13,8 +13,8 @@ resource "aws_vpc" "vpc" {
 
 # Create Subnet
 resource "aws_subnet" "subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = infoblox_network.ib_network.cidr
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = infoblox_network.ib_network.cidr
   availability_zone = "us-west-1b"
 
   tags = {
@@ -41,7 +41,7 @@ resource "aws_instance" "ec2-instance" {
 
   network_interface {
     network_interface_id = aws_network_interface.ni.id
-    device_index = 0
+    device_index         = 0
   }
 
   tags = {

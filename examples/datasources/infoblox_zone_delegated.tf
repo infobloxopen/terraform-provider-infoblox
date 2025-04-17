@@ -2,6 +2,7 @@
 resource "infoblox_zone_delegated" "zone_delegated" {
   fqdn    = "zone_delegate.test_fwzone"
   comment = "zone delegated IPV4"
+
   delegate_to {
     name    = "test22.dz.ex.com"
     address = "10.0.0.1"

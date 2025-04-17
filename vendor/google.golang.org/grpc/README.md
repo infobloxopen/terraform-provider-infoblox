@@ -17,13 +17,12 @@ RPC framework that puts mobile and HTTP/2 first. For more information see the
 Simply add the following import to your code, and then `go [build|run|test]`
 will automatically fetch the necessary dependencies:
 
-
 ```go
 import "google.golang.org/grpc"
 ```
 
 > **Note:** If you are trying to access `grpc-go` from **China**, see the
-> [FAQ](#FAQ) below.
+> [FAQ](#faq) below.
 
 ## Learn more
 
@@ -74,14 +73,15 @@ The default logger is controlled by environment variables. Turn everything on
 like this:
 
 ```console
-$ export GRPC_GO_LOG_VERBOSITY_LEVEL=99
-$ export GRPC_GO_LOG_SEVERITY_LEVEL=info
+export GRPC_GO_LOG_VERBOSITY_LEVEL=99
+export GRPC_GO_LOG_SEVERITY_LEVEL=info
 ```
 
 ### The RPC failed with error `"code = Unavailable desc = transport is closing"`
 
 This error means the connection the RPC is using was closed, and there are many
 possible reasons, including:
+
  1. mis-configured transport credentials, connection failed on handshaking
  1. bytes disrupted, possibly by a proxy in between
  1. server shutdown
@@ -94,12 +94,11 @@ possible reasons, including:
 
 It can be tricky to debug this because the error happens on the client side but
 the root cause of the connection being closed is on the server side. Turn on
-logging on __both client and server__, and see if there are any transport
+logging on **both client and server**, and see if there are any transport
 errors.
 
 [API]: https://pkg.go.dev/google.golang.org/grpc
 [Go]: https://golang.org
-[Go module]: https://github.com/golang/go/wiki/Modules
 [gRPC]: https://grpc.io
 [Go gRPC docs]: https://grpc.io/docs/languages/go
 [Performance benchmark]: https://performance-dot-grpc-testing.appspot.com/explore?dashboard=5180705743044608

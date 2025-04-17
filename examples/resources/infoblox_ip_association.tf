@@ -18,7 +18,7 @@ resource "infoblox_ip_association" "association3" {
   enable_dhcp = true // all systems go
 
   mac_addr = "12:43:fd:ba:9c:c9"
-  duid = "00:43:d2:0a:11:e6"
+  duid     = "00:43:d2:0a:11:e6"
 }
 
 resource "infoblox_ip_association" "association4" {

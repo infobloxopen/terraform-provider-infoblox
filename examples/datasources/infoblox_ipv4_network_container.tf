@@ -1,6 +1,6 @@
 data "infoblox_ipv4_network_container" "nc2" {
   filters = {
-    network = "10.2.0.0/24"
+    network      = "10.2.0.0/24"
     network_view = "nondefault_netview"
   }
 

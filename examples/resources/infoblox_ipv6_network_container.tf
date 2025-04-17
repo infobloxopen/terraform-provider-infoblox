@@ -8,7 +8,9 @@ resource "infoblox_ipv6_network_container" "nc2" {
   cidr         = "2002:1f93:0:2::/96"
   network_view = "nondefault_netview"
   comment      = "new generation network segment"
+
   ext_attrs = jsonencode({
+    "Site"    = "space station"
     "Site"    = "space station"
     "Country" = "Earth orbit"
   })
@@ -20,6 +22,7 @@ resource "infoblox_ipv6_network_container" "ncv6" {
   allocate_prefix_len = 97
   network_view        = "default"
   comment             = "dynamic allocation of network container"
+
   ext_attrs = jsonencode({
     "Tenant ID" = "terraform_test_tenant"
     Site        = "Test site"
@@ -30,9 +33,11 @@ resource "infoblox_ipv6_network_container" "ncv6" {
 resource "infoblox_ipv6_network_container" "ipv6_network_container" {
   allocate_prefix_len = 68
   comment             = "dynamic allocation of IPV6 network container"
+
   filter_params = jsonencode({
     "*Site" : "Uzbekistan"
   })
+
   ext_attrs = jsonencode({
     "Site" = "Europe"
   })
