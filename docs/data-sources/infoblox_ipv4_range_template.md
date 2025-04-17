@@ -19,10 +19,11 @@ option {
 * `ext_attrs`: The set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":"Nagoya"}"`
 * `server_association_type`: The type of server that is going to serve the range. Valid values are: `FAILOVER`, `MEMBER`, `MS_FAILOVER`, `MS_SERVER`, `NONE` .Example: `NONE`.
 * `failover_association`: The name of the failover association: the server in this failover association will serve the IPv4 range in case the main server is out of service. Example: `test.com`.
+* `ms_server`: optional, specifies the Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` if you want the server specified here to serve the range.
 * `member`: The member that will provide service for this range. `server_association_type` needs to be set to `MEMBER` if you want the server specified here to serve the range. `member` has the following three fields `name`, `ipv4addr` and `ipv6addr`.The description of the fields of `member` is as follows:
-    * `name`: required, specifies the name of the pool. Example: `infoblox.localdomain`.
-    * `ipv4addr`: required, specifies the weight of the pool. Example: `11.10.1.0`.
-    * `ipv6addr`: optional, specifies the IPv6 address of the member. Example: `2403:8600:80cf:e10c:3a00::1192`.
+    * `name`: The name of the pool. Example: `infoblox.localdomain`.
+    * `ipv4addr`: The weight of the pool. Example: `11.10.1.0`.
+    * `ipv6addr`: The IPv6 address of the member. Example: `2403:8600:80cf:e10c:3a00::1192`.
 
 Example for `member`:
 ```terraform
@@ -44,7 +45,7 @@ From the below list of supported arguments for filters,  use only the searchable
 | name                    | name                    | string | yes        |
 | failover_association    | failover_association    | string | yes        |
 | member                  | member                  | string | yes        |
-| ms_server               | ms_server               | uint   | yes        |
+| ms_server               | ms_server               | string | yes        |
 | comment                 | comment                 | string | yes        |
 | server_association_type | server_association_type | string | yes        |
 
