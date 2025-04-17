@@ -1,6 +1,6 @@
 # Range Template Resource
 
-The `infoblox_range_template` resource enables you to perform `create`, `update` and `delete` operations on Range Template in a NIOS appliance.
+The `infoblox_ipv4_range_template` resource enables you to perform `create`, `update` and `delete` operations on IPV4 Range Template in a NIOS appliance.
 The resource represents the ‘rangetemplate’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the resource block of the Range Template object:
@@ -44,14 +44,14 @@ member = {
 
 ```hcl
 // creating a Range Template record with minimal set of parameters
-resource "infoblox_range_template" "range_template_minimal_parameters" {
+resource "infoblox_ipv4_range_template" "range_template_minimal_parameters" {
   name = "range-template1"
   number_of_addresses = 10
   offset = 20
 }
 
 // creating a Range Template record with full set of parameters
-resource "infoblox_range_template" "range_template_full_set_parameters" {
+resource "infoblox_ipv4_range_template" "range_template_full_set_parameters" {
   name = "range-template2"
   number_of_addresses = 40
   offset = 30

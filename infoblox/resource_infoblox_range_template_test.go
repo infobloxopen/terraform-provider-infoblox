@@ -11,13 +11,13 @@ import (
 	"testing"
 )
 
-var testResourceRangeTemplate1 = `resource "infoblox_range_template" "template1" {
+var testResourceRangeTemplate1 = `resource "infoblox_ipv4_range_template" "template1" {
   name = "rangetemplate11"
   number_of_addresses = 10
   offset = 70
 }`
 
-var testResourceRangeTemplate2 = `resource "infoblox_range_template" "template2" {
+var testResourceRangeTemplate2 = `resource "infoblox_ipv4_range_template" "template2" {
   name = "range-template22"
   number_of_addresses = 40
   offset = 30
@@ -39,7 +39,7 @@ func testAccCheckRangeTemplateDestroy(s *terraform.State) error {
 	meta := testAccProvider.Meta()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "infoblox_range_template" {
+		if rs.Type != "infoblox_ipv4_range_template" {
 			continue
 		}
 		connector := meta.(ibclient.IBConnector)
@@ -176,7 +176,7 @@ func TestAccResourceRangeTemplate(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testResourceRangeTemplate1,
-				Check: testAccRangeTemplateCompare(t, "infoblox_range_template.template1", &ibclient.Rangetemplate{
+				Check: testAccRangeTemplateCompare(t, "infoblox_ipv4_range_template.template1", &ibclient.Rangetemplate{
 					Name:              utils.StringPtr("rangetemplate11"),
 					NumberOfAddresses: utils.Uint32Ptr(10),
 					Offset:            utils.Uint32Ptr(70),
@@ -192,7 +192,7 @@ func TestAccResourceRangeTemplate(t *testing.T) {
 			},
 			{
 				Config: testResourceRangeTemplate2,
-				Check: testAccRangeTemplateCompare(t, "infoblox_range_template.template2", &ibclient.Rangetemplate{
+				Check: testAccRangeTemplateCompare(t, "infoblox_ipv4_range_template.template2", &ibclient.Rangetemplate{
 					Name:              utils.StringPtr("range-template22"),
 					NumberOfAddresses: utils.Uint32Ptr(40),
 					Offset:            utils.Uint32Ptr(30),

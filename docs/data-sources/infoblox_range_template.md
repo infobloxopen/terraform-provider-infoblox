@@ -1,6 +1,6 @@
 # Range Template-record Data Source
 
-Use the `infoblox_range_template` data resource for the Range Template record to retrieve the following information for a Range Template record:
+Use the `infoblox_ipv4_range_template` data resource for the IPV4 Range Template record to retrieve the following information for a Range Template record:
 
 * `name`: The name of the range template record. Example: `range-template1`.
 * `number_of_addresses`: The number of addresses for this range. Example: `100`.
@@ -54,7 +54,7 @@ From the below list of supported arguments for filters,  use only the searchable
 
 ### Example for using the filters:
  ```hcl
-data "infoblox_range_template" "range_template_read" {
+data "infoblox_ipv4_range_template" "range_template_read" {
   filters = {
     name = "range-template1"
     comment = "Temporary range template"
@@ -62,15 +62,15 @@ data "infoblox_range_template" "range_template_read" {
 }
  ```
 
-!> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_range_template`, will be fetched in results.
+!> If `null` or empty filters are passed, then all the records or objects associated with datasource like here `infoblox_ipv4_range_template`, will be fetched in results.
 
 ### Example of the Alias-record Data Source Block
 
-This example defines a data source of type `infoblox_range_template` and the name "range_template_read", which is configured in a Terraform file.
+This example defines a data source of type `infoblox_ipv4_range_template` and the name "range_template_read", which is configured in a Terraform file.
 You can reference this resource and retrieve information about it.
 
 ```hcl
-resource "infoblox_range_template" "range_template_record" {
+resource "infoblox_ipv4_range_template" "range_template_record" {
   name = "range-template2"
   number_of_addresses = 40
   offset = 30
@@ -96,25 +96,25 @@ resource "infoblox_range_template" "range_template_record" {
   server_association_type = "FAILOVER"
 }
 
-data "infoblox_range_template" "range_template_read"{
+data "infoblox_ipv4_range_template" "range_template_read"{
   filters = {
-    name = infoblox_range_template.range_template_record.name
-    server_association_type = infoblox_range_template.range_template_record.server_association_type
-    failover_association = infoblox_range_template.range_template_record.failover_association
+    name = infoblox_ipv4_range_template.range_template_record.name
+    server_association_type = infoblox_ipv4_range_template.range_template_record.server_association_type
+    failover_association = infoblox_ipv4_range_template.range_template_record.failover_association
   }
 }
 
 output "range_template_record_out" {
-  value = data.infoblox_range_template.range_template_read
+  value = data.infoblox_ipv4_range_template.range_template_read
 }
 
 // accessing individual field in results
 output "range_template_offset_out" {
-  value = data.infoblox_range_template.range_template_read.results.0.offset //zero represents index of json object from results list
+  value = data.infoblox_ipv4_range_template.range_template_read.results.0.offset //zero represents index of json object from results list
 }
 
 // accessing Alias-Record through EA's
-data "infoblox_range_template" "range_template_read_ea" {
+data "infoblox_ipv4_range_template" "range_template_read_ea" {
   filters = {
     "*Site" = "Kobe"
   }
@@ -122,6 +122,6 @@ data "infoblox_range_template" "range_template_read_ea" {
 
 // throws matching Alias records with EA, if any
 output "range_template_read_ea_out" {
-  value = data.infoblox_range_template.range_template_read_ea
+  value = data.infoblox_ipv4_range_template.range_template_read_ea
 }
 ```

@@ -1,10 +1,10 @@
-resource "infoblox_range_template" "range_template_full_params" {
+resource "infoblox_ipv4_range_template" "range_template_full_params" {
   name = "range-template1"
   number_of_addresses = 10
   offset = 20
 }
 
-resource "infoblox_range_template" "range_template_full_set_parameters" {
+resource "infoblox_ipv4_range_template" "range_template_full_set_parameters" {
   name = "range-template223"
   number_of_addresses = 40
   offset = 30
