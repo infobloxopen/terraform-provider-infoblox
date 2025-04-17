@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -27,131 +26,6 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 				if err != nil {
 					return err
 				}
-			}
-
-			// Helper function to check if an option is the default value
-			isDefault := func(opt map[string]interface{}) bool {
-				return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
-			}
-
-			// Get the old and new values for the options field
-			oldVal, newVal := d.GetChange("options")
-
-			// Ensure oldVal and newVal are not nil
-			if oldVal == nil || newVal == nil {
-				return nil
-			}
-
-			oldList, okOld := oldVal.([]interface{})
-			newList, okNew := newVal.([]interface{})
-
-			// Ensure type assertions are successful
-			if !okOld || !okNew {
-				return nil
-			}
-
-			// If newList is empty, set it to an empty list to clear old values
-			if len(newList) == 0 {
-				if err := d.SetNew("options", []interface{}{}); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// Add default values to oldList if they are missing
-			defaultOpt := map[string]interface{}{
-				"name":         "dhcp-lease-time",
-				"num":          51,
-				"use_option":   false,
-				"value":        "43200",
-				"vendor_class": "DHCP",
-			}
-
-			// check if state-file file has dhcp-lease-time option and if it had default values
-			hasDefaultOld := false
-			for _, oldOpt := range oldList {
-				if isDefault(oldOpt.(map[string]interface{})) {
-					hasDefaultOld = true
-					break
-				}
-			}
-
-			// if the old list does not contain user provided or default dhcp-lease-time, add default values to the list
-			if !hasDefaultOld {
-				oldList = append(oldList, defaultOpt)
-			}
-
-			// check if tf file has dhcp-lease-time option and if it has default values
-			hasDefaultNew := false
-			for _, newOpt := range newList {
-				if isDefault(newOpt.(map[string]interface{})) {
-					hasDefaultNew = true
-					break
-				}
-			}
-
-			// Add default values to newList if it does not contain default or user provided dhcp-lease-time
-			if !hasDefaultNew {
-				newList = append(newList, defaultOpt)
-			}
-
-			// Filter out default values from both old and new lists for comparison
-			filteredOldList := []interface{}{}
-			for _, oldOpt := range oldList {
-				oldOptMap, ok := oldOpt.(map[string]interface{})
-				if ok && !isDefault(oldOptMap) {
-					filteredOldList = append(filteredOldList, oldOpt)
-				}
-			}
-
-			filteredNewList := []interface{}{}
-			for _, newOpt := range newList {
-				newOptMap, ok := newOpt.(map[string]interface{})
-				if ok && !isDefault(newOptMap) {
-					filteredNewList = append(filteredNewList, newOpt)
-				}
-			}
-
-			// Sort the lists by the specified sub-field (e.g., "value")
-			sortOptions := func(options []interface{}, field string) {
-				sort.SliceStable(options, func(i, j int) bool {
-					return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
-				})
-			}
-
-			sortOptions(filteredOldList, "name")
-			sortOptions(filteredNewList, "name")
-
-			// Compare the filtered lists and set options to newList
-			if len(filteredOldList) != len(filteredNewList) {
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// Ensure that the plan shows changes when non-default values are removed
-			if len(filteredNewList) == 0 && len(filteredOldList) > 0 {
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
-			if !reflect.DeepEqual(filteredNewList, filteredOldList) {
-				// add default options if not present in the new list
-				if !hasDefaultNew {
-					filteredNewList = append(filteredNewList, defaultOpt)
-				}
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
-			if err := d.SetNew("options", oldList); err != nil {
-				return err
 			}
 			return nil
 		},
@@ -207,7 +81,6 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Description: "An array of DHCP option structs that lists the DHCP options associated with the object. An option sets the" +
 					"value of a DHCP option that has been defined in an option space. DHCP options describe network configuration settings" +
 					"and various services available on the network. These options occur as variable-length fields at the end of DHCP messages." +
@@ -517,11 +390,6 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 
 	networkView := d.Get("network_view").(string)
 	useOptions := d.Get("use_options").(bool)
-	options := d.Get("options").([]interface{})
-	optionsList, err := validateDhcpOptions(options)
-	if err != nil {
-		return fmt.Errorf("failed to validate options: %w", err)
-	}
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
@@ -559,7 +427,22 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 		return err
 	}
 
-	sharedNetwork, err = objMgr.UpdateIpv4SharedNetwork(d.Id(), name, networksList, networkView, comment, newExtAttrs, disable, useOptions, optionsList)
+	// Check if the options field has changes
+	oldOptions, newOptions := d.GetChange("options")
+	oldList, okOld := oldOptions.([]interface{})
+	newList, okNew := newOptions.([]interface{})
+
+	if !okOld || !okNew {
+		return fmt.Errorf("options is not a slice of interfaces")
+	}
+
+	optimizedOptions := optimizeDhcpOptions(oldList, newList)
+	options, err := validateDhcpOptions(optimizedOptions)
+	if err != nil {
+		return fmt.Errorf("failed to validate options: %w", err)
+	}
+
+	sharedNetwork, err = objMgr.UpdateIpv4SharedNetwork(d.Id(), name, networksList, networkView, comment, newExtAttrs, disable, useOptions, options)
 	if err != nil {
 		return fmt.Errorf("failed to update sharedNetwork: %s.", err.Error())
 	}
@@ -574,6 +457,54 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 	d.SetId(sharedNetwork.Ref)
 	return resourceIpv4SharedNetworkRead(d, m)
+}
+
+func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{} {
+
+	// Sort the lists by the specified sub-field (e.g., "value")
+	sortOptions := func(options []interface{}, field string) {
+		sort.SliceStable(options, func(i, j int) bool {
+			return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
+		})
+	}
+
+	isDefault := func(opt map[string]interface{}) bool {
+		return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
+	}
+
+	sortOptions(list1, "value")
+	sortOptions(list2, "value")
+
+	// Create a map of new options for quick lookup
+	newOptionsMap := make(map[string]bool)
+	for _, newOpt := range list2 {
+		optMap, ok := newOpt.(map[string]interface{})
+		if ok {
+			if name, exists := optMap["name"].(string); exists {
+				newOptionsMap[name] = true
+			}
+		}
+	}
+
+	// Iterate through oldList to find options not in newList
+	for i, oldOpt := range list1 {
+		oldOptMap, ok := oldOpt.(map[string]interface{})
+		if ok {
+			if isDefault(oldOptMap) {
+				//hasDefaultOld = true
+				break
+			}
+			if name, exists := oldOptMap["name"].(string); exists {
+				if _, found := newOptionsMap[name]; !found {
+					// Option is not in newList, set its value to an empty string
+					oldOptMap["value"] = ""
+					list1[i] = oldOptMap // Update the oldList element
+				}
+			}
+		}
+	}
+
+	return list1
 }
 
 func resourceIpv4SharedNetworkDelete(d *schema.ResourceData, m interface{}) error {
