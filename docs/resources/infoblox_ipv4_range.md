@@ -1,6 +1,6 @@
 # Range Resource
 
-The `infoblox_range` resource enables you to perform `create`, `update` and `delete` operations on Network Range in a NIOS appliance.
+The `infoblox_ipv4_range` resource enables you to perform `create`, `update` and `delete` operations on Network Range in a NIOS appliance.
 The resource represents the ‘range’ WAPI object in NIOS.
 
 The following list describes the parameters you can define in the resource block of the Network Range object:
@@ -26,18 +26,25 @@ options {
   }
 ```
 * `use_options`: optional, Use option is a flag that indicates whether the options field are used or not. The default value is false. Example: `false`
-* `member`: optional, The member that will provide service for this range. 
+* `member`: optional, specifies the member that will provide service for this range. `server_association_type` needs to be set to `MEMBER` if you want the server specified here to serve the range. `member` has the following three fields `name`, `ipv4addr` and `ipv6addr`. At least one of `name`, `ipv4addr`, or `ipv6addr` is required in the `member` block.
+  The description of the fields of `member` is as follows:
+    * `name`: optional, specifies the name of the pool. Example: `infoblox.localdomain`.
+    * `ipv4addr`: optional, specifies the weight of the pool. Example: `11.10.1.0`.
+    * `ipv6addr`: optional, specifies the IPv6 address of the member. Example: `2403:8600:80cf:e10c:3a00::1192`.
+
+Example for `member`:
 ```terraform
-member = jsonencode({
-     ipv4addr = "10.197.81.111"
-   })
+member = {
+  name = "infoblox.localdomain"
+  ipv4addr = "11.10.1.0"
+  ipv6addr = "2403:8600:80cf:e10c:3a00::1192"
+}
 ```
-* `template`: optional, If set on creation, the range will be created according to the values specified in the named template. Example: `template1`
 
 ### Examples of a Network Range Block
 ```hcl
 // creating a Network Range
-resource "infoblox_range" "range3" {
+resource "infoblox_ipv4_range" "range3" {
   start_addr = "17.0.0.221"
   end_addr   = "17.0.0.240"
   options {
@@ -52,9 +59,9 @@ resource "infoblox_range" "range3" {
   comment              = "test comment"
   name                 = "test_range"
   disable              = false
-  member = jsonencode({
+  member = {
     name = "infoblox.localdomain"
-  })
+  }
   server_association_type= "MEMBER"
   ext_attrs = jsonencode({
     "Site" = "Blr"

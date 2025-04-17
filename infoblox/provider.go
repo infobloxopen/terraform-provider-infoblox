@@ -218,7 +218,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_server":             resourceDtcServer(),
 			"infoblox_alias_record":           resourceAliasRecord(),
 			"infoblox_ns_record":              resourceNSRecord(),
-			"infoblox_range":                  resourceRange(),
+			"infoblox_ipv4_range":             resourceRange(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
@@ -243,7 +243,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_server":             dataSourceDtcServer(),
 			"infoblox_alias_record":           dataSourceAliasRecord(),
 			"infoblox_ns_record":              dataSourceNSRecord(),
-			"infoblox_range":                  dataSourceRange(),
+			"infoblox_ipv4_range":             dataSourceRange(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

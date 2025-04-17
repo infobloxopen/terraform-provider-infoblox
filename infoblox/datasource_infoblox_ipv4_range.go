@@ -114,9 +114,13 @@ func dataSourceRange() *schema.Resource {
 							},
 						},
 						"member": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The member that will provide service for this range.",
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Description: "The member that will provide service for this range. server_association_type needs to be set to ‘MEMBER’ if you want" +
+								"the server specified here to serve the range.",
 						},
 						"use_options": {
 							Type:        schema.TypeBool,
@@ -132,11 +136,6 @@ func dataSourceRange() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Structure containing all cloud API related information for this object.",
-						},
-						"template": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "If set on creation, the range will be created according to the values specified in the named template.",
 						},
 					},
 				},
@@ -196,7 +195,6 @@ func flattenNetworkRange(networkRange ibclient.Range) (map[string]interface{}, e
 		"id":                      networkRange.Ref,
 		"ext_attrs":               string(ea),
 		"server_association_type": networkRange.ServerAssociationType,
-		"template":                networkRange.Template,
 	}
 	if networkRange.Network != nil {
 		res["network"] = *networkRange.Network
@@ -215,11 +213,7 @@ func flattenNetworkRange(networkRange ibclient.Range) (map[string]interface{}, e
 		res["failover_association"] = *networkRange.FailoverAssociation
 	}
 	if networkRange.Member != nil {
-		serializedDhcpMember, err := serializeDhcpMember(networkRange.Member)
-		if err != nil {
-			return nil, err
-		}
-		res["member"] = serializedDhcpMember
+		res["member"] = convertDhcpMemberToMap(networkRange.Member)
 	}
 	if networkRange.Disable != nil {
 		res["disable"] = *networkRange.Disable

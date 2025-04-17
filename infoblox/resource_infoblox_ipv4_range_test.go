@@ -151,7 +151,7 @@ func TestAccResourceRange(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-					resource "infoblox_range" "range3" {
+					resource "infoblox_ipv4_range" "range3" {
  							start_addr = "17.0.0.45"
  							end_addr   = "17.0.0.50"
 							options {
@@ -163,7 +163,7 @@ func TestAccResourceRange(t *testing.T) {
 						}
 				}`),
 				Check: resource.ComposeTestCheckFunc(
-					testAccRangeCompare(t, "infoblox_range.range3", &ibclient.Range{
+					testAccRangeCompare(t, "infoblox_ipv4_range.range3", &ibclient.Range{
 						StartAddr: utils.StringPtr("17.0.0.45"),
 						EndAddr:   utils.StringPtr("17.0.0.50"),
 						Options: []*ibclient.Dhcpoption{{
@@ -179,7 +179,7 @@ func TestAccResourceRange(t *testing.T) {
 			},
 			{
 				Config: fmt.Sprintf(`
-					resource "infoblox_range" "range3" {
+					resource "infoblox_ipv4_range" "range3" {
  							start_addr = "17.0.0.20"
  							end_addr   = "17.0.0.40"
 							options {
@@ -200,12 +200,12 @@ func TestAccResourceRange(t *testing.T) {
 						comment = "test comment"		
 						name = "test_range"
 						disable = false
-						member = jsonencode({
-     							name = "infoblox.localdomain"
-				})
-				}`),
+						member = {
+    							name = "infoblox.localdomain"
+  						}
+					}`),
 				Check: resource.ComposeTestCheckFunc(
-					testAccRangeCompare(t, "infoblox_range.range3", &ibclient.Range{
+					testAccRangeCompare(t, "infoblox_ipv4_range.range3", &ibclient.Range{
 						StartAddr: utils.StringPtr("17.0.0.20"),
 						EndAddr:   utils.StringPtr("17.0.0.40"),
 						Options: []*ibclient.Dhcpoption{{

@@ -8,13 +8,6 @@ import (
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
-func diffSuppressServerAssociationType(k, old, new string, d *schema.ResourceData) bool {
-	if old == "MEMBER" && d.Get("member") != nil {
-		return true
-	}
-	return false
-}
-
 func resourceRange() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceRangeCreate,
@@ -127,44 +120,13 @@ func resourceRange() *schema.Resource {
 				},
 			},
 			"member": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The member that will provide service for this range.",
-				// DiffSuppressFunc that compares only the fields that are explicitly set in the configuration
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					if old == new {
-						return true
-					}
-
-					var oldData, newData map[string]interface{}
-
-					if err := json.Unmarshal([]byte(old), &oldData); err != nil {
-						return false
-					}
-					if err := json.Unmarshal([]byte(new), &newData); err != nil {
-						return false
-					}
-
-					// Get the config value to check which fields were explicitly set
-					configValue := d.GetRawConfig().GetAttr("member")
-					if configValue.IsNull() {
-						return true
-					}
-
-					var configData map[string]interface{}
-					if err := json.Unmarshal([]byte(configValue.AsString()), &configData); err != nil {
-						return false
-					}
-
-					// Compare only the fields that were set in the configuration
-					for k := range configData {
-						if oldData[k] != newData[k] {
-							return false
-						}
-					}
-
-					return true
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
 				},
+				Description: "The member that will provide service for this range. server_association_type needs to be set to ‘MEMBER’ if you want" +
+					"the server specified here to serve the range.",
 			},
 			"use_options": {
 				Type:        schema.TypeBool,
@@ -173,16 +135,22 @@ func resourceRange() *schema.Resource {
 				Description: "Use flag for options.",
 			},
 			"server_association_type": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				Default:          "NONE",
-				Description:      "The type of server that is going to serve the range. The valid values are: 'FAILOVER', 'MEMBER', 'NONE'.'MS_FAILOVER','MS_SERVER'",
-				DiffSuppressFunc: diffSuppressServerAssociationType,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "NONE",
+				Description: "The type of server that is going to serve the range. The valid values are: 'FAILOVER', 'MEMBER', 'NONE'.'MS_FAILOVER','MS_SERVER'",
 			},
 			"template": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "If set on creation, the range will be created according to the values specified in the named template.",
+			},
+			"ms_server": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: "The Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` +" +
+					"if you want the server specified here to serve the range. For searching by this field you should use a HTTP method that contains a" +
+					"body (POST or PUT) with MS DHCP server structure and the request should have option _method=GET.",
 			},
 			"internal_id": {
 				Type:     schema.TypeString,
@@ -218,14 +186,18 @@ func resourceRangeCreate(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	useOptions := d.Get("use_options").(bool)
 	optionsInterface := d.Get("options").([]interface{})
-	options := ConvertInterfaceToDhcpOptions(optionsInterface)
+	options, err := validateDhcpOptions(optionsInterface)
+	if err != nil {
+		return err
+	}
 	serverAssociationType := d.Get("server_association_type").(string)
 	failOverAssociation := d.Get("failover_association").(string)
 	template := d.Get("template").(string)
-	member := d.Get("member").(string)
-	memberStructure, err := ConvertJSONToDhcpMember(member)
+	msServer := d.Get("ms_server").(string)
+	member := d.Get("member").(map[string]interface{})
+	dhcpMember, err := ConvertMapToDhcpMember(member)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to convert member to dhcpmember: %w", err)
 	}
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -243,7 +215,7 @@ func resourceRangeCreate(d *schema.ResourceData, m interface{}) error {
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	newNetworkRange, err := objMgr.CreateNetworkRange(comment, name, network, networkView, startAddr, endAddr, disable, extAttrs, memberStructure, failOverAssociation, options, useOptions, serverAssociationType, template)
+	newNetworkRange, err := objMgr.CreateNetworkRange(comment, name, network, networkView, startAddr, endAddr, disable, extAttrs, dhcpMember, failOverAssociation, options, useOptions, serverAssociationType, template, msServer)
 	if err != nil {
 		return err
 	}
@@ -321,12 +293,20 @@ func resourceRangeRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("failover_association", networkRange.FailoverAssociation); err != nil {
 		return err
 	}
-	serializedMember, err := serializeDhcpMember(networkRange.Member)
-	if err != nil {
-		return err
+	if networkRange.MsServer != nil {
+		if err = d.Set("ms_server", networkRange.MsServer.Ipv4Addr); err != nil {
+			return err
+		}
+	} else {
+		if err = d.Set("ms_server", ""); err != nil {
+			return err
+		}
 	}
-	if err = d.Set("member", serializedMember); err != nil {
-		return err
+	if networkRange.Member != nil {
+		member := convertDhcpMemberToMap(networkRange.Member)
+		if err = d.Set("member", member); err != nil {
+			return err
+		}
 	}
 	if err = d.Set("server_association_type", networkRange.ServerAssociationType); err != nil {
 		return err
@@ -364,6 +344,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 			prevServerAssociationType, _ := d.GetChange("server_association_type")
 			prevFailOverAssociation, _ := d.GetChange("failover_association")
 			prevTemplate, _ := d.GetChange("template")
+			prevMsServer, _ := d.GetChange("ms_server")
 
 			// TODO: move to the new Terraform plugin framework and
 			// process all the errors instead of ignoring them here.
@@ -381,6 +362,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 			_ = d.Set("server_association_type", prevServerAssociationType.(string))
 			_ = d.Set("failover_association", prevFailOverAssociation.(string))
 			_ = d.Set("template", prevTemplate.(string))
+			_ = d.Set("ms_server", prevMsServer.(string))
 		}
 	}()
 	if d.HasChange("internal_id") {
@@ -396,11 +378,18 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	endAddr := d.Get("end_addr").(string)
 	disable := d.Get("disable").(bool)
 	useOptions := d.Get("use_options").(bool)
+	msServer := d.Get("ms_server").(string)
 	optionsInterface := d.Get("options").([]interface{})
-	options := ConvertInterfaceToDhcpOptions(optionsInterface)
-	member := d.Get("member").(string)
+	options, err := validateDhcpOptions(optionsInterface)
+	if err != nil {
+		return err
+	}
+	member := d.Get("member").(map[string]interface{})
+	dhcpMember, err := ConvertMapToDhcpMember(member)
+	if err != nil {
+		return fmt.Errorf("failed to convert member to dhcpmember: %w", err)
+	}
 	networkView := d.Get("network_view").(string)
-	memberStructure, err := ConvertJSONToDhcpMember(member)
 	if err != nil {
 		return err
 	}
@@ -456,7 +445,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	newExtAttrs, err = mergeEAs(networkRange.Ea, newExtAttrs, oldExtAttrs, connector)
-	networkRange, err = objMgr.UpdateNetworkRange(d.Id(), comment, name, network, startAddr, endAddr, disable, newExtAttrs, memberStructure, failoverAssociation, options, useOptions, serverAssociationType, networkView)
+	networkRange, err = objMgr.UpdateNetworkRange(d.Id(), comment, name, network, startAddr, endAddr, disable, newExtAttrs, dhcpMember, failoverAssociation, options, useOptions, serverAssociationType, networkView, msServer)
 	if err != nil {
 		return fmt.Errorf("Failed to update network range with %s, ", err.Error())
 	}
@@ -542,48 +531,78 @@ func resourceRangeImport(d *schema.ResourceData, m interface{}) ([]*schema.Resou
 		}
 	}
 	delete(networkRange.Ea, eaNameForInternalId)
-	if err = d.Set("comment", networkRange.Comment); err != nil {
-		return nil, err
+	if networkRange.Comment != nil {
+		if err = d.Set("comment", networkRange.Comment); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("name", networkRange.Name); err != nil {
-		return nil, err
+	if networkRange.Name != nil {
+		if err = d.Set("name", networkRange.Name); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("network", networkRange.Network); err != nil {
-		return nil, err
+	if networkRange.Network != nil {
+		if err = d.Set("network", networkRange.Network); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("network_view", networkRange.NetworkView); err != nil {
-		return nil, err
+	if networkRange.NetworkView != nil {
+		if err = d.Set("network_view", networkRange.NetworkView); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("start_addr", networkRange.StartAddr); err != nil {
-		return nil, err
+	if networkRange.StartAddr != nil {
+		if err = d.Set("start_addr", networkRange.StartAddr); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("end_addr", networkRange.EndAddr); err != nil {
-		return nil, err
+	if networkRange.EndAddr != nil {
+		if err = d.Set("end_addr", networkRange.EndAddr); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("disable", networkRange.Disable); err != nil {
-		return nil, err
+	if networkRange.Disable != nil {
+		if err = d.Set("disable", networkRange.Disable); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("failover_association", networkRange.FailoverAssociation); err != nil {
-		return nil, err
+	if networkRange.FailoverAssociation != nil {
+		if err = d.Set("failover_association", networkRange.FailoverAssociation); err != nil {
+			return nil, err
+		}
 	}
-	serializedMember, err := serializeDhcpMember(networkRange.Member)
-	if err != nil {
-		return nil, err
+	if networkRange.Member != nil {
+		member := convertDhcpMemberToMap(networkRange.Member)
+		if err = d.Set("member", member); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("member", serializedMember); err != nil {
-		return nil, err
-	}
-	if err = d.Set("server_association_type", networkRange.ServerAssociationType); err != nil {
-		return nil, err
+	if networkRange.ServerAssociationType != "" {
+		if err = d.Set("server_association_type", networkRange.ServerAssociationType); err != nil {
+			return nil, err
+		}
 	}
 	if err = d.Set("options", convertDhcpOptionsToInterface(networkRange.Options)); err != nil {
 		return nil, err
 	}
-	if err = d.Set("use_options", networkRange.UseOptions); err != nil {
-		return nil, err
+	if networkRange.UseOptions != nil {
+		if err = d.Set("use_options", networkRange.UseOptions); err != nil {
+			return nil, err
+		}
 	}
-	if err = d.Set("template", networkRange.Template); err != nil {
-		return nil, err
+	if networkRange.Template != "" {
+		if err = d.Set("template", networkRange.Template); err != nil {
+			return nil, err
+		}
+	}
+	if networkRange.MsServer != nil {
+		if err = d.Set("ms_server", networkRange.MsServer.Ipv4Addr); err != nil {
+			return nil, err
+		}
+	} else {
+		if err = d.Set("ms_server", ""); err != nil {
+			return nil, err
+		}
 	}
 	d.SetId(networkRange.Ref)
 
@@ -594,63 +613,4 @@ func resourceRangeImport(d *schema.ResourceData, m interface{}) ([]*schema.Resou
 	}
 	return []*schema.ResourceData{d}, nil
 
-}
-func ConvertJSONToDhcpMember(jsonStr string) (*ibclient.Dhcpmember, error) {
-	if jsonStr == "" {
-		return nil, nil
-	}
-	var data map[string]interface{}
-	err := json.Unmarshal([]byte(jsonStr), &data)
-	if err != nil {
-		return nil, err
-	}
-	ipv4Addr, _ := data["ipv4addr"].(string)
-	ipv6Addr, _ := data["ipv6addr"].(string)
-	name, _ := data["name"].(string)
-	member := &ibclient.Dhcpmember{
-		Ipv4Addr: ipv4Addr,
-		Ipv6Addr: ipv6Addr,
-		Name:     name,
-	}
-	return member, nil
-}
-func ConvertInterfaceToDhcpOptions(optionsInterface []interface{}) []*ibclient.Dhcpoption {
-	var options []*ibclient.Dhcpoption
-	for _, optionInterface := range optionsInterface {
-		option := optionInterface.(map[string]interface{})
-		dhcpOption := &ibclient.Dhcpoption{
-			Name:        option["name"].(string),
-			Num:         uint32(option["num"].(int)),
-			VendorClass: option["vendor_class"].(string),
-			Value:       option["value"].(string),
-			UseOption:   option["use_option"].(bool),
-		}
-		options = append(options, dhcpOption)
-	}
-	return options
-}
-
-func convertDhcpOptionsToInterface(options []*ibclient.Dhcpoption) []map[string]interface{} {
-	optionsInterface := make([]map[string]interface{}, 0, len(options))
-	for _, option := range options {
-		optionMap := make(map[string]interface{})
-		optionMap["name"] = option.Name
-		optionMap["num"] = option.Num
-		optionMap["vendor_class"] = option.VendorClass
-		optionMap["value"] = option.Value
-		optionMap["use_option"] = option.UseOption
-		optionsInterface = append(optionsInterface, optionMap)
-	}
-	return optionsInterface
-}
-
-func serializeDhcpMember(member *ibclient.Dhcpmember) (string, error) {
-	if member == nil {
-		return "", nil
-	}
-	data, err := json.Marshal(member)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
 }
