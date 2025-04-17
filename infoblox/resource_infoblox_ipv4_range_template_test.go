@@ -221,15 +221,3 @@ func TestAccResourceRangeTemplate(t *testing.T) {
 		},
 	})
 }
-
-func compareDHCPOptions(options1, options2 []*ibclient.Dhcpoption) bool {
-	if len(options1) != len(options2) {
-		return false
-	}
-	for i := range options1 {
-		if options1[i].Name != options2[i].Name || options1[i].Value != options2[i].Value {
-			return false
-		}
-	}
-	return true
-}
