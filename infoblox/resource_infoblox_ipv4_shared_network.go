@@ -472,8 +472,8 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 		return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
 	}
 
-	sortOptions(list1, "value")
-	sortOptions(list2, "value")
+	sortOptions(list1, "name")
+	sortOptions(list2, "name")
 
 	// Create a map of new options for quick lookup
 	newOptionsMap := make(map[string]bool)
@@ -486,19 +486,43 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 		}
 	}
 
+	// Create a map of existing options in oldList for quick lookup
+	oldOptionsMap := make(map[string]bool)
+	for _, oldOpt := range list1 {
+		oldOptMap, ok := oldOpt.(map[string]interface{})
+		if ok {
+			if name, exists := oldOptMap["name"].(string); exists {
+				oldOptionsMap[name] = true
+			}
+		}
+	}
+
 	// Iterate through oldList to find options not in newList
 	for i, oldOpt := range list1 {
 		oldOptMap, ok := oldOpt.(map[string]interface{})
 		if ok {
 			if isDefault(oldOptMap) {
 				//hasDefaultOld = true
-				break
+				continue
 			}
 			if name, exists := oldOptMap["name"].(string); exists {
 				if _, found := newOptionsMap[name]; !found {
 					// Option is not in newList, set its value to an empty string
 					oldOptMap["value"] = ""
 					list1[i] = oldOptMap // Update the oldList element
+				}
+			}
+		}
+	}
+
+	// Iterate through newList to find options not in oldList
+	for _, newOpt := range list2 {
+		newOptMap, ok := newOpt.(map[string]interface{})
+		if ok {
+			if name, exists := newOptMap["name"].(string); exists {
+				if _, found := oldOptionsMap[name]; !found {
+					// Option is in newList but not in oldList, add it to oldList
+					list1 = append(list1, newOptMap)
 				}
 			}
 		}
