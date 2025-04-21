@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -117,6 +118,63 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					oldOptions, newOptions := d.GetChange("options")
+
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					for i := range filteredOldList {
+						oldOptMap := filteredOldList[i].(map[string]interface{})
+						newOptMap := filteredNewList[i].(map[string]interface{})
+						if !reflect.DeepEqual(oldOptMap, newOptMap) {
+							return false
+						}
+					}
+
+					// Check for changes in subfields of default elements
+					if len(oldList) == len(newList) {
+						for i := range oldList {
+							oldOptMap := oldList[i].(map[string]interface{})
+							newOptMap := newList[i].(map[string]interface{})
+							if isDefault(oldOptMap) && !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+
+					return true
 				},
 			},
 			"internal_id": {
@@ -459,55 +517,61 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 	return resourceIpv4SharedNetworkRead(d, m)
 }
 
+// sortOptions sorts a slice of DHCP options by the specified field.
+func sortOptions(options []interface{}, field string) {
+	sort.SliceStable(options, func(i, j int) bool {
+		return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
+	})
+}
+
+// isDefault checks if the given option is a default DHCP option.
+func isDefault(opt map[string]interface{}) bool {
+	return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
+}
+
 func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{} {
-
-	// Sort the lists by the specified sub-field (e.g., "value")
-	sortOptions := func(options []interface{}, field string) {
-		sort.SliceStable(options, func(i, j int) bool {
-			return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
-		})
-	}
-
-	isDefault := func(opt map[string]interface{}) bool {
-		return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
-	}
 
 	sortOptions(list1, "name")
 	sortOptions(list2, "name")
 
 	// Create a map of new options for quick lookup
-	newOptionsMap := make(map[string]bool)
+	newOptionsMap := make(map[string]map[string]interface{})
 	for _, newOpt := range list2 {
 		optMap, ok := newOpt.(map[string]interface{})
 		if ok {
 			if name, exists := optMap["name"].(string); exists {
-				newOptionsMap[name] = true
+				newOptionsMap[name] = optMap
 			}
 		}
 	}
 
 	// Create a map of existing options in oldList for quick lookup
-	oldOptionsMap := make(map[string]bool)
+	oldOptionsMap := make(map[string]map[string]interface{})
 	for _, oldOpt := range list1 {
 		oldOptMap, ok := oldOpt.(map[string]interface{})
 		if ok {
 			if name, exists := oldOptMap["name"].(string); exists {
-				oldOptionsMap[name] = true
+				oldOptionsMap[name] = oldOptMap
 			}
 		}
 	}
 
-	// Iterate through oldList to find options not in newList
+	// Iterate through oldList to update subfields if there are changes
 	for i, oldOpt := range list1 {
 		oldOptMap, ok := oldOpt.(map[string]interface{})
 		if ok {
 			if isDefault(oldOptMap) {
-				//hasDefaultOld = true
 				continue
 			}
 			if name, exists := oldOptMap["name"].(string); exists {
-				if _, found := newOptionsMap[name]; !found {
-					// Option is not in newList, set its value to an empty string
+				if newOptMap, found := newOptionsMap[name]; found {
+					// Update subfields in oldOptMap with values from newOptMap
+					for key, value := range newOptMap {
+						oldOptMap[key] = value
+					}
+					list1[i] = oldOptMap // Update the oldList element
+				} else {
+					// Option is not in newList, set its value to an empty string and use_option to false
 					oldOptMap["value"] = ""
 					oldOptMap["use_option"] = false
 					list1[i] = oldOptMap // Update the oldList element
