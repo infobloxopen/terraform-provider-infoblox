@@ -509,6 +509,7 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 				if _, found := newOptionsMap[name]; !found {
 					// Option is not in newList, set its value to an empty string
 					oldOptMap["value"] = ""
+					oldOptMap["use_option"] = false
 					list1[i] = oldOptMap // Update the oldList element
 				}
 			}
