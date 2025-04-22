@@ -533,6 +533,7 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 
 	sortOptions(list1, "name")
 	sortOptions(list2, "name")
+	var optimizedList []interface{}
 
 	// Create a map of new options for quick lookup
 	newOptionsMap := make(map[string]map[string]interface{})
@@ -557,24 +558,26 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 	}
 
 	// Iterate through oldList to update subfields if there are changes
-	for i, oldOpt := range list1 {
+	for _, oldOpt := range list1 {
 		oldOptMap, ok := oldOpt.(map[string]interface{})
 		if ok {
 			if isDefault(oldOptMap) {
 				continue
 			}
 			if name, exists := oldOptMap["name"].(string); exists {
-				if newOptMap, found := newOptionsMap[name]; found {
-					// Update subfields in oldOptMap with values from newOptMap
-					for key, value := range newOptMap {
-						oldOptMap[key] = value
+				if name == "routers" || name == "router-templates" || name == "domain-name-servers" || name == "domain-name" || name == "broadcast-address-offset" || name == "dhcp6.name-servers" || name == "broadcast-address" || name == "dhcp-lease-time" {
+					if newOptMap, found := newOptionsMap[name]; found {
+						// Update subfields in oldOptMap with values from newOptMap
+						for key, value := range newOptMap {
+							oldOptMap[key] = value
+						}
+						optimizedList = append(optimizedList, oldOptMap) // Update the oldList element
+					} else {
+						// Option is not in newList, set its value to an empty string and use_option to false
+						oldOptMap["value"] = ""
+						oldOptMap["use_option"] = false
+						optimizedList = append(optimizedList, oldOptMap) // Update the oldList element
 					}
-					list1[i] = oldOptMap // Update the oldList element
-				} else {
-					// Option is not in newList, set its value to an empty string and use_option to false
-					oldOptMap["value"] = ""
-					oldOptMap["use_option"] = false
-					list1[i] = oldOptMap // Update the oldList element
 				}
 			}
 		}
@@ -587,13 +590,13 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 			if name, exists := newOptMap["name"].(string); exists {
 				if _, found := oldOptionsMap[name]; !found {
 					// Option is in newList but not in oldList, add it to oldList
-					list1 = append(list1, newOptMap)
+					optimizedList = append(optimizedList, newOptMap)
 				}
 			}
 		}
 	}
 
-	return list1
+	return optimizedList
 }
 
 func resourceIpv4SharedNetworkDelete(d *schema.ResourceData, m interface{}) error {
