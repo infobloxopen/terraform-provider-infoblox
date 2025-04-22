@@ -6,7 +6,17 @@ The data source for the network object allows you to get the following parameter
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
-
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object.
+```terraform
+options {
+  name         = "dhcp-lease-time"
+  value        = "43200"
+  vendor_class = "DHCP"
+  num          = 51
+  use_option   = true
+}
+```
+* `utilization`: The network utilization in percentage. Example: `0`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retriving the matching records.
