@@ -574,7 +574,6 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 		if !ok {
 			continue
 		}
-
 		name, exists := oldOptMap["name"].(string)
 		if !exists {
 			continue
@@ -588,20 +587,31 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 					oldOptMap[key] = value
 				}
 			} else {
+				// If the option is not found in newList(default dhcp-lease-time), don't do anything
+				if name == "dhcp-lease-time" {
+					continue
+				}
 				// if Option is removed from tf file, set its value to an empty string and use_option to false
 				oldOptMap["value"] = ""
 				oldOptMap["use_option"] = false
 			}
 			optimizedList = append(optimizedList, oldOptMap)
 		} else {
-			// Handle non-special options, add the custom DHCP options to optimizedList if it's there in the tf file
-			if _, found := newOptionsMap[name]; found {
+			// Handle custom DHCP options
+			if newOptMap, found := newOptionsMap[name]; found {
+				// Check for changes in subfields and update oldOptMap with new values
+				for key, newValue := range newOptMap {
+					// if there are changes in the subfields of custom DHCP options or new DHCP options are provided in the tf file, update the oldOptMap
+					if oldValue, exists := oldOptMap[key]; !exists || !reflect.DeepEqual(oldValue, newValue) {
+						oldOptMap[key] = newValue
+					}
+				}
 				optimizedList = append(optimizedList, oldOptMap)
 			}
 		}
 	}
 
-	// Iterate through newList to find options not in oldList
+	// Iterate through newList to find options present in newList and not in oldList
 	for _, newOpt := range list2 {
 		newOptMap, ok := newOpt.(map[string]interface{})
 		if ok {
