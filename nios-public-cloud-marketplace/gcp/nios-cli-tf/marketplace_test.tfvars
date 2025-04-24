@@ -9,11 +9,7 @@ goog_cm_deployment_name = "nios-906-byol"
 # List of VPC network names to be attached to each NIC of the VM.
 # - The first value (e.g., "vnet1") will be used for NIC0 (typically used for management).
 # - The second value (e.g., "vnet2") will be used for NIC1 (typically used for LAN access).
-variable "networks" {
-  description = "The network names to attach to each VM interface."
-  type        = list(string)
-  default     = ["vnet1", "vnet2"]
-}
+# networks = ["vnet1", "vnet2"]
 
 # Add subnet names corresponding to each VPC listed above.
 # - Example: "vnet1-subnet1" for NIC0, "vnet2-subnet2" for NIC1.
