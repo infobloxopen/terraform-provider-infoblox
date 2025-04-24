@@ -7,6 +7,8 @@ The provided test configuration can be used by executing:
 
 ```
 terraform plan 
+terraform init
+terraform apply -var-file="marketplace_test.tfvars"
 ```
 
 ## Inputs
