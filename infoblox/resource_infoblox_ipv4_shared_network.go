@@ -120,6 +120,9 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 					},
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if len(newValue) == 0 {
+						return false
+					}
 					oldOptions, newOptions := d.GetChange("options")
 
 					oldList, okOld := oldOptions.([]interface{})
@@ -589,11 +592,12 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 			} else {
 				// If the option is not found in newList(default dhcp-lease-time), don't do anything
 				if name == "dhcp-lease-time" {
-					continue
+					oldOptMap["value"] = "43200"
+				} else {
+					// if Option is removed from tf file, set its value to an empty string and use_option to false
+					oldOptMap["value"] = ""
+					oldOptMap["use_option"] = false
 				}
-				// if Option is removed from tf file, set its value to an empty string and use_option to false
-				oldOptMap["value"] = ""
-				oldOptMap["use_option"] = false
 			}
 			optimizedList = append(optimizedList, oldOptMap)
 		} else {
@@ -616,7 +620,7 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 		newOptMap, ok := newOpt.(map[string]interface{})
 		if ok {
 			if name, exists := newOptMap["name"].(string); exists {
-				if _, found := oldOptionsMap[name]; !found {
+				if _, found := oldOptionsMap[name]; !found && newOptMap["name"] != "" {
 					// Option is in newList but not in oldList, add it to oldList (options newly added to tf file)
 					optimizedList = append(optimizedList, newOptMap)
 				}
