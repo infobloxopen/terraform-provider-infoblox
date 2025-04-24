@@ -243,7 +243,8 @@ func resourceFixedRecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	agentCircuitId := d.Get("agent_circuit_id").(string)
 	agentRemoteId := d.Get("agent_remote_id").(string)
-	clientIdentifierPrependZero := d.Get("client_identifier_prepend_zero").(bool)
+	clientIdentifierPrependZeroBool := d.Get("client_identifier_prepend_zero").(bool)
+	clientIdentifierPrependZero := &clientIdentifierPrependZeroBool
 	comment := d.Get("comment").(string)
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
 	disable := d.Get("disable").(bool)
@@ -468,7 +469,8 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	matchClient := d.Get("match_client").(string)
 	agentCircuitId := d.Get("agent_circuit_id").(string)
 	agentRemoteId := d.Get("agent_remote_id").(string)
-	clientIdentifierPrependZero := d.Get("client_identifier_prepend_zero").(bool)
+	clientIdentifierPrependZeroBool := d.Get("client_identifier_prepend_zero").(bool)
+	clientIdentifierPrependZero := &clientIdentifierPrependZeroBool
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
 	useOptions := d.Get("use_options").(bool)
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")

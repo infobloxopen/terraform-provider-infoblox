@@ -3,7 +3,6 @@ package infoblox
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"regexp"
 	"testing"
 )
 
@@ -30,10 +29,6 @@ var testAccDataSourceRange = fmt.Sprintf(`
   									comment              = "test comment"
   									name                 = "test_range"
   									disable              = false
-  									member = jsonencode({
-    									name = "infoblox.localdomain"
-		})
-  									server_association_type= "MEMBER"
  									 ext_attrs = jsonencode({
     									"Site" = "Blr"
   									})
@@ -68,8 +63,7 @@ func TestAccDataSourceRange(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.comment", "test comment"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.name", "test_range"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.disable", "false"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.server_association_type", "MEMBER"),
-					resource.TestMatchResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.member", regexp.MustCompile(`"name":"infoblox.localdomain"`)),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.server_association_type", "NONE"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.use_options", "true"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.end_addr", "17.0.0.240"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_range.range_rec_temp", "results.0.network", "17.0.0.0/24"),

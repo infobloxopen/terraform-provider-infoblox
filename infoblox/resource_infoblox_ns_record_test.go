@@ -110,7 +110,12 @@ func TestAccResourceNSRecord(t *testing.T) {
 							auto_create_ptr=true
  							}
 							dns_view="default"
-					}`),
+							depends_on= [infoblox_zone_auth.zone1]
+						}
+						resource "infoblox_zone_auth" "zone1" {
+  									fqdn = "test.com"
+  									view = "default"
+							}`),
 				Check: resource.ComposeTestCheckFunc(
 					testNSRecordCompare(t, "infoblox_ns_record.rec1", &ibclient.RecordNS{
 						Name:       "test.com",

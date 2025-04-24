@@ -56,7 +56,7 @@ var testAccDataSourceFixedAddressEASearch = fmt.Sprintf(`
     								value = "18.0.0.2"
     								vendor_class = "DHCP"
   								}
-  								use_option = true
+  								use_options = true
   								depends_on=[infoblox_ipv4_network.net2]
 								}
 								data "infoblox_ipv4_fixed_address" "testFixedAddress_read1" {
@@ -111,7 +111,7 @@ func TestAccDataSourceFixedAddressSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.value", "18.0.0.2"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.vendor_class", "DHCP"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.num", "3"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.use_option", "false"),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.options.1.use_option", "true"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.comment", "fixed address"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.match_client", "CLIENT_ID"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.dhcp_client_identifier", "23"),
@@ -120,7 +120,7 @@ func TestAccDataSourceFixedAddressSearchByEA(t *testing.T) {
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.name", "fixed_address_1"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.network", "18.0.0.0/24"),
 					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.network_view", "default"),
-					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.use_option", "true"),
+					resource.TestCheckResourceAttr("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.use_options", "true"),
 					resource.TestCheckResourceAttrPair("data.infoblox_ipv4_fixed_address.testFixedAddress_read1", "results.0.ext_attrs.Site", "infoblox_ipv4_fixed_address.fix4", "ext_attrs.Site"),
 				),
 			},

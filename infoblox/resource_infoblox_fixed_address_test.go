@@ -228,7 +228,7 @@ func TestAccResourceFixedAddress(t *testing.T) {
 						Value:       "43200",
 						VendorClass: "DHCP",
 						Num:         51,
-						UseOption:   false,
+						UseOption:   true,
 					},
 						{
 							Name:        "routers",
