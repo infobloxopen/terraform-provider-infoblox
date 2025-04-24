@@ -593,6 +593,7 @@ func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{}
 				// If the option is not found in newList(default dhcp-lease-time), don't do anything
 				if name == "dhcp-lease-time" {
 					oldOptMap["value"] = "43200"
+					oldOptMap["use_option"] = false
 				} else {
 					// if Option is removed from tf file, set its value to an empty string and use_option to false
 					oldOptMap["value"] = ""
