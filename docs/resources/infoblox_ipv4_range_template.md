@@ -9,7 +9,7 @@ The following list describes the parameters you can define in the resource block
 * `number_of_addresses`: required, specifies the number of addresses for this range. Example: `100`.
 * `offset`: required, specifies the start address offset for the range. Example: `30`.
 * `use_options`: optional, specifies the use flag for options. Example: `true`.
-* `cloud_api_compatible`: optional, specifies the flag controls whether this template can be used to create network objects in a cloud-computing deployment. Default: `false`. If the user is a cloud-user, then `cloud_api_compatible` needs to be passed `true` to create a range template.
+* `cloud_api_compatible`: required, specifies the flag controls whether this template can be used to create network objects in a cloud-computing deployment. Default: `false`. If the user is a cloud-user, then `cloud_api_compatible` needs to be passed `true` to create a range template.
 * `options`: optional, specifies an array of DHCP option structs that lists the DHCP options associated with the object. Example:
 ```terraform
 option { 

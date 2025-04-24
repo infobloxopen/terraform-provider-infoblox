@@ -1,7 +1,8 @@
-resource "infoblox_ipv4_range_template" "range_template_full_params" {
+resource "infoblox_ipv4_range_template" "range_template_minimal_params" {
   name = "range-template1"
   number_of_addresses = 10
   offset = 20
+  cloud_api_compatible = true
 }
 
 resource "infoblox_ipv4_range_template" "range_template_full_set_parameters" {

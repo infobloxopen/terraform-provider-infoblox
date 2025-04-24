@@ -10,6 +10,7 @@ var testDataSourceRangeTemplate = fmt.Sprintf(
 	`resource "infoblox_ipv4_range_template" "range_template" {
     name = "rangetemplate111"
     number_of_addresses = 10
+    cloud_api_compatible = true
     offset = 70
 }
 data "infoblox_ipv4_range_template" "range_template_read" {	
@@ -22,6 +23,7 @@ var testDataSourceRangeTemplateEA = fmt.Sprintf(
 	`resource "infoblox_ipv4_range_template" "range_template_ea" {
     name = "range-template333"
     number_of_addresses = 60
+	cloud_api_compatible = true
     offset = 76
     comment = "Temporary Range Template"
     use_options = true
