@@ -120,11 +120,10 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 					},
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					if len(newValue) == 0 {
+					if newValue == "0" && oldValue >= "1" {
 						return false
 					}
 					oldOptions, newOptions := d.GetChange("options")
-
 					oldList, okOld := oldOptions.([]interface{})
 					newList, okNew := newOptions.([]interface{})
 					// Ensure type assertions are successful
@@ -158,25 +157,16 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 						return false
 					}
 
-					for i := range filteredOldList {
-						oldOptMap := filteredOldList[i].(map[string]interface{})
-						newOptMap := filteredNewList[i].(map[string]interface{})
-						if !reflect.DeepEqual(oldOptMap, newOptMap) {
-							return false
-						}
-					}
-
 					// Check for changes in subfields of default elements
-					if len(oldList) == len(newList) {
-						for i := range oldList {
-							oldOptMap := oldList[i].(map[string]interface{})
-							newOptMap := newList[i].(map[string]interface{})
-							if isDefault(oldOptMap) && !reflect.DeepEqual(oldOptMap, newOptMap) {
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
 								return false
 							}
 						}
 					}
-
 					return true
 				},
 			},
