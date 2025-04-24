@@ -214,7 +214,7 @@ func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 
 	n := &ibclient.Ipv6Network{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "options"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
