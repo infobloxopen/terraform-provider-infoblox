@@ -1,6 +1,6 @@
 # Range Data Source
 
-Use the `infoblox_ipv4_range` data source to retrieve the following information for an Range if any, which is managed by a NIOS server:
+Use the `infoblox_ipv4_range` data source to retrieve the following information for an IPV4 Range if any, which is managed by a NIOS server:
 
 * `name`: specifies the display name. Example: `network-range`.
 * `comment`: comment for the range, maximum 256 characters. Example: `test range`.
@@ -34,6 +34,7 @@ options {
   * `name`: The name of the Grid member. Example: `infoblox.localdomain`.
   * `ipv4addr`: The IPv4 Address of the Grid Member. Example: `11.10.1.0`.
   * `ipv6addr`: The IPv6 address of the member. Example: `2403:8600:80cf:e10c:3a00::1192`.
+* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
 
 Example for `member`:
 ```terraform

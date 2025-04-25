@@ -6,15 +6,21 @@ The data source for the network object allows you to get the following parameter
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `192.0.17.0/24`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
-* `options`: An array of DHCP option structs that lists the DHCP options associated with the object.
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+    * `name`: The Name of the DHCP option. Example: `domain-name-servers`.
+    * `num`: The code of the DHCP option. Example: `6`.
+    * `value`: The value of the option. Example: `11.22.33.44`.
+    * `vendor_class`: The name of the space this DHCP option is associated to. Default value is `DHCP`.
+    * `use_option`:Only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+      `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
 ```terraform
 options {
-  name         = "dhcp-lease-time"
-  value        = "43200"
-  vendor_class = "DHCP"
-  num          = 51
-  use_option   = true
-}
+    name         = "dhcp-lease-time"
+    value        = "43200"
+    vendor_class = "DHCP"
+    num          = 51
+    use_option   = true
+  }
 ```
 * `utilization`: The network utilization in percentage. Example: `0`
 

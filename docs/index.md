@@ -5,7 +5,7 @@
 Whether you intend to use the published plug-in or the customized version that you have built yourself, you must complete the following prerequisites:
 
 - Install and set up a physical or virtual Infoblox NIOS appliance and has necessary licenses installed. Configure the access permissions for Terraform to interact with NIOS Grid objects.
-- To use the Infoblox IPAM Plug-In for Terraform, you must either define the following extensible attributes or install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
+- To use the Infoblox IPAM Plug-In for Terraform with a cloud user, you must either define the following extensible attributes or install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
 ```json
 {
     "Tenant ID": "String Type",
@@ -58,7 +58,7 @@ terraform {
     required_providers {
         infoblox = {
             source  = "infobloxopen/infoblox"
-            version = ">= 2.9.0"
+            version = ">= 2.10.0"
         }
     }
 }
@@ -118,6 +118,12 @@ There are resources for the following objects, supported by the plugin:
 * DTC LBDN (`infoblox_dtc_lbdn`)
 * DTC Pool (`infoblox_dtc_pool`)
 * DTC Server (`infoblox_dtc_server`)
+* Alias-record (`infoblox_alias_record`)
+* NS-record (`infoblox_ns_record`)
+* IPV4 Shared Network (`infoblox_ipv4_shared_network`)
+* IPV4 Fixed Address (`infoblox_ipv4_fixed_address`)
+* IPV4 Range (`infoblox_ipv4_range`)
+* IPV4 Range Template (`infoblox_ipv4_range_template`)
 
 Network and network container resources have two versions: IPv4 and IPv6. In
 addition, there are two operations which are implemented as resources:
@@ -173,6 +179,12 @@ There are data sources for the following objects:
 * DTC LBDN (`infoblox_dtc_lbdn`)
 * DTC Pool (`infoblox_dtc_pool`)
 * DTC Server (`infoblox_dtc_server`)
+* Alias-record (`infoblox_alias_record`)
+* NS-record (`infoblox_ns_record`)
+* IPV4 Shared Network (`infoblox_ipv4_shared_network`)
+* IPV4 Fixed Address (`infoblox_ipv4_fixed_address`)
+* IPV4 Range (`infoblox_ipv4_range`)
+* IPV4 Range Template (`infoblox_ipv4_range_template`)
 
 !> From version 2.5.0, new feature filters are introduced. Now the data sources support to populate more than one
 matching NIOS objects.

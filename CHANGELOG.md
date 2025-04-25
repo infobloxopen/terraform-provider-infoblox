@@ -1,5 +1,21 @@
 # Changelog
 
+## [v2.10.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.10.0) (2025-4-25)
+- New Resources:
+  - infoblox_alias_record
+  - infoblox_ns_record
+  - infoblox_ipv4_shared_network
+  - infoblox_ipv4_fixed_address
+  - infoblox_ipv4_range
+  - infoblox_ipv4_range_template
+- New Datasources:
+  - infoblox_alias_record
+  - infoblox_ns_record
+  - infoblox_ipv4_shared_network
+  - infoblox_ipv4_fixed_address
+  - infoblox_ipv4_range
+  - infoblox_ipv4_range_template
+
 ## [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.9.0) (2025-1-31)
 - Upgraded the base WAPI version to v2.12.3.
 - New Resources:
