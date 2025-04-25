@@ -39,14 +39,27 @@ type NullableNameServers struct {
 
 func (d Dhcpoption) MarshalJSON() ([]byte, error) {
 	type Alias Dhcpoption
+	// List of allowed names
+	allowedNames := map[string]bool{
+		"routers":                  true,
+		"router-templates":         true,
+		"domain-name-servers":      true,
+		"domain-name":              true,
+		"broadcast-address":        true,
+		"broadcast-address-offset": true,
+		"dhcp-lease-time":          true,
+		"dhcp6.name-servers":       true,
+	}
 	aux := &struct {
 		Value     string `json:"value"`
-		UseOption bool   `json:"use_option"`
+		UseOption *bool  `json:"use_option,omitempty"`
 		*Alias
 	}{
-		Value:     d.Value,
-		UseOption: d.UseOption,
-		Alias:     (*Alias)(&d),
+		Value: d.Value,
+		Alias: (*Alias)(&d),
+	}
+	if allowedNames[d.Name] {
+		aux.UseOption = &d.UseOption
 	}
 	return json.Marshal(aux)
 }

@@ -13,7 +13,7 @@ var _ IBObjectManager = new(ObjectManager)
 
 type IBObjectManager interface {
 	GetDNSView(name string) (*View, error)
-	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macOrDuid string, name string, comment string, eas EA, clients string, agentCircuitId string, agentRemoteId string, clientIdentifierPrependZero bool, dhcpClientIdentifier string, disable bool, Options []*Dhcpoption, useOptions bool) (*FixedAddress, error)
+	AllocateIP(netview string, cidr string, ipAddr string, isIPv6 bool, macOrDuid string, name string, comment string, eas EA, clients string, agentCircuitId string, agentRemoteId string, clientIdentifierPrependZero *bool, dhcpClientIdentifier string, disable bool, Options []*Dhcpoption, useOptions bool) (*FixedAddress, error)
 	AllocateNextAvailableIp(name string, objectType string, objectParams map[string]string, params map[string][]string, useEaInheritance bool, ea EA, comment string, disable bool, n *int, ipAddrType string,
 		enableDns bool, enableDhcp bool, macAddr string, duid string, networkView string, dnsView string, useTtl bool, ttl uint32, aliases []string) (interface{}, error)
 	AllocateNetwork(netview string, cidr string, isIPv6 bool, prefixLen uint, comment string, eas EA) (network *Network, err error)
@@ -136,7 +136,7 @@ type IBObjectManager interface {
 	UpdateCNAMERecord(ref string, canonical string, recordName string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordCNAME, error)
 	UpdateDtcLbdn(ref string, name string, authZones []AuthZonesLink, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
 		lbMethod string, patterns []string, persistence uint32, pools []*DtcPoolLink, priority uint32, topology *string, types []string, ttl uint32, usettl bool) (*DtcLbdn, error)
-	UpdateFixedAddress(fixedAddrRef string, netview string, name string, cidr string, ipAddr string, matchclient string, macOrDuid string, comment string, eas EA, agentCircuitId string, agentRemoteId string, clientIdentifierPrependZero bool, dhcpClientIdentifier string, disable bool, Options []*Dhcpoption, useOptions bool) (*FixedAddress, error)
+	UpdateFixedAddress(fixedAddrRef string, netview string, name string, cidr string, ipAddr string, matchclient string, macOrDuid string, comment string, eas EA, agentCircuitId string, agentRemoteId string, clientIdentifierPrependZero *bool, dhcpClientIdentifier string, disable bool, Options []*Dhcpoption, useOptions bool) (*FixedAddress, error)
 	UpdateHostRecord(hostRref string, enabledns bool, enabledhcp bool, name string, netview string, dnsView string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddress string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string, disable bool) (*HostRecord, error)
 	UpdateIpv4SharedNetwork(ref string, name string, networks []string, networkView string, comment string, eas EA, disable bool, useOptions bool, options []*Dhcpoption) (*SharedNetwork, error)
 	UpdateMXRecord(ref string, dnsView string, fqdn string, mx string, preference uint32, ttl uint32, useTtl bool, comment string, eas EA) (*RecordMX, error)

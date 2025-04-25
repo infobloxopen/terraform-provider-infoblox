@@ -424,15 +424,15 @@ func NewFixedAddress(
 	ipAddr string,
 	cidr string,
 	macOrDuid string,
-	clients string,
+	clients *string,
 	eas EA,
 	ref string,
 	isIPv6 bool,
 	comment string,
-	agentCircuitId string,
-	agentRemoteId string,
-	clientIdentifierPrependZero bool,
-	dhcpClientIdentifier string,
+	agentCircuitId *string,
+	agentRemoteId *string,
+	clientIdentifierPrependZero *bool,
+	dhcpClientIdentifier *string,
 	disable bool,
 	Options []*Dhcpoption,
 	useOptions bool,
@@ -442,7 +442,7 @@ func NewFixedAddress(
 	res.NetviewName = netView
 	res.Name = &name
 	res.Cidr = cidr
-	res.MatchClient = &clients
+	res.MatchClient = clients
 	res.Ea = eas
 	res.Ref = ref
 	res.Comment = comment
@@ -453,10 +453,10 @@ func NewFixedAddress(
 		res.IPv4Address = ipAddr
 		res.Mac = &macOrDuid
 	}
-	res.AgentCircuitId = &agentCircuitId
-	res.AgentRemoteId = &agentRemoteId
-	res.ClientIdentifierPrependZero = &clientIdentifierPrependZero
-	res.DhcpClientIdentifier = &dhcpClientIdentifier
+	res.AgentCircuitId = agentCircuitId
+	res.AgentRemoteId = agentRemoteId
+	res.ClientIdentifierPrependZero = clientIdentifierPrependZero
+	res.DhcpClientIdentifier = dhcpClientIdentifier
 	res.Disable = &disable
 	res.Options = Options
 	res.UseOptions = &useOptions
