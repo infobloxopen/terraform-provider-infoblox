@@ -140,6 +140,8 @@ The limitations of Infoblox IPAM Plug-In for Terraform are as follows:
 * When using the Terraform `import` block for a resource, a new Terraform internal ID is assigned to the resource when 
   the `terraform plan` command is run for the first time. If a subsequent `terraform apply` is aborted, the record will 
   still retain the `Terraform Internal ID` though the resource is not managed by Terraform.
+* The plug-in does not support retrieving information about IPv4 range and IPv4 range template objects by specifying the
+  member or ms_server field in the filter attribute of the object’s data source block.
 
 ## Best Practices
 
