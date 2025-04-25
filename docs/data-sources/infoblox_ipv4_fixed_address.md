@@ -73,7 +73,7 @@ You can reference this resource and retrieve information about it.
 resource "infoblox_ipv4_network" "net2" {
   cidr = "18.0.0.0/24"
 }
-resource "infoblox_ipv4_fixed_address" "fix4"{
+resource "infoblox_ipv4_fixed_address" "fix_addr"{
   client_identifier_prepend_zero=true
   comment= "fixed address"
   dhcp_client_identifier="23"
@@ -106,7 +106,7 @@ data "infoblox_ipv4_fixed_address" "testFixedAddress_read1" {
   filters = {
     "*Site" = "Blr"
   }
-  depends_on = [infoblox_ipv4_fixed_address.fix4]
+  depends_on = [infoblox_ipv4_fixed_address.fix_addr]
 }
 output "fa_rec_temp1" {
   value = data.infoblox_ipv4_fixed_address.testFixedAddress_read1
