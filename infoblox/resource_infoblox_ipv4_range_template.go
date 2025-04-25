@@ -182,7 +182,6 @@ func resourceRangeTemplate() *schema.Resource {
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Description: "An array of DHCP option structs that lists the DHCP options associated with the object. An option sets the" +
 					"value of a DHCP option that has been defined in an option space. DHCP options describe network configuration settings" +
 					"and various services available on the network. These options occur as variable-length fields at the end of DHCP messages." +
@@ -219,6 +218,56 @@ func resourceRangeTemplate() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" && oldValue >= "1" {
+						return false
+					}
+					oldOptions, newOptions := d.GetChange("options")
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					// Check for changes in subfields of default elements
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+					return true
 				},
 			},
 			"server_association_type": {
@@ -489,11 +538,6 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 	offset := d.Get("offset").(int)
 	comment := d.Get("comment").(string)
 	useOptions := d.Get("use_options").(bool)
-	options := d.Get("options").([]interface{})
-	optionsList, err := validateDhcpOptions(options)
-	if err != nil {
-		return fmt.Errorf("failed to validate options: %w", err)
-	}
 	serverAssociationType := d.Get("server_association_type").(string)
 	failoverAssociation := d.Get("failover_association").(string)
 	cloudApiCompatible := d.Get("cloud_api_compatible").(bool)
@@ -539,7 +583,22 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
+	// Check if the options field has changes
+	oldOptions, newOptions := d.GetChange("options")
+	oldList, okOld := oldOptions.([]interface{})
+	newList, okNew := newOptions.([]interface{})
+
+	if !okOld || !okNew {
+		return fmt.Errorf("options is not a slice of interfaces")
+	}
+
+	optimizedOptions := optimizeDhcpOptions(oldList, newList)
+	options, err := validateDhcpOptions(optimizedOptions)
+	if err != nil {
+		return fmt.Errorf("failed to validate options: %w", err)
+	}
+
+	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, options, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
 	if err != nil {
 		return fmt.Errorf("failed to update Range Template: %s.", err.Error())
 	}

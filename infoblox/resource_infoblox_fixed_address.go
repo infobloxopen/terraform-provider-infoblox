@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 	"strings"
 )
 
@@ -124,15 +125,18 @@ func resourceFixedRecord() *schema.Resource {
 				Description: "The name of the network view in which this fixed address resides.",
 			},
 			"options": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: "An array of DHCP option structs that lists the DHCP options associated with the object.",
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: "An array of DHCP option structs that lists the DHCP options associated with the object. An option sets the" +
+					"value of a DHCP option that has been defined in an option space. DHCP options describe network configuration settings" +
+					"and various services available on the network. These options occur as variable-length fields at the end of DHCP messages." +
+					"When defining a DHCP option, at least a ‘name’ or a ‘num’ is required.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The name of the DHCP option.",
+							Description: "Name of the DHCP option.",
 						},
 						"num": {
 							Type:        schema.TypeInt,
@@ -140,14 +144,17 @@ func resourceFixedRecord() *schema.Resource {
 							Description: "The code of the DHCP option.",
 						},
 						"use_option": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: "Only applies to special options that are displayed separately from other options and have a use flag.",
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
+								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
+								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
 						},
 						"value": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Value of the DHCP option",
+							Description: "Value of the DHCP option.",
 						},
 						"vendor_class": {
 							Type:        schema.TypeString,
@@ -158,11 +165,54 @@ func resourceFixedRecord() *schema.Resource {
 					},
 				},
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					if newValue == "0" {
+					if newValue == "0" && oldValue >= "1" {
 						return false
 					}
-					oldList, newList := d.GetChange("options")
-					return CompareSortedList(oldList, newList, "name", "num")
+					oldOptions, newOptions := d.GetChange("options")
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					// Check for changes in subfields of default elements
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+					return true
 				},
 			},
 			"use_options": {
@@ -421,11 +471,6 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	clientIdentifierPrependZero := d.Get("client_identifier_prepend_zero").(bool)
 	dhcpClientIdentifier := d.Get("dhcp_client_identifier").(string)
 	useOptions := d.Get("use_options").(bool)
-	optionsInterface := d.Get("options").([]interface{})
-	options, err := validateDhcpOptions(optionsInterface)
-	if err != nil {
-		return err
-	}
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
@@ -475,6 +520,21 @@ func resourceFixedRecordUpdate(d *schema.ResourceData, m interface{}) error {
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	newExtAttrs, err = mergeEAs(fixedAddress.Ea, newExtAttrs, oldExtAttrs, connector)
+
+	// Check if the options field has changes
+	oldOptions, newOptions := d.GetChange("options")
+	oldList, okOld := oldOptions.([]interface{})
+	newList, okNew := newOptions.([]interface{})
+
+	if !okOld || !okNew {
+		return fmt.Errorf("options is not a slice of interfaces")
+	}
+
+	optimizedOptions := optimizeDhcpOptions(oldList, newList)
+	options, err := validateDhcpOptions(optimizedOptions)
+	if err != nil {
+		return fmt.Errorf("failed to validate options: %w", err)
+	}
 
 	fixedAddress, err = objMgr.UpdateFixedAddress(d.Id(), networkView, name, network, ipv4addr, matchClient, mac, comment, newExtAttrs, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, options, useOptions)
 	if err != nil {

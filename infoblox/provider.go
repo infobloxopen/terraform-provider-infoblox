@@ -543,3 +543,115 @@ func sortByKeys(list []interface{}, key1, key2 string) {
 		return slice1[key1].(string) < slice2[key1].(string)
 	})
 }
+
+// sortOptions sorts a slice of DHCP options by the specified field.
+func sortOptions(options []interface{}, field string) {
+	sort.SliceStable(options, func(i, j int) bool {
+		return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
+	})
+}
+
+// isDefault checks if the given option is a default DHCP option.
+func isDefault(opt map[string]interface{}) bool {
+	return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
+}
+
+func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{} {
+
+	sortOptions(list1, "name")
+	sortOptions(list2, "name")
+	var optimizedList []interface{}
+
+	// Create a map of new options for quick lookup
+	newOptionsMap := make(map[string]map[string]interface{})
+	for _, newOpt := range list2 {
+		optMap, ok := newOpt.(map[string]interface{})
+		if ok {
+			if name, exists := optMap["name"].(string); exists {
+				newOptionsMap[name] = optMap
+			}
+		}
+	}
+
+	// Create a map of existing options in oldList for quick lookup
+	oldOptionsMap := make(map[string]map[string]interface{})
+	for _, oldOpt := range list1 {
+		oldOptMap, ok := oldOpt.(map[string]interface{})
+		if ok {
+			if name, exists := oldOptMap["name"].(string); exists {
+				oldOptionsMap[name] = oldOptMap
+			}
+		}
+	}
+
+	// Iterate through oldList to update subfields if there are changes
+	specialNames := map[string]bool{
+		"routers":                  true,
+		"router-templates":         true,
+		"domain-name-servers":      true,
+		"domain-name":              true,
+		"broadcast-address-offset": true,
+		"dhcp6.name-servers":       true,
+		"broadcast-address":        true,
+		"dhcp-lease-time":          true,
+	}
+
+	for _, oldOpt := range list1 {
+		oldOptMap, ok := oldOpt.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		name, exists := oldOptMap["name"].(string)
+		if !exists {
+			continue
+		}
+
+		if specialNames[name] {
+			// Handle special options
+			if newOptMap, found := newOptionsMap[name]; found {
+				// Update subfields in oldOptMap with values from newOptMap
+				for key, value := range newOptMap {
+					oldOptMap[key] = value
+				}
+			} else {
+				// If the option is not found in newList(default dhcp-lease-time), don't do anything
+				if name == "dhcp-lease-time" {
+					oldOptMap["value"] = "43200"
+					oldOptMap["use_option"] = false
+				} else {
+					// if Option is removed from tf file, set its value to an empty string and use_option to false
+					oldOptMap["value"] = ""
+					oldOptMap["use_option"] = false
+				}
+			}
+			optimizedList = append(optimizedList, oldOptMap)
+		} else {
+			// Handle custom DHCP options
+			if newOptMap, found := newOptionsMap[name]; found {
+				// Check for changes in subfields and update oldOptMap with new values
+				for key, newValue := range newOptMap {
+					// if there are changes in the subfields of custom DHCP options or new DHCP options are provided in the tf file, update the oldOptMap
+					if oldValue, exists := oldOptMap[key]; !exists || !reflect.DeepEqual(oldValue, newValue) {
+						oldOptMap[key] = newValue
+					}
+				}
+				optimizedList = append(optimizedList, oldOptMap)
+			}
+		}
+	}
+
+	// Iterate through newList to find options present in newList and not in oldList
+	for _, newOpt := range list2 {
+		newOptMap, ok := newOpt.(map[string]interface{})
+		if ok {
+			if name, exists := newOptMap["name"].(string); exists {
+				if _, found := oldOptionsMap[name]; !found && newOptMap["name"] != "" {
+					// Option is in newList but not in oldList, add it to oldList (options newly added to tf file)
+					optimizedList = append(optimizedList, newOptMap)
+				}
+			}
+		}
+	}
+
+	return optimizedList
+}

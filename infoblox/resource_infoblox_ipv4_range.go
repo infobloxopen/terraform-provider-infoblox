@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 )
 
 func resourceRange() *schema.Resource {
@@ -100,7 +101,7 @@ func resourceRange() *schema.Resource {
 						"use_option": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Default:  true,
+							Default:  false,
 							Description: "Only applies to special options that are displayed separately from other options and have a use flag. " +
 								"These options are: `routers`, `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, " +
 								"`broadcast-address-offset`, `dhcp-lease-time`, `dhcp6.name-servers`",
@@ -117,6 +118,56 @@ func resourceRange() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" && oldValue >= "1" {
+						return false
+					}
+					oldOptions, newOptions := d.GetChange("options")
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					// Check for changes in subfields of default elements
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+					return true
 				},
 			},
 			"member": {
@@ -379,11 +430,6 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	disable := d.Get("disable").(bool)
 	useOptions := d.Get("use_options").(bool)
 	msServer := d.Get("ms_server").(string)
-	optionsInterface := d.Get("options").([]interface{})
-	options, err := validateDhcpOptions(optionsInterface)
-	if err != nil {
-		return err
-	}
 	member := d.Get("member").(map[string]interface{})
 	dhcpMember, err := ConvertMapToDhcpMember(member)
 	if err != nil {
@@ -445,6 +491,22 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
 	newExtAttrs, err = mergeEAs(networkRange.Ea, newExtAttrs, oldExtAttrs, connector)
+
+	// Check if the options field has changes
+	oldOptions, newOptions := d.GetChange("options")
+	oldList, okOld := oldOptions.([]interface{})
+	newList, okNew := newOptions.([]interface{})
+
+	if !okOld || !okNew {
+		return fmt.Errorf("options is not a slice of interfaces")
+	}
+
+	optimizedOptions := optimizeDhcpOptions(oldList, newList)
+	options, err := validateDhcpOptions(optimizedOptions)
+	if err != nil {
+		return fmt.Errorf("failed to validate options: %w", err)
+	}
+
 	networkRange, err = objMgr.UpdateNetworkRange(d.Id(), comment, name, network, startAddr, endAddr, disable, newExtAttrs, dhcpMember, failoverAssociation, options, useOptions, serverAssociationType, networkView, msServer)
 	if err != nil {
 		return fmt.Errorf("Failed to update network range with %s, ", err.Error())
