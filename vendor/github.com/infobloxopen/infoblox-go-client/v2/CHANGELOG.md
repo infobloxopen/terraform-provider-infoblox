@@ -1,5 +1,17 @@
 # Infoblox Go Client Release Notes
 
+## v2.10.0
+
+### Release Summary
+
+- This release introduces several significant enhancements and new features aimed at management and Alias Record, NS Record, IPV4 SharedNetwork, IPV4 FixedAddress, IPV4 Range and IPV4 RangeTemplate objects.
+
+### Minor Changes
+
+- Added Create, Read, Update and Delete operations for Alias Record, NS Record, IPV4 SharedNetwork, IPV4 Range and IPV4 RangeTemplate objects.
+- Added GetAllFixedAddress for IPV4 FixedAddress object.
+- Modified AllocateIP, UpdateFixedAddress functions to support IPV4 FixedAddress object.
+
 ## v2.9.0
 
 ### Release Summary
