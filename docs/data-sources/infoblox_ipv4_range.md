@@ -12,7 +12,13 @@ Use the `infoblox_ipv4_range` data source to retrieve the following information 
 * `ext_attrs`: Extensible attributes associated with the object. Example: `"{\"*Site\":\"Antarctica\"}"`
 * `failover_association`: The name of the failover association: the server in this failover association will serve the IPv4 range in case the main server is out of service. Example: `dhcp_failover`.
 * `server_association_type`: The type of server that is going to serve the range. Valid values are `FAILOVER`,`MEMBER`,`MS_FAILOVER`,`MS_SERVER`,`NONE`. Default value: `NONE`.
-* `options`: An array of DHCP option structs that lists the DHCP options associated with the object.
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+  * `name`: The Name of the DHCP option. Example: `domain-name-servers`.
+  * `num`: The code of the DHCP option. Example: `6`.
+  * `value`: The value of the option. Example: `11.22.33.44`.
+  * `vendor_class`: The name of the space this DHCP option is associated to. Default value is `DHCP`.
+  * `use_option`:Only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+    `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
 ```terraform
 options {
     name         = "dhcp-lease-time"
