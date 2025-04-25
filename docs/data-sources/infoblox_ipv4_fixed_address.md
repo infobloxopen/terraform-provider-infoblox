@@ -8,24 +8,31 @@ The `infoblox_ipv4_fixed_address` data source to retrieve the following informat
 * `comment`: Comment for the fixed address; maximum 256 characters. Example: `fixed address`
 * `dhcp_client_identifier`: The DHCP client ID for the fixed address. The field is required only when match_client is set to CLIENT_ID. Example: `20`
 * `disable`: Determines whether a fixed address is disabled or not. When this is set to False, the fixed address is enabled. Example: `false`
-* `extattrs`: Extensible attributes associated with the object. Example: `"{\"*Site\":\"Antarctica\"}"`
+* `ext_attrs`: Extensible attributes associated with the object. Example: `"{\"*Site\":\"Antarctica\"}"`
 * `ipv4addr`: The IPv4 Address of the fixed address. If the `ipv4addr` field is not provided and the `network` field is set, the next available IP address in the network will be allocated. Example: `10.0.0.34`
 * `mac`: The MAC address value for this fixed address. The field is required only when match_client is set to its default value - MAC_ADDRESS. Example: `00-1A-2B-3C-4D-5E`
 * `match_client`: The match client for the fixed address.Valid values are CIRCUIT_ID, CLIENT_ID , MAC_ADDRESS, REMOTE_ID and RESERVED. Default value is MAC_ADDRESS. Example: `CLIENT_ID`
 * `name`: This field contains the name of this fixed address. Example: `fixedAddressName`
 * `network`: The network to which this fixed address belongs, in IPv4 Address/CIDR format. Example: `10.0.0.0/24`
 * `network_view`: The name of the network view in which this fixed address resides. The default value is The default network view. Example: `default`
-* `options`: An array of DHCP option structs that lists the DHCP options associated with the object.
-* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+    * `name`: The Name of the DHCP option. Example: `domain-name-servers`.
+    * `num`: The code of the DHCP option. Example: `6`.
+    * `value`: The value of the option. Example: `11.22.33.44`.
+    * `vendor_class`: The name of the space this DHCP option is associated to. Default value is `DHCP`.
+    * `use_option`:Only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+      `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
+
 ```terraform
 options {
-    name         = "dhcp-lease-time"
-    value        = "43200"
-    vendor_class = "DHCP"
-    num          = 51
-    use_option   = true
-  }
+name         = "dhcp-lease-time"
+value        = "43200"
+vendor_class = "DHCP"
+num          = 51
+use_option   = false
+}
 ```
+* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
 * `use_options`: Use option is a flag that indicates whether the options field are used or not. The default value is false. Example: `false`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `comment`, `ipv4addr` corresponding to object.
@@ -38,7 +45,7 @@ From the below list of supported arguments for filters,  use only the searchable
 |--------------|--------------|--------|------------|
 | network_view | network_view | string | yes        |
 | network      | network      | string | yes        |
-| match_cleint | match_client | string | yes        |
+| match_client | match_client | string | yes        |
 | mac          | mac          | string | yes        |
 | comment      | comment      | string | yes        |
 | ipv4addr     | ipv4addr     | string | yes        |
@@ -66,7 +73,7 @@ You can reference this resource and retrieve information about it.
 resource "infoblox_ipv4_network" "net2" {
   cidr = "18.0.0.0/24"
 }
-resource "infoblox_ipv4_fixed_address" "fix4"{
+resource "infoblox_ipv4_fixed_address" "fix_addr"{
   client_identifier_prepend_zero=true
   comment= "fixed address"
   dhcp_client_identifier="23"
@@ -99,7 +106,7 @@ data "infoblox_ipv4_fixed_address" "testFixedAddress_read1" {
   filters = {
     "*Site" = "Blr"
   }
-  depends_on = [infoblox_ipv4_fixed_address.fix4]
+  depends_on = [infoblox_ipv4_fixed_address.fix_addr]
 }
 output "fa_rec_temp1" {
   value = data.infoblox_ipv4_fixed_address.testFixedAddress_read1

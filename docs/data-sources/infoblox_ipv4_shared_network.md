@@ -7,11 +7,18 @@ Use the `infoblox_ipv4_shared_network` data source to retrieve the following inf
 * `network_view`: The name of the network view in which this shared network resides. Example: `default`
 * `disable`: The disable flag for the IPv4 shared network object. Example: `true`
 * `use_options`: Use flag for options. Example: `true`.
-* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. Example:
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+    * `name`: The Name of the DHCP option. Example: `domain-name-servers`.
+    * `num`: The code of the DHCP option. Example: `6`.
+    * `value`: The value of the option. Example: `11.22.33.44`.
+    * `vendor_class`: The name of the space this DHCP option is associated to. Default value is `DHCP`.
+    * `use_option`:Only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+      `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
 ```terraform
-option { 
+options { 
     name = "domain-name-servers"
     value = "11.22.33.44"
+    num = 6
     use_option = true
   }
 ```
@@ -26,9 +33,9 @@ From the below list of supported arguments for filters,  use only the searchable
 -----
 | Field        | Alias        | Type   | Searchable |
 |--------------|--------------|--------|------------|
-| name         | fqdn         | string | yes        |
+| name         | name         | string | yes        |
 | network_view | network_view | string | yes        |
-| comment      | zone         | string | yes        |
+| comment      | comment      | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 

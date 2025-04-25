@@ -1,6 +1,6 @@
 //example for fixed address with maximal parameters and using next available ip function
 //ipv4addr not specified and network is given so next available ip in the network will be allocated
-resource "infoblox_ipv4_fixed_address" "fix4"{
+resource "infoblox_ipv4_fixed_address" "fix4_address"{
     client_identifier_prepend_zero=true
     comment= "fixed address"
     dhcp_client_identifier="23"
@@ -33,7 +33,7 @@ resource "infoblox_ipv4_network" "net4" {
     cidr = "18.0.0.0/24"
 }
 //creates a fixed address by explicitly providing the `ipv4addr` value instead of using the next available IP function.
-resource "infoblox_ipv4_fixed_address" "fix3"{
+resource "infoblox_ipv4_fixed_address" "fix_address_1"{
     ipv4addr        = "17.0.0.9"
     mac = "00:0C:24:2E:8F:2A"
     options {

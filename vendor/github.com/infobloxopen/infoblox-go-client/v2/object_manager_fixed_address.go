@@ -18,7 +18,7 @@ func (objMgr *ObjectManager) AllocateIP(
 	clients string,
 	agentCircuitId string,
 	agentRemoteId string,
-	clientIdentifierPrependZero bool,
+	clientIdentifierPrependZero *bool,
 	dhcpClientIdentifier string,
 	disable bool,
 	Options []*Dhcpoption,
@@ -30,7 +30,7 @@ func (objMgr *ObjectManager) AllocateIP(
 			return nil, fmt.Errorf("the DUID field cannot be left empty")
 		}
 	} else {
-		if len(macOrDuid) == 0 {
+		if len(macOrDuid) == 0 && clients == "" {
 			macOrDuid = MACADDR_ZERO
 		}
 	}
@@ -41,8 +41,28 @@ func (objMgr *ObjectManager) AllocateIP(
 		ipAddr = fmt.Sprintf("func:nextavailableip:%s,%s", cidr, netview)
 	}
 
+	var clientsPointer *string
+	if clients != "" {
+		clientsPointer = &clients
+	}
+	var agentCircuitIdPointer *string
+	if agentCircuitId != "" {
+		agentCircuitIdPointer = &agentCircuitId
+	}
+	var agentRemoteIdPointer *string
+	if agentRemoteId != "" {
+		agentRemoteIdPointer = &agentRemoteId
+	}
+	var clientIdentifierPrependZeroPointer *bool
+	if clientIdentifierPrependZero != nil {
+		clientIdentifierPrependZeroPointer = clientIdentifierPrependZero
+	}
+	var dhcpClientIdentifierPointer *string
+	if dhcpClientIdentifier != "" {
+		dhcpClientIdentifierPointer = &dhcpClientIdentifier
+	}
 	fixedAddr := NewFixedAddress(
-		netview, name, ipAddr, cidr, macOrDuid, clients, eas, "", isIPv6, comment, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, Options, useOptions)
+		netview, name, ipAddr, cidr, macOrDuid, clientsPointer, eas, "", isIPv6, comment, agentCircuitIdPointer, agentRemoteIdPointer, clientIdentifierPrependZeroPointer, dhcpClientIdentifierPointer, disable, Options, useOptions)
 	ref, err := objMgr.connector.CreateObject(fixedAddr)
 	if err != nil {
 		return nil, err
@@ -106,7 +126,7 @@ func (objMgr *ObjectManager) UpdateFixedAddress(
 	eas EA,
 	agentCircuitId string,
 	agentRemoteId string,
-	clientIdentifierPrependZero bool,
+	clientIdentifierPrependZero *bool,
 	dhcpClientIdentifier string,
 	disable bool,
 	Options []*Dhcpoption,
@@ -120,9 +140,29 @@ func (objMgr *ObjectManager) UpdateFixedAddress(
 			return nil, fmt.Errorf("wrong value for match_client passed %s \n ", matchClient)
 		}
 	}
+	var clientsPointer *string
+	if matchClient != "" {
+		clientsPointer = &matchClient
+	}
+	var agentCircuitIdPointer *string
+	if agentCircuitId != "" {
+		agentCircuitIdPointer = &agentCircuitId
+	}
+	var agentRemoteIdPointer *string
+	if agentRemoteId != "" {
+		agentRemoteIdPointer = &agentRemoteId
+	}
+	var clientIdentifierPrependZeroPointer *bool
+	if clientIdentifierPrependZero != nil {
+		clientIdentifierPrependZeroPointer = clientIdentifierPrependZero
+	}
+	var dhcpClientIdentifierPointer *string
+	if dhcpClientIdentifier != "" {
+		dhcpClientIdentifierPointer = &dhcpClientIdentifier
+	}
 	updateFixedAddr := NewFixedAddress(
 		"", name, "", "",
-		macOrDuid, matchClient, eas, fixedAddrRef, isIPv6, comment, agentCircuitId, agentRemoteId, clientIdentifierPrependZero, dhcpClientIdentifier, disable, Options, useOptions)
+		macOrDuid, clientsPointer, eas, fixedAddrRef, isIPv6, comment, agentCircuitIdPointer, agentRemoteIdPointer, clientIdentifierPrependZeroPointer, dhcpClientIdentifierPointer, disable, Options, useOptions)
 
 	if ipAddr == "" {
 		if cidr != "" {

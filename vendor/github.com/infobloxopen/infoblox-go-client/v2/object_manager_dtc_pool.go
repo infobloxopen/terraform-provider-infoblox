@@ -101,26 +101,27 @@ func (d *DtcPool) MarshalJSON() ([]byte, error) {
 	}
 
 	// Conditionally handle ConsolidatedMonitors
-	if *d.AutoConsolidatedMonitors {
-		// auto_consolidated_monitors = true
-		if d.ConsolidatedMonitors != nil {
-			// consolidated_monitors is empty, omit it
-			aux.ConsolidatedMonitors = nil
-		}
-	} else {
-		// auto_consolidated_monitors = false
-		if len(d.ConsolidatedMonitors) == 0 {
-			// consolidated_monitors is empty, marshal as "[]"
-			aux.ConsolidatedMonitors = &ConsolidatedMonitorsWrapper{IsNull: false, ConsolidatedMonitors: []*DtcPoolConsolidatedMonitorHealth{}}
+	if d.AutoConsolidatedMonitors != nil {
+		if *d.AutoConsolidatedMonitors {
+			// auto_consolidated_monitors = true
+			if d.ConsolidatedMonitors != nil {
+				// consolidated_monitors is empty, omit it
+				aux.ConsolidatedMonitors = nil
+			}
 		} else {
-			// consolidated_monitors is non-empty, marshal as is
-			aux.ConsolidatedMonitors = &ConsolidatedMonitorsWrapper{IsNull: false, ConsolidatedMonitors: d.ConsolidatedMonitors}
+			// auto_consolidated_monitors = false
+			if len(d.ConsolidatedMonitors) == 0 {
+				// consolidated_monitors is empty, marshal as "[]"
+				aux.ConsolidatedMonitors = &ConsolidatedMonitorsWrapper{IsNull: false, ConsolidatedMonitors: []*DtcPoolConsolidatedMonitorHealth{}}
+			} else {
+				// consolidated_monitors is non-empty, marshal as is
+				aux.ConsolidatedMonitors = &ConsolidatedMonitorsWrapper{IsNull: false, ConsolidatedMonitors: d.ConsolidatedMonitors}
+			}
 		}
 	}
 
 	return json.Marshal(aux)
 }
-
 func (d *DtcPool) UnmarshalJSON(data []byte) error {
 	type Alias DtcPool
 	aux := &struct {

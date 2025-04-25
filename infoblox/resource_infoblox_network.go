@@ -241,7 +241,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	autoAllocateGateway := gateway == ""
 
 	if !autoAllocateGateway && gateway != "none" {
-		_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, ZeroMacAddr, "", "", nil, "", "", "", false, "", false, nil, false)
+		_, err = objMgr.AllocateIP(networkViewName, network.Cidr, gateway, isIPv6, ZeroMacAddr, "", "", nil, "", "", "", nil, "", false, nil, false)
 		if err != nil {
 			return fmt.Errorf(
 				"reservation of the IP address '%s' in network block '%s' from network view '%s' failed: %s",
@@ -253,7 +253,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 		for i := 1; i <= reserveIPv6; i++ {
 			reservedDuid := fmt.Sprintf("00:%.2x", i)
 			newAddr, err := objMgr.AllocateIP(
-				networkViewName, network.Cidr, "", isIPv6, reservedDuid, "", "", nil, "", "", "", false, "", false, nil, false)
+				networkViewName, network.Cidr, "", isIPv6, reservedDuid, "", "", nil, "", "", "", nil, "", false, nil, false)
 			if err != nil {
 				return fmt.Errorf(
 					"reservation in network block '%s' from network view '%s' failed: %s",
@@ -266,7 +266,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}, isIPv6 bool) e
 	} else {
 		for i := 1; i <= reserveIPv4; i++ {
 			newAddr, err := objMgr.AllocateIP(
-				networkViewName, network.Cidr, "", isIPv6, ZeroMacAddr, "", "", nil, "", "", "", false, "", false, nil, false)
+				networkViewName, network.Cidr, "", isIPv6, ZeroMacAddr, "", "", nil, "", "", "", nil, "", false, nil, false)
 			if err != nil {
 				return fmt.Errorf(
 					"reservation in network block '%s' from network view '%s' failed: %s",

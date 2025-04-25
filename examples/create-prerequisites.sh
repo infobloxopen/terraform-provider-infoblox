@@ -78,3 +78,6 @@ echo
 #echo
 #curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/extensibleattributedef" -d '{"name":"Cloud API Owned","type":"ENUM","list_values":[{"value": "True"},{"value": "False"}]}'
 #echo
+
+curl -k -X POST -H 'Content-Type: application/json' $CURL_AUTH "${WAPI_URL}/network" -d "{\"network\":\"17.0.0.0/24\",\"members\":[{\"_struct\":\"dhcpmember\",\"name\":\"infoblox.localdomain\"}]}"
+echo

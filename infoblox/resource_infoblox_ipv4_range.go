@@ -521,7 +521,7 @@ func resourceRangeUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(networkRange.Ref)
-	return nil
+	return resourceRangeRead(d, m)
 
 }
 func resourceRangeDelete(d *schema.ResourceData, m interface{}) error {

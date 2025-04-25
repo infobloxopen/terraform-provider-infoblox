@@ -647,9 +647,15 @@ func convertDhcpMemberToMap(member *ibclient.Dhcpmember) interface{} {
 	if member == nil {
 		return nil
 	}
-	return map[string]interface{}{
-		"name":     member.Name,
-		"ipv4addr": member.Ipv4Addr,
-		"ipv6addr": member.Ipv6Addr,
+	result := make(map[string]interface{})
+	if member.Name != "" {
+		result["name"] = member.Name
 	}
+	if member.Ipv4Addr != "" {
+		result["ipv4addr"] = member.Ipv4Addr
+	}
+	if member.Ipv6Addr != "" {
+		result["ipv6addr"] = member.Ipv6Addr
+	}
+	return result
 }

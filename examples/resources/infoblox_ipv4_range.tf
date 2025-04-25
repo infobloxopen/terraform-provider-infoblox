@@ -1,4 +1,4 @@
-resource "infoblox_ipv4_range" "range3" {
+resource "infoblox_ipv4_range" "range" {
   start_addr = "17.0.0.221"
   end_addr   = "17.0.0.240"
   options {

@@ -200,9 +200,6 @@ func TestAccResourceRange(t *testing.T) {
 						comment = "test comment"		
 						name = "test_range"
 						disable = false
-						member = {
-    							name = "infoblox.localdomain"
-  						}
 					}`),
 				Check: resource.ComposeTestCheckFunc(
 					testAccRangeCompare(t, "infoblox_ipv4_range.range3", &ibclient.Range{
@@ -223,13 +220,10 @@ func TestAccResourceRange(t *testing.T) {
 								UseOption:   true,
 							}},
 
-						Name:    utils.StringPtr("test_range"),
-						Comment: utils.StringPtr("test comment"),
-						Disable: utils.BoolPtr(false),
-						Member: &ibclient.Dhcpmember{
-							Name: "infoblox.localdomain",
-						},
-						ServerAssociationType: "MEMBER",
+						Name:                  utils.StringPtr("test_range"),
+						Comment:               utils.StringPtr("test comment"),
+						Disable:               utils.BoolPtr(false),
+						ServerAssociationType: "NONE",
 					})),
 			},
 		},

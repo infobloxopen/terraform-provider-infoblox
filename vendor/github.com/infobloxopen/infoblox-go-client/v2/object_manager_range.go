@@ -1,9 +1,36 @@
 package ibclient
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
+func (d Range) MarshalJSON() ([]byte, error) {
+	type Alias Range
+	aux := &struct {
+		Member *Dhcpmember `json:"member"`
+		*Alias
+	}{
+		Member: d.Member,
+		Alias:  (*Alias)(&d),
+	}
+	return json.Marshal(aux)
+}
+
+func (d *Range) UnmarshalJSON(data []byte) error {
+	type Alias Range
+	aux := &struct {
+		Member *Dhcpmember `json:"member"`
+		*Alias
+	}{
+		Alias: (*Alias)(d),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	d.Member = aux.Member
+	return nil
+}
 func NewEmptyRange() *Range {
 	newRange := &Range{}
 	newRange.SetReturnFields(append(newRange.ReturnFields(), "extattrs", "name", "disable", "options", "use_options", "cloud_info", "failover_association", "member", "server_association_type", "ms_server"))

@@ -113,6 +113,13 @@ func dataSourceRange() *schema.Resource {
 								},
 							},
 						},
+						"ms_server": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: "The Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` +" +
+								"if you want the server specified here to serve the range. For searching by this field you should use a HTTP method that contains a" +
+								"body (POST or PUT) with MS DHCP server structure and the request should have option _method=GET.",
+						},
 						"member": {
 							Type:     schema.TypeMap,
 							Computed: true,
@@ -229,6 +236,9 @@ func flattenNetworkRange(networkRange ibclient.Range) (map[string]interface{}, e
 	}
 	if networkRange.Name != nil {
 		res["name"] = *networkRange.Name
+	}
+	if networkRange.MsServer != nil {
+		res["ms_server"] = networkRange.MsServer.Ipv4Addr
 	}
 	if networkRange.CloudInfo != nil {
 		cloudInfo, err := serializeGridCloudApiInfo(networkRange.CloudInfo)

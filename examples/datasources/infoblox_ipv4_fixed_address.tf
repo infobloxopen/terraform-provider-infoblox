@@ -1,7 +1,7 @@
 resource "infoblox_ipv4_network" "net2" {
   cidr = "18.0.0.0/24"
 }
-resource "infoblox_ipv4_fixed_address" "fix4"{
+resource "infoblox_ipv4_fixed_address" "fix_address"{
   client_identifier_prepend_zero=true
   comment= "fixed address"
   dhcp_client_identifier="23"
@@ -27,14 +27,14 @@ resource "infoblox_ipv4_fixed_address" "fix4"{
     value = "18.0.0.2"
     vendor_class = "DHCP"
   }
-  use_option = true
+  use_options = true
   depends_on=[infoblox_ipv4_network.net2]
 }
 data "infoblox_ipv4_fixed_address" "testFixedAddress_read1" {
   filters = {
     "*Site" = "Blr"
   }
-  depends_on = [infoblox_ipv4_fixed_address.fix4]
+  depends_on = [infoblox_ipv4_fixed_address.fix_address]
 }
 output "fa_rec_temp1" {
   value = data.infoblox_ipv4_fixed_address.testFixedAddress_read1
