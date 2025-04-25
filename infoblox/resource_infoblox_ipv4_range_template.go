@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"reflect"
-	"sort"
 )
 
 func resourceRangeTemplate() *schema.Resource {
@@ -25,130 +24,6 @@ func resourceRangeTemplate() *schema.Resource {
 				if err != nil {
 					return err
 				}
-			}
-			// Helper function to check if an option is the default value
-			isDefault := func(opt map[string]interface{}) bool {
-				return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
-			}
-
-			// Get the old and new values for the options field
-			oldVal, newVal := d.GetChange("options")
-
-			// Ensure oldVal and newVal are not nil
-			if oldVal == nil || newVal == nil {
-				return nil
-			}
-
-			oldList, okOld := oldVal.([]interface{})
-			newList, okNew := newVal.([]interface{})
-
-			// Ensure type assertions are successful
-			if !okOld || !okNew {
-				return nil
-			}
-
-			// If newList is empty, set it to an empty list to clear old values
-			if len(newList) == 0 {
-				if err := d.SetNew("options", []interface{}{}); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// Add default values to oldList if they are missing
-			defaultOpt := map[string]interface{}{
-				"name":         "dhcp-lease-time",
-				"num":          51,
-				"use_option":   false,
-				"value":        "43200",
-				"vendor_class": "DHCP",
-			}
-
-			// check if state-file file has dhcp-lease-time option and if it had default values
-			hasDefaultOld := false
-			for _, oldOpt := range oldList {
-				if isDefault(oldOpt.(map[string]interface{})) {
-					hasDefaultOld = true
-					break
-				}
-			}
-
-			// if the old list does not contain user provided or default dhcp-lease-time, add default values to the list
-			if !hasDefaultOld {
-				oldList = append(oldList, defaultOpt)
-			}
-
-			// check if tf file has dhcp-lease-time option and if it has default values
-			hasDefaultNew := false
-			for _, newOpt := range newList {
-				if isDefault(newOpt.(map[string]interface{})) {
-					hasDefaultNew = true
-					break
-				}
-			}
-
-			// Add default values to newList if it does not contain default or user provided dhcp-lease-time
-			if !hasDefaultNew {
-				newList = append(newList, defaultOpt)
-			}
-
-			// Filter out default values from both old and new lists for comparison
-			filteredOldList := []interface{}{}
-			for _, oldOpt := range oldList {
-				oldOptMap, ok := oldOpt.(map[string]interface{})
-				if ok && !isDefault(oldOptMap) {
-					filteredOldList = append(filteredOldList, oldOpt)
-				}
-			}
-
-			filteredNewList := []interface{}{}
-			for _, newOpt := range newList {
-				newOptMap, ok := newOpt.(map[string]interface{})
-				if ok && !isDefault(newOptMap) {
-					filteredNewList = append(filteredNewList, newOpt)
-				}
-			}
-
-			// Sort the lists by the specified sub-field (e.g., "value")
-			sortOptions := func(options []interface{}, field string) {
-				sort.SliceStable(options, func(i, j int) bool {
-					return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
-				})
-			}
-
-			sortOptions(filteredOldList, "name")
-			sortOptions(filteredNewList, "name")
-
-			// Compare the filtered lists and set options to newList
-			if len(filteredOldList) != len(filteredNewList) {
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// Ensure that the plan shows changes when non-default values are removed
-			if len(filteredNewList) == 0 && len(filteredOldList) > 0 {
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
-			if !reflect.DeepEqual(filteredNewList, filteredOldList) {
-				// add default options if not present in the new list
-				if !hasDefaultNew {
-					filteredNewList = append(filteredNewList, defaultOpt)
-				}
-				if err := d.SetNew("options", filteredNewList); err != nil {
-					return err
-				}
-				return nil
-			}
-			// If no changes in non-default values, set newList to oldList to avoid showing plan diff
-			if err := d.SetNew("options", oldList); err != nil {
-				return err
 			}
 			return nil
 		},
@@ -182,7 +57,6 @@ func resourceRangeTemplate() *schema.Resource {
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Description: "An array of DHCP option structs that lists the DHCP options associated with the object. An option sets the" +
 					"value of a DHCP option that has been defined in an option space. DHCP options describe network configuration settings" +
 					"and various services available on the network. These options occur as variable-length fields at the end of DHCP messages." +
@@ -219,6 +93,56 @@ func resourceRangeTemplate() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" && oldValue >= "1" {
+						return false
+					}
+					oldOptions, newOptions := d.GetChange("options")
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					// Check for changes in subfields of default elements
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+					return true
 				},
 			},
 			"server_association_type": {
@@ -489,11 +413,6 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 	offset := d.Get("offset").(int)
 	comment := d.Get("comment").(string)
 	useOptions := d.Get("use_options").(bool)
-	options := d.Get("options").([]interface{})
-	optionsList, err := validateDhcpOptions(options)
-	if err != nil {
-		return fmt.Errorf("failed to validate options: %w", err)
-	}
 	serverAssociationType := d.Get("server_association_type").(string)
 	failoverAssociation := d.Get("failover_association").(string)
 	cloudApiCompatible := d.Get("cloud_api_compatible").(bool)
@@ -539,7 +458,22 @@ func resourceRangeTemplateUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, optionsList, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
+	// Check if the options field has changes
+	oldOptions, newOptions := d.GetChange("options")
+	oldList, okOld := oldOptions.([]interface{})
+	newList, okNew := newOptions.([]interface{})
+
+	if !okOld || !okNew {
+		return fmt.Errorf("options is not a slice of interfaces")
+	}
+
+	optimizedOptions := optimizeDhcpOptions(oldList, newList)
+	options, err := validateDhcpOptions(optimizedOptions)
+	if err != nil {
+		return fmt.Errorf("failed to validate options: %w", err)
+	}
+
+	rangeTemplate, err = objMgr.UpdateRangeTemplate(d.Id(), name, uint32(numberOfAddresses), uint32(offset), comment, newExtAttrs, options, useOptions, serverAssociationType, failoverAssociation, dhcpMemeber, cloudApiCompatible, msServer)
 	if err != nil {
 		return fmt.Errorf("failed to update Range Template: %s.", err.Error())
 	}

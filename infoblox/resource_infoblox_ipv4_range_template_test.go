@@ -15,12 +15,21 @@ var testResourceRangeTemplate1 = `resource "infoblox_ipv4_range_template" "templ
   name = "rangetemplate11"
   number_of_addresses = 10
   offset = 70
+  cloud_api_compatible = true
+  options {
+    	name = "dhcp-lease-time"
+    	value = "43200"
+		vendor_class = "DHCP"
+		num = 51
+		use_option = true
+  	}
 }`
 
 var testResourceRangeTemplate2 = `resource "infoblox_ipv4_range_template" "template2" {
   name = "range-template22"
   number_of_addresses = 40
   offset = 30
+  cloud_api_compatible = true
   comment = "Temporary Range Template"
   use_options = true
   ext_attrs = jsonencode({
@@ -33,6 +42,13 @@ var testResourceRangeTemplate2 = `resource "infoblox_ipv4_range_template" "templ
     num = 6
     use_option = true
   }
+  options {
+    	name = "dhcp-lease-time"
+    	value = "43200"
+		vendor_class = "DHCP"
+		num = 51
+		use_option = true
+  	}
 }`
 
 func testAccCheckRangeTemplateDestroy(s *terraform.State) error {

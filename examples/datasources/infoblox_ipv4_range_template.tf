@@ -3,7 +3,7 @@ resource "infoblox_ipv4_range_template" "range_template1" {
   number_of_addresses = 60
   offset = 76
   comment = "Temporary Range Template"
-  cloud_api_compatible = false
+  cloud_api_compatible = true
   use_options = true
   ext_attrs = jsonencode({
     "Site" = "Kobe"

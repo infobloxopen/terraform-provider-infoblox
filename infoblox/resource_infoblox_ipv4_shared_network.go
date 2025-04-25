@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -117,6 +118,56 @@ func resourceIpv4SharedNetwork() *schema.Resource {
 							Description: "The name of the space this DHCP option is associated to.",
 						},
 					},
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					if newValue == "0" && oldValue >= "1" {
+						return false
+					}
+					oldOptions, newOptions := d.GetChange("options")
+					oldList, okOld := oldOptions.([]interface{})
+					newList, okNew := newOptions.([]interface{})
+					// Ensure type assertions are successful
+					if !okOld || !okNew {
+						return false
+					}
+
+					sortOptions(oldList, "name")
+					sortOptions(newList, "name")
+					//return reflect.DeepEqual(oldOptions, newOptions)
+
+					// Filter out default values from both old and new lists
+					filteredOldList := []interface{}{}
+					for _, oldOpt := range oldList {
+						oldOptMap, ok := oldOpt.(map[string]interface{})
+						if ok && !isDefault(oldOptMap) {
+							filteredOldList = append(filteredOldList, oldOpt)
+						}
+					}
+
+					filteredNewList := []interface{}{}
+					for _, newOpt := range newList {
+						newOptMap, ok := newOpt.(map[string]interface{})
+						if ok && !isDefault(newOptMap) {
+							filteredNewList = append(filteredNewList, newOpt)
+						}
+					}
+
+					// Compare the filtered lists
+					if len(filteredOldList) != len(filteredNewList) {
+						return false
+					}
+
+					// Check for changes in subfields of default elements
+					if len(filteredOldList) == len(filteredNewList) {
+						for i := range filteredOldList {
+							oldOptMap := filteredOldList[i].(map[string]interface{})
+							newOptMap := filteredNewList[i].(map[string]interface{})
+							if !reflect.DeepEqual(oldOptMap, newOptMap) {
+								return false
+							}
+						}
+					}
+					return true
 				},
 			},
 			"internal_id": {
@@ -457,54 +508,6 @@ func resourceIpv4SharedNetworkUpdate(d *schema.ResourceData, m interface{}) erro
 	}
 	d.SetId(sharedNetwork.Ref)
 	return resourceIpv4SharedNetworkRead(d, m)
-}
-
-func optimizeDhcpOptions(list1 []interface{}, list2 []interface{}) []interface{} {
-
-	// Sort the lists by the specified sub-field (e.g., "value")
-	sortOptions := func(options []interface{}, field string) {
-		sort.SliceStable(options, func(i, j int) bool {
-			return options[i].(map[string]interface{})[field].(string) < options[j].(map[string]interface{})[field].(string)
-		})
-	}
-
-	isDefault := func(opt map[string]interface{}) bool {
-		return opt["name"] == "dhcp-lease-time" && opt["num"] == 51 && opt["use_option"] == false && opt["value"] == "43200" && opt["vendor_class"] == "DHCP"
-	}
-
-	sortOptions(list1, "value")
-	sortOptions(list2, "value")
-
-	// Create a map of new options for quick lookup
-	newOptionsMap := make(map[string]bool)
-	for _, newOpt := range list2 {
-		optMap, ok := newOpt.(map[string]interface{})
-		if ok {
-			if name, exists := optMap["name"].(string); exists {
-				newOptionsMap[name] = true
-			}
-		}
-	}
-
-	// Iterate through oldList to find options not in newList
-	for i, oldOpt := range list1 {
-		oldOptMap, ok := oldOpt.(map[string]interface{})
-		if ok {
-			if isDefault(oldOptMap) {
-				//hasDefaultOld = true
-				break
-			}
-			if name, exists := oldOptMap["name"].(string); exists {
-				if _, found := newOptionsMap[name]; !found {
-					// Option is not in newList, set its value to an empty string
-					oldOptMap["value"] = ""
-					list1[i] = oldOptMap // Update the oldList element
-				}
-			}
-		}
-	}
-
-	return list1
 }
 
 func resourceIpv4SharedNetworkDelete(d *schema.ResourceData, m interface{}) error {
