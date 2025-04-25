@@ -15,6 +15,7 @@ resource "infoblox_ipv4_range" "range" {
   disable              = false
   member = {
     name = "infoblox.localdomain"
+    ipv4addr = "192.168.10.10"
   }
   server_association_type= "MEMBER"
   ext_attrs = jsonencode({

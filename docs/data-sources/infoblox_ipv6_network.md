@@ -6,7 +6,22 @@ The data source for the network object allows you to get the following parameter
 * `cidr`: the network block which corresponds to the network, in CIDR notation. Example: `2002:1f93:0:4::/96`
 * `comment`: a description of the network. This is a regular comment. Example: `Untrusted network`.
 * `ext_attrs`: The set of extensible attributes, if any. The content is formatted as string of JSON map. Example: `"{\"Owner\":\"State Library\",\"Administrator\":\"unknown\"}"`.
-
+* `options`: An array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+    * `name`: The Name of the DHCP option. Example: `domain-name-servers`.
+    * `num`: The code of the DHCP option. Example: `6`.
+    * `value`: The value of the option. Example: `11.22.33.44`.
+    * `vendor_class`: The name of the space this DHCP option is associated to. Default value is `DHCP`.
+    * `use_option`:Only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+      `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
+```terraform
+options {
+    name         = "dhcp-lease-time"
+    value        = "43200"
+    vendor_class = "DHCP"
+    num          = 51
+    use_option   = true
+  }
+```
 
 To retrieve information about IPv6 network that match the specified filters, use the `filters` argument and specify the parameters mentioned in the below table. These are the searchable parameters of the corresponding object in Infoblox NIOS WAPI. If you do not specify any parameter, the data source retrieves information about all host records in the NIOS Grid.
 

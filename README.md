@@ -142,6 +142,8 @@ The limitations of Infoblox IPAM Plug-In for Terraform are as follows:
   still retain the `Terraform Internal ID` though the resource is not managed by Terraform.
 * The plug-in does not support retrieving information about IPv4 range and IPv4 range template objects by specifying the
   member or ms_server field in the filter attribute of the object’s data source block.
+* When you update the DHCP options for a shared network, an IPv4 fixed address, an IPv4 range, or an IPv4 range template
+  object, the DHCP options show as re-ordering when the next terraform plan command runs.
 
 ## Best Practices
 
