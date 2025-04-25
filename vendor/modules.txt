@@ -184,7 +184,7 @@ github.com/hashicorp/terraform-svchost
 # github.com/hashicorp/yamux v0.1.1
 ## explicit; go 1.15
 github.com/hashicorp/yamux
-# github.com/infobloxopen/infoblox-go-client/v2 v2.9.1-0.20250425110414-b5a36cb9d8a9
+# github.com/infobloxopen/infoblox-go-client/v2 v2.10.0
 ## explicit; go 1.21
 github.com/infobloxopen/infoblox-go-client/v2
 github.com/infobloxopen/infoblox-go-client/v2/utils
