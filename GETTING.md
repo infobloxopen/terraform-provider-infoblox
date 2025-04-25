@@ -12,7 +12,7 @@ Specify the plugin version in the .tf file as follows:
       required_providers {
         infoblox = {
           source = "infobloxopen/infoblox"
-          version = ">= 2.9.0"
+          version = ">= 2.10.0"
         }
       }
     }
