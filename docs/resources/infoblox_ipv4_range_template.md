@@ -30,7 +30,7 @@ options {
 * `ext_attrs`: optional, specifies the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":"Nagoya"}"`
 * `server_association_type`: optional, specifies the type of server that is going to serve the range. Valid values are: `FAILOVER`, `MEMBER`, `MS_FAILOVER`, `MS_SERVER`, `NONE` .Example: `NONE`.
 * `failover_association`: optional, specifies the name of the failover association: the server in this failover association will serve the IPv4 range in case the main server is out of service. Example: `dhcp_failover`.
-* `ms_server`: optional, specifies the Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` if you want the server specified here to serve the range.
+* `ms_server`: optional, specifies the Microsoft server that will provide service for this range. `server_association_type` needs to be set to `MS_SERVER` if you want the server specified here to serve the range. Example: `10.23.23.2`.
 * `member`: optional, specifies the member that will provide service for this range. `server_association_type` needs to be set to `MEMBER` if you want the server specified here to serve the range. `member` has the following three fields `name`, `ipv4addr` and `ipv6addr`. Any one these `name`, `ipv4addr`, `ipv6addr` should be specified. The description of the fields of `member` is as follows:
     * `name`: optional, specifies the name of the Grid member. Example: `infoblox.localdomain`.
     * `ipv4addr`: optional, specifies the IPv4 Address of the Grid Member. Example: `11.10.1.0`.
