@@ -6,8 +6,8 @@ This module deploys a product from the Google Cloud Marketplace via the CLI usin
 The provided test configuration can be used by executing:
 
 ```
-terraform plan 
 terraform init
+terraform plan 
 terraform apply -var-file="marketplace_test.tfvars"
 ```
 
