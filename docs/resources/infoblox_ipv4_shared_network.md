@@ -37,6 +37,17 @@ options {
 * `comment`: optional, specifies the description of the record. This is a regular comment. Example: `Temporary Ipv4 Shared Network`.
 * `ext_attrs`: optional, specifies the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":"Vancouver"}"`
 
+!> When configuring the options parameter, you must define the default option dhcp-lease-time to avoid the undesirable changes that can occur when the next terraform apply command runs. The sub parameters name, num, and value are required. An example block is as follows:
+```terraform
+options {
+  name         = "dhcp-lease-time"
+  value        = "43200"
+  vendor_class = "DHCP"
+  num          = 51
+  use_option   = false
+}
+```
+
 ### Example of an Ipv4 Shared Network Resource Block:
  ```hcl
 // shared network with minimum set of parameters

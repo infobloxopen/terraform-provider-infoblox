@@ -49,6 +49,17 @@ member = {
 
 !> if the user is a non cloud-user, they need to have  Terraform internal ID without cloud permission.
 
+!> When configuring the options parameter, you must define the default option dhcp-lease-time to avoid the undesirable changes that can occur when the next terraform apply command runs. The sub parameters name, num, and value are required. An example block is as follows:
+```terraform
+options {
+  name         = "dhcp-lease-time"
+  value        = "43200"
+  vendor_class = "DHCP"
+  num          = 51
+  use_option   = false
+}
+```
+
 ### Examples of a Range Template Block
 
 ```hcl

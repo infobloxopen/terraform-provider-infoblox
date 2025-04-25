@@ -35,6 +35,17 @@ options {
 ```
 * `use_options`: optional, Use option is a flag that indicates whether the options field are used or not. The default value is false. Example: `false`
 
+!> When configuring the options parameter, you must define the default option dhcp-lease-time to avoid the undesirable changes that can occur when the next terraform apply command runs. The sub parameters name, num, and value are required. An example block is as follows:
+```terraform
+options {
+  name         = "dhcp-lease-time"
+  value        = "43200"
+  vendor_class = "DHCP"
+  num          = 51
+  use_option   = false
+}
+```
+
 ## Example for Fixed Address Block 
 
 ```hcl
