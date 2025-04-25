@@ -22,6 +22,7 @@ resource "infoblox_ipv4_shared_network" "shared_network2" {
   use_options = true
   options {
     name = "domain-name-servers"
+    num = 6
     value = "12.22.33.44"
     use_option = false
   }
