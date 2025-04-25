@@ -14,6 +14,7 @@ Use the `infoblox_alias_record` data resource for the Alias record to retrieve t
 * `comment`: the text describing the record. This is a regular comment. Example: `Temporary Alias-record`.
 * `creator`: the creator of the record. Valid value is `STATIC`.
 * `ext_attrs`: the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":\"Greece\"}"`
+* `cloud_info`: Structure containing all cloud API related information for this object. Example: `"{\"authority_type\":\"GM\",\"delegated_scope\":\"NONE\",\"owned_by_adaptor\":false}"`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view`, `zone`, `comment`, `target_name`, and `target_type`  corresponding to object.
 From the below list of supported arguments for filters,  use only the searchable fields for retrieving the matching records.

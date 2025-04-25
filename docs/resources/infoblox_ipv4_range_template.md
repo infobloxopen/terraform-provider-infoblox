@@ -10,13 +10,21 @@ The following list describes the parameters you can define in the resource block
 * `offset`: required, specifies the start address offset for the range. Example: `30`.
 * `use_options`: optional, specifies the use flag for options. Example: `true`.
 * `cloud_api_compatible`: required, specifies the flag controls whether this template can be used to create network objects in a cloud-computing deployment. Default: `false`. If the user is a cloud-user, then `cloud_api_compatible` needs to be passed `true` to create a range template.
-* `options`: optional, specifies an array of DHCP option structs that lists the DHCP options associated with the object. Example:
+* `options`: optional, specifies an array of DHCP option structs that lists the DHCP options associated with the object. The description of the fields of `options` is as follows:
+  * `name`: required, specifies the Name of the DHCP option. Example: `domain-name-servers`.
+  * `num`: required, specifies the code of the DHCP option. Example: `6`.
+  * `value`: required, specifies the value of the option. Example: `11.22.33.44`.
+  * `vendor_class`: optional, specifies the name of the space this DHCP option is associated to. Default value is `DHCP`.
+  * `use_option`: optional, only applies to special options that are displayed separately from other options and have a use flag. These options are `router`,
+    `router-templates`, `domain-name-servers`, `domain-name`, `broadcast-address`, `broadcast-address-offset`, `dhcp-lease-time`, and `dhcp6.name-servers`.
 ```terraform
-option { 
-    name = "domain-name-servers"
-    value = "11.22.33.44"
-    use_option = true
-  }
+options {
+  name         = "dhcp-lease-time"
+  value        = "43200"
+  vendor_class = "DHCP"
+  num          = 51
+  use_option   = false  
+}
 ```
 * `comment`: optional, specifies the description of the record. This is a regular comment. Example: `Temporary Range Template`.
 * `ext_attrs`: optional, specifies the set of extensible attributes of the record, if any. The content is formatted as string of JSON map. Example: `"{\"Site\":"Nagoya"}"`
@@ -27,7 +35,6 @@ option {
     * `name`: optional, specifies the name of the Grid member. Example: `infoblox.localdomain`.
     * `ipv4addr`: optional, specifies the IPv4 Address of the Grid Member. Example: `11.10.1.0`.
     * `ipv6addr`: optional, specifies the IPv6 address of the member. Example: `2403:8600:80cf:e10c:3a00::1192`.
-
 
 Example for `member`:
 ```terraform
@@ -49,6 +56,14 @@ member = {
 resource "infoblox_ipv4_range_template" "range_template_minimal_parameters" {
   name = "range-template1"
   number_of_addresses = 10
+  cloud_api_compatible = true
+  options {
+    name         = "dhcp-lease-time"
+    value        = "43200"
+    vendor_class = "DHCP"
+    num          = 51
+    use_option   = false  
+  }
   offset = 20
 }
 
@@ -69,6 +84,13 @@ resource "infoblox_ipv4_range_template" "range_template_full_set_parameters" {
     vendor_class = "DHCP"
     num = 6
     use_option = true
+  }
+  options {
+    name         = "dhcp-lease-time"
+    value        = "43200"
+    vendor_class = "DHCP"
+    num          = 51
+    use_option   = false
   }
   member {
     ipv4addr = "10.197.81.146"

@@ -9,9 +9,10 @@ Use the `infoblox_ipv4_shared_network` data source to retrieve the following inf
 * `use_options`: Use flag for options. Example: `true`.
 * `options`: An array of DHCP option structs that lists the DHCP options associated with the object. Example:
 ```terraform
-option { 
+options { 
     name = "domain-name-servers"
     value = "11.22.33.44"
+    num = 6
     use_option = true
   }
 ```
@@ -26,9 +27,9 @@ From the below list of supported arguments for filters,  use only the searchable
 -----
 | Field        | Alias        | Type   | Searchable |
 |--------------|--------------|--------|------------|
-| name         | fqdn         | string | yes        |
+| name         | name         | string | yes        |
 | network_view | network_view | string | yes        |
-| comment      | zone         | string | yes        |
+| comment      | comment      | string | yes        |
 
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 

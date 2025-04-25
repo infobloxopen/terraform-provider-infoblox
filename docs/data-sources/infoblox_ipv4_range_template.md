@@ -9,9 +9,10 @@ Use the `infoblox_ipv4_range_template` data resource for the IPV4 Range Template
 * `cloud_api_compatible`: The flag controls whether this template can be used to create network objects in a cloud-computing deployment. Example: `true`.
 * `options`: An array of DHCP option structs that lists the DHCP options associated with the object. Example:
 ```terraform
-option { 
+options { 
     name = "domain-name-servers"
     value = "11.22.33.44"
+    num = 6
     use_option = true
   }
 ```
@@ -50,6 +51,8 @@ From the below list of supported arguments for filters,  use only the searchable
 !> Any of the combination from searchable fields in supported arguments list for fields are allowed.
 
 !> Please consider using only fields as the keys in terraform datasource filters, kindly don't use alias names as keys from the above table.
+
+!>The search functionality using the filters argument is not supported for member and ms_server fields.
 
 ### Example for using the filters:
  ```hcl

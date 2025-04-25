@@ -3,6 +3,8 @@
 The `infoblox_ns_record` resource enables you to perform `create`, `update` and `delete` operations on NS Record in a NIOS appliance.
 The resource represents the ‘record:ns’ WAPI object in NIOS.
 
+> **Note:** NS record objects do not support extensible attributes.
+
 The following list describes the parameters you can define in the resource block of the NS Record object:
 
 * `name`: required, The name of the NS record in FQDN format. This value can be in unicode format. Values with leading or trailing white space are not valid for this field. Example: `test.com`

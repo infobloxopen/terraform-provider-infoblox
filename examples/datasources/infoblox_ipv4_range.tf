@@ -6,13 +6,14 @@ resource "infoblox_ipv4_range" "range" {
     value        = "43200"
     vendor_class = "DHCP"
     num          = 51
-    use_option   = true
+    use_option   = false
   }
   network              = "17.0.0.0/24"
   network_view = "default"
   comment              = "test comment"
   name                 = "test_range"
   disable              = false
+  //infoblox.localdomain must be assigned to the network
   member = {
     name = "infoblox.localdomain"
   }
