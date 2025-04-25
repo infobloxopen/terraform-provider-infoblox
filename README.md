@@ -7,7 +7,7 @@
 This is a provider plug-in for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plug-in enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.9.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.9.0)
+The latest version of Infoblox provider is [v2.10.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.10.0)
 
 > **Note:** Plugin version **v2.9.0** includes an upgrade to the base WAPI version to **v2.12.3**.
 
@@ -37,6 +37,12 @@ The provider plug-in has NIOS DDI resources represented as Terraform resources a
 * DTC LBDN (`infoblox_dtc_lbdn`)
 * DTC Pool (`infoblox_dtc_pool`)
 * DTC Server (`infoblox_dtc_server`)
+* Alias-record (`infoblox_alias_record`)
+* NS-record (`infoblox_ns_record`)
+* IPV4 Shared Network (`infoblox_ipv4_shared_network`)
+* IPV4 Fixed Address (`infoblox_ipv4_fixed_address`)
+* IPV4 Range (`infoblox_ipv4_range`)
+* IPV4 Range Template (`infoblox_ipv4_range_template`)
 
 All of the above resources are supported with `comment` and `ext_attrs` fields.
 DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` field.
@@ -65,6 +71,12 @@ DNS records and the `infoblox_ip_allocation` resources are supported with `ttl` 
 * DTC LBDN (`infoblox_dtc_lbdn`)
 * DTC Pool (`infoblox_dtc_pool`)
 * DTC Server (`infoblox_dtc_server`)
+* Alias-record (`infoblox_alias_record`)
+* NS-record (`infoblox_ns_record`)
+* IPV4 Shared Network (`infoblox_ipv4_shared_network`)
+* IPV4 Fixed Address (`infoblox_ipv4_fixed_address`)
+* IPV4 Range (`infoblox_ipv4_range`)
+* IPV4 Range Template (`infoblox_ipv4_range_template`)
 
 All of the above data sources are supported with `comment` and `ext_attr` fields.
 Data source of DNS records are supported with `ttl` and `zone` fields.
