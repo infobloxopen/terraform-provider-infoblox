@@ -4,16 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"os"
+	"reflect"
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	log "github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"math"
-	"reflect"
-	"sort"
-	"strings"
-	"time"
 )
 
 // Common parameters
@@ -161,6 +163,18 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_PASSWORD", nil),
 				Description: "Password to authenticate with Infoblox server.",
 			},
+			"client_cert_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_CLIENT_CERT_PATH", nil),
+				Description: "The path to a user certificate PEM to authenticate with Infoblox server.",
+			},
+			"client_key_path": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_CLIENT_KEY_PATH", nil),
+				Description: "The path to a user key PEM to authenticate with Infoblox server.",
+			},
 			"wapi_version": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -257,13 +271,6 @@ func Provider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 
-	if d.Get("password") == "" {
-		return nil, diag.Diagnostics{diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Export the required INFOBLOX_PASSWORD environment variable to set the password.",
-		}}
-	}
-
 	seconds := int64(d.Get("connect_timeout").(int))
 	hostConfig := ibclient.HostConfig{
 		Host:    d.Get("server").(string),
@@ -271,9 +278,44 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		Version: d.Get("wapi_version").(string),
 	}
 
-	authConfig := ibclient.AuthConfig{
-		Username: d.Get("username").(string),
-		Password: d.Get("password").(string),
+	// Parse authentication options, and fail if none are provided
+	var authConfig ibclient.AuthConfig
+
+	authConfig.Username = d.Get("username").(string)
+	authConfig.Password = d.Get("password").(string)
+
+	certPath := d.Get("client_cert_path").(string)
+	keyPath := d.Get("client_key_path").(string)
+	if certPath != "" {
+		certBytes, err := os.ReadFile(certPath)
+		if err != nil {
+			return nil, diag.Diagnostics{diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to read the provided client certificate",
+				Detail:   err.Error(),
+			}}
+		}
+		authConfig.ClientCert = certBytes
+	}
+
+	if keyPath != "" {
+		keyBytes, err := os.ReadFile(keyPath)
+		if err != nil {
+			return nil, diag.Diagnostics{diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Unable to read the provided client key",
+				Detail:   err.Error(),
+			}}
+		}
+		authConfig.ClientKey = keyBytes
+	}
+
+	if authConfig.Username == "" && authConfig.Password == "" &&
+		len(authConfig.ClientCert) == 0 && len(authConfig.ClientKey) == 0 {
+		return nil, diag.Diagnostics{diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Authentication details are not set. Please provide username and password or client certificate and key.",
+		}}
 	}
 
 	transportConfig := ibclient.TransportConfig{
