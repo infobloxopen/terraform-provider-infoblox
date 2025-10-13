@@ -606,3 +606,159 @@ func TestAcc_resourceNetwork_AllocateNetworkByEA_IPV4(t *testing.T) {
 		},
 	})
 }
+
+// TestAcc_resourceNetwork_ForceNew_cidr validates that changing cidr field
+// triggers resource recreation (ForceNew behavior).
+func TestAcc_resourceNetwork_ForceNew_cidr(t *testing.T) {
+	var initialID string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					resource "infoblox_ipv4_network" "test_force_new"{
+						network_view = "default"
+						cidr = "10.20.0.0/24"
+						comment = "test network for ForceNew"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.test_force_new", "cidr", "10.20.0.0/24"),
+					func(s *terraform.State) error {
+						res, found := s.RootModule().Resources["infoblox_ipv4_network.test_force_new"]
+						if !found {
+							return fmt.Errorf("not found: infoblox_ipv4_network.test_force_new")
+						}
+						initialID = res.Primary.ID
+						if initialID == "" {
+							return fmt.Errorf("ID is not set")
+						}
+						return nil
+					},
+				),
+			},
+			{
+				// Changing cidr should trigger resource recreation
+				Config: `
+					resource "infoblox_ipv4_network" "test_force_new"{
+						network_view = "default"
+						cidr = "10.21.0.0/24"
+						comment = "test network for ForceNew"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.test_force_new", "cidr", "10.21.0.0/24"),
+					func(s *terraform.State) error {
+						res, found := s.RootModule().Resources["infoblox_ipv4_network.test_force_new"]
+						if !found {
+							return fmt.Errorf("not found: infoblox_ipv4_network.test_force_new")
+						}
+						newID := res.Primary.ID
+						if newID == "" {
+							return fmt.Errorf("ID is not set")
+						}
+						if newID == initialID {
+							return fmt.Errorf("resource ID should have changed (ForceNew), but it remained the same: %s", newID)
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
+// TestAcc_resourceNetwork_ForceNew_allocate_prefix_len validates that changing
+// allocate_prefix_len field triggers resource recreation (ForceNew behavior).
+func TestAcc_resourceNetwork_ForceNew_allocate_prefix_len(t *testing.T) {
+	var initialID string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					resource "infoblox_ipv4_network_container" "parent_for_prefix_test" {
+						cidr = "10.30.0.0/16"
+						network_view = "default"
+						comment = "parent container for prefix length test"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+					}
+					resource "infoblox_ipv4_network" "test_force_new_prefix"{
+						network_view = "default"
+						parent_cidr = "10.30.0.0/16"
+						allocate_prefix_len = 24
+						comment = "test network for ForceNew allocate_prefix_len"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+						depends_on = [infoblox_ipv4_network_container.parent_for_prefix_test]
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.test_force_new_prefix", "allocate_prefix_len", "24"),
+					func(s *terraform.State) error {
+						res, found := s.RootModule().Resources["infoblox_ipv4_network.test_force_new_prefix"]
+						if !found {
+							return fmt.Errorf("not found: infoblox_ipv4_network.test_force_new_prefix")
+						}
+						initialID = res.Primary.ID
+						if initialID == "" {
+							return fmt.Errorf("ID is not set")
+						}
+						return nil
+					},
+				),
+			},
+			{
+				// Changing allocate_prefix_len should trigger resource recreation
+				Config: `
+					resource "infoblox_ipv4_network_container" "parent_for_prefix_test" {
+						cidr = "10.30.0.0/16"
+						network_view = "default"
+						comment = "parent container for prefix length test"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+					}
+					resource "infoblox_ipv4_network" "test_force_new_prefix"{
+						network_view = "default"
+						parent_cidr = "10.30.0.0/16"
+						allocate_prefix_len = 25
+						comment = "test network for ForceNew allocate_prefix_len"
+						ext_attrs = jsonencode({
+							"Tenant ID" = "terraform_test_tenant"
+						})
+						depends_on = [infoblox_ipv4_network_container.parent_for_prefix_test]
+					}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("infoblox_ipv4_network.test_force_new_prefix", "allocate_prefix_len", "25"),
+					func(s *terraform.State) error {
+						res, found := s.RootModule().Resources["infoblox_ipv4_network.test_force_new_prefix"]
+						if !found {
+							return fmt.Errorf("not found: infoblox_ipv4_network.test_force_new_prefix")
+						}
+						newID := res.Primary.ID
+						if newID == "" {
+							return fmt.Errorf("ID is not set")
+						}
+						if newID == initialID {
+							return fmt.Errorf("resource ID should have changed (ForceNew), but it remained the same: %s", newID)
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
