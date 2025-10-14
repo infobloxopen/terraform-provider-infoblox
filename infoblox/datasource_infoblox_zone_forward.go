@@ -161,11 +161,13 @@ func dataSourceZoneForwardRead(_ context.Context, d *schema.ResourceData, m inte
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetZoneForwardFilters(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get zone forward records: %w", err))
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for zone forward"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.ZoneForward{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting Zone Forward failed with filters %v: %s", filters, err))
+		}
 	}
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
 	//       (avoiding additional layer of keys ("value" key)

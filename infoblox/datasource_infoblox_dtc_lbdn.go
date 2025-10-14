@@ -159,14 +159,7 @@ func dataSourceDtcLbdnRecordRead(ctx context.Context, d *schema.ResourceData, m 
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
 	qp := ibclient.NewQueryParams(false, filters)
-	res, err := objMgr.GetAllDtcLbdn(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for DTC LBDN"))
-	}
+	res, _ := objMgr.GetAllDtcLbdn(qp)
 	results := make([]interface{}, 0, len(res))
 	for _, r := range res {
 		dtcLbdn, err := flattenDtcLbdn(r, connector)
@@ -176,7 +169,7 @@ func dataSourceDtcLbdnRecordRead(ctx context.Context, d *schema.ResourceData, m 
 		results = append(results, dtcLbdn)
 	}
 
-	err = d.Set("results", results)
+	err := d.Set("results", results)
 	if err != nil {
 		return diag.FromErr(err)
 	}

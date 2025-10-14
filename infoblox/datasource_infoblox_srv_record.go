@@ -104,10 +104,13 @@ func dataSourceSRVRecordRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed getting SRV-Record: %s", err))
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the SRV Record"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.RecordSRV{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting SRV Record failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs

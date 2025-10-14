@@ -112,14 +112,7 @@ func datasourceAliasRecordRead(ctx context.Context, d *schema.ResourceData, m in
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 
 	qp := ibclient.NewQueryParams(false, filters)
-	res, err := objMgr.GetAllAliasRecord(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for alias record"))
-	}
+	res, _ := objMgr.GetAllAliasRecord(qp)
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
 	//       (avoiding additional layer of keys ("value" key)
 	results := make([]interface{}, 0, len(res))
@@ -131,7 +124,7 @@ func datasourceAliasRecordRead(ctx context.Context, d *schema.ResourceData, m in
 		results = append(results, aliasRecord)
 	}
 
-	err = d.Set("results", results)
+	err := d.Set("results", results)
 	if err != nil {
 		return diag.FromErr(err)
 	}

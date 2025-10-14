@@ -132,12 +132,6 @@ func dataSourceDtcServerRead(ctx context.Context, d *schema.ResourceData, m inte
 	qp := ibclient.NewQueryParams(false, filters)
 
 	res, err := objMgr.GetAllDtcServer(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for zone forward"))
-	}
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
 	//       (avoiding additional layer of keys ("value" key)
 	results := make([]interface{}, 0, len(res))

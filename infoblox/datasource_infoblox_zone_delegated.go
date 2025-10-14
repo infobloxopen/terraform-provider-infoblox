@@ -119,11 +119,13 @@ func dataSourceZoneDelegatedRead(_ context.Context, d *schema.ResourceData, m in
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetZoneDelegatedByFilters(qp)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed to get zone delegated records: %w", err))
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for zone delegated"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.ZoneDelegated{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting Record failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
 	//       (avoiding additional layer of keys ("value" key)

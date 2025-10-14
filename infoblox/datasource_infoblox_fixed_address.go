@@ -156,12 +156,6 @@ func dataSourceFixedAddressRead(ctx context.Context, d *schema.ResourceData, m i
 
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllFixedAddress(qp, false)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for Fixed address "))
-	}
 	results := make([]interface{}, 0, len(res))
 	for _, r := range res {
 		fixedAddress, err := flattenFixedAddress(r)

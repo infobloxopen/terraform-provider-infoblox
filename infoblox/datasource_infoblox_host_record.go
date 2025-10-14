@@ -130,11 +130,13 @@ func dataSourceHostRecordRead(ctx context.Context, d *schema.ResourceData, m int
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed getting Host-record: %s", err.Error()))
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the Host Record"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.HostRecord{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting Host Record failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
