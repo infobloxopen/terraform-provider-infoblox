@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.11.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.11.0) (2025-10-20)
+
+- Improved error handling in data sources by treating "not found" responses as valid empty results, enhancing stability.
+- Upgraded Go to v1.24.7 and refreshed dependencies for better compatibility and security.
+- Minor refactoring to simplify error handling and remove redundant checks.
+
 ## [v2.10.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.10.0) (2025-4-25)
 - New Resources:
   - infoblox_alias_record
