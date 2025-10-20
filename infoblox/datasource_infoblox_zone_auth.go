@@ -84,11 +84,13 @@ func dataSourceZoneAuthRead(ctx context.Context, d *schema.ResourceData, m inter
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("failed getting Zone Auth: %s", err.Error()))
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the Zone Auth"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.ZoneAuth{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting Zone Auth failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs

@@ -33,6 +33,7 @@ type IBObjectManager interface {
 	CreateDtcLbdn(name string, authZones []AuthZonesLink, comment string, disable bool, autoConsolidatedMonitors bool, ea EA,
 		lbMethod string, patterns []string, persistence uint32, pools []*DtcPoolLink, priority uint32, topology *string, types []string, ttl uint32, usettl bool) (*DtcLbdn, error)
 	CreateZoneForward(comment string, disable bool, eas EA, forwardTo NullableNameServers, forwardersOnly bool, forwardingServers *NullableForwardingServers, fqdn string, nsGroup string, view string, zoneFormat string, externalNsGroup string) (*ZoneForward, error)
+	CreateHTTPSRecord(name string, priority uint32, targetName string, comment string, creator string, ddnsPrincipal string, ddnsProtected bool , disable bool, ea EA, forbidReclamation bool, svcParams []SVCParams, ttl uint32, useTtl bool, view string) (*RecordHttps, error)
 	CreateEADefinition(eadef EADefinition) (*EADefinition, error)
 	CreateHostRecord(enabledns bool, enabledhcp bool, recordName string, netview string, dnsview string, ipv4cidr string, ipv6cidr string, ipv4Addr string, ipv6Addr string, macAddr string, duid string, useTtl bool, ttl uint32, comment string, eas EA, aliases []string, disable bool) (*HostRecord, error)
 	CreateMXRecord(dnsView string, fqdn string, mx string, preference uint32, ttl uint32, useTtl bool, comment string, eas EA) (*RecordMX, error)
@@ -43,6 +44,9 @@ type IBObjectManager interface {
 	CreatePTRRecord(networkView string, dnsView string, ptrdname string, recordName string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, eas EA) (*RecordPTR, error)
 	CreateRangeTemplate(name string, numberOfAdresses uint32, offset uint32, comment string, ea EA,
 		options []*Dhcpoption, useOption bool, serverAssociationType string, failOverAssociation string, member *Dhcpmember, cloudApiCompatible bool, msServer string) (*Rangetemplate, error)
+	CreateSVCBRecord(name string, priority uint32, targetName string, comment string,
+		creator string, ddnsPrincipal string, ddnsProtected bool, disable bool, ea EA, forbidReclamation bool,
+		svcParams []SVCParams, ttl uint32, useTtl bool, view string) (*RecordSVCB, error)
 	CreateSRVRecord(dnsView string, name string, priority uint32, weight uint32, port uint32, target string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordSRV, error)
 	CreateTXTRecord(dnsView string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	CreateZoneDelegated(fqdn string, delegateTo NullableNameServers, comment string, disable bool, locked bool, nsGroup string, delegatedTtl uint32, useDelegatedTtl bool, ea EA, view string, zoneFormat string) (*ZoneDelegated, error)
@@ -65,10 +69,12 @@ type IBObjectManager interface {
 	DeleteNetworkView(ref string) (string, error)
 	DeletePTRRecord(ref string) (string, error)
 	DeleteRangeTemplate(ref string) (string, error)
+	DeleteSVCBRecord(ref string) (string, error)
 	DeleteSRVRecord(ref string) (string, error)
 	DeleteTXTRecord(ref string) (string, error)
 	DeleteZoneDelegated(ref string) (string, error)
 	DeleteNetworkRange(ref string) (string, error)
+	DeleteHTTPSRecord(ref string) (string, error)
 	GetARecordByRef(ref string) (*RecordA, error)
 	GetARecord(dnsview string, recordName string, ipAddr string) (*RecordA, error)
 	GetAAAARecord(dnsview string, recordName string, ipAddr string) (*RecordAAAA, error)
@@ -82,6 +88,7 @@ type IBObjectManager interface {
 	GetAllDtcPool(queryParams *QueryParams) ([]DtcPool, error)
 	GetDtcPool(name string) (*DtcPool, error)
 	GetAllDtcServer(queryParams *QueryParams) ([]DtcServer, error)
+	GetAllHTTPSRecord(queryParams *QueryParams) ([]RecordHttps, error)
 	GetDtcServer(name string, host string) (*DtcServer, error)
 	GetAllDtcLbdn(queryParams *QueryParams) ([]DtcLbdn, error)
 	GetDtcLbdn(name string) (*DtcLbdn, error)
@@ -113,10 +120,13 @@ type IBObjectManager interface {
 	GetAllRangeTemplate(queryParams *QueryParams) ([]Rangetemplate, error)
 	GetRangeTemplateByRef(ref string) (*Rangetemplate, error)
 	GetSRVRecord(dnsView string, name string, target string, port uint32) (*RecordSRV, error)
+	GetSVCBRecordByRef(ref string) (*RecordSVCB, error)
+	GetAllSVCBRecords(queryParams *QueryParams) ([]RecordSVCB, error)
 	GetSRVRecordByRef(ref string) (*RecordSRV, error)
 	GetTXTRecord(dnsview string, name string) (*RecordTXT, error)
 	GetTXTRecordByRef(ref string) (*RecordTXT, error)
 	GetZoneAuthByRef(ref string) (*ZoneAuth, error)
+	GetHTTPSRecordByRef(ref string) (*RecordHttps, error)
 	GetZoneDelegated(fqdn string) (*ZoneDelegated, error)
 	GetZoneDelegatedByFilters(queryParams *QueryParams) ([]ZoneDelegated, error)
 	GetZoneDelegatedByRef(ref string) (*ZoneDelegated, error)
@@ -147,7 +157,11 @@ type IBObjectManager interface {
 	UpdatePTRRecord(ref string, netview string, ptrdname string, name string, cidr string, ipAddr string, useTtl bool, ttl uint32, comment string, setEas EA) (*RecordPTR, error)
 	UpdateRangeTemplate(ref string, name string, numberOfAddresses uint32, offset uint32, comment string, ea EA,
 		options []*Dhcpoption, useOption bool, serverAssociationType string, failOverAssociation string, member *Dhcpmember, cloudApiCompatible bool, msServer string) (*Rangetemplate, error)
+	UpdateSVCBRecord(ref string, name string, priority uint32, targetName string, comment string,
+		creator string, ddnsPrincipal string, ddnsProtected bool, disable bool, ea EA, forbidReclamation bool,
+		svcParams []SVCParams, ttl uint32, useTtl bool) (*RecordSVCB, error)
 	UpdateSRVRecord(ref string, name string, priority uint32, weight uint32, port uint32, target string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordSRV, error)
+	UpdateHTTPSRecord(ref string, name string, priority uint32, targetName string, comment string, creator string, ddnsPrincipal string, ddnsProtected bool, disable bool, ea EA, forbidReclamation bool, svcParams []SVCParams, ttl uint32, useTtl bool) (*RecordHttps, error)
 	UpdateTXTRecord(ref string, recordName string, text string, ttl uint32, useTtl bool, comment string, eas EA) (*RecordTXT, error)
 	UpdateARecord(ref string, name string, ipAddr string, cidr string, netview string, ttl uint32, useTTL bool, comment string, eas EA) (*RecordA, error)
 	UpdateZoneDelegated(ref string, delegateTo NullableNameServers, comment string, disable bool, locked bool, nsGroup string, delegatedTtl uint32, useDelegatedTtl bool, ea EA) (*ZoneDelegated, error)

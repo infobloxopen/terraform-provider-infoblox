@@ -114,10 +114,13 @@ func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("getting network failed: %s", err))
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the network"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.Ipv4Network{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting IPv4 network failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs
@@ -222,10 +225,13 @@ func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("getting network failed: %s", err))
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for the network"))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.Ipv6Network{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting IPv6 network failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs

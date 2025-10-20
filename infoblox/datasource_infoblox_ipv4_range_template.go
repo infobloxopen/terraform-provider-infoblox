@@ -150,13 +150,6 @@ func dataSourceRangeTemplateRead(ctx context.Context, d *schema.ResourceData, m 
 
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllRangeTemplate(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for Range Template"))
-	}
 	results := make([]interface{}, 0, len(res))
 	for _, r := range res {
 		rangeTemplate, err := flattenRangeTemplate(r, connector)

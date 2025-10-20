@@ -71,7 +71,13 @@ func dataSourceIpv6NetworkContainerRead(ctx context.Context, d *schema.ResourceD
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("getting NetworkContainer failed : %w", err))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.Ipv6NetworkContainer{}
+		} else {
+			return diag.FromErr(fmt.Errorf("getting NetworkContainer failed : %w", err))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs

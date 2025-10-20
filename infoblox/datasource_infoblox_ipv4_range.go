@@ -159,12 +159,6 @@ func dataSourceRangeRead(ctx context.Context, d *schema.ResourceData, m interfac
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", "")
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetNetworkRange(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for Network Range"))
-	}
 	results := make([]interface{}, 0, len(res))
 	for _, r := range res {
 		dtcPool, err := flattenNetworkRange(r)

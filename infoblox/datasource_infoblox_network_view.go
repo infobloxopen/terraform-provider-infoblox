@@ -66,7 +66,13 @@ func dataSourceNetworkViewRead(ctx context.Context, d *schema.ResourceData, m in
 
 	err := connector.GetObject(n, "", qp, &res)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("getting network view failed: %s", err))
+		// Check if it's a "not found" error for data source - this is acceptable
+		if _, ok := err.(*ibclient.NotFoundError); ok {
+			// For data sources, empty results are valid - just return empty results
+			res = []ibclient.NetworkView{}
+		} else {
+			return diag.FromErr(fmt.Errorf("Getting network view failed with filters %v: %s", filters, err.Error()))
+		}
 	}
 
 	// TODO: temporary scaffold, need to rework marshalling/unmarshalling of EAs

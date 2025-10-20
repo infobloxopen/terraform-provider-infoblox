@@ -202,13 +202,6 @@ func dataSourceDtcPoolRecordRead(ctx context.Context, d *schema.ResourceData, m 
 
 	qp := ibclient.NewQueryParams(false, filters)
 	res, err := objMgr.GetAllDtcPool(qp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if res == nil {
-		return diag.FromErr(fmt.Errorf("API returns a nil/empty ID for DTC pool"))
-	}
 	results := make([]interface{}, 0, len(res))
 	for _, r := range res {
 		dtcPool, err := flattenDtcPool(r, connector)
