@@ -1,5 +1,20 @@
 # Infoblox Go Client Release Notes
 
+## v2.11.0
+
+### Release Summary
+
+- This release introduces new features aimed at managing DNS resource record types HTTPS and SVCB Records (Compatible with NIOS 9.0.7 using WAPI v2.13.7). Updated Go Version to v1.24.7 and fixed security vulnerabilities by upgrading required dependencies.
+
+### Major Changes
+
+- Upgraded go version from 1.21 to 1.24.7
+
+### Minor Changes
+
+- Added Create, Read, Update and Delete operations for HTTPS and SVCB Records.
+- Added structs `RecordHttps` and `RecordSvcb` for HTTPS and SVCB Record.
+
 ## v2.10.0
 
 ### Release Summary

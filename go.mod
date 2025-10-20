@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
-	github.com/infobloxopen/infoblox-go-client/v2 v2.10.1-0.20251014101504-7610c6d0279b
+	github.com/infobloxopen/infoblox-go-client/v2 v2.11.0
 	github.com/sirupsen/logrus v1.9.3
 )
 

@@ -7,7 +7,7 @@
 This is a provider plug-in for Terraform to manage Infoblox NIOS (Network Identity Operating System) resources using Terraform infrastructure as code solutions.
 The plug-in enables lifecycle management of Infoblox NIOS DDI resources.
 
-The latest version of Infoblox provider is [v2.10.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.10.0)
+The latest version of Infoblox provider is [v2.11.0](https://github.com/infobloxopen/terraform-provider-infoblox/releases/tag/v2.11.0)
 
 > **Note:** Plugin version **v2.9.0** includes an upgrade to the base WAPI version to **v2.12.3**.
 

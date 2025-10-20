@@ -1,9 +1,9 @@
 # Infoblox Go Client
 
 An Infoblox NIOS WAPI client library in Golang.
-The library enables us to do a CRUD oprations on NIOS Objects.
+The library enables us to do CRUD operations on NIOS Objects.
 
-This library is compatible with Go 1.2+
+This library is compatible with Go 1.24.7+
 
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
@@ -15,7 +15,9 @@ This library is compatible with Go 1.2+
 
 ## Prerequisites
    * Infoblox GRID with 2.9 or above WAPI support
-   * Go 1.21 or above
+   * Go 1.24.7 or above
+   
+    * Note: DNS resource record types HTTPS and SVCB Records (Compatible with NIOS 9.0.7 using WAPI v2.13.7).
 
 ## Installation
    To get the latest released version [v2.10.0](https://github.com/infobloxopen/infoblox-go-client/releases/tag/v2.10.0) of Go Client use below command.
