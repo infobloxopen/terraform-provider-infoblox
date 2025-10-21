@@ -82,12 +82,14 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
+				ForceNew:    true,
 				Description: "Set the parameter's value > 0 to allocate next available network with corresponding prefix length from the network container defined by 'parent_cidr'",
 			},
 			"cidr": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				ForceNew:    true,
 				Description: "The network block in cidr format.",
 				StateFunc: func(val interface{}) string {
 					return normalizeIPAddress(val)
@@ -373,10 +375,8 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			d.Partial(true)
 
 			prevNetView, _ := d.GetChange("network_view")
-			prevCIDR, _ := d.GetChange("cidr")
 			prevParCIDR, _ := d.GetChange("parent_cidr")
 			prevGW, _ := d.GetChange("gateway")
-			prevPrefLen, _ := d.GetChange("allocate_prefix_len")
 			prevNextAvailableFilter, _ := d.GetChange("filter_params")
 			prevObject, _ := d.GetChange("object")
 			prevResIPv4, _ := d.GetChange("reserve_ip")
@@ -385,10 +385,8 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 			prevEa, _ := d.GetChange("ext_attrs")
 
 			_ = d.Set("network_view", prevNetView.(string))
-			_ = d.Set("cidr", prevCIDR.(string))
 			_ = d.Set("parent_cidr", prevParCIDR.(string))
 			_ = d.Set("gateway", prevGW.(string))
-			_ = d.Set("allocate_prefix_len", prevPrefLen.(int))
 			_ = d.Set("filter_params", prevNextAvailableFilter.(string))
 			_ = d.Set("object", prevObject.(string))
 			_ = d.Set("reserve_ip", prevResIPv4.(int))
@@ -403,9 +401,6 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) (err error) {
 	}
 	if d.HasChange("network_view") {
 		return fmt.Errorf("changing the value of 'network_view' field is not allowed")
-	}
-	if d.HasChange("cidr") {
-		return fmt.Errorf("changing the value of 'cidr' field is not allowed")
 	}
 	if d.HasChange("reserve_ip") {
 		return fmt.Errorf("changing the value of 'reserve_ip' field is not allowed")
