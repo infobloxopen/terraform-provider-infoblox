@@ -222,6 +222,7 @@ func Provider() *schema.Provider {
 			"infoblox_ipv4_range":             resourceRange(),
 			"infoblox_ipv4_range_template":    resourceRangeTemplate(),
 			"infoblox_ipv4_shared_network":    resourceIpv4SharedNetwork(),
+			"infoblox_vlan":                   resourceVlan(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"infoblox_ipv4_network":           dataSourceIPv4Network(),
