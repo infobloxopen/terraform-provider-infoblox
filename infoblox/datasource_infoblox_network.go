@@ -55,8 +55,8 @@ func dataSourceNetwork() *schema.Resource {
 							Description: "The utilization of the network",
 						},
 						"vlans": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
 							Description: "List of VLANs assigned to the network. Each entry represents a VLAN object associated with this network.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
