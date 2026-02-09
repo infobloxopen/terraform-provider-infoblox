@@ -54,6 +54,25 @@ func dataSourceNetwork() *schema.Resource {
 							Computed:    true,
 							Description: "The utilization of the network",
 						},
+						"vlans": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Description: "List of VLANs assigned to the network. Each entry represents a VLAN object associated with this network.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Unique identifier of the VLAN in Infoblox. This ID can be used to correlate VLANs across different systems (e.g. vSphere, IPAM).",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Name of the VLAN as defined in Infoblox.",
+									},
+								},
+							},
+						},
 						"options": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -100,13 +119,32 @@ func dataSourceNetwork() *schema.Resource {
 	}
 }
 
+func flattenVlans(vlans []*ibclient.Vlanlink) []interface{} {
+	result := make([]interface{}, 0, len(vlans))
+
+	for _, v := range vlans {
+		if v == nil {
+			continue
+		}
+
+		m := map[string]interface{}{
+			"id":   v.Id,
+			"name": v.Name,
+		}
+
+		result = append(result, m)
+	}
+
+	return result
+}
+
 func dataSourceIPv4NetworkRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	connector := m.(ibclient.IBConnector)
 
 	var diags diag.Diagnostics
 
 	n := &ibclient.Ipv4Network{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "options", "utilization"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "options", "utilization", "vlans"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
@@ -175,6 +213,10 @@ func flattenIpv4Network(network ibclient.Ipv4Network) (map[string]interface{}, e
 
 	if network.Options != nil {
 		res["options"] = convertDhcpOptionsToInterface(network.Options)
+	}
+
+	if network.Vlans != nil {
+		res["vlans"] = flattenVlans(network.Vlans)
 	}
 	return res, nil
 }
