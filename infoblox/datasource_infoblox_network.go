@@ -128,7 +128,7 @@ func flattenVlans(vlans []*ibclient.Vlanlink) []interface{} {
 		}
 
 		m := map[string]interface{}{
-			"id":   v.Id,
+			"id":   int(v.Id),
 			"name": v.Name,
 		}
 
