@@ -22,6 +22,15 @@ options {
     use_option   = true
   }
 ```
+* `vlans`: An array of VLAN structs that lists the VLANs associated with the network object.  
+    * `id`: The unique identifier of the VLAN object in Infoblox. Example: `201`
+    * `name`: The name of the VLAN as defined in Infoblox. Example: `PROD-APP-100`
+```terraform
+vlans {
+    id          = 201
+    name        = "PROD-APP-100"
+  }
+```
 * `utilization`: The network utilization in percentage. Example: `0`
 
 For usage of filters, add the fields as keys and appropriate values to be passed to the keys like `name`, `view` corresponding to object.
