@@ -19,7 +19,7 @@ jobs:
         go: [1.21]
     steps:
 
-    - uses: actions/setup-go@v1
+    - uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
       id: go
