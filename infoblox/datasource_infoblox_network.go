@@ -250,6 +250,9 @@ func flattenIpv6Network(network ibclient.Ipv6Network) (map[string]interface{}, e
 	if network.Options != nil {
 		res["options"] = convertDhcpOptionsToInterface(network.Options)
 	}
+	if network.Vlans != nil {
+		res["vlans"] = flattenVlans(network.Vlans)
+	}
 	return res, nil
 }
 
@@ -259,7 +262,7 @@ func dataSourceIPv6NetworkRead(ctx context.Context, d *schema.ResourceData, m in
 	var diags diag.Diagnostics
 
 	n := &ibclient.Ipv6Network{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "options"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "options", "vlans"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
