@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### VLAN Resource Improvements
+- Added required `parent` field to specify the VLAN View or VLAN Range for the VLAN
+- Made `vlan_id` optional - when not specified, the next available VLAN ID is automatically allocated from the parent range using `func:nextavailablevlanid`
+- Fixed read/update/delete operations that were failing due to unsupported object type in `searchObjectByRefOrInternalId`
+- Fixed JSON unmarshaling error for `parent` field (API returns object but Go client expects string)
+- Updated documentation with examples for both explicit and auto-allocated VLAN IDs
+
 ## [v2.11.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.11.0) (2025-10-20)
 
 - Improved error handling in data sources by treating "not found" responses as valid empty results, enhancing stability.
