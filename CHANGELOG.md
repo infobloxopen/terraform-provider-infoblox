@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.12.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.12.0) (2026-03-10)
+
+- Data source updated to support VLAN.
+
 ## [v2.11.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.11.0) (2025-10-20)
 
 - Improved error handling in data sources by treating "not found" responses as valid empty results, enhancing stability.
