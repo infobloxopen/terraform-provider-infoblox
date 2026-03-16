@@ -6,6 +6,7 @@ object in NIOS:
 * `cidr`: the IPv4 network block of the network container. Example: `19.17.0.0/16`
 * `comment`: a description of the network container. This is a regular comment. Example: `Tenant 1 network container`.
 * `ext_attrs`: the set of extensible attributes of the network view, if any. The content is formatted as stirng of JSON map. Example: `"{\"Administrator\":\"jsw@telecom.ca\"}"`.
+* `utilization`: The network container utilization in percentage. Example: `0`
 
 As there is new feature filters , the previous usage of combination of Network view and address of the network block in CIDR format has been removed.
 
