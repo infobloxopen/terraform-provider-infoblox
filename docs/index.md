@@ -64,22 +64,30 @@ terraform {
 }
 ```
 
-Configure the credentials required to access the NIOS Grid as environment variables or provider block in .tf file:
+Authentication to NIOS Grid is supported by either providing a username and password or a path to a client certificate and key (in PEM format). These options can be configured by environment variables or in the provider block in .tf file:
 
 
 ```bash
  # Using environment variable
  $ export INFOBLOX_SERVER=<nios_ip-addr or nios_hostname>
+
  $ export INFOBLOX_USERNAME=<nios_username>
  $ export INFOBLOX_PASSWORD=<nios_password>
+ # or
+ $ export INFOBLOX_CLIENT_CERT_PATH=<client_cert_path>
+ $ export INFOBLOX_CLIENT_KEY_PATH=<client_key_path>
 ```
 
 ```hcl
 // Using Provider block
 provider "infoblox" {
-    server   = var.server
+    server = var.server
+
     username = var.username
     password = var.password
+    # or
+    client_cert_path = var.client_cert_path
+    client_key_path  = var.client_key_path
 }
 ```
 
