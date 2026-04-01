@@ -364,7 +364,10 @@ func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}, 
 		// change a value of this EA by the terraform user, use EA value from NIOS
 
 		// If EA is required returns true, else returns false
-		req := checkEARequirement(key, conn)
+		req, err := checkEARequirement(key, conn)
+		if err != nil {
+			return nil, err
+		}
 
 		if newTfVal, newTfValFound := newTerraformEAs[key]; !newTfValFound {
 			if _, oldTfValFound := oldTerraformEAs[key]; !oldTfValFound {
@@ -393,7 +396,7 @@ func mergeEAs(niosEAs, newTerraformEAs, oldTerraformEAs map[string]interface{}, 
 	return res, nil
 }
 
-func checkEARequirement(name string, conn ibclient.IBConnector) bool {
+func checkEARequirement(name string, conn ibclient.IBConnector) (bool, error) {
 	eadef := &ibclient.EADefinition{}
 	eadef.SetReturnFields(append(eadef.ReturnFields(), "flags"))
 
@@ -405,15 +408,18 @@ func checkEARequirement(name string, conn ibclient.IBConnector) bool {
 
 	err := conn.GetObject(eadef, "", qp, &res)
 	if err != nil {
-		fmt.Errorf("failed to get EA definition")
+		return false, fmt.Errorf("failed to get EA definition for '%s': %w", name, err)
+	}
+	if len(res) == 0 {
+		return false, fmt.Errorf("EA definition '%s' was not found", name)
 	}
 	result := &res[0]
 	if result.Flags != nil {
 		if strings.Contains(*result.Flags, "M") {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 // Check Pre-requisites for the provider and create if not present

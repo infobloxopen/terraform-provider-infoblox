@@ -33,7 +33,7 @@ func NewEmptyRecordNS() *RecordNS {
 
 func (objMgr *ObjectManager) CreateNSRecord(name string, nameServer string, dnsView string, addresses []*ZoneNameServer, msDelegationName string) (*RecordNS, error) {
 	if name == "" || nameServer == "" || len(addresses) == 0 {
-		fmt.Errorf("name, nameserver and addresses are required to create NS record")
+		return nil, fmt.Errorf("name, nameserver and addresses are required for NS record creation")
 	}
 	if dnsView == "" {
 		dnsView = "default"

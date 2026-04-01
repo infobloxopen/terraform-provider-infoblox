@@ -1,5 +1,12 @@
 # Infoblox Go Client Release Notes
 
+
+## v2.12.0
+
+### Major Changes
+
+- Security: Updated the minimum supported Go version to 1.25.8 to address CVE-2025-68121 in the Go toolchain and standard library.
+
 ## v2.11.0
 
 ### Release Summary
