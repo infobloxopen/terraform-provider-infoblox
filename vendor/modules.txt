@@ -191,8 +191,6 @@ github.com/hashicorp/yamux
 ## explicit; go 1.25.8
 github.com/infobloxopen/infoblox-go-client/v2
 github.com/infobloxopen/infoblox-go-client/v2/utils
-# github.com/kisielk/errcheck v1.10.0
-## explicit; go 1.22.0
 # github.com/mattn/go-colorable v0.1.14
 ## explicit; go 1.18
 github.com/mattn/go-colorable
