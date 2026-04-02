@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.13.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.13.0) (2026-04-02)
+
+- Upgraded Go version to v1.25.8 and refreshed dependencies for better compatibility and security.
+
 ## [v2.12.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.12.0) (2026-03-10)
 
 - Data source updated to support VLAN.
