@@ -52,6 +52,11 @@ func dataSourceIpv4NetworkContainer() *schema.Resource {
 							Computed:    true,
 							Description: "The Extensible attributes for the network container.",
 						},
+						"utilization": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The utilization of the network.",
+						}
 					},
 				},
 			},
@@ -63,7 +68,7 @@ func dataSourceIpv4NetworkContainerRead(ctx context.Context, d *schema.ResourceD
 	connector := m.(ibclient.IBConnector)
 
 	n := &ibclient.Ipv4NetworkContainer{}
-	n.SetReturnFields(append(n.ReturnFields(), "extattrs"))
+	n.SetReturnFields(append(n.ReturnFields(), "extattrs", "utilization"))
 
 	filters := filterFromMap(d.Get("filters").(map[string]interface{}))
 	qp := ibclient.NewQueryParams(false, filters)
@@ -120,6 +125,7 @@ func flattenNetworkContainer(nc ibclient.Ipv4NetworkContainer) (map[string]inter
 		"network_view": nc.NetworkView,
 		"cidr":         nc.Network,
 		"ext_attrs":    string(ea),
+		"utilization":  nc.Utilization,
 	}
 
 	if nc.Comment != nil {
