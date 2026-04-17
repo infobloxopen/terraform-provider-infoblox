@@ -4,38 +4,78 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
-	"strings"
 )
 
-func convertDtcServerMonitorsToInterface(monitors []*ibclient.DtcServerMonitor, connector ibclient.IBConnector) []map[string]interface{} {
-	monitorsInterface := make([]map[string]interface{}, 0, len(monitors))
-	for _, monitor := range monitors {
-		monitorMap := make(map[string]interface{})
-		var monitorResult ibclient.DtcMonitorHttp
-		err := connector.GetObject(&ibclient.DtcMonitorHttp{}, monitor.Monitor, nil, &monitorResult)
-		if err != nil {
-			return nil
+// convert tf data structure to API-client object dtc:topology:rule
+func convertTfListToDtcTopologyRules(tf []any) []*ibclient.DtcTopologyRule {
+	result := make([]*ibclient.DtcTopologyRule, len(tf))
+	for ruleIdx, rule := range tf {
+		if ruleMap, ok := rule.(map[string]any); ok {
+			dtcRule := &ibclient.DtcTopologyRule{}
+			if ruleDestType, ok := ruleMap["dest_type"]; ok {
+				dtcRule.DestType = ruleDestType.(string)
+			}
+			if ruleReturnType, ok := ruleMap["return_type"]; ok {
+				dtcRule.ReturnType = ruleReturnType.(string)
+			}
+			if ruleSourcesTf, ok := ruleMap["sources"]; ok {
+				if ruleSources, ok := ruleSourcesTf.([]map[string]string); ok {
+					dtcRule.Sources = make([]*ibclient.DtcTopologyRuleSource, 0, len(ruleSources))
+					for _, ruleSourceTf := range ruleSources {
+						dtcRule.Sources = append(dtcRule.Sources, &ibclient.DtcTopologyRuleSource{
+							SourceOp:    ruleSourceTf["source_op"],
+							SourceType:  ruleSourceTf["source_type"],
+							SourceValue: ruleSourceTf["source_value"],
+						})
+					}
+				} else {
+					// TODO: log error: tf state.rules[ruleIdx].sources contains wrong type
+				}
+			}
+			if ruleValid, ok := ruleMap["valid"]; ok {
+				dtcRule.Valid = ruleValid.(bool)
+			}
+			result[ruleIdx] = dtcRule
+		} else {
+			// TODO: log error: tf state contains non stringmap
 		}
-		referenceParts := strings.Split(monitor.Monitor, ":")
-		monitorType := strings.Split(referenceParts[2], "/")[0]
-		monitorMap["monitor_name"] = monitorResult.Name
-		monitorMap["monitor_type"] = monitorType
-		monitorMap["host"] = monitor.Host
-		monitorsInterface = append(monitorsInterface, monitorMap)
 	}
-	return monitorsInterface
+	return result
 }
 
-func resourceDtcServer() *schema.Resource {
+// convert API-client object dtc:topology:rule to tf data structure
+func convertDtcTopologyRulesToTfList(rules []*ibclient.DtcTopologyRule) []map[string]any {
+	result := make([]map[string]any, 0, len(rules))
+	for _, dtcRule := range rules {
+		ruleMap := make(map[string]any)
+		ruleMap["dest_type"] = dtcRule.DestType
+		ruleMap["return_type"] = dtcRule.ReturnType
+		ruleSources := make([]map[string]string, 0, len(dtcRule.Sources))
+		for _, dtcRuleSource := range dtcRule.Sources {
+			ruleSources = append(ruleSources, map[string]string{
+				"source_op":    dtcRuleSource.SourceOp,
+				"source_type":  dtcRuleSource.SourceType,
+				"source_value": dtcRuleSource.SourceValue,
+			})
+		}
+		ruleMap["sources"] = ruleSources
+		ruleMap["valid"] = dtcRule.Valid
+		result = append(result, ruleMap)
+	}
+	return result
+}
+
+func resourceDtcTopology() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDtcServerCreate,
-		Read:   resourceDtcServerGet,
-		Update: resourceDtcServerUpdate,
-		Delete: resourceDtcServerDelete,
+		Create: resourceDtcTopologyCreate,
+		Read:   resourceDtcTopologyGet,
+		Update: resourceDtcTopologyUpdate,
+		Delete: resourceDtcTopologyDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceDtcServerImport,
+			State: resourceDtcTopologyImport,
 		},
 		CustomizeDiff: func(context context.Context, d *schema.ResourceDiff, meta interface{}) error {
 			if internalID := d.Get("internal_id"); internalID == "" || internalID == nil {
@@ -47,56 +87,71 @@ func resourceDtcServer() *schema.Resource {
 			return nil
 		},
 		Schema: map[string]*schema.Schema{
-			"auto_create_host_record": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Enabling this option will auto-create a single read-only A/AAAA/CNAME record corresponding to the configured hostname and update it if the hostname changes.\n\n",
-			},
 			"comment": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
-				Description: "Description of the Dtc server.",
-			},
-			"disable": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Determines if the zone is disabled or not.",
+				Description: "Description of the Dtc topology.",
 			},
 			"ext_attrs": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
-				Description: "Extensible attributes of the  Dtc Server to be added/updated, as a map in JSON format",
+				Description: "Extensible attributes of the Dtc Topology to be added/updated, as a map in JSON format",
 			},
-			"host": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The address or FQDN of the server.",
-			},
-			"monitors": {
+			"rules": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of IP/FQDN and monitor pairs to be used for additional monitoring.\n\n",
+				Description: "List of DTC topology rules.\n\n",
 				Elem: &schema.Resource{
 					//check the required part once
 					Schema: map[string]*schema.Schema{
-						"host": {
-							Type:        schema.TypeString,
+						"dest_type": {
+							Description: "The type of the destination for this DTC Topology rule.",
 							Required:    true,
-							Description: "IP address or FQDN of the server used for monitoring.",
 						},
-						"monitor_name": {
+						"return_type": {
+							Description: "Type of the DNS response for rule.",
 							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The monitor name related to server.",
 						},
-						"monitor_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The monitor type related to server.",
+						"sources": {
+							Description: "The conditions for matching sources. Should be empty to set rule as default destination.",
+							Type:        schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"source_op": {
+										Description: "The operation used to match the value. IS or IS_NOT",
+										Type:        schema.TypeString,
+									},
+									"source_type": {
+										Description: `The source type. Valid values are:
+											CITY
+											CONTINENT
+											COUNTRY
+											EA0
+											EA1
+											EA2
+											EA3
+											SUBDIVISION
+											SUBNET
+										.`,
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"source_value": {
+										Description: "The source value.",
+										Type:        schema.TypeString,
+										Required:    true,
+									},
+								},
+							},
+						},
+						"valid": {
+							Description: "True if the label in the rule exists in the current Topology DB. Always true for SUBNET rules. " +
+								"Rules with non-existent labels may be configured but will never match.",
+							Type:     schema.TypeBool,
+							Optional: false,
+							Computed: true,
 						},
 					},
 				},
@@ -104,18 +159,7 @@ func resourceDtcServer() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The DTC Server display name.",
-			},
-			"sni_hostname": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The hostname for Server Name Indication (SNI) in FQDN format.",
-			},
-			"use_sni_hostname": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Use flag for: sni_hostname",
+				Description: "The DTC Topology display name.",
 			},
 			"ref": {
 				Type:        schema.TypeString,
@@ -133,7 +177,7 @@ func resourceDtcServer() *schema.Resource {
 	}
 }
 
-func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
+func resourceDtcTopologyCreate(d *schema.ResourceData, m interface{}) error {
 	// Check if internal_id is set manually
 	if intId := d.Get("internal_id"); intId.(string) != "" {
 		return fmt.Errorf("the value of 'internal_id' field must not be set manually")
@@ -141,14 +185,9 @@ func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 	name := d.Get("name").(string)
-	host := d.Get("host").(string)
-	AutoCreateHostRecord := d.Get("auto_create_host_record").(bool)
-	Disable := d.Get("disable").(bool)
-	sniHostname := d.Get("sni_hostname").(string)
-	useSniHostname := d.Get("use_sni_hostname").(bool)
+	rules := d.Get("rules").([]interface{})
+	dtcTopologyRules := convertTfListToDtcTopologyRules(rules)
 	extAttrJSON := d.Get("ext_attrs").(string)
-	monitors := d.Get("monitors").([]interface{})
-	dtcServerMonitor := convertInterfaceToList(monitors)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
 		return err
@@ -164,21 +203,21 @@ func resourceDtcServerCreate(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	newDtcServer, err := objMgr.CreateDtcServer(comment, name, host, AutoCreateHostRecord, Disable, extAttrs, dtcServerMonitor, sniHostname, useSniHostname)
+	newDtcTopology, err := objMgr.CreateDtcTopology(comment, name, dtcTopologyRules, extAttrs)
 	if err != nil {
 		return err
 	}
-	d.SetId(newDtcServer.Ref)
+	d.SetId(newDtcTopology.Ref)
 	if err = d.Set("internal_id", internalId.String()); err != nil {
 		return err
 	}
-	if err = d.Set("ref", newDtcServer.Ref); err != nil {
+	if err = d.Set("ref", newDtcTopology.Ref); err != nil {
 		return err
 	}
-	return resourceDtcServerGet(d, m)
+	return resourceDtcTopologyGet(d, m)
 }
 
-func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
+func resourceDtcTopologyGet(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs := make(map[string]interface{})
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -186,8 +225,7 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	connector := m.(ibclient.IBConnector)
-	rec, err := searchObjectByRefOrInternalId("DtcServer", d, m)
+	rec, err := searchObjectByRefOrInternalId("DtcTopology", d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); ok {
 			d.SetId("")
@@ -197,17 +235,17 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
 		}
 	}
-	var dtcServer *ibclient.DtcServer
+	var dtcTopology *ibclient.DtcTopology
 	recJson, err := json.Marshal(rec)
 	if err != nil {
-		return fmt.Errorf("failed to marshal DTC Server : %s", err.Error())
+		return fmt.Errorf("failed to marshal DTC Topology : %s", err.Error())
 	}
-	err = json.Unmarshal(recJson, &dtcServer)
+	err = json.Unmarshal(recJson, &dtcTopology)
 	if err != nil {
-		return fmt.Errorf("failed getting DTC Server : %s", err.Error())
+		return fmt.Errorf("failed getting DTC Topology : %s", err.Error())
 	}
-	delete(dtcServer.Ea, eaNameForInternalId)
-	omittedEAs := omitEAs(dtcServer.Ea, extAttrs)
+	delete(dtcTopology.Ea, eaNameForInternalId)
+	omittedEAs := omitEAs(dtcTopology.Ea, extAttrs)
 
 	if omittedEAs != nil && len(omittedEAs) > 0 {
 		eaJSON, err := terraformSerializeEAs(omittedEAs)
@@ -219,78 +257,48 @@ func resourceDtcServerGet(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if err = d.Set("name", dtcServer.Name); err != nil {
+	if err = d.Set("name", dtcTopology.Name); err != nil {
 		return err
 	}
-	if err = d.Set("comment", dtcServer.Comment); err != nil {
+	if err = d.Set("comment", dtcTopology.Comment); err != nil {
 		return err
 	}
-	if err = d.Set("disable", dtcServer.Disable); err != nil {
+	rulesInterface := convertDtcTopologyRulesToTfList(dtcTopology.Rules)
+	if err = d.Set("rules", rulesInterface); err != nil {
 		return err
 	}
-	if err = d.Set("host", dtcServer.Host); err != nil {
+	if err = d.Set("ref", dtcTopology.Ref); err != nil {
 		return err
 	}
-	monitorInterface := convertDtcServerMonitorsToInterface(dtcServer.Monitors, connector)
-	if err = d.Set("monitors", monitorInterface); err != nil {
-		return err
-	}
-	if err = d.Set("auto_create_host_record", dtcServer.AutoCreateHostRecord); err != nil {
-		return err
-	}
-	if err = d.Set("sni_hostname", dtcServer.SniHostname); err != nil {
-		return err
-	}
-	if err = d.Set("use_sni_hostname", dtcServer.UseSniHostname); err != nil {
-		return err
-	}
-	if err = d.Set("ref", dtcServer.Ref); err != nil {
-		return err
-	}
-	d.SetId(dtcServer.Ref)
+	d.SetId(dtcTopology.Ref)
 	return nil
 }
 
-func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceDtcTopologyUpdate(d *schema.ResourceData, m interface{}) error {
 	var updateSuccessful bool
 	defer func() {
 		if !updateSuccessful {
 			prevName, _ := d.GetChange("name")
 			prevComment, _ := d.GetChange("comment")
-			prevDisable, _ := d.GetChange("disable")
 			prevEa, _ := d.GetChange("ext_attrs")
-			prevMonitors, _ := d.GetChange("monitors")
-			prevSniHostname, _ := d.GetChange("sni_hostname")
-			prevUseSniHostname, _ := d.GetChange("use_sni_hostname")
-			PrevAutoCreateHostRecord, _ := d.GetChange("auto_create_host_record")
+			prevRules, _ := d.GetChange("rules")
 
 			_ = d.Set("comment", prevComment.(string))
 			_ = d.Set("name", prevName.(string))
-			_ = d.Set("disable", prevDisable.(bool))
 			_ = d.Set("ext_attrs", prevEa.(string))
-			_ = d.Set("monitors", prevMonitors)
-			_ = d.Set("sni_hostname", prevSniHostname.(string))
-			_ = d.Set("use_sni_hostname", prevUseSniHostname.(bool))
-			_ = d.Set("auto_create_host_record", PrevAutoCreateHostRecord.(bool))
-
+			_ = d.Set("rules", prevRules)
 		}
 	}()
 	comment := d.Get("comment").(string)
 	name := d.Get("name").(string)
-	host := d.Get("host").(string)
-	AutoCreateHostRecord := d.Get("auto_create_host_record").(bool)
-	Disable := d.Get("disable").(bool)
-	sniHostname := d.Get("sni_hostname").(string)
-	useSniHostname := d.Get("use_sni_hostname").(bool)
-	monitors := d.Get("monitors").([]interface{})
-	dtcServerMonitor := convertInterfaceToList(monitors)
+	rules := d.Get("rules").([]interface{})
+	dtcTopologyRules := convertTfListToDtcTopologyRules(rules)
 	oldExtAttrsJSON, newExtAttrsJSON := d.GetChange("ext_attrs")
 
 	newExtAttrs, err := terraformDeserializeEAs(newExtAttrsJSON.(string))
 	if err != nil {
 		return err
 	}
-
 	oldExtAttrs, err := terraformDeserializeEAs(oldExtAttrsJSON.(string))
 	if err != nil {
 		return err
@@ -299,12 +307,13 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	if tempVal, found := newExtAttrs[eaNameForTenantId]; found {
 		tenantID = tempVal.(string)
 	}
+
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	var dtcServer *ibclient.DtcServer
+	var dtcTopology *ibclient.DtcTopology
 
-	rec, err := searchObjectByRefOrInternalId("DtcServer", d, m)
+	rec, err := searchObjectByRefOrInternalId("DtcTopology", d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return ibclient.NewNotFoundError(fmt.Sprintf(
@@ -316,11 +325,11 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	recJson, err := json.Marshal(rec)
 	if err != nil {
-		return fmt.Errorf("failed to marshal Dtc Server : %s", err.Error())
+		return fmt.Errorf("failed to marshal Dtc Topology : %s", err.Error())
 	}
-	err = json.Unmarshal(recJson, &dtcServer)
+	err = json.Unmarshal(recJson, &dtcTopology)
 	if err != nil {
-		return fmt.Errorf("failed getting Dtc Server : %s", err.Error())
+		return fmt.Errorf("failed getting Dtc Topology : %s", err.Error())
 	}
 
 	// If 'internal_id' is not set, then generate a new one and set it to the EA.
@@ -331,26 +340,26 @@ func resourceDtcServerUpdate(d *schema.ResourceData, m interface{}) error {
 	newInternalId := newInternalResourceIdFromString(internalId)
 	newExtAttrs[eaNameForInternalId] = newInternalId.String()
 
-	newExtAttrs, err = mergeEAs(dtcServer.Ea, newExtAttrs, oldExtAttrs, connector)
+	newExtAttrs, err = mergeEAs(dtcTopology.Ea, newExtAttrs, oldExtAttrs, connector)
 	if err != nil {
 		return err
 	}
-	dtcServer, err = objMgr.UpdateDtcServer(d.Id(), comment, name, host, AutoCreateHostRecord, Disable, newExtAttrs, dtcServerMonitor, sniHostname, useSniHostname)
+	dtcTopology, err = objMgr.UpdateDtcTopology(d.Id(), comment, name, newExtAttrs, dtcTopologyRules)
 	if err != nil {
-		return fmt.Errorf("error updating dtc-server: %w", err)
+		return fmt.Errorf("error updating dtc-topology: %w", err)
 	}
 	updateSuccessful = true
-	d.SetId(dtcServer.Ref)
-	if err = d.Set("ref", dtcServer.Ref); err != nil {
+	d.SetId(dtcTopology.Ref)
+	if err = d.Set("ref", dtcTopology.Ref); err != nil {
 		return err
 	}
 	if err = d.Set("internal_id", newInternalId.String()); err != nil {
 		return err
 	}
-	return resourceDtcServerGet(d, m)
+	return resourceDtcTopologyGet(d, m)
 }
 
-func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
+func resourceDtcTopologyDelete(d *schema.ResourceData, m interface{}) error {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -366,7 +375,7 @@ func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	rec, err := searchObjectByRefOrInternalId("DtcServer", d, m)
+	rec, err := searchObjectByRefOrInternalId("DtcTopology", d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return ibclient.NewNotFoundError(fmt.Sprintf(
@@ -378,20 +387,20 @@ func resourceDtcServerDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// Assertion of object type and error handling
-	var DtcServer *ibclient.DtcServer
+	var DtcTopology *ibclient.DtcTopology
 	recJson, _ := json.Marshal(rec)
-	err = json.Unmarshal(recJson, &DtcServer)
+	err = json.Unmarshal(recJson, &DtcTopology)
 
-	_, err = objMgr.DeleteDtcServer(DtcServer.Ref)
+	_, err = objMgr.DeleteDtcTopology(DtcTopology.Ref)
 	if err != nil {
-		return fmt.Errorf("deletion of Dtc Server failed: %w", err)
+		return fmt.Errorf("deletion of Dtc Topology failed: %w", err)
 	}
 	d.SetId("")
 
 	return nil
 }
 
-func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func resourceDtcTopologyImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
 	if err != nil {
@@ -405,10 +414,10 @@ func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
-	obj, err := objMgr.GetDtcServerByRef(d.Id())
+	obj, err := objMgr.GetDtcTopologyByRef(d.Id())
 
 	if err != nil {
-		return nil, fmt.Errorf("getting DtcServer with ID: %s failed: %w", d.Id(), err)
+		return nil, fmt.Errorf("getting DtcTopology with ID: %s failed: %w", d.Id(), err)
 	}
 
 	// Set ref
@@ -433,28 +442,13 @@ func resourceDtcServerImport(d *schema.ResourceData, m interface{}) ([]*schema.R
 	if err = d.Set("comment", obj.Comment); err != nil {
 		return nil, err
 	}
-	if err = d.Set("disable", obj.Disable); err != nil {
-		return nil, err
-	}
-	if err = d.Set("host", obj.Host); err != nil {
-		return nil, err
-	}
-	monitorInterface := convertDtcServerMonitorsToInterface(obj.Monitors, connector)
-	if err = d.Set("monitors", monitorInterface); err != nil {
-		return nil, err
-	}
-	if err = d.Set("auto_create_host_record", obj.AutoCreateHostRecord); err != nil {
-		return nil, err
-	}
-	if err = d.Set("sni_hostname", obj.SniHostname); err != nil {
-		return nil, err
-	}
-	if err = d.Set("use_sni_hostname", obj.UseSniHostname); err != nil {
+	rulesInterface := convertDtcTopologyRulesToTfList(obj.Rules)
+	if err = d.Set("rules", rulesInterface); err != nil {
 		return nil, err
 	}
 
 	d.SetId(obj.Ref)
-	err = resourceDtcServerUpdate(d, m)
+	err = resourceDtcTopologyUpdate(d, m)
 	if err != nil {
 		return nil, err
 	}
