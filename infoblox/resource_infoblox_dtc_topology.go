@@ -107,12 +107,16 @@ func resourceDtcTopology() *schema.Resource {
 					//check the required part once
 					Schema: map[string]*schema.Schema{
 						"dest_type": {
-							Description: "The type of the destination for this DTC Topology rule.",
+							Description: "The type of the destination for this DTC Topology rule. Valid values are: POOL SERVER .",
 							Required:    true,
 						},
 						"return_type": {
-							Description: "Type of the DNS response for rule.",
-							Type:        schema.TypeString,
+							Description: `Type of the DNS response for rule. Valid values are:
+								NOERR
+								NXDOMAIN
+								REGULAR
+							.`,
+							Type: schema.TypeString,
 						},
 						"sources": {
 							Description: "The conditions for matching sources. Should be empty to set rule as default destination.",
