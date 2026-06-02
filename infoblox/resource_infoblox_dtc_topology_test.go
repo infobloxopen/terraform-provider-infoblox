@@ -22,13 +22,14 @@ var testResourceDtcTopology2 = `resource "infoblox_dtc_topology" "test-topology2
 		comment = "test dtc topology with max params"
 		ext_attrs = jsonencode({"Site" = "India"})
 		rules {
-			dest_type   = "SERVER"
+			dest_type   = "POOL"
+			destination = "dtc:pool/ZG5zLmlkbnNfcG9vbCRQb29sNjM:Pool63"   // TODO: static test data: Pool
 			return_type = "REGULAR"
-			sources     = [{
+			sources     {
 				source_op    = "IS"
 				source_type  = "SUBNET"
 				source_value = "12.13.14.0/24"
-			}]
+			}
 		}
 }`
 
@@ -36,28 +37,7 @@ var testResourceDtcTopology3 = `resource "infoblox_dtc_topology" "test-topology3
 		name = ""
 }`
 
-func compareRules(have []*ibclient.DtcTopologyRule, expected []*ibclient.DtcTopologyRule) bool {
-	if len(have) != len(expected) {
-		return false
-	}
-	for i := range have {
-		have_i := have[i]
-		expected_i := expected[i]
-		if have_i.DestType != expected_i.DestType {
-			return false
-		}
-		if have_i.ReturnType != expected_i.ReturnType {
-			return false
-		}
-		if have_i.Valid != expected_i.Valid {
-			return false
-		}
-		if !reflect.DeepEqual(have_i.Sources, expected_i.Sources) {
-			return false
-		}
-	}
-	return true
-}
+var testResourceDtcPoolId = "dtc:pool/ZG5zLmlkbnNfcG9vbCRQb29sNjM:Pool63"
 
 func testDtcTopologyCompare(t *testing.T, resourceName string, expectedTopology *ibclient.DtcTopology) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -94,8 +74,8 @@ func testDtcTopologyCompare(t *testing.T, resourceName string, expectedTopology 
 			}
 		}
 		// Assertion of object type and error handling
-		var rec *ibclient.DtcTopology
 		recJson, _ := json.Marshal(dtcTopology)
+		var rec *ibclient.DtcTopology
 		err = json.Unmarshal(recJson, &rec)
 
 		if *rec.Name != *expectedTopology.Name {
@@ -111,8 +91,19 @@ func testDtcTopologyCompare(t *testing.T, resourceName string, expectedTopology 
 			}
 		}
 		if rec.Rules != nil && expectedTopology.Rules != nil {
-			if !compareRules(rec.Rules, expectedTopology.Rules) {
-				return fmt.Errorf("the value of 'rules' field is '%v', but expected '%v'", rec.Rules, expectedTopology.Rules)
+			if len(rec.Rules) != len(expectedTopology.Rules) {
+				return fmt.Errorf("the length of 'rules' is %d but expected %d", len(rec.Rules), len(expectedTopology.Rules))
+			}
+			for idx, have_rule := range rec.Rules {
+				expected_rule := expectedTopology.Rules[idx]
+				if have_rule.DestType != expected_rule.DestType ||
+					have_rule.ReturnType != expected_rule.ReturnType ||
+					!reflect.DeepEqual(have_rule.Sources, expected_rule.Sources) {
+
+					// TODO: pretty printing of pointer fields, currently *string and []*Source  are printed as pointers
+					return fmt.Errorf("difference found in 'rules' at index %d. got %+v expected %+v",
+						idx, have_rule, expected_rule)
+				}
 			}
 		}
 		return validateEAs(rec.Ea, expectedTopology.Ea)
@@ -157,8 +148,9 @@ func TestAccResourceDtcTopology(t *testing.T) {
 					Comment: utils.StringPtr("test dtc topology with max params"),
 					Ea:      map[string]interface{}{"Site": "India"},
 					Rules: []*ibclient.DtcTopologyRule{{
-						DestType:   "SERVER",
-						ReturnType: "REGULAR",
+						DestType:        "POOL",
+						DestinationLink: &testResourceDtcPoolId,
+						ReturnType:      "REGULAR",
 						Sources: []*ibclient.DtcTopologyRuleSource{{
 							SourceOp:    "IS",
 							SourceType:  "SUBNET",

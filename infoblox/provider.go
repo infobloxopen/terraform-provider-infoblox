@@ -4,16 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	log "github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 	"math"
 	"reflect"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	log "github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	ibclient "github.com/infobloxopen/infoblox-go-client/v2"
 )
 
 // Common parameters
@@ -216,6 +217,7 @@ func Provider() *schema.Provider {
 			"infoblox_dtc_lbdn":               resourceDtcLbdnRecord(),
 			"infoblox_dtc_pool":               resourceDtcPool(),
 			"infoblox_dtc_server":             resourceDtcServer(),
+			"infoblox_dtc_topology":           resourceDtcTopology(),
 			"infoblox_ipv4_fixed_address":     resourceFixedRecord(),
 			"infoblox_alias_record":           resourceAliasRecord(),
 			"infoblox_ns_record":              resourceNSRecord(),
@@ -250,6 +252,7 @@ func Provider() *schema.Provider {
 			"infoblox_ipv4_range":             dataSourceRange(),
 			"infoblox_ipv4_range_template":    dataSourceRangeTemplate(),
 			"infoblox_ipv4_shared_network":    dataSourceIpv4SharedNetwork(),
+			//TODO: "infoblox_dtc_topology":           dataSourceDtcTopology(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

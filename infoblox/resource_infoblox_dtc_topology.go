@@ -10,6 +10,7 @@ import (
 )
 
 // convert tf data structure to API-client object dtc:topology:rule
+// TODO: user-visible error handling
 func convertTfListToDtcTopologyRules(tf []any) []*ibclient.DtcTopologyRule {
 	result := make([]*ibclient.DtcTopologyRule, len(tf))
 	for ruleIdx, rule := range tf {
@@ -18,29 +19,32 @@ func convertTfListToDtcTopologyRules(tf []any) []*ibclient.DtcTopologyRule {
 			if ruleDestType, ok := ruleMap["dest_type"]; ok {
 				dtcRule.DestType = ruleDestType.(string)
 			}
+			if ruleDestination, ok := ruleMap["destination"]; ok {
+				rd := ruleDestination.(string)
+				dtcRule.DestinationLink = &rd
+			}
 			if ruleReturnType, ok := ruleMap["return_type"]; ok {
 				dtcRule.ReturnType = ruleReturnType.(string)
 			}
 			if ruleSourcesTf, ok := ruleMap["sources"]; ok {
-				if ruleSources, ok := ruleSourcesTf.([]map[string]string); ok {
-					dtcRule.Sources = make([]*ibclient.DtcTopologyRuleSource, 0, len(ruleSources))
-					for _, ruleSourceTf := range ruleSources {
-						dtcRule.Sources = append(dtcRule.Sources, &ibclient.DtcTopologyRuleSource{
-							SourceOp:    ruleSourceTf["source_op"],
-							SourceType:  ruleSourceTf["source_type"],
-							SourceValue: ruleSourceTf["source_value"],
-						})
+				if ruleSourcesListTf, ok := ruleSourcesTf.([]any); ok {
+					dtcRule.Sources = make([]*ibclient.DtcTopologyRuleSource, 0, len(ruleSourcesListTf))
+					for _, ruleSourceTf := range ruleSourcesListTf {
+						if ruleSource, ok := ruleSourceTf.(map[string]any); ok {
+							var ruleSource = ibclient.DtcTopologyRuleSource{
+								SourceOp:    ruleSource["source_op"].(string),
+								SourceType:  ruleSource["source_type"].(string),
+								SourceValue: ruleSource["source_value"].(string),
+							}
+							dtcRule.Sources = append(dtcRule.Sources, &ruleSource)
+						}
 					}
-				} else {
-					// TODO: log error: tf state.rules[ruleIdx].sources contains wrong type
 				}
 			}
 			if ruleValid, ok := ruleMap["valid"]; ok {
 				dtcRule.Valid = ruleValid.(bool)
 			}
 			result[ruleIdx] = dtcRule
-		} else {
-			// TODO: log error: tf state contains non stringmap
 		}
 	}
 	return result
@@ -52,6 +56,9 @@ func convertDtcTopologyRulesToTfList(rules []*ibclient.DtcTopologyRule) []map[st
 	for _, dtcRule := range rules {
 		ruleMap := make(map[string]any)
 		ruleMap["dest_type"] = dtcRule.DestType
+		if dest := dtcRule.DestinationLink; dest != nil {
+			ruleMap["destination"] = *dest
+		}
 		ruleMap["return_type"] = dtcRule.ReturnType
 		ruleSources := make([]map[string]string, 0, len(dtcRule.Sources))
 		for _, dtcRuleSource := range dtcRule.Sources {
@@ -70,10 +77,11 @@ func convertDtcTopologyRulesToTfList(rules []*ibclient.DtcTopologyRule) []map[st
 
 func resourceDtcTopology() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDtcTopologyCreate,
-		Read:   resourceDtcTopologyGet,
-		Update: resourceDtcTopologyUpdate,
-		Delete: resourceDtcTopologyDelete,
+		Description: `A Topology Ruleset. Can be used by dtc_lbdn and dtc_pool when setting lb_method = "TOPOLOGY".`,
+		Create:      resourceDtcTopologyCreate,
+		Read:        resourceDtcTopologyGet,
+		Update:      resourceDtcTopologyUpdate,
+		Delete:      resourceDtcTopologyDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceDtcTopologyImport,
 		},
@@ -109,6 +117,12 @@ func resourceDtcTopology() *schema.Resource {
 						"dest_type": {
 							Description: "The type of the destination for this DTC Topology rule. Valid values are: POOL SERVER .",
 							Required:    true,
+							Type:        schema.TypeString,
+						},
+						"destination": {
+							Description: "The reference to the destination DTC pool or DTC server.",
+							Required:    true,
+							Type:        schema.TypeString,
 						},
 						"return_type": {
 							Description: `Type of the DNS response for rule. Valid values are:
@@ -116,16 +130,19 @@ func resourceDtcTopology() *schema.Resource {
 								NXDOMAIN
 								REGULAR
 							.`,
-							Type: schema.TypeString,
+							Required: true,
+							Type:     schema.TypeString,
 						},
 						"sources": {
 							Description: "The conditions for matching sources. Should be empty to set rule as default destination.",
 							Type:        schema.TypeList,
+							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"source_op": {
 										Description: "The operation used to match the value. IS or IS_NOT",
 										Type:        schema.TypeString,
+										Required:    true,
 									},
 									"source_type": {
 										Description: `The source type. Valid values are:
@@ -189,7 +206,7 @@ func resourceDtcTopologyCreate(d *schema.ResourceData, m interface{}) error {
 
 	comment := d.Get("comment").(string)
 	name := d.Get("name").(string)
-	rules := d.Get("rules").([]interface{})
+	rules := d.Get("rules").([]any)
 	dtcTopologyRules := convertTfListToDtcTopologyRules(rules)
 	extAttrJSON := d.Get("ext_attrs").(string)
 	extAttrs, err := terraformDeserializeEAs(extAttrJSON)
@@ -239,11 +256,11 @@ func resourceDtcTopologyGet(d *schema.ResourceData, m interface{}) error {
 				"cannot find appropriate object on NIOS side for resource with ID '%s': %s;", d.Id(), err))
 		}
 	}
-	var dtcTopology *ibclient.DtcTopology
 	recJson, err := json.Marshal(rec)
 	if err != nil {
 		return fmt.Errorf("failed to marshal DTC Topology : %s", err.Error())
 	}
+	var dtcTopology *ibclient.DtcTopology
 	err = json.Unmarshal(recJson, &dtcTopology)
 	if err != nil {
 		return fmt.Errorf("failed getting DTC Topology : %s", err.Error())

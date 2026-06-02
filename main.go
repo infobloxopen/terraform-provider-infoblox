@@ -7,5 +7,7 @@ import (
 
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: infoblox.Provider})
+		ProviderFunc: infoblox.Provider,
+		Debug:        true,
+	})
 }
