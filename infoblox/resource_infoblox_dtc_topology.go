@@ -41,9 +41,7 @@ func convertTfListToDtcTopologyRules(tf []any) []*ibclient.DtcTopologyRule {
 					}
 				}
 			}
-			if ruleValid, ok := ruleMap["valid"]; ok {
-				dtcRule.Valid = ruleValid.(bool)
-			}
+			// NOTE: skip `rule.valid` because we're converting for writing to the API and it's read-only
 			result[ruleIdx] = dtcRule
 		}
 	}
@@ -469,7 +467,7 @@ func resourceDtcTopologyImport(d *schema.ResourceData, m interface{}) ([]*schema
 	}
 
 	d.SetId(obj.Ref)
-	err = resourceDtcTopologyUpdate(d, m)
+	err = resourceDtcTopologyGet(d, m)
 	if err != nil {
 		return nil, err
 	}

@@ -32,6 +32,21 @@ var testResourceDtcTopology2 = `resource "infoblox_dtc_topology" "test-topology2
 			}
 		}
 }`
+var testResourceDtcTopology2Expected = ibclient.DtcTopology{
+	Name:    utils.StringPtr("test-topology2"),
+	Comment: utils.StringPtr("test dtc topology with max params"),
+	Ea:      map[string]interface{}{"Site": "India"},
+	Rules: []*ibclient.DtcTopologyRule{{
+		DestType:        "POOL",
+		DestinationLink: &testResourceDtcPoolId,
+		ReturnType:      "REGULAR",
+		Sources: []*ibclient.DtcTopologyRuleSource{{
+			SourceOp:    "IS",
+			SourceType:  "SUBNET",
+			SourceValue: "12.13.14.0/24",
+		}},
+	}},
+}
 
 var testResourceDtcTopology3 = `resource "infoblox_dtc_topology" "test-topology3" {
 		name = ""
@@ -143,22 +158,16 @@ func TestAccResourceDtcTopology(t *testing.T) {
 			// maximum params
 			{
 				Config: testResourceDtcTopology2,
-				Check: testDtcTopologyCompare(t, "infoblox_dtc_topology.test-topology2", &ibclient.DtcTopology{
-					Name:    utils.StringPtr("test-topology2"),
-					Comment: utils.StringPtr("test dtc topology with max params"),
-					Ea:      map[string]interface{}{"Site": "India"},
-					Rules: []*ibclient.DtcTopologyRule{{
-						DestType:        "POOL",
-						DestinationLink: &testResourceDtcPoolId,
-						ReturnType:      "REGULAR",
-						Sources: []*ibclient.DtcTopologyRuleSource{{
-							SourceOp:    "IS",
-							SourceType:  "SUBNET",
-							SourceValue: "12.13.14.0/24",
-						}},
-					}},
-				}),
+				Check:  testDtcTopologyCompare(t, "infoblox_dtc_topology.test-topology2", &testResourceDtcTopology2Expected),
 			},
+			/* TODO: fix `terraform import` testcase, Error "ImportStateVerify attributes not equivalent"
+			{
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ext_attrs"}, // NOTE: since the resource takes an encoded json object and implicitily adds/removes `internal_id`, we can only mask the whole EA, not only ext_attrs[internal_id]
+				ResourceName:            "infoblox_dtc_topology.test-topology2",
+			},
+			*/
 			// negative test case
 			{
 				Config:      testResourceDtcTopology3,
