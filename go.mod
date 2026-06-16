@@ -61,3 +61,5 @@ require (
 	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
+
+replace github.com/infobloxopen/infoblox-go-client/v2 => github.com/azrdev/infoblox-go-client/v2 v2.0.0-20260610105931-478e0552489f
