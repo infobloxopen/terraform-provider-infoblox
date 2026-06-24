@@ -70,6 +70,12 @@ func dataSourceNetwork() *schema.Resource {
 										Computed:    true,
 										Description: "Name of the VLAN as defined in Infoblox.",
 									},
+
+									"vlan": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Full VLAN reference (Infoblox object ref)",
+									},
 								},
 							},
 						},
@@ -130,6 +136,7 @@ func flattenVlans(vlans []*ibclient.Vlanlink) []interface{} {
 		m := map[string]interface{}{
 			"id":   int(v.Id),
 			"name": v.Name,
+			"vlan": v.Vlan,
 		}
 
 		result = append(result, m)

@@ -28094,6 +28094,9 @@ type Vlanlink struct {
 
 	// Name of the VLAN.
 	Name string `json:"name,omitempty"`
+
+	// Vlan ref value
+	Vlan string `json:"vlan,omitempty"`
 }
 
 // Vtftpdirmember represents Infoblox struct vtftpdirmember
