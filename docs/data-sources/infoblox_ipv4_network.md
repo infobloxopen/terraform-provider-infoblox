@@ -25,10 +25,12 @@ options {
 * `vlans`: An array of VLAN structs that lists the VLANs associated with the network object.  
     * `id`: The unique identifier of the VLAN object in Infoblox. Example: `201`
     * `name`: The name of the VLAN as defined in Infoblox. Example: `PROD-APP-100`
+    * `vlan`: The full Infoblox VLAN reference (object ref). Example: `vlan/.../201`
 ```terraform
 vlans {
     id          = 201
     name        = "PROD-APP-100"
+    vlan        = "vlan/ZG5zLnZsYW4k.../201"
   }
 ```
 * `utilization`: The network utilization in percentage. Example: `0`
