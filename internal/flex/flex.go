@@ -1,0 +1,404 @@
+package flex
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	iptypes "github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+
+	internaltypes "github.com/infobloxopen/terraform-provider-unified/internal/types"
+)
+
+// Expand Helpers (TF -> API)
+
+func ExpandString(s types.String) string {
+	if s.IsNull() || s.IsUnknown() {
+		return ""
+	}
+	return s.ValueString()
+}
+
+func ExpandStringPointer(s types.String) *string {
+	if s.IsNull() || s.IsUnknown() {
+		return nil
+	}
+	return s.ValueStringPointer()
+}
+
+func ExpandStringPointerNullAsEmpty(s types.String) *string {
+	if s.IsNull() || s.IsUnknown() {
+		v := ""
+		return &v
+	}
+	return s.ValueStringPointer()
+}
+
+// ExpandStringOneOf expands a types.String to a oneOf wrapper type pointer.
+// Returns nil if the string is null/unknown, otherwise converts using expandFn and returns a pointer.
+// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
+func ExpandStringOneOf[T any](s types.String, expandFn func(*string) T) *T {
+	if s.IsNull() || s.IsUnknown() {
+		return nil
+	}
+	v := s.ValueString()
+	result := expandFn(&v)
+	return &result
+}
+
+func ExpandBool(b types.Bool) bool {
+	if b.IsNull() || b.IsUnknown() {
+		return false
+	}
+	return b.ValueBool()
+}
+
+func ExpandBoolPointer(b types.Bool) *bool {
+	if b.IsNull() || b.IsUnknown() {
+		return nil
+	}
+	return b.ValueBoolPointer()
+}
+
+func ExpandInt64(i types.Int64) int64 {
+	if i.IsNull() || i.IsUnknown() {
+		return 0
+	}
+	return i.ValueInt64()
+}
+
+func ExpandInt64Pointer(i types.Int64) *int64 {
+	if i.IsNull() || i.IsUnknown() {
+		return nil
+	}
+	return i.ValueInt64Pointer()
+}
+
+func ExpandInt32(i types.Int32) int32 {
+	if i.IsNull() || i.IsUnknown() {
+		return 0
+	}
+	return i.ValueInt32()
+}
+
+func ExpandInt32Pointer(i types.Int32) *int32 {
+	if i.IsNull() || i.IsUnknown() {
+		return nil
+	}
+	return i.ValueInt32Pointer()
+}
+
+// ExpandMapStringAny expands types.Map to map[string]any
+// Returns nil for null, unknown, or empty maps.
+func ExpandMapStringAny(ctx context.Context, m types.Map, diags *diag.Diagnostics) map[string]any {
+	if m.IsNull() || m.IsUnknown() || len(m.Elements()) == 0 {
+		return map[string]any{}
+	}
+	strMap := make(map[string]string)
+	d := m.ElementsAs(ctx, &strMap, false)
+	diags.Append(d...)
+	if diags.HasError() {
+		return nil
+	}
+	result := make(map[string]any, len(strMap))
+	for k, v := range strMap {
+		result[k] = v
+	}
+	return result
+}
+
+// ExpandObjectWithFn expands a types.Object (SingleNestedAttribute) into the target API type D.
+// If obj is null/unknown, returns nil. Otherwise parses to TF model T, then calls expandFn to transform to API type D.
+func ExpandObjectWithFn[T any, D any](ctx context.Context, obj types.Object, diags *diag.Diagnostics, expandFn func(context.Context, *T, *diag.Diagnostics) *D) *D {
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil
+	}
+	var model T
+	d := obj.As(ctx, &model, basetypes.ObjectAsOptions{})
+	diags.Append(d...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandFn(ctx, &model, diags)
+}
+
+// ExpandNestedObject expands a types.Object (SingleNestedAttribute) directly into the target model T.
+// Use this when no transformation is needed (TF model == target type).
+// For transformation between different types, use ExpandObjectWithFn.
+func ExpandNestedObject[T any](ctx context.Context, obj types.Object, diags *diag.Diagnostics) *T {
+	if obj.IsNull() || obj.IsUnknown() {
+		return nil
+	}
+	var model T
+	d := obj.As(ctx, &model, basetypes.ObjectAsOptions{})
+	diags.Append(d...)
+	if diags.HasError() {
+		return nil
+	}
+	return &model
+}
+
+func ExpandTimePointer(_ context.Context, dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
+	if dt.IsNull() || dt.IsUnknown() {
+		return nil
+	}
+	t, d := dt.ValueRFC3339Time()
+	diags.Append(d...)
+	return &t
+}
+
+// Note: Terraform Framework uses types.Float64 for both float32 and float64 SDK types.
+// The following helpers convert appropriately.
+
+func ExpandFloat32(v types.Float64) float32 {
+	if v.IsNull() || v.IsUnknown() {
+		return 0
+	}
+	return float32(v.ValueFloat64())
+}
+
+func ExpandFloat32Pointer(v types.Float64) *float32 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	f := float32(v.ValueFloat64())
+	return &f
+}
+
+func ExpandFloat64(v types.Float64) float64 {
+	return v.ValueFloat64()
+}
+
+func ExpandFloat64Pointer(v types.Float64) *float64 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	return v.ValueFloat64Pointer()
+}
+
+// ExpandFrameworkListString expands types.List to []string
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListString(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []string {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []string
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
+func ExpandIPv4Address(ipv4addr iptypes.IPv4Address) *string {
+	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
+		return nil
+	}
+	v := ipv4addr.ValueString()
+	return &v
+}
+
+func ExpandIPv6Address(ipv6addr iptypes.IPv6Address) *string {
+	if ipv6addr.IsNull() || ipv6addr.IsUnknown() {
+		return nil
+	}
+	v := ipv6addr.ValueString()
+	return &v
+}
+
+func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
+	if dt.IsNull() || dt.IsUnknown() {
+		return nil
+	}
+	t, d := dt.ValueRFC3339Time()
+	diags.Append(d...)
+	return &t
+}
+
+// Flatten Helpers (API -> TF)
+
+func FlattenString(s string) types.String {
+	return types.StringValue(s)
+}
+
+func FlattenStringPointer(s *string) types.String {
+	if s == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(*s)
+}
+
+func FlattenStringPointerEmptyAsNull(s *string) types.String {
+	if s == nil || *s == "" {
+		return types.StringNull()
+	}
+	return types.StringValue(*s)
+}
+
+// FlattenOneOfString flattens a oneOf wrapper pointer to types.String.
+// Returns types.StringNull() if ptr is nil, otherwise extracts the string using flattenFn.
+// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
+func FlattenOneOfString[T any](ptr *T, flattenFn func(*T) *string) types.String {
+	if ptr == nil {
+		return types.StringNull()
+	}
+	return FlattenStringPointer(flattenFn(ptr))
+}
+
+func FlattenBool(b bool) types.Bool {
+	return types.BoolValue(b)
+}
+
+func FlattenBoolPointer(b *bool) types.Bool {
+	if b == nil {
+		return types.BoolNull()
+	}
+	return types.BoolValue(*b)
+}
+
+func FlattenInt64(i int64) types.Int64 {
+	return types.Int64Value(i)
+}
+
+func FlattenInt64Pointer(i *int64) types.Int64 {
+	if i == nil {
+		return types.Int64Null()
+	}
+	return types.Int64Value(*i)
+}
+
+func FlattenInt32(i int32) types.Int32 {
+	return types.Int32Value(i)
+}
+
+func FlattenInt32Pointer(i *int32) types.Int32 {
+	if i == nil {
+		return types.Int32Null()
+	}
+	return types.Int32Value(*i)
+}
+
+func FlattenFloat32(f float32) types.Float64 {
+	return types.Float64Value(float64(f))
+}
+
+func FlattenFloat32Pointer(f *float32) types.Float64 {
+	if f == nil {
+		return types.Float64Null()
+	}
+	return types.Float64Value(float64(*f))
+}
+
+func FlattenFloat64(f float64) types.Float64 {
+	if f == 0 {
+		return types.Float64Null()
+	}
+	return types.Float64Value(f)
+}
+
+func FlattenFloat64Pointer(f *float64) types.Float64 {
+	if f == nil {
+		return types.Float64Null()
+	}
+	return FlattenFloat64(*f)
+}
+
+// FlattenMapStringAny flattens map[string]any to types.Map with string values
+// TODO: consider supporting other types in the future if needed apart from map[string]string
+func FlattenMapStringAny(ctx context.Context, m map[string]any, diags *diag.Diagnostics) types.Map {
+	if len(m) == 0 {
+		return types.MapNull(types.StringType)
+	}
+	strMap := make(map[string]string, len(m))
+	for k, v := range m {
+		strMap[k] = fmt.Sprintf("%v", v)
+	}
+	mapVal, d := types.MapValueFrom(ctx, types.StringType, strMap)
+	diags.Append(d...)
+	return mapVal
+}
+
+// FlattenObjectWithFn flattens an API type to types.Object (SingleNestedAttribute) using a transform function.
+// If src is nil, returns ObjectNull. Otherwise calls flattenFn to build the TF model.
+func FlattenObjectWithFn[S any](ctx context.Context, src *S, attrTypes map[string]attr.Type, diags *diag.Diagnostics, flattenFn func(context.Context, *S, *diag.Diagnostics) any) types.Object {
+	if src == nil {
+		return types.ObjectNull(attrTypes)
+	}
+	model := flattenFn(ctx, src, diags)
+	obj, d := types.ObjectValueFrom(ctx, attrTypes, model)
+	diags.Append(d...)
+	return obj
+}
+
+// FlattenNestedObject flattens a model struct directly to types.Object (SingleNestedAttribute).
+// Use this when no transformation is needed (source type == TF model).
+// For transformation between different types, use FlattenObjectWithFn.
+func FlattenNestedObject[T any](ctx context.Context, model *T, attrTypes map[string]attr.Type, diags *diag.Diagnostics) types.Object {
+	if model == nil {
+		return types.ObjectNull(attrTypes)
+	}
+	obj, d := types.ObjectValueFrom(ctx, attrTypes, model)
+	diags.Append(d...)
+	return obj
+}
+
+// ExpandMapString expands types.Map to map[string]string
+// Returns empty map for null or unknown maps.
+func ExpandMapString(ctx context.Context, m types.Map, diags *diag.Diagnostics) map[string]string {
+	if m.IsNull() || m.IsUnknown() {
+		return map[string]string{}
+	}
+	strMap := make(map[string]string)
+	d := m.ElementsAs(ctx, &strMap, false)
+	diags.Append(d...)
+	if diags.HasError() {
+		return map[string]string{}
+	}
+	return strMap
+}
+
+// FlattenFrameworkListString flattens []string to types.List
+// Returns null list if input is nil or empty.
+func FlattenFrameworkListString(ctx context.Context, l []string, diags *diag.Diagnostics) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.StringType)
+	}
+	tfList, d := types.ListValueFrom(ctx, types.StringType, l)
+	diags.Append(d...)
+	return tfList
+}
+
+func FlattenIPv4Address(ipv4addr *string) iptypes.IPv4Address {
+	if ipv4addr == nil || *ipv4addr == "" {
+		return iptypes.NewIPv4AddressNull()
+	}
+	return iptypes.NewIPv4AddressValue(*ipv4addr)
+}
+
+func FlattenIPv6Address(ipv6addr *string) iptypes.IPv6Address {
+	if ipv6addr == nil || *ipv6addr == "" {
+		return iptypes.NewIPv6AddressNull()
+	}
+	return iptypes.NewIPv6AddressValue(*ipv6addr)
+}
+
+func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {
+	if t == nil || t.IsZero() {
+		return timetypes.NewRFC3339Null()
+	}
+	return timetypes.NewRFC3339TimeValue(*t)
+}
+
+func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, diags *diag.Diagnostics) internaltypes.UnorderedListString {
+	if len(data) == 0 {
+		return internaltypes.NewUnorderedListStringValueNull()
+	}
+	tfList, d := internaltypes.NewUnorderedListStringValueFrom(ctx, data)
+	diags.Append(d...)
+	return tfList
+}

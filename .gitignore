@@ -1,2 +1,15 @@
-build-output/
-.idea/
+# Terraform state files
+.terraform/
+terraform.tfplan
+terraform.tfstate
+.terraform.lock.hcl
+*.backup
+
+/terraform-provider-unified
+
+.openapi-generator/
+internal/service/*/.openapi-generator-ignore
+
+# Ignore the metadata files
+**/.DS_Store
+.vscode/

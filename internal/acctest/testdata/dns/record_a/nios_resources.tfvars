@@ -1,0 +1,358 @@
+# Auto-generated resource acceptance-test cases for RecordA (nios).
+# Source: terraform-provider-nios. One labelled `case` block per legacy
+# TestAccRecordAResource_<Case>.
+# Replayed by the unified provider via acctest.RunResourceCases.
+
+case "basic" {
+  # basic — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+    }
+    check = {
+      "nios.ipv4addr" = "10.0.0.20"
+      "nios.name" = "{{random}}.example.com"
+      "nios.creator" = "STATIC"
+      "nios.ddns_protected" = "false"
+      "nios.disable" = "false"
+      "nios.forbid_reclamation" = "false"
+      "nios.use_ttl" = "false"
+    }
+  }
+
+}
+
+case "disappears" {
+  # disappears — generated from terraform-provider-nios
+  backend = "nios"
+  disappears = true
+  expect_non_empty_plan = true
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+    }
+  }
+
+}
+
+case "comment" {
+  # comment — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      comment = "This is a new record"
+    }
+    check = {
+      "nios.comment" = "This is a new record"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      comment = "This is an updated record"
+    }
+    check = {
+      "nios.comment" = "This is an updated record"
+    }
+  }
+
+}
+
+case "creator" {
+  # creator — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      creator = "STATIC"
+    }
+    check = {
+      "nios.creator" = "STATIC"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      creator = "DYNAMIC"
+    }
+    check = {
+      "nios.creator" = "DYNAMIC"
+    }
+  }
+
+}
+
+case "ddns_principal" {
+  # ddns_principal — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      creator = "DYNAMIC"
+      ddns_principal = "DDNS_PRINCIPAL_REPLACE_ME"
+    }
+    check = {
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_REPLACE_ME"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      creator = "DYNAMIC"
+      ddns_principal = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+    }
+    check = {
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+    }
+  }
+
+}
+
+case "ddns_protected" {
+  # ddns_protected — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ddns_protected = false
+    }
+    check = {
+      "nios.ddns_protected" = "false"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ddns_protected = true
+    }
+    check = {
+      "nios.ddns_protected" = "true"
+    }
+  }
+
+}
+
+case "disable" {
+  # disable — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      disable = false
+    }
+    check = {
+      "nios.disable" = "false"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      disable = true
+    }
+    check = {
+      "nios.disable" = "true"
+    }
+  }
+
+}
+
+case "extattrs" {
+  # extattrs — generated from terraform-provider-nios
+  backend = "nios"
+  skip        = true
+  skip_reason = "unsupported config (prerequisites or nested values)"
+}
+
+case "forbid_reclamation" {
+  # forbid_reclamation — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      forbid_reclamation = true
+    }
+    check = {
+      "nios.forbid_reclamation" = "true"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      forbid_reclamation = false
+    }
+    check = {
+      "nios.forbid_reclamation" = "false"
+    }
+  }
+
+}
+
+case "func_call" {
+  # func_call — generated from terraform-provider-nios
+  backend = "nios"
+  skip        = true
+  skip_reason = "unsupported config (prerequisites or nested values)"
+}
+
+case "ipv4addr" {
+  # ipv4addr — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+    }
+    check = {
+      "nios.ipv4addr" = "10.0.0.20"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.1.0.20"
+      view = "default"
+    }
+    check = {
+      "nios.ipv4addr" = "10.1.0.20"
+    }
+  }
+
+}
+
+case "name" {
+  # name — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+    }
+    check = {
+      "nios.name" = "{{random}}.example.com"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random2}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+    }
+    check = {
+      "nios.name" = "{{random2}}.example.com"
+    }
+  }
+
+}
+
+case "ttl" {
+  # ttl — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ttl = 10
+      use_ttl = true
+    }
+    check = {
+      "nios.ttl" = "10"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ttl = 0
+      use_ttl = true
+    }
+    check = {
+      "nios.ttl" = "0"
+    }
+  }
+
+}
+
+case "use_ttl" {
+  # use_ttl — generated from terraform-provider-nios
+  backend = "nios"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      use_ttl = true
+      ttl = 20
+    }
+    check = {
+      "nios.use_ttl" = "true"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      use_ttl = false
+    }
+    check = {
+      "nios.use_ttl" = "false"
+    }
+  }
+
+}

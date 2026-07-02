@@ -1,1 +1,0 @@
-This folder contains the NIOS GCP Marketplace deployment scripts. The nios-cli-tf directory includes Terraform scripts designed for deploying NIOS via the command-line interface (CLI), while the nios-ui-tf directory is intended for deployments through the GCP Marketplace user interface.

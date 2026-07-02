@@ -1,0 +1,206 @@
+package ipam
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/infobloxopen/terraform-provider-unified/internal/core"
+	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/ipam"
+	ipamhooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/ipam"
+)
+
+var (
+	_ resource.Resource                   = &AddressResource{}
+	_ resource.ResourceWithValidateConfig = &AddressResource{}
+	_ resource.ResourceWithConfigure      = &AddressResource{}
+	_ resource.ResourceWithImportState    = &AddressResource{}
+	_ resource.ResourceWithIdentity       = &AddressResource{}
+)
+
+func NewAddressResource() resource.Resource {
+	return &AddressResource{}
+}
+
+type AddressResource struct {
+	backend core.BackendType
+	service coresvc.AddressService
+}
+
+func (r *AddressResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_ipam_address"
+	resp.ResourceBehavior = resource.ResourceBehavior{
+		MutableIdentity: true,
+	}
+}
+
+func (r *AddressResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+	resp.IdentitySchema = identityschema.Schema{
+		Attributes: map[string]identityschema.Attribute{
+			"id": identityschema.StringAttribute{
+				RequiredForImport: true,
+			},
+		},
+	}
+}
+
+func (r *AddressResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a unified DNS Address record across NIOS and UDDI backends.",
+		Attributes:          AddressResourceSchemaAttributes,
+	}
+}
+
+func (r *AddressResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*core.UnifiedClient)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+		)
+		return
+	}
+
+	if client.NIOS != nil {
+		r.backend = core.BackendNIOS
+	} else {
+		r.backend = core.BackendUDDI
+	}
+
+	r.service = coresvc.NewAddressService(r.backend, client.NIOS, client.UDDI)
+}
+
+func (r *AddressResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data AddressModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ipamhooks.ValidateAddress(ctx, types.ObjectNull(nil), data.UDDI, resp)
+}
+
+func (r *AddressResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data AddressModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	unlock := ipamhooks.LockAddressAllocation(ctx, data.UDDI, &resp.Diagnostics)
+	defer unlock()
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	rec := data.Expand(ctx, &resp.Diagnostics, true)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, _, err := r.service.Create(ctx, rec, &core.Options{
+		ReturnFields: AddressReturnFields,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Address: %s", err))
+		return
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+}
+
+func (r *AddressResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data AddressModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, _, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+		ReturnFields: AddressReturnFields,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Address: %s", err))
+		return
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+}
+
+func (r *AddressResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data AddressModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags := req.State.GetAttribute(ctx, path.Root("id"), &data.Id)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	rec := data.Expand(ctx, &resp.Diagnostics, false)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), rec, &core.Options{
+		ReturnFields: AddressReturnFields,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update Address: %s", err))
+		return
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+}
+
+func (r *AddressResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data AddressModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	_, err := r.service.Delete(ctx, data.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Address: %s", err))
+	}
+}
+
+func (r *AddressResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}

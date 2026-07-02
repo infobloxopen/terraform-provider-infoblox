@@ -1,0 +1,395 @@
+package dns
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/infobloxopen/terraform-provider-unified/internal/core"
+	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/dns"
+	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
+	dnshooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/dns"
+	"github.com/infobloxopen/terraform-provider-unified/internal/validator"
+)
+
+var (
+	_ resource.Resource                   = &RecordAResource{}
+	_ resource.ResourceWithValidateConfig = &RecordAResource{}
+	_ resource.ResourceWithConfigure      = &RecordAResource{}
+	_ resource.ResourceWithImportState    = &RecordAResource{}
+	_ resource.ResourceWithIdentity       = &RecordAResource{}
+)
+
+func NewRecordAResource() resource.Resource {
+	return &RecordAResource{}
+}
+
+type RecordAResource struct {
+	backend core.BackendType
+	service coresvc.RecordAService
+}
+
+func (r *RecordAResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_dns_record_a"
+	resp.ResourceBehavior = resource.ResourceBehavior{
+		MutableIdentity: true,
+	}
+}
+
+func (r *RecordAResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+	resp.IdentitySchema = identityschema.Schema{
+		Attributes: map[string]identityschema.Attribute{
+			"id": identityschema.StringAttribute{
+				RequiredForImport: true,
+			},
+		},
+	}
+}
+
+func (r *RecordAResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a unified DNS RecordA record across NIOS and UDDI backends.",
+		Attributes:          RecordAResourceSchemaAttributes,
+	}
+}
+
+func (r *RecordAResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*core.UnifiedClient)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+		)
+		return
+	}
+
+	if client.NIOS != nil {
+		r.backend = core.BackendNIOS
+	} else {
+		r.backend = core.BackendUDDI
+	}
+
+	r.service = coresvc.NewRecordAService(r.backend, client.NIOS, client.UDDI)
+}
+
+func (r *RecordAResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data RecordAModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Common backend block validations
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, data.UDDI, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	dnshooks.ValidateRecordA(ctx, data.NIOS, data.UDDI, resp)
+}
+
+func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data RecordAModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Add Terraform Internal ID to ext_attrs
+	if r.backend == core.BackendNIOS {
+		nios := flex.ExpandNestedObject[NIOSRecordAModel](ctx, data.NIOS, &resp.Diagnostics)
+		if nios == nil {
+			nios = &NIOSRecordAModel{}
+		}
+		nios.ExtAttrs = flex.SetInternalID(ctx, nios.ExtAttrs, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordAAttrTypes, &resp.Diagnostics)
+	}
+
+	rec := data.Expand(ctx, &resp.Diagnostics, true)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, _, err := r.service.Create(ctx, rec, &core.Options{
+		ReturnFields: RecordAReturnFields,
+		Inherit:      RecordAInheritanceType,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordA: %s", err))
+		return
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+}
+
+func (r *RecordAResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data RecordAModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Check if we need to associate internal ID (import flow)
+	associateInternalId, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, httpResp, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+		ReturnFields: RecordAReturnFields,
+		Inherit:      RecordAInheritanceType,
+	})
+	if err != nil {
+		// If the resource is not found, try searching using Extensible Attributes
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound && r.ReadByExtAttrs(ctx, &data, resp) {
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read RecordA: %s", err))
+		return
+	}
+
+	// For NIOS verify internal ID matches (handles case where ref changes but resource still exists)
+	if r.backend == core.BackendNIOS && associateInternalId == nil && apiResp.NIOS != nil {
+		// Get state internal ID
+		stateNIOS := flex.ExpandNestedObject[NIOSRecordAModel](ctx, data.NIOS, &resp.Diagnostics)
+		if stateNIOS == nil || stateNIOS.ExtAttrsAll.IsNull() || stateNIOS.ExtAttrsAll.IsUnknown() {
+			resp.Diagnostics.AddError(
+				"Missing Internal ID",
+				"Unable to read RecordA because the internal ID (from ext_attrs_all) is missing or invalid.",
+			)
+			return
+		}
+
+		stateExtAttrsAll := stateNIOS.ExtAttrsAll.Elements()
+		stateTFID := ""
+		if stateTFIDVal, ok := stateExtAttrsAll[flex.TerraformInternalID]; ok {
+			if strVal, ok := stateTFIDVal.(types.String); ok {
+				stateTFID = strVal.ValueString()
+			}
+		}
+
+		// Get API internal ID
+		apiTFID := ""
+		if apiResp.NIOS.ExtAttrs != nil {
+			if apiTFIDVal, ok := apiResp.NIOS.ExtAttrs[flex.TerraformInternalID]; ok {
+				apiTFID, _ = apiTFIDVal.(string)
+			}
+		}
+
+		if apiTFID != stateTFID {
+			// Mismatch in internal ID, try to find the record using ExtAttrs
+			if r.ReadByExtAttrs(ctx, &data, resp) {
+				return
+			}
+		}
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+}
+
+func (r *RecordAResource) ReadByExtAttrs(ctx context.Context, data *RecordAModel, resp *resource.ReadResponse) bool {
+	// Only applicable for NIOS backend
+	if r.backend != core.BackendNIOS {
+		return false
+	}
+
+	nios := flex.ExpandNestedObject[NIOSRecordAModel](ctx, data.NIOS, &resp.Diagnostics)
+	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
+		return false
+	}
+
+	extAttrsAll := nios.ExtAttrsAll.Elements()
+	tfInternalIDVal, ok := extAttrsAll[flex.TerraformInternalID]
+	if !ok {
+		return false
+	}
+	tfInternalID := tfInternalIDVal.(types.String).ValueString()
+	if tfInternalID == "" {
+		return false
+	}
+
+	// Search for the record using the Terraform Internal ID
+	records, _, _, err := r.service.List(ctx, &core.ListOptions{
+		ReturnFields: RecordAReturnFields,
+		ExtAttrFilter: map[string]string{
+			flex.TerraformInternalID: tfInternalID,
+		},
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordA by extattrs: %s", err))
+		return true
+	}
+
+	// If not found, remove from state
+	if len(records) == 0 {
+		resp.State.RemoveResource(ctx)
+		return true
+	}
+
+	data.Flatten(ctx, records[0], &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return true
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+	return true
+}
+
+func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data RecordAModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags := req.State.GetAttribute(ctx, path.Root("id"), &data.Id)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	// Check if we need to associate internal ID (import flow)
+	associateInternalId, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var planExtAttrs types.Map
+
+	// Merge ext_attrs with state ext_attrs_all (inherited + TF ID)
+	if r.backend == core.BackendNIOS {
+		var stateNIOSObj types.Object
+		diags = req.State.GetAttribute(ctx, path.Root("nios"), &stateNIOSObj)
+		if diags.HasError() {
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+
+		planNIOS := flex.ExpandNestedObject[NIOSRecordAModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSRecordAModel](ctx, stateNIOSObj, &resp.Diagnostics)
+		if planNIOS == nil {
+			planNIOS = &NIOSRecordAModel{}
+		}
+
+		// Preserve the plan ext_attrs (without inherited EAs) for restore after Update
+		planExtAttrs = planNIOS.ExtAttrs
+
+		// If this is post-import, add the Terraform Internal ID
+		if associateInternalId != nil {
+			planNIOS.ExtAttrs = flex.SetInternalID(ctx, planNIOS.ExtAttrs, &resp.Diagnostics)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+
+		// Merge with state ext_attrs_all (inherited EAs)
+		if stateNIOS != nil {
+			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, stateNIOS.ExtAttrsAll)
+		}
+		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordAAttrTypes, &resp.Diagnostics)
+	}
+
+	rec := data.Expand(ctx, &resp.Diagnostics, false)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), rec, &core.Options{
+		ReturnFields: RecordAReturnFields,
+		Inherit:      RecordAInheritanceType,
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordA: %s", err))
+		return
+	}
+
+	// Restore the plan ext_attrs (without inherited EAs) so Flatten preserves the user's input
+	if r.backend == core.BackendNIOS {
+		niosObj := flex.ExpandNestedObject[NIOSRecordAModel](ctx, data.NIOS, &resp.Diagnostics)
+		if niosObj != nil {
+			niosObj.ExtAttrs = planExtAttrs
+			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSRecordAAttrTypes, &resp.Diagnostics)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+	}
+
+	data.Flatten(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+
+	if associateInternalId != nil {
+		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, nil)...)
+	}
+}
+
+func (r *RecordAResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data RecordAModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	_, err := r.service.Delete(ctx, data.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordA: %s", err))
+	}
+}
+
+func (r *RecordAResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
+		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
+		if diags.HasError() {
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), req.ID)...)
+
+	if r.backend == core.BackendNIOS {
+		// For NIOS backend, set the associate_internal_id private key
+		// This triggers the plan modifier to mark ext_attrs_all as unknown,
+		// and the Update method will add the Terraform Internal ID to ext_attrs
+		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
