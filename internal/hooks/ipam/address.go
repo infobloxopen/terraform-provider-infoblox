@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
-	"github.com/infobloxopen/terraform-provider-unified/internal/dynamicallocation"
-	"github.com/infobloxopen/terraform-provider-unified/internal/utils"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 // ValidateAddress validates the Address configuration.
@@ -22,22 +22,11 @@ func validateAddressUDDIConfig(ctx context.Context, data types.Object, resp *res
 }
 
 func BuildAddressAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {
-	if allocObj.IsNull() || allocObj.IsUnknown() {
-		return nil
-	}
-
-	var m dynamicallocation.NextAvailableAddressModel
-	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
-	if diags.HasError() {
-		return nil
-	}
-
-	v := m.Suffixed("/nextavailableip")
-	return &v
+	return nil
 }
 
-// LockAddressAllocation serializes concurrent next-available allocations that
-// target the same parent scope by acquiring a per-scope mutex keyed on the next_available_id
+// LockAddressAllocation serializes concurrent next-available allocations
+// that target the same parent scope by acquiring a per-scope mutex keyed on the next_available_id
 func LockAddressAllocation(ctx context.Context, uddiBlock types.Object, diags *diag.Diagnostics) func() {
 	noop := func() {}
 	if uddiBlock.IsNull() || uddiBlock.IsUnknown() {

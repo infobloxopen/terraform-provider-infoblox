@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
 // NameModel is the Terraform model for Name
@@ -27,11 +27,11 @@ var NameAttrTypes = map[string]attr.Type{
 // NameResourceSchemaAttributes contains the schema attributes for NameModel
 var NameResourceSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The name expressed as a single label or FQDN.",
 	},
 	"type": schema.StringAttribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The origin of the name.",
 	},
 }

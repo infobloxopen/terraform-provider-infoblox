@@ -10,10 +10,10 @@ import (
 	uddidnsdata "github.com/infobloxopen/bloxone-go-client/dnsdata"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core/mapper/common"
-	mapper "github.com/infobloxopen/terraform-provider-unified/internal/core/mapper/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core/model/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
+	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 )
 
 type RecordAService interface {

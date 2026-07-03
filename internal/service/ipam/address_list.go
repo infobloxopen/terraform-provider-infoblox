@@ -12,11 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	coremodel "github.com/infobloxopen/terraform-provider-unified/internal/core/model/ipam"
-	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/ipam"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	"github.com/infobloxopen/terraform-provider-unified/internal/validator"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -41,7 +41,7 @@ type AddressListModel struct {
 }
 
 func (l *AddressList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipam_address"
+	resp.TypeName = req.ProviderTypeName + "_address"
 }
 
 func (l *AddressList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -49,11 +49,11 @@ func (l *AddressList) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	client, ok := req.ProviderData.(*core.UnifiedClient)
+	client, ok := req.ProviderData.(*core.InfobloxClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected List Resource Configure Type",
-			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+			fmt.Sprintf("Expected *core.InfobloxClient, got: %T.", req.ProviderData),
 		)
 		return
 	}
@@ -131,7 +131,7 @@ func (l *AddressList) List(ctx context.Context, req list.ListRequest, stream *li
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("unified_ipam_address list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_address list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

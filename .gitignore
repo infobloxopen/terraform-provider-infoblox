@@ -5,7 +5,7 @@ terraform.tfstate
 .terraform.lock.hcl
 *.backup
 
-/terraform-provider-unified
+/terraform-provider-infoblox
 
 .openapi-generator/
 internal/service/*/.openapi-generator-ignore

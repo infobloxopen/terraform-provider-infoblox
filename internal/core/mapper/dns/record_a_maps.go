@@ -1,8 +1,8 @@
 package dns
 
-import "github.com/infobloxopen/terraform-provider-unified/internal/core"
+import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 
-// RecordANIOSFieldMap maps unified model fields to NIOS struct fields
+// RecordANIOSFieldMap maps infoblox model fields to NIOS struct fields
 var RecordANIOSFieldMap = map[string]string{
 	"Id":                     "Ref",
 	"NIOS.Comment":           "Comment",
@@ -19,7 +19,7 @@ var RecordANIOSFieldMap = map[string]string{
 	"NIOS.FuncCall":          "FuncCall",
 }
 
-// RecordAUDDIFieldMap maps unified model fields to UDDI struct fields
+// RecordAUDDIFieldMap maps infoblox model fields to UDDI struct fields
 var RecordAUDDIFieldMap = map[string]string{
 	"UDDI.AbsoluteNameSpec":   "AbsoluteNameSpec",
 	"UDDI.Comment":            "Comment",
@@ -35,7 +35,7 @@ var RecordAUDDIFieldMap = map[string]string{
 }
 
 // TODO: only searchable fields should be included here
-// RecordAFilterFieldMap maps unified filter keys to backend-specific API filter field names
+// RecordAFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
 var RecordAFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendNIOS: {
 		"id":                      "_ref",

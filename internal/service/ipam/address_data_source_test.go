@@ -3,12 +3,12 @@ package ipam_test
 import (
 	"testing"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/acctest"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
 
 func TestAccAddressDataSource(t *testing.T) {
-	dsType := "unified_ipam_address"
-	resourceType := "unified_ipam_address"
+	dsType := "infoblox_address"
+	resourceType := "infoblox_address"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"uddi": {

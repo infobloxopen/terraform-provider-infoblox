@@ -9,10 +9,10 @@ import (
 	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
 	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core/mapper/common"
-	mapper "github.com/infobloxopen/terraform-provider-unified/internal/core/mapper/ipam"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
+	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 )
 
 type AddressService interface {

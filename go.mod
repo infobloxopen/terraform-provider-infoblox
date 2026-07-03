@@ -1,4 +1,4 @@
-module github.com/infobloxopen/terraform-provider-unified
+module github.com/infobloxopen/terraform-provider-infoblox
 
 go 1.25.8
 

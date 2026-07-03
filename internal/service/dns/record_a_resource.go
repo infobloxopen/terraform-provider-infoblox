@@ -11,11 +11,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	dnshooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/validator"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	dnshooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
@@ -36,7 +36,7 @@ type RecordAResource struct {
 }
 
 func (r *RecordAResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_dns_record_a"
+	resp.TypeName = req.ProviderTypeName + "_record_a"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
@@ -64,11 +64,11 @@ func (r *RecordAResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	client, ok := req.ProviderData.(*core.UnifiedClient)
+	client, ok := req.ProviderData.(*core.InfobloxClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+			fmt.Sprintf("Expected *core.InfobloxClient, got: %T.", req.ProviderData),
 		)
 		return
 	}

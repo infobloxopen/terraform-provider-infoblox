@@ -4,7 +4,7 @@ import (
 	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
 )
 
-// Unified Address model
+// Infoblox Address model
 type Address struct {
 	Id   *string
 	UDDI *UDDIAddressExt

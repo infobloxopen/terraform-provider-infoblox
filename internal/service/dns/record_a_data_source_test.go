@@ -3,12 +3,12 @@ package dns_test
 import (
 	"testing"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/acctest"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
 
 func TestAccRecordADataSource(t *testing.T) {
-	dsType := "unified_dns_record_a"
-	resourceType := "unified_dns_record_a"
+	dsType := "infoblox_record_a"
+	resourceType := "infoblox_record_a"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {

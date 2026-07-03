@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -15,16 +16,17 @@ import (
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	coremodel "github.com/infobloxopen/terraform-provider-unified/internal/core/model/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/dynamicallocation"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	dnshooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/dns"
-	immutable "github.com/infobloxopen/terraform-provider-unified/internal/planmodifiers/immutable"
-	importmod "github.com/infobloxopen/terraform-provider-unified/internal/planmodifiers/import"
-	customvalidator "github.com/infobloxopen/terraform-provider-unified/internal/validator"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	dnshooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/dns"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
+	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type RecordAModel struct {
@@ -142,7 +144,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Default:  stringdefault.StaticString("STATIC"),
 		PlanModifiers: []planmodifier.String{
-			immutable.ImmutableString(),
+			immutable.ImmutableIfValue("SYSTEM"),
 		},
 		MarkdownDescription: "The record creator. Note that changing creator from or to 'SYSTEM' value is not allowed.",
 	},
@@ -196,11 +198,17 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The IPv4 Address of the record.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidDomainName(),
+		},
 		MarkdownDescription: "Name for A record in FQDN format. This value can be in unicode format.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_ttl")),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"use_ttl": schema.BoolAttribute{
@@ -227,8 +235,12 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"absolute_name_spec": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("view")),
+			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
 	"comment": schema.StringAttribute{
@@ -253,8 +265,12 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field.",
 	},
 	"name_in_zone": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("zone")),
+			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
 	},
 	"rdata": schema.MapAttribute{
@@ -285,12 +301,25 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
 	},
 	"view": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
+		Validators: []validator.String{
+			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
+			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"zone": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
+		Validators: []validator.String{
+			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 }

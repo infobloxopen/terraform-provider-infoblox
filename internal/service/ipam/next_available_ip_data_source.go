@@ -21,8 +21,8 @@ import (
 
 	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
 // Next-available data sources call the UDDI SDK directly and do not go through
@@ -116,7 +116,7 @@ func (d *NextAvailableIPDataSource) Configure(_ context.Context, req datasource.
 		return
 	}
 
-	client, ok := req.ProviderData.(*core.UnifiedClient)
+	client, ok := req.ProviderData.(*core.InfobloxClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected DataSource Configure Type",

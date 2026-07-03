@@ -11,13 +11,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	coremodel "github.com/infobloxopen/terraform-provider-unified/internal/core/model/ipam"
-	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	"github.com/infobloxopen/terraform-provider-unified/internal/utils"
-	"github.com/infobloxopen/terraform-provider-unified/internal/validator"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var _ datasource.DataSource = &AddressDataSource{}
@@ -34,7 +34,7 @@ type AddressDataSource struct {
 }
 
 func (d *AddressDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipam_address"
+	resp.TypeName = req.ProviderTypeName + "_address"
 }
 
 // AddressDataSourceModel is the filter model for the datasource
@@ -108,11 +108,11 @@ func (d *AddressDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	client, ok := req.ProviderData.(*core.UnifiedClient)
+	client, ok := req.ProviderData.(*core.InfobloxClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected DataSource Configure Type",
-			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+			fmt.Sprintf("Expected *core.InfobloxClient, got: %T.", req.ProviderData),
 		)
 		return
 	}

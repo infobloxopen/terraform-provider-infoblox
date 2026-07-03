@@ -16,10 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	coremodel "github.com/infobloxopen/terraform-provider-unified/internal/core/model/ipam"
-	"github.com/infobloxopen/terraform-provider-unified/internal/dynamicallocation"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	ipamhooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/ipam"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	ipamhooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/ipam"
 )
 
 type AddressModel struct {

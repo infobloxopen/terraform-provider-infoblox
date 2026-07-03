@@ -1,6 +1,6 @@
 HOSTNAME=registry.terraform.io
 NAMESPACE=infobloxopen
-NAME=unified
+NAME=infoblox
 BINARY=terraform-provider-$(NAME)
 VERSION?=0.0.1
 OS_ARCH=$(shell uname -s | tr '[:upper:]' '[:lower:]')_$(shell uname -m)

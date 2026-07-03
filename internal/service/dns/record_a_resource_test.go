@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/acctest"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
 
 func TestAccRecordAResource(t *testing.T) {
-	resourceType := "unified_dns_record_a"
+	resourceType := "infoblox_record_a"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {

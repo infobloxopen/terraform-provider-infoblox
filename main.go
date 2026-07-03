@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/infobloxopen/terraform-provider-unified/internal/provider"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/provider"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -16,8 +16,15 @@ import (
 //go:generate terraform fmt -recursive ./examples/
 
 // Run the docs generation tool, check its repository for more information on how it works and how docs
-// can be customized.
+// can be customized. The provider type name is "infoblox" (it differs from the
+// module name terraform-provider-infoblox), so it must be passed explicitly.
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
+
+// Post-process the rendered docs: inject the subcategory (group) and per-backend
+// Example Usage sections, driven by the internal/service/<group>/ package layout
+// and the examples/ folder layout. Must run AFTER tfplugindocs. This avoids
+// committing a per-object template file for every resource/data-source.
+//go:generate go run ./tools/gendocs
 
 var (
 	// these will be set by the goreleaser configuration
@@ -36,7 +43,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/infobloxopen/unified",
+		Address: "registry.terraform.io/infobloxopen/infoblox",
 		Debug:   debug,
 	}
 

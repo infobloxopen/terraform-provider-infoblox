@@ -1,8 +1,8 @@
 package ipam
 
-import "github.com/infobloxopen/terraform-provider-unified/internal/core"
+import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 
-// AddressUDDIFieldMap maps unified model fields to UDDI struct fields
+// AddressUDDIFieldMap maps infoblox model fields to UDDI struct fields
 var AddressUDDIFieldMap = map[string]string{
 	"UDDI.Address":      "Address",
 	"UDDI.Comment":      "Comment",
@@ -17,7 +17,7 @@ var AddressUDDIFieldMap = map[string]string{
 }
 
 // TODO: only searchable fields should be included here
-// AddressFilterFieldMap maps unified filter keys to backend-specific API filter field names
+// AddressFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
 var AddressFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendUDDI: {
 		"uddi.address":       "address",

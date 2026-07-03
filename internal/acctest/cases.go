@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
 // ExtractNIOSRef strips the leading object-type segment from a full NIOS _ref

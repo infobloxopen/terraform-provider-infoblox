@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
 // ValidateBackendBlocks validates that the correct backend-specific block is present

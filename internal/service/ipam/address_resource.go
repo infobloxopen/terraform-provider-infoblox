@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	coresvc "github.com/infobloxopen/terraform-provider-unified/internal/core/service/ipam"
-	ipamhooks "github.com/infobloxopen/terraform-provider-unified/internal/hooks/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
+	ipamhooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/ipam"
 )
 
 var (
@@ -33,7 +33,7 @@ type AddressResource struct {
 }
 
 func (r *AddressResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipam_address"
+	resp.TypeName = req.ProviderTypeName + "_address"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
@@ -61,11 +61,11 @@ func (r *AddressResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	client, ok := req.ProviderData.(*core.UnifiedClient)
+	client, ok := req.ProviderData.(*core.InfobloxClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+			fmt.Sprintf("Expected *core.InfobloxClient, got: %T.", req.ProviderData),
 		)
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 )
 
-// Unified RecordA model
+// Infoblox RecordA model
 type RecordA struct {
 	Id   *string
 	NIOS *NIOSRecordAExt

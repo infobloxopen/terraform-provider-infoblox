@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	uddidns "github.com/infobloxopen/bloxone-go-client/dnsdata"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
 // Inheritance2InheritedUInt32Model is the Terraform model for Inheritance2InheritedUInt32

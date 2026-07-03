@@ -1,13 +1,13 @@
 terraform {
   required_providers {
-    unified = {
-      source  = "infobloxopen/unified"
+    infoblox = {
+      source  = "infobloxopen/infoblox"
       version = "0.0.1"
     }
   }
 }
 
-provider "unified" {
+provider "infoblox" {
   nios = {
     host_url = "<NIOS_HOST_URL>"
     username = "<NIOS_USERNAME>"

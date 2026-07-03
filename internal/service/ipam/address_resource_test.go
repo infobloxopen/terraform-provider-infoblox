@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/acctest"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
 
 func TestAccAddressResource(t *testing.T) {
-	resourceType := "unified_ipam_address"
+	resourceType := "infoblox_address"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"uddi": {

@@ -34,7 +34,7 @@ type ListOptions struct {
 	Offset int32
 }
 
-type UnifiedClient struct {
+type InfobloxClient struct {
 	NIOS *niosclient.APIClient
 	UDDI *uddiclient.APIClient
 }

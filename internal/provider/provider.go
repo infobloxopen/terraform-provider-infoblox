@@ -6,35 +6,34 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
 	uddioption "github.com/infobloxopen/bloxone-go-client/option"
-
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	gridclient "github.com/infobloxopen/infoblox-nios-go-client/grid"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
-
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
-	"github.com/infobloxopen/terraform-provider-unified/internal/flex"
-	"github.com/infobloxopen/terraform-provider-unified/internal/service/dns"
-	"github.com/infobloxopen/terraform-provider-unified/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 )
 
 var (
-	_ provider.Provider                  = &UnifiedProvider{}
-	_ provider.ProviderWithListResources = &UnifiedProvider{}
+	_ provider.Provider                  = &InfobloxProvider{}
+	_ provider.ProviderWithListResources = &InfobloxProvider{}
 )
 
 type (
-	UnifiedProvider struct {
+	InfobloxProvider struct {
 		version string
 		commit  string
 	}
 
-	UnifiedProviderConfig struct {
+	InfobloxProviderConfig struct {
 		NIOS *NIOSConfig `tfsdk:"nios"`
 		UDDI *UDDIConfig `tfsdk:"uddi"`
 	}
@@ -52,14 +51,14 @@ type (
 	}
 )
 
-func (p *UnifiedProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "unified"
+func (p *InfobloxProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "infoblox"
 	resp.Version = p.version
 }
 
-func (p *UnifiedProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "The Unified provider is used to interact with Infoblox NIOS and UDDI backends.",
+		Description: "The Infoblox provider is used to interact with Infoblox NIOS and UDDI backends.",
 		Attributes: map[string]schema.Attribute{
 			"nios": buildNIOSAttribute(),
 			"uddi": buildUDDIAttribute(),
@@ -111,8 +110,8 @@ func buildUDDIAttribute() schema.Attribute {
 	}
 }
 
-func (p *UnifiedProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data UnifiedProviderConfig
+func (p *InfobloxProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var data InfobloxProviderConfig
 
 	// Read config
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -137,7 +136,7 @@ func (p *UnifiedProvider) Configure(ctx context.Context, req provider.ConfigureR
 		return
 	}
 
-	var unifiedClient core.UnifiedClient
+	var infobloxClient core.InfobloxClient
 
 	// NIOS configurations
 	if data.NIOS != nil {
@@ -173,7 +172,7 @@ func (p *UnifiedProvider) Configure(ctx context.Context, req provider.ConfigureR
 			)
 		}
 
-		unifiedClient.NIOS = client
+		infobloxClient.NIOS = client
 	}
 
 	// UDDI configurations
@@ -185,23 +184,23 @@ func (p *UnifiedProvider) Configure(ctx context.Context, req provider.ConfigureR
 			uddioption.WithDebug(true),
 		)
 
-		unifiedClient.UDDI = client
+		infobloxClient.UDDI = client
 	}
 
-	// Set unified client
-	resp.DataSourceData = &unifiedClient
-	resp.ResourceData = &unifiedClient
-	resp.ListResourceData = &unifiedClient
+	// Set infoblox client
+	resp.DataSourceData = &infobloxClient
+	resp.ResourceData = &infobloxClient
+	resp.ListResourceData = &infobloxClient
 }
 
-func (p *UnifiedProvider) Resources(_ context.Context) []func() resource.Resource {
+func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		ipam.NewAddressResource,
 		dns.NewRecordAResource,
 	}
 }
 
-func (p *UnifiedProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
@@ -212,7 +211,7 @@ func (p *UnifiedProvider) DataSources(ctx context.Context) []func() datasource.D
 	}
 }
 
-func (p *UnifiedProvider) ListResources(_ context.Context) []func() list.ListResource {
+func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		ipam.NewAddressList,
 		dns.NewRecordAList,
@@ -221,7 +220,7 @@ func (p *UnifiedProvider) ListResources(_ context.Context) []func() list.ListRes
 
 func New(version, commit string) func() provider.Provider {
 	return func() provider.Provider {
-		return &UnifiedProvider{
+		return &InfobloxProvider{
 			version: version,
 			commit:  commit,
 		}

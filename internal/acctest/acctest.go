@@ -17,7 +17,7 @@ import (
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/provider"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/provider"
 )
 
 const (
@@ -43,7 +43,7 @@ var (
 	// ProtoV6ProviderFactories are used to instantiate a provider during
 	// acceptance testing.
 	ProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-		"unified": providerserver.NewProtocol6WithError(provider.New("test", "test")()),
+		"infoblox": providerserver.NewProtocol6WithError(provider.New("test", "test")()),
 	}
 )
 
@@ -264,7 +264,7 @@ func ProviderConfigHCL(backend string) string {
 	switch backend {
 	case "nios":
 		return fmt.Sprintf(`
-provider "unified" {
+provider "infoblox" {
   nios = {
     host_url = %q
     username = %q
@@ -275,7 +275,7 @@ provider "unified" {
 
 	case "uddi":
 		return fmt.Sprintf(`
-provider "unified" {
+provider "infoblox" {
   uddi = {
     csp_url = %q
     api_key = %q

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/infobloxopen/terraform-provider-unified/internal/utils"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 var _ validator.String = timeFormatValidator{}

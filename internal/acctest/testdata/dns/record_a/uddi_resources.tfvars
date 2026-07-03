@@ -7,7 +7,7 @@ case "basic" {
   # basic — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -18,7 +18,7 @@ case "basic" {
   step {
     uddi {
       rdata = { address = "10.0.0.15" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.15"
@@ -33,7 +33,7 @@ case "disappears" {
   disappears = true
   expect_non_empty_plan = true
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -44,7 +44,7 @@ case "disappears" {
   step {
     uddi {
       rdata = { address = "10.0.0.15" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
     }
   }
 
@@ -54,7 +54,7 @@ case "comment" {
   # comment — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -65,7 +65,7 @@ case "comment" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       comment = "some comment"
     }
     check = {
@@ -76,7 +76,7 @@ case "comment" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       comment = "updated comment"
     }
     check = {
@@ -90,7 +90,7 @@ case "disabled" {
   # disabled — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -101,7 +101,7 @@ case "disabled" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       disabled = true
     }
     check = {
@@ -112,7 +112,7 @@ case "disabled" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       disabled = false
     }
     check = {
@@ -126,7 +126,7 @@ case "inheritance_sources" {
   # inheritance_sources — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -137,7 +137,7 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       inheritance_sources = { ttl = { action = "inherit" } }
     }
     check = {
@@ -148,7 +148,7 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       inheritance_sources = { ttl = { action = "override" } }
     }
     check = {
@@ -162,7 +162,7 @@ case "name_in_zone" {
   # name_in_zone — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -173,7 +173,7 @@ case "name_in_zone" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       name_in_zone = "xyz"
     }
     check = {
@@ -184,7 +184,7 @@ case "name_in_zone" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       name_in_zone = "abc"
     }
     check = {
@@ -198,7 +198,7 @@ case "rdata" {
   # rdata — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -209,7 +209,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.1"
@@ -219,7 +219,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { address = "10.0.0.2" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.2"
@@ -239,7 +239,7 @@ case "ttl" {
   # ttl — generated from terraform-provider-uddi
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "unified_dns_zone_auth" "test" {
+  resource "infoblox_zone_auth" "test" {
     uddi = {
       fqdn = "{{random}}.com."
       primary_type = "cloud"
@@ -250,7 +250,7 @@ case "ttl" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       ttl = 60
     }
     check = {
@@ -261,7 +261,7 @@ case "ttl" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = unified_dns_zone_auth.test.id
+      zone = infoblox_zone_auth.test.id
       ttl = 90
     }
     check = {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/infobloxopen/terraform-provider-unified/internal/core"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
 // ProcessExtAttrs converts map[string]any (ExtAttrs) to NIOS ExtAttrs struct format.
