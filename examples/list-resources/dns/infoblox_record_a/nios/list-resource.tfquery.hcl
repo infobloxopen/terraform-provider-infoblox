@@ -1,5 +1,5 @@
 list "infoblox_record_a" "list_records_using_filters" {
-  provider = unified
+  provider = infoblox
   config {
     filters = {
       view = "default"

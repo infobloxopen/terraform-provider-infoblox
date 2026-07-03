@@ -324,7 +324,7 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-// Expand converts the TF model to the unified core model
+// Expand converts the TF model to the infoblox core model
 func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.RecordA {
 	if m == nil {
 		return nil

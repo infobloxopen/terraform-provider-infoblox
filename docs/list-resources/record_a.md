@@ -3,12 +3,12 @@
 page_title: "infoblox_record_a List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of unified RecordA from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox RecordA from the configured backend (NIOS or UDDI).
 ---
 
 # infoblox_record_a (List Resource)
 
-Retrieves a list of unified RecordA from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox RecordA from the configured backend (NIOS or UDDI).
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ Retrieves a list of unified RecordA from the configured backend (NIOS or UDDI).
 
 ```terraform
 list "infoblox_record_a" "list_records_using_filters" {
-  provider = unified
+  provider = infoblox
   config {
     filters = {
       view = "default"
@@ -30,7 +30,7 @@ list "infoblox_record_a" "list_records_using_filters" {
 
 ```terraform
 list "infoblox_record_a" "list_records_using_filters" {
-  provider = unified
+  provider = infoblox
   config {
     filters = {
       comment = "Created by Terraform"

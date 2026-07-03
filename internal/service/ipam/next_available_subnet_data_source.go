@@ -24,7 +24,7 @@ import (
 
 // Next-available data sources call the UDDI SDK directly and do not go through
 // the core service/mapper layer: they are UDDI-only and return a flat list of
-// allocated values, so there is no unified core model to map to.
+// allocated values, so there is no infoblox core model to map to.
 
 var _ datasource.DataSource = &NextAvailableSubnetDataSource{}
 var _ datasource.DataSourceWithConfigure = &NextAvailableSubnetDataSource{}
@@ -106,7 +106,7 @@ func (d *NextAvailableSubnetDataSource) Configure(_ context.Context, req datasou
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected DataSource Configure Type",
-			fmt.Sprintf("Expected *core.UnifiedClient, got: %T.", req.ProviderData),
+			fmt.Sprintf("Expected *core.InfobloxClient, got: %T.", req.ProviderData),
 		)
 		return
 	}
@@ -114,7 +114,7 @@ func (d *NextAvailableSubnetDataSource) Configure(_ context.Context, req datasou
 	if client.UDDI == nil {
 		resp.Diagnostics.AddError(
 			"Unsupported Backend",
-			"unified_next_available_subnets is only supported on the UDDI backend.",
+			"infoblox_next_available_subnets is only supported on the UDDI backend.",
 		)
 		return
 	}

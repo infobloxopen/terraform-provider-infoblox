@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordA (nios).
 # Source: terraform-provider-nios. One labelled `case` block per legacy
 # TestAccRecordAResource_<Case>.
-# Replayed by the unified provider via acctest.RunResourceCases.
+# Replayed by the infoblox provider via acctest.RunResourceCases.
 
 case "basic" {
   # basic — generated from terraform-provider-nios

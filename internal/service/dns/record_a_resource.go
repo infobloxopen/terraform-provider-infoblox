@@ -54,7 +54,7 @@ func (r *RecordAResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *RecordAResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a unified DNS RecordA record across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.",
 		Attributes:          RecordAResourceSchemaAttributes,
 	}
 }

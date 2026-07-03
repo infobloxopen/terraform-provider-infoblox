@@ -3,12 +3,12 @@
 page_title: "infoblox_address Resource - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Manages a unified DNS Address record across NIOS and UDDI backends.
+  Manages a Infoblox DNS Address record across NIOS and UDDI backends.
 ---
 
 # infoblox_address (Resource)
 
-Manages a unified DNS Address record across NIOS and UDDI backends.
+Manages a Infoblox DNS Address record across NIOS and UDDI backends.
 
 ## Example Usage
 

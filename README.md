@@ -1,6 +1,6 @@
-# Terraform Provider Unified (POC)
+# Terraform Provider Infoblox (POC)
 
-A unified Terraform provider that provides a single interface to manage resources across multiple Infoblox backends - NIOS (on-prem) and UDDI (cloud).
+A Terraform provider that provides a single interface to manage resources across multiple Infoblox backends - NIOS (on-prem) and UDDI (cloud).
 
 ## Overview
 
@@ -9,12 +9,12 @@ This provider abstracts away backend differences, allowing users to write Terraf
 ### Architecture
 
 ```
-Terraform Resource (unified schema)
+Terraform Resource (infoblox schema)
         │
         ▼
    Core Module
    ┌─────────────────────────────────┐
-   │  Model    - Unified structs     │
+   │  Model    - Infoblox structs     │
    │  Mapper   - Field translations  │
    │  Service  - Backend dispatching │
    └─────────────────────────────────┘
@@ -28,17 +28,17 @@ Terraform Resource (unified schema)
 ### Core Module
 
 The core module handles:
-- **Unified Model**: Common data structures for resources across backends
+- **Infoblox Model**: Common data structures for resources across backends
 - **Field Mapping**: Translates unified field names to backend-specific SDK field names
 - **Service Layer**: Routes requests to the appropriate backend and transforms responses back to the unified format
 
 ### How It Works
 
-1. User defines a resource using the unified schema (e.g., `unified_dns_record_a`)
+1. User defines a resource using the infoblox schema (e.g., `infoblox_record_a`)
 2. The provider determines the active backend from configuration (NIOS or UDDI)
 3. Core service maps the unified request to backend-specific SDK types
 4. Backend SDK makes the actual API call
-5. Response is mapped back to the unified model
+5. Response is mapped back to the infoblox model
 
 ## Supported Backends
 

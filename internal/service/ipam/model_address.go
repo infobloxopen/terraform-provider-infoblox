@@ -154,7 +154,7 @@ var AddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-// Expand converts the TF model to the unified core model
+// Expand converts the TF model to the infoblox core model
 func (m *AddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.Address {
 	if m == nil {
 		return nil

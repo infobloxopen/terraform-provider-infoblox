@@ -125,7 +125,7 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 	resource.ParallelTest(t, tc)
 }
 
-// buildCaseHCL renders a single step into resource HCL for the unified provider.
+// buildCaseHCL renders a single step into resource HCL for the infoblox provider.
 func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("resource %q %q {\n", resourceType, label))
@@ -351,7 +351,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 
 // parseCaseBlock parses a config block (common/nios/uddi) into a value map.
 // Literal values are reduced to Go values; non-literal expressions (references
-// to other resources, e.g. ${unified_dns_zone_auth.prereq.nios.fqdn}, or
+// to other resources, e.g. ${infoblox_zone_auth.prereq.nios.fqdn}, or
 // depends_on) are preserved verbatim as RawExpr so Terraform resolves them at
 // apply time.
 func parseCaseBlock(body hcl.Body, src []byte) map[string]any {

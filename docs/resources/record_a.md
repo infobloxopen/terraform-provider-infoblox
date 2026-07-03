@@ -3,12 +3,12 @@
 page_title: "infoblox_record_a Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages a unified DNS RecordA record across NIOS and UDDI backends.
+  Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.
 ---
 
 # infoblox_record_a (Resource)
 
-Manages a unified DNS RecordA record across NIOS and UDDI backends.
+Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.
 
 ## Example Usage
 

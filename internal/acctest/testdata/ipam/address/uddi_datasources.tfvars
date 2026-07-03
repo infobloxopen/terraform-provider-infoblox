@@ -1,7 +1,7 @@
 # Auto-generated datasource acceptance-test cases for Address (uddi).
 # Source: terraform-provider-uddi. One labelled `case` block per legacy
 # TestAccAddressDataSource_<Case>.
-# Replayed by the unified provider via acctest.RunDataSourceCases.
+# Replayed by the infoblox provider via acctest.RunDataSourceCases.
 
 case "filters" {
   # filters — generated from terraform-provider-uddi
