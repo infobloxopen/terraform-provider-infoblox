@@ -368,8 +368,11 @@ func (r *RecordAResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	_, err := r.service.Delete(ctx, data.Id.ValueString())
+	httpRes, err := r.service.Delete(ctx, data.Id.ValueString())
 	if err != nil {
+		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordA: %s", err))
 	}
 }
