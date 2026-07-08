@@ -11,7 +11,6 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -175,7 +174,6 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "All ext_attrs including Terraform Internal ID and inherited attributes.",
 		PlanModifiers: []planmodifier.Map{
 			importmod.AssociateInternalId(),
-			mapplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"forbid_reclamation": schema.BoolAttribute{
