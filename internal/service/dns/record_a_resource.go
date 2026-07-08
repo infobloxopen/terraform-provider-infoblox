@@ -125,10 +125,7 @@ func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	if rec.NIOS != nil {
-		rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, req.Config, &resp.Diagnostics, path.Root("nios").AtName("ttl"))
-	}
-
+	ApplyRecordANIOSUseFlags(ctx, req.Config, rec, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -334,9 +331,7 @@ func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	if rec.NIOS != nil {
-		rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, req.Config, &resp.Diagnostics, path.Root("nios").AtName("ttl"))
-	}
+	ApplyRecordANIOSUseFlags(ctx, req.Config, rec, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

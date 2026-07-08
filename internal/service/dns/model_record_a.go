@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
@@ -357,6 +358,14 @@ func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		ext.FuncCall = dnshooks.BuildRecordAFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
+}
+
+// ApplyRecordANIOSUseFlags derives use flags for RecordA from the raw config value(s) and writes it onto the core model
+func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, rec *coremodel.RecordA, diags *diag.Diagnostics) {
+	if rec == nil || rec.NIOS == nil {
+		return
+	}
+	rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
 }
 
 // Expand converts the UDDI TF model to the core model.
