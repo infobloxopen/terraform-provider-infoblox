@@ -125,6 +125,14 @@ func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	if rec.NIOS != nil {
+		rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, req.Config, &resp.Diagnostics, path.Root("nios").AtName("ttl"))
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	apiResp, _, err := r.service.Create(ctx, rec, &core.Options{
 		ReturnFields: RecordAReturnFields,
 		Inherit:      RecordAInheritanceType,
@@ -322,6 +330,13 @@ func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	rec := data.Expand(ctx, &resp.Diagnostics, false)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if rec.NIOS != nil {
+		rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, req.Config, &resp.Diagnostics, path.Root("nios").AtName("ttl"))
+	}
 	if resp.Diagnostics.HasError() {
 		return
 	}

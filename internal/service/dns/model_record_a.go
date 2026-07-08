@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
-	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -26,6 +25,7 @@ import (
 	dnshooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/dns"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -53,7 +53,6 @@ type NIOSRecordAModel struct {
 	Ipv4addr          iptypes.IPv4Address `tfsdk:"ipv4addr"`
 	Name              types.String        `tfsdk:"name"`
 	Ttl               types.Int64         `tfsdk:"ttl"`
-	UseTtl            types.Bool          `tfsdk:"use_ttl"`
 	View              types.String        `tfsdk:"view"`
 	DynamicAllocation types.Object        `tfsdk:"dynamic_allocation"`
 }
@@ -70,7 +69,6 @@ var NIOSRecordAAttrTypes = map[string]attr.Type{
 	"ipv4addr":           iptypes.IPv4AddressType{},
 	"name":               types.StringType,
 	"ttl":                types.Int64Type,
-	"use_ttl":            types.BoolType,
 	"view":               types.StringType,
 	"dynamic_allocation": types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
@@ -206,16 +204,11 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional: true,
-		Validators: []validator.Int64{
-			int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_ttl")),
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			suppressdiff.UseStateToSuppressDiff(),
 		},
-		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
-	},
-	"use_ttl": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "Use flag for: ttl",
+		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Leave unset to inherit the TTL from the grid/zone.",
 	},
 	"view": schema.StringAttribute{
 		Default:  stringdefault.StaticString("default"),
@@ -360,7 +353,6 @@ func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Ipv4addr:          flex.ExpandIPv4Address(m.Ipv4addr),
 		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
-		UseTtl:            flex.ExpandBoolPointer(m.UseTtl),
 	}
 	if isCreate {
 		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
@@ -441,7 +433,6 @@ func (m *NIOSRecordAModel) Flatten(ctx context.Context, from *coremodel.NIOSReco
 	m.Ipv4addr = flex.FlattenIPv4Address(from.Ipv4addr)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
-	m.UseTtl = flex.FlattenBoolPointer(from.UseTtl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 }
 
