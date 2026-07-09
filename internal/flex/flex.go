@@ -15,6 +15,19 @@ import (
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 )
 
+type FrameworkElementFlExFunc[T any, U any] func(context.Context, T, *diag.Diagnostics) U
+
+// ApplyToAll returns a new slice containing the results of applying the function `f` to each element of the original slice `s`.
+func ApplyToAll[T, U any](s []T, f func(T) U) []U {
+	v := make([]U, len(s))
+
+	for i, e := range s {
+		v[i] = f(e)
+	}
+
+	return v
+}
+
 // Expand Helpers (TF -> API)
 
 func ExpandString(s types.String) string {
@@ -220,6 +233,30 @@ func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 	return &t
 }
 
+func ExpandFrameworkListNestedBlock[T any, U any](ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target interface{}, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics, f FrameworkElementFlExFunc[T, *U]) []U {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return make([]U, 0)
+	}
+
+	var data []T
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+
+	expanded := make([]U, 0, len(data))
+	for _, t := range data {
+		v := f(ctx, t, diags)
+		if v == nil {
+			// Skip unknown/null nested objects safely.
+			continue
+		}
+		expanded = append(expanded, *v)
+	}
+
+	return expanded
+}
+
 // Flatten Helpers (API -> TF)
 
 func FlattenString(s string) types.String {
@@ -399,6 +436,21 @@ func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, dia
 		return internaltypes.NewUnorderedListStringValueNull()
 	}
 	tfList, d := internaltypes.NewUnorderedListStringValueFrom(ctx, data)
+	diags.Append(d...)
+	return tfList
+}
+
+func FlattenFrameworkListNestedBlock[T any, U any](ctx context.Context, data []T, attrTypes map[string]attr.Type, diags *diag.Diagnostics, f FrameworkElementFlExFunc[*T, U]) types.List {
+	if len(data) == 0 {
+		return types.ListNull(types.ObjectType{AttrTypes: attrTypes})
+	}
+
+	tfData := ApplyToAll(data, func(t T) U {
+		return f(ctx, &t, diags)
+	})
+
+	tfList, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: attrTypes}, tfData)
+
 	diags.Append(d...)
 	return tfList
 }
