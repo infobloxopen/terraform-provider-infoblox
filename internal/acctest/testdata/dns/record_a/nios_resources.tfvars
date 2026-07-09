@@ -234,8 +234,33 @@ case "forbid_reclamation" {
 case "func_call" {
   # func_call — generated from terraform-provider-nios
   backend = "nios"
-  skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network" "test" {
+    nios = {
+      network = "85.85.0.0/16"
+      network_view = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      view = "default"
+      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      comment = "Original Function Call"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      view = "default"
+      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      comment = "Function Call with Update"
+    }
+  }
+
 }
 
 case "ipv4addr" {

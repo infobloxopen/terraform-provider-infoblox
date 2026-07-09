@@ -38,6 +38,18 @@ func RunDataSourceCases(t *testing.T, dsType, resourceType, fileRelPath string, 
 	path := GetTestdataPath(fileRelPath)
 	cases, err := loadDataSourceCases(path)
 	if err != nil {
+		cases = nil
+	}
+
+	// Append user-authored manual cases from the sibling manual_<file> so custom
+	// scenarios written by users run automatically alongside the generated ones.
+	manualCases, mErr := loadManualDataSourceCases(fileRelPath)
+	if mErr != nil {
+		t.Fatalf("failed to load manual data source cases for %s: %v", fileRelPath, mErr)
+	}
+	cases = append(cases, manualCases...)
+
+	if len(cases) == 0 {
 		t.Skipf("no data source cases at %s: %v", path, err)
 		return
 	}
@@ -210,6 +222,24 @@ func (dc *DataSourceCase) materialize() {
 // source cases. Each case is a labelled `case "<name>" { ... }` block; the
 // label becomes the case (subtest) name. Cases are returned sorted by name for
 // a deterministic subtest order.
+// loadManualDataSourceCases loads data source cases from the sibling manual_
+// file if present. A missing file, or a file containing only comments (a
+// skeleton with no `case` blocks), yields no cases and no error.
+func loadManualDataSourceCases(fileRelPath string) ([]*DataSourceCase, error) {
+	full := GetTestdataPath(manualSibling(fileRelPath))
+	if _, err := os.Stat(full); err != nil {
+		return nil, nil
+	}
+	cases, err := loadDataSourceCases(full)
+	if err != nil {
+		if strings.Contains(err.Error(), "no case blocks found") {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cases, nil
+}
+
 func loadDataSourceCases(path string) ([]*DataSourceCase, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

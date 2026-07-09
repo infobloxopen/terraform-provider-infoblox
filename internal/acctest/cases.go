@@ -57,6 +57,18 @@ func RunResourceCases(t *testing.T, resourceType, fileRelPath string, checksByBa
 	path := GetTestdataPath(fileRelPath)
 	cases, err := loadResourceCases(path)
 	if err != nil {
+		cases = nil
+	}
+
+	// Append user-authored manual cases from the sibling manual_<file> so custom
+	// scenarios written by users run automatically alongside the generated ones.
+	manualCases, mErr := loadManualResourceCases(fileRelPath)
+	if mErr != nil {
+		t.Fatalf("failed to load manual resource cases for %s: %v", fileRelPath, mErr)
+	}
+	cases = append(cases, manualCases...)
+
+	if len(cases) == 0 {
 		t.Skipf("no resource cases at %s: %v", path, err)
 		return
 	}
@@ -203,6 +215,36 @@ func (rc *ResourceCase) materialize() {
 			}
 		}
 	}
+}
+
+// manualSibling returns the "manual_"-prefixed sibling of a testdata-relative
+// case file (e.g. "dns/record_a/nios_resources.tfvars" ->
+// "dns/record_a/manual_nios_resources.tfvars"). Manual files are hand-authored
+// by users to add custom scenarios and are never overwritten by codegen.
+func manualSibling(fileRelPath string) string {
+	i := strings.LastIndex(fileRelPath, "/")
+	if i < 0 {
+		return "manual_" + fileRelPath
+	}
+	return fileRelPath[:i+1] + "manual_" + fileRelPath[i+1:]
+}
+
+// loadManualResourceCases loads resource cases from the sibling manual_ file if
+// present. A missing file, or a file containing only comments (a skeleton with
+// no `case` blocks), yields no cases and no error.
+func loadManualResourceCases(fileRelPath string) ([]*ResourceCase, error) {
+	full := GetTestdataPath(manualSibling(fileRelPath))
+	if _, err := os.Stat(full); err != nil {
+		return nil, nil
+	}
+	cases, err := loadResourceCases(full)
+	if err != nil {
+		if strings.Contains(err.Error(), "no case blocks found") {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cases, nil
 }
 
 // loadResourceCases parses a merged tfvars file into its constituent resource
