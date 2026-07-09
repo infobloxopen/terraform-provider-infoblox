@@ -125,9 +125,11 @@ func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
+	if r.backend == core.BackendNIOS {
+		ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
@@ -331,9 +333,11 @@ func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return
+	if r.backend == core.BackendNIOS {
+		ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
