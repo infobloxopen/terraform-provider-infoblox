@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -36,6 +37,19 @@ var NameResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
+// ExpandName converts a Terraform Object to SDK type
+func ExpandName(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddiipam.Name {
+	if o.IsNull() || o.IsUnknown() {
+		return nil
+	}
+	var m NameModel
+	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+	return m.Expand(ctx, diags)
+}
+
 // Expand converts the Terraform model to SDK type
 func (m *NameModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.Name {
 	if m == nil {
@@ -48,40 +62,16 @@ func (m *NameModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiip
 	return to
 }
 
-// ExpandListName converts a Terraform List to SDK slice
-func ExpandListName(ctx context.Context, l types.List, diags *diag.Diagnostics) []uddiipam.Name {
-	if l.IsNull() || l.IsUnknown() {
-		return nil
+// FlattenName converts an SDK type to Terraform Object
+func FlattenName(ctx context.Context, from *uddiipam.Name, diags *diag.Diagnostics) types.Object {
+	if from == nil {
+		return types.ObjectNull(NameAttrTypes)
 	}
-	var models []NameModel
-	diags.Append(l.ElementsAs(ctx, &models, false)...)
-	if diags.HasError() {
-		return nil
-	}
-	result := make([]uddiipam.Name, 0, len(models))
-	for _, m := range models {
-		expanded := m.Expand(ctx, diags)
-		if expanded != nil {
-			result = append(result, *expanded)
-		}
-	}
-	return result
-}
-
-// FlattenListName converts an SDK slice to Terraform List
-func FlattenListName(ctx context.Context, from []uddiipam.Name, diags *diag.Diagnostics) types.List {
-	if len(from) == 0 {
-		return types.ListNull(types.ObjectType{AttrTypes: NameAttrTypes})
-	}
-	var models []NameModel
-	for i := range from {
-		m := &NameModel{}
-		m.Flatten(ctx, &from[i], diags)
-		models = append(models, *m)
-	}
-	listVal, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: NameAttrTypes}, models)
+	m := &NameModel{}
+	m.Flatten(ctx, from, diags)
+	t, d := types.ObjectValueFrom(ctx, NameAttrTypes, m)
 	diags.Append(d...)
-	return listVal
+	return t
 }
 
 // Flatten populates the Terraform model from SDK type

@@ -3,6 +3,7 @@ package ipam
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -104,12 +105,12 @@ func (r *AddressResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	rec := data.Expand(ctx, &resp.Diagnostics, true)
+	obj := data.Expand(ctx, &resp.Diagnostics, true)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	apiResp, _, err := r.service.Create(ctx, rec, &core.Options{
+	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
 		ReturnFields: AddressReturnFields,
 	})
 	if err != nil {
@@ -165,12 +166,12 @@ func (r *AddressResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	rec := data.Expand(ctx, &resp.Diagnostics, false)
+	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), rec, &core.Options{
+	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
 		ReturnFields: AddressReturnFields,
 	})
 	if err != nil {
@@ -195,8 +196,11 @@ func (r *AddressResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	_, err := r.service.Delete(ctx, data.Id.ValueString())
+	httpRes, err := r.service.Delete(ctx, data.Id.ValueString())
 	if err != nil {
+		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Address: %s", err))
 	}
 }

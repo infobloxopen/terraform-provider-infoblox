@@ -54,12 +54,12 @@ func (m *AddressDataSourceModel) FlattenResults(ctx context.Context, from []*cor
 		return
 	}
 	elements := make([]attr.Value, 0, len(from))
-	for _, rec := range from {
+	for _, obj := range from {
 		model := &AddressModel{}
-		model.Flatten(ctx, rec, diags)
-		obj, d := types.ObjectValueFrom(ctx, AddressAttrTypes, model)
+		model.Flatten(ctx, obj, diags)
+		objValue, d := types.ObjectValueFrom(ctx, AddressAttrTypes, model)
 		diags.Append(d...)
-		elements = append(elements, obj)
+		elements = append(elements, objValue)
 	}
 	list, d := types.ListValue(types.ObjectType{AttrTypes: AddressAttrTypes}, elements)
 	diags.Append(d...)
@@ -165,18 +165,18 @@ func (d *AddressDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	var records []*coremodel.Address
+	var allResults []*coremodel.Address
 	var err error
 
 	switch d.backend {
 	case core.BackendNIOS:
-		records, err = core.ReadAllPagesNIOS(func(pageID string) ([]*coremodel.Address, string, error) {
+		allResults, err = core.ReadAllPagesNIOS(func(pageID string) ([]*coremodel.Address, string, error) {
 			opts.PageID = pageID
 			recs, _, nextPageID, e := d.service.List(ctx, opts)
 			return recs, nextPageID, e
 		})
 	case core.BackendUDDI:
-		records, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Address, error) {
+		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Address, error) {
 			opts.Offset = offset
 			recs, _, _, e := d.service.List(ctx, opts)
 			return recs, e
@@ -188,10 +188,10 @@ func (d *AddressDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Retrieved %d results", len(records)))
+	tflog.Info(ctx, fmt.Sprintf("Retrieved %d results", len(allResults)))
 
 	// Flatten results
-	data.FlattenResults(ctx, records, &resp.Diagnostics)
+	data.FlattenResults(ctx, allResults, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

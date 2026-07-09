@@ -160,15 +160,15 @@ func (m *AddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 		return nil
 	}
 
-	rec := &coremodel.Address{}
+	obj := &coremodel.Address{}
 
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIAddressModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		rec.UDDI = uddiModel.Expand(ctx, diags, isCreate)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
-	return rec
+	return obj
 }
 
 // Expand converts the UDDI TF model to the core model.
@@ -180,7 +180,7 @@ func (m *UDDIAddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Host:         flex.ExpandStringPointer(m.Host),
 		Hwaddr:       flex.ExpandStringPointer(m.Hwaddr),
 		Interface:    flex.ExpandStringPointer(m.Interface),
-		Names:        ExpandListName(ctx, m.Names, diags),
+		Names:        flex.ExpandFrameworkListNestedBlock(ctx, m.Names, diags, ExpandName),
 		Range:        flex.ExpandStringPointer(m.Range),
 		Space:        flex.ExpandStringPointer(m.Space),
 		Tags:         flex.ExpandMapStringAny(ctx, m.Tags, diags),
@@ -225,7 +225,7 @@ func (m *UDDIAddressModel) Flatten(ctx context.Context, from *coremodel.UDDIAddr
 	m.Host = flex.FlattenStringPointer(from.Host)
 	m.Hwaddr = flex.FlattenStringPointer(from.Hwaddr)
 	m.Interface = flex.FlattenStringPointer(from.Interface)
-	m.Names = FlattenListName(ctx, from.Names, diags)
+	m.Names = flex.FlattenFrameworkListNestedBlock(ctx, from.Names, NameAttrTypes, diags, FlattenName)
 	m.Range = flex.FlattenStringPointer(from.Range)
 	m.Space = flex.FlattenStringPointer(from.Space)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
@@ -233,4 +233,7 @@ func (m *UDDIAddressModel) Flatten(ctx context.Context, from *coremodel.UDDIAddr
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableAddressAttrTypes)
+	}
 }
