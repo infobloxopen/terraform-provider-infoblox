@@ -441,6 +441,9 @@ func (m *NIOSRecordAModel) Flatten(ctx context.Context, from *coremodel.NIOSReco
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableIpAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
