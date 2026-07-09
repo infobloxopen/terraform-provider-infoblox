@@ -195,9 +195,30 @@ func (rc *ResourceCase) materialize() {
 		return s
 	}
 
+	// replaceDeep recurses into nested objects/lists (e.g. members, options,
+	// ext_attrs) so placeholders inside nested attribute values are materialized
+	// too, keeping each distinct placeholder consistent across the whole case.
+	var replaceDeep func(v any) any
+	replaceDeep = func(v any) any {
+		switch val := v.(type) {
+		case map[string]any:
+			for k, sub := range val {
+				val[k] = replaceDeep(sub)
+			}
+			return val
+		case []any:
+			for i, sub := range val {
+				val[i] = replaceDeep(sub)
+			}
+			return val
+		default:
+			return replace(v)
+		}
+	}
+
 	replaceMap := func(m map[string]any) {
 		for k, v := range m {
-			m[k] = replace(v)
+			m[k] = replaceDeep(v)
 		}
 	}
 
