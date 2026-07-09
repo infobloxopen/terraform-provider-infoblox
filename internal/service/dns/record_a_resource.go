@@ -120,17 +120,17 @@ func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordAAttrTypes, &resp.Diagnostics)
 	}
 
-	rec := data.Expand(ctx, &resp.Diagnostics, true)
+	obj := data.Expand(ctx, &resp.Diagnostics, true)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ApplyRecordANIOSUseFlags(ctx, req.Config, rec, &resp.Diagnostics)
+	ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	apiResp, _, err := r.service.Create(ctx, rec, &core.Options{
+	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
 		ReturnFields: RecordAReturnFields,
 		Inherit:      RecordAInheritanceType,
 	})
@@ -326,17 +326,17 @@ func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest
 		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordAAttrTypes, &resp.Diagnostics)
 	}
 
-	rec := data.Expand(ctx, &resp.Diagnostics, false)
+	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ApplyRecordANIOSUseFlags(ctx, req.Config, rec, &resp.Diagnostics)
+	ApplyRecordANIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), rec, &core.Options{
+	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
 		ReturnFields: RecordAReturnFields,
 		Inherit:      RecordAInheritanceType,
 	})

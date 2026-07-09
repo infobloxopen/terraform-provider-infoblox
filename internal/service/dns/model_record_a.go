@@ -322,21 +322,21 @@ func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 		return nil
 	}
 
-	rec := &coremodel.RecordA{}
+	obj := &coremodel.RecordA{}
 
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSRecordAModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		rec.NIOS = niosModel.Expand(ctx, diags, isCreate)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		rec.UDDI = uddiModel.Expand(ctx, diags, isCreate)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
-	return rec
+	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
