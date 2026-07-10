@@ -3,39 +3,32 @@ package suppressdiff
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ planmodifier.Int64 = useStateToSuppressDiffInt64{}
+var _ planmodifier.Bool = useStateToSuppressDiffBool{}
 
-type useStateToSuppressDiffInt64 struct{}
+type useStateToSuppressDiffBool struct{}
 
-func UseStateToSuppressDiffInt64() planmodifier.Int64 {
-	return useStateToSuppressDiffInt64{}
+func UseStateToSuppressDiffBool() planmodifier.Bool {
+	return useStateToSuppressDiffBool{}
 }
 
-func (m useStateToSuppressDiffInt64) Description(_ context.Context) string {
+func (m useStateToSuppressDiffBool) Description(_ context.Context) string {
 	return "Uses the last known value for planning until the attribute is explicitly reset."
 }
 
-func (m useStateToSuppressDiffInt64) MarkdownDescription(ctx context.Context) string {
+func (m useStateToSuppressDiffBool) MarkdownDescription(ctx context.Context) string {
 	return m.Description(ctx)
 }
 
-// userSetKey is the private-state key for the attribute indicating if the user set the value,
-// derived from the attribute path so each field is distinct within resource
-func userSetKey(p path.Path) string {
-	return "userset::" + p.String()
-}
-
-// PlanModifyInt64 implements the planmodifier.Int64 interface for useStateToSuppressDiffInt64
+// PlanModifyBool implements the planmodifier.Bool interface.
 // config has a value              -> use config (leave plan as-is)
 // config null, no prior state     -> leave unknown (create: known after apply)
 // config null, userset flag true  -> user is clearing it -> unknown (backend recomputes)
 // config null, userset flag false -> still inherited -> carry state (quiet, converges)
-func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
+func (m useStateToSuppressDiffBool) PlanModifyBool(ctx context.Context, req planmodifier.BoolRequest, resp *planmodifier.BoolResponse) {
 	key := userSetKey(req.Path)
 
 	// Determine if the user explicitly set a value in the prior plan (or cleared it)
@@ -69,7 +62,7 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 
 	if wasSet {
 		// The user is clearing a previously-set value: hand control back to the backend to recompute
-		resp.PlanValue = types.Int64Unknown()
+		resp.PlanValue = types.BoolUnknown()
 		return
 	}
 

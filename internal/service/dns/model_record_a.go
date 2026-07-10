@@ -205,7 +205,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		PlanModifiers: []planmodifier.Int64{
-			suppressdiff.UseStateToSuppressDiff(),
+			suppressdiff.UseStateToSuppressDiffInt64(),
 		},
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Leave unset to inherit the TTL from the grid/zone.",
 	},
