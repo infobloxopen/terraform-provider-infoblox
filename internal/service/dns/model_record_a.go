@@ -207,7 +207,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.Int64{
 			suppressdiff.UseStateToSuppressDiffInt64(),
 		},
-		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached. Leave unset to inherit the TTL from the grid/zone.",
+		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
 		Default:  stringdefault.StaticString("default"),
@@ -360,12 +360,14 @@ func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	return ext
 }
 
-// ApplyRecordANIOSUseFlags derives use flags for RecordA from the raw config value(s) and writes it onto the core model
-func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, rec *coremodel.RecordA, diags *diag.Diagnostics) {
-	if rec == nil || rec.NIOS == nil {
+// ApplyRecordANIOSUseFlags derives NIOS use flags from the raw config
+// value(s) and writes them onto the core model. A flag is true when the user
+// set any of its governed value fields in config.
+func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremodel.RecordA, diags *diag.Diagnostics) {
+	if obj == nil || obj.NIOS == nil {
 		return
 	}
-	rec.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
+	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
 }
 
 // Expand converts the UDDI TF model to the core model.
