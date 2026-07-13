@@ -74,7 +74,7 @@ func (m useStateToSuppressDiffObject) PlanModifyObject(ctx context.Context, req 
 	}
 
 	// State exists but this field is null — the server didn't echo the inherited value on
-	// create (NIOS WAPI POST api limitation). Mark as unknown so the post-apply server value
+	// create. Mark as unknown so the post-apply server value
 	// is accepted into state. After that one update the steady-state carry-forward above
 	// takes over permanently.
 	resp.PlanValue = types.ObjectUnknown(req.StateValue.AttributeTypes(ctx))

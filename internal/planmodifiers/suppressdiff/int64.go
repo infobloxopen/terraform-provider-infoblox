@@ -81,7 +81,7 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 	}
 
 	// State exists but this field is null — the server didn't echo the inherited value on
-	// create (NIOS WAPI POST api limitation - known issue only for ttl as of now). Mark as unknown so the post-apply server value
+	// create. Mark as unknown so the post-apply server value
 	// (e.g. the grid-default TTL) is accepted into state. After that one update the field
 	// will be non-null and the steady-state carry-forward above takes over permanently.
 	resp.PlanValue = types.Int64Unknown()
