@@ -31,10 +31,11 @@ func userSetKey(p path.Path) string {
 }
 
 // PlanModifyInt64 implements the planmodifier.Int64 interface for useStateToSuppressDiffInt64
-// config has a value              -> use config (leave plan as-is)
-// config null, no prior state     -> leave unknown (create: known after apply)
-// config null, userset flag true  -> user is clearing it -> unknown (backend recomputes)
-// config null, userset flag false -> still inherited -> carry state (quiet, converges)
+// config has a value                          -> use config (leave plan as-is)
+// config null, no prior state (create)        -> leave as-is (null on first apply)
+// config null, userset flag true              -> user clearing it -> unknown (backend recomputes)
+// config null, state non-null                 -> carry state forward (suppress server-side mutations)
+// config null, state null, prior state exists -> unknown (server didn't echo value on create; accept result)
 func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
 	key := userSetKey(req.Path)
 
@@ -73,7 +74,15 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 		return
 	}
 
-	// Still inherited/unset: carry the last resolved value so the plan stays quiet
-	// and converges to "No changes".
-	resp.PlanValue = req.StateValue
+	// State has a known non-null value: carry it forward to suppress server-side mutations.
+	if !req.StateValue.IsNull() {
+		resp.PlanValue = req.StateValue
+		return
+	}
+
+	// State exists but this field is null — the server didn't echo the inherited value on
+	// create (NIOS WAPI POST api limitation - known issue only for ttl as of now). Mark as unknown so the post-apply server value
+	// (e.g. the grid-default TTL) is accepted into state. After that one update the field
+	// will be non-null and the steady-state carry-forward above takes over permanently.
+	resp.PlanValue = types.Int64Unknown()
 }

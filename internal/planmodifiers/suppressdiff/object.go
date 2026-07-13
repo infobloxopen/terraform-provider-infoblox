@@ -24,10 +24,11 @@ func (m useStateToSuppressDiffObject) MarkdownDescription(ctx context.Context) s
 }
 
 // PlanModifyObject implements the planmodifier.Object interface.
-// config has a value              -> use config (leave plan as-is)
-// config null, no prior state     -> leave unknown (create: known after apply)
-// config null, userset flag true  -> user is clearing it -> unknown (backend recomputes)
-// config null, userset flag false -> still inherited -> carry state (quiet, converges)
+// config has a value                          -> use config (leave plan as-is)
+// config null, no prior state (create)        -> leave as-is (null on first apply)
+// config null, userset flag true              -> user clearing it -> unknown (backend recomputes)
+// config null, state non-null                 -> carry state forward (suppress server-side mutations)
+// config null, state null, prior state exists -> unknown (server didn't echo value on create; accept result)
 func (m useStateToSuppressDiffObject) PlanModifyObject(ctx context.Context, req planmodifier.ObjectRequest, resp *planmodifier.ObjectResponse) {
 	key := userSetKey(req.Path)
 
@@ -66,7 +67,15 @@ func (m useStateToSuppressDiffObject) PlanModifyObject(ctx context.Context, req 
 		return
 	}
 
-	// Still inherited/unset: carry the last resolved value so the plan stays quiet
-	// and converges to "No changes".
-	resp.PlanValue = req.StateValue
+	// State has a known non-null value: carry it forward to suppress server-side mutations.
+	if !req.StateValue.IsNull() {
+		resp.PlanValue = req.StateValue
+		return
+	}
+
+	// State exists but this field is null — the server didn't echo the inherited value on
+	// create (NIOS WAPI POST api limitation). Mark as unknown so the post-apply server value
+	// is accepted into state. After that one update the steady-state carry-forward above
+	// takes over permanently.
+	resp.PlanValue = types.ObjectUnknown(req.StateValue.AttributeTypes(ctx))
 }
