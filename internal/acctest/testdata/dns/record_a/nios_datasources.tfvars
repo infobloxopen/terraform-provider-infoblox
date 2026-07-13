@@ -1,8 +1,4 @@
 # Auto-generated datasource acceptance-test cases for RecordA (nios).
-# Source: terraform-provider-nios. One labelled `case` block per legacy
-# TestAccRecordADataSource_<Case>.
-# Replayed by the infoblox provider via acctest.RunDataSourceCases.
-
 case "filters" {
   # filters — generated from terraform-provider-nios
   backend = "nios"
