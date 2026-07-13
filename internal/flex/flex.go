@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	iptypes "github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -224,6 +225,34 @@ func ExpandIPv6Address(ipv6addr iptypes.IPv6Address) *string {
 	return &v
 }
 
+func ExpandIPAddress(ipaddr iptypes.IPAddress) *string {
+	if ipaddr.IsNull() || ipaddr.IsUnknown() {
+		return nil
+	}
+	return ExpandStringPointer(ipaddr.StringValue)
+}
+
+func ExpandIPv4Prefix(ipv4addr cidrtypes.IPv4Prefix) *string {
+	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
+		return nil
+	}
+	return ExpandStringPointer(ipv4addr.StringValue)
+}
+
+func ExpandIPv6Prefix(ipv6addr cidrtypes.IPv6Prefix) *string {
+	if ipv6addr.IsNull() || ipv6addr.IsUnknown() {
+		return nil
+	}
+	return ExpandStringPointer(ipv6addr.StringValue)
+}
+
+func ExpandMACAddr(mac internaltypes.MACAddressValue) *string {
+	if mac.IsNull() || mac.IsUnknown() {
+		return nil
+	}
+	return ExpandStringPointer(mac.StringValue)
+}
+
 func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 	if dt.IsNull() || dt.IsUnknown() {
 		return nil
@@ -422,6 +451,42 @@ func FlattenIPv6Address(ipv6addr *string) iptypes.IPv6Address {
 		return iptypes.NewIPv6AddressNull()
 	}
 	return iptypes.NewIPv6AddressValue(*ipv6addr)
+}
+
+func FlattenIPAddress(ipaddr *string) iptypes.IPAddress {
+	if ipaddr == nil || *ipaddr == "" {
+		return iptypes.NewIPAddressNull()
+	}
+	return iptypes.IPAddress{
+		StringValue: FlattenStringPointer(ipaddr),
+	}
+}
+
+func FlattenIPv4Prefix(ipv4addr *string) cidrtypes.IPv4Prefix {
+	if ipv4addr == nil || *ipv4addr == "" {
+		return cidrtypes.NewIPv4PrefixNull()
+	}
+	return cidrtypes.IPv4Prefix{
+		StringValue: FlattenStringPointer(ipv4addr),
+	}
+}
+
+func FlattenIPv6Prefix(ipv6addr *string) cidrtypes.IPv6Prefix {
+	if ipv6addr == nil || *ipv6addr == "" {
+		return cidrtypes.NewIPv6PrefixNull()
+	}
+	return cidrtypes.IPv6Prefix{
+		StringValue: FlattenStringPointer(ipv6addr),
+	}
+}
+
+func FlattenMACAddr(mac *string) internaltypes.MACAddressValue {
+	if mac == nil {
+		return internaltypes.NewMACAddressNull()
+	}
+	return internaltypes.MACAddressValue{
+		StringValue: FlattenStringPointer(mac),
+	}
 }
 
 func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {

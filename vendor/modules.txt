@@ -227,6 +227,7 @@ github.com/hashicorp/terraform-plugin-framework/types
 github.com/hashicorp/terraform-plugin-framework/types/basetypes
 # github.com/hashicorp/terraform-plugin-framework-nettypes v0.3.0
 ## explicit; go 1.23.0
+github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes
 github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes
 # github.com/hashicorp/terraform-plugin-framework-timetypes v0.5.0
 ## explicit; go 1.21

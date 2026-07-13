@@ -12,15 +12,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
-var _ basetypes.StringTypable = (*CaseInsensitiveString)(nil)
-var _ basetypes.StringValuableWithSemanticEquals = (*CaseInsensitiveStringValue)(nil)
+var _ basetypes.StringTypable = (*CaseInsensitiveStringType)(nil)
+var _ basetypes.StringValuableWithSemanticEquals = (*CaseInsensitiveString)(nil)
 
-type CaseInsensitiveString struct {
+type CaseInsensitiveStringType struct {
 	basetypes.StringType
 }
 
-func (t CaseInsensitiveString) Equal(o attr.Type) bool {
-	other, ok := o.(CaseInsensitiveString)
+func (t CaseInsensitiveStringType) Equal(o attr.Type) bool {
+	other, ok := o.(CaseInsensitiveStringType)
 
 	if !ok {
 		return false
@@ -29,20 +29,20 @@ func (t CaseInsensitiveString) Equal(o attr.Type) bool {
 	return t.StringType.Equal(other.StringType)
 }
 
-func (t CaseInsensitiveString) String() string {
-	return "customtypes.CaseInsensitiveStringType"
+func (t CaseInsensitiveStringType) String() string {
+	return "types.CaseInsensitiveStringType"
 }
 
-func (t CaseInsensitiveString) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
-	// CaseInsensitiveStringValue defined in the value type section
-	value := CaseInsensitiveStringValue{
+func (t CaseInsensitiveStringType) ValueFromString(ctx context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
+	// CaseInsensitiveString defined in the value type section
+	value := CaseInsensitiveString{
 		StringValue: in,
 	}
 
 	return value, nil
 }
 
-func (t CaseInsensitiveString) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t CaseInsensitiveStringType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	attrValue, err := t.StringType.ValueFromTerraform(ctx, in)
 
 	if err != nil {
@@ -64,7 +64,7 @@ func (t CaseInsensitiveString) ValueFromTerraform(ctx context.Context, in tftype
 	return stringValuable, nil
 }
 
-func (t CaseInsensitiveString) Validate(ctx context.Context, in tftypes.Value, path path.Path) diag.Diagnostics {
+func (t CaseInsensitiveStringType) Validate(ctx context.Context, in tftypes.Value, path path.Path) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	if in.Type() == nil {
@@ -74,17 +74,17 @@ func (t CaseInsensitiveString) Validate(ctx context.Context, in tftypes.Value, p
 	return diags
 }
 
-func (t CaseInsensitiveString) ValueType(ctx context.Context) attr.Value {
-	return CaseInsensitiveStringValue{}
+func (t CaseInsensitiveStringType) ValueType(ctx context.Context) attr.Value {
+	return CaseInsensitiveString{}
 }
 
-type CaseInsensitiveStringValue struct {
+type CaseInsensitiveString struct {
 	basetypes.StringValue
 }
 
 // StringSemanticEquals implements the custom semantic equality hook for string-like
 // custom types. The framework will call oldVal.StringSemanticEquals(ctx, newVal)
-func (old CaseInsensitiveStringValue) StringSemanticEquals(ctx context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
+func (old CaseInsensitiveString) StringSemanticEquals(ctx context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	if old.IsUnknown() || newValuable.IsUnknown() {
@@ -106,22 +106,22 @@ func (old CaseInsensitiveStringValue) StringSemanticEquals(ctx context.Context, 
 	return strings.EqualFold(oldStr, newStr), diags
 }
 
-func (v CaseInsensitiveStringValue) Type(ctx context.Context) attr.Type {
-	return CaseInsensitiveString{}
+func (v CaseInsensitiveString) Type(ctx context.Context) attr.Type {
+	return CaseInsensitiveStringType{}
 }
 
-func (v CaseInsensitiveStringValue) ValueString() string {
+func (v CaseInsensitiveString) ValueString() string {
 	return v.StringValue.ValueString()
 }
 
-func (v CaseInsensitiveStringValue) String() string {
+func (v CaseInsensitiveString) String() string {
 	return v.StringValue.ValueString()
 }
 
-func (v CaseInsensitiveStringValue) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, diag.Diagnostics) {
+func (v CaseInsensitiveString) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	if in.IsNull() {
-		return CaseInsensitiveStringValue{basetypes.NewStringNull()}, diags
+		return CaseInsensitiveString{basetypes.NewStringNull()}, diags
 	}
 
 	var value string
@@ -131,37 +131,37 @@ func (v CaseInsensitiveStringValue) ValueFromTerraform(ctx context.Context, in t
 		return nil, diags
 	}
 
-	return CaseInsensitiveStringValue{basetypes.NewStringValue(value)}, diags
+	return CaseInsensitiveString{basetypes.NewStringValue(value)}, diags
 }
 
-// ValueType returns the value type of the CaseInsensitiveStringValue.
-func (v CaseInsensitiveStringValue) ValueType(_ context.Context) attr.Value {
-	return CaseInsensitiveStringValue{}
+// ValueType returns the value type of the CaseInsensitiveString.
+func (v CaseInsensitiveString) ValueType(_ context.Context) attr.Value {
+	return CaseInsensitiveString{}
 }
 
-// NewCaseInsensitiveStringNull creates an CaseInsensitiveStringValue with a null value. Determine whether the value is null via IsNull method.
-func NewCaseInsensitiveStringNull() CaseInsensitiveStringValue {
-	return CaseInsensitiveStringValue{
+// NewCaseInsensitiveStringValueNull creates an CaseInsensitiveString with a null value. Determine whether the value is null via IsNull method.
+func NewCaseInsensitiveStringValueNull() CaseInsensitiveString {
+	return CaseInsensitiveString{
 		StringValue: basetypes.NewStringNull(),
 	}
 }
 
-// NewCaseInsensitiveStringUnknown creates an CaseInsensitiveStringValue with an unknown value. Determine whether the value is unknown via IsUnknown method.
-func NewCaseInsensitiveStringUnknown() CaseInsensitiveStringValue {
-	return CaseInsensitiveStringValue{
+// NewCaseInsensitiveStringValueUnknown creates an CaseInsensitiveString with an unknown value. Determine whether the value is unknown via IsUnknown method.
+func NewCaseInsensitiveStringValueUnknown() CaseInsensitiveString {
+	return CaseInsensitiveString{
 		StringValue: basetypes.NewStringUnknown(),
 	}
 }
 
-// NewCaseInsensitiveStringValue creates an CaseInsensitiveStringValue with a known value. Access the value via ValueString method.
-func NewCaseInsensitiveStringValue(value string) CaseInsensitiveStringValue {
-	return CaseInsensitiveStringValue{
+// NewCaseInsensitiveStringValue creates an CaseInsensitiveString with a known value. Access the value via ValueString method.
+func NewCaseInsensitiveStringValue(value string) CaseInsensitiveString {
+	return CaseInsensitiveString{
 		StringValue: basetypes.NewStringValue(value),
 	}
 }
 
-func NewCaseInsensitiveStringPointerValue(value *string) CaseInsensitiveStringValue {
-	return CaseInsensitiveStringValue{
+func NewCaseInsensitiveStringPointerValue(value *string) CaseInsensitiveString {
+	return CaseInsensitiveString{
 		StringValue: basetypes.NewStringPointerValue(value),
 	}
 }
