@@ -231,8 +231,37 @@ case "rdata" {
 case "tags" {
   # tags — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata = { address = "10.0.0.1" }
+      zone = infoblox_zone_auth.test.id
+      tags = { tag1 = "value1" }
+    }
+    check = {
+      "uddi.tags.tag1" = "value1"
+    }
+  }
+
+  step {
+    uddi {
+      rdata = { address = "10.0.0.1" }
+      zone = infoblox_zone_auth.test.id
+      tags = { tag1 = "value2" }
+    }
+    check = {
+      "uddi.tags.tag1" = "value2"
+    }
+  }
+
 }
 
 case "ttl" {
@@ -275,19 +304,19 @@ case "view" {
   # view — generated from terraform-provider-uddi
   backend = "uddi"
   skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+  skip_reason = "helper declares prerequisite resource 'bloxone_dns_view' which has no buildable infoblox equivalent (not in _PREREQ_TYPE_MAP)"
 }
 
 case "zone" {
   # zone — generated from terraform-provider-uddi
   backend = "uddi"
   skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+  skip_reason = "inline prerequisite resource 'infoblox_zone_auth' could not be rendered"
 }
 
 case "options" {
   # options — generated from terraform-provider-uddi
   backend = "uddi"
   skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+  skip_reason = "a prerequisite helper resource could not be rendered"
 }

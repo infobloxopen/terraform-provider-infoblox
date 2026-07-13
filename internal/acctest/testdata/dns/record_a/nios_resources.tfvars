@@ -197,8 +197,31 @@ case "disable" {
 case "extattrs" {
   # extattrs — generated from terraform-provider-nios
   backend = "nios"
-  skip        = true
-  skip_reason = "unsupported config (prerequisites or nested values)"
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ext_attrs = { Site = "{{random2}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random2}}"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random}}.example.com"
+      ipv4addr = "10.0.0.20"
+      view = "default"
+      ext_attrs = { Site = "{{random3}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random3}}"
+    }
+  }
+
 }
 
 case "forbid_reclamation" {
