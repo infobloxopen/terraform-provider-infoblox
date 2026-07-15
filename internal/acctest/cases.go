@@ -60,13 +60,13 @@ func RunResourceCases(t *testing.T, resourceType, fileRelPath string, checksByBa
 		cases = nil
 	}
 
-	// Append user-authored manual cases from the sibling manual_<file> so custom
+	// Append user-authored custom cases from the sibling custom_<file> so custom
 	// scenarios written by users run automatically alongside the generated ones.
-	manualCases, mErr := loadManualResourceCases(fileRelPath)
+	customCases, mErr := loadCustomResourceCases(fileRelPath)
 	if mErr != nil {
-		t.Fatalf("failed to load manual resource cases for %s: %v", fileRelPath, mErr)
+		t.Fatalf("failed to load custom resource cases for %s: %v", fileRelPath, mErr)
 	}
-	cases = append(cases, manualCases...)
+	cases = append(cases, customCases...)
 
 	if len(cases) == 0 {
 		t.Skipf("no resource cases at %s: %v", path, err)
@@ -195,9 +195,30 @@ func (rc *ResourceCase) materialize() {
 		return s
 	}
 
+	// replaceDeep recurses into nested objects/lists (e.g. members, options,
+	// ext_attrs) so placeholders inside nested attribute values are materialized
+	// too, keeping each distinct placeholder consistent across the whole case.
+	var replaceDeep func(v any) any
+	replaceDeep = func(v any) any {
+		switch val := v.(type) {
+		case map[string]any:
+			for k, sub := range val {
+				val[k] = replaceDeep(sub)
+			}
+			return val
+		case []any:
+			for i, sub := range val {
+				val[i] = replaceDeep(sub)
+			}
+			return val
+		default:
+			return replace(v)
+		}
+	}
+
 	replaceMap := func(m map[string]any) {
 		for k, v := range m {
-			m[k] = replace(v)
+			m[k] = replaceDeep(v)
 		}
 	}
 
@@ -217,23 +238,23 @@ func (rc *ResourceCase) materialize() {
 	}
 }
 
-// manualSibling returns the "manual_"-prefixed sibling of a testdata-relative
+// customSibling returns the "custom_"-prefixed sibling of a testdata-relative
 // case file (e.g. "dns/record_a/nios_resources.tfvars" ->
-// "dns/record_a/manual_nios_resources.tfvars"). Manual files are hand-authored
+// "dns/record_a/custom_nios_resources.tfvars"). Custom files are hand-authored
 // by users to add custom scenarios and are never overwritten by codegen.
-func manualSibling(fileRelPath string) string {
+func customSibling(fileRelPath string) string {
 	i := strings.LastIndex(fileRelPath, "/")
 	if i < 0 {
-		return "manual_" + fileRelPath
+		return "custom_" + fileRelPath
 	}
-	return fileRelPath[:i+1] + "manual_" + fileRelPath[i+1:]
+	return fileRelPath[:i+1] + "custom_" + fileRelPath[i+1:]
 }
 
-// loadManualResourceCases loads resource cases from the sibling manual_ file if
+// loadCustomResourceCases loads resource cases from the sibling custom_ file if
 // present. A missing file, or a file containing only comments (a skeleton with
 // no `case` blocks), yields no cases and no error.
-func loadManualResourceCases(fileRelPath string) ([]*ResourceCase, error) {
-	full := GetTestdataPath(manualSibling(fileRelPath))
+func loadCustomResourceCases(fileRelPath string) ([]*ResourceCase, error) {
+	full := GetTestdataPath(customSibling(fileRelPath))
 	if _, err := os.Stat(full); err != nil {
 		return nil, nil
 	}

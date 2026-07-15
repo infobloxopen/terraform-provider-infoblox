@@ -223,6 +223,12 @@ func ResolvePlaceholder(placeholder string) string {
 	switch {
 	case name == "random_octet":
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
+	case name == "grid_master_hostname":
+		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
+	case name == "discovery_member_hostname":
+		return os.Getenv("NIOS_DISCOVERY_MEMBER_HOSTNAME")
+	case name == "pxgrid_endpoint_ref":
+		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
 	case strings.HasPrefix(name, "random_ipv6_network"):
