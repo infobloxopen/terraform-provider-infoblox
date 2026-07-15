@@ -35,7 +35,7 @@ func userSetKey(p path.Path) string {
 // config null, no prior state (create)        -> leave as-is (null on first apply)
 // config null, userset flag true              -> user clearing it -> unknown (backend recomputes)
 // config null, state non-null                 -> carry state forward (suppress server-side mutations)
-// config null, state null, prior state exists -> unknown (server didn't echo value on create; accept result)
+// config null, state null, prior state exists -> null (resource ModifyPlan marks Unknown only when a complete resource update is in progress, avoiding perpetual non-empty refresh plan)
 func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
 	key := userSetKey(req.Path)
 
@@ -62,7 +62,7 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 	}
 
 	// Detect a real create via the whole prior state, not this field: a field can
-	// stay null after create (no inheritance/echo), and treating that as "create"
+	// stay null after create (no inheritance/echo case), and treating that as "create"
 	// would keep it unknown forever (perpetual diff).
 	if req.State.Raw.IsNull() {
 		return
@@ -74,15 +74,13 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 		return
 	}
 
-	// State has a known non-null value: carry it forward to suppress server-side mutations.
+	// State has a known non-null value: carry it forward to suppress verbosity.
 	if !req.StateValue.IsNull() {
 		resp.PlanValue = req.StateValue
 		return
 	}
 
-	// State exists but this field is null — the server didn't echo the inherited value on
-	// create. Mark as unknown so the post-apply server value
-	// (e.g. the grid-default TTL) is accepted into state. After that one update the field
-	// will be non-null and the steady-state carry-forward above takes over permanently.
-	resp.PlanValue = types.Int64Unknown()
+	// State exists but this field is null — stay at framework null (same as plain Optional+Computed).
+	// The resource's ModifyPlan will mark Unknown only when a real update (updation of this resource) is actually in progress,
+	// avoiding a perpetual non-empty refresh plan on empty plans.
 }

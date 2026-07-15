@@ -44,7 +44,7 @@ func (v ConditionalArpaOrFQDNValidator) ValidateString(ctx context.Context, requ
 		v.IPv6Validator.ValidateString(ctx, request, ipv6Resp)
 
 		if ipv4Resp.Diagnostics.HasError() && ipv6Resp.Diagnostics.HasError() {
-			// Both failed → add combined error
+			// Both failed -> add combined error
 			response.Diagnostics.AddAttributeError(
 				request.Path,
 				"Invalid ARPA Format",

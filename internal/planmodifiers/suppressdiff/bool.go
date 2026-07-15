@@ -28,7 +28,7 @@ func (m useStateToSuppressDiffBool) MarkdownDescription(ctx context.Context) str
 // config null, no prior state (create)        -> leave as-is (null on first apply)
 // config null, userset flag true              -> user clearing it -> unknown (backend recomputes)
 // config null, state non-null                 -> carry state forward (suppress server-side mutations)
-// config null, state null, prior state exists -> unknown (server didn't echo value on create; accept result)
+// config null, state null, prior state exists -> null (resource ModifyPlan marks Unknown only when a complete resource update is in progress, avoiding perpetual non-empty refresh plan)
 func (m useStateToSuppressDiffBool) PlanModifyBool(ctx context.Context, req planmodifier.BoolRequest, resp *planmodifier.BoolResponse) {
 	key := userSetKey(req.Path)
 
@@ -67,15 +67,13 @@ func (m useStateToSuppressDiffBool) PlanModifyBool(ctx context.Context, req plan
 		return
 	}
 
-	// State has a known non-null value: carry it forward to suppress server-side mutations.
+	// State has a known non-null value: carry it forward to suppress verbosity.
 	if !req.StateValue.IsNull() {
 		resp.PlanValue = req.StateValue
 		return
 	}
 
-	// State exists but this field is null — the server didn't echo the inherited value on
-	// create. Mark as unknown so the post-apply server value
-	// is accepted into state. After that one update the steady-state carry-forward above
-	// takes over permanently.
-	resp.PlanValue = types.BoolUnknown()
+	// State exists but this field is null — stay at framework null (same as plain Optional+Computed).
+	// The resource's ModifyPlan will mark Unknown only when a real update (updation of this resource) is actually in progress,
+	// avoiding a perpetual non-empty refresh plan on empty plans.
 }
