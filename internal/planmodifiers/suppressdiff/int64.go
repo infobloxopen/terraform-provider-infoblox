@@ -30,6 +30,10 @@ func userSetKey(p path.Path) string {
 	return "userset::" + p.String()
 }
 
+// NOTE: This suppress-diff modifier is primarily meant for fields governed by a NIOS
+// use_* flag (server-inherited values). For other Optional+Computed fields the
+// expected behavior may differ — verify before relying on it.
+//
 // PlanModifyInt64 implements the planmodifier.Int64 interface for useStateToSuppressDiffInt64
 // config has a value                          -> use config (leave plan as-is)
 // config null, no prior state (create)        -> leave as-is (null on first apply)

@@ -23,6 +23,10 @@ func (m useStateToSuppressDiffList) MarkdownDescription(ctx context.Context) str
 	return m.Description(ctx)
 }
 
+// NOTE: This suppress-diff modifier is primarily meant for fields governed by a NIOS
+// use_* flag (server-inherited values). For other Optional+Computed fields the
+// expected behavior may differ — verify before relying on it.
+//
 // PlanModifyList implements the planmodifier.List interface.
 // config has a value                          -> use config (leave plan as-is)
 // config null, no prior state (create)        -> leave as-is (null on first apply)

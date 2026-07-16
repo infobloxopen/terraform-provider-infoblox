@@ -22,6 +22,10 @@ type InheritedField struct {
 	UnknownValue attr.Value // type-correct Unknown value (e.g. types.Int64Unknown())
 }
 
+// NOTE: This mechanism is primarily meant for fields governed by a NIOS use_* flag
+// (server-inherited values not echoed on POST). For other Optional+Computed fields
+// the expected behavior may differ — verify before relying on it.
+//
 // MarkInheritedFieldsUnknown marks each InheritedField as Unknown in the plan when all
 // three conditions hold:
 //  1. The resource already exists (state is not null — not a create or destroy)
