@@ -17,9 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 
-	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
+	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"

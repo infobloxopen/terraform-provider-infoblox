@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	uddidns "github.com/infobloxopen/bloxone-go-client/dnsdata"
+	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsdata"
 )
 
 // RecordInheritanceModel is the Terraform model for RecordInheritance

@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
-	uddioption "github.com/infobloxopen/bloxone-go-client/option"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	gridclient "github.com/infobloxopen/infoblox-nios-go-client/grid"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
@@ -20,6 +18,8 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
+	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
 
 var (

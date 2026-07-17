@@ -12,10 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 
-	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
-	uddioption "github.com/infobloxopen/bloxone-go-client/option"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
+	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
+	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/provider"
 )
@@ -75,14 +75,14 @@ func PreCheckNIOS(t *testing.T) {
 
 // PreCheckUDDI validates UDDI environment and initializes the client.
 func PreCheckUDDI(t *testing.T) {
-	cspURL := os.Getenv("BLOXONE_CSP_URL")
+	cspURL := os.Getenv("INFOBLOX_PORTAL_URL")
 	if cspURL == "" {
-		t.Fatal("BLOXONE_CSP_URL must be set for UDDI acceptance tests")
+		t.Fatal("INFOBLOX_PORTAL_URL must be set for UDDI acceptance tests")
 	}
 
-	apiKey := os.Getenv("BLOXONE_API_KEY")
+	apiKey := os.Getenv("INFOBLOX_PORTAL_KEY")
 	if apiKey == "" {
-		t.Fatal("BLOXONE_API_KEY must be set for UDDI acceptance tests")
+		t.Fatal("INFOBLOX_PORTAL_KEY must be set for UDDI acceptance tests")
 	}
 
 	UDDIClient = uddiclient.NewAPIClient(
@@ -287,7 +287,7 @@ provider "infoblox" {
     api_key = %q
   }
 }
-`, os.Getenv("BLOXONE_CSP_URL"), os.Getenv("BLOXONE_API_KEY"))
+`, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"))
 
 	default:
 		return ""

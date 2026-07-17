@@ -14,8 +14,8 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
-	github.com/infobloxopen/bloxone-go-client v0.3.1-0.20260401071415-2e47d3e9ff7d
 	github.com/infobloxopen/infoblox-nios-go-client v0.1.1
+	github.com/infobloxopen/universal-ddi-go-client v0.4.0
 	github.com/zclconf/go-cty v1.18.1
 )
 

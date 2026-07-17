@@ -1,7 +1,7 @@
 package ipam
 
 import (
-	uddiipam "github.com/infobloxopen/bloxone-go-client/ipam"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // Infoblox Address model

@@ -1,8 +1,8 @@
 package dns
 
 import (
-	uddidnsdata "github.com/infobloxopen/bloxone-go-client/dnsdata"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
+	uddidnsdata "github.com/infobloxopen/universal-ddi-go-client/dnsdata"
 )
 
 // Infoblox RecordA model

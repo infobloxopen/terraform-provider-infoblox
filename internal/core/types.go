@@ -1,8 +1,8 @@
 package core
 
 import (
-	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
+	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 )
 
 type BackendType string

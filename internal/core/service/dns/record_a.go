@@ -6,14 +6,14 @@ import (
 	"maps"
 	"net/http"
 
-	uddiclient "github.com/infobloxopen/bloxone-go-client/client"
-	uddidnsdata "github.com/infobloxopen/bloxone-go-client/dnsdata"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
+	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
+	uddidnsdata "github.com/infobloxopen/universal-ddi-go-client/dnsdata"
 )
 
 type RecordAService interface {
