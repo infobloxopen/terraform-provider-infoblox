@@ -1,0 +1,1 @@
+This folder is intended to store all files and configurations related to the deployment of NIOS on the Google Cloud Marketplace.
