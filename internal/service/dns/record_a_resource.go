@@ -14,7 +14,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	dnshooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -96,7 +95,7 @@ func (r *RecordAResource) ValidateConfig(ctx context.Context, req resource.Valid
 		return
 	}
 
-	dnshooks.ValidateRecordA(ctx, data.NIOS, data.UDDI, resp)
+	ValidateRecordA(ctx, data, resp)
 }
 
 func (r *RecordAResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

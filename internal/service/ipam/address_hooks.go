@@ -8,17 +8,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
-// ValidateAddress validates the Address configuration.
-func ValidateAddress(ctx context.Context, niosBlock, uddiBlock types.Object, resp *resource.ValidateConfigResponse) {
-	if !uddiBlock.IsNull() && !uddiBlock.IsUnknown() {
-		validateAddressUDDIConfig(ctx, uddiBlock, resp)
+// ValidateAddress validates the Address configuration. Hooks live in the service
+// package so they can work with the typed TF model directly (no import cycle).
+func ValidateAddress(ctx context.Context, data AddressModel, resp *resource.ValidateConfigResponse) {
+	if uddi := flex.ExpandNestedObject[UDDIAddressModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
+		validateAddressUDDIConfig(ctx, uddi, resp)
 	}
 }
 
-func validateAddressUDDIConfig(ctx context.Context, data types.Object, resp *resource.ValidateConfigResponse) {
+func validateAddressUDDIConfig(ctx context.Context, m *UDDIAddressModel, resp *resource.ValidateConfigResponse) {
 }
 
 func BuildAddressAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {

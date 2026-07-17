@@ -19,7 +19,6 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	ipamhooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/ipam"
 )
 
 type AddressModel struct {
@@ -186,7 +185,7 @@ func (m *UDDIAddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Tags:         flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
-		if alloc := ipamhooks.BuildAddressAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
+		if alloc := BuildAddressAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = *alloc
 		}
 	}

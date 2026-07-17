@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
-	ipamhooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/ipam"
 )
 
 var (
@@ -88,7 +86,7 @@ func (r *AddressResource) ValidateConfig(ctx context.Context, req resource.Valid
 		return
 	}
 
-	ipamhooks.ValidateAddress(ctx, types.ObjectNull(nil), data.UDDI, resp)
+	ValidateAddress(ctx, data, resp)
 }
 
 func (r *AddressResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -99,7 +97,7 @@ func (r *AddressResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	unlock := ipamhooks.LockAddressAllocation(ctx, data.UDDI, &resp.Diagnostics)
+	unlock := LockAddressAllocation(ctx, data.UDDI, &resp.Diagnostics)
 	defer unlock()
 	if resp.Diagnostics.HasError() {
 		return

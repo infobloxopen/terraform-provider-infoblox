@@ -22,7 +22,6 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	dnshooks "github.com/infobloxopen/terraform-provider-infoblox/internal/hooks/dns"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
@@ -355,7 +354,7 @@ func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	}
 	if isCreate {
 		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
-		ext.FuncCall = dnshooks.BuildRecordAFuncCall(ctx, m.DynamicAllocation, diags)
+		ext.FuncCall = BuildRecordAFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
 }
