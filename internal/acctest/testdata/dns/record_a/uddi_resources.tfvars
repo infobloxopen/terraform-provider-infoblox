@@ -14,7 +14,7 @@ case "basic" {
   step {
     uddi {
       rdata = { address = "10.0.0.15" }
-      zone = infoblox_zone_auth.test.id
+      zone  = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.15"
@@ -40,7 +40,7 @@ case "disappears" {
   step {
     uddi {
       rdata = { address = "10.0.0.15" }
-      zone = infoblox_zone_auth.test.id
+      zone  = infoblox_zone_auth.test.id
     }
   }
 
@@ -60,8 +60,8 @@ case "comment" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata   = { address = "10.0.0.1" }
+      zone    = infoblox_zone_auth.test.id
       comment = "some comment"
     }
     check = {
@@ -71,8 +71,8 @@ case "comment" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata   = { address = "10.0.0.1" }
+      zone    = infoblox_zone_auth.test.id
       comment = "updated comment"
     }
     check = {
@@ -96,8 +96,8 @@ case "disabled" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata    = { address = "10.0.0.1" }
+      zone     = infoblox_zone_auth.test.id
       disabled = true
     }
     check = {
@@ -107,8 +107,8 @@ case "disabled" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata    = { address = "10.0.0.1" }
+      zone     = infoblox_zone_auth.test.id
       disabled = false
     }
     check = {
@@ -132,8 +132,8 @@ case "inheritance_sources" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata               = { address = "10.0.0.1" }
+      zone                = infoblox_zone_auth.test.id
       inheritance_sources = { ttl = { action = "inherit" } }
     }
     check = {
@@ -143,8 +143,8 @@ case "inheritance_sources" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata               = { address = "10.0.0.1" }
+      zone                = infoblox_zone_auth.test.id
       inheritance_sources = { ttl = { action = "override" } }
     }
     check = {
@@ -168,8 +168,8 @@ case "name_in_zone" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata        = { address = "10.0.0.1" }
+      zone         = infoblox_zone_auth.test.id
       name_in_zone = "xyz"
     }
     check = {
@@ -179,8 +179,8 @@ case "name_in_zone" {
 
   step {
     uddi {
-      rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      rdata        = { address = "10.0.0.1" }
+      zone         = infoblox_zone_auth.test.id
       name_in_zone = "abc"
     }
     check = {
@@ -205,7 +205,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
+      zone  = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.1"
@@ -215,7 +215,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { address = "10.0.0.2" }
-      zone = infoblox_zone_auth.test.id
+      zone  = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.address" = "10.0.0.2"
@@ -239,8 +239,8 @@ case "tags" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
-      tags = { tag1 = "value1" }
+      zone  = infoblox_zone_auth.test.id
+      tags  = { tag1 = "value1" }
     }
     check = {
       "uddi.tags.tag1" = "value1"
@@ -250,8 +250,8 @@ case "tags" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
-      tags = { tag1 = "value2" }
+      zone  = infoblox_zone_auth.test.id
+      tags  = { tag1 = "value2" }
     }
     check = {
       "uddi.tags.tag1" = "value2"
@@ -275,8 +275,8 @@ case "ttl" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
-      ttl = 60
+      zone  = infoblox_zone_auth.test.id
+      ttl   = 60
     }
     check = {
       "uddi.ttl" = "60"
@@ -286,8 +286,8 @@ case "ttl" {
   step {
     uddi {
       rdata = { address = "10.0.0.1" }
-      zone = infoblox_zone_auth.test.id
-      ttl = 90
+      zone  = infoblox_zone_auth.test.id
+      ttl   = 90
     }
     check = {
       "uddi.ttl" = "90"
@@ -299,20 +299,137 @@ case "ttl" {
 case "view" {
   # view — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'bloxone_dns_view' which has no buildable infoblox equivalent (not in _PREREQ_TYPE_MAP)"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "one" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_view" "two" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "test.com."
+      view = infoblox_view.one.id
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata              = { address = "10.0.0.1" }
+      absolute_name_spec = "a.test.com."
+      view               = infoblox_view.one.id
+    }
+  }
+
+  step {
+    uddi {
+      rdata              = { address = "10.0.0.1" }
+      absolute_name_spec = "a.test.com."
+      view               = infoblox_view.two.id
+    }
+  }
+
 }
 
 case "zone" {
   # zone — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "inline prerequisite resource 'infoblox_zone_auth' could not be rendered"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "one" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  resource "infoblox_zone_auth" "two" {
+    uddi = {
+      fqdn = "{{random2}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata = { address = "10.0.0.1" }
+      zone  = infoblox_zone_auth.one.id
+    }
+  }
+
+  step {
+    uddi {
+      rdata = { address = "10.0.0.1" }
+      zone  = infoblox_zone_auth.two.id
+    }
+  }
+
 }
 
 case "options" {
   # options — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "a prerequisite helper resource could not be rendered"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random2}}.com."
+      primary_type = "cloud"
+      view = infoblox_view.test.id
+    }
+  }
+  resource "infoblox_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_zone_auth" "rmz" {
+    uddi = {
+      fqdn = "10.in-addr.arpa."
+      primary_type = "cloud"
+      view = infoblox_view.test.id
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata   = { address = "10.0.0.1" }
+      options = { create_ptr = true, check_rmz = true }
+      zone    = infoblox_zone_auth.test.id
+    }
+    check = {
+      "uddi.options.create_ptr" = "true"
+      "uddi.options.check_rmz"  = "true"
+    }
+  }
+
+  step {
+    uddi {
+      rdata   = { address = "10.0.0.1" }
+      options = { create_ptr = true, check_rmz = false }
+      zone    = infoblox_zone_auth.test.id
+    }
+    check = {
+      "uddi.options.create_ptr" = "true"
+      "uddi.options.check_rmz"  = "false"
+    }
+  }
+
+  step {
+    uddi {
+      rdata   = { address = "10.0.0.1" }
+      options = { create_ptr = false, check_rmz = false }
+      zone    = infoblox_zone_auth.test.id
+    }
+    check = {
+      "uddi.options.create_ptr" = "false"
+      "uddi.options.check_rmz"  = "false"
+    }
+  }
+
 }
