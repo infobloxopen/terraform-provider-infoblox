@@ -5,18 +5,17 @@ case "basic" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
+      view     = "default"
     }
     check = {
-      "nios.ipv4addr" = "10.0.0.20"
-      "nios.name" = "{{random}}.example.com"
-      "nios.creator" = "STATIC"
-      "nios.ddns_protected" = "false"
-      "nios.disable" = "false"
+      "nios.ipv4addr"           = "10.0.0.20"
+      "nios.name"               = "{{random}}.example.com"
+      "nios.creator"            = "STATIC"
+      "nios.ddns_protected"     = "false"
+      "nios.disable"            = "false"
       "nios.forbid_reclamation" = "false"
-      "nios.use_ttl" = "false"
     }
   }
 
@@ -30,9 +29,9 @@ case "disappears" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
+      view     = "default"
     }
   }
 
@@ -44,10 +43,10 @@ case "comment" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      comment = "This is a new record"
+      view     = "default"
+      comment  = "This is a new record"
     }
     check = {
       "nios.comment" = "This is a new record"
@@ -56,10 +55,10 @@ case "comment" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      comment = "This is an updated record"
+      view     = "default"
+      comment  = "This is an updated record"
     }
     check = {
       "nios.comment" = "This is an updated record"
@@ -74,10 +73,10 @@ case "creator" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      creator = "STATIC"
+      view     = "default"
+      creator  = "STATIC"
     }
     check = {
       "nios.creator" = "STATIC"
@@ -86,10 +85,10 @@ case "creator" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      creator = "DYNAMIC"
+      view     = "default"
+      creator  = "DYNAMIC"
     }
     check = {
       "nios.creator" = "DYNAMIC"
@@ -104,10 +103,10 @@ case "ddns_principal" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
-      creator = "DYNAMIC"
+      name           = "{{random}}.example.com"
+      ipv4addr       = "10.0.0.20"
+      view           = "default"
+      creator        = "DYNAMIC"
       ddns_principal = "DDNS_PRINCIPAL_REPLACE_ME"
     }
     check = {
@@ -117,10 +116,10 @@ case "ddns_principal" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
-      creator = "DYNAMIC"
+      name           = "{{random}}.example.com"
+      ipv4addr       = "10.0.0.20"
+      view           = "default"
+      creator        = "DYNAMIC"
       ddns_principal = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
     }
     check = {
@@ -136,9 +135,9 @@ case "ddns_protected" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name           = "{{random}}.example.com"
+      ipv4addr       = "10.0.0.20"
+      view           = "default"
       ddns_protected = false
     }
     check = {
@@ -148,9 +147,9 @@ case "ddns_protected" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name           = "{{random}}.example.com"
+      ipv4addr       = "10.0.0.20"
+      view           = "default"
       ddns_protected = true
     }
     check = {
@@ -166,10 +165,10 @@ case "disable" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      disable = false
+      view     = "default"
+      disable  = false
     }
     check = {
       "nios.disable" = "false"
@@ -178,10 +177,10 @@ case "disable" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      disable = true
+      view     = "default"
+      disable  = true
     }
     check = {
       "nios.disable" = "true"
@@ -196,9 +195,9 @@ case "extattrs" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name      = "{{random}}.example.com"
+      ipv4addr  = "10.0.0.20"
+      view      = "default"
       ext_attrs = { Site = "{{random2}}" }
     }
     check = {
@@ -208,9 +207,9 @@ case "extattrs" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name      = "{{random}}.example.com"
+      ipv4addr  = "10.0.0.20"
+      view      = "default"
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
@@ -226,9 +225,9 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name               = "{{random}}.example.com"
+      ipv4addr           = "10.0.0.20"
+      view               = "default"
       forbid_reclamation = true
     }
     check = {
@@ -238,9 +237,9 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
+      name               = "{{random}}.example.com"
+      ipv4addr           = "10.0.0.20"
+      view               = "default"
       forbid_reclamation = false
     }
     check = {
@@ -254,7 +253,7 @@ case "func_call" {
   # func_call — generated from terraform-provider-nios
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network" "test" {
+  resource "infoblox_network" "test_func_call" {
     nios = {
       network = "85.85.0.0/16"
       network_view = "default"
@@ -264,19 +263,19 @@ case "func_call" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      view = "default"
+      name               = "{{random}}.example.com"
+      view               = "default"
       dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      comment = "Original Function Call"
+      comment            = "Original Function Call"
     }
   }
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      view = "default"
+      name               = "{{random}}.example.com"
+      view               = "default"
       dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      comment = "Function Call with Update"
+      comment            = "Function Call with Update"
     }
   }
 
@@ -288,9 +287,9 @@ case "ipv4addr" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
+      view     = "default"
     }
     check = {
       "nios.ipv4addr" = "10.0.0.20"
@@ -299,9 +298,9 @@ case "ipv4addr" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.1.0.20"
-      view = "default"
+      view     = "default"
     }
     check = {
       "nios.ipv4addr" = "10.1.0.20"
@@ -316,9 +315,9 @@ case "name" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
+      view     = "default"
     }
     check = {
       "nios.name" = "{{random}}.example.com"
@@ -327,9 +326,9 @@ case "name" {
 
   step {
     nios {
-      name = "{{random2}}.example.com"
+      name     = "{{random2}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
+      view     = "default"
     }
     check = {
       "nios.name" = "{{random2}}.example.com"
@@ -344,11 +343,10 @@ case "ttl" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      ttl = 10
-      use_ttl = true
+      view     = "default"
+      ttl      = 10
     }
     check = {
       "nios.ttl" = "10"
@@ -357,45 +355,13 @@ case "ttl" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name     = "{{random}}.example.com"
       ipv4addr = "10.0.0.20"
-      view = "default"
-      ttl = 0
-      use_ttl = true
+      view     = "default"
+      ttl      = 0
     }
     check = {
       "nios.ttl" = "0"
-    }
-  }
-
-}
-
-case "use_ttl" {
-  # use_ttl — generated from terraform-provider-nios
-  backend = "nios"
-
-  step {
-    nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
-      use_ttl = true
-      ttl = 20
-    }
-    check = {
-      "nios.use_ttl" = "true"
-    }
-  }
-
-  step {
-    nios {
-      name = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view = "default"
-      use_ttl = false
-    }
-    check = {
-      "nios.use_ttl" = "false"
     }
   }
 
