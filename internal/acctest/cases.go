@@ -24,10 +24,11 @@ func ExtractNIOSRef(ref string) string {
 
 // CaseStep is a single Terraform step within a generated resource case.
 type CaseStep struct {
-	Common map[string]any
-	NIOS   map[string]any
-	UDDI   map[string]any
-	Checks map[string]string
+	Common    map[string]any
+	NIOS      map[string]any
+	UDDI      map[string]any
+	Checks    map[string]string
+	DependsOn []string
 }
 
 // ResourceCase is a per-test-case acceptance configuration, generated from the
@@ -163,6 +164,10 @@ func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 		writeSection("nios", st.NIOS)
 	case "uddi":
 		writeSection("uddi", st.UDDI)
+	}
+
+	if len(st.DependsOn) > 0 {
+		sb.WriteString(fmt.Sprintf("  depends_on = [%s]\n", strings.Join(st.DependsOn, ", ")))
 	}
 
 	sb.WriteString("}\n")
@@ -382,6 +387,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	content, _, diags := body.PartialContent(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
+			{Name: "depends_on"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "common"},
@@ -396,6 +402,19 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	if attr, ok := content.Attributes["check"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		st.Checks = ctyMapToStringMap(val)
+	}
+
+	if attr, ok := content.Attributes["depends_on"]; ok {
+		rng := attr.Expr.Range()
+		if src != nil && rng.Start.Byte >= 0 && rng.End.Byte <= len(src) {
+			raw := strings.TrimSpace(string(src[rng.Start.Byte:rng.End.Byte]))
+			raw = strings.TrimPrefix(strings.TrimSuffix(raw, "]"), "[")
+			for _, ref := range strings.Split(raw, ",") {
+				if ref = strings.TrimSpace(ref); ref != "" {
+					st.DependsOn = append(st.DependsOn, ref)
+				}
+			}
+		}
 	}
 
 	for _, block := range content.Blocks {
