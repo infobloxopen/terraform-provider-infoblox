@@ -1558,6 +1558,9 @@ case "sortlist" {
   step {
     nios {
       name = "{{random}}"
+      sortlist = [{
+        address = "13.0.0.0/24"
+      }]
     }
     check = {
       "nios.sortlist.0.address" = "13.0.0.0/24"
@@ -1567,6 +1570,9 @@ case "sortlist" {
   step {
     nios {
       name = "{{random}}"
+      sortlist = [{
+        address = "10.0.0.0/24"
+      }]
     }
     check = {
       "nios.sortlist.0.address" = "10.0.0.0/24"

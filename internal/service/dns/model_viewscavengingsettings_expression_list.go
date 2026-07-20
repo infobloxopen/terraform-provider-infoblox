@@ -90,10 +90,10 @@ func (m *ViewscavengingsettingsExpressionListModel) Expand(ctx context.Context, 
 	}
 	to := &niosdns.ViewscavengingsettingsExpressionList{
 		Op:      flex.ExpandStringPointerNullAsEmpty(m.Op),
-		Op1:     flex.ExpandStringPointerNullAsEmpty(m.Op1),
-		Op1Type: flex.ExpandStringPointerNullAsEmpty(m.Op1Type),
-		Op2:     flex.ExpandStringPointerNullAsEmpty(m.Op2),
-		Op2Type: flex.ExpandStringPointerNullAsEmpty(m.Op2Type),
+		Op1:     flex.ExpandStringPointer(m.Op1),
+		Op1Type: flex.ExpandStringPointer(m.Op1Type),
+		Op2:     flex.ExpandStringPointer(m.Op2),
+		Op2Type: flex.ExpandStringPointer(m.Op2Type),
 	}
 	return to
 }

@@ -79,9 +79,9 @@ func (m *ViewFilterAaaaListModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosdns.ViewFilterAaaaList{
-		Ref:        flex.ExpandStringPointerNullAsEmpty(m.Ref),
-		Address:    flex.ExpandStringPointerNullAsEmpty(m.Address),
-		Permission: flex.ExpandStringPointerNullAsEmpty(m.Permission),
+		Ref:        flex.ExpandStringPointer(m.Ref),
+		Address:    flex.ExpandStringPointer(m.Address),
+		Permission: flex.ExpandStringPointer(m.Permission),
 	}
 	return to
 }
