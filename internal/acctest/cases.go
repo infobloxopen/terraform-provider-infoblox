@@ -43,6 +43,7 @@ type ResourceCase struct {
 	SkipReason         string
 	Disappears         bool
 	ExpectNonEmptyPlan bool
+	Parallel           bool
 	PrerequisitesHCL   string
 	Steps              []CaseStep
 }
@@ -135,7 +136,11 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 		tc.CheckDestroy = checks.Destroy(resourceType)
 	}
 
-	resource.ParallelTest(t, tc)
+	if rc.Parallel {
+		resource.ParallelTest(t, tc)
+	} else {
+		resource.Test(t, tc)
+	}
 }
 
 // buildCaseHCL renders a single step into resource HCL for the infoblox provider.
@@ -326,6 +331,7 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 			{Name: "skip_reason"},
 			{Name: "disappears"},
 			{Name: "expect_non_empty_plan"},
+			{Name: "parallel"},
 			{Name: "prerequisites_hcl"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
@@ -356,6 +362,10 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 	if attr, ok := content.Attributes["expect_non_empty_plan"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		rc.ExpectNonEmptyPlan = val.True()
+	}
+	if attr, ok := content.Attributes["parallel"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		rc.Parallel = val.True()
 	}
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
 		val, _ := attr.Expr.Value(nil)
