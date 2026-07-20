@@ -70,6 +70,7 @@ func resourceFixedRecord() *schema.Resource {
 			"ipv4addr": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: "The IPv4 Address of the fixed address.",
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 					oldNetwork, _ := d.GetChange("network")
