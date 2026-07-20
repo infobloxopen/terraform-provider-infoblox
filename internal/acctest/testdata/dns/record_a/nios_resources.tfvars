@@ -1,6 +1,5 @@
-# Auto-generated resource acceptance-test cases for RecordA (nios).
+# Auto-generated resource acceptance-test cases for RecordA.
 case "basic" {
-  # basic — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -23,7 +22,6 @@ case "basic" {
 }
 
 case "disappears" {
-  # disappears — generated from terraform-provider-nios
   backend = "nios"
   disappears = true
   expect_non_empty_plan = true
@@ -40,7 +38,6 @@ case "disappears" {
 }
 
 case "comment" {
-  # comment — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -71,7 +68,6 @@ case "comment" {
 }
 
 case "creator" {
-  # creator — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -102,7 +98,6 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  # ddns_principal — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -135,7 +130,6 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  # ddns_protected — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -166,7 +160,6 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  # disable — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -197,7 +190,6 @@ case "disable" {
 }
 
 case "extattrs" {
-  # extattrs — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -228,7 +220,6 @@ case "extattrs" {
 }
 
 case "forbid_reclamation" {
-  # forbid_reclamation — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -259,7 +250,6 @@ case "forbid_reclamation" {
 }
 
 case "func_call" {
-  # func_call — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -294,7 +284,6 @@ case "func_call" {
 }
 
 case "ipv4addr" {
-  # ipv4addr — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -323,7 +312,6 @@ case "ipv4addr" {
 }
 
 case "name" {
-  # name — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 
@@ -352,7 +340,6 @@ case "name" {
 }
 
 case "ttl" {
-  # ttl — generated from terraform-provider-nios
   backend = "nios"
   parallel = true
 

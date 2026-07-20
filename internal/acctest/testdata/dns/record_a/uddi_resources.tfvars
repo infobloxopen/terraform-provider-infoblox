@@ -1,6 +1,5 @@
-# Auto-generated resource acceptance-test cases for RecordA (uddi).
+# Auto-generated resource acceptance-test cases for RecordA.
 case "basic" {
-  # basic — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -25,7 +24,6 @@ case "basic" {
 }
 
 case "disappears" {
-  # disappears — generated from terraform-provider-uddi
   backend = "uddi"
   disappears = true
   expect_non_empty_plan = true
@@ -49,7 +47,6 @@ case "disappears" {
 }
 
 case "comment" {
-  # comment — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -86,7 +83,6 @@ case "comment" {
 }
 
 case "disabled" {
-  # disabled — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -123,7 +119,6 @@ case "disabled" {
 }
 
 case "inheritance_sources" {
-  # inheritance_sources — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -160,7 +155,6 @@ case "inheritance_sources" {
 }
 
 case "name_in_zone" {
-  # name_in_zone — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -197,7 +191,6 @@ case "name_in_zone" {
 }
 
 case "rdata" {
-  # rdata — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -232,7 +225,6 @@ case "rdata" {
 }
 
 case "tags" {
-  # tags — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -269,7 +261,6 @@ case "tags" {
 }
 
 case "ttl" {
-  # ttl — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -306,7 +297,6 @@ case "ttl" {
 }
 
 case "view" {
-  # view — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -350,7 +340,6 @@ case "view" {
 }
 
 case "zone" {
-  # zone — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
@@ -385,7 +374,6 @@ case "zone" {
 }
 
 case "options" {
-  # options — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
