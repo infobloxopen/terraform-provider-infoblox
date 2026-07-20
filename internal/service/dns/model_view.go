@@ -1131,10 +1131,6 @@ func ApplyViewNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremo
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
-	// When inheriting (use flag false), drop suppress-diff governed value(s) from the
-	// payload: the backend owns them and would otherwise re-inherit or flip the use
-	// flag on write. The plan modifier still carries the inherited value in state, so
-	// plan output stays suppressed. Only suppress_diff fields are stripped here.
 	obj.NIOS.UseBlacklist = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("blacklist_action"), path.Root("nios").AtName("blacklist_log_query"), path.Root("nios").AtName("blacklist_redirect_addresses"), path.Root("nios").AtName("blacklist_redirect_ttl"), path.Root("nios").AtName("blacklist_rulesets"), path.Root("nios").AtName("enable_blacklist"))
 	obj.NIOS.UseDdnsForceCreationTimestampUpdate = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_force_creation_timestamp_update"))
 	obj.NIOS.UseDdnsPatternsRestriction = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_restrict_patterns_list"), path.Root("nios").AtName("ddns_restrict_patterns"))
