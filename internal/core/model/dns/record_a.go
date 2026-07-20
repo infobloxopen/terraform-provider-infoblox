@@ -37,6 +37,7 @@ type UDDIRecordAExt struct {
 	Disabled           *bool
 	InheritanceSources *uddidnsdata.RecordInheritance
 	NameInZone         *string
+	Options            map[string]any
 	Rdata              map[string]any
 	Tags               map[string]any
 	Ttl                *int64

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -78,6 +79,7 @@ type UDDIRecordAModel struct {
 	Disabled           types.Bool   `tfsdk:"disabled"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	NameInZone         types.String `tfsdk:"name_in_zone"`
+	Options            types.Map    `tfsdk:"options"`
 	Rdata              types.Map    `tfsdk:"rdata"`
 	Tags               types.Map    `tfsdk:"tags"`
 	TagsAll            types.Map    `tfsdk:"tags_all"`
@@ -93,6 +95,7 @@ var UDDIRecordAAttrTypes = map[string]attr.Type{
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
+	"options":             types.MapType{ElemType: types.StringType},
 	"rdata":               types.MapType{ElemType: types.StringType},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
@@ -134,12 +137,12 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Comment for the record; maximum 256 characters.",
 	},
 	"creator": schema.StringAttribute{
+		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
 		},
 		Optional: true,
 		Computed: true,
-		Default:  stringdefault.StaticString("STATIC"),
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableIfValue("SYSTEM"),
 		},
@@ -162,10 +165,13 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines if the record is disabled or not. False means that the record is enabled.",
 	},
 	"ext_attrs": schema.MapAttribute{
-		Optional:            true,
-		Computed:            true,
-		ElementType:         types.StringType,
-		Default:             mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
 		MarkdownDescription: "Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.",
 	},
 	"ext_attrs_all": schema.MapAttribute{
@@ -230,14 +236,17 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("view")),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("zone"),
+				path.MatchRelative().AtParent().AtName("name_in_zone"),
+			),
 		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		Default:             stringdefault.StaticString(""),
 		MarkdownDescription: "The description for the DNS resource record. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"disabled": schema.BoolAttribute{
@@ -260,9 +269,17 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("zone")),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("absolute_name_spec"),
+				path.MatchRelative().AtParent().AtName("view"),
+			),
 		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
+	},
+	"options": schema.MapAttribute{
+		ElementType:         types.StringType,
+		Optional:            true,
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|----------------------------------------- create_ptr | A boolean flag which can be set to _true_ for POST operation to automatically create the corresponding PTR record. check_rmz  | A boolean flag which can be set to _true_ for POST operation to check the existence of reverse zone for creating the corresponding PTR record. Only applicable if the _create_ptr_ option is set to _true_.   Valid value for _PTR_ (Pointer) records:  Option     | Description -----------|---------------------------------------- address    | For GET operation it contains the IPv4 or IPv6 address represented by the PTR record.<br><br>For POST and PATCH operations it can be used to create/update a PTR record based on the IP address it represents. In this case, in addition to the _address_ in the options field, need to specify the _view_ field. |",
 	},
 	"rdata": schema.MapAttribute{
 		ElementType:         types.StringType,
@@ -270,10 +287,13 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes",
 	},
 	"tags": schema.MapAttribute{
-		Optional:            true,
-		Computed:            true,
-		ElementType:         types.StringType,
-		Default:             mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
 		MarkdownDescription: "The tags for the DNS resource record in JSON format.",
 	},
 	"tags_all": schema.MapAttribute{
@@ -299,17 +319,24 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		Validators: []validator.String{
 			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("zone"),
+				path.MatchRelative().AtParent().AtName("name_in_zone"),
+			),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
 		Validators: []validator.String{
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("absolute_name_spec"),
+				path.MatchRelative().AtParent().AtName("view"),
+			),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
@@ -333,6 +360,7 @@ func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 	uddiModel := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
 		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
+		obj.UDDI = PostExpandRecordAUDDI(ctx, obj.UDDI, diags)
 	}
 
 	return obj
@@ -366,7 +394,14 @@ func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *cor
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
+	// When inheriting (use flag false), drop suppress-diff governed value(s) from the
+	// payload: the backend owns them and would otherwise re-inherit or flip the use
+	// flag on write. The plan modifier still carries the inherited value in state, so
+	// plan output stays suppressed. Only suppress_diff fields are stripped here.
 	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
+	if obj.NIOS.UseTtl != nil && !*obj.NIOS.UseTtl {
+		obj.NIOS.Ttl = nil
+	}
 }
 
 // Expand converts the UDDI TF model to the core model.
@@ -377,6 +412,7 @@ func (m *UDDIRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
+		Options:            flex.ExpandMapStringAny(ctx, m.Options, diags),
 		Rdata:              flex.ExpandMapStringAny(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
@@ -414,8 +450,10 @@ func (m *RecordAModel) Flatten(ctx context.Context, resp *coremodel.RecordA, dia
 	if uddiModel == nil {
 		uddiModel = &UDDIRecordAModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenRecordAUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIRecordAAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIRecordAAttrTypes)
@@ -457,6 +495,7 @@ func (m *UDDIRecordAModel) Flatten(ctx context.Context, from *coremodel.UDDIReco
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
+	m.Options = flex.FlattenMapStringAny(ctx, from.Options, diags)
 	m.Rdata = flex.FlattenMapStringAny(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
