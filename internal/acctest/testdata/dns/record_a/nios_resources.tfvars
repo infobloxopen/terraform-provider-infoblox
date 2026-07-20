@@ -23,8 +23,8 @@ case "basic" {
 
 case "disappears" {
   # disappears — generated from terraform-provider-nios
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
 
   step {
@@ -252,20 +252,21 @@ case "forbid_reclamation" {
 case "func_call" {
   # func_call — generated from terraform-provider-nios
   backend = "nios"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network" "test_func_call" {
-    nios = {
-      network = "85.85.0.0/16"
-      network_view = "default"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_network" "test_func_call" {
+  #   nios = {
+  #     network = "85.85.0.0/16"
+  #     network_view = "default"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
-      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      name = "{{random}}.example.com"
+      view = "default"
+      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
       comment            = "Original Function Call"
     }
     depends_on = [infoblox_network.test_func_call]
@@ -273,9 +274,10 @@ case "func_call" {
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
-      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      name = "{{random}}.example.com"
+      view = "default"
+      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
       comment            = "Function Call with Update"
     }
     depends_on = [infoblox_network.test_func_call]

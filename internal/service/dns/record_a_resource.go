@@ -14,7 +14,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -24,7 +23,6 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordAResource{}
 	_ resource.ResourceWithImportState    = &RecordAResource{}
 	_ resource.ResourceWithIdentity       = &RecordAResource{}
-	_ resource.ResourceWithModifyPlan     = &RecordAResource{}
 )
 
 func NewRecordAResource() resource.Resource {
@@ -390,18 +388,6 @@ func (r *RecordAResource) Delete(ctx context.Context, req resource.DeleteRequest
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordA: %s", err))
 	}
-}
-
-func (r *RecordAResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var fields []suppressdiff.InheritedField
-
-	if r.backend == core.BackendNIOS {
-		fields = append(fields,
-			suppressdiff.InheritedField{Path: path.Root("nios").AtName("ttl"), UnknownValue: types.Int64Unknown()},
-		)
-	}
-
-	suppressdiff.MarkInheritedFieldsUnknown(ctx, req, resp, fields)
 }
 
 func (r *RecordAResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
