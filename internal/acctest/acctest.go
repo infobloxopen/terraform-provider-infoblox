@@ -225,6 +225,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
 	case name == "grid_master_hostname":
 		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
+	case name == "grid_member_hostname":
+		return os.Getenv("NIOS_GRID_MEMBER_HOSTNAME")
 	case name == "discovery_member_hostname":
 		return os.Getenv("NIOS_DISCOVERY_MEMBER_HOSTNAME")
 	case name == "pxgrid_endpoint_ref":
@@ -256,6 +258,10 @@ func ResolvePlaceholder(placeholder string) string {
 //   - {{random_ipv6_network}} - Random IPv6 network in CIDR notation
 //   - {{random_mac}} - Random MAC address
 //   - {{random_hex32}} - Random 32-character hexadecimal string
+//   - {{grid_master_hostname}} - NIOS_GRID_MASTER_HOSTNAME env var
+//   - {{grid_member_hostname}} - NIOS_GRID_MEMBER_HOSTNAME env var
+//   - {{discovery_member_hostname}} - NIOS_DISCOVERY_MEMBER_HOSTNAME env var
+//   - {{pxgrid_endpoint_ref}} - NIOS_PXGRID_ENDPOINT_REF env var
 func ReplacePlaceholders(content string) string {
 	result := content
 	for _, ph := range placeholderPattern.FindAllString(content, -1) {
