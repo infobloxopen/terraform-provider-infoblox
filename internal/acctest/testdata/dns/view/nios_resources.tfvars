@@ -1329,11 +1329,11 @@ case "response_rate_limiting" {
     nios {
       name                   = "{{random}}"
       response_rate_limiting = {
-        "enable_rrl":           false,
-        "log_only":             false,
-        "responses_per_second": 100,
-        "slip":                 2,
-        "window":               15,
+        enable_rrl           = false,
+        log_only             = false,
+        responses_per_second = 100,
+        slip                 = 2,
+        window               = 15,
       }
     }
     check = {
@@ -1349,11 +1349,11 @@ case "response_rate_limiting" {
     nios {
       name                   = "{{random}}"
       response_rate_limiting = {
-        "enable_rrl":           true,
-        "log_only":             true,
-        "responses_per_second": 200,
-        "slip":                 3,
-        "window":               30,
+        enable_rrl           = true,
+        log_only             = true,
+        responses_per_second = 200,
+        slip                 = 3,
+        window               = 30,
       }
     }
     check = {
