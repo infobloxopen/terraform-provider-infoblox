@@ -2,13 +2,12 @@ package dns
 
 import (
 	"context"
-	"fmt"
-	"strconv"
-	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
@@ -17,8 +16,104 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
-// boolRecordAOptionKeys are the only valid option keys for an A record, and they must be boolean strings.
-var boolRecordAOptionKeys = []string{"create_ptr", "check_rmz"}
+// UDDIRecordARdataModel is the typed rdata for an A (Address) record.
+type UDDIRecordARdataModel struct {
+	Address iptypes.IPv4Address `tfsdk:"address"`
+}
+
+var UDDIRecordARdataAttrTypes = map[string]attr.Type{
+	"address": iptypes.IPv4AddressType{},
+}
+
+var UDDIRecordARdataResourceSchemaAttributes = map[string]schema.Attribute{
+	"address": schema.StringAttribute{
+		Required:            true,
+		CustomType:          iptypes.IPv4AddressType{},
+		MarkdownDescription: "The IPv4 address of the host.",
+	},
+}
+
+func ExpandUDDIRecordARdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]interface{} {
+	if o.IsNull() || o.IsUnknown() {
+		return nil
+	}
+	var m UDDIRecordARdataModel
+	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+	rdata := make(map[string]interface{})
+	if addr := flex.ExpandIPv4Address(m.Address); addr != nil {
+		rdata["address"] = *addr
+	}
+	return rdata
+}
+
+func FlattenUDDIRecordARdata(ctx context.Context, from map[string]interface{}, diags *diag.Diagnostics) types.Object {
+	if from == nil {
+		return types.ObjectNull(UDDIRecordARdataAttrTypes)
+	}
+	m := UDDIRecordARdataModel{
+		Address: flex.FlattenIPv4Address(flex.RDataStringPtr(from["address"])),
+	}
+	obj, d := types.ObjectValueFrom(ctx, UDDIRecordARdataAttrTypes, m)
+	diags.Append(d...)
+	return obj
+}
+
+// UDDIRecordAOptionsModel is the typed options block for an A record.
+type UDDIRecordAOptionsModel struct {
+	CreatePtr types.Bool `tfsdk:"create_ptr"`
+	CheckRmz  types.Bool `tfsdk:"check_rmz"`
+}
+
+var UDDIRecordAOptionsAttrTypes = map[string]attr.Type{
+	"create_ptr": types.BoolType,
+	"check_rmz":  types.BoolType,
+}
+
+var UDDIRecordAOptionsResourceSchemaAttributes = map[string]schema.Attribute{
+	"create_ptr": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "A boolean flag which can be set to true to automatically create the corresponding PTR record.",
+	},
+	"check_rmz": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "A boolean flag which can be set to true to check the existence of the reverse zone for creating the corresponding PTR record. Only applicable if create_ptr is true.",
+	},
+}
+
+func ExpandUDDIRecordAOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]interface{} {
+	if o.IsNull() || o.IsUnknown() {
+		return nil
+	}
+	var m UDDIRecordAOptionsModel
+	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+	opts := make(map[string]interface{})
+	if !m.CreatePtr.IsNull() && !m.CreatePtr.IsUnknown() {
+		opts["create_ptr"] = m.CreatePtr.ValueBool()
+	}
+	if !m.CheckRmz.IsNull() && !m.CheckRmz.IsUnknown() {
+		opts["check_rmz"] = m.CheckRmz.ValueBool()
+	}
+	return opts
+}
+
+func FlattenUDDIRecordAOptions(ctx context.Context, from map[string]interface{}, diags *diag.Diagnostics) types.Object {
+	if from == nil {
+		return types.ObjectNull(UDDIRecordAOptionsAttrTypes)
+	}
+	m := UDDIRecordAOptionsModel{
+		CreatePtr: flex.FlattenBoolPointer(flex.RDataBoolPtr(from["create_ptr"])),
+		CheckRmz:  flex.FlattenBoolPointer(flex.RDataBoolPtr(from["check_rmz"])),
+	}
+	obj, d := types.ObjectValueFrom(ctx, UDDIRecordAOptionsAttrTypes, m)
+	diags.Append(d...)
+	return obj
+}
 
 // ValidateRecordA validates the RecordA configuration.
 func ValidateRecordA(ctx context.Context, data RecordAModel, resp *resource.ValidateConfigResponse) {
@@ -34,53 +129,6 @@ func validateRecordANIOSConfig(ctx context.Context, m *NIOSRecordAModel, resp *r
 }
 
 func validateRecordAUDDIConfig(ctx context.Context, m *UDDIRecordAModel, resp *resource.ValidateConfigResponse) {
-	// rdata: the address subfield is the only allowed and required field.
-	if !m.Rdata.IsNull() && !m.Rdata.IsUnknown() {
-		elems := m.Rdata.Elements()
-		address, present := elems["address"]
-		if !present {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("uddi").AtName("rdata"),
-				"Missing Required Subfield",
-				"The `address` subfield is required in `rdata` for an A record.",
-			)
-		} else if addrStr, ok := address.(types.String); ok && !addrStr.IsUnknown() {
-			if addrStr.IsNull() || strings.TrimSpace(addrStr.ValueString()) == "" {
-				resp.Diagnostics.AddAttributeError(
-					path.Root("uddi").AtName("rdata").AtMapKey("address"),
-					"Invalid Subfield Value",
-					"The `address` subfield in `rdata` must be a non-empty IPv4 address for an A record.",
-				)
-			}
-		}
-	}
-
-	// options: only create_ptr and check_rmz are valid, and values must be boolean strings.
-	if !m.Options.IsNull() && !m.Options.IsUnknown() {
-		allowed := make(map[string]struct{}, len(boolRecordAOptionKeys))
-		for _, k := range boolRecordAOptionKeys {
-			allowed[k] = struct{}{}
-		}
-		for key, val := range m.Options.Elements() {
-			if _, valid := allowed[key]; !valid {
-				resp.Diagnostics.AddAttributeError(
-					path.Root("uddi").AtName("options").AtMapKey(key),
-					"Invalid Option",
-					fmt.Sprintf("`%s` is not a valid option for an A record. Valid options are: create_ptr, check_rmz.", key),
-				)
-				continue
-			}
-			if valStr, ok := val.(types.String); ok && !valStr.IsUnknown() && !valStr.IsNull() {
-				if _, err := strconv.ParseBool(valStr.ValueString()); err != nil {
-					resp.Diagnostics.AddAttributeError(
-						path.Root("uddi").AtName("options").AtMapKey(key),
-						"Invalid Option Value",
-						fmt.Sprintf("`%s` must be a boolean value (\"true\" or \"false\"), got %q.", key, valStr.ValueString()),
-					)
-				}
-			}
-		}
-	}
 }
 
 func BuildRecordAFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosdns.FuncCall {
@@ -98,18 +146,6 @@ func BuildRecordAFuncCall(ctx context.Context, data types.Object, diags *diag.Di
 }
 
 func PostExpandRecordAUDDI(ctx context.Context, ext *coremodel.UDDIRecordAExt, diags *diag.Diagnostics) *coremodel.UDDIRecordAExt {
-	if ext == nil {
-		return ext
-	}
-	if ext.Options != nil {
-		for _, k := range boolRecordAOptionKeys {
-			if v, ok := ext.Options[k].(string); ok {
-				if b, err := strconv.ParseBool(v); err == nil {
-					ext.Options[k] = b
-				}
-			}
-		}
-	}
 	return ext
 }
 
@@ -120,6 +156,6 @@ func PostFlattenRecordAUDDI(ctx context.Context, planned, flattened *UDDIRecordA
 	if planned != nil {
 		flattened.Options = planned.Options
 	} else {
-		flattened.Options = types.MapNull(types.StringType)
+		flattened.Options = types.ObjectNull(UDDIRecordAOptionsAttrTypes)
 	}
 }

@@ -2,7 +2,9 @@ package flex
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
@@ -518,4 +520,61 @@ func FlattenFrameworkListNestedBlock[T any, U any](ctx context.Context, data []T
 
 	diags.Append(d...)
 	return tfList
+}
+
+// -----------------------------------------------------------------------------
+// Map-boundary adapters for delegated nested objects (rdata/options).
+//
+// DNS record rdata/options cross the API boundary as map[string]interface{}.
+// These coerce an untyped map value into a typed pointer that composes with the
+// Flatten*Pointer helpers above, e.g.:
+//
+//	Address:   FlattenIPv4Address(RDataStringPtr(from["address"]))
+//	CreatePtr: FlattenBoolPointer(RDataBoolPtr(from["create_ptr"]))
+//	Priority:  FlattenInt64Pointer(RDataInt64Ptr(from["priority"]))
+// -----------------------------------------------------------------------------
+
+// RDataStringPtr coerces an untyped map value to *string (nil if absent/empty).
+func RDataStringPtr(v any) *string {
+	if s, ok := v.(string); ok && s != "" {
+		return &s
+	}
+	return nil
+}
+
+// RDataBoolPtr coerces an untyped map value (bool or "true"/"false" string) to *bool.
+func RDataBoolPtr(v any) *bool {
+	switch t := v.(type) {
+	case bool:
+		return &t
+	case string:
+		if b, err := strconv.ParseBool(t); err == nil {
+			return &b
+		}
+	}
+	return nil
+}
+
+// RDataInt64Ptr coerces an untyped map value (JSON number, integer, or numeric
+// string) to *int64.
+func RDataInt64Ptr(v any) *int64 {
+	switch t := v.(type) {
+	case float64: // JSON numbers decode to float64 by default
+		i := int64(t)
+		return &i
+	case int64:
+		return &t
+	case int:
+		i := int64(t)
+		return &i
+	case json.Number:
+		if i, err := t.Int64(); err == nil {
+			return &i
+		}
+	case string:
+		if i, err := strconv.ParseInt(t, 10, 64); err == nil {
+			return &i
+		}
+	}
+	return nil
 }

@@ -78,8 +78,8 @@ type UDDIRecordAModel struct {
 	Disabled           types.Bool   `tfsdk:"disabled"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	NameInZone         types.String `tfsdk:"name_in_zone"`
-	Options            types.Map    `tfsdk:"options"`
-	Rdata              types.Map    `tfsdk:"rdata"`
+	Options            types.Object `tfsdk:"options"`
+	Rdata              types.Object `tfsdk:"rdata"`
 	Tags               types.Map    `tfsdk:"tags"`
 	TagsAll            types.Map    `tfsdk:"tags_all"`
 	Ttl                types.Int64  `tfsdk:"ttl"`
@@ -94,8 +94,8 @@ var UDDIRecordAAttrTypes = map[string]attr.Type{
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
-	"options":             types.MapType{ElemType: types.StringType},
-	"rdata":               types.MapType{ElemType: types.StringType},
+	"options":             types.ObjectType{AttrTypes: UDDIRecordAOptionsAttrTypes},
+	"rdata":               types.ObjectType{AttrTypes: UDDIRecordARdataAttrTypes},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
 	"ttl":                 types.Int64Type,
@@ -272,14 +272,14 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
 	},
-	"options": schema.MapAttribute{
-		ElementType:         types.StringType,
+	"options": schema.SingleNestedAttribute{
+		Attributes:          UDDIRecordAOptionsResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|----------------------------------------- create_ptr | A boolean flag which can be set to _true_ for POST operation to automatically create the corresponding PTR record. check_rmz  | A boolean flag which can be set to _true_ for POST operation to check the existence of reverse zone for creating the corresponding PTR record. Only applicable if the _create_ptr_ option is set to _true_.   Valid value for _PTR_ (Pointer) records:  Option     | Description -----------|---------------------------------------- address    | For GET operation it contains the IPv4 or IPv6 address represented by the PTR record.<br><br>For POST and PATCH operations it can be used to create/update a PTR record based on the IP address it represents. In this case, in addition to the _address_ in the options field, need to specify the _view_ field. |",
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------",
 	},
-	"rdata": schema.MapAttribute{
-		ElementType:         types.StringType,
-		Required:            true,
+	"rdata": schema.SingleNestedAttribute{
+		Attributes:          UDDIRecordARdataResourceSchemaAttributes,
+		Optional:            true,
 		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes",
 	},
 	"tags": schema.MapAttribute{
@@ -401,8 +401,8 @@ func (m *UDDIRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
-		Options:            flex.ExpandMapStringAny(ctx, m.Options, diags),
-		Rdata:              flex.ExpandMapStringAny(ctx, m.Rdata, diags),
+		Options:            ExpandUDDIRecordAOptions(ctx, m.Options, diags),
+		Rdata:              ExpandUDDIRecordARdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
 	}
@@ -484,8 +484,8 @@ func (m *UDDIRecordAModel) Flatten(ctx context.Context, from *coremodel.UDDIReco
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
-	m.Options = flex.FlattenMapStringAny(ctx, from.Options, diags)
-	m.Rdata = flex.FlattenMapStringAny(ctx, from.Rdata, diags)
+	m.Options = FlattenUDDIRecordAOptions(ctx, from.Options, diags)
+	m.Rdata = FlattenUDDIRecordARdata(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
