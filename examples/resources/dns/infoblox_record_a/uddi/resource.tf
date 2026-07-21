@@ -1,6 +1,6 @@
 resource "infoblox_record_a" "test1" {
   uddi = {
-    name = "test-rec-19.example.com"
+    name = "record_a.example.com"
     rdata = {
       address = "10.0.0.19"
     }

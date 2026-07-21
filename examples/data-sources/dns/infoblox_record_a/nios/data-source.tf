@@ -1,10 +1,10 @@
-data "infoblox_record_a" "get_record_using_filters" {
+data "infoblox_record_a" "get_a_record_using_filters" {
   filters = {
-    name = "test-rec-1.example.com"
+    name = "rec-1.example.com"
   }
 }
 
-data "infoblox_record_a" "get_record_using_extensible_attributes" {
+data "infoblox_record_a" "get_a_record_using_extensible_attributes" {
   ext_attr_filters = {
     Site = "location-1"
   }
