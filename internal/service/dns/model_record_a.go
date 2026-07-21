@@ -356,7 +356,6 @@ func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 	uddiModel := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
 		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
-		obj.UDDI = PostExpandRecordAUDDI(ctx, obj.UDDI, diags)
 	}
 
 	return obj

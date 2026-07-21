@@ -11,12 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
-	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
-// UDDIRecordARdataModel is the typed rdata for an A (Address) record.
 type UDDIRecordARdataModel struct {
 	Address iptypes.IPv4Address `tfsdk:"address"`
 }
@@ -33,7 +31,7 @@ var UDDIRecordARdataResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-func ExpandUDDIRecordARdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]interface{} {
+func ExpandUDDIRecordARdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
@@ -42,14 +40,14 @@ func ExpandUDDIRecordARdata(ctx context.Context, o types.Object, diags *diag.Dia
 	if diags.HasError() {
 		return nil
 	}
-	rdata := make(map[string]interface{})
+	rdata := make(map[string]any)
 	if addr := flex.ExpandIPv4Address(m.Address); addr != nil {
 		rdata["address"] = *addr
 	}
 	return rdata
 }
 
-func FlattenUDDIRecordARdata(ctx context.Context, from map[string]interface{}, diags *diag.Diagnostics) types.Object {
+func FlattenUDDIRecordARdata(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
 		return types.ObjectNull(UDDIRecordARdataAttrTypes)
 	}
@@ -83,7 +81,7 @@ var UDDIRecordAOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-func ExpandUDDIRecordAOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]interface{} {
+func ExpandUDDIRecordAOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
@@ -92,7 +90,7 @@ func ExpandUDDIRecordAOptions(ctx context.Context, o types.Object, diags *diag.D
 	if diags.HasError() {
 		return nil
 	}
-	opts := make(map[string]interface{})
+	opts := make(map[string]any)
 	if !m.CreatePtr.IsNull() && !m.CreatePtr.IsUnknown() {
 		opts["create_ptr"] = m.CreatePtr.ValueBool()
 	}
@@ -102,7 +100,7 @@ func ExpandUDDIRecordAOptions(ctx context.Context, o types.Object, diags *diag.D
 	return opts
 }
 
-func FlattenUDDIRecordAOptions(ctx context.Context, from map[string]interface{}, diags *diag.Diagnostics) types.Object {
+func FlattenUDDIRecordAOptions(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
 		return types.ObjectNull(UDDIRecordAOptionsAttrTypes)
 	}
@@ -143,10 +141,6 @@ func BuildRecordAFuncCall(ctx context.Context, data types.Object, diags *diag.Di
 	}
 
 	return m.FuncCall(ctx, "Ipv4addr", "network", diags)
-}
-
-func PostExpandRecordAUDDI(ctx context.Context, ext *coremodel.UDDIRecordAExt, diags *diag.Diagnostics) *coremodel.UDDIRecordAExt {
-	return ext
 }
 
 func PostFlattenRecordAUDDI(ctx context.Context, planned, flattened *UDDIRecordAModel, diags *diag.Diagnostics) {
