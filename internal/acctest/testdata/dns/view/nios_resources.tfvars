@@ -1,7 +1,7 @@
-# Auto-generated resource acceptance-test cases for View (nios).
+# Auto-generated resource acceptance-test cases for View.
 case "basic" {
-  # basic — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -60,10 +60,10 @@ case "basic" {
 }
 
 case "disappears" {
-  # disappears — generated from terraform-provider-nios
   backend = "nios"
   disappears = true
   expect_non_empty_plan = true
+  parallel = true
 
   step {
     nios {
@@ -74,8 +74,8 @@ case "disappears" {
 }
 
 case "blacklist_action" {
-  # blacklist_action — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -100,8 +100,8 @@ case "blacklist_action" {
 }
 
 case "blacklist_log_query" {
-  # blacklist_log_query — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -126,8 +126,8 @@ case "blacklist_log_query" {
 }
 
 case "blacklist_redirect_addresses" {
-  # blacklist_redirect_addresses — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -154,8 +154,8 @@ case "blacklist_redirect_addresses" {
 }
 
 case "blacklist_redirect_ttl" {
-  # blacklist_redirect_ttl — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -180,15 +180,50 @@ case "blacklist_redirect_ttl" {
 }
 
 case "blacklist_rulesets" {
-  # blacklist_rulesets — generated from terraform-provider-nios
   backend = "nios"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'nios_misc_ruleset' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  parallel = true
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ruleset_unknown" "test_ruleset1" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #     type = "BLACKLIST"
+  #   }
+  # }
+  # resource "infoblox_ruleset_unknown" "test_ruleset3" {
+  #   nios = {
+  #     name = "{{random3}}"
+  #     type = "BLACKLIST"
+  #   }
+  # }
+  # PREREQ
+
+  step {
+    nios {
+      name               = "{{random}}"
+      blacklist_rulesets = ["blacklist_ruleset_1"]
+    }
+    # depends_on = [infoblox_ruleset_unknown.test_ruleset1, infoblox_ruleset_unknown.test_ruleset3]
+    check = {
+      "nios.blacklist_rulesets.0" = "blacklist_ruleset_1"
+    }
+  }
+
+  step {
+    nios {
+      name               = "{{random}}"
+      blacklist_rulesets = ["blacklist_ruleset_2"]
+    }
+    # depends_on = [infoblox_ruleset_unknown.test_ruleset1, infoblox_ruleset_unknown.test_ruleset3]
+    check = {
+      "nios.blacklist_rulesets.0" = "blacklist_ruleset_2"
+    }
+  }
+
 }
 
 case "comment" {
-  # comment — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -213,8 +248,8 @@ case "comment" {
 }
 
 case "custom_root_name_servers" {
-  # custom_root_name_servers — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -241,8 +276,8 @@ case "custom_root_name_servers" {
 }
 
 case "ddns_force_creation_timestamp_update" {
-  # ddns_force_creation_timestamp_update — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -267,8 +302,8 @@ case "ddns_force_creation_timestamp_update" {
 }
 
 case "ddns_principal_group" {
-  # ddns_principal_group — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -293,8 +328,8 @@ case "ddns_principal_group" {
 }
 
 case "ddns_principal_tracking" {
-  # ddns_principal_tracking — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -319,8 +354,8 @@ case "ddns_principal_tracking" {
 }
 
 case "ddns_restrict_patterns" {
-  # ddns_restrict_patterns — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -345,8 +380,8 @@ case "ddns_restrict_patterns" {
 }
 
 case "ddns_restrict_patterns_list" {
-  # ddns_restrict_patterns_list — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -372,8 +407,8 @@ case "ddns_restrict_patterns_list" {
 }
 
 case "ddns_restrict_protected" {
-  # ddns_restrict_protected — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -398,8 +433,8 @@ case "ddns_restrict_protected" {
 }
 
 case "ddns_restrict_secure" {
-  # ddns_restrict_secure — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -424,8 +459,8 @@ case "ddns_restrict_secure" {
 }
 
 case "ddns_restrict_static" {
-  # ddns_restrict_static — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -450,8 +485,8 @@ case "ddns_restrict_static" {
 }
 
 case "disable" {
-  # disable — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -476,8 +511,8 @@ case "disable" {
 }
 
 case "dns64_enabled" {
-  # dns64_enabled — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -504,8 +539,8 @@ case "dns64_enabled" {
 }
 
 case "dns64_groups" {
-  # dns64_groups — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -530,8 +565,8 @@ case "dns64_groups" {
 }
 
 case "dnssec_enabled" {
-  # dnssec_enabled — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -556,8 +591,8 @@ case "dnssec_enabled" {
 }
 
 case "dnssec_expired_signatures_enabled" {
-  # dnssec_expired_signatures_enabled — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -582,8 +617,8 @@ case "dnssec_expired_signatures_enabled" {
 }
 
 case "dnssec_negative_trust_anchors" {
-  # dnssec_negative_trust_anchors — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -609,8 +644,8 @@ case "dnssec_negative_trust_anchors" {
 }
 
 case "dnssec_trusted_keys" {
-  # dnssec_trusted_keys — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -643,8 +678,8 @@ case "dnssec_trusted_keys" {
 }
 
 case "dnssec_validation_enabled" {
-  # dnssec_validation_enabled — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -669,8 +704,8 @@ case "dnssec_validation_enabled" {
 }
 
 case "edns_udp_size" {
-  # edns_udp_size — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -695,15 +730,46 @@ case "edns_udp_size" {
 }
 
 case "enable_blacklist" {
-  # enable_blacklist — generated from terraform-provider-nios
   backend = "nios"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'nios_misc_ruleset' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  parallel = true
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ruleset_unknown" "test_ruleset1" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #     type = "BLACKLIST"
+  #   }
+  # }
+  # PREREQ
+
+  step {
+    nios {
+      name                         = "{{random}}"
+      enable_blacklist             = true
+      blacklist_redirect_addresses = ["10.0.0.2"]
+      blacklist_rulesets           = ["blacklist_ruleset_1"]
+    }
+    check = {
+      "nios.enable_blacklist" = "true"
+    }
+  }
+
+  step {
+    nios {
+      name                         = "{{random}}"
+      enable_blacklist             = false
+      blacklist_redirect_addresses = ["10.0.0.2"]
+      blacklist_rulesets           = ["blacklist_ruleset_1"]
+    }
+    check = {
+      "nios.enable_blacklist" = "false"
+    }
+  }
+
 }
 
 case "enable_fixed_rrset_order_fqdns" {
-  # enable_fixed_rrset_order_fqdns — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -728,8 +794,8 @@ case "enable_fixed_rrset_order_fqdns" {
 }
 
 case "enable_match_recursive_only" {
-  # enable_match_recursive_only — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -754,8 +820,8 @@ case "enable_match_recursive_only" {
 }
 
 case "ext_attrs" {
-  # ext_attrs — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -780,8 +846,8 @@ case "ext_attrs" {
 }
 
 case "filter_aaaa" {
-  # filter_aaaa — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -806,8 +872,8 @@ case "filter_aaaa" {
 }
 
 case "filter_aaaa_list" {
-  # filter_aaaa_list — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -834,8 +900,8 @@ case "filter_aaaa_list" {
 }
 
 case "fixed_rrset_order_fqdns" {
-  # fixed_rrset_order_fqdns — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -862,8 +928,8 @@ case "fixed_rrset_order_fqdns" {
 }
 
 case "forward_only" {
-  # forward_only — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -890,8 +956,8 @@ case "forward_only" {
 }
 
 case "forwarders" {
-  # forwarders — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -916,8 +982,8 @@ case "forwarders" {
 }
 
 case "last_queried_acl" {
-  # last_queried_acl — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -944,8 +1010,8 @@ case "last_queried_acl" {
 }
 
 case "match_clients" {
-  # match_clients — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -972,8 +1038,8 @@ case "match_clients" {
 }
 
 case "match_destinations" {
-  # match_destinations — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1000,8 +1066,8 @@ case "match_destinations" {
 }
 
 case "max_cache_ttl" {
-  # max_cache_ttl — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1026,8 +1092,8 @@ case "max_cache_ttl" {
 }
 
 case "max_ncache_ttl" {
-  # max_ncache_ttl — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1052,8 +1118,8 @@ case "max_ncache_ttl" {
 }
 
 case "max_udp_size" {
-  # max_udp_size — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1078,8 +1144,8 @@ case "max_udp_size" {
 }
 
 case "name" {
-  # name — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1102,8 +1168,8 @@ case "name" {
 }
 
 case "network_view" {
-  # network_view — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1128,8 +1194,8 @@ case "network_view" {
 }
 
 case "notify_delay" {
-  # notify_delay — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1154,8 +1220,8 @@ case "notify_delay" {
 }
 
 case "nxdomain_log_query" {
-  # nxdomain_log_query — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1180,8 +1246,8 @@ case "nxdomain_log_query" {
 }
 
 case "nxdomain_redirect" {
-  # nxdomain_redirect — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1208,8 +1274,8 @@ case "nxdomain_redirect" {
 }
 
 case "nxdomain_redirect_addresses" {
-  # nxdomain_redirect_addresses — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1235,8 +1301,8 @@ case "nxdomain_redirect_addresses" {
 }
 
 case "nxdomain_redirect_addresses_v6" {
-  # nxdomain_redirect_addresses_v6 — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1263,8 +1329,8 @@ case "nxdomain_redirect_addresses_v6" {
 }
 
 case "nxdomain_redirect_ttl" {
-  # nxdomain_redirect_ttl — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1289,15 +1355,50 @@ case "nxdomain_redirect_ttl" {
 }
 
 case "nxdomain_rulesets" {
-  # nxdomain_rulesets — generated from terraform-provider-nios
   backend = "nios"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'nios_misc_ruleset' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  parallel = true
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ruleset_unknown" "test_ruleset1" {
+  #   nios = {
+  #     name = "nxdomain_ruleset"
+  #     type = "NXDOMAIN"
+  #   }
+  # }
+  # resource "infoblox_ruleset_unknown" "test_ruleset2" {
+  #   nios = {
+  #     name = "nxdomain_ruleset2"
+  #     type = "NXDOMAIN"
+  #   }
+  # }
+  # PREREQ
+
+  step {
+    nios {
+      name              = "{{random}}"
+      nxdomain_rulesets = ["nxdomain_ruleset_1"]
+    }
+    # depends_on = [infoblox_ruleset_unknown.test_ruleset1, infoblox_ruleset_unknown.test_ruleset2]
+    check = {
+      "nios.nxdomain_rulesets.0" = "nxdomain_ruleset_1"
+    }
+  }
+
+  step {
+    nios {
+      name              = "{{random}}"
+      nxdomain_rulesets = ["nxdomain_ruleset_2"]
+    }
+    # depends_on = [infoblox_ruleset_unknown.test_ruleset1, infoblox_ruleset_unknown.test_ruleset2]
+    check = {
+      "nios.nxdomain_rulesets.0" = "nxdomain_ruleset_2"
+    }
+  }
+
 }
 
 case "recursion" {
-  # recursion — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1322,8 +1423,8 @@ case "recursion" {
 }
 
 case "response_rate_limiting" {
-  # response_rate_limiting — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1368,8 +1469,8 @@ case "response_rate_limiting" {
 }
 
 case "root_name_server_type" {
-  # root_name_server_type — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1396,8 +1497,8 @@ case "root_name_server_type" {
 }
 
 case "rpz_drop_ip_rule_enabled" {
-  # rpz_drop_ip_rule_enabled — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1422,8 +1523,8 @@ case "rpz_drop_ip_rule_enabled" {
 }
 
 case "rpz_drop_ip_rule_min_prefix_length_ipv4" {
-  # rpz_drop_ip_rule_min_prefix_length_ipv4 — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1448,8 +1549,8 @@ case "rpz_drop_ip_rule_min_prefix_length_ipv4" {
 }
 
 case "rpz_drop_ip_rule_min_prefix_length_ipv6" {
-  # rpz_drop_ip_rule_min_prefix_length_ipv6 — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1474,8 +1575,8 @@ case "rpz_drop_ip_rule_min_prefix_length_ipv6" {
 }
 
 case "rpz_qname_wait_recurse" {
-  # rpz_qname_wait_recurse — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1500,8 +1601,8 @@ case "rpz_qname_wait_recurse" {
 }
 
 case "scavenging_settings" {
-  # scavenging_settings — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1552,8 +1653,8 @@ case "scavenging_settings" {
 }
 
 case "sortlist" {
-  # sortlist — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
 
   step {
     nios {

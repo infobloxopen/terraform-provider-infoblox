@@ -1,7 +1,7 @@
-# Auto-generated resource acceptance-test cases for View (uddi).
+# Auto-generated resource acceptance-test cases for View.
 case "basic" {
-  # basic — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -21,10 +21,10 @@ case "basic" {
 }
 
 case "disappears" {
-  # disappears — generated from terraform-provider-uddi
   backend = "uddi"
   disappears = true
   expect_non_empty_plan = true
+  parallel = true
 
   step {
     uddi {
@@ -35,8 +35,8 @@ case "disappears" {
 }
 
 case "name" {
-  # name — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -59,8 +59,8 @@ case "name" {
 }
 
 case "add_edns_option_in_outgoing_query" {
-  # add_edns_option_in_outgoing_query — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -85,8 +85,8 @@ case "add_edns_option_in_outgoing_query" {
 }
 
 case "comment" {
-  # comment — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -111,12 +111,13 @@ case "comment" {
 }
 
 case "custom_root_ns" {
-  # custom_root_ns — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
-      name = "{{random}}"
+      name           = "{{random}}"
+      custom_root_ns = [{ address = "192.168.10.10", fqdn = "tf-example.com." }]
     }
     check = {
       "uddi.custom_root_ns.0.address" = "192.168.10.10"
@@ -126,7 +127,8 @@ case "custom_root_ns" {
 
   step {
     uddi {
-      name = "{{random}}"
+      name           = "{{random}}"
+      custom_root_ns = [{ address = "192.168.11.11", fqdn = "tf-infoblox.com." }, { address = "192.168.11.12", fqdn = "tf-infoblox-acc.com." }]
     }
     check = {
       "uddi.custom_root_ns.#"         = "2"
@@ -140,8 +142,8 @@ case "custom_root_ns" {
 }
 
 case "custom_root_ns_enabled" {
-  # custom_root_ns_enabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -173,8 +175,8 @@ case "custom_root_ns_enabled" {
 }
 
 case "disabled" {
-  # disabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -199,8 +201,8 @@ case "disabled" {
 }
 
 case "dnssec_enable_validation" {
-  # dnssec_enable_validation — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -225,8 +227,8 @@ case "dnssec_enable_validation" {
 }
 
 case "dnssec_enabled" {
-  # dnssec_enabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -251,8 +253,8 @@ case "dnssec_enabled" {
 }
 
 case "dnssec_trust_anchors" {
-  # dnssec_trust_anchors — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -279,8 +281,8 @@ case "dnssec_trust_anchors" {
 }
 
 case "dnssec_validate_expiry" {
-  # dnssec_validate_expiry — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -305,8 +307,8 @@ case "dnssec_validate_expiry" {
 }
 
 case "dtc_config" {
-  # dtc_config — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -331,8 +333,8 @@ case "dtc_config" {
 }
 
 case "ecs_enabled" {
-  # ecs_enabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -364,8 +366,8 @@ case "ecs_enabled" {
 }
 
 case "ecs_forwarding" {
-  # ecs_forwarding — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -390,8 +392,8 @@ case "ecs_forwarding" {
 }
 
 case "ecs_prefix_v4" {
-  # ecs_prefix_v4 — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -416,8 +418,8 @@ case "ecs_prefix_v4" {
 }
 
 case "ecs_prefix_v6" {
-  # ecs_prefix_v6 — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -442,12 +444,13 @@ case "ecs_prefix_v6" {
 }
 
 case "ecs_zones" {
-  # ecs_zones — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
-      name = "{{random}}"
+      name      = "{{random}}"
+      ecs_zones = [{ access = "allow", fqdn = "tf-infoblox.com." }]
     }
     check = {
       "uddi.ecs_zones.0.access" = "allow"
@@ -457,7 +460,8 @@ case "ecs_zones" {
 
   step {
     uddi {
-      name = "{{random}}"
+      name      = "{{random}}"
+      ecs_zones = [{ access = "deny", fqdn = "tf-test-infoblox.com." }]
     }
     check = {
       "uddi.ecs_zones.0.access" = "deny"
@@ -468,8 +472,8 @@ case "ecs_zones" {
 }
 
 case "edns_udp_size" {
-  # edns_udp_size — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -494,15 +498,68 @@ case "edns_udp_size" {
 }
 
 case "filter_aaaa_acl" {
-  # filter_aaaa_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name            = "{{random}}"
+      filter_aaaa_acl = [{ access = "allow", element = "ip", address = "192.168.10.10" }]
+    }
+    check = {
+      "uddi.filter_aaaa_acl.0.access"  = "allow"
+      "uddi.filter_aaaa_acl.0.element" = "ip"
+      "uddi.filter_aaaa_acl.0.address" = "192.168.10.10"
+    }
+  }
+
+  step {
+    uddi {
+      name            = "{{random}}"
+      filter_aaaa_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.filter_aaaa_acl.0.access"  = "deny"
+      "uddi.filter_aaaa_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name            = "{{random}}"
+      filter_aaaa_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.filter_aaaa_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.filter_aaaa_acl.0.access"  = "deny"
+      "uddi.filter_aaaa_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "filter_aaaa_on_v4" {
-  # filter_aaaa_on_v4 — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -527,12 +584,13 @@ case "filter_aaaa_on_v4" {
 }
 
 case "forwarders" {
-  # forwarders — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
-      name = "{{random}}"
+      name       = "{{random}}"
+      forwarders = [{ address = "192.168.10.10", fqdn = "tf-example.com." }]
     }
     check = {
       "uddi.forwarders.0.address" = "192.168.10.10"
@@ -542,7 +600,8 @@ case "forwarders" {
 
   step {
     uddi {
-      name = "{{random}}"
+      name       = "{{random}}"
+      forwarders = [{ address = "192.168.11.11", fqdn = "tf-infoblox.com." }]
     }
     check = {
       "uddi.forwarders.0.address" = "192.168.11.11"
@@ -553,8 +612,8 @@ case "forwarders" {
 }
 
 case "forwarders_only" {
-  # forwarders_only — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -586,8 +645,8 @@ case "forwarders_only" {
 }
 
 case "gss_tsig_enabled" {
-  # gss_tsig_enabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -612,8 +671,8 @@ case "gss_tsig_enabled" {
 }
 
 case "inheritance_sources" {
-  # inheritance_sources — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -688,15 +747,41 @@ case "inheritance_sources" {
 }
 
 case "ip_spaces" {
-  # ip_spaces — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'bloxone_ipam_ip_space' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ip_space" "test_space" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name      = "{{random}}"
+      ip_spaces = [infoblox_ip_space.test_space.id]
+    }
+    check = {
+      "uddi.ip_spaces.#" = "1"
+    }
+  }
+
+  step {
+    uddi {
+      name      = "{{random}}"
+      ip_spaces = [infoblox_ip_space.test_space.id]
+    }
+    check = {
+      "uddi.ip_spaces.#" = "1"
+    }
+  }
+
 }
 
 case "lame_ttl" {
-  # lame_ttl — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -721,22 +806,128 @@ case "lame_ttl" {
 }
 
 case "match_clients_acl" {
-  # match_clients_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name              = "{{random}}"
+      match_clients_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.match_clients_acl.0.access"  = "allow"
+      "uddi.match_clients_acl.0.element" = "ip"
+      "uddi.match_clients_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name              = "{{random}}"
+      match_clients_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.match_clients_acl.0.access"  = "deny"
+      "uddi.match_clients_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name              = "{{random}}"
+      match_clients_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.match_clients_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.match_clients_acl.0.access"  = "deny"
+      "uddi.match_clients_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "match_destinations_acl" {
-  # match_destinations_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name                   = "{{random}}"
+      match_destinations_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.match_destinations_acl.0.access"  = "allow"
+      "uddi.match_destinations_acl.0.element" = "ip"
+      "uddi.match_destinations_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name                   = "{{random}}"
+      match_destinations_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.match_destinations_acl.0.access"  = "deny"
+      "uddi.match_destinations_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name                   = "{{random}}"
+      match_destinations_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.match_destinations_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.match_destinations_acl.0.access"  = "deny"
+      "uddi.match_destinations_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "match_recursive_only" {
-  # match_recursive_only — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -761,8 +952,8 @@ case "match_recursive_only" {
 }
 
 case "max_cache_ttl" {
-  # max_cache_ttl — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -787,8 +978,8 @@ case "max_cache_ttl" {
 }
 
 case "max_negative_ttl" {
-  # max_negative_ttl — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -813,8 +1004,8 @@ case "max_negative_ttl" {
 }
 
 case "max_udp_size" {
-  # max_udp_size — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -839,8 +1030,8 @@ case "max_udp_size" {
 }
 
 case "minimal_responses" {
-  # minimal_responses — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -865,8 +1056,8 @@ case "minimal_responses" {
 }
 
 case "notify" {
-  # notify — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -891,22 +1082,128 @@ case "notify" {
 }
 
 case "query_acl" {
-  # query_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name      = "{{random}}"
+      query_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.query_acl.0.access"  = "allow"
+      "uddi.query_acl.0.element" = "ip"
+      "uddi.query_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name      = "{{random}}"
+      query_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.query_acl.0.access"  = "deny"
+      "uddi.query_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name      = "{{random}}"
+      query_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.query_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.query_acl.0.access"  = "deny"
+      "uddi.query_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "recursion_acl" {
-  # recursion_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name          = "{{random}}"
+      recursion_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.recursion_acl.0.access"  = "allow"
+      "uddi.recursion_acl.0.element" = "ip"
+      "uddi.recursion_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name          = "{{random}}"
+      recursion_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.recursion_acl.0.access"  = "deny"
+      "uddi.recursion_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name          = "{{random}}"
+      recursion_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.recursion_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.recursion_acl.0.access"  = "deny"
+      "uddi.recursion_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "recursion_enabled" {
-  # recursion_enabled — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -931,8 +1228,8 @@ case "recursion_enabled" {
 }
 
 case "sort_list" {
-  # sort_list — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -958,8 +1255,8 @@ case "sort_list" {
 }
 
 case "synthesize_address_records_from_https" {
-  # synthesize_address_records_from_https — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -984,8 +1281,8 @@ case "synthesize_address_records_from_https" {
 }
 
 case "tags" {
-  # tags — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -1012,22 +1309,128 @@ case "tags" {
 }
 
 case "transfer_acl" {
-  # transfer_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name         = "{{random}}"
+      transfer_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.transfer_acl.0.access"  = "allow"
+      "uddi.transfer_acl.0.element" = "ip"
+      "uddi.transfer_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name         = "{{random}}"
+      transfer_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.transfer_acl.0.access"  = "deny"
+      "uddi.transfer_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name         = "{{random}}"
+      transfer_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.transfer_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.transfer_acl.0.access"  = "deny"
+      "uddi.transfer_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "update_acl" {
-  # update_acl — generated from terraform-provider-uddi
   backend = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccAclIP' could not be parsed (no resource block found)"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_acl_unknown" "test" {
+    uddi = {
+      name = "\"acl-\"+name"
+    }
+  }
+  resource "infoblox_tsig_key_unknown" "test" {
+    uddi = {
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      update_acl = [{ access = "allow", element = "ip", address = "192.168.11.11" }]
+    }
+    check = {
+      "uddi.update_acl.0.access"  = "allow"
+      "uddi.update_acl.0.element" = "ip"
+      "uddi.update_acl.0.address" = "192.168.11.11"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      update_acl = [{ access = "deny", element = "any" }]
+    }
+    check = {
+      "uddi.update_acl.0.access"  = "deny"
+      "uddi.update_acl.0.element" = "any"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      update_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+    }
+    check = {
+      "uddi.update_acl.0.element" = "acl"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.update_acl.0.access"  = "deny"
+      "uddi.update_acl.0.element" = "tsig_key"
+    }
+  }
+
 }
 
 case "use_root_forwarders_for_local_resolution_with_b1td" {
-  # use_root_forwarders_for_local_resolution_with_b1td — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -1059,8 +1462,8 @@ case "use_root_forwarders_for_local_resolution_with_b1td" {
 }
 
 case "zone_authority" {
-  # zone_authority — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   step {
     uddi {
