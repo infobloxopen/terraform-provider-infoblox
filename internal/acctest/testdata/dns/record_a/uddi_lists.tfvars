@@ -1,6 +1,6 @@
-# Auto-generated list acceptance-test cases for RecordA (uddi).
+# Auto-generated list acceptance-test cases for RecordA.
 case "basic" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -19,7 +19,7 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -46,7 +46,7 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
