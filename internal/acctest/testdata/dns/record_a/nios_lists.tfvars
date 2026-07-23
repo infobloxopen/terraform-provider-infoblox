@@ -2,6 +2,7 @@
 case "basic" {
   # basic — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
   min_tf_version = "1.14.0"
 
   step {
@@ -23,6 +24,7 @@ case "basic" {
 case "filters" {
   # filters — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
   min_tf_version = "1.14.0"
 
   step {
@@ -50,6 +52,7 @@ case "filters" {
 case "ext_attr_filters" {
   # ext_attr_filters — generated from terraform-provider-nios
   backend = "nios"
+  parallel = true
   min_tf_version = "1.14.0"
 
   step {

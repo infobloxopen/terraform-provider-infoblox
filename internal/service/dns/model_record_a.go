@@ -131,6 +131,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the record; maximum 256 characters.",
@@ -140,15 +141,15 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
 		},
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			immutable.ImmutableIfValue("SYSTEM"),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The record creator. Note that changing creator from or to 'SYSTEM' value is not allowed.",
 	},
 	"ddns_principal": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "The GSS-TSIG principal that owns this record.",
 	},
 	"ddns_protected": schema.BoolAttribute{
@@ -195,12 +196,14 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.ExactlyOneOf(
 				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
 			),
+			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The IPv4 Address of the record.",
 	},
 	"name": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidDomainName(),
 		},
 		MarkdownDescription: "Name for A record in FQDN format. This value can be in unicode format.",
@@ -216,6 +219,9 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
+		},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The name of the DNS view in which the record resides. Example: \"external\".",
 	},

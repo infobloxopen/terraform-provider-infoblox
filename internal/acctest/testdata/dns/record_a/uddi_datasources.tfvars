@@ -2,6 +2,7 @@
 case "filters" {
   # filters — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   filter {
     type = "filters"
@@ -26,6 +27,7 @@ case "filters" {
 case "tag_filters" {
   # tag_filters — generated from terraform-provider-uddi
   backend = "uddi"
+  parallel = true
 
   filter {
     type = "tag_filters"
