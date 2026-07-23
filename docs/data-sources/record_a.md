@@ -35,7 +35,7 @@ data "infoblox_record_a" "get_all_a_records" {}
 ```terraform
 data "infoblox_record_a" "get_a_record_using_filters" {
   filters = {
-    "name" = "record_a.example.com"
+    "name_in_zone" = "record_a.example.com"
   }
 }
 
