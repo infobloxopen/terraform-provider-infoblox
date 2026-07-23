@@ -13,6 +13,7 @@ import (
 
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // ViewscavengingsettingsExpressionListModel is the Terraform model for ViewscavengingsettingsExpressionList
@@ -43,8 +44,11 @@ var ViewscavengingsettingsExpressionListResourceSchemaAttributes = map[string]sc
 		MarkdownDescription: "The operation name.",
 	},
 	"op1": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "The first operand value.",
 	},
 	"op1_type": schema.StringAttribute{
@@ -56,8 +60,11 @@ var ViewscavengingsettingsExpressionListResourceSchemaAttributes = map[string]sc
 		MarkdownDescription: "The first operand type.",
 	},
 	"op2": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "The second operand value.",
 	},
 	"op2_type": schema.StringAttribute{

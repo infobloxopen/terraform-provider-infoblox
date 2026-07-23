@@ -37,6 +37,7 @@ var ViewFilterAaaaListResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("address")),
 			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("permission")),
 		},
@@ -46,6 +47,7 @@ var ViewFilterAaaaListResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The address this rule applies to or \"Any\".",

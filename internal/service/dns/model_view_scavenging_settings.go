@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -14,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // ViewScavengingSettingsModel is the Terraform model for ViewScavengingSettings
@@ -85,7 +85,7 @@ var ViewScavengingSettingsResourceSchemaAttributes = map[string]schema.Attribute
 		Optional: true,
 		Computed: true,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The expression list. The particular record is treated as reclaimable if expression condition evaluates to 'true' for given record if scavenging hasn't been manually disabled on a given resource record.",
 	},
@@ -96,7 +96,7 @@ var ViewScavengingSettingsResourceSchemaAttributes = map[string]schema.Attribute
 		Optional: true,
 		Computed: true,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The extensible attributes expression list. The particular record is treated as reclaimable if extensible attributes expression condition evaluates to 'true' for given record if scavenging hasn't been manually disabled on a given resource record.",
 	},

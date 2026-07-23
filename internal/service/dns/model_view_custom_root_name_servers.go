@@ -6,12 +6,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // ViewCustomRootNameServersModel is the Terraform model for ViewCustomRootNameServers
@@ -29,12 +31,18 @@ var ViewCustomRootNameServersAttrTypes = map[string]attr.Type{
 // ViewCustomRootNameServersResourceSchemaAttributes contains the schema attributes for ViewCustomRootNameServersModel
 var ViewCustomRootNameServersResourceSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Required:            true,
-		CustomType:          iptypes.IPAddressType{},
+		Required:   true,
+		CustomType: iptypes.IPAddressType{},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "The IPv4 Address or IPv6 Address of the server.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "A resolvable domain name for the external DNS server.",
 	},
 }

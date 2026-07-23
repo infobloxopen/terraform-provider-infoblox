@@ -3,12 +3,10 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -44,11 +42,8 @@ var SortListItemResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Type of element.  Allowed values:  * _any_,  * _ip_,  * _acl_,",
 	},
 	"prioritized_networks": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
-		},
+		ElementType:         types.StringType,
+		Optional:            true,
 		MarkdownDescription: "Optional. The prioritized networks. If empty, the value of _source_ or networks from _acl_ is used.",
 	},
 	"source": schema.StringAttribute{

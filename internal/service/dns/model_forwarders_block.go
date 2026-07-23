@@ -3,11 +3,9 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -35,10 +33,7 @@ var ForwardersBlockResourceSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ForwarderResourceSchemaAttributes,
 		},
-		Optional: true,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
-		},
+		Optional:            true,
 		MarkdownDescription: "Optional. Field config for _forwarders_ field from.",
 	},
 	"forwarders_only": schema.BoolAttribute{

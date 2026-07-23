@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -33,6 +32,7 @@ var ViewSortlistResourceSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidIPCIDR(),
 		},
 		MarkdownDescription: "The source address of a sortlist object.",
@@ -41,7 +41,7 @@ var ViewSortlistResourceSchemaAttributes = map[string]schema.Attribute{
 		ElementType: types.StringType,
 		Optional:    true,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The match list of a sortlist.",
 	},

@@ -56,6 +56,7 @@ var ViewMatchDestinationsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("struct"),
 				path.MatchRelative().AtParent().AtName("address"),
@@ -71,6 +72,7 @@ var ViewMatchDestinationsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("tsig_key"),
 				path.MatchRelative().AtParent().AtName("tsig_key_alg"),
@@ -97,6 +99,7 @@ var ViewMatchDestinationsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("address"),
 				path.MatchRelative().AtParent().AtName("permission"),
@@ -121,6 +124,7 @@ var ViewMatchDestinationsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("address"),
 				path.MatchRelative().AtParent().AtName("permission"),
