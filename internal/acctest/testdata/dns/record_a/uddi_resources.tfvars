@@ -1,7 +1,6 @@
-# Auto-generated resource acceptance-test cases for RecordA (uddi).
+# Auto-generated resource acceptance-test cases for RecordA.
 case "basic" {
-  # basic — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -25,7 +24,6 @@ case "basic" {
 }
 
 case "disappears" {
-  # disappears — generated from terraform-provider-uddi
   backend               = "uddi"
   disappears            = true
   expect_non_empty_plan = true
@@ -50,8 +48,7 @@ case "disappears" {
 }
 
 case "comment" {
-  # comment — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -87,8 +84,7 @@ case "comment" {
 }
 
 case "disabled" {
-  # disabled — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -124,8 +120,7 @@ case "disabled" {
 }
 
 case "inheritance_sources" {
-  # inheritance_sources — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -161,8 +156,6 @@ case "inheritance_sources" {
 }
 
 case "name_in_zone" {
-  # name_in_zone — generated from terraform-provider-uddi
-  backend = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -198,8 +191,7 @@ case "name_in_zone" {
 }
 
 case "rdata" {
-  # rdata — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -233,8 +225,7 @@ case "rdata" {
 }
 
 case "tags" {
-  # tags — generated from terraform-provider-uddi
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
@@ -270,7 +261,6 @@ case "tags" {
 }
 
 case "ttl" {
-  # ttl — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
@@ -356,7 +346,6 @@ case "view" {
 }
 
 case "zone" {
-  # zone — generated from terraform-provider-uddi
   backend = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
@@ -384,6 +373,7 @@ case "zone" {
       "uddi.zone" = "dns/auth_zone/c75d3700-05b5-4ff8-a413-dfa0bcb5b020"
     }
   }
+
   step {
     uddi {
       rdata = { address = "{{random_ip}}" }
@@ -395,6 +385,7 @@ case "zone" {
       "uddi.zone" = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
     }
   }
+
 }
 
 case "options" {

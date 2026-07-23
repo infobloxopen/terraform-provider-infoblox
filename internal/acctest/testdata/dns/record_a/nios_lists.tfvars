@@ -1,7 +1,6 @@
 # Auto-generated list acceptance-test cases for RecordA.
 case "basic" {
-  backend        = "nios"
-  parallel       = true
+  backend = "nios"
   min_tf_version = "1.14.0"
 
   step {
@@ -21,8 +20,7 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  parallel       = true
+  backend = "nios"
   min_tf_version = "1.14.0"
 
   step {
@@ -34,11 +32,11 @@ case "filters" {
   }
 
   step {
-    query            = true
-    provider         = infoblox
+    query    = true
+    provider = infoblox
     include_resource = true
     filter {
-      type = "filters"
+      type   = "filters"
       values = {
         name = "nios.name"
       }
@@ -48,7 +46,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend        = "nios"
+  backend = "nios"
   min_tf_version = "1.14.0"
 
   step {
@@ -61,11 +59,11 @@ case "ext_attr_filters" {
   }
 
   step {
-    query            = true
-    provider         = infoblox
+    query    = true
+    provider = infoblox
     include_resource = true
     filter {
-      type = "ext_attr_filters"
+      type   = "ext_attr_filters"
       values = {
         Site = "nios.ext_attrs.Site"
       }

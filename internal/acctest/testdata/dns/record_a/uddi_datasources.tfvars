@@ -1,8 +1,6 @@
-# Auto-generated datasource acceptance-test cases for RecordA (uddi).
+# Auto-generated datasource acceptance-test cases for RecordA.
 case "filters" {
-  # filters — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
 
   filter {
     type = "filters"
@@ -25,9 +23,7 @@ case "filters" {
 }
 
 case "tag_filters" {
-  # tag_filters — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
 
   filter {
     type = "tag_filters"
