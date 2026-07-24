@@ -823,7 +823,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"forwarders": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
-			Attributes: ForwarderResourceSchemaAttributes,
+			Attributes: ForwarderResourceSchemaAttributes(false),
 		},
 		Optional:            true,
 		MarkdownDescription: "Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses. ",

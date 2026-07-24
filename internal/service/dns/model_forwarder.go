@@ -15,33 +15,29 @@ import (
 
 // ForwarderModel is the Terraform model for Forwarder
 type ForwarderModel struct {
-	Address      types.String `tfsdk:"address"`
-	Fqdn         types.String `tfsdk:"fqdn"`
-	ProtocolFqdn types.String `tfsdk:"protocol_fqdn"`
+	Address types.String `tfsdk:"address"`
+	Fqdn    types.String `tfsdk:"fqdn"`
 }
 
 // ForwarderAttrTypes contains the attribute types for ForwarderModel
 var ForwarderAttrTypes = map[string]attr.Type{
-	"address":       types.StringType,
-	"fqdn":          types.StringType,
-	"protocol_fqdn": types.StringType,
+	"address": types.StringType,
+	"fqdn":    types.StringType,
 }
 
 // ForwarderResourceSchemaAttributes contains the schema attributes for ForwarderModel
-var ForwarderResourceSchemaAttributes = map[string]schema.Attribute{
-	"address": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "Server IP address.",
-	},
-	"fqdn": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "Server FQDN.",
-	},
-	"protocol_fqdn": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Server FQDN in punycode.",
-	},
+func ForwarderResourceSchemaAttributes(fqdnOptional bool) map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"address": schema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: "Server IP address.",
+		},
+		"fqdn": schema.StringAttribute{
+			Optional:            fqdnOptional,
+			Required:            !fqdnOptional,
+			MarkdownDescription: "Server FQDN.",
+		},
+	}
 }
 
 // ExpandForwarder converts a Terraform Object to SDK type
@@ -63,9 +59,8 @@ func (m *ForwarderModel) Expand(ctx context.Context, diags *diag.Diagnostics) *u
 		return nil
 	}
 	to := &uddidns.Forwarder{
-		Address:      flex.ExpandString(m.Address),
-		Fqdn:         flex.ExpandStringPointer(m.Fqdn),
-		ProtocolFqdn: flex.ExpandStringPointer(m.ProtocolFqdn),
+		Address: flex.ExpandString(m.Address),
+		Fqdn:    flex.ExpandStringPointer(m.Fqdn),
 	}
 	return to
 }
@@ -89,5 +84,4 @@ func (m *ForwarderModel) Flatten(ctx context.Context, from *uddidns.Forwarder, d
 	}
 	m.Address = flex.FlattenString(from.Address)
 	m.Fqdn = flex.FlattenStringPointer(from.Fqdn)
-	m.ProtocolFqdn = flex.FlattenStringPointer(from.ProtocolFqdn)
 }
