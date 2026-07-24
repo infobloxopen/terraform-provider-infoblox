@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -58,11 +59,12 @@ var ACLItemResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. Data for _ip_ _element_.  Must be empty if _element_ is not _ip_.",
 	},
 	"element": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotNull(),
+			stringvalidator.OneOf("any", "ip", "acl", "tsig_key"),
 		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Type of element.  Allowed values:  * _any_,  * _ip_,  * _acl_,  * _tsig_key_.",
 	},
 	"tsig_key": schema.SingleNestedAttribute{
