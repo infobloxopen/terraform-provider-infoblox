@@ -17,53 +17,23 @@ import (
 
 // TSIGKeyModel is the Terraform model for TSIGKey
 type TSIGKeyModel struct {
-	Algorithm    types.String `tfsdk:"algorithm"`
-	Comment      types.String `tfsdk:"comment"`
-	Key          types.String `tfsdk:"key"`
-	Name         types.String `tfsdk:"name"`
-	ProtocolName types.String `tfsdk:"protocol_name"`
-	Secret       types.String `tfsdk:"secret"`
+	Key types.String `tfsdk:"key"`
 }
 
 // TSIGKeyAttrTypes contains the attribute types for TSIGKeyModel
 var TSIGKeyAttrTypes = map[string]attr.Type{
-	"algorithm":     types.StringType,
-	"comment":       types.StringType,
-	"key":           types.StringType,
-	"name":          types.StringType,
-	"protocol_name": types.StringType,
-	"secret":        types.StringType,
+	"key": types.StringType,
 }
 
 // TSIGKeyResourceSchemaAttributes contains the schema attributes for TSIGKeyModel
 var TSIGKeyResourceSchemaAttributes = map[string]schema.Attribute{
-	"algorithm": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "TSIG key algorithm.  Possible values:  * _hmac_sha256_,  * _hmac_sha1_,  * _hmac_sha224_,  * _hmac_sha384_,  * _hmac_sha512_.",
-	},
-	"comment": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "Comment for TSIG key.",
-	},
 	"key": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotNull(),
 		},
 		MarkdownDescription: "The resource identifier.",
-	},
-	"name": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "TSIG key name, FQDN.",
-	},
-	"protocol_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "TSIG key name in punycode.",
-	},
-	"secret": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "TSIG key secret, base64 string.",
 	},
 }
 
@@ -86,12 +56,7 @@ func (m *TSIGKeyModel) Expand(ctx context.Context, diags *diag.Diagnostics) *udd
 		return nil
 	}
 	to := &uddidns.TSIGKey{
-		Algorithm:    flex.ExpandStringPointer(m.Algorithm),
-		Comment:      flex.ExpandStringPointer(m.Comment),
-		Key:          flex.ExpandStringPointer(m.Key),
-		Name:         flex.ExpandStringPointer(m.Name),
-		ProtocolName: flex.ExpandStringPointer(m.ProtocolName),
-		Secret:       flex.ExpandStringPointer(m.Secret),
+		Key: flex.ExpandStringPointer(m.Key),
 	}
 	return to
 }
@@ -113,10 +78,5 @@ func (m *TSIGKeyModel) Flatten(ctx context.Context, from *uddidns.TSIGKey, diags
 	if from == nil || m == nil {
 		return
 	}
-	m.Algorithm = flex.FlattenStringPointer(from.Algorithm)
-	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.Key = flex.FlattenStringPointer(from.Key)
-	m.Name = flex.FlattenStringPointer(from.Name)
-	m.ProtocolName = flex.FlattenStringPointer(from.ProtocolName)
-	m.Secret = flex.FlattenStringPointer(from.Secret)
 }

@@ -39,6 +39,7 @@ var ACLItemAttrTypes = map[string]attr.Type{
 var ACLItemResourceSchemaAttributes = map[string]schema.Attribute{
 	"access": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
@@ -50,6 +51,7 @@ var ACLItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"address": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
@@ -57,6 +59,7 @@ var ACLItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"element": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotNull(),
 		},
