@@ -15,20 +15,18 @@ import (
 
 // TrustAnchorModel is the Terraform model for TrustAnchor
 type TrustAnchorModel struct {
-	Algorithm    types.Int64  `tfsdk:"algorithm"`
-	ProtocolZone types.String `tfsdk:"protocol_zone"`
-	PublicKey    types.String `tfsdk:"public_key"`
-	Sep          types.Bool   `tfsdk:"sep"`
-	Zone         types.String `tfsdk:"zone"`
+	Algorithm types.Int64  `tfsdk:"algorithm"`
+	PublicKey types.String `tfsdk:"public_key"`
+	Sep       types.Bool   `tfsdk:"sep"`
+	Zone      types.String `tfsdk:"zone"`
 }
 
 // TrustAnchorAttrTypes contains the attribute types for TrustAnchorModel
 var TrustAnchorAttrTypes = map[string]attr.Type{
-	"algorithm":     types.Int64Type,
-	"protocol_zone": types.StringType,
-	"public_key":    types.StringType,
-	"sep":           types.BoolType,
-	"zone":          types.StringType,
+	"algorithm":  types.Int64Type,
+	"public_key": types.StringType,
+	"sep":        types.BoolType,
+	"zone":       types.StringType,
 }
 
 // TrustAnchorResourceSchemaAttributes contains the schema attributes for TrustAnchorModel
@@ -36,11 +34,6 @@ var TrustAnchorResourceSchemaAttributes = map[string]schema.Attribute{
 	"algorithm": schema.Int64Attribute{
 		Required:            true,
 		MarkdownDescription: "",
-	},
-	"protocol_zone": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Zone FQDN in punycode.",
 	},
 	"public_key": schema.StringAttribute{
 		Required:            true,
@@ -75,11 +68,10 @@ func (m *TrustAnchorModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		return nil
 	}
 	to := &uddidns.TrustAnchor{
-		Algorithm:    flex.ExpandInt64(m.Algorithm),
-		ProtocolZone: flex.ExpandStringPointer(m.ProtocolZone),
-		PublicKey:    flex.ExpandString(m.PublicKey),
-		Sep:          flex.ExpandBoolPointer(m.Sep),
-		Zone:         flex.ExpandString(m.Zone),
+		Algorithm: flex.ExpandInt64(m.Algorithm),
+		PublicKey: flex.ExpandString(m.PublicKey),
+		Sep:       flex.ExpandBoolPointer(m.Sep),
+		Zone:      flex.ExpandString(m.Zone),
 	}
 	return to
 }
@@ -102,7 +94,6 @@ func (m *TrustAnchorModel) Flatten(ctx context.Context, from *uddidns.TrustAncho
 		return
 	}
 	m.Algorithm = flex.FlattenInt64(from.Algorithm)
-	m.ProtocolZone = flex.FlattenStringPointer(from.ProtocolZone)
 	m.PublicKey = flex.FlattenString(from.PublicKey)
 	m.Sep = flex.FlattenBoolPointer(from.Sep)
 	m.Zone = flex.FlattenString(from.Zone)

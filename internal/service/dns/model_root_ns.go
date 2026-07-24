@@ -15,16 +15,14 @@ import (
 
 // RootNSModel is the Terraform model for RootNS
 type RootNSModel struct {
-	Address      types.String `tfsdk:"address"`
-	Fqdn         types.String `tfsdk:"fqdn"`
-	ProtocolFqdn types.String `tfsdk:"protocol_fqdn"`
+	Address types.String `tfsdk:"address"`
+	Fqdn    types.String `tfsdk:"fqdn"`
 }
 
 // RootNSAttrTypes contains the attribute types for RootNSModel
 var RootNSAttrTypes = map[string]attr.Type{
-	"address":       types.StringType,
-	"fqdn":          types.StringType,
-	"protocol_fqdn": types.StringType,
+	"address": types.StringType,
+	"fqdn":    types.StringType,
 }
 
 // RootNSResourceSchemaAttributes contains the schema attributes for RootNSModel
@@ -36,11 +34,6 @@ var RootNSResourceSchemaAttributes = map[string]schema.Attribute{
 	"fqdn": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "FQDN.",
-	},
-	"protocol_fqdn": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "FQDN in punycode.",
 	},
 }
 
@@ -63,9 +56,8 @@ func (m *RootNSModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddi
 		return nil
 	}
 	to := &uddidns.RootNS{
-		Address:      flex.ExpandString(m.Address),
-		Fqdn:         flex.ExpandString(m.Fqdn),
-		ProtocolFqdn: flex.ExpandStringPointer(m.ProtocolFqdn),
+		Address: flex.ExpandString(m.Address),
+		Fqdn:    flex.ExpandString(m.Fqdn),
 	}
 	return to
 }
@@ -89,5 +81,4 @@ func (m *RootNSModel) Flatten(ctx context.Context, from *uddidns.RootNS, diags *
 	}
 	m.Address = flex.FlattenString(from.Address)
 	m.Fqdn = flex.FlattenString(from.Fqdn)
-	m.ProtocolFqdn = flex.FlattenStringPointer(from.ProtocolFqdn)
 }

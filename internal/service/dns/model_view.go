@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -165,7 +166,6 @@ var NIOSViewAttrTypes = map[string]attr.Type{
 type UDDIViewModel struct {
 	AddEdnsOptionInOutgoingQuery                types.Bool   `tfsdk:"add_edns_option_in_outgoing_query"`
 	Comment                                     types.String `tfsdk:"comment"`
-	CompartmentId                               types.String `tfsdk:"compartment_id"`
 	CustomRootNs                                types.List   `tfsdk:"custom_root_ns"`
 	CustomRootNsEnabled                         types.Bool   `tfsdk:"custom_root_ns_enabled"`
 	Disabled                                    types.Bool   `tfsdk:"disabled"`
@@ -214,7 +214,6 @@ type UDDIViewModel struct {
 var UDDIViewAttrTypes = map[string]attr.Type{
 	"add_edns_option_in_outgoing_query":     types.BoolType,
 	"comment":                               types.StringType,
-	"compartment_id":                        types.StringType,
 	"custom_root_ns":                        types.ListType{ElemType: types.ObjectType{AttrTypes: RootNSAttrTypes}},
 	"custom_root_ns_enabled":                types.BoolType,
 	"disabled":                              types.BoolType,
@@ -716,12 +715,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "_add_edns_option_in_outgoing_query_ adds client IP, MAC address and view name into outgoing recursive query. Defaults to _false_.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Comment for view.",
-	},
-	"compartment_id": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The access view associated with the object. If no access view is associated with the object, the value defaults to empty.",
 	},
 	"custom_root_ns": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -771,6 +768,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Attributes:          DTCConfigResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
+		Default:             objectdefault.StaticValue(types.ObjectValueMust(DTCConfigAttrTypes, map[string]attr.Value{"default_ttl": types.Int64Value(300)})),
 		MarkdownDescription: "Construct for fields: _default_ttl_.",
 	},
 	"ecs_enabled": schema.BoolAttribute{
@@ -1002,6 +1000,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Attributes: ZoneAuthorityResourceSchemaAttributes,
 		Optional:   true,
 		Computed:   true,
+		Default:    objectdefault.StaticValue(types.ObjectValueMust(ZoneAuthorityAttrTypes, map[string]attr.Value{"default_ttl": types.Int64Value(28800), "expire": types.Int64Value(2.4192e+06), "mname": types.StringValue("ns.b1ddi"), "negative_ttl": types.Int64Value(900), "protocol_mname": types.StringValue("ns.b1ddi"), "protocol_rname": types.StringValue("hostmaster"), "refresh": types.Int64Value(10800), "retry": types.Int64Value(3600), "rname": types.StringValue("hostmaster"), "use_default_mname": types.BoolValue(true)})),
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
 		},
@@ -1132,7 +1131,6 @@ func (m *UDDIViewModel) Expand(ctx context.Context, diags *diag.Diagnostics) *co
 	return &coremodel.UDDIViewExt{
 		AddEdnsOptionInOutgoingQuery:      flex.ExpandBoolPointer(m.AddEdnsOptionInOutgoingQuery),
 		Comment:                           flex.ExpandStringPointer(m.Comment),
-		CompartmentId:                     flex.ExpandStringPointer(m.CompartmentId),
 		CustomRootNs:                      flex.ExpandFrameworkListNestedBlock(ctx, m.CustomRootNs, diags, ExpandRootNS),
 		CustomRootNsEnabled:               flex.ExpandBoolPointer(m.CustomRootNsEnabled),
 		Disabled:                          flex.ExpandBoolPointer(m.Disabled),
@@ -1286,7 +1284,6 @@ func (m *UDDIViewModel) Flatten(ctx context.Context, from *coremodel.UDDIViewExt
 	}
 	m.AddEdnsOptionInOutgoingQuery = flex.FlattenBoolPointer(from.AddEdnsOptionInOutgoingQuery)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
-	m.CompartmentId = flex.FlattenStringPointer(from.CompartmentId)
 	m.CustomRootNs = flex.FlattenFrameworkListNestedBlock(ctx, from.CustomRootNs, RootNSAttrTypes, diags, FlattenRootNS)
 	m.CustomRootNsEnabled = flex.FlattenBoolPointer(from.CustomRootNsEnabled)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)

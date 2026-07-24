@@ -90,7 +90,6 @@ var ViewNIOSFieldMap = map[string]string{
 var ViewUDDIFieldMap = map[string]string{
 	"UDDI.AddEdnsOptionInOutgoingQuery":      "AddEdnsOptionInOutgoingQuery",
 	"UDDI.Comment":                           "Comment",
-	"UDDI.CompartmentId":                     "CompartmentId",
 	"UDDI.CustomRootNs":                      "CustomRootNs",
 	"UDDI.CustomRootNsEnabled":               "CustomRootNsEnabled",
 	"UDDI.Disabled":                          "Disabled",
@@ -224,7 +223,6 @@ var ViewFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendUDDI: {
 		"uddi.add_edns_option_in_outgoing_query":     "add_edns_option_in_outgoing_query",
 		"uddi.comment":                               "comment",
-		"uddi.compartment_id":                        "compartment_id",
 		"uddi.custom_root_ns":                        "custom_root_ns",
 		"uddi.custom_root_ns_enabled":                "custom_root_ns_enabled",
 		"uddi.disabled":                              "disabled",

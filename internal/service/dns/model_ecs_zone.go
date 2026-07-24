@@ -15,16 +15,14 @@ import (
 
 // ECSZoneModel is the Terraform model for ECSZone
 type ECSZoneModel struct {
-	Access       types.String `tfsdk:"access"`
-	Fqdn         types.String `tfsdk:"fqdn"`
-	ProtocolFqdn types.String `tfsdk:"protocol_fqdn"`
+	Access types.String `tfsdk:"access"`
+	Fqdn   types.String `tfsdk:"fqdn"`
 }
 
 // ECSZoneAttrTypes contains the attribute types for ECSZoneModel
 var ECSZoneAttrTypes = map[string]attr.Type{
-	"access":        types.StringType,
-	"fqdn":          types.StringType,
-	"protocol_fqdn": types.StringType,
+	"access": types.StringType,
+	"fqdn":   types.StringType,
 }
 
 // ECSZoneResourceSchemaAttributes contains the schema attributes for ECSZoneModel
@@ -36,11 +34,6 @@ var ECSZoneResourceSchemaAttributes = map[string]schema.Attribute{
 	"fqdn": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "Zone FQDN.",
-	},
-	"protocol_fqdn": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Zone FQDN in punycode.",
 	},
 }
 
@@ -63,9 +56,8 @@ func (m *ECSZoneModel) Expand(ctx context.Context, diags *diag.Diagnostics) *udd
 		return nil
 	}
 	to := &uddidns.ECSZone{
-		Access:       flex.ExpandString(m.Access),
-		Fqdn:         flex.ExpandString(m.Fqdn),
-		ProtocolFqdn: flex.ExpandStringPointer(m.ProtocolFqdn),
+		Access: flex.ExpandString(m.Access),
+		Fqdn:   flex.ExpandString(m.Fqdn),
 	}
 	return to
 }
@@ -89,5 +81,4 @@ func (m *ECSZoneModel) Flatten(ctx context.Context, from *uddidns.ECSZone, diags
 	}
 	m.Access = flex.FlattenString(from.Access)
 	m.Fqdn = flex.FlattenString(from.Fqdn)
-	m.ProtocolFqdn = flex.FlattenStringPointer(from.ProtocolFqdn)
 }
