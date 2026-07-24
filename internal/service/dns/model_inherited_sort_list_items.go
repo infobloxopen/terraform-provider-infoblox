@@ -15,43 +15,20 @@ import (
 
 // InheritedSortListItemsModel is the Terraform model for InheritedSortListItems
 type InheritedSortListItemsModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.List   `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritedSortListItemsAttrTypes contains the attribute types for InheritedSortListItemsModel
 var InheritedSortListItemsAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.ListType{ElemType: types.ObjectType{AttrTypes: SortListItemAttrTypes}},
+	"action": types.StringType,
 }
 
 // InheritedSortListItemsResourceSchemaAttributes contains the schema attributes for InheritedSortListItemsModel
 var InheritedSortListItemsResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Inheritance setting for a field. Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.ListNestedAttribute{
-		NestedObject: schema.NestedAttributeObject{
-			Attributes: SortListItemResourceSchemaAttributes,
-		},
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Inherited value.",
 	},
 }
 
@@ -74,10 +51,7 @@ func (m *InheritedSortListItemsModel) Expand(ctx context.Context, diags *diag.Di
 		return nil
 	}
 	to := &uddidns.InheritedSortListItems{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       flex.ExpandFrameworkListNestedBlock(ctx, m.Value, diags, ExpandSortListItem),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -100,7 +74,4 @@ func (m *InheritedSortListItemsModel) Flatten(ctx context.Context, from *uddidns
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = flex.FlattenFrameworkListNestedBlock(ctx, from.Value, SortListItemAttrTypes, diags, FlattenSortListItem)
 }

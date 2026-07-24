@@ -15,41 +15,20 @@ import (
 
 // InheritedECSBlockModel is the Terraform model for InheritedECSBlock
 type InheritedECSBlockModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.Object `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritedECSBlockAttrTypes contains the attribute types for InheritedECSBlockModel
 var InheritedECSBlockAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.ObjectType{AttrTypes: ECSBlockAttrTypes},
+	"action": types.StringType,
 }
 
 // InheritedECSBlockResourceSchemaAttributes contains the schema attributes for InheritedECSBlockModel
 var InheritedECSBlockResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.SingleNestedAttribute{
-		Attributes:          ECSBlockResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Inherited value.",
 	},
 }
 
@@ -72,10 +51,7 @@ func (m *InheritedECSBlockModel) Expand(ctx context.Context, diags *diag.Diagnos
 		return nil
 	}
 	to := &uddidns.InheritedECSBlock{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       ExpandECSBlock(ctx, m.Value, diags),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -98,7 +74,4 @@ func (m *InheritedECSBlockModel) Flatten(ctx context.Context, from *uddidns.Inhe
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = FlattenECSBlock(ctx, from.Value, diags)
 }

@@ -15,41 +15,20 @@ import (
 
 // InheritedDNSSECValidationBlockModel is the Terraform model for InheritedDNSSECValidationBlock
 type InheritedDNSSECValidationBlockModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.Object `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritedDNSSECValidationBlockAttrTypes contains the attribute types for InheritedDNSSECValidationBlockModel
 var InheritedDNSSECValidationBlockAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.ObjectType{AttrTypes: DNSSECValidationBlockAttrTypes},
+	"action": types.StringType,
 }
 
 // InheritedDNSSECValidationBlockResourceSchemaAttributes contains the schema attributes for InheritedDNSSECValidationBlockModel
 var InheritedDNSSECValidationBlockResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.SingleNestedAttribute{
-		Attributes:          DNSSECValidationBlockResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Inherited value.",
 	},
 }
 
@@ -72,10 +51,7 @@ func (m *InheritedDNSSECValidationBlockModel) Expand(ctx context.Context, diags 
 		return nil
 	}
 	to := &uddidns.InheritedDNSSECValidationBlock{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       ExpandDNSSECValidationBlock(ctx, m.Value, diags),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -98,7 +74,4 @@ func (m *InheritedDNSSECValidationBlockModel) Flatten(ctx context.Context, from 
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = FlattenDNSSECValidationBlock(ctx, from.Value, diags)
 }

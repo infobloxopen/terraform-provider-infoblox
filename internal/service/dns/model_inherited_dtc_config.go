@@ -27,6 +27,7 @@ var InheritedDtcConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"default_ttl": schema.SingleNestedAttribute{
 		Attributes:          Inheritance2InheritedUInt32DnsconfigResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Field config for _default_ttl_ field from _DTCConfig_ object.",
 	},
 }

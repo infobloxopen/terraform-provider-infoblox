@@ -15,41 +15,20 @@ import (
 
 // InheritedForwardersBlockModel is the Terraform model for InheritedForwardersBlock
 type InheritedForwardersBlockModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.Object `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritedForwardersBlockAttrTypes contains the attribute types for InheritedForwardersBlockModel
 var InheritedForwardersBlockAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.ObjectType{AttrTypes: ForwardersBlockAttrTypes},
+	"action": types.StringType,
 }
 
 // InheritedForwardersBlockResourceSchemaAttributes contains the schema attributes for InheritedForwardersBlockModel
 var InheritedForwardersBlockResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.SingleNestedAttribute{
-		Attributes:          ForwardersBlockResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Inherited value.",
 	},
 }
 
@@ -72,10 +51,7 @@ func (m *InheritedForwardersBlockModel) Expand(ctx context.Context, diags *diag.
 		return nil
 	}
 	to := &uddidns.InheritedForwardersBlock{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       ExpandForwardersBlock(ctx, m.Value, diags),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -98,7 +74,4 @@ func (m *InheritedForwardersBlockModel) Flatten(ctx context.Context, from *uddid
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = FlattenForwardersBlock(ctx, from.Value, diags)
 }
