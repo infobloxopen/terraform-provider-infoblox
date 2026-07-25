@@ -84,6 +84,32 @@ case "add_edns_option_in_outgoing_query" {
 
 }
 
+case "compartment_id" {
+  backend = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name           = "{{random}}"
+      compartment_id = "c4695."
+    }
+    check = {
+      "uddi.compartment_id" = "c4695."
+    }
+  }
+
+  step {
+    uddi {
+      name           = "{{random}}"
+      compartment_id = ""
+    }
+    check = {
+      "uddi.compartment_id" = ""
+    }
+  }
+
+}
+
 case "comment" {
   backend = "uddi"
   parallel = true
