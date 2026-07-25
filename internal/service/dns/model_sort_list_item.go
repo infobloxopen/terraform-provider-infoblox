@@ -48,6 +48,7 @@ var SortListItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"source": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},

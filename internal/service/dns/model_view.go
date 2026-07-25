@@ -868,6 +868,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.List{
 			planmod.UseDefaultAclForNull(),
 		},
@@ -878,6 +879,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.List{
 			planmod.UseDefaultAclForNull(),
 		},
