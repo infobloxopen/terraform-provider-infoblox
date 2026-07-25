@@ -166,6 +166,7 @@ var NIOSViewAttrTypes = map[string]attr.Type{
 type UDDIViewModel struct {
 	AddEdnsOptionInOutgoingQuery                types.Bool   `tfsdk:"add_edns_option_in_outgoing_query"`
 	Comment                                     types.String `tfsdk:"comment"`
+	CompartmentId                               types.String `tfsdk:"compartment_id"`
 	CustomRootNs                                types.List   `tfsdk:"custom_root_ns"`
 	CustomRootNsEnabled                         types.Bool   `tfsdk:"custom_root_ns_enabled"`
 	Disabled                                    types.Bool   `tfsdk:"disabled"`
@@ -214,6 +215,7 @@ type UDDIViewModel struct {
 var UDDIViewAttrTypes = map[string]attr.Type{
 	"add_edns_option_in_outgoing_query":     types.BoolType,
 	"comment":                               types.StringType,
+	"compartment_id":                        types.StringType,
 	"custom_root_ns":                        types.ListType{ElemType: types.ObjectType{AttrTypes: RootNSAttrTypes}},
 	"custom_root_ns_enabled":                types.BoolType,
 	"disabled":                              types.BoolType,
@@ -720,6 +722,11 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "Optional. Comment for view.",
 	},
+	"compartment_id": schema.StringAttribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "The access view associated with the object. If no access view is associated with the object, the value defaults to empty.",
+	},
 	"custom_root_ns": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: RootNSResourceSchemaAttributes,
@@ -1145,6 +1152,7 @@ func (m *UDDIViewModel) Expand(ctx context.Context, diags *diag.Diagnostics) *co
 	return &coremodel.UDDIViewExt{
 		AddEdnsOptionInOutgoingQuery:      flex.ExpandBoolPointer(m.AddEdnsOptionInOutgoingQuery),
 		Comment:                           flex.ExpandStringPointer(m.Comment),
+		CompartmentId:                     flex.ExpandStringPointer(m.CompartmentId),
 		CustomRootNs:                      flex.ExpandFrameworkListNestedBlock(ctx, m.CustomRootNs, diags, ExpandRootNS),
 		CustomRootNsEnabled:               flex.ExpandBoolPointer(m.CustomRootNsEnabled),
 		Disabled:                          flex.ExpandBoolPointer(m.Disabled),
@@ -1298,6 +1306,7 @@ func (m *UDDIViewModel) Flatten(ctx context.Context, from *coremodel.UDDIViewExt
 	}
 	m.AddEdnsOptionInOutgoingQuery = flex.FlattenBoolPointer(from.AddEdnsOptionInOutgoingQuery)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
+	m.CompartmentId = flex.FlattenStringPointer(from.CompartmentId)
 	m.CustomRootNs = flex.FlattenFrameworkListNestedBlock(ctx, from.CustomRootNs, RootNSAttrTypes, diags, FlattenRootNS)
 	m.CustomRootNsEnabled = flex.FlattenBoolPointer(from.CustomRootNsEnabled)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
