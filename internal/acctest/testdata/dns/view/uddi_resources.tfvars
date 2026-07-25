@@ -535,17 +535,17 @@ case "edns_udp_size" {
 case "filter_aaaa_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -573,20 +573,23 @@ case "filter_aaaa_acl" {
   step {
     uddi {
       name            = "{{random}}"
-      filter_aaaa_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      filter_aaaa_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.filter_aaaa_acl.0.element" = "acl"
+      "uddi.filter_aaaa_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name            = "{{random}}"
+      filter_aaaa_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.filter_aaaa_acl.0.access"  = "deny"
-      "uddi.filter_aaaa_acl.0.element" = "tsig_key"
+      "uddi.filter_aaaa_acl.0.access"       = "deny"
+      "uddi.filter_aaaa_acl.0.element"      = "tsig_key"
+      "uddi.filter_aaaa_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -842,17 +845,17 @@ case "lame_ttl" {
 case "match_clients_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -880,20 +883,23 @@ case "match_clients_acl" {
   step {
     uddi {
       name              = "{{random}}"
-      match_clients_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      match_clients_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.match_clients_acl.0.element" = "acl"
+      "uddi.match_clients_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name              = "{{random}}"
+      match_clients_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.match_clients_acl.0.access"  = "deny"
-      "uddi.match_clients_acl.0.element" = "tsig_key"
+      "uddi.match_clients_acl.0.access"       = "deny"
+      "uddi.match_clients_acl.0.element"      = "tsig_key"
+      "uddi.match_clients_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -902,17 +908,17 @@ case "match_clients_acl" {
 case "match_destinations_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -940,20 +946,23 @@ case "match_destinations_acl" {
   step {
     uddi {
       name                   = "{{random}}"
-      match_destinations_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      match_destinations_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.match_destinations_acl.0.element" = "acl"
+      "uddi.match_destinations_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name                   = "{{random}}"
+      match_destinations_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.match_destinations_acl.0.access"  = "deny"
-      "uddi.match_destinations_acl.0.element" = "tsig_key"
+      "uddi.match_destinations_acl.0.access"       = "deny"
+      "uddi.match_destinations_acl.0.element"      = "tsig_key"
+      "uddi.match_destinations_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -1118,17 +1127,17 @@ case "notify" {
 case "query_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -1156,20 +1165,23 @@ case "query_acl" {
   step {
     uddi {
       name      = "{{random}}"
-      query_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      query_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.query_acl.0.element" = "acl"
+      "uddi.query_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name      = "{{random}}"
+      query_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.query_acl.0.access"  = "deny"
-      "uddi.query_acl.0.element" = "tsig_key"
+      "uddi.query_acl.0.access"       = "deny"
+      "uddi.query_acl.0.element"      = "tsig_key"
+      "uddi.query_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -1178,17 +1190,17 @@ case "query_acl" {
 case "recursion_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -1216,20 +1228,23 @@ case "recursion_acl" {
   step {
     uddi {
       name          = "{{random}}"
-      recursion_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      recursion_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.recursion_acl.0.element" = "acl"
+      "uddi.recursion_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name          = "{{random}}"
+      recursion_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.recursion_acl.0.access"  = "deny"
-      "uddi.recursion_acl.0.element" = "tsig_key"
+      "uddi.recursion_acl.0.access"       = "deny"
+      "uddi.recursion_acl.0.element"      = "tsig_key"
+      "uddi.recursion_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -1345,17 +1360,17 @@ case "tags" {
 case "transfer_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -1383,20 +1398,23 @@ case "transfer_acl" {
   step {
     uddi {
       name         = "{{random}}"
-      transfer_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      transfer_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.transfer_acl.0.element" = "acl"
+      "uddi.transfer_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name         = "{{random}}"
+      transfer_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.transfer_acl.0.access"  = "deny"
-      "uddi.transfer_acl.0.element" = "tsig_key"
+      "uddi.transfer_acl.0.access"       = "deny"
+      "uddi.transfer_acl.0.element"      = "tsig_key"
+      "uddi.transfer_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
@@ -1405,17 +1423,17 @@ case "transfer_acl" {
 case "update_acl" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
-    uddi = {
-      name = "\"acl-\"+name"
-    }
-  }
-  resource "infoblox_tsig_key_unknown" "test" {
-    uddi = {
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_acl_unknown" "test" {
+  #   uddi = {
+  #     name = "\"acl-\"+name"
+  #   }
+  # }
+  # resource "infoblox_tsig_key_unknown" "test" {
+  #   uddi = {
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -1443,20 +1461,23 @@ case "update_acl" {
   step {
     uddi {
       name       = "{{random}}"
-      update_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      update_acl = [{ element = "acl", acl = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4" }]
     }
     check = {
       "uddi.update_acl.0.element" = "acl"
+      "uddi.update_acl.0.acl"     = "dns/acl/86db2788-6e9d-40ad-ab18-79f8ada358b4"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name       = "{{random}}"
+      update_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240" } }]
     }
     check = {
-      "uddi.update_acl.0.access"  = "deny"
-      "uddi.update_acl.0.element" = "tsig_key"
+      "uddi.update_acl.0.access"       = "deny"
+      "uddi.update_acl.0.element"      = "tsig_key"
+      "uddi.update_acl.0.tsig_key.key" = "keys/tsig/4832d039-dad9-4e82-813c-ecc56385b240"
     }
   }
 
