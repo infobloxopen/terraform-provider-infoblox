@@ -19,6 +19,8 @@ type ZoneAuthorityModel struct {
 	Expire          types.Int64  `tfsdk:"expire"`
 	Mname           types.String `tfsdk:"mname"`
 	NegativeTtl     types.Int64  `tfsdk:"negative_ttl"`
+	ProtocolMname   types.String `tfsdk:"protocol_mname"`
+	ProtocolRname   types.String `tfsdk:"protocol_rname"`
 	Refresh         types.Int64  `tfsdk:"refresh"`
 	Retry           types.Int64  `tfsdk:"retry"`
 	Rname           types.String `tfsdk:"rname"`
@@ -31,6 +33,8 @@ var ZoneAuthorityAttrTypes = map[string]attr.Type{
 	"expire":            types.Int64Type,
 	"mname":             types.StringType,
 	"negative_ttl":      types.Int64Type,
+	"protocol_mname":    types.StringType,
+	"protocol_rname":    types.StringType,
 	"refresh":           types.Int64Type,
 	"retry":             types.Int64Type,
 	"rname":             types.StringType,
@@ -55,6 +59,14 @@ var ZoneAuthorityResourceSchemaAttributes = map[string]schema.Attribute{
 	"negative_ttl": schema.Int64Attribute{
 		Optional:            true,
 		MarkdownDescription: "Optional. ZoneAuthority negative caching (minimum) ttl in seconds.  Defaults to 900.",
+	},
+	"protocol_mname": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "Optional. ZoneAuthority master name server in punycode.  Defaults to empty.",
+	},
+	"protocol_rname": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "Optional. A domain name which specifies the mailbox of the person responsible for this zone.  Defaults to empty.",
 	},
 	"refresh": schema.Int64Attribute{
 		Optional:            true,
@@ -98,6 +110,8 @@ func (m *ZoneAuthorityModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		Expire:          flex.ExpandInt64Pointer(m.Expire),
 		Mname:           flex.ExpandStringPointer(m.Mname),
 		NegativeTtl:     flex.ExpandInt64Pointer(m.NegativeTtl),
+		ProtocolMname:   flex.ExpandStringPointer(m.ProtocolMname),
+		ProtocolRname:   flex.ExpandStringPointer(m.ProtocolRname),
 		Refresh:         flex.ExpandInt64Pointer(m.Refresh),
 		Retry:           flex.ExpandInt64Pointer(m.Retry),
 		Rname:           flex.ExpandStringPointer(m.Rname),
@@ -127,6 +141,8 @@ func (m *ZoneAuthorityModel) Flatten(ctx context.Context, from *uddidns.ZoneAuth
 	m.Expire = flex.FlattenInt64Pointer(from.Expire)
 	m.Mname = flex.FlattenStringPointer(from.Mname)
 	m.NegativeTtl = flex.FlattenInt64Pointer(from.NegativeTtl)
+	m.ProtocolMname = flex.FlattenStringPointer(from.ProtocolMname)
+	m.ProtocolRname = flex.FlattenStringPointer(from.ProtocolRname)
 	m.Refresh = flex.FlattenInt64Pointer(from.Refresh)
 	m.Retry = flex.FlattenInt64Pointer(from.Retry)
 	m.Rname = flex.FlattenStringPointer(from.Rname)
