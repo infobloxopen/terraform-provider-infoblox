@@ -169,9 +169,15 @@ func (r *ViewResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		Inherit:      ViewInheritanceType,
 	})
 	if err != nil {
-		// If the resource is not found, try searching using Extensible Attributes
-		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound && r.ReadByExtAttrs(ctx, &data, resp) {
-			return
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			if r.backend == core.BackendNIOS {
+				if r.ReadByExtAttrs(ctx, &data, resp) {
+					return
+				}
+			} else {
+				resp.State.RemoveResource(ctx)
+				return
+			}
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read View: %s", err))
 		return
