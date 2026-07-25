@@ -786,31 +786,33 @@ case "inheritance_sources" {
 case "ip_spaces" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test_space" {
-    uddi = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ip_space" "test_space" {
+  #   uddi = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       name      = "{{random}}"
-      ip_spaces = [infoblox_ip_space.test_space.id]
+      ip_spaces = ["ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"]
     }
     check = {
       "uddi.ip_spaces.#" = "1"
+      "uddi.ip_spaces.0" = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
     }
   }
 
   step {
     uddi {
       name      = "{{random}}"
-      ip_spaces = [infoblox_ip_space.test_space.id]
+      ip_spaces = ["ipam/ip_space/1fcd4065-8847-11f1-b283-5eecb1762ec1"]
     }
     check = {
       "uddi.ip_spaces.#" = "1"
+      "uddi.ip_spaces.0" = "ipam/ip_space/1fcd4065-8847-11f1-b283-5eecb1762ec1"
     }
   }
 
@@ -1283,6 +1285,13 @@ case "sort_list" {
   step {
     uddi {
       name = "{{random}}"
+      sort_list = [
+        {
+          element = "ip"
+          source  = "192.168.11.11"
+          prioritized_networks = ["192.168.12.12"]
+        }
+      ]
     }
     check = {
       "uddi.sort_list.0.element"                = "ip"
@@ -1294,6 +1303,12 @@ case "sort_list" {
   step {
     uddi {
       name = "{{random}}"
+      sort_list = [
+        {
+          element = "any"
+          prioritized_networks = ["192.168.13.13"]
+        }
+      ]
     }
     check = {
       "uddi.sort_list.0.element"                = "any"
