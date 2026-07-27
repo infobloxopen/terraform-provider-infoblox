@@ -1,6 +1,5 @@
-# Auto-generated datasource acceptance-test cases for RecordA (nios).
+# Auto-generated datasource acceptance-test cases for RecordA.
 case "filters" {
-  # filters — generated from terraform-provider-nios
   backend = "nios"
 
   filter {
@@ -21,7 +20,6 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  # ext_attr_filters — generated from terraform-provider-nios
   backend = "nios"
 
   filter {

@@ -3,6 +3,7 @@ package flex
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
@@ -518,4 +519,25 @@ func FlattenFrameworkListNestedBlock[T any, U any](ctx context.Context, data []T
 
 	diags.Append(d...)
 	return tfList
+}
+
+// RDataStringPtr coerces an untyped map value to *string
+func RDataStringPtr(v any) *string {
+	if s, ok := v.(string); ok && s != "" {
+		return &s
+	}
+	return nil
+}
+
+// RDataBoolPtr coerces an untyped map value to *bool.
+func RDataBoolPtr(v any) *bool {
+	switch t := v.(type) {
+	case bool:
+		return &t
+	case string:
+		if b, err := strconv.ParseBool(t); err == nil {
+			return &b
+		}
+	}
+	return nil
 }

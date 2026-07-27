@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -24,7 +25,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -78,7 +78,8 @@ type UDDIRecordAModel struct {
 	Disabled           types.Bool   `tfsdk:"disabled"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	NameInZone         types.String `tfsdk:"name_in_zone"`
-	Rdata              types.Map    `tfsdk:"rdata"`
+	Options            types.Object `tfsdk:"options"`
+	Rdata              types.Object `tfsdk:"rdata"`
 	Tags               types.Map    `tfsdk:"tags"`
 	TagsAll            types.Map    `tfsdk:"tags_all"`
 	Ttl                types.Int64  `tfsdk:"ttl"`
@@ -93,7 +94,8 @@ var UDDIRecordAAttrTypes = map[string]attr.Type{
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
-	"rdata":               types.MapType{ElemType: types.StringType},
+	"options":             types.ObjectType{AttrTypes: UDDIRecordAOptionsAttrTypes},
+	"rdata":               types.ObjectType{AttrTypes: UDDIRecordARdataAttrTypes},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
 	"ttl":                 types.Int64Type,
@@ -129,24 +131,25 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the record; maximum 256 characters.",
 	},
 	"creator": schema.StringAttribute{
+		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+			stringvalidator.OneOf("STATIC", "DYNAMIC"),
 		},
-		Optional: true,
-		Computed: true,
-		Default:  stringdefault.StaticString("STATIC"),
-		PlanModifiers: []planmodifier.String{
-			immutable.ImmutableIfValue("SYSTEM"),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The record creator. Note that changing creator from or to 'SYSTEM' value is not allowed.",
 	},
 	"ddns_principal": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "The GSS-TSIG principal that owns this record.",
 	},
 	"ddns_protected": schema.BoolAttribute{
@@ -162,10 +165,13 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines if the record is disabled or not. False means that the record is enabled.",
 	},
 	"ext_attrs": schema.MapAttribute{
-		Optional:            true,
-		Computed:            true,
-		ElementType:         types.StringType,
-		Default:             mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
 		MarkdownDescription: "Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.",
 	},
 	"ext_attrs_all": schema.MapAttribute{
@@ -190,22 +196,21 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.ExactlyOneOf(
 				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
 			),
+			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The IPv4 Address of the record.",
 	},
 	"name": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidDomainName(),
 		},
 		MarkdownDescription: "Name for A record in FQDN format. This value can be in unicode format.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.Int64{
-			suppressdiff.UseStateToSuppressDiffInt64(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -214,6 +219,9 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
+		},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The name of the DNS view in which the record resides. Example: \"external\".",
 	},
@@ -230,14 +238,17 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("view")),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("zone"),
+				path.MatchRelative().AtParent().AtName("name_in_zone"),
+			),
 		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		Default:             stringdefault.StaticString(""),
 		MarkdownDescription: "The description for the DNS resource record. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"disabled": schema.BoolAttribute{
@@ -260,20 +271,31 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("zone")),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("absolute_name_spec"),
+				path.MatchRelative().AtParent().AtName("view"),
+			),
 		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
 	},
-	"rdata": schema.MapAttribute{
-		ElementType:         types.StringType,
-		Required:            true,
+	"options": schema.SingleNestedAttribute{
+		Attributes:          UDDIRecordAOptionsResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------",
+	},
+	"rdata": schema.SingleNestedAttribute{
+		Attributes:          UDDIRecordARdataResourceSchemaAttributes,
+		Optional:            true,
 		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes",
 	},
 	"tags": schema.MapAttribute{
-		Optional:            true,
-		Computed:            true,
-		ElementType:         types.StringType,
-		Default:             mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
 		MarkdownDescription: "The tags for the DNS resource record in JSON format.",
 	},
 	"tags_all": schema.MapAttribute{
@@ -299,17 +321,24 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		Validators: []validator.String{
 			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("zone"), path.MatchRelative().AtParent().AtName("name_in_zone")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("zone"),
+				path.MatchRelative().AtParent().AtName("name_in_zone"),
+			),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
 		Validators: []validator.String{
-			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("absolute_name_spec"), path.MatchRelative().AtParent().AtName("view")),
+			stringvalidator.ConflictsWith(
+				path.MatchRelative().AtParent().AtName("absolute_name_spec"),
+				path.MatchRelative().AtParent().AtName("view"),
+			),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
@@ -377,7 +406,8 @@ func (m *UDDIRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
-		Rdata:              flex.ExpandMapStringAny(ctx, m.Rdata, diags),
+		Options:            ExpandUDDIRecordAOptions(ctx, m.Options, diags),
+		Rdata:              ExpandUDDIRecordARdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
 	}
@@ -414,8 +444,10 @@ func (m *RecordAModel) Flatten(ctx context.Context, resp *coremodel.RecordA, dia
 	if uddiModel == nil {
 		uddiModel = &UDDIRecordAModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenRecordAUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIRecordAAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIRecordAAttrTypes)
@@ -457,7 +489,8 @@ func (m *UDDIRecordAModel) Flatten(ctx context.Context, from *coremodel.UDDIReco
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
-	m.Rdata = flex.FlattenMapStringAny(ctx, from.Rdata, diags)
+	m.Options = FlattenUDDIRecordAOptions(ctx, from.Options, diags)
+	m.Rdata = FlattenUDDIRecordARdata(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll

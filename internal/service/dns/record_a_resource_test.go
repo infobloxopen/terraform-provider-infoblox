@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -79,14 +80,19 @@ func testAccCheckRecordAExistsUDDI(resourceName string) resource.TestCheckFunc {
 func testAccCheckRecordADestroyNIOS(resourceType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		conn := acctest.NIOSClient
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type != resourceType {
+		for name, rs := range s.RootModule().Resources {
+			// Skipping data source entries as this is already checked in the resource destroy call.
+			if rs.Type != resourceType || strings.HasPrefix(name, "data.") {
 				continue
 			}
-			res, _, err := conn.DNSAPI.RecordAAPI.Read(context.Background(), acctest.ExtractNIOSRef(rs.Primary.ID)).Execute()
-			if err == nil && res != nil {
-				return fmt.Errorf("RecordA still exists: %s", rs.Primary.ID)
+			_, httpRes, err := conn.DNSAPI.RecordAAPI.Read(context.Background(), acctest.ExtractNIOSRef(rs.Primary.ID)).Execute()
+			if err != nil {
+				if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+					return nil
+				}
+				return err
 			}
+			return fmt.Errorf("RecordA still exists: %s", rs.Primary.ID)
 		}
 		return nil
 	}
@@ -109,8 +115,9 @@ func testAccCheckRecordADisappearsNIOS(resourceName string) resource.TestCheckFu
 
 func testAccCheckRecordADestroyUDDI(resourceType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		for _, rs := range s.RootModule().Resources {
-			if rs.Type != resourceType {
+		for name, rs := range s.RootModule().Resources {
+			// Skipping data source entries as this is already checked in the resource destroy call.
+			if rs.Type != resourceType || strings.HasPrefix(name, "data.") {
 				continue
 			}
 			_, httpRes, err := acctest.UDDIClient.DNSDataAPI.RecordAPI.Read(context.Background(), rs.Primary.ID).Execute()

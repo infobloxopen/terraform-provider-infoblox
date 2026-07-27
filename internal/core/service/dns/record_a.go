@@ -342,7 +342,7 @@ func (s *recordAService) listUDDI(ctx context.Context, opts *core.ListOptions) (
 		if len(opts.TagFilter) > 0 {
 			var tfilters []string
 			for k, v := range opts.TagFilter {
-				tfilters = append(tfilters, k+"=='"+v+"'")
+				tfilters = append(tfilters, "'"+k+"'=='"+v+"'")
 			}
 			req = req.Tfilter(core.JoinFilters(tfilters))
 		}
@@ -410,6 +410,7 @@ func mapUDDIRecordAToResponse(r *uddidnsdata.Record) *dns.RecordA {
 		Disabled:           r.Disabled,
 		InheritanceSources: r.InheritanceSources,
 		NameInZone:         r.NameInZone,
+		Options:            r.Options,
 		Rdata:              r.Rdata,
 		Ttl:                r.Ttl,
 		Type:               r.Type,

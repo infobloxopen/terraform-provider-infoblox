@@ -196,28 +196,33 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dns.NewZoneAuthResource,
-		ipam.NewAddressResource,
+		dns.NewViewResource,
 		dns.NewRecordAResource,
+
+		ipam.NewAddressResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dns.NewZoneAuthDataSource,
+		dns.NewViewDataSource,
+		dns.NewRecordADataSource,
+
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
 		ipam.NewNextAvailableAddressBlockDataSource,
-
 		ipam.NewAddressDataSource,
-		dns.NewRecordADataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dns.NewZoneAuthList,
-		ipam.NewAddressList,
+		dns.NewViewList,
 		dns.NewRecordAList,
+
+		ipam.NewAddressList,
 	}
 }
 

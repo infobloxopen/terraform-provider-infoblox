@@ -15,13 +15,13 @@ Retrieves information about existing Infoblox RecordA across NIOS and UDDI backe
 ### NIOS Backend
 
 ```terraform
-data "infoblox_record_a" "get_record_using_filters" {
+data "infoblox_record_a" "get_a_record_using_filters" {
   filters = {
-    name = "test-rec-1.example.com"
+    name = "rec-1.example.com"
   }
 }
 
-data "infoblox_record_a" "get_record_using_extensible_attributes" {
+data "infoblox_record_a" "get_a_record_using_extensible_attributes" {
   ext_attr_filters = {
     Site = "location-1"
   }
@@ -33,19 +33,19 @@ data "infoblox_record_a" "get_all_a_records" {}
 ### UDDI Backend
 
 ```terraform
-data "infoblox_record_a" "example_by_attribute" {
+data "infoblox_record_a" "get_a_record_using_filters" {
   filters = {
-    "name" = "test-rec-1"
+    "name_in_zone" = "record_a.example.com"
   }
 }
 
-data "infoblox_record_a" "example_by_tag" {
+data "infoblox_record_a" "get_a_record_using_tag_filters" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-data "infoblox_record_a" "example_all" {}
+data "infoblox_record_a" "get_all_a_records" {}
 ```
 
 
@@ -90,7 +90,6 @@ Read-Only:
 - `ipv4addr` (String) The IPv4 Address of the record.
 - `name` (String) Name for A record in FQDN format. This value can be in unicode format.
 - `ttl` (Number) The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.
-- `use_ttl` (Boolean) Use flag for: ttl
 - `view` (String) The name of the DNS view in which the record resides. Example: "external".
 
 <a id="nestedatt--results--nios--dynamic_allocation"></a>
@@ -115,7 +114,8 @@ Read-Only:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
-- `rdata` (Map of String) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes
+- `options` (Attributes) The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------ (see [below for nested schema](#nestedatt--results--uddi--options))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes (see [below for nested schema](#nestedatt--results--uddi--rdata))
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
 - `ttl` (Number) The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.
@@ -136,3 +136,21 @@ Read-Only:
 Read-Only:
 
 - `action` (String) The inheritance setting for a field.  Valid values are: * _inherit_: Use the inherited value. * _override_: Use the value set in the object.  Defaults to _inherit_.
+
+
+
+<a id="nestedatt--results--uddi--options"></a>
+### Nested Schema for `results.uddi.options`
+
+Read-Only:
+
+- `check_rmz` (Boolean) A boolean flag which can be set to true to check the existence of the reverse zone for creating the corresponding PTR record. Only applicable if create_ptr is true.
+- `create_ptr` (Boolean) A boolean flag which can be set to true to automatically create the corresponding PTR record.
+
+
+<a id="nestedatt--results--uddi--rdata"></a>
+### Nested Schema for `results.uddi.rdata`
+
+Read-Only:
+
+- `address` (String) The IPv4 address of the host.
