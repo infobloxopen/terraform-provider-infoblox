@@ -1,4 +1,4 @@
-# View — uddi list cases
+# View — uddi list test cases
 case "basic" {
   backend = "uddi"
   min_tf_version = "1.14.0"
