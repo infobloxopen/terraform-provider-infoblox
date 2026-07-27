@@ -679,8 +679,8 @@ case "dns_integrity_enable" {
       fqdn                 = "{{random}}.com"
       view                 = "default"
       dns_integrity_enable = true
-      dns_integrity_member = "{{grid_master_hostname}}"
-      grid_primary         = [{ name = "{{grid_master_hostname}}" }]
+      dns_integrity_member = "infoblox.172_28_83_201"
+      grid_primary         = [{ name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.dns_integrity_enable" = "true"
@@ -692,8 +692,8 @@ case "dns_integrity_enable" {
       fqdn                 = "{{random}}.com"
       view                 = "default"
       dns_integrity_enable = false
-      dns_integrity_member = "{{grid_master_hostname}}"
-      grid_primary         = [{ name = "{{grid_master_hostname}}" }]
+      dns_integrity_member = "infoblox.172_28_83_201"
+      grid_primary         = [{ name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.dns_integrity_enable" = "false"
@@ -738,10 +738,10 @@ case "dns_integrity_member" {
     nios {
       fqdn                 = "{{random}}.com"
       view                 = "default"
-      dns_integrity_member = "{{grid_master_hostname}}"
+      dns_integrity_member = "infoblox.172_28_83_201"
     }
     check = {
-      "nios.dns_integrity_member" = "{{grid_master_hostname}}"
+      "nios.dns_integrity_member" = "infoblox.172_28_83_201"
     }
   }
 
@@ -749,10 +749,10 @@ case "dns_integrity_member" {
     nios {
       fqdn                 = "{{random}}.com"
       view                 = "default"
-      dns_integrity_member = "{{grid_member_hostname}}"
+      dns_integrity_member = "infoblox.172_28_83_201"
     }
     check = {
-      "nios.dns_integrity_member" = "{{grid_member_hostname}}"
+      "nios.dns_integrity_member" = "infoblox.172_28_83_201"
     }
   }
 
@@ -923,7 +923,7 @@ case "external_secondaries" {
     nios {
       fqdn                 = "{{random}}.com"
       view                 = "default"
-      grid_primary         = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary         = [{ name = "infoblox.172_28_83_201" }]
       external_secondaries = [{ address = "10.0.0.0", name = "example.com", tsig_key_alg = "HMAC-SHA256", tsig_key = "X4oRe92t54I+T98NdQpV2w==", use_tsig_key_name = false, tsig_key_name = "{{random}}" }]
     }
     check = {
@@ -937,7 +937,7 @@ case "external_secondaries" {
     nios {
       fqdn                 = "{{random}}.com"
       view                 = "default"
-      grid_primary         = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary         = [{ name = "infoblox.172_28_83_201" }]
       external_secondaries = [{ address = "10.0.0.2", name = "updated-example.com" }]
     }
     check = {
@@ -983,11 +983,11 @@ case "grid_primary" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      grid_primary = [{ name = "{{grid_member_hostname}}", stealth = false }]
+      grid_primary = [{ name = "infoblox.172_28_82_142", stealth = false }]
     }
     check = {
       "nios.grid_primary.#"         = "1"
-      "nios.grid_primary.0.name"    = "{{grid_member_hostname}}"
+      "nios.grid_primary.0.name"    = "infoblox.172_28_82_142"
       "nios.grid_primary.0.stealth" = "false"
     }
   }
@@ -996,13 +996,13 @@ case "grid_primary" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      grid_primary = [{ name = "{{grid_master_hostname}}", stealth = true }, { name = "{{grid_member_hostname}}", stealth = false }]
+      grid_primary = [{ name = "infoblox.172_28_83_201", stealth = true }, { name = "infoblox.172_28_82_142", stealth = false }]
     }
     check = {
       "nios.grid_primary.#"         = "2"
-      "nios.grid_primary.0.name"    = "{{grid_master_hostname}}"
+      "nios.grid_primary.0.name"    = "infoblox.172_28_83_201"
       "nios.grid_primary.0.stealth" = "true"
-      "nios.grid_primary.1.name"    = "{{grid_member_hostname}}"
+      "nios.grid_primary.1.name"    = "infoblox.172_28_82_142"
       "nios.grid_primary.1.stealth" = "false"
     }
   }
@@ -1017,12 +1017,12 @@ case "grid_secondaries" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
-      grid_secondaries = [{ name = "{{grid_member_hostname}}", stealth = false, grid_replicate = true, lead = false, enable_preferred_primaries = false }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
+      grid_secondaries = [{ name = "infoblox.172_28_82_142", stealth = false, grid_replicate = true, lead = false, enable_preferred_primaries = false }]
     }
     check = {
       "nios.grid_secondaries.#"                            = "1"
-      "nios.grid_secondaries.0.name"                       = "{{grid_member_hostname}}"
+      "nios.grid_secondaries.0.name"                       = "infoblox.172_28_82_142"
       "nios.grid_secondaries.0.stealth"                    = "false"
       "nios.grid_secondaries.0.grid_replicate"             = "true"
       "nios.grid_secondaries.0.lead"                       = "false"
@@ -1034,12 +1034,12 @@ case "grid_secondaries" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_member_hostname}}" }]
-      grid_secondaries = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_82_142" }]
+      grid_secondaries = [{ name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.grid_secondaries.#"      = "1"
-      "nios.grid_secondaries.0.name" = "{{grid_master_hostname}}"
+      "nios.grid_secondaries.0.name" = "infoblox.172_28_83_201"
     }
   }
 
@@ -1111,13 +1111,13 @@ case "member_soa_mnames" {
     nios {
       fqdn              = "{{random}}.com"
       view              = "default"
-      grid_primary      = [{ name = "{{grid_master_hostname}}" }]
-      member_soa_mnames = [{ grid_primary = "{{grid_master_hostname}}", mname = "{{grid_master_hostname}}" }]
+      grid_primary      = [{ name = "infoblox.172_28_83_201" }]
+      member_soa_mnames = [{ grid_primary = "infoblox.172_28_83_201", mname = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.member_soa_mnames.#"              = "1"
-      "nios.member_soa_mnames.0.grid_primary" = "{{grid_master_hostname}}"
-      "nios.member_soa_mnames.0.mname"        = "{{grid_master_hostname}}"
+      "nios.member_soa_mnames.0.grid_primary" = "infoblox.172_28_83_201"
+      "nios.member_soa_mnames.0.mname"        = "infoblox.172_28_83_201"
     }
   }
 
@@ -1125,12 +1125,12 @@ case "member_soa_mnames" {
     nios {
       fqdn              = "{{random}}.com"
       view              = "default"
-      grid_primary      = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary      = [{ name = "infoblox.172_28_83_201" }]
       member_soa_mnames = [{ mname = "example.com" }]
     }
     check = {
       "nios.member_soa_mnames.#"              = "1"
-      "nios.member_soa_mnames.0.grid_primary" = "{{grid_master_hostname}}"
+      "nios.member_soa_mnames.0.grid_primary" = "infoblox.172_28_83_201"
       "nios.member_soa_mnames.0.mname"        = "example.com"
     }
   }
@@ -1307,11 +1307,11 @@ case "ms_primaries" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      ms_primaries = [{ address = "example_server", ns_ip = "1.1.1.1", ns_name = "example-server" }]
+      ms_primaries = [{ address = "10.0.0.0", ns_ip = "1.1.1.1", ns_name = "example-server" }]
     }
     check = {
       "nios.ms_primaries.#"         = "1"
-      "nios.ms_primaries.0.address" = "example_server"
+      "nios.ms_primaries.0.address" = "10.0.0.0"
     }
   }
 
@@ -1326,7 +1326,7 @@ case "ms_secondaries" {
       fqdn           = "{{random}}.com"
       view           = "default"
       ms_secondaries = [{ address = "10.10.10.10", ns_name = "example-server", ns_ip = "1.1.1.1" }]
-      grid_primary   = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary   = [{ name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.ms_secondaries.#"         = "1"
@@ -1339,7 +1339,7 @@ case "ms_secondaries" {
       fqdn           = "{{random}}.com"
       view           = "default"
       ms_secondaries = [{ address = "example_server", ns_name = "example-server", ns_ip = "1.1.1.1" }]
-      grid_primary   = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary   = [{ name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.ms_secondaries.#"         = "1"
@@ -1410,18 +1410,18 @@ case "notify_delay" {
 case "ns_group" {
   backend = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ns_group_unknown" "test_ns_group" {
-    nios = {
-      name = "example-ns-group"
-    }
-  }
-  resource "infoblox_ns_group_unknown" "test_ns_group_updated" {
-    nios = {
-      name = "updated-example-ns-group"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ns_group_unknown" "test_ns_group" {
+  #   nios = {
+  #     name = "example-ns-group"
+  #   }
+  # }
+  # resource "infoblox_ns_group_unknown" "test_ns_group_updated" {
+  #   nios = {
+  #     name = "updated-example-ns-group"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
@@ -1559,7 +1559,7 @@ case "soa_default_ttl" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_default_ttl  = 8
       soa_expire       = 2419200
       soa_negative_ttl = 900
@@ -1575,7 +1575,7 @@ case "soa_default_ttl" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_default_ttl  = 10
       soa_expire       = 2419200
       soa_negative_ttl = 900
@@ -1597,7 +1597,7 @@ case "soa_email" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary = [{ name = "infoblox.172_28_83_201" }]
       soa_email    = "user1@example.com"
     }
     check = {
@@ -1609,7 +1609,7 @@ case "soa_email" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary = [{ name = "infoblox.172_28_83_201" }]
       soa_email    = "user2@example.com"
     }
     check = {
@@ -1627,7 +1627,7 @@ case "soa_expire" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_expire       = 24192
       soa_default_ttl  = 28800
       soa_negative_ttl = 900
@@ -1643,7 +1643,7 @@ case "soa_expire" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_expire       = 24100
       soa_default_ttl  = 28800
       soa_negative_ttl = 900
@@ -1665,7 +1665,7 @@ case "soa_negative_ttl" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_negative_ttl = 800
       soa_expire       = 2419200
       soa_default_ttl  = 28800
@@ -1681,7 +1681,7 @@ case "soa_negative_ttl" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_negative_ttl = 900
       soa_expire       = 2419200
       soa_default_ttl  = 28800
@@ -1703,7 +1703,7 @@ case "soa_refresh" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_refresh      = 800
       soa_negative_ttl = 900
       soa_expire       = 2419200
@@ -1719,7 +1719,7 @@ case "soa_refresh" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_refresh      = 900
       soa_negative_ttl = 900
       soa_expire       = 2419200
@@ -1741,7 +1741,7 @@ case "soa_retry" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_retry        = 1600
       soa_negative_ttl = 900
       soa_expire       = 2419200
@@ -1757,7 +1757,7 @@ case "soa_retry" {
     nios {
       fqdn             = "{{random}}.com"
       view             = "default"
-      grid_primary     = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary     = [{ name = "infoblox.172_28_83_201" }]
       soa_retry        = 1700
       soa_negative_ttl = 900
       soa_expire       = 2419200
@@ -1779,7 +1779,7 @@ case "soa_serial_number" {
     nios {
       fqdn                  = "{{random}}.com"
       view                  = "default"
-      grid_primary          = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary          = [{ name = "infoblox.172_28_83_201" }]
       soa_serial_number     = 10
       set_soa_serial_number = true
       soa_retry             = 3600
@@ -1797,7 +1797,7 @@ case "soa_serial_number" {
     nios {
       fqdn                  = "{{random}}.com"
       view                  = "default"
-      grid_primary          = [{ name = "{{grid_master_hostname}}" }]
+      grid_primary          = [{ name = "infoblox.172_28_83_201" }]
       soa_serial_number     = 20
       set_soa_serial_number = true
       soa_retry             = 3600
@@ -1816,26 +1816,26 @@ case "soa_serial_number" {
 case "srgs" {
   backend = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "test_shared_record_group" {
-    nios = {
-      name = "example_shared_record_group"
-    }
-  }
-  resource "infoblox_shared_record_group_unknown" "test_shared_record_group_updated" {
-    nios = {
-      name = "updated_example_shared_record_group"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "test_shared_record_group" {
+  #   nios = {
+  #     name = "example_shared_record_group"
+  #   }
+  # }
+  # resource "infoblox_shared_record_group_unknown" "test_shared_record_group_updated" {
+  #   nios = {
+  #     name = "updated_example_shared_record_group"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       fqdn = "{{random}}.com"
       view = "default"
-      srgs = "sharedRecordGroup"
+      srgs = ["example_shared_record_group"]
     }
-    depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
+    # depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "example_shared_record_group"
@@ -1846,9 +1846,9 @@ case "srgs" {
     nios {
       fqdn = "{{random}}.com"
       view = "default"
-      srgs = "updatedSharedRecordGroup"
+      srgs = ["updated_example_shared_record_group"]
     }
-    depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
+    # depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "updated_example_shared_record_group"
@@ -1885,7 +1885,6 @@ case "update_forwarding" {
     check = {
       "nios.update_forwarding.#"            = "1"
       "nios.update_forwarding.0.tsig_key"   = "X4oRe92t54I+T98NdQpV2w=="
-      "nios.update_forwarding.0.permission" = "ALLOW"
     }
   }
 

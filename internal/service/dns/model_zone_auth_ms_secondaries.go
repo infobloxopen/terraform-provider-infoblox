@@ -48,6 +48,7 @@ var ZoneAuthMsSecondariesResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"is_master": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "This flag indicates if this server is a synchronization master.",
 	},
 	"ns_ip": schema.StringAttribute{

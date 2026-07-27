@@ -22,7 +22,6 @@ type ZoneAuthMemberSoaMnamesModel struct {
 	GridPrimary     types.String `tfsdk:"grid_primary"`
 	MsServerPrimary types.String `tfsdk:"ms_server_primary"`
 	Mname           types.String `tfsdk:"mname"`
-	DnsMname        types.String `tfsdk:"dns_mname"`
 }
 
 // ZoneAuthMemberSoaMnamesAttrTypes contains the attribute types for ZoneAuthMemberSoaMnamesModel
@@ -30,13 +29,13 @@ var ZoneAuthMemberSoaMnamesAttrTypes = map[string]attr.Type{
 	"grid_primary":      types.StringType,
 	"ms_server_primary": types.StringType,
 	"mname":             types.StringType,
-	"dns_mname":         types.StringType,
 }
 
 // ZoneAuthMemberSoaMnamesResourceSchemaAttributes contains the schema attributes for ZoneAuthMemberSoaMnamesModel
 var ZoneAuthMemberSoaMnamesResourceSchemaAttributes = map[string]schema.Attribute{
 	"grid_primary": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ms_server_primary")),
@@ -45,6 +44,7 @@ var ZoneAuthMemberSoaMnamesResourceSchemaAttributes = map[string]schema.Attribut
 	},
 	"ms_server_primary": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -52,18 +52,11 @@ var ZoneAuthMemberSoaMnamesResourceSchemaAttributes = map[string]schema.Attribut
 	},
 	"mname": schema.StringAttribute{
 		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "Master's SOA MNAME. This value can be in unicode format.",
-	},
-	"dns_mname": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
-		MarkdownDescription: "Master's SOA MNAME in punycode format.",
+		MarkdownDescription: "Master's SOA MNAME. This value can be in unicode format.",
 	},
 }
 
@@ -86,10 +79,9 @@ func (m *ZoneAuthMemberSoaMnamesModel) Expand(ctx context.Context, diags *diag.D
 		return nil
 	}
 	to := &niosdns.ZoneAuthMemberSoaMnames{
-		GridPrimary:     flex.ExpandStringPointerNullAsEmpty(m.GridPrimary),
-		MsServerPrimary: flex.ExpandStringPointerNullAsEmpty(m.MsServerPrimary),
+		GridPrimary:     flex.ExpandStringPointer(m.GridPrimary),
+		MsServerPrimary: flex.ExpandStringPointer(m.MsServerPrimary),
 		Mname:           flex.ExpandStringPointerNullAsEmpty(m.Mname),
-		DnsMname:        flex.ExpandStringPointerNullAsEmpty(m.DnsMname),
 	}
 	return to
 }
@@ -114,5 +106,4 @@ func (m *ZoneAuthMemberSoaMnamesModel) Flatten(ctx context.Context, from *niosdn
 	m.GridPrimary = flex.FlattenStringPointerEmptyAsNull(from.GridPrimary)
 	m.MsServerPrimary = flex.FlattenStringPointerEmptyAsNull(from.MsServerPrimary)
 	m.Mname = flex.FlattenStringPointerEmptyAsNull(from.Mname)
-	m.DnsMname = flex.FlattenStringPointerEmptyAsNull(from.DnsMname)
 }

@@ -139,12 +139,12 @@ func (m *ZoneAuthAllowTransferModel) Expand(ctx context.Context, diags *diag.Dia
 	}
 	to := &niosdns.ZoneAuthAllowTransfer{
 		Struct:         flex.ExpandStringPointerNullAsEmpty(m.Struct),
-		Ref:            flex.ExpandStringPointerNullAsEmpty(m.Ref),
-		Address:        flex.ExpandStringPointerNullAsEmpty(m.Address),
-		Permission:     flex.ExpandStringPointerNullAsEmpty(m.Permission),
-		TsigKey:        flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:     flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
-		TsigKeyName:    flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
+		Ref:            flex.ExpandStringPointer(m.Ref),
+		Address:        flex.ExpandStringPointer(m.Address),
+		Permission:     flex.ExpandStringPointer(m.Permission),
+		TsigKey:        flex.ExpandStringPointer(m.TsigKey),
+		TsigKeyAlg:     flex.ExpandStringPointer(m.TsigKeyAlg),
+		TsigKeyName:    flex.ExpandStringPointer(m.TsigKeyName),
 		UseTsigKeyName: flex.ExpandBoolPointer(m.UseTsigKeyName),
 	}
 	return to

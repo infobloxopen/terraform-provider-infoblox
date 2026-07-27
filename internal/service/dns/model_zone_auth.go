@@ -556,6 +556,7 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: ZoneAuthMemberSoaMnamesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -687,10 +688,12 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"soa_default_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time to Live (TTL) value of the SOA record of this zone. This value is the number of seconds that data is cached.",
 	},
 	"soa_email": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -699,18 +702,22 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"soa_expire": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
 	},
 	"soa_negative_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The negative Time to Live (TTL) value of the SOA of the zone indicates how long a secondary server can cache data for \"Does Not Respond\" responses.",
 	},
 	"soa_refresh": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not.",
 	},
 	"soa_retry": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.",
 	},
 	"soa_serial_number": schema.Int64Attribute{
@@ -1005,7 +1012,7 @@ func (m *NIOSZoneAuthModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		ScavengingSettings:               ExpandZoneAuthScavengingSettings(ctx, m.ScavengingSettings, diags),
 		SetSoaSerialNumber:               flex.ExpandBoolPointer(m.SetSoaSerialNumber),
 		SoaDefaultTtl:                    flex.ExpandInt64Pointer(m.SoaDefaultTtl),
-		SoaEmail:                         flex.ExpandStringPointerNullAsEmpty(m.SoaEmail),
+		SoaEmail:                         flex.ExpandStringPointer(m.SoaEmail),
 		SoaExpire:                        flex.ExpandInt64Pointer(m.SoaExpire),
 		SoaNegativeTtl:                   flex.ExpandInt64Pointer(m.SoaNegativeTtl),
 		SoaRefresh:                       flex.ExpandInt64Pointer(m.SoaRefresh),
@@ -1093,8 +1100,10 @@ func (m *ZoneAuthModel) Flatten(ctx context.Context, resp *coremodel.ZoneAuth, d
 	if niosModel == nil {
 		niosModel = &NIOSZoneAuthModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenZoneAuthNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSZoneAuthAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSZoneAuthAttrTypes)
