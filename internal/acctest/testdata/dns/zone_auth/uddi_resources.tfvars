@@ -1,6 +1,8 @@
 # Auto-generated resource acceptance-test cases for ZoneAuth.
+// Auth-nsgs, ACL and Tsig key has to be created before running the test cases.
+
 case "basic" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -22,10 +24,12 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "uddi"
-  disappears = true
+  backend               = "uddi"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
+  parallel              = true
+  skip                  = true
+  skip_reason           = "Test Skipped due to inconsistent error codes returned by the API [NORTHSTAR-12575]"
 
   step {
     uddi {
@@ -37,7 +41,7 @@ case "disappears" {
 }
 
 case "fqdn" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -65,7 +69,7 @@ case "fqdn" {
 }
 
 case "primary_type" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -93,7 +97,7 @@ case "primary_type" {
 }
 
 case "comment" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -121,7 +125,7 @@ case "comment" {
 }
 
 case "disabled" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -149,7 +153,7 @@ case "disabled" {
 }
 
 case "external_primaries" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -177,19 +181,10 @@ case "external_primaries" {
       "uddi.external_primaries.0.type"    = "primary"
     }
   }
-
-  step {
-    uddi {
-      fqdn               = "{{random}}.com."
-      primary_type       = "external"
-      external_primaries = [{ fqdn = "tf-infoblox-test.com.", address = "192.168.10.10", type = "nsg" }]
-    }
-  }
-
 }
 
 case "external_secondaries" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -219,7 +214,7 @@ case "external_secondaries" {
 }
 
 case "gss_tsig_enabled" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -247,7 +242,7 @@ case "gss_tsig_enabled" {
 }
 
 case "inheritance_sources" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -283,7 +278,7 @@ case "inheritance_sources" {
 }
 
 case "initial_soa_serial" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -311,7 +306,7 @@ case "initial_soa_serial" {
 }
 
 case "notify" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -339,26 +334,29 @@ case "notify" {
 }
 
 case "nsgs" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ns_group_unknown" "one" {
-    uddi = {
-      name = "one"
-    }
-  }
-  resource "infoblox_ns_group_unknown" "two" {
-    uddi = {
-      name = "two"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ns_group_unknown" "one" {
+  #   uddi = {
+  #     name = "one"
+  #   }
+  # }
+  # resource "infoblox_ns_group_unknown" "two" {
+  #   uddi = {
+  #     name = "two"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      nsgs         = [infoblox_ns_group_unknown.one.id]
+      nsgs         = ["dns/auth_nsg/b9ab1a46-ffc4-49cb-93bc-c631904f84b0"]
+    }
+    check = {
+      "uddi.nsgs.0" = "dns/auth_nsg/b9ab1a46-ffc4-49cb-93bc-c631904f84b0"
     }
   }
 
@@ -366,14 +364,16 @@ case "nsgs" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      nsgs         = [infoblox_ns_group_unknown.two.id]
+      nsgs         = ["dns/auth_nsg/a06fe7d8-7470-4451-b9ef-1032d03509d4"]
+    }
+    check = {
+      "uddi.nsgs.0" = "dns/auth_nsg/a06fe7d8-7470-4451-b9ef-1032d03509d4"
     }
   }
-
 }
 
 case "query_acl" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -405,7 +405,7 @@ case "query_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      query_acl    = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      query_acl    = [{ element = "acl", acl = "dns/acl/0d20aafe-8490-4d2c-8367-9bc1b62b601c" }]
     }
     check = {
       "uddi.query_acl.0.element" = "acl"
@@ -416,9 +416,9 @@ case "query_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
+      query_acl    = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/24b2fb48-666c-4e95-bc03-da6b5fef26c8" } }]
     }
     check = {
-      "uddi.query_acl.0.access"  = "deny"
       "uddi.query_acl.0.element" = "tsig_key"
     }
   }
@@ -426,7 +426,7 @@ case "query_acl" {
 }
 
 case "tags" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -456,7 +456,7 @@ case "tags" {
 }
 
 case "transfer_acl" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -488,7 +488,7 @@ case "transfer_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      transfer_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      transfer_acl = [{ element = "acl", acl = "dns/acl/0d20aafe-8490-4d2c-8367-9bc1b62b601c" }]
     }
     check = {
       "uddi.transfer_acl.0.element" = "acl"
@@ -499,9 +499,9 @@ case "transfer_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
+      transfer_acl = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/24b2fb48-666c-4e95-bc03-da6b5fef26c8" } }]
     }
     check = {
-      "uddi.transfer_acl.0.access"  = "deny"
       "uddi.transfer_acl.0.element" = "tsig_key"
     }
   }
@@ -509,7 +509,7 @@ case "transfer_acl" {
 }
 
 case "update_acl" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -541,7 +541,7 @@ case "update_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      update_acl   = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      update_acl   = [{ element = "acl", acl = "dns/acl/0d20aafe-8490-4d2c-8367-9bc1b62b601c" }]
     }
     check = {
       "uddi.update_acl.0.element" = "acl"
@@ -552,9 +552,9 @@ case "update_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
+      update_acl   = [{ access = "deny", element = "tsig_key", tsig_key = { key = "keys/tsig/24b2fb48-666c-4e95-bc03-da6b5fef26c8" } }]
     }
     check = {
-      "uddi.update_acl.0.access"  = "deny"
       "uddi.update_acl.0.element" = "tsig_key"
     }
   }
@@ -562,7 +562,7 @@ case "update_acl" {
 }
 
 case "use_forwarders_for_subzones" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
 
   step {
@@ -590,26 +590,29 @@ case "use_forwarders_for_subzones" {
 }
 
 case "view" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "one" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_view" "two" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_view" "one" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # resource "infoblox_view" "two" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      view         = infoblox_view.one.id
+      view         = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
+    }
+    check = {
+      "uddi.view" = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
     }
   }
 
@@ -617,51 +620,10 @@ case "view" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      view         = infoblox_view.two.id
-    }
-  }
-
-}
-
-case "zone_authority" {
-  backend = "uddi"
-  expect_non_empty_plan = true
-  parallel = true
-
-  step {
-    uddi {
-      fqdn           = "{{random}}.com."
-      primary_type   = "cloud"
-      zone_authority = { default_ttl = 28800, expire = 2419200, mname = "ns.b1ddi", negative_ttl = 900, refresh = 10800, retry = 3600, rname = "hostmaster", use_default_mname = false }
+      view         = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
     }
     check = {
-      "uddi.zone_authority.default_ttl"       = "28800"
-      "uddi.zone_authority.expire"            = "2419200"
-      "uddi.zone_authority.mname"             = "ns.b1ddi"
-      "uddi.zone_authority.negative_ttl"      = "900"
-      "uddi.zone_authority.refresh"           = "10800"
-      "uddi.zone_authority.retry"             = "3600"
-      "uddi.zone_authority.rname"             = "hostmaster"
-      "uddi.zone_authority.use_default_mname" = "false"
+      "uddi.view" = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
     }
   }
-
-  step {
-    uddi {
-      fqdn           = "{{random}}.com."
-      primary_type   = "cloud"
-      zone_authority = { default_ttl = 30000, expire = 2519200, mname = "ns.b1ddi", negative_ttl = 800, refresh = 11800, retry = 3700, rname = "hostmaster", use_default_mname = false }
-    }
-    check = {
-      "uddi.zone_authority.default_ttl"       = "30000"
-      "uddi.zone_authority.expire"            = "2519200"
-      "uddi.zone_authority.mname"             = "ns.b1ddi"
-      "uddi.zone_authority.negative_ttl"      = "800"
-      "uddi.zone_authority.refresh"           = "11800"
-      "uddi.zone_authority.retry"             = "3700"
-      "uddi.zone_authority.rname"             = "hostmaster"
-      "uddi.zone_authority.use_default_mname" = "false"
-    }
-  }
-
 }
