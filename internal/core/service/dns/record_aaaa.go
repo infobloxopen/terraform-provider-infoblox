@@ -55,6 +55,9 @@ func (s *recordAaaaService) createNIOS(ctx context.Context, obj *dns.RecordAaaa,
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil && payload.Ipv6addr == nil {
+		payload.Ipv6addr = &niosdns.RecordAaaaIpv6addr{}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err

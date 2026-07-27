@@ -27,6 +27,7 @@ type NIOSRecordAaaaExt struct {
 	Ttl               *int64
 	UseTtl            *bool
 	View              *string
+	FuncCall          *niosdns.FuncCall
 }
 
 // UDDIRecordAaaaExt - UDDI specific fields for RecordAaaa

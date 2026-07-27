@@ -5,7 +5,6 @@ import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 // RecordAaaaNIOSFieldMap maps infoblox model fields to NIOS struct fields
 var RecordAaaaNIOSFieldMap = map[string]string{
 	"Id":                     "Ref",
-	"NIOS.CloudInfo":         "CloudInfo",
 	"NIOS.Comment":           "Comment",
 	"NIOS.Creator":           "Creator",
 	"NIOS.DdnsPrincipal":     "DdnsPrincipal",
@@ -17,6 +16,7 @@ var RecordAaaaNIOSFieldMap = map[string]string{
 	"NIOS.Ttl":               "Ttl",
 	"NIOS.UseTtl":            "UseTtl",
 	"NIOS.View":              "View",
+	"NIOS.FuncCall":          "FuncCall",
 }
 
 // RecordAaaaUDDIFieldMap maps infoblox model fields to UDDI struct fields
@@ -40,7 +40,6 @@ var RecordAaaaUDDIFieldMap = map[string]string{
 var RecordAaaaFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendNIOS: {
 		"id":                      "_ref",
-		"nios.cloud_info":         "cloud_info",
 		"nios.comment":            "comment",
 		"nios.creator":            "creator",
 		"nios.ddns_principal":     "ddns_principal",

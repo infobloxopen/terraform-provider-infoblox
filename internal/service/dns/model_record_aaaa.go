@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -40,7 +41,6 @@ var RecordAaaaAttrTypes = map[string]attr.Type{
 }
 
 type NIOSRecordAaaaModel struct {
-	CloudInfo         types.Object        `tfsdk:"cloud_info"`
 	Comment           types.String        `tfsdk:"comment"`
 	Creator           types.String        `tfsdk:"creator"`
 	DdnsPrincipal     types.String        `tfsdk:"ddns_principal"`
@@ -53,10 +53,10 @@ type NIOSRecordAaaaModel struct {
 	Name              types.String        `tfsdk:"name"`
 	Ttl               types.Int64         `tfsdk:"ttl"`
 	View              types.String        `tfsdk:"view"`
+	DynamicAllocation types.Object        `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSRecordAaaaAttrTypes = map[string]attr.Type{
-	"cloud_info":         types.ObjectType{AttrTypes: RecordAaaaCloudInfoAttrTypes},
 	"comment":            types.StringType,
 	"creator":            types.StringType,
 	"ddns_principal":     types.StringType,
@@ -69,6 +69,7 @@ var NIOSRecordAaaaAttrTypes = map[string]attr.Type{
 	"name":               types.StringType,
 	"ttl":                types.Int64Type,
 	"view":               types.StringType,
+	"dynamic_allocation": types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
 
 type UDDIRecordAaaaModel struct {
@@ -127,11 +128,6 @@ var RecordAaaaResourceSchemaAttributes = map[string]schema.Attribute{
 }
 
 var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
-	"cloud_info": schema.SingleNestedAttribute{
-		Attributes:          RecordAaaaCloudInfoResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
-	},
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
@@ -143,7 +139,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"creator": schema.StringAttribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+			stringvalidator.OneOf("STATIC", "DYNAMIC"),
 		},
 		Optional:            true,
 		Computed:            true,
@@ -151,6 +147,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_principal": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -194,8 +191,12 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The IPv6 Address of the record.",
@@ -210,6 +211,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -223,6 +225,11 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The name of the DNS view in which the record resides. Example: \"external\".",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -340,7 +347,7 @@ func (m *RecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSRecordAaaaModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -353,9 +360,8 @@ func (m *RecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordAaaaExt {
-	return &coremodel.NIOSRecordAaaaExt{
-		CloudInfo:         ExpandRecordAaaaCloudInfo(ctx, m.CloudInfo, diags),
+func (m *NIOSRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordAaaaExt {
+	ext := &coremodel.NIOSRecordAaaaExt{
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Creator:           flex.ExpandStringPointerNullAsEmpty(m.Creator),
 		DdnsPrincipal:     flex.ExpandStringPointerNullAsEmpty(m.DdnsPrincipal),
@@ -368,6 +374,10 @@ func (m *NIOSRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
 		View:              flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
+	if isCreate {
+		ext.FuncCall = BuildRecordAaaaFuncCall(ctx, m.DynamicAllocation, diags)
+	}
+	return ext
 }
 
 // ApplyRecordAaaaNIOSUseFlags derives NIOS use flags from the raw config
@@ -440,7 +450,6 @@ func (m *NIOSRecordAaaaModel) Flatten(ctx context.Context, from *coremodel.NIOSR
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.CloudInfo = FlattenRecordAaaaCloudInfo(ctx, from.CloudInfo, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Creator = flex.FlattenStringPointerEmptyAsNull(from.Creator)
 	m.DdnsPrincipal = flex.FlattenStringPointerEmptyAsNull(from.DdnsPrincipal)
@@ -452,6 +461,9 @@ func (m *NIOSRecordAaaaModel) Flatten(ctx context.Context, from *coremodel.NIOSR
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableIpAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
