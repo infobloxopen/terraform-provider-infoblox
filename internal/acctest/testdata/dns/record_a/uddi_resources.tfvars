@@ -156,6 +156,7 @@ case "inheritance_sources" {
 }
 
 case "name_in_zone" {
+  backend = "uddi"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_zone_auth" "test" {
