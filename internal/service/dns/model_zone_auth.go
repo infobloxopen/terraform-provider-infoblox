@@ -872,6 +872,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"primary_type": schema.StringAttribute{
