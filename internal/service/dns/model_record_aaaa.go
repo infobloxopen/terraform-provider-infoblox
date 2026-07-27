@@ -372,9 +372,9 @@ func (m *NIOSRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Ipv6addr:          flex.ExpandIPv6Address(m.Ipv6addr),
 		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
-		View:              flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
 	if isCreate {
+		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
 		ext.FuncCall = BuildRecordAaaaFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
