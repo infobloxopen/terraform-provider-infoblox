@@ -269,7 +269,7 @@ case "func_call" {
       dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
       comment            = "Original Function Call"
     }
-    depends_on = [infoblox_network.test_func_call]
+    # depends_on = [infoblox_network.test_func_call]
   }
 
   step {
@@ -280,7 +280,7 @@ case "func_call" {
       dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
       comment            = "Function Call with Update"
     }
-    depends_on = [infoblox_network.test_func_call]
+    # depends_on = [infoblox_network.test_func_call]
   }
 
 }
