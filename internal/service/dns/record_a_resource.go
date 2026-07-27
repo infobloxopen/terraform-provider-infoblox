@@ -53,7 +53,7 @@ func (r *RecordAResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *RecordAResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordA across NIOS and UDDI backends.",
 		Attributes:          RecordAResourceSchemaAttributes,
 	}
 }
@@ -169,9 +169,15 @@ func (r *RecordAResource) Read(ctx context.Context, req resource.ReadRequest, re
 		Inherit:      RecordAInheritanceType,
 	})
 	if err != nil {
-		// If the resource is not found, try searching using Extensible Attributes
-		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound && r.ReadByExtAttrs(ctx, &data, resp) {
-			return
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			if r.backend == core.BackendNIOS {
+				if r.ReadByExtAttrs(ctx, &data, resp) {
+					return
+				}
+			} else {
+				resp.State.RemoveResource(ctx)
+				return
+			}
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read RecordA: %s", err))
 		return

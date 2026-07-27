@@ -3,21 +3,21 @@
 page_title: "infoblox_record_a Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.
+  Manages an Infoblox RecordA across NIOS and UDDI backends.
 ---
 
 # infoblox_record_a (Resource)
 
-Manages a Infoblox DNS RecordA record across NIOS and UDDI backends.
+Manages an Infoblox RecordA across NIOS and UDDI backends.
 
 ## Example Usage
 
 ### NIOS Backend
 
 ```terraform
-resource "infoblox_record_a" "test1" {
+resource "infoblox_record_a" "example_1" {
   nios = {
-    name     = "test-rec-1.example.com"
+    name     = "rec-1.example.com"
     ipv4addr = "10.0.0.18"
     comment  = "This is a test A record"
     creator  = "DYNAMIC"
@@ -27,9 +27,9 @@ resource "infoblox_record_a" "test1" {
   }
 }
 
-resource "infoblox_record_a" "test_dynamic1" {
+resource "infoblox_record_a" "example_dynamic_allocation" {
   nios = {
-    name    = "test-rec-dynamic-1.example.com"
+    name    = "rec-dynamic-1.example.com"
     comment = "A record with a dynamically allocated address"
     dynamic_allocation = {
       network = "13.0.0.0/24"
@@ -37,9 +37,9 @@ resource "infoblox_record_a" "test_dynamic1" {
   }
 }
 
-resource "infoblox_record_a" "test_dynamic2" {
+resource "infoblox_record_a" "example_dynamic_allocation_2" {
   nios = {
-    name    = "test-rec-dynamic-2.example.com"
+    name    = "rec-dynamic-2.example.com"
     comment = "A record with a dynamically allocated address"
     dynamic_allocation = {
       filter_params = {
@@ -55,7 +55,7 @@ resource "infoblox_record_a" "test_dynamic2" {
 ```terraform
 resource "infoblox_record_a" "test1" {
   uddi = {
-    name = "test-rec-19.example.com"
+    name_in_zone = "record_a.example.com"
     rdata = {
       address = "10.0.0.19"
     }
@@ -100,7 +100,6 @@ Optional:
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.
 - `ipv4addr` (String) The IPv4 Address of the record.
 - `ttl` (Number) The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.
-- `use_ttl` (Boolean) Use flag for: ttl
 - `view` (String) The name of the DNS view in which the record resides. Example: "external".
 
 Read-Only:
@@ -122,10 +121,6 @@ Optional:
 <a id="nestedatt--uddi"></a>
 ### Nested Schema for `uddi`
 
-Required:
-
-- `rdata` (Map of String) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes
-
 Optional:
 
 - `absolute_name_spec` (String) Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.
@@ -133,6 +128,8 @@ Optional:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
+- `options` (Attributes) The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------ (see [below for nested schema](#nestedatt--uddi--options))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes (see [below for nested schema](#nestedatt--uddi--rdata))
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `ttl` (Number) The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.
 - `view` (String) The resource identifier.
@@ -156,3 +153,21 @@ Optional:
 Optional:
 
 - `action` (String) The inheritance setting for a field.  Valid values are: * _inherit_: Use the inherited value. * _override_: Use the value set in the object.  Defaults to _inherit_.
+
+
+
+<a id="nestedatt--uddi--options"></a>
+### Nested Schema for `uddi.options`
+
+Optional:
+
+- `check_rmz` (Boolean) A boolean flag which can be set to true to check the existence of the reverse zone for creating the corresponding PTR record. Only applicable if create_ptr is true.
+- `create_ptr` (Boolean) A boolean flag which can be set to true to automatically create the corresponding PTR record.
+
+
+<a id="nestedatt--uddi--rdata"></a>
+### Nested Schema for `uddi.rdata`
+
+Required:
+
+- `address` (String) The IPv4 address of the host.
