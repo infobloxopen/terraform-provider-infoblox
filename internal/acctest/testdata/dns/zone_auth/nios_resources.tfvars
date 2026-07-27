@@ -1,8 +1,13 @@
 # Auto-generated resource acceptance-test cases for ZoneAuth.
+// TODO : Objects to be present in the grid for testing
 // GSS TSIG Key has to be configured in the grid
+// Microsoft Servers 10.10.10.10, 10.0.0.0, example_server
+// -NS Group - example-ns-group, updated-example-ns-group
+// Shared Record Group - example_shared_record_group, updated_example_shared_record_group
+// DDNS Principal Cluster Group - dynamic_update_grp_1, dynamic_update_grp_2
 
 case "basic" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -17,8 +22,6 @@ case "basic" {
       "nios.allow_gss_tsig_for_underscore_zone"   = "false"
       "nios.allow_gss_tsig_zone_updates"          = "false"
       "nios.copy_xfer_to_notify"                  = "false"
-      # "nios.create_ptr_for_bulk_hosts"            = "false"
-      # "nios.create_ptr_for_hosts"                 = "false"
       "nios.create_underscore_zones"              = "false"
       "nios.ddns_force_creation_timestamp_update" = "false"
       "nios.ddns_principal_tracking"              = "false"
@@ -48,10 +51,10 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
+  parallel              = true
 
   step {
     nios {
@@ -63,7 +66,7 @@ case "disappears" {
 }
 
 case "allow_active_dir" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -95,7 +98,7 @@ case "allow_active_dir" {
 }
 
 case "allow_fixed_rrset_order" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -123,7 +126,7 @@ case "allow_fixed_rrset_order" {
 }
 
 case "allow_gss_tsig_for_underscore_zone" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -151,7 +154,7 @@ case "allow_gss_tsig_for_underscore_zone" {
 }
 
 case "allow_gss_tsig_zone_updates" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -181,7 +184,7 @@ case "allow_gss_tsig_zone_updates" {
 }
 
 case "allow_query" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -211,7 +214,7 @@ case "allow_query" {
 }
 
 case "allow_transfer" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -241,7 +244,7 @@ case "allow_transfer" {
 }
 
 case "allow_update" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -275,7 +278,7 @@ case "allow_update" {
 }
 
 case "allow_update_forwarding" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -303,7 +306,7 @@ case "allow_update_forwarding" {
 }
 
 case "comment" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -331,7 +334,7 @@ case "comment" {
 }
 
 case "copy_xfer_to_notify" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -359,7 +362,7 @@ case "copy_xfer_to_notify" {
 }
 
 case "create_underscore_zones" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -387,7 +390,7 @@ case "create_underscore_zones" {
 }
 
 case "ddns_force_creation_timestamp_update" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -415,7 +418,7 @@ case "ddns_force_creation_timestamp_update" {
 }
 
 case "ddns_principal_group" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -443,7 +446,7 @@ case "ddns_principal_group" {
 }
 
 case "ddns_principal_tracking" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -471,7 +474,7 @@ case "ddns_principal_tracking" {
 }
 
 case "ddns_restrict_patterns" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -499,7 +502,7 @@ case "ddns_restrict_patterns" {
 }
 
 case "ddns_restrict_patterns_list" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -531,7 +534,7 @@ case "ddns_restrict_patterns_list" {
 }
 
 case "ddns_restrict_protected" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -559,7 +562,7 @@ case "ddns_restrict_protected" {
 }
 
 case "ddns_restrict_secure" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -587,7 +590,7 @@ case "ddns_restrict_secure" {
 }
 
 case "ddns_restrict_static" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -615,7 +618,7 @@ case "ddns_restrict_static" {
 }
 
 case "disable" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -643,7 +646,7 @@ case "disable" {
 }
 
 case "disable_forwarding" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -671,7 +674,7 @@ case "disable_forwarding" {
 }
 
 case "dns_integrity_enable" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -703,7 +706,7 @@ case "dns_integrity_enable" {
 }
 
 case "dns_integrity_frequency" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -731,7 +734,7 @@ case "dns_integrity_frequency" {
 }
 
 case "dns_integrity_member" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -759,7 +762,7 @@ case "dns_integrity_member" {
 }
 
 case "dns_integrity_verbose_logging" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -787,7 +790,7 @@ case "dns_integrity_verbose_logging" {
 }
 
 case "dnssec_key_params" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -825,7 +828,7 @@ case "dnssec_key_params" {
 }
 
 case "effective_check_names_policy" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -853,7 +856,7 @@ case "effective_check_names_policy" {
 }
 
 case "ext_attrs" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -881,7 +884,7 @@ case "ext_attrs" {
 }
 
 case "external_primaries" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -916,7 +919,7 @@ case "external_primaries" {
 }
 
 case "external_secondaries" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -950,7 +953,7 @@ case "external_secondaries" {
 }
 
 case "fqdn" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -976,7 +979,7 @@ case "fqdn" {
 }
 
 case "grid_primary" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1010,7 +1013,7 @@ case "grid_primary" {
 }
 
 case "grid_secondaries" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1046,7 +1049,7 @@ case "grid_secondaries" {
 }
 
 case "last_queried_acl" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1076,7 +1079,7 @@ case "last_queried_acl" {
 }
 
 case "locked" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1104,7 +1107,7 @@ case "locked" {
 }
 
 case "member_soa_mnames" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1138,7 +1141,7 @@ case "member_soa_mnames" {
 }
 
 case "ms_ad_integrated" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1166,7 +1169,7 @@ case "ms_ad_integrated" {
 }
 
 case "ms_allow_transfer" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1198,7 +1201,7 @@ case "ms_allow_transfer" {
 }
 
 case "ms_allow_transfer_mode" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1226,7 +1229,7 @@ case "ms_allow_transfer_mode" {
 }
 
 case "ms_dc_ns_record_creation" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1260,7 +1263,7 @@ case "ms_dc_ns_record_creation" {
 }
 
 case "ms_ddns_mode" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1288,7 +1291,7 @@ case "ms_ddns_mode" {
 }
 
 case "ms_primaries" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1318,7 +1321,7 @@ case "ms_primaries" {
 }
 
 case "ms_secondaries" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1350,7 +1353,7 @@ case "ms_secondaries" {
 }
 
 case "ms_sync_disabled" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1380,7 +1383,7 @@ case "ms_sync_disabled" {
 }
 
 case "notify_delay" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1408,7 +1411,7 @@ case "notify_delay" {
 }
 
 case "ns_group" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_ns_group_unknown" "test_ns_group" {
@@ -1450,7 +1453,7 @@ case "ns_group" {
 }
 
 case "prefix" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1478,7 +1481,7 @@ case "prefix" {
 }
 
 case "record_name_policy" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1506,7 +1509,7 @@ case "record_name_policy" {
 }
 
 case "scavenging_settings" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1552,7 +1555,7 @@ case "scavenging_settings" {
 }
 
 case "soa_default_ttl" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1590,7 +1593,7 @@ case "soa_default_ttl" {
 }
 
 case "soa_email" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1620,7 +1623,7 @@ case "soa_email" {
 }
 
 case "soa_expire" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1658,7 +1661,7 @@ case "soa_expire" {
 }
 
 case "soa_negative_ttl" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1696,7 +1699,7 @@ case "soa_negative_ttl" {
 }
 
 case "soa_refresh" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1734,7 +1737,7 @@ case "soa_refresh" {
 }
 
 case "soa_retry" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1772,7 +1775,7 @@ case "soa_retry" {
 }
 
 case "soa_serial_number" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1814,7 +1817,7 @@ case "soa_serial_number" {
 }
 
 case "srgs" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_shared_record_group_unknown" "test_shared_record_group" {
@@ -1858,7 +1861,7 @@ case "srgs" {
 }
 
 case "update_forwarding" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1883,15 +1886,15 @@ case "update_forwarding" {
       allow_update_forwarding = true
     }
     check = {
-      "nios.update_forwarding.#"            = "1"
-      "nios.update_forwarding.0.tsig_key"   = "X4oRe92t54I+T98NdQpV2w=="
+      "nios.update_forwarding.#"          = "1"
+      "nios.update_forwarding.0.tsig_key" = "X4oRe92t54I+T98NdQpV2w=="
     }
   }
 
 }
 
 case "use_check_names_policy" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1919,7 +1922,7 @@ case "use_check_names_policy" {
 }
 
 case "use_external_primary" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1949,7 +1952,7 @@ case "use_external_primary" {
 }
 
 case "view" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1975,7 +1978,7 @@ case "view" {
 }
 
 case "zone_format_ipv4" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -1992,7 +1995,7 @@ case "zone_format_ipv4" {
 }
 
 case "zone_format_ipv6" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {

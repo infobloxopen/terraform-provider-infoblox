@@ -339,7 +339,7 @@ func (s *zoneAuthService) listUDDI(ctx context.Context, opts *core.ListOptions) 
 		if len(opts.TagFilter) > 0 {
 			var tfilters []string
 			for k, v := range opts.TagFilter {
-				tfilters = append(tfilters, k+"=='"+v+"'")
+				tfilters = append(tfilters, "'"+k+"'=='"+v+"'")
 			}
 			req = req.Tfilter(core.JoinFilters(tfilters))
 		}
