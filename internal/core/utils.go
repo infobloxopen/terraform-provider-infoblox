@@ -72,11 +72,11 @@ func JoinFilters(filters []string) string {
 }
 
 // BuildTagFilter builds a UDDI tfilter expression from tag key/value pairs.
-// e.g. {"a": "1", "b": "2"} -> "a=='1' and b=='2'".
+// e.g. {"a": "1", "b": "2"} -> "'a'=='1' and 'b'=='2'".
 func BuildTagFilter(tags map[string]string) string {
 	filters := make([]string, 0, len(tags))
 	for k, v := range tags {
-		filters = append(filters, k+"=='"+v+"'")
+		filters = append(filters, "'"+k+"'=='"+v+"'")
 	}
 	return JoinFilters(filters)
 }

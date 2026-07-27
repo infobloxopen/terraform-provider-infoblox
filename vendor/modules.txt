@@ -211,10 +211,12 @@ github.com/hashicorp/terraform-plugin-framework/resource/identityschema
 github.com/hashicorp/terraform-plugin-framework/resource/schema
 github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault
 github.com/hashicorp/terraform-plugin-framework/resource/schema/defaults
+github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default
 github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault
 github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier
+github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault
 github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault
@@ -234,6 +236,7 @@ github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes
 github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes
 # github.com/hashicorp/terraform-plugin-framework-validators v0.19.0
 ## explicit; go 1.24.0
+github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator
 github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatordiag
 github.com/hashicorp/terraform-plugin-framework-validators/helpers/validatorfuncerr
 github.com/hashicorp/terraform-plugin-framework-validators/int32validator
