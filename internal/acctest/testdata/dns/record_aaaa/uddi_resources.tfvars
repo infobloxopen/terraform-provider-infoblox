@@ -9,21 +9,21 @@ case "rdata" {
 
   step {
     uddi {
-      rdata = { address = "2001:db8::1" }
-      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-    }
-    check = {
-      "uddi.rdata.address" = "2001:db8::1"
-    }
-  }
-
-  step {
-    uddi {
       rdata = { address = "2001:db8::2" }
       zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
     }
     check = {
       "uddi.rdata.address" = "2001:db8::2"
+    }
+  }
+
+  step {
+    uddi {
+      rdata = { address = "2001:db8::3" }
+      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+    }
+    check = {
+      "uddi.rdata.address" = "2001:db8::3"
     }
   }
 
