@@ -142,3 +142,14 @@ func FlattenUDDIRecordAaaaRdata(ctx context.Context, from map[string]any, diags 
 	diags.Append(d...)
 	return obj
 }
+
+func PostFlattenRecordAaaaUDDI(ctx context.Context, planned, flattened *UDDIRecordAaaaModel, diags *diag.Diagnostics) {
+	if flattened == nil {
+		return
+	}
+	if planned != nil {
+		flattened.Options = planned.Options
+	} else {
+		flattened.Options = types.ObjectNull(UDDIRecordAaaaOptionsAttrTypes)
+	}
+}
