@@ -1,7 +1,7 @@
-# Auto-generated resource acceptance-test cases for RecordA.
+# Auto-generated resource acceptance-test cases for RecordA (nios).
 case "basic" {
+  # basic — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -22,10 +22,10 @@ case "basic" {
 }
 
 case "disappears" {
+  # disappears — generated from terraform-provider-nios
   backend = "nios"
   disappears = true
   expect_non_empty_plan = true
-  parallel = true
 
   step {
     nios {
@@ -38,8 +38,8 @@ case "disappears" {
 }
 
 case "comment" {
+  # comment — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -68,8 +68,8 @@ case "comment" {
 }
 
 case "creator" {
+  # creator — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -98,8 +98,8 @@ case "creator" {
 }
 
 case "ddns_principal" {
+  # ddns_principal — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -130,8 +130,8 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
+  # ddns_protected — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -160,8 +160,8 @@ case "ddns_protected" {
 }
 
 case "disable" {
+  # disable — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -190,8 +190,8 @@ case "disable" {
 }
 
 case "extattrs" {
+  # extattrs — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -220,8 +220,8 @@ case "extattrs" {
 }
 
 case "forbid_reclamation" {
+  # forbid_reclamation — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -250,8 +250,8 @@ case "forbid_reclamation" {
 }
 
 case "func_call" {
+  # func_call — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network" "test_func_call" {
     nios = {
@@ -268,7 +268,6 @@ case "func_call" {
       dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
       comment            = "Original Function Call"
     }
-    depends_on = [infoblox_network.test_func_call]
   }
 
   step {
@@ -278,14 +277,13 @@ case "func_call" {
       dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
       comment            = "Function Call with Update"
     }
-    depends_on = [infoblox_network.test_func_call]
   }
 
 }
 
 case "ipv4addr" {
+  # ipv4addr — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -312,8 +310,8 @@ case "ipv4addr" {
 }
 
 case "name" {
+  # name — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {
@@ -340,8 +338,8 @@ case "name" {
 }
 
 case "ttl" {
+  # ttl — generated from terraform-provider-nios
   backend = "nios"
-  parallel = true
 
   step {
     nios {

@@ -1,5 +1,6 @@
-# Auto-generated list acceptance-test cases for RecordA.
+# Auto-generated list acceptance-test cases for RecordA (nios).
 case "basic" {
+  # basic — generated from terraform-provider-nios
   backend = "nios"
   min_tf_version = "1.14.0"
 
@@ -20,6 +21,7 @@ case "basic" {
 }
 
 case "filters" {
+  # filters — generated from terraform-provider-nios
   backend = "nios"
   min_tf_version = "1.14.0"
 
@@ -46,6 +48,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
+  # ext_attr_filters — generated from terraform-provider-nios
   backend = "nios"
   min_tf_version = "1.14.0"
 

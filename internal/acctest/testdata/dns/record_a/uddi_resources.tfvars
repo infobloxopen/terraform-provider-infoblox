@@ -1,7 +1,7 @@
-# Auto-generated resource acceptance-test cases for RecordA.
+# Auto-generated resource acceptance-test cases for RecordA (uddi).
 case "basic" {
+  # basic — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -24,10 +24,10 @@ case "basic" {
 }
 
 case "disappears" {
+  # disappears — generated from terraform-provider-uddi
   backend = "uddi"
   disappears = true
   expect_non_empty_plan = true
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -47,8 +47,8 @@ case "disappears" {
 }
 
 case "comment" {
+  # comment — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -83,8 +83,8 @@ case "comment" {
 }
 
 case "disabled" {
+  # disabled — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -119,8 +119,8 @@ case "disabled" {
 }
 
 case "inheritance_sources" {
+  # inheritance_sources — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -155,8 +155,8 @@ case "inheritance_sources" {
 }
 
 case "name_in_zone" {
+  # name_in_zone — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -191,8 +191,8 @@ case "name_in_zone" {
 }
 
 case "rdata" {
+  # rdata — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -225,8 +225,8 @@ case "rdata" {
 }
 
 case "tags" {
+  # tags — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -261,8 +261,8 @@ case "tags" {
 }
 
 case "ttl" {
+  # ttl — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -297,8 +297,8 @@ case "ttl" {
 }
 
 case "view" {
+  # view — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "one" {
     uddi = {
@@ -325,7 +325,6 @@ case "view" {
       absolute_name_spec = "a.test.com."
       view               = infoblox_view.one.id
     }
-    depends_on = [infoblox_zone_auth.test]
   }
 
   step {
@@ -334,14 +333,13 @@ case "view" {
       absolute_name_spec = "a.test.com."
       view               = infoblox_view.two.id
     }
-    depends_on = [infoblox_zone_auth.test]
   }
 
 }
 
 case "zone" {
+  # zone — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "one" {
     uddi = {
@@ -374,8 +372,8 @@ case "zone" {
 }
 
 case "options" {
+  # options — generated from terraform-provider-uddi
   backend = "uddi"
-  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -404,7 +402,6 @@ case "options" {
       options = { create_ptr = true, check_rmz = true }
       zone    = infoblox_zone_auth.test.id
     }
-    depends_on = [infoblox_zone_auth.rmz, infoblox_zone_auth.test]
     check = {
       "uddi.options.create_ptr" = "true"
       "uddi.options.check_rmz"  = "true"
@@ -417,7 +414,6 @@ case "options" {
       options = { create_ptr = true, check_rmz = false }
       zone    = infoblox_zone_auth.test.id
     }
-    depends_on = [infoblox_zone_auth.rmz, infoblox_zone_auth.test]
     check = {
       "uddi.options.create_ptr" = "true"
       "uddi.options.check_rmz"  = "false"
@@ -430,7 +426,6 @@ case "options" {
       options = { create_ptr = false, check_rmz = false }
       zone    = infoblox_zone_auth.test.id
     }
-    depends_on = [infoblox_zone_auth.rmz, infoblox_zone_auth.test]
     check = {
       "uddi.options.create_ptr" = "false"
       "uddi.options.check_rmz"  = "false"
