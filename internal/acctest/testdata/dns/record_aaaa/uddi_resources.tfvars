@@ -1,4 +1,8 @@
 # Auto-generated resource acceptance-test cases for RecordAaaa.
+//
+// TODO : Objects to be present in the grid before running the test cases
+// Reverse-mapping (PTR) Auth Zone - 1.0.0.2.ip6.arpa.
+//
 case "rdata" {
   backend = "uddi"
   parallel = true

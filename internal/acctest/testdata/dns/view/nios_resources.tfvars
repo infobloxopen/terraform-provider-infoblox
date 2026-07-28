@@ -1,4 +1,11 @@
 # Auto-generated resource acceptance-test cases for View.
+//
+// TODO : Objects to be present in the grid before running the test cases
+// Blacklist Rulesets (type BLACKLIST) - blacklist_ruleset_1, blacklist_ruleset_2
+// NXDOMAIN Rulesets (type NXDOMAIN)   - nxdomain_ruleset_1, nxdomain_ruleset_2
+// DNS64 Group                         - dns64_group
+// DDNS Principal Cluster Group        - dynamic_update_grp_1, dynamic_update_grp_2
+//
 case "basic" {
   backend = "nios"
   parallel = true
