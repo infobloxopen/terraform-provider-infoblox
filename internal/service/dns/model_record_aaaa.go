@@ -306,14 +306,17 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.",
 	},
 	"type": schema.StringAttribute{
-		Optional:            true,
+		Default:             stringdefault.StaticString("AAAA"),
+		Computed:            true,
 		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -328,6 +331,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -358,7 +362,7 @@ func (m *RecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIRecordAaaaModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -396,8 +400,8 @@ func ApplyRecordAaaaNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIRecordAaaaExt {
-	return &coremodel.UDDIRecordAaaaExt{
+func (m *UDDIRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIRecordAaaaExt {
+	ext := &coremodel.UDDIRecordAaaaExt{
 		AbsoluteNameSpec:   flex.ExpandStringPointer(m.AbsoluteNameSpec),
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
@@ -407,10 +411,13 @@ func (m *UDDIRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Rdata:              ExpandUDDIRecordAaaaRdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
-		Type:               flex.ExpandStringPointer(m.Type),
-		View:               flex.ExpandStringPointer(m.View),
-		Zone:               flex.ExpandStringPointer(m.Zone),
 	}
+	if isCreate {
+		ext.Type = flex.ExpandStringPointer(m.Type)
+		ext.View = flex.ExpandStringPointer(m.View)
+		ext.Zone = flex.ExpandStringPointer(m.Zone)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
