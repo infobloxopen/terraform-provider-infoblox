@@ -1,4 +1,4 @@
-# Auto-generated list acceptance-test cases for RecordAaaa.
+# RecordAaaa — uddi list test cases
 case "basic" {
   backend  = "uddi"
   parallel = true
