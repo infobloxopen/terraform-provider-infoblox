@@ -12,7 +12,8 @@ case "filters" {
 
   step {
     uddi {
-      zone  = infoblox_zone_auth.test.id
+      # zone  = infoblox_zone_auth.test.id
+      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
       rdata = { address = "2001:db8::1" }
     }
   }
