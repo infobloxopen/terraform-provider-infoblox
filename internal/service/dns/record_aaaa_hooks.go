@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -45,11 +46,25 @@ func BuildRecordAaaaFuncCall(ctx context.Context, data types.Object, diags *diag
 }
 
 type UDDIRecordAaaaOptionsModel struct {
+	CreatePtr types.Bool `tfsdk:"create_ptr"`
+	CheckRmz  types.Bool `tfsdk:"check_rmz"`
 }
 
-var UDDIRecordAaaaOptionsAttrTypes = map[string]attr.Type{}
+var UDDIRecordAaaaOptionsAttrTypes = map[string]attr.Type{
+	"create_ptr": types.BoolType,
+	"check_rmz":  types.BoolType,
+}
 
-var UDDIRecordAaaaOptionsResourceSchemaAttributes = map[string]schema.Attribute{}
+var UDDIRecordAaaaOptionsResourceSchemaAttributes = map[string]schema.Attribute{
+	"create_ptr": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "A boolean flag which can be set to true to automatically create the corresponding PTR record.",
+	},
+	"check_rmz": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "A boolean flag which can be set to true to check the existence of the reverse zone for creating the corresponding PTR record. Only applicable if create_ptr is true.",
+	},
+}
 
 func ExpandUDDIRecordAaaaOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
 	if o.IsNull() || o.IsUnknown() {
@@ -60,32 +75,44 @@ func ExpandUDDIRecordAaaaOptions(ctx context.Context, o types.Object, diags *dia
 	if diags.HasError() {
 		return nil
 	}
-	to := map[string]any{}
-	// TODO: populate `to` from m's subfields.
-	return to
+	opts := make(map[string]any)
+	if !m.CreatePtr.IsNull() && !m.CreatePtr.IsUnknown() {
+		opts["create_ptr"] = m.CreatePtr.ValueBool()
+	}
+	if !m.CheckRmz.IsNull() && !m.CheckRmz.IsUnknown() {
+		opts["check_rmz"] = m.CheckRmz.ValueBool()
+	}
+	return opts
 }
 
 func FlattenUDDIRecordAaaaOptions(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
 		return types.ObjectNull(UDDIRecordAaaaOptionsAttrTypes)
 	}
-	m := UDDIRecordAaaaOptionsModel{}
-	// TODO: populate m from `from` using the flex map-boundary adapters, e.g.
-	//   flex.FlattenStringPointer(flex.RDataStringPtr(from["<key>"]))
-	//   flex.FlattenBoolPointer(flex.RDataBoolPtr(from["<key>"]))
-	//   flex.FlattenInt64Pointer(flex.RDataInt64Ptr(from["<key>"]))
-	//   flex.FlattenIPv4Address(flex.RDataStringPtr(from["<key>"]))
+	m := UDDIRecordAaaaOptionsModel{
+		CreatePtr: flex.FlattenBoolPointer(flex.RDataBoolPtr(from["create_ptr"])),
+		CheckRmz:  flex.FlattenBoolPointer(flex.RDataBoolPtr(from["check_rmz"])),
+	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordAaaaOptionsAttrTypes, m)
 	diags.Append(d...)
 	return obj
 }
 
 type UDDIRecordAaaaRdataModel struct {
+	Address iptypes.IPv6Address `tfsdk:"address"`
 }
 
-var UDDIRecordAaaaRdataAttrTypes = map[string]attr.Type{}
+var UDDIRecordAaaaRdataAttrTypes = map[string]attr.Type{
+	"address": iptypes.IPv6AddressType{},
+}
 
-var UDDIRecordAaaaRdataResourceSchemaAttributes = map[string]schema.Attribute{}
+var UDDIRecordAaaaRdataResourceSchemaAttributes = map[string]schema.Attribute{
+	"address": schema.StringAttribute{
+		Required:            true,
+		CustomType:          iptypes.IPv6AddressType{},
+		MarkdownDescription: "The IPv6 address of the host.",
+	},
+}
 
 func ExpandUDDIRecordAaaaRdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
 	if o.IsNull() || o.IsUnknown() {
@@ -96,21 +123,20 @@ func ExpandUDDIRecordAaaaRdata(ctx context.Context, o types.Object, diags *diag.
 	if diags.HasError() {
 		return nil
 	}
-	to := map[string]any{}
-	// TODO: populate `to` from m's subfields.
-	return to
+	rdata := make(map[string]any)
+	if addr := flex.ExpandIPv6Address(m.Address); addr != nil {
+		rdata["address"] = *addr
+	}
+	return rdata
 }
 
 func FlattenUDDIRecordAaaaRdata(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
 		return types.ObjectNull(UDDIRecordAaaaRdataAttrTypes)
 	}
-	m := UDDIRecordAaaaRdataModel{}
-	// TODO: populate m from `from` using the flex map-boundary adapters, e.g.
-	//   flex.FlattenStringPointer(flex.RDataStringPtr(from["<key>"]))
-	//   flex.FlattenBoolPointer(flex.RDataBoolPtr(from["<key>"]))
-	//   flex.FlattenInt64Pointer(flex.RDataInt64Ptr(from["<key>"]))
-	//   flex.FlattenIPv4Address(flex.RDataStringPtr(from["<key>"]))
+	m := UDDIRecordAaaaRdataModel{
+		Address: flex.FlattenIPv6Address(flex.RDataStringPtr(from["address"])),
+	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordAaaaRdataAttrTypes, m)
 	diags.Append(d...)
 	return obj

@@ -286,7 +286,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordAaaaRdataResourceSchemaAttributes,
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _AAAA_ (IPv6 Address) record:  Subfield | Description                           | Required ---------|---------------------------------------|--------- address  | The IPv6 address of the host.<br><br> | Yes",
 	},
 	"tags": schema.MapAttribute{
