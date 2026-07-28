@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
@@ -57,7 +59,10 @@ var UDDIRecordAaaaOptionsAttrTypes = map[string]attr.Type{
 
 var UDDIRecordAaaaOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 	"create_ptr": schema.BoolAttribute{
-		Optional:            true,
+		Optional: true,
+		PlanModifiers: []planmodifier.Bool{
+			boolplanmodifier.RequiresReplaceIfConfigured(),
+		},
 		MarkdownDescription: "A boolean flag which can be set to true to automatically create the corresponding PTR record.",
 	},
 	"check_rmz": schema.BoolAttribute{
@@ -76,12 +81,8 @@ func ExpandUDDIRecordAaaaOptions(ctx context.Context, o types.Object, diags *dia
 		return nil
 	}
 	opts := make(map[string]any)
-	if !m.CreatePtr.IsNull() && !m.CreatePtr.IsUnknown() {
-		opts["create_ptr"] = m.CreatePtr.ValueBool()
-	}
-	if !m.CheckRmz.IsNull() && !m.CheckRmz.IsUnknown() {
-		opts["check_rmz"] = m.CheckRmz.ValueBool()
-	}
+	opts["create_ptr"] = flex.ExpandBool(m.CreatePtr)
+	opts["check_rmz"] = flex.ExpandBool(m.CheckRmz)
 	return opts
 }
 
