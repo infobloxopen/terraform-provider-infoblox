@@ -205,6 +205,7 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
 		Computed: true,
 		PlanModifiers: []planmodifier.String{
