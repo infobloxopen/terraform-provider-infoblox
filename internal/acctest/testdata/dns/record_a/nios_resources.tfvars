@@ -107,10 +107,10 @@ case "ddns_principal" {
       ipv4addr       = "10.0.0.20"
       view           = "default"
       creator        = "DYNAMIC"
-      ddns_principal = "DDNS_PRINCIPAL_REPLACE_ME"
+      ddns_principal = "DDNS_PRINCIPAL_1"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_REPLACE_ME"
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_1"
     }
   }
 
@@ -120,10 +120,10 @@ case "ddns_principal" {
       ipv4addr       = "10.0.0.20"
       view           = "default"
       creator        = "DYNAMIC"
-      ddns_principal = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      ddns_principal = "DDNS_PRINCIPAL_2"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_2"
     }
   }
 

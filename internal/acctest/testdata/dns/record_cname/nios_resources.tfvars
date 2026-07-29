@@ -135,11 +135,11 @@ case "ddns_principal" {
       canonical      = "{{random}}.example.com"
       name           = "{{random2}}.example.com"
       view           = "default"
-      ddns_principal = "DDNS_PRINCIPAL_REPLACE_ME"
+      ddns_principal = "DDNS_PRINCIPAL_1"
       creator        = "DYNAMIC"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_REPLACE_ME"
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_1"
     }
   }
 
@@ -148,11 +148,11 @@ case "ddns_principal" {
       canonical      = "{{random}}.example.com"
       name           = "{{random2}}.example.com"
       view           = "default"
-      ddns_principal = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      ddns_principal = "DDNS_PRINCIPAL_2"
       creator        = "DYNAMIC"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      "nios.ddns_principal" = "DDNS_PRINCIPAL_2"
     }
   }
 
