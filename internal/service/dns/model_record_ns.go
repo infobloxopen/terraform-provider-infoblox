@@ -272,7 +272,7 @@ func (m *RecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics, isC
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSRecordNsModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -285,14 +285,17 @@ func (m *RecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics, isC
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSRecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordNsExt {
-	return &coremodel.NIOSRecordNsExt{
+func (m *NIOSRecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordNsExt {
+	ext := &coremodel.NIOSRecordNsExt{
 		Addresses:        flex.ExpandFrameworkListNestedBlock(ctx, m.Addresses, diags, ExpandRecordNsAddresses),
 		MsDelegationName: flex.ExpandStringPointerNullAsEmpty(m.MsDelegationName),
-		Name:             flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Nameserver:       flex.ExpandStringPointerNullAsEmpty(m.Nameserver),
-		View:             flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
+	if isCreate {
+		ext.Name = flex.ExpandStringPointerNullAsEmpty(m.Name)
+		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
+	}
+	return ext
 }
 
 // Expand converts the UDDI TF model to the core model.

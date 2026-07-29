@@ -25,7 +25,7 @@ case "basic" {
       "nios.addresses.0.address"         = "20.0.0.0"
       "nios.addresses.0.auto_create_ptr" = "false"
       "nios.view"                        = "default"
-      "nios.ms_delegation_name"          = ""
+      //"nios.ms_delegation_name"          = ""
     }
   }
 
