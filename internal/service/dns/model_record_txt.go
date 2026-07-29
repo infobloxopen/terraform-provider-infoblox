@@ -135,7 +135,7 @@ var RecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"creator": schema.StringAttribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+			stringvalidator.OneOf("STATIC", "DYNAMIC"),
 		},
 		Optional:            true,
 		Computed:            true,
@@ -143,6 +143,7 @@ var RecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_principal": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -202,6 +203,7 @@ var RecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
