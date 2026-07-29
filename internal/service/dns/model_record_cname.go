@@ -40,7 +40,6 @@ var RecordCnameAttrTypes = map[string]attr.Type{
 
 type NIOSRecordCnameModel struct {
 	Canonical         types.String `tfsdk:"canonical"`
-	CloudInfo         types.Object `tfsdk:"cloud_info"`
 	Comment           types.String `tfsdk:"comment"`
 	Creator           types.String `tfsdk:"creator"`
 	DdnsPrincipal     types.String `tfsdk:"ddns_principal"`
@@ -56,7 +55,6 @@ type NIOSRecordCnameModel struct {
 
 var NIOSRecordCnameAttrTypes = map[string]attr.Type{
 	"canonical":          types.StringType,
-	"cloud_info":         types.ObjectType{AttrTypes: RecordCnameCloudInfoAttrTypes},
 	"comment":            types.StringType,
 	"creator":            types.StringType,
 	"ddns_principal":     types.StringType,
@@ -134,11 +132,6 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "Canonical name in FQDN format. This value can be in unicode format.",
 	},
-	"cloud_info": schema.SingleNestedAttribute{
-		Attributes:          RecordCnameCloudInfoResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
-	},
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
@@ -150,7 +143,7 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"creator": schema.StringAttribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+			stringvalidator.OneOf("STATIC", "DYNAMIC"),
 		},
 		Optional:            true,
 		Computed:            true,
@@ -158,6 +151,7 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_principal": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -209,10 +203,12 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
 		},
@@ -353,7 +349,6 @@ func (m *RecordCnameModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 func (m *NIOSRecordCnameModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordCnameExt {
 	return &coremodel.NIOSRecordCnameExt{
 		Canonical:         flex.ExpandStringPointerNullAsEmpty(m.Canonical),
-		CloudInfo:         ExpandRecordCnameCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Creator:           flex.ExpandStringPointerNullAsEmpty(m.Creator),
 		DdnsPrincipal:     flex.ExpandStringPointerNullAsEmpty(m.DdnsPrincipal),
@@ -438,7 +433,6 @@ func (m *NIOSRecordCnameModel) Flatten(ctx context.Context, from *coremodel.NIOS
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.Canonical = flex.FlattenStringPointerEmptyAsNull(from.Canonical)
-	m.CloudInfo = FlattenRecordCnameCloudInfo(ctx, from.CloudInfo, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Creator = flex.FlattenStringPointerEmptyAsNull(from.Creator)
 	m.DdnsPrincipal = flex.FlattenStringPointerEmptyAsNull(from.DdnsPrincipal)
