@@ -1,0 +1,71 @@
+package dns
+
+import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+
+// RecordCnameNIOSFieldMap maps infoblox model fields to NIOS struct fields
+var RecordCnameNIOSFieldMap = map[string]string{
+	"Id":                     "Ref",
+	"NIOS.Canonical":         "Canonical",
+	"NIOS.CloudInfo":         "CloudInfo",
+	"NIOS.Comment":           "Comment",
+	"NIOS.Creator":           "Creator",
+	"NIOS.DdnsPrincipal":     "DdnsPrincipal",
+	"NIOS.DdnsProtected":     "DdnsProtected",
+	"NIOS.Disable":           "Disable",
+	"NIOS.ForbidReclamation": "ForbidReclamation",
+	"NIOS.Name":              "Name",
+	"NIOS.Ttl":               "Ttl",
+	"NIOS.UseTtl":            "UseTtl",
+	"NIOS.View":              "View",
+}
+
+// RecordCnameUDDIFieldMap maps infoblox model fields to UDDI struct fields
+var RecordCnameUDDIFieldMap = map[string]string{
+	"UDDI.AbsoluteNameSpec":   "AbsoluteNameSpec",
+	"UDDI.Comment":            "Comment",
+	"UDDI.Disabled":           "Disabled",
+	"UDDI.InheritanceSources": "InheritanceSources",
+	"UDDI.NameInZone":         "NameInZone",
+	"UDDI.Options":            "Options",
+	"UDDI.Rdata":              "Rdata",
+	"UDDI.Tags":               "Tags",
+	"UDDI.Ttl":                "Ttl",
+	"UDDI.Type":               "Type",
+	"UDDI.View":               "View",
+	"UDDI.Zone":               "Zone",
+}
+
+// TODO: only searchable fields should be included here
+// RecordCnameFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
+var RecordCnameFilterFieldMap = map[core.BackendType]map[string]string{
+	core.BackendNIOS: {
+		"id":                      "_ref",
+		"nios.canonical":          "canonical",
+		"nios.cloud_info":         "cloud_info",
+		"nios.comment":            "comment",
+		"nios.creator":            "creator",
+		"nios.ddns_principal":     "ddns_principal",
+		"nios.ddns_protected":     "ddns_protected",
+		"nios.disable":            "disable",
+		"nios.ext_attrs":          "extattrs",
+		"nios.forbid_reclamation": "forbid_reclamation",
+		"nios.name":               "name",
+		"nios.ttl":                "ttl",
+		"nios.use_ttl":            "use_ttl",
+		"nios.view":               "view",
+	},
+	core.BackendUDDI: {
+		"uddi.absolute_name_spec":  "absolute_name_spec",
+		"uddi.comment":             "comment",
+		"uddi.disabled":            "disabled",
+		"uddi.inheritance_sources": "inheritance_sources",
+		"uddi.name_in_zone":        "name_in_zone",
+		"uddi.options":             "options",
+		"uddi.rdata":               "rdata",
+		"uddi.tags":                "tags",
+		"uddi.ttl":                 "ttl",
+		"uddi.type":                "type",
+		"uddi.view":                "view",
+		"uddi.zone":                "zone",
+	},
+}
