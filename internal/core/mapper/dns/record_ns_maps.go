@@ -6,7 +6,6 @@ import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 var RecordNsNIOSFieldMap = map[string]string{
 	"Id":                    "Ref",
 	"NIOS.Addresses":        "Addresses",
-	"NIOS.CloudInfo":        "CloudInfo",
 	"NIOS.MsDelegationName": "MsDelegationName",
 	"NIOS.Name":             "Name",
 	"NIOS.Nameserver":       "Nameserver",
@@ -35,7 +34,6 @@ var RecordNsFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendNIOS: {
 		"id":                      "_ref",
 		"nios.addresses":          "addresses",
-		"nios.cloud_info":         "cloud_info",
 		"nios.ms_delegation_name": "ms_delegation_name",
 		"nios.name":               "name",
 		"nios.nameserver":         "nameserver",

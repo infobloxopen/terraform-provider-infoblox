@@ -38,7 +38,6 @@ var RecordNsAttrTypes = map[string]attr.Type{
 
 type NIOSRecordNsModel struct {
 	Addresses        types.List   `tfsdk:"addresses"`
-	CloudInfo        types.Object `tfsdk:"cloud_info"`
 	MsDelegationName types.String `tfsdk:"ms_delegation_name"`
 	Name             types.String `tfsdk:"name"`
 	Nameserver       types.String `tfsdk:"nameserver"`
@@ -47,7 +46,6 @@ type NIOSRecordNsModel struct {
 
 var NIOSRecordNsAttrTypes = map[string]attr.Type{
 	"addresses":          types.ListType{ElemType: types.ObjectType{AttrTypes: RecordNsAddressesAttrTypes}},
-	"cloud_info":         types.ObjectType{AttrTypes: RecordNsCloudInfoAttrTypes},
 	"ms_delegation_name": types.StringType,
 	"name":               types.StringType,
 	"nameserver":         types.StringType,
@@ -119,11 +117,6 @@ var RecordNsResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of zone name servers.",
-	},
-	"cloud_info": schema.SingleNestedAttribute{
-		Attributes:          RecordNsCloudInfoResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
 	},
 	"ms_delegation_name": schema.StringAttribute{
 		Optional: true,
@@ -295,7 +288,6 @@ func (m *RecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics, isC
 func (m *NIOSRecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordNsExt {
 	return &coremodel.NIOSRecordNsExt{
 		Addresses:        flex.ExpandFrameworkListNestedBlock(ctx, m.Addresses, diags, ExpandRecordNsAddresses),
-		CloudInfo:        ExpandRecordNsCloudInfo(ctx, m.CloudInfo, diags),
 		MsDelegationName: flex.ExpandStringPointerNullAsEmpty(m.MsDelegationName),
 		Name:             flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Nameserver:       flex.ExpandStringPointerNullAsEmpty(m.Nameserver),
@@ -360,7 +352,6 @@ func (m *NIOSRecordNsModel) Flatten(ctx context.Context, from *coremodel.NIOSRec
 		return
 	}
 	m.Addresses = flex.FlattenFrameworkListNestedBlock(ctx, from.Addresses, RecordNsAddressesAttrTypes, diags, FlattenRecordNsAddresses)
-	m.CloudInfo = FlattenRecordNsCloudInfo(ctx, from.CloudInfo, diags)
 	m.MsDelegationName = flex.FlattenStringPointerEmptyAsNull(from.MsDelegationName)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Nameserver = flex.FlattenStringPointerEmptyAsNull(from.Nameserver)

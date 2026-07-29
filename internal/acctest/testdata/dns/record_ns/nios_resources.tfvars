@@ -2,14 +2,23 @@
 case "basic" {
   backend = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "example.com"
+      view = "default"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.name"                        = "example.com"
       "nios.nameserver"                  = "{{random}}.example.com"
@@ -27,14 +36,23 @@ case "disappears" {
   disappears = true
   expect_non_empty_plan = true
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "example.com"
+      view = "default"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
   }
 
 }
@@ -42,14 +60,23 @@ case "disappears" {
 case "addresses" {
   backend = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "example.com"
+      view = "default"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL1"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.addresses.0.address"         = "20.0.0.0"
       "nios.addresses.0.auto_create_ptr" = "false"
@@ -60,9 +87,10 @@ case "addresses" {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL2"
+      addresses  = [{address = "40.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.addresses.0.address"         = "40.0.0.0"
       "nios.addresses.0.auto_create_ptr" = "false"
@@ -73,9 +101,10 @@ case "addresses" {
     nios {
       name       = "example.com"
       nameserver = "ns1.example.com"
-      addresses  = "addressesHCL3"
+      addresses  = [{address = "40.0.0.0", auto_create_ptr = true}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.addresses.0.address"         = "40.0.0.0"
       "nios.addresses.0.auto_create_ptr" = "true"
@@ -87,14 +116,23 @@ case "addresses" {
 case "nameserver" {
   backend = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "example.com"
+      view = "default"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.nameserver" = "{{random}}.example.com"
     }
@@ -104,9 +142,10 @@ case "nameserver" {
     nios {
       name       = "example.com"
       nameserver = "{{random2}}.example.com"
-      addresses  = "addressesHCL"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
     check = {
       "nios.nameserver" = "{{random2}}.example.com"
     }
