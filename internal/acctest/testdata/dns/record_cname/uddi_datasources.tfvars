@@ -12,7 +12,9 @@ case "filters" {
 
   step {
     uddi {
-      zone  = infoblox_zone_auth.test.id
+      name_in_zone = "cname"
+      # zone  = infoblox_zone_auth.test.id
+      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
       rdata = { cname = "c" }
     }
   }
