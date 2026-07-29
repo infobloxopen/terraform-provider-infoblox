@@ -1,3 +1,4 @@
+// Create Record CNAME
 resource "infoblox_record_cname" "example" {
   uddi = {
     name_in_zone = "cname"
