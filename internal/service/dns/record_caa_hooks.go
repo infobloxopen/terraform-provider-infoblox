@@ -70,8 +70,8 @@ func ExpandUDDIRecordCaaRdata(ctx context.Context, o types.Object, diags *diag.D
 	rdata := map[string]any{
 		"tag":   flex.ExpandString(m.Tag),
 		"value": flex.ExpandString(m.Value),
+		"flags": flex.ExpandInt64(m.Flags),
 	}
-	rdata["flags"] = flex.ExpandInt64(m.Flags)
 	return rdata
 }
 
