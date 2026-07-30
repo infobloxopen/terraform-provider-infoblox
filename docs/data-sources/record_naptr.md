@@ -46,7 +46,7 @@ data "infoblox_record_naptr" "get_record_naptr_using_filters" {
 // Retrieve NAPTR records filtered by tag
 data "infoblox_record_naptr" "get_record_naptr_using_tag_filters" {
   tag_filters = {
-    region = "eu"
+    Site = "location-1"
   }
 }
 

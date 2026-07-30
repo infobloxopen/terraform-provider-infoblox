@@ -99,7 +99,7 @@ resource "infoblox_record_naptr" "example_additional_fields" {
     disabled = false
     ttl      = 3600
     tags = {
-      location = "site1"
+      Site = "location-1"
     }
   }
 }
