@@ -91,6 +91,13 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 
 	resourceAddr := resourceType + ".test"
 
+	// buildQueryChecks assembles two kinds of assertions for step 2:
+	//   (a) ExpectLength[AtLeast] – verifies the filter returned exactly the right
+	//       number of objects (1 for filtered, ≥1 for list-all).
+	//   (b) ExpectResourceKnownValues – verifies every scalar literal from the
+	//       create step appears with the same value in the query result, so we
+	//       know the list API round-trips all written fields, not just that some
+	//       object was returned.
 	queryChecks := buildQueryChecks(resourceAddr, lc)
 
 	tc := resource.TestCase{
@@ -123,41 +130,77 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 // Filtered cases assert an exact count of 1 and validate each filter attribute
 // on the returned resource object. List-all cases (empty FilterType) only
 // assert that at least one result is present.
+// In both cases, all scalar literal fields from the create step are also
+// verified via ExpectResourceKnownValues so the query result reflects what was
+// written — not just that a result was returned.
 func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResultCheck {
+	var checks []querycheck.QueryResultCheck
+
 	if lc.FilterType == "" {
-		return []querycheck.QueryResultCheck{
-			querycheck.ExpectLengthAtLeast(resourceAddr, 1),
-		}
+		checks = append(checks, querycheck.ExpectLengthAtLeast(resourceAddr, 1))
+	} else {
+		checks = append(checks, querycheck.ExpectLength(resourceAddr, 1))
 	}
 
-	checks := []querycheck.QueryResultCheck{
-		querycheck.ExpectLength(resourceAddr, 1),
-	}
-
-	// ExpectResourceKnownValues only works for simple filters (not EA/tag
-	// filters where the attribute path in the query result is structured
-	// differently from regular fields).
-	if lc.FilterType == "filters" {
-		var knownChecks []querycheck.KnownValueCheck
-		for _, key := range lc.FilterOrder {
-			refPath := lc.Filters[key]
-			val := resolveStepValue(refPath, lc)
-			if val == "" {
-				continue
-			}
-			knownChecks = append(knownChecks, querycheck.KnownValueCheck{
-				Path:       refPathToTFJSONPath(refPath),
-				KnownValue: knownvalue.StringExact(val),
-			})
-		}
-		if len(knownChecks) > 0 {
-			checks = append(checks, querycheck.ExpectResourceKnownValues(
-				resourceAddr, nil, knownChecks,
-			))
-		}
+	// Collect KnownValueChecks from all resolvable scalar step fields.
+	// For "filters" mode, filter-field values are always included; for all
+	// modes we additionally include non-filter scalar step fields so that
+	// fields like ipv4addr and view are verified in the query result.
+	knownChecks := buildStepKnownValueChecks(lc)
+	if len(knownChecks) > 0 {
+		checks = append(checks, querycheck.ExpectResourceKnownValues(
+			resourceAddr, nil, knownChecks,
+		))
 	}
 
 	return checks
+}
+
+// buildStepKnownValueChecks collects all resolvable scalar fields from the
+// create step and returns them as KnownValueChecks. Fields whose values are
+// resource references (RawExpr that cannot be resolved to a literal) are
+// skipped so only stable literal values are verified.
+func buildStepKnownValueChecks(lc *ListCase) []querycheck.KnownValueCheck {
+	var knownChecks []querycheck.KnownValueCheck
+	seen := make(map[string]bool)
+
+	addField := func(refPath string) {
+		if seen[refPath] {
+			return
+		}
+		val := resolveStepValue(refPath, lc)
+		if val == "" {
+			return
+		}
+		seen[refPath] = true
+		knownChecks = append(knownChecks, querycheck.KnownValueCheck{
+			Path:       refPathToTFJSONPath(refPath),
+			KnownValue: knownvalue.StringExact(val),
+		})
+	}
+
+	addSection := func(prefix string, m map[string]any) {
+		for k, v := range m {
+			if !isScalarValue(v) {
+				continue
+			}
+			path := k
+			if prefix != "" {
+				path = prefix + "." + k
+			}
+			addField(path)
+		}
+	}
+
+	addSection("", lc.Step.Common)
+	switch lc.Backend {
+	case "nios":
+		addSection("nios", lc.Step.NIOS)
+	case "uddi":
+		addSection("uddi", lc.Step.UDDI)
+	}
+
+	return knownChecks
 }
 
 // buildListBlock renders the `list "<resourceType>" "test" { ... }` HCL for a

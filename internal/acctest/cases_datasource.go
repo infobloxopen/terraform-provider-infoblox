@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/zclconf/go-cty/cty"
 )
 
 // DataSourceCase is a per-test-case data source acceptance configuration,
@@ -27,6 +28,9 @@ type DataSourceCase struct {
 	Filters          map[string]string // filter key -> resource attribute path (e.g. "name" -> "nios.name")
 	FilterOrder      []string          // filter keys in deterministic order
 	Step             CaseStep
+	// PairChecks lists backend-prefixed field paths (e.g. "nios.comment") to verify
+	// via TestCheckResourceAttrPair in addition to the scalar fields in Step.
+	PairChecks []string
 }
 
 // RunDataSourceCases loads every `case "<name>" { ... }` block from the merged
@@ -91,6 +95,11 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
+	// dataSourcePairChecks generates TestCheckResourceAttrPair assertions:
+	//   (a) one per scalar field in dc.Step (derived from the case's step config), and
+	//   (b) one per path in dc.PairChecks, which are extracted at generation time from
+	//       the legacy testAccCheck*AttrPair helpers (handles server-set fields like
+	//       absolute_name_spec that aren't in the tfvars step block).
 	checkFuncs = append(checkFuncs, dataSourcePairChecks(dsAddr, resourceAddr, dc)...)
 
 	tc := resource.TestCase{
@@ -149,6 +158,44 @@ func dataSourcePairChecks(dsAddr, resourceAddr string, dc *DataSourceCase) []res
 		add("nios", dc.Step.NIOS)
 	case "uddi":
 		add("uddi", dc.Step.UDDI)
+	}
+
+	// Collect paths already covered by the step-config pair checks above so we
+	// don't emit duplicates from PairChecks.
+	covered := make(map[string]bool, len(checks))
+	for _, fn := range checks {
+		_ = fn // not inspectable; track by re-deriving covered paths below
+	}
+	// Re-derive covered paths from step config.
+	addCovered := func(prefix string, m map[string]any) {
+		for k, v := range m {
+			if !isScalarValue(v) {
+				continue
+			}
+			path := k
+			if prefix != "" {
+				path = prefix + "." + k
+			}
+			covered[path] = true
+		}
+	}
+	addCovered("", dc.Step.Common)
+	switch dc.Backend {
+	case "nios":
+		addCovered("nios", dc.Step.NIOS)
+	case "uddi":
+		addCovered("uddi", dc.Step.UDDI)
+	}
+
+	for _, path := range dc.PairChecks {
+		if covered[path] {
+			continue
+		}
+		checks = append(checks, resource.TestCheckResourceAttrPair(
+			dsAddr, "results.0."+path,
+			resourceAddr, path,
+		))
+		covered[path] = true
 	}
 
 	return checks
@@ -295,6 +342,7 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 			{Name: "skip"},
 			{Name: "skip_reason"},
 			{Name: "prerequisites_hcl"},
+			{Name: "pair_checks"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "filter"},
@@ -321,6 +369,18 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		dc.PrerequisitesHCL = val.AsString()
+	}
+	if attr, ok := content.Attributes["pair_checks"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		if val.CanIterateElements() {
+			it := val.ElementIterator()
+			for it.Next() {
+				_, v := it.Element()
+				if v.Type() == cty.String {
+					dc.PairChecks = append(dc.PairChecks, v.AsString())
+				}
+			}
+		}
 	}
 
 	for _, block := range content.Blocks {

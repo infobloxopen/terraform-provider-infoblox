@@ -15,6 +15,37 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
+// # Acceptance test infrastructure – verification flow
+//
+// Test cases for every object are generated from the legacy hand-written tests
+// and stored as HCL `case "<name>" { ... }` blocks in the testdata directory:
+//
+//	testdata/<pkg>/<object>/<backend>_resources.tfvars   – resource cases
+//	testdata/<pkg>/<object>/<backend>_datasources.tfvars – data source cases
+//	testdata/<pkg>/<object>/<backend>_lists.tfvars       – list/query cases
+//
+// Each file carries the field values that were exercised in the original test.
+// At runtime the framework reads those values, builds Terraform HCL on the fly,
+// applies it against a live backend, and then verifies the API round-tripped the
+// values correctly. Verification strategy per test type:
+//
+//   - Resource (RunResourceCases / runResourceCase):
+//     step.Checks (key → literal string) → resource.TestCheckResourceAttr
+//     One check per scalar field declared in the case.
+//
+//   - Datasource (RunDataSourceCases / runDataSourceCase):
+//     (a) step config scalar fields → resource.TestCheckResourceAttrPair
+//         asserts data.results.0.<path> == resource.<path> for each field.
+//     (b) PairChecks (extracted from legacy testAccCheck*AttrPair helpers) →
+//         additional resource.TestCheckResourceAttrPair for fields not in the
+//         step config (e.g. fields set by the server, like absolute_name_spec).
+//
+//   - List (RunListCases / runListCase):
+//     Step 1 creates the resource; step 2 runs a list/query and asserts:
+//     (a) querycheck.ExpectLength[AtLeast] – correct number of results.
+//     (b) querycheck.ExpectResourceKnownValues – every scalar literal field
+//         from the create step appears with the same value in the query result.
+
 // ExtractNIOSRef strips the leading object-type segment from a full NIOS _ref
 // (e.g. "record:a/ZG5z..." -> "ZG5z..."). Acceptance check helpers that call
 // the raw NIOS SDK must use this, since the SDK re-applies the type prefix.
@@ -122,6 +153,8 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 		if rc.Disappears && checks.Disappears != nil {
 			checkFuncs = append(checkFuncs, checks.Disappears(resourceAddr))
 		}
+		// Values come from step.Checks, populated at generation time from the
+		// legacy test's resource.TestCheckResourceAttr calls.
 		for attr, expected := range st.Checks {
 			checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(resourceAddr, attr, expected))
 		}
