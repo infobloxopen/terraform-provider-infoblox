@@ -2,34 +2,26 @@
 case "rdata" {
   backend = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "test" {
-    uddi = {
-      fqdn = "{{random}}.com."
-      primary_type = "cloud"
-    }
-  }
-  PREREQ
 
   step {
     uddi {
       name_in_zone = "ns"
-      rdata        = { dname = "ns1.example.com" }
-      zone         = infoblox_zone_auth.test.id
+      rdata        = { dname = "ns4.zone.com." }
+      zone         = "dns/auth_zone/0060207e-7664-4742-8eed-2d8e34db0035"
     }
     check = {
-      "uddi.rdata.dname" = "ns1.example.com"
+      "uddi.rdata.dname" = "ns4.zone.com."
     }
   }
 
   step {
     uddi {
       name_in_zone = "ns"
-      rdata        = { dname = "ns2.example.com" }
-      zone         = infoblox_zone_auth.test.id
+      rdata        = { dname = "ns3.zone.com." }
+      zone         = "dns/auth_zone/0060207e-7664-4742-8eed-2d8e34db0035"
     }
     check = {
-      "uddi.rdata.dname" = "ns2.example.com"
+      "uddi.rdata.dname" = "ns3.zone.com."
     }
   }
 
