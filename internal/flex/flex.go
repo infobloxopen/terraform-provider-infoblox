@@ -549,3 +549,18 @@ func RDataBoolPtr(v any) *bool {
 	}
 	return nil
 }
+
+// RDataInt64Ptr coerces an untyped map value to *int64. rdata is a decoded JSON
+// object, so a numeric subfield is a float64 rather than an integer type.
+func RDataInt64Ptr(v any) *int64 {
+	switch t := v.(type) {
+	case float64:
+		i := int64(t)
+		return &i
+	case string:
+		if i, err := strconv.ParseInt(t, 10, 64); err == nil {
+			return &i
+		}
+	}
+	return nil
+}
