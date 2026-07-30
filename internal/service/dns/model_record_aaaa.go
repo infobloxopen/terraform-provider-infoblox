@@ -28,19 +28,19 @@ import (
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
-type RecordAModel struct {
+type RecordAaaaModel struct {
 	Id   types.String `tfsdk:"id"`
 	NIOS types.Object `tfsdk:"nios"`
 	UDDI types.Object `tfsdk:"uddi"`
 }
 
-var RecordAAttrTypes = map[string]attr.Type{
+var RecordAaaaAttrTypes = map[string]attr.Type{
 	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSRecordAAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDIRecordAAttrTypes},
+	"nios": types.ObjectType{AttrTypes: NIOSRecordAaaaAttrTypes},
+	"uddi": types.ObjectType{AttrTypes: UDDIRecordAaaaAttrTypes},
 }
 
-type NIOSRecordAModel struct {
+type NIOSRecordAaaaModel struct {
 	Comment           types.String        `tfsdk:"comment"`
 	Creator           types.String        `tfsdk:"creator"`
 	DdnsPrincipal     types.String        `tfsdk:"ddns_principal"`
@@ -49,14 +49,14 @@ type NIOSRecordAModel struct {
 	ExtAttrs          types.Map           `tfsdk:"ext_attrs"`
 	ExtAttrsAll       types.Map           `tfsdk:"ext_attrs_all"`
 	ForbidReclamation types.Bool          `tfsdk:"forbid_reclamation"`
-	Ipv4addr          iptypes.IPv4Address `tfsdk:"ipv4addr"`
+	Ipv6addr          iptypes.IPv6Address `tfsdk:"ipv6addr"`
 	Name              types.String        `tfsdk:"name"`
 	Ttl               types.Int64         `tfsdk:"ttl"`
 	View              types.String        `tfsdk:"view"`
 	DynamicAllocation types.Object        `tfsdk:"dynamic_allocation"`
 }
 
-var NIOSRecordAAttrTypes = map[string]attr.Type{
+var NIOSRecordAaaaAttrTypes = map[string]attr.Type{
 	"comment":            types.StringType,
 	"creator":            types.StringType,
 	"ddns_principal":     types.StringType,
@@ -65,14 +65,14 @@ var NIOSRecordAAttrTypes = map[string]attr.Type{
 	"ext_attrs":          types.MapType{ElemType: types.StringType},
 	"ext_attrs_all":      types.MapType{ElemType: types.StringType},
 	"forbid_reclamation": types.BoolType,
-	"ipv4addr":           iptypes.IPv4AddressType{},
+	"ipv6addr":           iptypes.IPv6AddressType{},
 	"name":               types.StringType,
 	"ttl":                types.Int64Type,
 	"view":               types.StringType,
 	"dynamic_allocation": types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
 
-type UDDIRecordAModel struct {
+type UDDIRecordAaaaModel struct {
 	AbsoluteNameSpec   types.String `tfsdk:"absolute_name_spec"`
 	Comment            types.String `tfsdk:"comment"`
 	Disabled           types.Bool   `tfsdk:"disabled"`
@@ -88,14 +88,14 @@ type UDDIRecordAModel struct {
 	Zone               types.String `tfsdk:"zone"`
 }
 
-var UDDIRecordAAttrTypes = map[string]attr.Type{
+var UDDIRecordAaaaAttrTypes = map[string]attr.Type{
 	"absolute_name_spec":  types.StringType,
 	"comment":             types.StringType,
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
-	"options":             types.ObjectType{AttrTypes: UDDIRecordAOptionsAttrTypes},
-	"rdata":               types.ObjectType{AttrTypes: UDDIRecordARdataAttrTypes},
+	"options":             types.ObjectType{AttrTypes: UDDIRecordAaaaOptionsAttrTypes},
+	"rdata":               types.ObjectType{AttrTypes: UDDIRecordAaaaRdataAttrTypes},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
 	"ttl":                 types.Int64Type,
@@ -105,12 +105,12 @@ var UDDIRecordAAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordAType            = "A"
-	RecordAInheritanceType = "full"
-	RecordAReturnFields    = "aws_rte53_record_info,cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,discovered_data,dns_name,extattrs,forbid_reclamation,ipv4addr,last_queried,ms_ad_user_data,name,reclaimable,shared_record_group,ttl,use_ttl,view,zone"
+	RecordAaaaType            = "Aaaa"
+	RecordAaaaInheritanceType = "full"
+	RecordAaaaReturnFields    = "aws_rte53_record_info,cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,discovered_data,dns_name,extattrs,forbid_reclamation,ipv6addr,last_queried,ms_ad_user_data,name,reclaimable,shared_record_group,ttl,use_ttl,view,zone"
 )
 
-var RecordAResourceSchemaAttributes = map[string]schema.Attribute{
+var RecordAaaaResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
@@ -118,16 +118,16 @@ var RecordAResourceSchemaAttributes = map[string]schema.Attribute{
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
-		Attributes:          RecordAResourceNiosSchemaAttributes,
+		Attributes:          RecordAaaaResourceNiosSchemaAttributes,
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "UDDI backend-specific fields.",
-		Attributes:          RecordAResourceUddiSchemaAttributes,
+		Attributes:          RecordAaaaResourceUddiSchemaAttributes,
 	},
 }
 
-var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
+var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
@@ -147,6 +147,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_principal": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -188,17 +189,17 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if the reclamation is allowed for the record or not.",
 	},
-	"ipv4addr": schema.StringAttribute{
+	"ipv6addr": schema.StringAttribute{
 		Optional:   true,
 		Computed:   true,
-		CustomType: iptypes.IPv4AddressType{},
+		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
 				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
 			),
 			customvalidator.StringNotEmpty(),
 		},
-		MarkdownDescription: "The IPv4 Address of the record.",
+		MarkdownDescription: "The IPv6 Address of the record.",
 	},
 	"name": schema.StringAttribute{
 		Required: true,
@@ -206,12 +207,12 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidDomainName(),
 		},
-		MarkdownDescription: "Name for A record in FQDN format. This value can be in unicode format.",
+		MarkdownDescription: "Name for the AAAA record in FQDN format. This value can be in unicode format.",
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
+		MarkdownDescription: "The Time To Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
 		Default:  stringdefault.StaticString("default"),
@@ -232,7 +233,7 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
+var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"absolute_name_spec": schema.StringAttribute{
 		Optional: true,
 		Computed: true,
@@ -279,14 +280,14 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
 	},
 	"options": schema.SingleNestedAttribute{
-		Attributes:          UDDIRecordAOptionsResourceSchemaAttributes,
+		Attributes:          UDDIRecordAaaaOptionsResourceSchemaAttributes,
 		Optional:            true,
 		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------",
 	},
 	"rdata": schema.SingleNestedAttribute{
-		Attributes:          UDDIRecordARdataResourceSchemaAttributes,
+		Attributes:          UDDIRecordAaaaRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.    Subfields for _A_ (Address) record:  Subfield | Description                           |Required ---------|---------------------------------------|-------- address  | The IPv4 address of the host.<br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _AAAA_ (IPv6 Address) record:  Subfield | Description                           | Required ---------|---------------------------------------|--------- address  | The IPv6 address of the host.<br><br> | Yes",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -309,7 +310,7 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.",
 	},
 	"type": schema.StringAttribute{
-		Default:             stringdefault.StaticString("A"),
+		Default:             stringdefault.StaticString("AAAA"),
 		Computed:            true,
 		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
 	},
@@ -345,21 +346,21 @@ var RecordAResourceUddiSchemaAttributes = map[string]schema.Attribute{
 }
 
 // Expand converts the TF model to the infoblox core model
-func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.RecordA {
+func (m *RecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.RecordAaaa {
 	if m == nil {
 		return nil
 	}
 
-	obj := &coremodel.RecordA{}
+	obj := &coremodel.RecordAaaa{}
 
 	// Expand NIOS nested attribute (returns nil if not present)
-	niosModel := flex.ExpandNestedObject[NIOSRecordAModel](ctx, m.NIOS, diags)
+	niosModel := flex.ExpandNestedObject[NIOSRecordAaaaModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
-	uddiModel := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
+	uddiModel := flex.ExpandNestedObject[UDDIRecordAaaaModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
 		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
@@ -368,8 +369,8 @@ func (m *RecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordAExt {
-	ext := &coremodel.NIOSRecordAExt{
+func (m *NIOSRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordAaaaExt {
+	ext := &coremodel.NIOSRecordAaaaExt{
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Creator:           flex.ExpandStringPointerNullAsEmpty(m.Creator),
 		DdnsPrincipal:     flex.ExpandStringPointerNullAsEmpty(m.DdnsPrincipal),
@@ -377,21 +378,21 @@ func (m *NIOSRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Disable:           flex.ExpandBoolPointer(m.Disable),
 		ExtAttrs:          flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		ForbidReclamation: flex.ExpandBoolPointer(m.ForbidReclamation),
-		Ipv4addr:          flex.ExpandIPv4Address(m.Ipv4addr),
+		Ipv6addr:          flex.ExpandIPv6Address(m.Ipv6addr),
 		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
 	}
 	if isCreate {
 		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
-		ext.FuncCall = BuildRecordAFuncCall(ctx, m.DynamicAllocation, diags)
+		ext.FuncCall = BuildRecordAaaaFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
 }
 
-// ApplyRecordANIOSUseFlags derives NIOS use flags from the raw config
+// ApplyRecordAaaaNIOSUseFlags derives NIOS use flags from the raw config
 // value(s) and writes them onto the core model. A flag is true when the user
 // set any of its governed value fields in config.
-func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremodel.RecordA, diags *diag.Diagnostics) {
+func ApplyRecordAaaaNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremodel.RecordAaaa, diags *diag.Diagnostics) {
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
@@ -399,15 +400,15 @@ func ApplyRecordANIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *cor
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIRecordAExt {
-	ext := &coremodel.UDDIRecordAExt{
+func (m *UDDIRecordAaaaModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIRecordAaaaExt {
+	ext := &coremodel.UDDIRecordAaaaExt{
 		AbsoluteNameSpec:   flex.ExpandStringPointer(m.AbsoluteNameSpec),
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
-		Options:            ExpandUDDIRecordAOptions(ctx, m.Options, diags),
-		Rdata:              ExpandUDDIRecordARdata(ctx, m.Rdata, diags),
+		Options:            ExpandUDDIRecordAaaaOptions(ctx, m.Options, diags),
+		Rdata:              ExpandUDDIRecordAaaaRdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
 	}
@@ -420,7 +421,7 @@ func (m *UDDIRecordAModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 }
 
 // Flatten populates the TF model from a core response.
-func (m *RecordAModel) Flatten(ctx context.Context, resp *coremodel.RecordA, diags *diag.Diagnostics) {
+func (m *RecordAaaaModel) Flatten(ctx context.Context, resp *coremodel.RecordAaaa, diags *diag.Diagnostics) {
 	if resp == nil {
 		return
 	}
@@ -428,34 +429,34 @@ func (m *RecordAModel) Flatten(ctx context.Context, resp *coremodel.RecordA, dia
 	m.Id = flex.FlattenStringPointer(resp.Id)
 
 	// Extract existing NIOS model, flatten API response onto it, convert back
-	niosModel := flex.ExpandNestedObject[NIOSRecordAModel](ctx, m.NIOS, diags)
+	niosModel := flex.ExpandNestedObject[NIOSRecordAaaaModel](ctx, m.NIOS, diags)
 	if niosModel == nil {
-		niosModel = &NIOSRecordAModel{}
+		niosModel = &NIOSRecordAaaaModel{}
 	}
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSRecordAAttrTypes, diags)
+		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSRecordAaaaAttrTypes, diags)
 	} else {
-		m.NIOS = types.ObjectNull(NIOSRecordAAttrTypes)
+		m.NIOS = types.ObjectNull(NIOSRecordAaaaAttrTypes)
 	}
 
 	// Extract existing UDDI model, flatten API response onto it, convert back
-	uddiModel := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
+	uddiModel := flex.ExpandNestedObject[UDDIRecordAaaaModel](ctx, m.UDDI, diags)
 	if uddiModel == nil {
-		uddiModel = &UDDIRecordAModel{}
+		uddiModel = &UDDIRecordAaaaModel{}
 	}
-	plannedUDDI := flex.ExpandNestedObject[UDDIRecordAModel](ctx, m.UDDI, diags)
+	plannedUDDI := flex.ExpandNestedObject[UDDIRecordAaaaModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
-		PostFlattenRecordAUDDI(ctx, plannedUDDI, uddiModel, diags)
-		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIRecordAAttrTypes, diags)
+		PostFlattenRecordAaaaUDDI(ctx, plannedUDDI, uddiModel, diags)
+		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIRecordAaaaAttrTypes, diags)
 	} else {
-		m.UDDI = types.ObjectNull(UDDIRecordAAttrTypes)
+		m.UDDI = types.ObjectNull(UDDIRecordAaaaAttrTypes)
 	}
 }
 
 // Flatten merges API response onto existing NIOS model.
-func (m *NIOSRecordAModel) Flatten(ctx context.Context, from *coremodel.NIOSRecordAExt, diags *diag.Diagnostics) {
+func (m *NIOSRecordAaaaModel) Flatten(ctx context.Context, from *coremodel.NIOSRecordAaaaExt, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}
@@ -470,7 +471,7 @@ func (m *NIOSRecordAModel) Flatten(ctx context.Context, from *coremodel.NIOSReco
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.ForbidReclamation = flex.FlattenBoolPointer(from.ForbidReclamation)
-	m.Ipv4addr = flex.FlattenIPv4Address(from.Ipv4addr)
+	m.Ipv6addr = flex.FlattenIPv6Address(from.Ipv6addr)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
@@ -480,7 +481,7 @@ func (m *NIOSRecordAModel) Flatten(ctx context.Context, from *coremodel.NIOSReco
 }
 
 // Flatten merges API response onto existing UDDI model.
-func (m *UDDIRecordAModel) Flatten(ctx context.Context, from *coremodel.UDDIRecordAExt, diags *diag.Diagnostics) {
+func (m *UDDIRecordAaaaModel) Flatten(ctx context.Context, from *coremodel.UDDIRecordAaaaExt, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}
@@ -489,8 +490,8 @@ func (m *UDDIRecordAModel) Flatten(ctx context.Context, from *coremodel.UDDIReco
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
-	m.Options = FlattenUDDIRecordAOptions(ctx, from.Options, diags)
-	m.Rdata = FlattenUDDIRecordARdata(ctx, from.Rdata, diags)
+	m.Options = FlattenUDDIRecordAaaaOptions(ctx, from.Options, diags)
+	m.Rdata = FlattenUDDIRecordAaaaRdata(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
