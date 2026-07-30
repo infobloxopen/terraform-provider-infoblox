@@ -333,7 +333,7 @@ func (m *RecordDnameModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -346,8 +346,8 @@ func (m *RecordDnameModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSRecordDnameModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordDnameExt {
-	return &coremodel.NIOSRecordDnameExt{
+func (m *NIOSRecordDnameModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordDnameExt {
+	ext := &coremodel.NIOSRecordDnameExt{
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Creator:           flex.ExpandStringPointerNullAsEmpty(m.Creator),
 		DdnsPrincipal:     flex.ExpandStringPointerNullAsEmpty(m.DdnsPrincipal),
@@ -358,8 +358,11 @@ func (m *NIOSRecordDnameModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Target:            flex.ExpandStringPointerNullAsEmpty(m.Target),
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
-		View:              flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
+	if isCreate {
+		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
+	}
+	return ext
 }
 
 // ApplyRecordDnameNIOSUseFlags derives NIOS use flags from the raw config
