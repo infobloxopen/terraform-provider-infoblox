@@ -521,6 +521,14 @@ func FlattenFrameworkListNestedBlock[T any, U any](ctx context.Context, data []T
 	return tfList
 }
 
+// RDataString coerces an untyped map value to string.
+func RDataString(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return ""
+}
+
 // RDataStringPtr coerces an untyped map value to *string
 func RDataStringPtr(v any) *string {
 	if s, ok := v.(string); ok && s != "" {
