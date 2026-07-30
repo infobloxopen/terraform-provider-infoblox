@@ -96,13 +96,8 @@ func ExpandUDDIRecordNaptrRdata(ctx context.Context, o types.Object, diags *diag
 		"preference":  flex.ExpandInt64(m.Preference),
 		"replacement": flex.ExpandString(m.Replacement),
 		"services":    flex.ExpandString(m.Services),
-	}
-	// Optional subfields are only sent when configured.
-	if !m.Flags.IsNull() && !m.Flags.IsUnknown() {
-		to["flags"] = flex.ExpandString(m.Flags)
-	}
-	if !m.Regexp.IsNull() && !m.Regexp.IsUnknown() {
-		to["regexp"] = flex.ExpandString(m.Regexp)
+		"flags":       flex.ExpandString(m.Flags),
+		"regexp":      flex.ExpandString(m.Regexp),
 	}
 	return to
 }
