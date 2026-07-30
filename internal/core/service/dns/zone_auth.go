@@ -396,6 +396,7 @@ func mapNIOSZoneAuthToResponse(r *niosdns.ZoneAuth) *dns.ZoneAuth {
 		DdnsRestrictStatic:                  r.DdnsRestrictStatic,
 		Disable:                             r.Disable,
 		DisableForwarding:                   r.DisableForwarding,
+		DisplayDomain:                       r.DisplayDomain,
 		DnsIntegrityEnable:                  r.DnsIntegrityEnable,
 		DnsIntegrityFrequency:               r.DnsIntegrityFrequency,
 		DnsIntegrityMember:                  r.DnsIntegrityMember,

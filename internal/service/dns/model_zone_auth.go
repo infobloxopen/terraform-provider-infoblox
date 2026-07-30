@@ -66,6 +66,7 @@ type NIOSZoneAuthModel struct {
 	DdnsRestrictStatic               types.Bool                          `tfsdk:"ddns_restrict_static"`
 	Disable                          types.Bool                          `tfsdk:"disable"`
 	DisableForwarding                types.Bool                          `tfsdk:"disable_forwarding"`
+	DisplayDomain                    types.String                        `tfsdk:"display_domain"`
 	DnsIntegrityEnable               types.Bool                          `tfsdk:"dns_integrity_enable"`
 	DnsIntegrityFrequency            types.Int64                         `tfsdk:"dns_integrity_frequency"`
 	DnsIntegrityMember               types.String                        `tfsdk:"dns_integrity_member"`
@@ -137,6 +138,7 @@ var NIOSZoneAuthAttrTypes = map[string]attr.Type{
 	"ddns_restrict_static":                 types.BoolType,
 	"disable":                              types.BoolType,
 	"disable_forwarding":                   types.BoolType,
+	"display_domain":                       types.StringType,
 	"dns_integrity_enable":                 types.BoolType,
 	"dns_integrity_frequency":              types.Int64Type,
 	"dns_integrity_member":                 types.StringType,
@@ -411,6 +413,10 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether the name servers that host the zone should forward queries (ended with the domain name of the zone) to any configured forwarders.",
+	},
+	"display_domain": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "The displayed name of the DNS zone.",
 	},
 	"dns_integrity_enable": schema.BoolAttribute{
 		Optional:            true,
@@ -1153,6 +1159,7 @@ func (m *NIOSZoneAuthModel) Flatten(ctx context.Context, from *coremodel.NIOSZon
 	m.DdnsRestrictStatic = flex.FlattenBoolPointer(from.DdnsRestrictStatic)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.DisableForwarding = flex.FlattenBoolPointer(from.DisableForwarding)
+	m.DisplayDomain = flex.FlattenStringPointerEmptyAsNull(from.DisplayDomain)
 	m.DnsIntegrityEnable = flex.FlattenBoolPointer(from.DnsIntegrityEnable)
 	m.DnsIntegrityFrequency = flex.FlattenInt64Pointer(from.DnsIntegrityFrequency)
 	m.DnsIntegrityMember = flex.FlattenStringPointerEmptyAsNull(from.DnsIntegrityMember)

@@ -106,6 +106,7 @@ Read-Only:
 - `ddns_restrict_static` (Boolean) The flag that indicates whether an option to restrict DDNS update request to resource records which are marked as 'STATIC' is enabled or disabled.
 - `disable` (Boolean) Determines whether a zone is disabled or not. When this is set to False, the zone is enabled.
 - `disable_forwarding` (Boolean) Determines whether the name servers that host the zone should forward queries (ended with the domain name of the zone) to any configured forwarders.
+- `display_domain` (String) The displayed name of the DNS zone.
 - `dns_integrity_enable` (Boolean) If this is set to True, DNS integrity check is enabled for this zone.
 - `dns_integrity_frequency` (Number) The frequency, in seconds, of DNS integrity checks for this zone.
 - `dns_integrity_member` (String) The Grid member that performs DNS integrity checks for this zone.

@@ -231,6 +231,7 @@ Optional:
 
 Read-Only:
 
+- `display_domain` (String) The displayed name of the DNS zone.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 
 <a id="nestedatt--nios--allow_active_dir"></a>
