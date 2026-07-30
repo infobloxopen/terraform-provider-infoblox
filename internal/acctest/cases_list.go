@@ -3,6 +3,7 @@ package acctest
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -32,6 +33,10 @@ type ListCase struct {
 	Filters      map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
 	FilterOrder  []string          // filter keys in deterministic order
 	Step         CaseStep          // resource-create step
+	// PrerequisitesHCL holds resources the create step references (e.g. the auth
+	// zone a record lives in). It is prepended to both steps' configs, since the
+	// query step must keep the created resource alive.
+	PrerequisitesHCL string
 }
 
 // RunListCases loads every `case "<name>" { ... }` block from the merged
@@ -79,8 +84,10 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 	resourceHCL := buildCaseHCL(resourceType, "test", lc.Backend, lc.Step)
 	listHCL := buildListBlock(resourceType, lc)
 
-	t.Logf("Case %q create HCL:\n%s", lc.Name, providerConfig+"\n"+resourceHCL)
-	t.Logf("Case %q list HCL:\n%s", lc.Name, providerConfig+"\n"+listHCL)
+	createConfig := providerConfig + "\n" + lc.PrerequisitesHCL + "\n" + resourceHCL
+
+	t.Logf("Case %q create HCL:\n%s", lc.Name, createConfig)
+	t.Logf("Case %q list HCL:\n%s", lc.Name, listHCL)
 
 	resourceAddr := resourceType + ".test"
 
@@ -90,7 +97,7 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 		ProtoV6ProviderFactories: ProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: providerConfig + "\n" + resourceHCL,
+				Config: createConfig,
 				Check:  resource.ComposeTestCheckFunc(checks.Exists(resourceAddr)),
 			},
 			{
@@ -134,7 +141,7 @@ func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResul
 		var knownChecks []querycheck.KnownValueCheck
 		for _, key := range lc.FilterOrder {
 			refPath := lc.Filters[key]
-			val := resolveStepValue(refPath, lc.Step)
+			val := resolveStepValue(refPath, lc)
 			if val == "" {
 				continue
 			}
@@ -172,7 +179,7 @@ func buildListBlock(resourceType string, lc *ListCase) string {
 		sb.WriteString(fmt.Sprintf("    %s = {\n", lc.FilterType))
 		for _, key := range lc.FilterOrder {
 			refPath := lc.Filters[key]
-			val := resolveStepValue(refPath, lc.Step)
+			val := resolveStepValue(refPath, lc)
 			if val != "" {
 				sb.WriteString(fmt.Sprintf("      %s = %q\n", key, val))
 			}
@@ -186,8 +193,9 @@ func buildListBlock(resourceType string, lc *ListCase) string {
 }
 
 // resolveStepValue looks up the materialized value for a resource attribute
-// reference path (e.g. "nios.network", "nios.ext_attrs.Site") in the step.
-func resolveStepValue(refPath string, step CaseStep) string {
+// reference path (e.g. "nios.network", "nios.ext_attrs.Site") in the case's
+// create step.
+func resolveStepValue(refPath string, lc *ListCase) string {
 	parts := strings.SplitN(refPath, ".", 2)
 	if len(parts) < 2 {
 		return ""
@@ -197,11 +205,11 @@ func resolveStepValue(refPath string, step CaseStep) string {
 	var m map[string]any
 	switch section {
 	case "nios":
-		m = step.NIOS
+		m = lc.Step.NIOS
 	case "uddi":
-		m = step.UDDI
+		m = lc.Step.UDDI
 	default:
-		m = step.Common
+		m = lc.Step.Common
 	}
 
 	// Handle simple path like "network" and nested like "ext_attrs.Site"
@@ -211,20 +219,117 @@ func resolveStepValue(refPath string, step CaseStep) string {
 		return ""
 	}
 	if len(attrParts) == 1 {
-		if s, ok := raw.(string); ok {
-			return s
-		}
-		return ""
+		return stepScalarValue(raw, lc.PrerequisitesHCL)
 	}
 	// Nested map (e.g. ext_attrs.Site)
 	nested, ok := raw.(map[string]any)
 	if !ok {
 		return ""
 	}
-	if s, ok := nested[attrParts[1]].(string); ok {
-		return s
+	return stepScalarValue(nested[attrParts[1]], lc.PrerequisitesHCL)
+}
+
+// stepScalarValue renders a single step-config value as the concrete string a
+// filter needs. String literals pass through; expressions kept as RawExpr (e.g.
+// "{{random}}.${infoblox_zone_auth.test.nios.fqdn}") are resolved against the
+// prerequisites HCL, since a query step's config holds only the list block and
+// so cannot reference the created resource. Non-string scalars are not usable as
+// filter values and yield "".
+func stepScalarValue(raw any, prereqHCL string) string {
+	switch v := raw.(type) {
+	case string:
+		return v
+	case RawExpr:
+		return resolveRawExpr(string(v), prereqHCL)
+	default:
+		return ""
 	}
-	return ""
+}
+
+// prereqRefPattern matches an attribute reference inside a raw HCL expression,
+// either interpolated ("${infoblox_zone_auth.test.nios.fqdn}") or bare
+// (infoblox_zone_auth.test.nios.fqdn).
+var prereqRefPattern = regexp.MustCompile(`\$\{\s*([a-zA-Z_][\w-]*(?:\.[\w-]+)+)\s*\}|([a-zA-Z_][\w-]*(?:\.[\w-]+)+)`)
+
+// resolveRawExpr reduces a raw HCL expression to a literal by substituting every
+// reference to a prerequisite resource attribute. It returns "" when the
+// expression references something the prerequisites do not define as a literal
+// (e.g. a computed attribute such as a zone's view), so the caller skips that
+// filter rather than emitting an unresolved reference.
+func resolveRawExpr(raw, prereqHCL string) string {
+	expr := strings.TrimSpace(raw)
+	if len(expr) >= 2 && strings.HasPrefix(expr, `"`) && strings.HasSuffix(expr, `"`) {
+		expr = expr[1 : len(expr)-1]
+	}
+
+	matches := prereqRefPattern.FindAllStringSubmatch(expr, -1)
+	if len(matches) == 0 {
+		return ""
+	}
+
+	literals := prereqAttrLiterals(prereqHCL)
+	for _, m := range matches {
+		ref := m[1]
+		if ref == "" {
+			ref = m[2]
+		}
+		val, ok := literals[ref]
+		if !ok {
+			return ""
+		}
+		expr = strings.ReplaceAll(expr, m[0], val)
+	}
+	return expr
+}
+
+// prereqAttrLiterals maps each literal attribute of the materialized
+// prerequisites HCL to the reference path Terraform uses for it, e.g.
+// "infoblox_zone_auth.test.nios.fqdn" -> "tf-acc-test-abc.com". Computed and
+// non-literal attributes are absent.
+func prereqAttrLiterals(prereqHCL string) map[string]string {
+	literals := make(map[string]string)
+	if strings.TrimSpace(prereqHCL) == "" {
+		return literals
+	}
+
+	file, diags := hclparse.NewParser().ParseHCL([]byte(prereqHCL), "prerequisites.hcl")
+	if diags.HasErrors() {
+		return literals
+	}
+	content, _, _ := file.Body.PartialContent(&hcl.BodySchema{
+		Blocks: []hcl.BlockHeaderSchema{
+			{Type: "resource", LabelNames: []string{"type", "name"}},
+		},
+	})
+
+	for _, block := range content.Blocks {
+		prefix := block.Labels[0] + "." + block.Labels[1]
+		attrs, _ := block.Body.JustAttributes()
+		for name, attr := range attrs {
+			val, valDiags := attr.Expr.Value(nil)
+			if valDiags.HasErrors() || !val.IsWhollyKnown() {
+				continue
+			}
+			flattenLiteral(literals, prefix+"."+name, ctyToGo(val))
+		}
+	}
+	return literals
+}
+
+// flattenLiteral records scalars at their full reference path, recursing into
+// nested objects so config blocks like `nios = { fqdn = "..." }` are reachable
+// as "<type>.<name>.nios.fqdn". Lists and nulls have no usable reference path.
+func flattenLiteral(out map[string]string, path string, v any) {
+	switch t := v.(type) {
+	case nil, []any:
+		return
+	case map[string]any:
+		for k, vv := range t {
+			flattenLiteral(out, path+"."+k, vv)
+		}
+	default:
+		out[path] = fmt.Sprintf("%v", t)
+	}
 }
 
 // refPathToTFJSONPath converts a resource attribute ref path like "nios.network"
@@ -252,15 +357,22 @@ func (lc *ListCase) materialize() {
 		return v
 	}
 
+	substitute := func(s string) string {
+		for _, ph := range placeholderPattern.FindAllString(s, -1) {
+			s = strings.ReplaceAll(s, ph, value(ph))
+		}
+		return s
+	}
+
 	var replace func(v any) any
 	replace = func(v any) any {
 		switch t := v.(type) {
+		case RawExpr:
+			// A raw HCL expression can still embed placeholders (see the RawExpr
+			// handling in ResourceCase.materialize).
+			return RawExpr(substitute(string(t)))
 		case string:
-			s := t
-			for _, ph := range placeholderPattern.FindAllString(s, -1) {
-				s = strings.ReplaceAll(s, ph, value(ph))
-			}
-			return s
+			return substitute(t)
 		case map[string]any:
 			for k, vv := range t {
 				t[k] = replace(vv)
@@ -275,6 +387,8 @@ func (lc *ListCase) materialize() {
 			return v
 		}
 	}
+
+	lc.PrerequisitesHCL = substitute(lc.PrerequisitesHCL)
 
 	for k, v := range lc.Step.Common {
 		lc.Step.Common[k] = replace(v)
@@ -333,6 +447,7 @@ func parseListCaseBody(body hcl.Body, src []byte) (*ListCase, error) {
 			{Name: "skip"},
 			{Name: "skip_reason"},
 			{Name: "min_tf_version"},
+			{Name: "prerequisites_hcl"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "step"},
@@ -358,6 +473,10 @@ func parseListCaseBody(body hcl.Body, src []byte) (*ListCase, error) {
 	if attr, ok := content.Attributes["min_tf_version"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		lc.MinTFVersion = val.AsString()
+	}
+	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		lc.PrerequisitesHCL = val.AsString()
 	}
 
 	for _, block := range content.Blocks {

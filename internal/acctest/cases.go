@@ -29,6 +29,10 @@ type CaseStep struct {
 	UDDI      map[string]any
 	Checks    map[string]string
 	DependsOn []string
+	// PrerequisitesHCL overrides ResourceCase.PrerequisitesHCL for this step. It
+	// is set only when a case's steps need different prerequisites — e.g. a view
+	// case where the auth zone moves between DNS views along with the record.
+	PrerequisitesHCL string
 }
 
 // ResourceCase is a per-test-case acceptance configuration, generated from the
@@ -103,7 +107,11 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 	var steps []resource.TestStep
 	for i, st := range rc.Steps {
 		config := buildCaseHCL(resourceType, "test", rc.Backend, st)
-		fullConfig := providerConfig + "\n" + rc.PrerequisitesHCL + "\n" + config
+		prereq := rc.PrerequisitesHCL
+		if st.PrerequisitesHCL != "" {
+			prereq = st.PrerequisitesHCL
+		}
+		fullConfig := providerConfig + "\n" + prereq + "\n" + config
 
 		t.Logf("Case %q step %d HCL:\n%s", rc.Name, i+1, fullConfig)
 
@@ -194,15 +202,26 @@ func (rc *ResourceCase) materialize() {
 		return v
 	}
 
-	replace := func(v any) any {
-		s, ok := v.(string)
-		if !ok {
-			return v
-		}
+	substitute := func(s string) string {
 		for _, ph := range placeholderPattern.FindAllString(s, -1) {
 			s = strings.ReplaceAll(s, ph, value(ph))
 		}
 		return s
+	}
+
+	replace := func(v any) any {
+		switch t := v.(type) {
+		case RawExpr:
+			// A raw HCL expression can still embed placeholders — e.g.
+			// "{{random}}.${infoblox_zone_auth.test.nios.fqdn}", which is captured
+			// verbatim because it references another resource. Substitute inside
+			// it and keep it raw.
+			return RawExpr(substitute(string(t)))
+		case string:
+			return substitute(t)
+		default:
+			return v
+		}
 	}
 
 	// replaceDeep recurses into nested objects/lists (e.g. members, options,
@@ -237,6 +256,9 @@ func (rc *ResourceCase) materialize() {
 	}
 
 	for i := range rc.Steps {
+		if s, ok := replace(rc.Steps[i].PrerequisitesHCL).(string); ok {
+			rc.Steps[i].PrerequisitesHCL = s
+		}
 		replaceMap(rc.Steps[i].Common)
 		replaceMap(rc.Steps[i].NIOS)
 		replaceMap(rc.Steps[i].UDDI)
@@ -398,6 +420,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
 			{Name: "depends_on"},
+			{Name: "prerequisites_hcl"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "common"},
@@ -412,6 +435,11 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	if attr, ok := content.Attributes["check"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		st.Checks = ctyMapToStringMap(val)
+	}
+
+	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		st.PrerequisitesHCL = val.AsString()
 	}
 
 	if attr, ok := content.Attributes["depends_on"]; ok {

@@ -180,15 +180,22 @@ func (dc *DataSourceCase) materialize() {
 		return v
 	}
 
+	substitute := func(s string) string {
+		for _, ph := range placeholderPattern.FindAllString(s, -1) {
+			s = strings.ReplaceAll(s, ph, value(ph))
+		}
+		return s
+	}
+
 	var replace func(v any) any
 	replace = func(v any) any {
 		switch t := v.(type) {
+		case RawExpr:
+			// A raw HCL expression can still embed placeholders (see the RawExpr
+			// handling in ResourceCase.materialize).
+			return RawExpr(substitute(string(t)))
 		case string:
-			s := t
-			for _, ph := range placeholderPattern.FindAllString(s, -1) {
-				s = strings.ReplaceAll(s, ph, value(ph))
-			}
-			return s
+			return substitute(t)
 		case map[string]any:
 			for k, vv := range t {
 				t[k] = replace(vv)
