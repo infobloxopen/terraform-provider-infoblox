@@ -1,17 +1,18 @@
-# Auto-generated resource acceptance-test cases for RecordA.
+# Auto-generated resource acceptance-test cases for RecordAaaa.
 case "basic" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
     }
     check = {
-      "nios.ipv4addr"           = "10.0.0.20"
+      "nios.ipv6addr"           = "2002:1111::1401"
       "nios.name"               = "{{random}}.example.com"
+      "nios.view"               = "default"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
       "nios.disable"            = "false"
@@ -22,15 +23,15 @@ case "basic" {
 }
 
 case "disappears" {
-  backend               = "nios"
-  disappears            = true
+  backend = "nios"
+  disappears = true
   expect_non_empty_plan = true
-  parallel              = true
+  parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
     }
   }
@@ -38,13 +39,13 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       comment  = "This is a new record"
     }
@@ -56,7 +57,7 @@ case "comment" {
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       comment  = "This is an updated record"
     }
@@ -68,13 +69,13 @@ case "comment" {
 }
 
 case "creator" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       creator  = "STATIC"
     }
@@ -86,7 +87,7 @@ case "creator" {
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       creator  = "DYNAMIC"
     }
@@ -98,57 +99,45 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name           = "{{random}}.example.com"
-      ipv4addr       = "10.0.0.20"
+      ipv6addr       = "2002:1111::1401"
       view           = "default"
       creator        = "DYNAMIC"
-      ddns_principal = "DDNS_PRINCIPAL_REPLACE_ME"
+      ddns_principal = "ddns_principal"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_REPLACE_ME"
+      "nios.ddns_principal" = "ddns_principal"
     }
   }
 
   step {
     nios {
       name           = "{{random}}.example.com"
-      ipv4addr       = "10.0.0.20"
+      ipv6addr       = "2002:1111::1401"
       view           = "default"
       creator        = "DYNAMIC"
-      ddns_principal = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      ddns_principal = "updated_ddns_principal"
     }
     check = {
-      "nios.ddns_principal" = "DDNS_PRINCIPAL_UPDATE_REPLACE_ME"
+      "nios.ddns_principal" = "updated_ddns_principal"
     }
   }
 
 }
 
 case "ddns_protected" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name           = "{{random}}.example.com"
-      ipv4addr       = "10.0.0.20"
-      view           = "default"
-      ddns_protected = false
-    }
-    check = {
-      "nios.ddns_protected" = "false"
-    }
-  }
-
-  step {
-    nios {
-      name           = "{{random}}.example.com"
-      ipv4addr       = "10.0.0.20"
+      ipv6addr       = "2002:1111::1401"
       view           = "default"
       ddns_protected = true
     }
@@ -157,16 +146,28 @@ case "ddns_protected" {
     }
   }
 
+  step {
+    nios {
+      name           = "{{random}}.example.com"
+      ipv6addr       = "2002:1111::1401"
+      view           = "default"
+      ddns_protected = false
+    }
+    check = {
+      "nios.ddns_protected" = "false"
+    }
+  }
+
 }
 
 case "disable" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       disable  = false
     }
@@ -178,7 +179,7 @@ case "disable" {
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       disable  = true
     }
@@ -189,14 +190,14 @@ case "disable" {
 
 }
 
-case "extattrs" {
-  backend  = "nios"
+case "ext_attrs" {
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name      = "{{random}}.example.com"
-      ipv4addr  = "10.0.0.20"
+      ipv6addr  = "2002:1111::1401"
       view      = "default"
       ext_attrs = { Site = "{{random2}}" }
     }
@@ -208,7 +209,7 @@ case "extattrs" {
   step {
     nios {
       name      = "{{random}}.example.com"
-      ipv4addr  = "10.0.0.20"
+      ipv6addr  = "2002:1111::1401"
       view      = "default"
       ext_attrs = { Site = "{{random3}}" }
     }
@@ -220,25 +221,13 @@ case "extattrs" {
 }
 
 case "forbid_reclamation" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name               = "{{random}}.example.com"
-      ipv4addr           = "10.0.0.20"
-      view               = "default"
-      forbid_reclamation = true
-    }
-    check = {
-      "nios.forbid_reclamation" = "true"
-    }
-  }
-
-  step {
-    nios {
-      name               = "{{random}}.example.com"
-      ipv4addr           = "10.0.0.20"
+      ipv6addr           = "2002:1111::1401"
       view               = "default"
       forbid_reclamation = false
     }
@@ -247,15 +236,55 @@ case "forbid_reclamation" {
     }
   }
 
+  step {
+    nios {
+      name               = "{{random}}.example.com"
+      ipv6addr           = "2002:1111::1401"
+      view               = "default"
+      forbid_reclamation = true
+    }
+    check = {
+      "nios.forbid_reclamation" = "true"
+    }
+  }
+
+}
+
+case "ipv6addr" {
+  backend = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name     = "{{random}}.example.com"
+      view     = "default"
+      ipv6addr = "2002:1111::1401"
+    }
+    check = {
+      "nios.ipv6addr" = "2002:1111::1401"
+    }
+  }
+
+  step {
+    nios {
+      name     = "{{random}}.example.com"
+      view     = "default"
+      ipv6addr = "2002:1111::1402"
+    }
+    check = {
+      "nios.ipv6addr" = "2002:1111::1402"
+    }
+  }
+
 }
 
 case "func_call" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
   # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network" "test_func_call" {
+  # resource "infoblox_ipv6network" "test_func_call" {
   #   nios = {
-  #     network = "85.85.0.0/16"
+  #     network = "{{random_ipv6_network}}"
   #     network_view = "default"
   #   }
   # }
@@ -263,64 +292,36 @@ case "func_call" {
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      view = "default"
-      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
+      name               = "{{random}}.example.com"
+      view               = "default"
+      # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
+      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
       comment            = "Original Function Call"
     }
-    # depends_on = [infoblox_network.test_func_call]
+    # depends_on = [infoblox_ipv6network.test_func_call]
   }
 
   step {
     nios {
-      name = "{{random}}.example.com"
-      view = "default"
-      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
-      comment            = "Function Call with Update"
+      name               = "{{random}}.example.com"
+      view               = "default"
+      # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
+      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      comment            = "Updated Function Call"
     }
-    # depends_on = [infoblox_network.test_func_call]
-  }
-
-}
-
-case "ipv4addr" {
-  backend  = "nios"
-  parallel = true
-
-  step {
-    nios {
-      name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
-      view     = "default"
-    }
-    check = {
-      "nios.ipv4addr" = "10.0.0.20"
-    }
-  }
-
-  step {
-    nios {
-      name     = "{{random}}.example.com"
-      ipv4addr = "10.1.0.20"
-      view     = "default"
-    }
-    check = {
-      "nios.ipv4addr" = "10.1.0.20"
-    }
+    # depends_on = [infoblox_ipv6network.test_func_call]
   }
 
 }
 
 case "name" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
     }
     check = {
@@ -331,7 +332,7 @@ case "name" {
   step {
     nios {
       name     = "{{random2}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1402"
       view     = "default"
     }
     check = {
@@ -342,13 +343,13 @@ case "name" {
 }
 
 case "ttl" {
-  backend  = "nios"
+  backend = "nios"
   parallel = true
 
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       ttl      = 10
     }
@@ -360,7 +361,7 @@ case "ttl" {
   step {
     nios {
       name     = "{{random}}.example.com"
-      ipv4addr = "10.0.0.20"
+      ipv6addr = "2002:1111::1401"
       view     = "default"
       ttl      = 0
     }
