@@ -510,7 +510,7 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 			customvalidator.IsNotArpa(),
 		},
 		MarkdownDescription: "The name of this DNS zone. For a reverse zone, this is in \"address/cidr\" format. For other zones, this is in FQDN format. This value can be in unicode format. Note that for a reverse zone, the corresponding zone_format value should be set.",
@@ -825,6 +825,9 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "Zone FQDN. The FQDN supplied at creation will be converted to canonical form.  Read-only after creation.",
 	},

@@ -187,7 +187,7 @@ var RecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "Name for the TXT record in FQDN format. This value can be in unicode format.",
 	},

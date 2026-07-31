@@ -35,7 +35,7 @@ var ViewFixedRrsetOrderFqdnsResourceSchemaAttributes = map[string]schema.Attribu
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The FQDN of the fixed RRset configuration item.",
 	},
