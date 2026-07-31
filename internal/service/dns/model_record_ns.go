@@ -120,6 +120,7 @@ var RecordNsResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ms_delegation_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
