@@ -38,6 +38,7 @@ type NIOSZoneAuthExt struct {
 	DdnsRestrictStatic                  *bool
 	Disable                             *bool
 	DisableForwarding                   *bool
+	DisplayDomain                       *string
 	DnsIntegrityEnable                  *bool
 	DnsIntegrityFrequency               *int64
 	DnsIntegrityMember                  *string

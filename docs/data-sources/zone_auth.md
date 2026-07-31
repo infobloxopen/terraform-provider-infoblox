@@ -85,7 +85,7 @@ Read-Only:
 
 Read-Only:
 
-- `allow_active_dir` (Attributes List) This field allows the zone to receive GSS-TSIG authenticated DDNS updates from DHCP clients and servers in an AD domain. Note that addresses specified in this field ignore the permission set in the st (see [below for nested schema](#nestedatt--results--nios--allow_active_dir))
+- `allow_active_dir` (Attributes List) This field allows the zone to receive GSS-TSIG authenticated DDNS updates from DHCP clients and servers in an AD domain. Note that addresses specified in this field ignore the permission set in the struct which will be set to 'ALLOW'. (see [below for nested schema](#nestedatt--results--nios--allow_active_dir))
 - `allow_fixed_rrset_order` (Boolean) The flag that allows to enable or disable fixed RRset ordering for authoritative forward-mapping zones.
 - `allow_gss_tsig_for_underscore_zone` (Boolean) The flag that allows DHCP clients to perform GSS-TSIG signed updates for underscore zones.
 - `allow_gss_tsig_zone_updates` (Boolean) The flag that enables or disables the zone for GSS-TSIG updates.
@@ -106,6 +106,7 @@ Read-Only:
 - `ddns_restrict_static` (Boolean) The flag that indicates whether an option to restrict DDNS update request to resource records which are marked as 'STATIC' is enabled or disabled.
 - `disable` (Boolean) Determines whether a zone is disabled or not. When this is set to False, the zone is enabled.
 - `disable_forwarding` (Boolean) Determines whether the name servers that host the zone should forward queries (ended with the domain name of the zone) to any configured forwarders.
+- `display_domain` (String) The displayed name of the DNS zone.
 - `dns_integrity_enable` (Boolean) If this is set to True, DNS integrity check is enabled for this zone.
 - `dns_integrity_frequency` (Number) The frequency, in seconds, of DNS integrity checks for this zone.
 - `dns_integrity_member` (String) The Grid member that performs DNS integrity checks for this zone.
@@ -124,11 +125,11 @@ Read-Only:
 - `locked` (Boolean) If you enable this flag, other administrators cannot make conflicting changes. This is for administration purposes only. The zone will continue to serve DNS data even when it is locked.
 - `member_soa_mnames` (Attributes List) The list of per-member SOA MNAME information. (see [below for nested schema](#nestedatt--results--nios--member_soa_mnames))
 - `ms_ad_integrated` (Boolean) The flag that determines whether Active Directory is integrated or not. This field is valid only when ms_managed is "STUB", "AUTH_PRIMARY", or "AUTH_BOTH".
-- `ms_allow_transfer` (Attributes List) The list of DNS clients that are allowed to perform zone transfers from a Microsoft DNS server. This setting applies only to zones with Microsoft DNS servers that are either primary or secondary serve (see [below for nested schema](#nestedatt--results--nios--ms_allow_transfer))
+- `ms_allow_transfer` (Attributes List) The list of DNS clients that are allowed to perform zone transfers from a Microsoft DNS server. This setting applies only to zones with Microsoft DNS servers that are either primary or secondary servers. This setting does not inherit any value from the Grid or from any member that defines an allow_transfer value. This setting does not apply to any grid member. Use the allow_transfer field to control which DNS clients are allowed to perform zone transfers on Grid members. (see [below for nested schema](#nestedatt--results--nios--ms_allow_transfer))
 - `ms_allow_transfer_mode` (String) Determines which DNS clients are allowed to perform zone transfers from a Microsoft DNS server. Valid values are: "ADDRESS_AC", to use ms_allow_transfer field for specifying IP addresses, networks and Transaction Signature (TSIG) keys for clients that are allowed to do zone transfers. "ANY", to allow any client. "ANY_NS", to allow only the nameservers listed in this zone. "NONE", to deny all zone transfer requests.
 - `ms_dc_ns_record_creation` (Attributes List) The list of domain controllers that are allowed to create NS records for authoritative zones. (see [below for nested schema](#nestedatt--results--nios--ms_dc_ns_record_creation))
 - `ms_ddns_mode` (String) Determines whether an Active Directory-integrated zone with a Microsoft DNS server as primary allows dynamic updates. Valid values are: "SECURE" if the zone allows secure updates only. "NONE" if the zone forbids dynamic updates. "ANY" if the zone accepts both secure and nonsecure updates. This field is valid only if ms_managed is either "AUTH_PRIMARY" or "AUTH_BOTH". If the flag ms_ad_integrated is false, the value "SECURE" is not allowed.
-- `ms_primaries` (Attributes List) The list with the Microsoft DNS servers that are primary servers for the zone. Although a zone typically has just one primary name server, you can specify up to ten independent servers for a single zo (see [below for nested schema](#nestedatt--results--nios--ms_primaries))
+- `ms_primaries` (Attributes List) The list with the Microsoft DNS servers that are primary servers for the zone. Although a zone typically has just one primary name server, you can specify up to ten independent servers for a single zone. (see [below for nested schema](#nestedatt--results--nios--ms_primaries))
 - `ms_secondaries` (Attributes List) The list with the Microsoft DNS servers that are secondary servers for the zone. (see [below for nested schema](#nestedatt--results--nios--ms_secondaries))
 - `ms_sync_disabled` (Boolean) This flag controls whether this zone is synchronized with Microsoft DNS servers.
 - `notify_delay` (Number) The number of seconds in delay with which notify messages are sent to secondaries.
@@ -147,7 +148,7 @@ Read-Only:
 - `soa_retry` (Number) This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.
 - `soa_serial_number` (Number) The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at "soa_serial_number" and pass "set_soa_serial_number" as True.
 - `srgs` (List of String) The associated shared record groups of a DNS zone. If a shared record group is associated with a zone, then all shared records in a shared record group will be shared in the zone.
-- `update_forwarding` (Attributes List) Use this field to allow or deny dynamic DNS updates that are forwarded from specific IPv4/IPv6 addresses, networks, or a named ACL. You can also provide TSIG keys for clients that are allowed or denie (see [below for nested schema](#nestedatt--results--nios--update_forwarding))
+- `update_forwarding` (Attributes List) Use this field to allow or deny dynamic DNS updates that are forwarded from specific IPv4/IPv6 addresses, networks, or a named ACL. You can also provide TSIG keys for clients that are allowed or denied to perform zone updates. This setting overrides the member-level setting. (see [below for nested schema](#nestedatt--results--nios--update_forwarding))
 - `use_check_names_policy` (Boolean) Apply policy to dynamic updates and inbound zone transfers (This value applies only if the host name restriction policy is set to "Strict Hostname Checking".)
 - `use_external_primary` (Boolean) This flag controls whether the zone is using an external primary.
 - `use_import_from` (Boolean) Use flag for: import_from
