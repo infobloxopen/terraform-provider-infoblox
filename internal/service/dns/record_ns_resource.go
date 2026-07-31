@@ -135,11 +135,15 @@ func (r *RecordNsResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	apiResp, _, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+	apiResp, httpResp, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
 		ReturnFields: RecordNsReturnFields,
 		Inherit:      RecordNsInheritanceType,
 	})
 	if err != nil {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read RecordNs: %s", err))
 		return
 	}
