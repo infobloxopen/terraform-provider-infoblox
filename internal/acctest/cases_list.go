@@ -18,11 +18,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 )
 
-// ListCase is a per-test-case list/query acceptance configuration, generated
-// from the legacy provider's hand-written list acceptance tests. Each case maps
-// 1:1 to a legacy TestAcc<Object>List_<Case> function and is stored as a
-// labelled `case "<name>" { ... }` block in the merged
-// testdata/<package>/<object>/<backend>_lists.tfvars file.
+// ListCase is the per-subtest configuration for a list query acceptance test.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_lists.tfvars.
 type ListCase struct {
 	Name         string
 	Backend      string
@@ -33,16 +30,12 @@ type ListCase struct {
 	Filters      map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
 	FilterOrder  []string          // filter keys in deterministic order
 	Step         CaseStep          // resource-create step
-	// PrerequisitesHCL holds resources the create step references (e.g. the auth
-	// zone a record lives in). It is prepended to both steps' configs, since the
-	// query step must keep the created resource alive.
+	// PrerequisitesHCL is prepended to both the create and query steps so the resource stays alive.
 	PrerequisitesHCL string
 }
 
-// RunListCases loads every `case "<name>" { ... }` block from the merged
-// tfvars file at testdata/<fileRelPath> and runs each as an independent
-// two-step subtest: step 1 creates the resource, step 2 runs a list query
-// and asserts at least one result is returned.
+// RunListCases loads all `case` blocks from testdata/<fileRelPath> and runs each as a two-step subtest:
+// step 1 creates the resource, step 2 issues a list query and asserts at least one result is returned.
 func RunListCases(t *testing.T, resourceType, fileRelPath string, checksByBackend map[string]CheckFuncs) {
 	t.Helper()
 	path := GetTestdataPath(fileRelPath)
@@ -91,13 +84,6 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 
 	resourceAddr := resourceType + ".test"
 
-	// buildQueryChecks assembles two kinds of assertions for step 2:
-	//   (a) ExpectLength[AtLeast] – verifies the filter returned exactly the right
-	//       number of objects (1 for filtered, ≥1 for list-all).
-	//   (b) ExpectResourceKnownValues – verifies every scalar literal from the
-	//       create step appears with the same value in the query result, so we
-	//       know the list API round-trips all written fields, not just that some
-	//       object was returned.
 	queryChecks := buildQueryChecks(resourceAddr, lc)
 
 	tc := resource.TestCase{
@@ -127,12 +113,7 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 }
 
 // buildQueryChecks assembles QueryResultChecks for the list query step.
-// Filtered cases assert an exact count of 1 and validate each filter attribute
-// on the returned resource object. List-all cases (empty FilterType) only
-// assert that at least one result is present.
-// In both cases, all scalar literal fields from the create step are also
-// verified via ExpectResourceKnownValues so the query result reflects what was
-// written — not just that a result was returned.
+// Filtered cases assert an exact count of 1; list-all cases assert at least one result.
 func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResultCheck {
 	var checks []querycheck.QueryResultCheck
 
@@ -142,10 +123,7 @@ func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResul
 		checks = append(checks, querycheck.ExpectLength(resourceAddr, 1))
 	}
 
-	// Collect KnownValueChecks from all resolvable scalar step fields.
-	// For "filters" mode, filter-field values are always included; for all
-	// modes we additionally include non-filter scalar step fields so that
-	// fields like ipv4addr and view are verified in the query result.
+	// Include all resolvable scalar step fields (e.g. ipv4addr, view) in the known-value checks.
 	knownChecks := buildStepKnownValueChecks(lc)
 	if len(knownChecks) > 0 {
 		checks = append(checks, querycheck.ExpectResourceKnownValues(
@@ -156,10 +134,8 @@ func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResul
 	return checks
 }
 
-// buildStepKnownValueChecks collects all resolvable scalar fields from the
-// create step and returns them as KnownValueChecks. Fields whose values are
-// resource references (RawExpr that cannot be resolved to a literal) are
-// skipped so only stable literal values are verified.
+// buildStepKnownValueChecks returns KnownValueChecks for all resolvable scalar fields in the create step.
+// Fields that are resource references (RawExpr) are skipped; only literal values are verified.
 func buildStepKnownValueChecks(lc *ListCase) []querycheck.KnownValueCheck {
 	var knownChecks []querycheck.KnownValueCheck
 	seen := make(map[string]bool)
@@ -203,11 +179,8 @@ func buildStepKnownValueChecks(lc *ListCase) []querycheck.KnownValueCheck {
 	return knownChecks
 }
 
-// buildListBlock renders the `list "<resourceType>" "test" { ... }` HCL for a
-// list query step. An empty FilterType means list-all (limit only, no config
-// block); otherwise a config block with filters/extattrfilters is emitted.
-// Filter values are resolved from the materialized step config (not resource
-// references) because the Query step config contains only the list block.
+// buildListBlock renders the `list "<resourceType>" "test" { ... }` HCL for the query step.
+// An empty FilterType produces a list-all block; otherwise a filtered config block is emitted.
 func buildListBlock(resourceType string, lc *ListCase) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("list %q \"test\" {\n", resourceType))
@@ -235,9 +208,7 @@ func buildListBlock(resourceType string, lc *ListCase) string {
 	return sb.String()
 }
 
-// resolveStepValue looks up the materialized value for a resource attribute
-// reference path (e.g. "nios.network", "nios.ext_attrs.Site") in the case's
-// create step.
+// resolveStepValue returns the materialized value for a step attribute ref path (e.g. "nios.network").
 func resolveStepValue(refPath string, lc *ListCase) string {
 	parts := strings.SplitN(refPath, ".", 2)
 	if len(parts) < 2 {
@@ -272,12 +243,9 @@ func resolveStepValue(refPath string, lc *ListCase) string {
 	return stepScalarValue(nested[attrParts[1]], lc.PrerequisitesHCL)
 }
 
-// stepScalarValue renders a single step-config value as the concrete string a
-// filter needs. String literals pass through; expressions kept as RawExpr (e.g.
-// "{{random}}.${infoblox_zone_auth.test.nios.fqdn}") are resolved against the
-// prerequisites HCL, since a query step's config holds only the list block and
-// so cannot reference the created resource. Non-string scalars are not usable as
-// filter values and yield "".
+// stepScalarValue renders a step value as a filter string.
+// String literals pass through; RawExpr is resolved against prereqHCL since the query step holds only the list block.
+// Non-string scalars yield "".
 func stepScalarValue(raw any, prereqHCL string) string {
 	switch v := raw.(type) {
 	case string:
@@ -289,16 +257,11 @@ func stepScalarValue(raw any, prereqHCL string) string {
 	}
 }
 
-// prereqRefPattern matches an attribute reference inside a raw HCL expression,
-// either interpolated ("${infoblox_zone_auth.test.nios.fqdn}") or bare
-// (infoblox_zone_auth.test.nios.fqdn).
+// prereqRefPattern matches interpolated ("${...}") or bare attribute references in HCL expressions.
 var prereqRefPattern = regexp.MustCompile(`\$\{\s*([a-zA-Z_][\w-]*(?:\.[\w-]+)+)\s*\}|([a-zA-Z_][\w-]*(?:\.[\w-]+)+)`)
 
-// resolveRawExpr reduces a raw HCL expression to a literal by substituting every
-// reference to a prerequisite resource attribute. It returns "" when the
-// expression references something the prerequisites do not define as a literal
-// (e.g. a computed attribute such as a zone's view), so the caller skips that
-// filter rather than emitting an unresolved reference.
+// resolveRawExpr reduces a raw HCL expression to a literal by substituting prerequisite attribute refs.
+// Returns "" if any referenced attribute is not a literal in the prerequisites.
 func resolveRawExpr(raw, prereqHCL string) string {
 	expr := strings.TrimSpace(raw)
 	if len(expr) >= 2 && strings.HasPrefix(expr, `"`) && strings.HasSuffix(expr, `"`) {
@@ -325,10 +288,8 @@ func resolveRawExpr(raw, prereqHCL string) string {
 	return expr
 }
 
-// prereqAttrLiterals maps each literal attribute of the materialized
-// prerequisites HCL to the reference path Terraform uses for it, e.g.
-// "infoblox_zone_auth.test.nios.fqdn" -> "tf-acc-test-abc.com". Computed and
-// non-literal attributes are absent.
+// prereqAttrLiterals extracts literal attribute values from materialized prerequisites HCL,
+// keyed by Terraform reference path (e.g. "infoblox_zone_auth.test.nios.fqdn").
 func prereqAttrLiterals(prereqHCL string) map[string]string {
 	literals := make(map[string]string)
 	if strings.TrimSpace(prereqHCL) == "" {
@@ -359,9 +320,7 @@ func prereqAttrLiterals(prereqHCL string) map[string]string {
 	return literals
 }
 
-// flattenLiteral records scalars at their full reference path, recursing into
-// nested objects so config blocks like `nios = { fqdn = "..." }` are reachable
-// as "<type>.<name>.nios.fqdn". Lists and nulls have no usable reference path.
+// flattenLiteral recursively records scalar values at their full reference path, skipping lists and nulls.
 func flattenLiteral(out map[string]string, path string, v any) {
 	switch t := v.(type) {
 	case nil, []any:
@@ -375,8 +334,7 @@ func flattenLiteral(out map[string]string, path string, v any) {
 	}
 }
 
-// refPathToTFJSONPath converts a resource attribute ref path like "nios.network"
-// or "nios.ext_attrs.Site" into a tfjsonpath.Path for use in KnownValueChecks.
+// refPathToTFJSONPath converts a ref path like "nios.ext_attrs.Site" into a tfjsonpath.Path.
 func refPathToTFJSONPath(refPath string) tfjsonpath.Path {
 	parts := strings.Split(refPath, ".")
 	p := tfjsonpath.New(parts[0])
@@ -386,8 +344,7 @@ func refPathToTFJSONPath(refPath string) tfjsonpath.Path {
 	return p
 }
 
-// materialize replaces {{placeholder}} tokens with concrete runtime values,
-// keeping each distinct placeholder consistent across the step config.
+// materialize replaces {{placeholder}} tokens with stable values across the step config and prerequisites.
 func (lc *ListCase) materialize() {
 	cache := make(map[string]string)
 
@@ -411,8 +368,7 @@ func (lc *ListCase) materialize() {
 	replace = func(v any) any {
 		switch t := v.(type) {
 		case RawExpr:
-			// A raw HCL expression can still embed placeholders (see the RawExpr
-			// handling in ResourceCase.materialize).
+			// RawExpr values may still contain placeholders; substitute and keep raw.
 			return RawExpr(substitute(string(t)))
 		case string:
 			return substitute(t)
@@ -526,9 +482,7 @@ func parseListCaseBody(body hcl.Body, src []byte) (*ListCase, error) {
 		if block.Type != "step" {
 			continue
 		}
-		// Peek at query/display attributes and the optional filter block inside
-		// this step. PartialContent only consumes what matches — remaining
-		// content is still available for parseCaseStep on the same body.
+		// Peek at query/filter metadata; PartialContent leaves remaining content available for parseCaseStep.
 		stepMeta, _, _ := block.Body.PartialContent(&hcl.BodySchema{
 			Attributes: []hcl.AttributeSchema{
 				{Name: "query"},

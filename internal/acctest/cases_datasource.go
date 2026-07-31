@@ -13,11 +13,8 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// DataSourceCase is a per-test-case data source acceptance configuration,
-// generated from the legacy provider's hand-written data source acceptance
-// tests. Each case maps 1:1 to a legacy TestAcc<Object>DataSource_<Case>
-// function and is stored as a labelled `case "<name>" { ... }` block in the
-// merged testdata/<package>/<object>/<backend>_datasources.tfvars file.
+// DataSourceCase is the per-subtest configuration for a data source acceptance test.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_datasources.tfvars.
 type DataSourceCase struct {
 	Name             string
 	Backend          string
@@ -28,16 +25,12 @@ type DataSourceCase struct {
 	Filters          map[string]string // filter key -> resource attribute path (e.g. "name" -> "nios.name")
 	FilterOrder      []string          // filter keys in deterministic order
 	Step             CaseStep
-	// PairChecks lists backend-prefixed field paths (e.g. "nios.comment") to verify
-	// via TestCheckResourceAttrPair in addition to the scalar fields in Step.
+	// PairChecks lists extra backend-prefixed paths (e.g. "nios.comment") for TestCheckResourceAttrPair.
 	PairChecks []string
 }
 
-// RunDataSourceCases loads every `case "<name>" { ... }` block from the merged
-// tfvars file at testdata/<fileRelPath> and runs each as an independent
-// subtest. Each case provisions the resource described by its step, queries the
-// data source using the case's filter, and asserts the data source returns the
-// same values as the created resource.
+// RunDataSourceCases loads all `case` blocks from testdata/<fileRelPath> and runs each as a subtest,
+// provisioning the resource and asserting the data source returns matching attribute values.
 func RunDataSourceCases(t *testing.T, dsType, resourceType, fileRelPath string, checksByBackend map[string]CheckFuncs) {
 	path := GetTestdataPath(fileRelPath)
 	cases, err := loadDataSourceCases(path)
@@ -45,8 +38,7 @@ func RunDataSourceCases(t *testing.T, dsType, resourceType, fileRelPath string, 
 		cases = nil
 	}
 
-	// Append user-authored custom cases from the sibling custom_<file> so custom
-	// scenarios written by users run automatically alongside the generated ones.
+	// Also run custom cases from the sibling custom_<file>.
 	customCases, mErr := loadCustomDataSourceCases(fileRelPath)
 	if mErr != nil {
 		t.Fatalf("failed to load custom data source cases for %s: %v", fileRelPath, mErr)
@@ -95,11 +87,6 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
-	// dataSourcePairChecks generates TestCheckResourceAttrPair assertions:
-	//   (a) one per scalar field in dc.Step (derived from the case's step config), and
-	//   (b) one per path in dc.PairChecks, which are extracted at generation time from
-	//       the legacy testAccCheck*AttrPair helpers (handles server-set fields like
-	//       absolute_name_spec that aren't in the tfvars step block).
 	checkFuncs = append(checkFuncs, dataSourcePairChecks(dsAddr, resourceAddr, dc)...)
 
 	tc := resource.TestCase{
@@ -116,8 +103,7 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 	resource.Test(t, tc)
 }
 
-// buildDataSourceBlock renders the data source HCL with the case's filter,
-// whose values reference attributes of the resource created in the same config.
+// buildDataSourceBlock renders the data source HCL block with filter values referencing the test resource.
 func buildDataSourceBlock(dsType, resourceType string, dc *DataSourceCase) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("data %q \"test\" {\n", dsType))
@@ -131,8 +117,7 @@ func buildDataSourceBlock(dsType, resourceType string, dc *DataSourceCase) strin
 	return sb.String()
 }
 
-// dataSourcePairChecks asserts that each scalar field configured on the
-// resource is returned identically by the data source at results.0.<path>.
+// dataSourcePairChecks returns TestCheckResourceAttrPair checks for all scalar fields in the step config.
 func dataSourcePairChecks(dsAddr, resourceAddr string, dc *DataSourceCase) []resource.TestCheckFunc {
 	var checks []resource.TestCheckFunc
 
@@ -160,13 +145,11 @@ func dataSourcePairChecks(dsAddr, resourceAddr string, dc *DataSourceCase) []res
 		add("uddi", dc.Step.UDDI)
 	}
 
-	// Collect paths already covered by the step-config pair checks above so we
-	// don't emit duplicates from PairChecks.
+	// Track paths already covered above to avoid duplicates from PairChecks.
 	covered := make(map[string]bool, len(checks))
 	for _, fn := range checks {
-		_ = fn // not inspectable; track by re-deriving covered paths below
+		_ = fn // not inspectable; re-derive covered paths below
 	}
-	// Re-derive covered paths from step config.
 	addCovered := func(prefix string, m map[string]any) {
 		for k, v := range m {
 			if !isScalarValue(v) {
@@ -201,8 +184,7 @@ func dataSourcePairChecks(dsAddr, resourceAddr string, dc *DataSourceCase) []res
 	return checks
 }
 
-// isScalarValue reports whether v is a simple scalar (and thus safe to compare
-// with TestCheckResourceAttrPair). Maps, lists and raw expressions are skipped.
+// isScalarValue reports whether v is a scalar safe to use with TestCheckResourceAttrPair.
 func isScalarValue(v any) bool {
 	switch v.(type) {
 	case map[string]any, []any, RawExpr:
@@ -212,9 +194,7 @@ func isScalarValue(v any) bool {
 	}
 }
 
-// materialize replaces placeholders (e.g. {{random}}) with concrete values,
-// keeping each distinct placeholder consistent across the resource config and
-// prerequisites so the data source filter resolves to the created resource.
+// materialize replaces {{placeholder}} tokens with stable values across the step config and prerequisites.
 func (dc *DataSourceCase) materialize() {
 	cache := make(map[string]string)
 
@@ -238,8 +218,7 @@ func (dc *DataSourceCase) materialize() {
 	replace = func(v any) any {
 		switch t := v.(type) {
 		case RawExpr:
-			// A raw HCL expression can still embed placeholders (see the RawExpr
-			// handling in ResourceCase.materialize).
+			// RawExpr values may still contain placeholders; substitute and keep raw.
 			return RawExpr(substitute(string(t)))
 		case string:
 			return substitute(t)
@@ -272,13 +251,7 @@ func (dc *DataSourceCase) materialize() {
 	}
 }
 
-// loadDataSourceCases parses a merged tfvars file into its constituent data
-// source cases. Each case is a labelled `case "<name>" { ... }` block; the
-// label becomes the case (subtest) name. Cases are returned sorted by name for
-// a deterministic subtest order.
-// loadCustomDataSourceCases loads data source cases from the sibling custom_
-// file if present. A missing file, or a file containing only comments (a
-// skeleton with no `case` blocks), yields no cases and no error.
+// loadCustomDataSourceCases loads cases from the custom_ sibling file; returns nil if absent or empty.
 func loadCustomDataSourceCases(fileRelPath string) ([]*DataSourceCase, error) {
 	full := GetTestdataPath(customSibling(fileRelPath))
 	if _, err := os.Stat(full); err != nil {
@@ -294,6 +267,8 @@ func loadCustomDataSourceCases(fileRelPath string) ([]*DataSourceCase, error) {
 	return cases, nil
 }
 
+// loadDataSourceCases parses `case "<name>" { ... }` blocks from a data source tfvars file,
+// sorted by name for deterministic subtest ordering.
 func loadDataSourceCases(path string) ([]*DataSourceCase, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -333,8 +308,7 @@ func loadDataSourceCases(path string) ([]*DataSourceCase, error) {
 	return cases, nil
 }
 
-// parseDataSourceCaseBody decodes a single `case` block body into a
-// DataSourceCase (the Name is set by the caller from the block label).
+// parseDataSourceCaseBody decodes a `case` block body into a DataSourceCase (Name set by caller).
 func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error) {
 	content, _, diags := body.PartialContent(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{

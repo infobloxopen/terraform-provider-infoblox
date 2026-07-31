@@ -40,8 +40,7 @@ var (
 	// UDDIClient is used for UDDI verification tests
 	UDDIClient *uddiclient.APIClient
 
-	// ProtoV6ProviderFactories are used to instantiate a provider during
-	// acceptance testing.
+	// ProtoV6ProviderFactories instantiates the infoblox provider for acceptance testing.
 	ProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"infoblox": providerserver.NewProtocol6WithError(provider.New("test", "test")()),
 	}
@@ -93,8 +92,7 @@ func PreCheckUDDI(t *testing.T) {
 	)
 }
 
-// PreCheck validates the test environment based on backend.
-// Use PreCheckNIOS or PreCheckUDDI directly when backend is known.
+// PreCheck validates the test environment for the given backend ("nios" or "uddi").
 func PreCheck(t *testing.T, backend string) {
 	switch backend {
 	case "nios":
@@ -120,9 +118,8 @@ func RandomNameWithPrefix(prefix string) string {
 	return fmt.Sprintf("%s-%s", prefix, RandomName())
 }
 
-// RandomIP generates a random private IP address with valid host octet (1-254).
+// RandomIP generates a random private IPv4 address in the 10.x.x.x range.
 func RandomIP() string {
-	// Use 10.x.x.x private range with valid host octet
 	return fmt.Sprintf("10.%d.%d.%d", rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
 }
 
@@ -131,8 +128,7 @@ func RandomOctet() int {
 	return rand.Intn(256)
 }
 
-// RandomIPWithSpecificOctetsSet generates a random IP address with the first three octets set to the given prefix.
-// Last octet is 1-254 (valid host range, excludes 0=network and 255=broadcast).
+// RandomIPWithSpecificOctetsSet returns an IP with the given prefix and a random last octet (1-254).
 func RandomIPWithSpecificOctetsSet(prefix string) string {
 	return fmt.Sprintf("%s.%d", prefix, 1+rand.Intn(254))
 }
@@ -145,9 +141,8 @@ func RandomNumber(maxLimit int) int {
 	return rand.Intn(maxLimit)
 }
 
-// RandomCIDRNetwork generates a random network with specific CIDR
+// RandomCIDRNetwork generates a random IPv4 network in CIDR notation (/16-/24).
 func RandomCIDRNetwork() string {
-	// Generate test-suitable private networks
 	base := 10 + rand.Intn(246) // 10-255 for first octet
 	second := rand.Intn(256)    // 0-255 for second octet
 	cidr := 16 + rand.Intn(9)   // /16 to /24 (common for network containers)
@@ -155,10 +150,8 @@ func RandomCIDRNetwork() string {
 	return fmt.Sprintf("%d.%d.0.0/%d", base, second, cidr)
 }
 
-// RandomIPv6Network generates a random IPv6 network with specific CIDR
+// RandomIPv6Network generates a random IPv6 network under 2001:db8::/32 (RFC 3849 test range).
 func RandomIPv6Network() string {
-	// Generate a random IPv6 network using the documentation prefix 2001:db8::/32
-	// This is reserved for documentation and testing purposes (RFC 3849)
 	third := rand.Intn(65536)  // 0-FFFF for third hextet
 	fourth := rand.Intn(65536) // 0-FFFF for fourth hextet
 	cidr := 64 + rand.Intn(60)
@@ -176,7 +169,7 @@ func RandomAlphaNumeric(length int) string {
 	return string(b)
 }
 
-// RandomMACAddress generates a random MAC address
+// RandomMACAddress generates a random MAC address.
 func RandomMACAddress() string {
 	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
 		rand.Intn(256),
@@ -187,9 +180,8 @@ func RandomMACAddress() string {
 		rand.Intn(256))
 }
 
-// Random32Hexadecimal generates a random 32-character hexadecimal string
+// Random32Hexadecimal generates a random 32-character hexadecimal string.
 func Random32Hexadecimal() string {
-	// Two 64-bit random values = 128 bits = 32 hex characters
 	return fmt.Sprintf("%016x%016x", rand.Uint64(), rand.Uint64())
 }
 
@@ -208,16 +200,9 @@ func GetTestdataPath(relativePath string) string {
 	return filepath.Join(packageDir, "testdata", relativePath)
 }
 
-// ResolvePlaceholder returns a freshly generated concrete value for a single
-// placeholder token (e.g. "{{random_ipv6_network}}"). Function-specific
-// placeholders round-trip to the matching acctest.Random* generator so a value
-// produced by a function in the legacy test keeps that function's format
-// (IPv6 network, CIDR, IP, MAC, hex, ...) instead of collapsing to a plain
-// name token. A trailing numeric disambiguator (e.g. "{{random2}}") is matched
-// against its base so distinct vars of the same type still resolve correctly.
-//
-// Ordering note: more specific bases must precede their prefixes (e.g.
-// random_ipv6_network before random_ip, random_int before random_ip).
+// ResolvePlaceholder returns a concrete value for a single placeholder token (e.g. "{{random_ip}}").
+// Each token maps to its matching Random* generator; unrecognised tokens produce a random name.
+// More-specific prefixes must appear before shorter ones (e.g. random_ipv6_network before random_ip).
 func ResolvePlaceholder(placeholder string) string {
 	name := strings.TrimSuffix(strings.TrimPrefix(placeholder, "{{"), "}}")
 	switch {
@@ -248,20 +233,8 @@ func ResolvePlaceholder(placeholder string) string {
 	}
 }
 
-// ReplacePlaceholders replaces template placeholders with random values.
-// Supported placeholders:
-//   - {{random}} - Random string (e.g., "tf-acc-test-abc123")
-//   - {{random_octet}} - Random 1-254 (valid IP host range, excludes 0=network and 255=broadcast)
-//   - {{random_int}} - Random integer 1-9999
-//   - {{random_ip}} - Random private IPv4 host address
-//   - {{random_cidr_network}} - Random IPv4 network in CIDR notation
-//   - {{random_ipv6_network}} - Random IPv6 network in CIDR notation
-//   - {{random_mac}} - Random MAC address
-//   - {{random_hex32}} - Random 32-character hexadecimal string
-//   - {{grid_master_hostname}} - NIOS_GRID_MASTER_HOSTNAME env var
-//   - {{grid_member_hostname}} - NIOS_GRID_MEMBER_HOSTNAME env var
-//   - {{discovery_member_hostname}} - NIOS_DISCOVERY_MEMBER_HOSTNAME env var
-//   - {{pxgrid_endpoint_ref}} - NIOS_PXGRID_ENDPOINT_REF env var
+// ReplacePlaceholders substitutes all {{token}} placeholders in content with random or env-sourced values.
+// See ResolvePlaceholder for the full token list.
 func ReplacePlaceholders(content string) string {
 	result := content
 	for _, ph := range placeholderPattern.FindAllString(content, -1) {
@@ -270,8 +243,7 @@ func ReplacePlaceholders(content string) string {
 	return result
 }
 
-// ProviderConfigHCL returns provider configuration HCL for the given backend.
-// It reads credentials from environment variables.
+// ProviderConfigHCL returns provider HCL for backend ("nios" or "uddi"), reading credentials from env.
 func ProviderConfigHCL(backend string) string {
 	switch backend {
 	case "nios":
