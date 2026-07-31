@@ -1,6 +1,14 @@
 # Auto-generated datasource acceptance-test cases for RecordNs.
 case "filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "example.com"
+      view = "default"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -14,9 +22,10 @@ case "filters" {
     nios {
       name       = "example.com"
       nameserver = "{{random}}.example.com"
-      addresses  = "addressesHCL"
+      addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }
+    depends_on = [infoblox_zone_auth.test_zone]
   }
 
 }
