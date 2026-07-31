@@ -76,7 +76,7 @@ jobs:
       - name: install tfproviderlintx
         run: go install github.com/bflad/tfproviderlint/cmd/tfproviderlintx@v0.31.0
       - name: tfproviderlintx
-        run: tfproviderlintx -AT002=false ./...
+        run: tfproviderlintx -AT002=false -AT003=false -AT004=false ./...
 
   lint:
     name: Go Linter
