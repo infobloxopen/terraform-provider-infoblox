@@ -38,7 +38,8 @@ var UDDIRecordTxtRdataAttrTypes = map[string]attr.Type{
 
 var UDDIRecordTxtRdataResourceSchemaAttributes = map[string]schema.Attribute{
 	"text": schema.StringAttribute{
-		Required: true,
+		Required:            true,
+		MarkdownDescription: "The semantics of the text depends on the domain where it is found.",
 	},
 }
 

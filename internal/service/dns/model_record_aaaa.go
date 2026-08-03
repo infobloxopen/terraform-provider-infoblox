@@ -282,12 +282,12 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"options": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordAaaaOptionsResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------",
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.",
 	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordAaaaRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _AAAA_ (IPv6 Address) record:  Subfield | Description                           | Required ---------|---------------------------------------|--------- address  | The IPv6 address of the host.<br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -312,7 +312,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"type": schema.StringAttribute{
 		Default:             stringdefault.StaticString("AAAA"),
 		Computed:            true,
-		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
+		MarkdownDescription: "The DNS resource record type. Always _AAAA_ for this resource (numeric type 28, IPv6 Address record).",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,

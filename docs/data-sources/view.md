@@ -97,7 +97,7 @@ Read-Only:
 - `blacklist_redirect_ttl` (Number) The Time To Live (TTL) value of the synthetic DNS responses resulted from blacklist redirection. The TTL value is a 32-bit unsigned integer that represents the TTL in seconds.
 - `blacklist_rulesets` (List of String) The name of the Ruleset object assigned at the Grid level for blacklist redirection.
 - `comment` (String) Comment for the DNS view; maximum 64 characters.
-- `custom_root_name_servers` (Attributes List) The list of customized root name servers. You can either select and use Internet root name servers or specify custom root name servers by providing a host name and IP address to which the Infoblox app (see [below for nested schema](#nestedatt--results--nios--custom_root_name_servers))
+- `custom_root_name_servers` (Attributes List) The list of customized root name servers. You can either select and use Internet root name servers or specify custom root name servers by providing a host name and IP address to which the Infoblox appliance can send queries. Include the specified parameter to set the attribute value. Omit the parameter to retrieve the attribute value. (see [below for nested schema](#nestedatt--results--nios--custom_root_name_servers))
 - `ddns_force_creation_timestamp_update` (Boolean) Defines whether creation timestamp of RR should be updated ' when DDNS update happens even if there is no change to ' the RR.
 - `ddns_principal_group` (String) The DDNS Principal cluster group name.
 - `ddns_principal_tracking` (Boolean) The flag that indicates whether the DDNS principal track is enabled or disabled.
@@ -122,7 +122,7 @@ Read-Only:
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 - `filter_aaaa` (String) The type of AAAA filtering for this DNS view object.
 - `filter_aaaa_list` (Attributes List) Applies AAAA filtering to a named ACL, or to a list of IPv4/IPv6 addresses and networks from which queries are received. This field does not allow TSIG keys. (see [below for nested schema](#nestedatt--results--nios--filter_aaaa_list))
-- `fixed_rrset_order_fqdns` (Attributes List) The fixed RRset order FQDN. If this field does not contain an empty value, the appliance will automatically set the enable_fixed_rrset_order_fqdns field to 'true', unless the same request sets the ena (see [below for nested schema](#nestedatt--results--nios--fixed_rrset_order_fqdns))
+- `fixed_rrset_order_fqdns` (Attributes List) The fixed RRset order FQDN. If this field does not contain an empty value, the appliance will automatically set the enable_fixed_rrset_order_fqdns field to 'true', unless the same request sets the enable field to 'false'. (see [below for nested schema](#nestedatt--results--nios--fixed_rrset_order_fqdns))
 - `forward_only` (Boolean) Determines if this DNS view sends queries to forwarders only or not. When the value is True, queries are sent to forwarders only, and not to other internal or Internet root servers.
 - `forwarders` (List of String) The list of forwarders for the DNS view. A forwarder is a name server to which other name servers first send their off-site queries. The forwarder builds up a cache of information, avoiding the need for other name servers to send queries off-site.
 - `last_queried_acl` (Attributes List) Determines last queried ACL for the specified IPv4 or IPv6 addresses and networks in scavenging settings. (see [below for nested schema](#nestedatt--results--nios--last_queried_acl))
@@ -314,7 +314,7 @@ Read-Only:
 - `edns_udp_size` (Number) Optional. _edns_udp_size_ represents the edns UDP size. The size a querying DNS server advertises to the DNS server it’s sending a query to.  Defaults to 1232 bytes.
 - `filter_aaaa_acl` (Attributes List) Optional. Specifies a list of client addresses for which AAAA filtering is to be applied.  Defaults to _empty_. (see [below for nested schema](#nestedatt--results--uddi--filter_aaaa_acl))
 - `filter_aaaa_on_v4` (String) _filter_aaaa_on_v4_ allows named to omit some IPv6 addresses when responding to IPv4 clients.  Allowed values: * _yes_, * _no_, * _break_dnssec_.  Defaults to _no_
-- `forwarders` (Attributes List) Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses. (see [below for nested schema](#nestedatt--results--uddi--forwarders))
+- `forwarders` (Attributes List) Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses.  Defaults to empty. (see [below for nested schema](#nestedatt--results--uddi--forwarders))
 - `forwarders_only` (Boolean) Optional. _true_ to only forward.  Defaults to _false_.
 - `gss_tsig_enabled` (Boolean) _gss_tsig_enabled_ enables/disables GSS-TSIG signed dynamic updates.  Defaults to _false_.
 - `inheritance_sources` (Attributes) Inheritance configuration specifies how and which fields _View_ object inherits from [ _Global_, _Server_ ] parent. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
