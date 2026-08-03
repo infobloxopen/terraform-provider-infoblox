@@ -205,7 +205,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "Name for the AAAA record in FQDN format. This value can be in unicode format.",
 	},

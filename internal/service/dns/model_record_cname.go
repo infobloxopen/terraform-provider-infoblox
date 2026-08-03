@@ -126,7 +126,7 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "Canonical name in FQDN format. This value can be in unicode format.",
 	},
@@ -195,7 +195,7 @@ var RecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The name for a CNAME record in FQDN format. This value can be in unicode format. Regular expression search is not supported for unicode values.",
 	},
