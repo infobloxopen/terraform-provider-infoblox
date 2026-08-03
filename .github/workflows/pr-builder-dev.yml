@@ -1,0 +1,94 @@
+# This workflow is triggered on pull requests to the dev_3.0 branch.
+name: PR Builder (dev_3.0)
+
+on:
+  pull_request:
+    branches:
+      - dev_3.0
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-builder-dev-${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  CGO_ENABLED: "0"
+
+jobs:
+  build:
+    name: Build & Checks
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - uses: actions/setup-go@v6.0.0
+        with:
+          go-version: "1.25.8"
+      - uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_wrapper: false
+
+      - name: go.mod / go.sum are tidy
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum || \
+            (echo; echo "Unexpected difference in go.mod/go.sum files. Run 'go mod tidy' command or revert any go.mod/go.sum changes and commit."; exit 1)
+
+      - name: go fmt is clean
+        run: |
+          go fmt ./...
+          git diff --exit-code || \
+            (echo; echo "Unexpected difference. Run 'go fmt' command and commit."; exit 1)
+
+      - name: docs & examples are up to date (go generate)
+        run: |
+          go generate ./...
+          git diff --exit-code -- docs/ examples/ || \
+            (echo; echo "Unexpected difference in docs/examples. Run 'go generate' command and commit."; exit 1)
+
+      - name: go vet (compiles test files, no execution)
+        run: go vet ./...
+
+      - name: build
+        run: go build -v ./...
+
+  orphans:
+    name: Orphan Model Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: detect dangling generated model files
+        run: python3 scripts/ci/ci_checks.py orphans
+
+  tfproviderlint:
+    name: Terraform Provider Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - uses: actions/setup-go@v6.0.0
+        with:
+          go-version: "1.25.8"
+          cache: false
+      - name: install tfproviderlintx
+        run: go install github.com/bflad/tfproviderlint/cmd/tfproviderlintx@v0.31.0
+      - name: tfproviderlintx
+        run: tfproviderlintx -AT002=false -AT003=false -AT004=false ./...
+
+  lint:
+    name: Go Linter
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - uses: actions/setup-go@v6.0.0
+        with:
+          go-version: "1.25.8"
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          args: --timeout=10m --max-issues-per-linter 0 --max-same-issues 0
