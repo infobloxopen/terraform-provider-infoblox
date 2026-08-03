@@ -146,20 +146,20 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 // buildCaseHCL renders a single step into resource HCL for the infoblox provider.
 func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("resource %q %q {\n", resourceType, label))
+	fmt.Fprintf(&sb, "resource %q %q {\n", resourceType, label)
 
 	for k, v := range st.Common {
-		sb.WriteString(fmt.Sprintf("  %s = %s\n", k, formatHCLValue(v)))
+		fmt.Fprintf(&sb, "  %s = %s\n", k, formatHCLValue(v))
 	}
 
 	writeSection := func(name string, m map[string]any) {
 		if len(m) == 0 {
-			sb.WriteString(fmt.Sprintf("  %s = {}\n", name))
+			fmt.Fprintf(&sb, "  %s = {}\n", name)
 			return
 		}
-		sb.WriteString(fmt.Sprintf("  %s = {\n", name))
+		fmt.Fprintf(&sb, "  %s = {\n", name)
 		for k, v := range m {
-			sb.WriteString(fmt.Sprintf("    %s = %s\n", k, formatHCLValue(v)))
+			fmt.Fprintf(&sb, "    %s = %s\n", k, formatHCLValue(v))
 		}
 		sb.WriteString("  }\n")
 	}
@@ -172,7 +172,7 @@ func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 	}
 
 	if len(st.DependsOn) > 0 {
-		sb.WriteString(fmt.Sprintf("  depends_on = [%s]\n", strings.Join(st.DependsOn, ", ")))
+		fmt.Fprintf(&sb, "  depends_on = [%s]\n", strings.Join(st.DependsOn, ", "))
 	}
 
 	sb.WriteString("}\n")
