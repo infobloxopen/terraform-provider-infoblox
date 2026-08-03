@@ -210,7 +210,7 @@ var RecordCaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The CAA record name in FQDN format. This value can be in unicode format.",
 	},
@@ -279,7 +279,7 @@ var RecordCaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordCaaRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _CAA_ (Certification Authority Authorization) record:  Subfield | Description                           | Required ---------|---------------------------------------|--------- flags    | An unsigned 8-bit integer which specifies the CAA record flags. RFC 6844 defines one (highest) bit in flag octet, remaining bits are deferred for future use. This bit is referenced as _Critical_. When the bit is set (flag value == 128), issuers must not issue certificates in case CAA records contain unknown property tags.<br><br>Defaults to 0.<br><br> | No tag      | The CAA record property tag string which indicates the type of CAA record. The following property tags are defined by RFC 6844:<ul><li>_issue_: Used to explicitly authorize CA to issue certificates for the domain in which the property is published.</li><li>_issuewild_: Used to explicitly authorize a single CA to issue wildcard certificates for the domain in which the property is published.</li><li>_iodef_: Used to specify an email address or URL to report invalid certificate requests or issuers’ certificate policy violations.</li></ul>Note: _issuewild_ type takes precedence over _issue_.<br><br> | Yes value    | A string which contains the CAA record property value.<br><br>Specifies the CA who is authorized to issue a certificate for the domain if the CAA record property tag is _issue_ or _issuewild_.<br><br> Specifies the URL/email address to report CAA policy violation for the domain if the CAA record property tag is _iodef_.<br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -304,7 +304,7 @@ var RecordCaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"type": schema.StringAttribute{
 		Default:             stringdefault.StaticString("CAA"),
 		Computed:            true,
-		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
+		MarkdownDescription: "The DNS resource record type. Always _CAA_ for this resource (numeric type 257, Certification Authority Authorization record).",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
