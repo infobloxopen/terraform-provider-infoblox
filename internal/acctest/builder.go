@@ -44,10 +44,8 @@ func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
 	return sb.String()
 }
 
-// RawExpr is an HCL expression captured verbatim from a tfvars file (for
-// example a reference to another resource, like
-// ${infoblox_zone_auth.prereq.fqdn}). It is emitted unquoted so Terraform
-// resolves it at apply time instead of being treated as a string literal.
+// RawExpr is a verbatim HCL expression (e.g. a resource reference like ${infoblox_zone_auth.prereq.fqdn})
+// emitted unquoted so Terraform resolves it at apply time instead of treating it as a string literal.
 type RawExpr string
 
 func formatHCLValue(v any) string {
