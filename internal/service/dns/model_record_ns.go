@@ -133,7 +133,7 @@ var RecordNsResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The name of the NS record in FQDN format. This value can be in unicode format.",
 	},
