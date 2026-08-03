@@ -114,7 +114,7 @@ Read-Only:
 
 Required:
 
-- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _TXT_ (Text) record:  Subfield | Description                         | Required ---------|-------------------------------------|--------- text     | The semantics of the text depends on the domain where it is found.<br><br> | No (see [below for nested schema](#nestedatt--uddi--rdata))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record. (see [below for nested schema](#nestedatt--uddi--rdata))
 
 Optional:
 
@@ -131,14 +131,14 @@ Optional:
 Read-Only:
 
 - `tags_all` (Map of String) All tags including inherited values.
-- `type` (String) The DNS resource record type specified in the textual mnemonic format or in the "TYPEnnn" format where "nnn" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)
+- `type` (String) The DNS resource record type. Always _TXT_ for this resource (numeric type 16, Text record).
 
 <a id="nestedatt--uddi--rdata"></a>
 ### Nested Schema for `uddi.rdata`
 
 Required:
 
-- `text` (String)
+- `text` (String) The semantics of the text depends on the domain where it is found.
 
 
 <a id="nestedatt--uddi--inheritance_sources"></a>

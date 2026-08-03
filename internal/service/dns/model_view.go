@@ -338,7 +338,7 @@ var ViewResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "The list of customized root name servers. You can either select and use Internet root name servers or specify custom root name servers by providing a host name and IP address to which the Infoblox app",
+		MarkdownDescription: "The list of customized root name servers. You can either select and use Internet root name servers or specify custom root name servers by providing a host name and IP address to which the Infoblox appliance can send queries. Include the specified parameter to set the attribute value. Omit the parameter to retrieve the attribute value.",
 	},
 	"ddns_force_creation_timestamp_update": schema.BoolAttribute{
 		Optional:            true,
@@ -517,7 +517,7 @@ var ViewResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "The fixed RRset order FQDN. If this field does not contain an empty value, the appliance will automatically set the enable_fixed_rrset_order_fqdns field to 'true', unless the same request sets the ena",
+		MarkdownDescription: "The fixed RRset order FQDN. If this field does not contain an empty value, the appliance will automatically set the enable_fixed_rrset_order_fqdns field to 'true', unless the same request sets the enable field to 'false'.",
 	},
 	"forward_only": schema.BoolAttribute{
 		Optional:            true,
@@ -833,7 +833,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: ForwarderResourceSchemaAttributes(false),
 		},
 		Optional:            true,
-		MarkdownDescription: "Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses. ",
+		MarkdownDescription: "Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses.  Defaults to empty.",
 	},
 	"forwarders_only": schema.BoolAttribute{
 		Optional:            true,

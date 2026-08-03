@@ -7,12 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	planmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
@@ -51,6 +53,9 @@ var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
+		},
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "Optional. Required only if _type_ is _server_. FQDN of nameserver.",
 	},
