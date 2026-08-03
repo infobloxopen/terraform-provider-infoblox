@@ -7,8 +7,8 @@ case "rdata" {
     uddi {
       name_in_zone = "txt"
       rdata        = { text = "abc" }
-      # zone         = infoblox_zone_auth.test.id
-      zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
+      zone         = infoblox_zone_auth.test.id
+      #zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
     }
     check = {
       "uddi.rdata.text" = "abc"
@@ -19,8 +19,8 @@ case "rdata" {
     uddi {
       name_in_zone = "txt"
       rdata        = { text = "xyz" }
-      # zone         = infoblox_zone_auth.test.id
-      zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
+      zone         = infoblox_zone_auth.test.id
+      #zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
     }
     check = {
       "uddi.rdata.text" = "xyz"

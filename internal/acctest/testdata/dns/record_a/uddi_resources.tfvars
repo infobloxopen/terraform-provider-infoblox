@@ -2,14 +2,14 @@
 case "basic" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -29,14 +29,14 @@ case "disappears" {
   expect_non_empty_plan = true
   skip                  = true
   skip_reason           = "Test Skipped due to inconsistent error codes returned by the API [NORTHSTAR-12575]"
-  # prerequisites_hcl     = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -50,14 +50,14 @@ case "disappears" {
 case "comment" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -86,14 +86,14 @@ case "comment" {
 case "disabled" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -122,14 +122,14 @@ case "disabled" {
 case "inheritance_sources" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -158,14 +158,14 @@ case "inheritance_sources" {
 case "name_in_zone" {
   backend = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -194,14 +194,14 @@ case "name_in_zone" {
 case "rdata" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -228,14 +228,14 @@ case "rdata" {
 case "tags" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -264,14 +264,14 @@ case "tags" {
 case "ttl" {
   backend = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -300,25 +300,25 @@ case "ttl" {
 case "view" {
   backend = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_view" "one" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # resource "infoblox_view" "two" {
-  #   uddi = {
-  #     name = "{{random2}}"
-  #   }
-  # }
-  # resource "infoblox_zone_auth" "test" {
-  #   uddi = {
-  #     fqdn = "test.com."
-  #     view = infoblox_view.one.id
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "one" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_view" "two" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "test.com."
+      view = infoblox_view.one.id
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -349,20 +349,20 @@ case "view" {
 case "zone" {
   backend = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_zone_auth" "one" {
-  #   uddi = {
-  #     fqdn = "{{random}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # resource "infoblox_zone_auth" "two" {
-  #   uddi = {
-  #     fqdn = "{{random2}}.com."
-  #     primary_type = "cloud"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "one" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  resource "infoblox_zone_auth" "two" {
+    uddi = {
+      fqdn = "{{random2}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
