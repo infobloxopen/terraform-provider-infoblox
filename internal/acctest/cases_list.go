@@ -160,7 +160,7 @@ func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResul
 // references) because the Query step config contains only the list block.
 func buildListBlock(resourceType string, lc *ListCase) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("list %q \"test\" {\n", resourceType))
+	fmt.Fprintf(&sb, "list %q \"test\" {\n", resourceType)
 	sb.WriteString("  provider = infoblox\n")
 
 	if lc.FilterType == "" {
@@ -169,12 +169,12 @@ func buildListBlock(resourceType string, lc *ListCase) string {
 		sb.WriteString("  include_resource = true\n")
 		sb.WriteString("  config {\n")
 
-		sb.WriteString(fmt.Sprintf("    %s = {\n", lc.FilterType))
+		fmt.Fprintf(&sb, "    %s = {\n", lc.FilterType)
 		for _, key := range lc.FilterOrder {
 			refPath := lc.Filters[key]
 			val := resolveStepValue(refPath, lc.Step)
 			if val != "" {
-				sb.WriteString(fmt.Sprintf("      %s = %q\n", key, val))
+				fmt.Fprintf(&sb, "      %s = %q\n", key, val)
 			}
 		}
 		sb.WriteString("    }\n")

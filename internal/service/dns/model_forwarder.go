@@ -6,10 +6,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
@@ -33,8 +35,11 @@ func ForwarderResourceSchemaAttributes(fqdnOptional bool) map[string]schema.Attr
 			MarkdownDescription: "Server IP address.",
 		},
 		"fqdn": schema.StringAttribute{
-			Optional:            fqdnOptional,
-			Required:            !fqdnOptional,
+			Optional: fqdnOptional,
+			Required: !fqdnOptional,
+			Validators: []validator.String{
+				customvalidator.IsValidUDDIDomainName(),
+			},
 			MarkdownDescription: "Server FQDN.",
 		},
 	}
