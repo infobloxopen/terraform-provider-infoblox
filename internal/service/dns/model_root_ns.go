@@ -6,10 +6,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
@@ -32,7 +34,10 @@ var RootNSResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "IPv4 address.",
 	},
 	"fqdn": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "FQDN.",
 	},
 }

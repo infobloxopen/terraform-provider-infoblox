@@ -195,9 +195,12 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewRecordNaptrResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordAaaaResource,
 		dns.NewRecordTxtResource,
+		dns.NewRecordCaaResource,
+		dns.NewRecordDnameResource,
 		dns.NewRecordNsResource,
 		dns.NewZoneAuthResource,
 		dns.NewViewResource,
@@ -209,9 +212,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewRecordNaptrDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
+		dns.NewRecordCaaDataSource,
+		dns.NewRecordDnameDataSource,
 		dns.NewRecordNsDataSource,
 		dns.NewZoneAuthDataSource,
 		dns.NewViewDataSource,
@@ -226,9 +232,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewRecordNaptrList,
 		dns.NewRecordCnameList,
 		dns.NewRecordAaaaList,
 		dns.NewRecordTxtList,
+		dns.NewRecordCaaList,
+		dns.NewRecordDnameList,
 		dns.NewRecordNsList,
 		dns.NewZoneAuthList,
 		dns.NewViewList,
