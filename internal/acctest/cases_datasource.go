@@ -111,13 +111,13 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 // whose values reference attributes of the resource created in the same config.
 func buildDataSourceBlock(dsType, resourceType string, dc *DataSourceCase) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("data %q \"test\" {\n", dsType))
-	sb.WriteString(fmt.Sprintf("  %s = {\n", dc.FilterType))
+	fmt.Fprintf(&sb, "data %q \"test\" {\n", dsType)
+	fmt.Fprintf(&sb, "  %s = {\n", dc.FilterType)
 	for _, key := range dc.FilterOrder {
-		sb.WriteString(fmt.Sprintf("    %q = %s.test.%s\n", key, resourceType, dc.Filters[key]))
+		fmt.Fprintf(&sb, "    %q = %s.test.%s\n", key, resourceType, dc.Filters[key])
 	}
 	sb.WriteString("  }\n")
-	sb.WriteString(fmt.Sprintf("  depends_on = [%s.test]\n", resourceType))
+	fmt.Fprintf(&sb, "  depends_on = [%s.test]\n", resourceType)
 	sb.WriteString("}\n")
 	return sb.String()
 }
