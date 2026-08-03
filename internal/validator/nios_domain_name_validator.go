@@ -33,9 +33,9 @@ type domainNameValidator struct {
 	checkPrintableChars bool
 }
 
-// IsValidDomainName creates a new domain name validator with default options
+// IsValidNIOSDomainName creates a new domain name validator with default options
 // (multi-label enabled, null/empty not allowed, root zone allowed, trailing dot not allowed, printable chars not checked)
-func IsValidDomainName(opts ...DomainNameOption) validator.String {
+func IsValidNIOSDomainName(opts ...DomainNameOption) validator.String {
 	v := domainNameValidator{
 		isMultiLabel:        true,
 		allowRootZone:       true,

@@ -33,7 +33,7 @@ func (m useDefaultAclForNull) PlanModifyList(ctx context.Context, req planmodifi
 	}
 
 	// Only default when the user left the value unset.
-	if !(req.ConfigValue.IsUnknown() || req.ConfigValue.IsNull()) {
+	if !req.ConfigValue.IsNull() && !req.ConfigValue.IsUnknown() {
 		return
 	}
 
