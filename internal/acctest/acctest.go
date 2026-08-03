@@ -234,7 +234,7 @@ func ResolvePlaceholder(placeholder string) string {
 }
 
 // ReplacePlaceholders substitutes all {{token}} placeholders in content with random or env-sourced values.
-// See ResolvePlaceholder for the full token list.
+// See ResolvePlaceholder for the full token list data.
 func ReplacePlaceholders(content string) string {
 	result := content
 	for _, ph := range placeholderPattern.FindAllString(content, -1) {
