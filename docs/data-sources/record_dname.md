@@ -108,11 +108,11 @@ Read-Only:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
-- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _DNAME_ (Delegation Name) record:  Subfield | Description                           | Required ---------|---------------------------------------|--------- target   | The target domain name to which the zone will be mapped. Can be empty.<br><br> | Yes (see [below for nested schema](#nestedatt--results--uddi--rdata))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record. (see [below for nested schema](#nestedatt--results--uddi--rdata))
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
 - `ttl` (Number) The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.
-- `type` (String) The DNS resource record type specified in the textual mnemonic format or in the "TYPEnnn" format where "nnn" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)
+- `type` (String) The DNS resource record type. Always _DNAME_ for this resource (numeric type 39, Delegation Name record).
 - `view` (String) The resource identifier.
 - `zone` (String) The resource identifier.
 
