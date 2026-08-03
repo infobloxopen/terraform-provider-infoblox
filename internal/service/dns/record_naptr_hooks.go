@@ -111,8 +111,8 @@ func FlattenUDDIRecordNaptrRdata(ctx context.Context, from map[string]any, diags
 		Order:       flex.FlattenInt64Pointer(flex.RDataInt64Ptr(from["order"])),
 		Preference:  flex.FlattenInt64Pointer(flex.RDataInt64Ptr(from["preference"])),
 		Regexp:      flex.FlattenStringPointer(flex.RDataStringPtr(from["regexp"])),
-		Replacement: flex.FlattenString(flex.RDataString(from["replacement"])),
-		Services:    flex.FlattenString(flex.RDataString(from["services"])),
+		Replacement: flex.FlattenStringPointer(flex.RDataStringPtr(from["replacement"])),
+		Services:    flex.FlattenStringPointer(flex.RDataStringPtr(from["services"])),
 	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordNaptrRdataAttrTypes, m)
 	diags.Append(d...)

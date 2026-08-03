@@ -62,7 +62,7 @@ func FlattenUDDIRecordTxtRdata(ctx context.Context, from map[string]any, diags *
 		return types.ObjectNull(UDDIRecordTxtRdataAttrTypes)
 	}
 	m := UDDIRecordTxtRdataModel{
-		Text: flex.FlattenString(flex.RDataString(from["text"])),
+		Text: flex.FlattenStringPointer(flex.RDataStringPtr(from["text"])),
 	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordTxtRdataAttrTypes, m)
 	diags.Append(d...)

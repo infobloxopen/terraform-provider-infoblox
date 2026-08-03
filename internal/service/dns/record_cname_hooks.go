@@ -62,7 +62,7 @@ func FlattenUDDIRecordCnameRdata(ctx context.Context, from map[string]any, diags
 		return types.ObjectNull(UDDIRecordCnameRdataAttrTypes)
 	}
 	m := UDDIRecordCnameRdataModel{
-		Cname: flex.FlattenString(flex.RDataString(from["cname"])),
+		Cname: flex.FlattenStringPointer(flex.RDataStringPtr(from["cname"])),
 	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordCnameRdataAttrTypes, m)
 	diags.Append(d...)
