@@ -31,7 +31,7 @@ type (
 
 // SetOperationTimeout sets the global operation timeout, in seconds.
 func SetOperationTimeout(timeout int64) {
-	if timeout < 0 {
+	if timeout <= 0 {
 		return
 	}
 	OperationTimeout = time.Duration(timeout) * time.Second

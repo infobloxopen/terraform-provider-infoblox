@@ -26,9 +26,9 @@ func TestFor(t *testing.T) {
 		{"uddi create retries missing zone", core.BackendUDDI, OpCreate, errors.New("404 Not Found, 'zone not found'"), true, 2 * time.Minute},
 		{"uddi update retries missing record", core.BackendUDDI, OpUpdate, errors.New("404 Not Found, 'record not found'"), true, 2 * time.Minute},
 		{"uddi update ignores other not found", core.BackendUDDI, OpUpdate, errors.New("404 Not Found, 'zone not found'"), false, 2 * time.Minute},
-		{"uddi read does not retry", core.BackendUDDI, OpRead, errors.New("404 Not Found, 'record not found'"), false, 0},
-		{"uddi delete does not retry", core.BackendUDDI, OpDelete, errors.New("404 Not Found, 'record not found'"), false, 0},
-		{"nios create does not retry", core.BackendNIOS, OpCreate, errors.New("zone not found"), false, 0},
+		{"uddi read falls back to transient", core.BackendUDDI, OpRead, errors.New("404 Not Found, 'record not found'"), false, 0},
+		{"uddi delete falls back to transient", core.BackendUDDI, OpDelete, errors.New("404 Not Found, 'record not found'"), false, 0},
+		{"nios create falls back to transient", core.BackendNIOS, OpCreate, errors.New("zone not found"), false, 0},
 	}
 
 	for _, tc := range tests {

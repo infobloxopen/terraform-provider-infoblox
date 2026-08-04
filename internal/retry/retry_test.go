@@ -186,12 +186,12 @@ func TestSetOperationTimeout(t *testing.T) {
 		t.Fatalf("expected 10s, got %v", OperationTimeout)
 	}
 
+	OperationTimeout = 5 * time.Second
 	SetOperationTimeout(0)
-	if OperationTimeout != 0 {
-		t.Fatalf("expected 0, got %v", OperationTimeout)
+	if OperationTimeout != 5*time.Second {
+		t.Fatalf("zero timeout should not change value, got %v", OperationTimeout)
 	}
 
-	OperationTimeout = 5 * time.Second
 	SetOperationTimeout(-1)
 	if OperationTimeout != 5*time.Second {
 		t.Fatalf("negative timeout should not change value")
