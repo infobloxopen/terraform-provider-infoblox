@@ -114,7 +114,6 @@ Optional:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
-- `options` (Map of String) The DNS resource record type-specific non-protocol options.
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `ttl` (Number) The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.
 - `view` (String) The resource identifier.

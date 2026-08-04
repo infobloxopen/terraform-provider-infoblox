@@ -104,7 +104,6 @@ Read-Only:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
-- `options` (Map of String) The DNS resource record type-specific non-protocol options.
 - `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record. (see [below for nested schema](#nestedatt--results--uddi--rdata))
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
