@@ -110,7 +110,7 @@ var UDDIRecordNaptrAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordNaptrType            = "Naptr"
+	RecordNaptrType            = "NAPTR"
 	RecordNaptrInheritanceType = "full"
 	RecordNaptrReturnFields    = "cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,dns_name,dns_replacement,extattrs,flags,forbid_reclamation,last_queried,name,order,preference,reclaimable,regexp,replacement,services,ttl,use_ttl,view,zone"
 )

@@ -105,7 +105,7 @@ var UDDIRecordAaaaAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordAaaaType            = "Aaaa"
+	RecordAaaaType            = "AAAA"
 	RecordAaaaInheritanceType = "full"
 	RecordAaaaReturnFields    = "aws_rte53_record_info,cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,discovered_data,dns_name,extattrs,forbid_reclamation,ipv6addr,last_queried,ms_ad_user_data,name,reclaimable,shared_record_group,ttl,use_ttl,view,zone"
 )
