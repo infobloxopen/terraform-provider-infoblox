@@ -4,7 +4,7 @@ case "filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test_zone" {
     nios = {
-      fqdn = "example.com"
+      fqdn = "{{random}}.com"
       view = "default"
     }
   }
@@ -20,8 +20,8 @@ case "filters" {
 
   step {
     nios {
-      name       = "example.com"
-      nameserver = "{{random}}.example.com"
+      name       = "${infoblox_zone_auth.test_zone.nios.fqdn}"
+      nameserver = "{{random2}}.${infoblox_zone_auth.test_zone.nios.fqdn}"
       addresses  = [{address = "20.0.0.0", auto_create_ptr = false}]
       view       = "default"
     }

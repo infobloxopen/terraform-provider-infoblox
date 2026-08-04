@@ -1,6 +1,14 @@
 # Auto-generated datasource acceptance-test cases for RecordNs.
 case "filters" {
   backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -12,7 +20,7 @@ case "filters" {
 
   step {
     uddi {
-      zone  = "dns/auth_zone/0060207e-7664-4742-8eed-2d8e34db0035"
+      zone  = infoblox_zone_auth.test.id
       rdata = { dname = "example.com." }
     }
   }
