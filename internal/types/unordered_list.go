@@ -49,7 +49,7 @@ func (t UnorderedListStringType) Equal(o attr.Type) bool {
 }
 
 // ApplyTerraform5AttributePathStep applies the given path step.
-func (t UnorderedListStringType) ApplyTerraform5AttributePathStep(step tftypes.AttributePathStep) (interface{}, error) {
+func (t UnorderedListStringType) ApplyTerraform5AttributePathStep(step tftypes.AttributePathStep) (any, error) {
 	return basetypes.ListType{ElemType: basetypes.StringType{}}.ApplyTerraform5AttributePathStep(step)
 }
 
