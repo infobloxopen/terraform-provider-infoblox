@@ -53,9 +53,7 @@ func ExpandUDDIRecordNsRdata(ctx context.Context, o types.Object, diags *diag.Di
 		return nil
 	}
 	rdata := make(map[string]any)
-	if dname := flex.ExpandString(m.Dname); dname != "" {
-		rdata["dname"] = dname
-	}
+	rdata["dname"] = flex.ExpandString(m.Dname)
 	return rdata
 }
 

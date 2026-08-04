@@ -58,7 +58,6 @@ type UDDIRecordNsModel struct {
 	Disabled           types.Bool   `tfsdk:"disabled"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	NameInZone         types.String `tfsdk:"name_in_zone"`
-	Options            types.Map    `tfsdk:"options"`
 	Rdata              types.Object `tfsdk:"rdata"`
 	Tags               types.Map    `tfsdk:"tags"`
 	TagsAll            types.Map    `tfsdk:"tags_all"`
@@ -74,7 +73,6 @@ var UDDIRecordNsAttrTypes = map[string]attr.Type{
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
-	"options":             types.MapType{ElemType: types.StringType},
 	"rdata":               types.ObjectType{AttrTypes: UDDIRecordNsRdataAttrTypes},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
@@ -205,11 +203,6 @@ var RecordNsResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
 	},
-	"options": schema.MapAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.",
-	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordNsRdataResourceSchemaAttributes,
 		Required:            true,
@@ -316,7 +309,6 @@ func (m *UDDIRecordNsModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
-		Options:            flex.ExpandMapStringAny(ctx, m.Options, diags),
 		Rdata:              ExpandUDDIRecordNsRdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
@@ -384,7 +376,6 @@ func (m *UDDIRecordNsModel) Flatten(ctx context.Context, from *coremodel.UDDIRec
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
-	m.Options = flex.FlattenMapStringAny(ctx, from.Options, diags)
 	m.Rdata = FlattenUDDIRecordNsRdata(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
