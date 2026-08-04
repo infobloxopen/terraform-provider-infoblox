@@ -208,12 +208,12 @@ var RecordNsResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"options": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|----------------------------------------- create_ptr | A boolean flag which can be set to _true_ for POST operation to automatically create the corresponding PTR record. check_rmz  | A boolean flag which can be set to _true_ for POST operation to check the existence of reverse zone for creating the corresponding PTR record. Only applicable if the _create_ptr_ option is set to _true_.   Valid value for _PTR_ (Pointer) records:  Option     | Description -----------|---------------------------------------- address    | For GET operation it contains the IPv4 or IPv6 address represented by the PTR record.<br><br>For POST and PATCH operations it can be used to create/update a PTR record based on the IP address it represents. In this case, in addition to the _address_ in the options field, need to specify the _view_ field. |",
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.",
 	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordNsRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _NS_ (Name Server) record:  Subfield | Description                         | Required ---------|-------------------------------------|--------- dname    | A domain-name which specifies a host which should be authoritative for the specified class and domain. Can be absolute or relative domain name and include UTF-8. <br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -238,7 +238,7 @@ var RecordNsResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"type": schema.StringAttribute{
 		Default:             stringdefault.StaticString("NS"),
 		Computed:            true,
-		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
+		MarkdownDescription: "The DNS resource record type. Always _NS_ for this resource (numeric type 2, Name Server record).",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
