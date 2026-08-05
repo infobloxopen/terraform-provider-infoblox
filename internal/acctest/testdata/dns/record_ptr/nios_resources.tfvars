@@ -1,7 +1,15 @@
 # Auto-generated resource acceptance-test cases for RecordPtr.
 case "basic" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -23,10 +31,18 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
+  parallel              = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -38,8 +54,16 @@ case "disappears" {
 }
 
 case "comment" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -68,8 +92,16 @@ case "comment" {
 }
 
 case "creator" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -98,8 +130,16 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -130,8 +170,16 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -160,8 +208,16 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -190,8 +246,16 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -220,8 +284,16 @@ case "ext_attrs" {
 }
 
 case "forbid_reclamation" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -250,8 +322,16 @@ case "forbid_reclamation" {
 }
 
 case "ipv4addr" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -278,8 +358,16 @@ case "ipv4addr" {
 }
 
 case "ipv6addr" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -310,8 +398,16 @@ case "ipv6addr" {
 }
 
 case "name" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -338,8 +434,16 @@ case "name" {
 }
 
 case "ptrdname" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -366,8 +470,16 @@ case "ptrdname" {
 }
 
 case "ttl" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     nios {

@@ -294,6 +294,7 @@ var RecordPtrResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"options": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordPtrOptionsResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The DNS resource record type-specific non-protocol options.",
 	},
 	"rdata": schema.SingleNestedAttribute{
