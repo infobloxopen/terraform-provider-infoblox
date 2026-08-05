@@ -102,7 +102,7 @@ var UDDIRecordCaaAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordCaaType            = "Caa"
+	RecordCaaType            = "CAA"
 	RecordCaaInheritanceType = "full"
 	RecordCaaReturnFields    = "ca_flag,ca_tag,ca_value,cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,dns_name,extattrs,forbid_reclamation,last_queried,name,reclaimable,ttl,use_ttl,view,zone"
 )
