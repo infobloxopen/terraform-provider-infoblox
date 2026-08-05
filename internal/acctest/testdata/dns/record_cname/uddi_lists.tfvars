@@ -1,13 +1,21 @@
 # RecordCname — uddi list cases
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random5}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random}}"
       rdata        = { cname = "target.example.com." }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+      zone         = infoblox_zone_auth.test.id
     }
   }
 
@@ -20,14 +28,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random5}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random}}"
       rdata        = { cname = "target.example.com." }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+      zone         = infoblox_zone_auth.test.id
     }
   }
 
@@ -47,14 +63,22 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random5}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random}}"
       rdata        = { cname = "target.example.com." }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+      zone         = infoblox_zone_auth.test.id
       tags         = { tag1 = "{{random2}}" }
     }
   }
