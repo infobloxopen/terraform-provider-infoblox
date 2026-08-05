@@ -1,9 +1,17 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_zone" {
+  uddi = {
+    fqdn         = "example.com."
+    primary_type = "cloud"
+  }
+}
+
 resource "infoblox_record_ns" "example" {
   uddi = {
     rdata = {
-      dname = "ns1.example.com."
+      dname = "ns1.${infoblox_zone_auth.parent_zone.uddi.fqdn}"
     }
-    zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+    zone         = infoblox_zone_auth.parent_zone.id
     name_in_zone = "ns"
     comment      = "Example NS record"
     disabled     = false

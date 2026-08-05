@@ -15,9 +15,16 @@ Manages an Infoblox RecordA across NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "example" {
+  nios = {
+    fqdn = "example.com"
+  }
+}
+
 resource "infoblox_record_a" "example_1" {
   nios = {
-    name     = "rec-1.example.com"
+    name     = "rec-1.${infoblox_zone_auth.example.nios.fqdn}"
     ipv4addr = "10.0.0.18"
     comment  = "This is a test A record"
     creator  = "DYNAMIC"
@@ -29,7 +36,7 @@ resource "infoblox_record_a" "example_1" {
 
 resource "infoblox_record_a" "example_dynamic_allocation" {
   nios = {
-    name    = "rec-dynamic-1.example.com"
+    name    = "rec-dynamic-1.${infoblox_zone_auth.example.nios.fqdn}"
     comment = "A record with a dynamically allocated address"
     dynamic_allocation = {
       network = "13.0.0.0/24"
@@ -39,7 +46,7 @@ resource "infoblox_record_a" "example_dynamic_allocation" {
 
 resource "infoblox_record_a" "example_dynamic_allocation_2" {
   nios = {
-    name    = "rec-dynamic-2.example.com"
+    name    = "rec-dynamic-2.${infoblox_zone_auth.example.nios.fqdn}"
     comment = "A record with a dynamically allocated address"
     dynamic_allocation = {
       filter_params = {
@@ -53,14 +60,22 @@ resource "infoblox_record_a" "example_dynamic_allocation_2" {
 ### UDDI Backend
 
 ```terraform
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "example" {
+  uddi = {
+    fqdn         = "example.com."
+    primary_type = "cloud"
+  }
+}
+
 resource "infoblox_record_a" "test1" {
   uddi = {
-    name_in_zone = "record_a.example.com"
+    name_in_zone = "record_a"
     rdata = {
       address = "10.0.0.19"
     }
     comment = "test comment"
-    zone    = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+    zone    = infoblox_zone_auth.example.id
     tags = {
       Site = "location-1"
     }

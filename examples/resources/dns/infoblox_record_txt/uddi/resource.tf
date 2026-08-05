@@ -1,11 +1,19 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_zone" {
+  uddi = {
+    fqdn         = "example.com."
+    primary_type = "cloud"
+  }
+}
+
 // Create Record TXT
 resource "infoblox_record_txt" "example" {
   uddi = {
     name_in_zone = "txt"
     rdata = {
-      text = "example.com"
+      text = "Example TXT Record"
     }
-    zone = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
+    zone = infoblox_zone_auth.parent_zone.id
 
     # Other optional fields
     comment  = "Example comment"
