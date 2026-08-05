@@ -3,14 +3,22 @@
 # Add list cases here manually.
 
 case "basic" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone         = "dns/auth_zone/6ab79060-d813-4de7-be60-84f228583684"
-      rdata        = { dname = "ns1.example.com" }
+      zone         = infoblox_zone_auth.test.id
+      rdata        = { dname = "ns.${infoblox_zone_auth.test.uddi.fqdn}" }
     }
   }
 
@@ -23,14 +31,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone         = "dns/auth_zone/6ab79060-d813-4de7-be60-84f228583684"
-      rdata        = { dname = "ns1.example.com" }
+      zone         = infoblox_zone_auth.test.id
+      rdata        = { dname = "ns.${infoblox_zone_auth.test.uddi.fqdn}" }
     }
   }
 
@@ -49,15 +65,23 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone         = "dns/auth_zone/6ab79060-d813-4de7-be60-84f228583684"
-      rdata        = { dname = "ns1.example.com" }
-      tags         = { tag1 = "{{random4}}" }
+      zone         = infoblox_zone_auth.test.id
+      rdata        = { dname = "ns.${infoblox_zone_auth.test.uddi.fqdn}" }
+      tags         = { tag1 = "{{random3}}" }
     }
   }
 

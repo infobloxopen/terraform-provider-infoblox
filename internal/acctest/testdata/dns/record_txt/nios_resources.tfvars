@@ -5,20 +5,20 @@ case "basic" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
       view = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.text"               = "Record Text"
-      "nios.name"               = "{{random}}.{{random5}}.com"
+      "nios.name"               = "{{random2}}.{{random}}.com"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
       "nios.disable"            = "false"
@@ -36,14 +36,14 @@ case "disappears" {
   prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
       view = infoblox_zone_auth.test.nios.view
     }
@@ -57,14 +57,14 @@ case "comment" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       comment = "This is a new record"
     }
@@ -75,7 +75,7 @@ case "comment" {
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       comment = "This is an updated record"
     }
@@ -92,14 +92,14 @@ case "creator" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       creator = "STATIC"
     }
@@ -110,7 +110,7 @@ case "creator" {
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       creator = "DYNAMIC"
     }
@@ -127,14 +127,14 @@ case "ddns_principal" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text           = "Record Text"
       ddns_principal = "dhcp/server1@CORP.LOCAL"
       creator        = "DYNAMIC"
@@ -146,7 +146,7 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text           = "Record Text"
       ddns_principal = "dhcp/server2@CORP.LOCAL"
       creator        = "DYNAMIC"
@@ -164,14 +164,14 @@ case "ddns_protected" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text           = "Record Text"
       ddns_protected = false
     }
@@ -182,7 +182,7 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text           = "Record Text"
       ddns_protected = true
     }
@@ -199,14 +199,14 @@ case "disable" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       disable = false
     }
@@ -217,7 +217,7 @@ case "disable" {
 
   step {
     nios {
-      name    = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text    = "Record Text"
       disable = true
     }
@@ -234,30 +234,30 @@ case "ext_attrs" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      text      = "Record Text"
-      ext_attrs = { Site = "{{random2}}" }
-    }
-    check = {
-      "nios.ext_attrs.Site" = "{{random2}}"
-    }
-  }
-
-  step {
-    nios {
-      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text      = "Record Text"
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
       "nios.ext_attrs.Site" = "{{random3}}"
+    }
+  }
+
+  step {
+    nios {
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      text      = "Record Text"
+      ext_attrs = { Site = "{{random4}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
@@ -269,14 +269,14 @@ case "forbid_reclamation" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text               = "Record Text"
       forbid_reclamation = true
     }
@@ -287,7 +287,7 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text               = "Record Text"
       forbid_reclamation = false
     }
@@ -304,20 +304,10 @@ case "name" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
-
-  step {
-    nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      text = "Record Text"
-    }
-    check = {
-      "nios.name" = "{{random}}.{{random5}}.com"
-    }
-  }
 
   step {
     nios {
@@ -325,7 +315,17 @@ case "name" {
       text = "Record Text"
     }
     check = {
-      "nios.name" = "{{random2}}.{{random5}}.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
+    }
+  }
+
+  step {
+    nios {
+      name = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
+      text = "Record Text"
+    }
+    check = {
+      "nios.name" = "{{random3}}.{{random}}.com"
     }
   }
 
@@ -337,14 +337,14 @@ case "text" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
     }
     check = {
@@ -354,7 +354,7 @@ case "text" {
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Updated Text"
     }
     check = {
@@ -370,14 +370,14 @@ case "ttl" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
       ttl  = 10
     }
@@ -388,7 +388,7 @@ case "ttl" {
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
       ttl  = 1000
     }

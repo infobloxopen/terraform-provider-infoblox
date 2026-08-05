@@ -5,14 +5,14 @@ case "basic" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      canonical = "{{random}}.example.com"
+      canonical = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       view      = infoblox_zone_auth.test.nios.view
     }
@@ -32,14 +32,14 @@ case "filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      canonical = "{{random}}.example.com"
+      canonical = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       view      = infoblox_zone_auth.test.nios.view
     }
@@ -65,17 +65,17 @@ case "ext_attr_filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
     nios {
-      canonical = "{{random}}.example.com"
+      canonical = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       view      = infoblox_zone_auth.test.nios.view
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
   }
 

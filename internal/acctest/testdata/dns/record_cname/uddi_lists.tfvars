@@ -5,7 +5,7 @@ case "basic" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn = "{{random5}}.com."
+      fqdn = "{{random}}.com."
       primary_type = "cloud"
     }
   }
@@ -13,8 +13,8 @@ case "basic" {
 
   step {
     uddi {
-      name_in_zone = "{{random}}"
-      rdata        = { cname = "target.example.com." }
+      name_in_zone = "{{random2}}"
+      rdata        = { cname = "target.${infoblox_zone_auth.test.uddi.fqdn}" }
       zone         = infoblox_zone_auth.test.id
     }
   }
@@ -33,7 +33,7 @@ case "filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn = "{{random5}}.com."
+      fqdn = "{{random}}.com."
       primary_type = "cloud"
     }
   }
@@ -41,8 +41,8 @@ case "filters" {
 
   step {
     uddi {
-      name_in_zone = "{{random}}"
-      rdata        = { cname = "target.example.com." }
+      name_in_zone = "{{random2}}"
+      rdata        = { cname = "target.${infoblox_zone_auth.test.uddi.fqdn}" }
       zone         = infoblox_zone_auth.test.id
     }
   }
@@ -68,7 +68,7 @@ case "tag_filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn = "{{random5}}.com."
+      fqdn = "{{random}}.com."
       primary_type = "cloud"
     }
   }
@@ -76,10 +76,10 @@ case "tag_filters" {
 
   step {
     uddi {
-      name_in_zone = "{{random}}"
-      rdata        = { cname = "target.example.com." }
+      name_in_zone = "{{random2}}"
+      rdata        = { cname = "target.${infoblox_zone_auth.test.uddi.fqdn}" }
       zone         = infoblox_zone_auth.test.id
-      tags         = { tag1 = "{{random2}}" }
+      tags         = { tag1 = "{{random3}}" }
     }
   }
 

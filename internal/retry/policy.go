@@ -39,21 +39,31 @@ type override struct {
 // operation on the same object can differ per backend.
 var overrides = map[override]Policy{
 	// UDDI calls can fail with "not found" if the zone of a record is not yet created, hence we retry for little longer.
-	{"RecordA", core.BackendUDDI, OpCreate}:     {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordA", core.BackendUDDI, OpUpdate}:     {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-	{"RecordAaaa", core.BackendUDDI, OpCreate}:  {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordAaaa", core.BackendUDDI, OpUpdate}:  {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-	{"RecordCaa", core.BackendUDDI, OpCreate}:   {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordCaa", core.BackendUDDI, OpUpdate}:   {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+	{"RecordA", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordA", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"RecordAaaa", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordAaaa", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"RecordCaa", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordCaa", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
 	{"RecordCname", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordCname", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
 	{"RecordDname", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordDname", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
 	{"RecordNaptr", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordNaptr", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-	{"RecordTxt", core.BackendUDDI, OpCreate}:   {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordTxt", core.BackendUDDI, OpUpdate}:   {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-	{"ZoneAuth", core.BackendUDDI, OpDelete}:    {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
+
+	{"RecordTxt", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordTxt", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"RecordNs", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordNs", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 }
 
 // For resolves the policy for op on backend. T is the core model of the object,

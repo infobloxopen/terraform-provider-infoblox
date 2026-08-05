@@ -24,7 +24,7 @@ case "filters" {
     uddi {
       name_in_zone = "{{random2}}"
       zone         = infoblox_zone_auth.test.id
-      rdata        = { cname = "c" }
+      rdata        = { cname = "c.${infoblox_zone_auth.test.uddi.fqdn}" }
     }
   }
 

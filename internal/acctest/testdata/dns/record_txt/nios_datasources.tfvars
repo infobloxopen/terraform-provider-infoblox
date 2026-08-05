@@ -4,7 +4,7 @@ case "filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
@@ -20,7 +20,7 @@ case "filters" {
 
   step {
     nios {
-      name = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "record text"
     }
   }
@@ -32,7 +32,7 @@ case "ext_attr_filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn = "{{random5}}.com"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
@@ -48,9 +48,9 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text      = "record text"
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 
