@@ -1,7 +1,14 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_zone" {
+  nios = {
+    fqdn = "example.com"
+  }
+}
+
 // Create Record NAPTR with Basic Fields
 resource "infoblox_record_naptr" "create_record_basic" {
   nios = {
-    name        = "naptr_record.example.com"
+    name        = "naptr_record.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     order       = 10
     preference  = 10
     replacement = "."
@@ -17,11 +24,10 @@ resource "infoblox_record_naptr" "create_record_basic" {
 resource "infoblox_record_naptr" "create_record_additional_fields" {
   nios = {
     // Basic Fields
-    name        = "naptr_record1.example.com"
+    name        = "naptr_record1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     order       = 10
     preference  = 10
     replacement = "."
-    view        = "default"
 
     // Additional Fields
     flags              = "U"

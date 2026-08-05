@@ -16,9 +16,11 @@ case "filters" {
     }
   }
 
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.flags", "nios.forbid_reclamation", "nios.name", "nios.order", "nios.preference", "nios.regexp", "nios.replacement", "nios.services", "nios.ttl", "nios.use_ttl", "nios.view"]
+
   step {
     nios {
-      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name        = "{{random2}}.$${infoblox_zone_auth.test.nios.fqdn}"
       order       = 10
       preference  = 10
       replacement = "."
@@ -43,6 +45,8 @@ case "ext_attr_filters" {
       Site = "nios.ext_attrs.Site"
     }
   }
+
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.flags", "nios.forbid_reclamation", "nios.name", "nios.order", "nios.preference", "nios.regexp", "nios.replacement", "nios.services", "nios.ttl", "nios.use_ttl", "nios.view"]
 
   step {
     nios {

@@ -1,22 +1,30 @@
 # Auto-generated datasource acceptance-test cases for RecordA.
 case "filters" {
   backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   filter {
-    type = "filters"
+    type   = "filters"
     values = {
       name_in_zone = "uddi.name_in_zone"
       zone         = "uddi.zone"
     }
   }
 
+  pair_checks = ["uddi.absolute_name_spec", "uddi.comment", "uddi.disabled", "uddi.name_in_zone", "uddi.ttl", "uddi.type", "uddi.view", "uddi.zone"]
+
   step {
     uddi {
-
-      # zone  = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
+      zone         = infoblox_zone_auth.test.id
       rdata        = { address = "{{random_ip}}" }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      name_in_zone = "{{random}}"
     }
   }
 
@@ -24,20 +32,29 @@ case "filters" {
 
 case "tag_filters" {
   backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   filter {
-    type = "tag_filters"
+    type   = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }
   }
 
+  pair_checks = ["uddi.absolute_name_spec", "uddi.comment", "uddi.disabled", "uddi.name_in_zone", "uddi.ttl", "uddi.type", "uddi.view", "uddi.zone"]
+
   step {
     uddi {
-      # zone  = infoblox_zone_auth.test.id
+      zone  = infoblox_zone_auth.test.id
       rdata = { address = "{{random_ip}}" }
-      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      tags  = { tag1 = "{{random2}}" }
+      tags  = { tag1 = "{{random}}" }
     }
   }
 

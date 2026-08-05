@@ -12,8 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -81,6 +83,10 @@ func (r *RecordNaptrResource) Configure(_ context.Context, req resource.Configur
 	r.service = coresvc.NewRecordNaptrService(r.backend, client.NIOS, client.UDDI)
 }
 
+func (r *RecordNaptrResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.RecordNaptr](r.backend, op)
+}
+
 func (r *RecordNaptrResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data RecordNaptrModel
 
@@ -131,9 +137,21 @@ func (r *RecordNaptrResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
-		ReturnFields: RecordNaptrReturnFields,
-		Inherit:      RecordNaptrInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNaptr
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
+			ReturnFields: RecordNaptrReturnFields,
+			Inherit:      RecordNaptrInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordNaptr: %s", err))
@@ -164,9 +182,21 @@ func (r *RecordNaptrResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	apiResp, httpResp, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-		ReturnFields: RecordNaptrReturnFields,
-		Inherit:      RecordNaptrInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNaptr
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+			ReturnFields: RecordNaptrReturnFields,
+			Inherit:      RecordNaptrInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
@@ -250,11 +280,23 @@ func (r *RecordNaptrResource) ReadByExtAttrs(ctx context.Context, data *RecordNa
 	}
 
 	// Search for the record using the Terraform Internal ID
-	records, _, _, err := r.service.List(ctx, &core.ListOptions{
-		ReturnFields: RecordNaptrReturnFields,
-		ExtAttrFilter: map[string]string{
-			flex.TerraformInternalID: tfInternalID,
-		},
+	var (
+		records  []*coremodel.RecordNaptr
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var apiErr error
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: RecordNaptrReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordNaptr by extattrs: %s", err))
@@ -345,9 +387,21 @@ func (r *RecordNaptrResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
-	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-		ReturnFields: RecordNaptrReturnFields,
-		Inherit:      RecordNaptrInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNaptr
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+			ReturnFields: RecordNaptrReturnFields,
+			Inherit:      RecordNaptrInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordNaptr: %s", err))
@@ -387,9 +441,18 @@ func (r *RecordNaptrResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	httpRes, err := r.service.Delete(ctx, data.Id.ValueString())
+	var httpResp *http.Response
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpDelete), func(ctx context.Context) (int, error) {
+		var apiErr error
+		httpResp, apiErr = r.service.Delete(ctx, data.Id.ValueString())
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
 	if err != nil {
-		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordNaptr: %s", err))

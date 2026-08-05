@@ -18,6 +18,8 @@ case "filters" {
     }
   }
 
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.target", "nios.ttl", "nios.use_ttl", "nios.view"]
+
   step {
     nios {
       name   = infoblox_zone_auth.test.nios.fqdn
@@ -44,6 +46,8 @@ case "ext_attr_filters" {
       Site = "nios.ext_attrs.Site"
     }
   }
+
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.target", "nios.ttl", "nios.use_ttl", "nios.view"]
 
   step {
     nios {

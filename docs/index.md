@@ -58,6 +58,7 @@ provider "infoblox" {
 ### Optional
 
 - `nios` (Attributes) Configuration for NIOS backend. (see [below for nested schema](#nestedatt--nios))
+- `operation_timeout` (Number) Total time (in seconds) allowed for an operation, including any retries of it. Default value: 60
 - `uddi` (Attributes) Configuration for UDDI backend. (see [below for nested schema](#nestedatt--uddi))
 
 <a id="nestedatt--nios"></a>

@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// runTest runs a test case, using ParallelTest if parallel is true.
 func runTest(t *testing.T, parallel bool, tc resource.TestCase) {
 	if parallel {
 		resource.ParallelTest(t, tc)
@@ -16,7 +15,7 @@ func runTest(t *testing.T, parallel bool, tc resource.TestCase) {
 	}
 }
 
-// RunDataSourceTests runs all tests for a data source based on tfvars.
+// RunDataSourceTests runs filter, ext_attr, and tag-filter data source subtests for the given tfvarsPath.
 func RunDataSourceTests(t *testing.T, dsType, resourceType string, tfvarsPath string, checks CheckFuncs) {
 	tv, err := LoadTfvars(tfvarsPath)
 	if err != nil {
@@ -77,7 +76,6 @@ data %q "test" {
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 
-	// Verify data source returns correct data by comparing with created resource
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
 	checkFuncs = append(checkFuncs, buildDataSourceAttrPairChecks(dsAddr, resourceAddr, tv)...)
 
@@ -116,7 +114,6 @@ data %q "test" {
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 
-	// Verify data source returns correct data by comparing with created resource
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
 	checkFuncs = append(checkFuncs, buildDataSourceAttrPairChecks(dsAddr, resourceAddr, tv)...)
 
@@ -155,7 +152,6 @@ data %q "test" {
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 
-	// Verify data source returns correct data by comparing with created resource
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
 	checkFuncs = append(checkFuncs, buildDataSourceAttrPairChecks(dsAddr, resourceAddr, tv)...)
 
@@ -169,12 +165,10 @@ data %q "test" {
 	})
 }
 
-// buildDataSourceAttrPairChecks creates TestCheckResourceAttrPair checks for all tfvars fields.
-// This verifies the data source returns the same values as the created resource.
+// buildDataSourceAttrPairChecks returns attr-pair checks asserting the data source results match the resource.
 func buildDataSourceAttrPairChecks(dsAddr, resourceAddr string, tv *Tfvars) []resource.TestCheckFunc {
 	var checks []resource.TestCheckFunc
 
-	// Check common fields
 	for k := range tv.Common {
 		checks = append(checks, resource.TestCheckResourceAttrPair(
 			dsAddr, "results.0."+k,
@@ -182,7 +176,6 @@ func buildDataSourceAttrPairChecks(dsAddr, resourceAddr string, tv *Tfvars) []re
 		))
 	}
 
-	// Check backend-specific fields
 	if tv.Backend == "nios" {
 		for k := range tv.NIOS {
 			checks = append(checks, resource.TestCheckResourceAttrPair(

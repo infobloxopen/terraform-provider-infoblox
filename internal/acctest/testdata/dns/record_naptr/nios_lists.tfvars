@@ -1,6 +1,6 @@
 # Auto-generated list acceptance-test cases for RecordNaptr.
 case "basic" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
@@ -28,7 +28,7 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
@@ -62,7 +62,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
