@@ -9,10 +9,10 @@ import (
 func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("resource %q %q {\n", resourceType, resourceLabel))
+	fmt.Fprintf(&sb, "resource %q %q {\n", resourceType, resourceLabel)
 
 	for k, v := range tv.Common {
-		sb.WriteString(fmt.Sprintf("  %s = %s\n", k, formatHCLValue(v)))
+		fmt.Fprintf(&sb, "  %s = %s\n", k, formatHCLValue(v))
 	}
 
 	// Always add backend block (even if empty) - required by resource validation
@@ -20,7 +20,7 @@ func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
 		if len(tv.NIOS) > 0 {
 			sb.WriteString("  nios = {\n")
 			for k, v := range tv.NIOS {
-				sb.WriteString(fmt.Sprintf("    %s = %s\n", k, formatHCLValue(v)))
+				fmt.Fprintf(&sb, "    %s = %s\n", k, formatHCLValue(v))
 			}
 			sb.WriteString("  }\n")
 		} else {
@@ -32,7 +32,7 @@ func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
 		if len(tv.UDDI) > 0 {
 			sb.WriteString("  uddi = {\n")
 			for k, v := range tv.UDDI {
-				sb.WriteString(fmt.Sprintf("    %s = %s\n", k, formatHCLValue(v)))
+				fmt.Fprintf(&sb, "    %s = %s\n", k, formatHCLValue(v))
 			}
 			sb.WriteString("  }\n")
 		} else {
@@ -44,10 +44,8 @@ func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
 	return sb.String()
 }
 
-// RawExpr is an HCL expression captured verbatim from a tfvars file (for
-// example a reference to another resource, like
-// ${infoblox_zone_auth.prereq.fqdn}). It is emitted unquoted so Terraform
-// resolves it at apply time instead of being treated as a string literal.
+// RawExpr is a verbatim HCL expression (e.g. a resource reference like ${infoblox_zone_auth.prereq.fqdn})
+// emitted unquoted so Terraform resolves it at apply time instead of treating it as a string literal.
 type RawExpr string
 
 func formatHCLValue(v any) string {

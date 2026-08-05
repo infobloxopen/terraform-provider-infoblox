@@ -9,7 +9,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// LoadTfvars loads and parses a tfvars file.
+// LoadTfvars reads and parses the HCL tfvars file at relativePath, substituting all {{placeholder}} tokens.
 func LoadTfvars(relativePath string) (*Tfvars, error) {
 	path := GetTestdataPath(relativePath)
 	data, err := os.ReadFile(path)
@@ -49,7 +49,6 @@ func LoadTfvars(relativePath string) (*Tfvars, error) {
 		return nil, fmt.Errorf("failed to decode tfvars: %s", diags.Error())
 	}
 
-	// Parse top-level attributes
 	if attr, exists := contentBody.Attributes["backend"]; exists {
 		val, _ := attr.Expr.Value(nil)
 		tv.Backend = val.AsString()
@@ -67,7 +66,6 @@ func LoadTfvars(relativePath string) (*Tfvars, error) {
 		tv.DSFilterField = val.AsString()
 	}
 
-	// Parse blocks
 	for _, block := range contentBody.Blocks {
 		switch block.Type {
 		case "common":
@@ -97,8 +95,7 @@ func ctyToGo(val cty.Value) any {
 		return nil
 	}
 	if !val.IsKnown() {
-		// Reference/unknown value (e.g. ${resource.attr}); cannot be reduced to
-		// a literal here. Callers that need the source text handle this earlier.
+		// Unknown/reference values cannot be reduced to a literal; callers handle source text upstream.
 		return nil
 	}
 	switch val.Type() {
@@ -141,8 +138,7 @@ func ctyMapToStringMap(val cty.Value) map[string]string {
 	for it := val.ElementIterator(); it.Next(); {
 		k, v := it.Element()
 		if !k.IsKnown() || !v.IsWhollyKnown() {
-			// Skip dynamic entries (e.g. a check referencing another resource);
-			// they cannot be asserted as a static expected value.
+			// Skip entries referencing another resource; they have no static expected value.
 			continue
 		}
 		result[k.AsString()] = fmt.Sprintf("%v", ctyToGo(v))

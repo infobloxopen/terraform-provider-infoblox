@@ -3,12 +3,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
@@ -16,6 +19,7 @@ import (
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -34,8 +38,9 @@ type (
 	}
 
 	InfobloxProviderConfig struct {
-		NIOS *NIOSConfig `tfsdk:"nios"`
-		UDDI *UDDIConfig `tfsdk:"uddi"`
+		NIOS             *NIOSConfig `tfsdk:"nios"`
+		UDDI             *UDDIConfig `tfsdk:"uddi"`
+		OperationTimeout types.Int64 `tfsdk:"operation_timeout"`
 	}
 
 	NIOSConfig struct {
@@ -62,6 +67,13 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 		Attributes: map[string]schema.Attribute{
 			"nios": buildNIOSAttribute(),
 			"uddi": buildUDDIAttribute(),
+			"operation_timeout": schema.Int64Attribute{
+				Optional: true,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
+				MarkdownDescription: "Total time (in seconds) allowed for an operation, including any retries of it. Default value: 60",
+			},
 		},
 	}
 }
@@ -136,6 +148,11 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 		return
 	}
 
+	// Set the global operation timeout if specified
+	if !data.OperationTimeout.IsUnknown() && !data.OperationTimeout.IsNull() {
+		retry.SetOperationTimeout(data.OperationTimeout.ValueInt64())
+	}
+
 	var infobloxClient core.InfobloxClient
 
 	// NIOS configurations
@@ -195,10 +212,13 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewRecordNaptrResource,
 		dns.NewRecordPtrResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordAaaaResource,
 		dns.NewRecordTxtResource,
+		dns.NewRecordCaaResource,
+		dns.NewRecordDnameResource,
 		dns.NewZoneAuthResource,
 		dns.NewViewResource,
 		dns.NewRecordAResource,
@@ -209,10 +229,13 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewRecordNaptrDataSource,
 		dns.NewRecordPtrDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
+		dns.NewRecordCaaDataSource,
+		dns.NewRecordDnameDataSource,
 		dns.NewZoneAuthDataSource,
 		dns.NewViewDataSource,
 		dns.NewRecordADataSource,
@@ -226,10 +249,13 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewRecordNaptrList,
 		dns.NewRecordPtrList,
 		dns.NewRecordCnameList,
 		dns.NewRecordAaaaList,
 		dns.NewRecordTxtList,
+		dns.NewRecordCaaList,
+		dns.NewRecordDnameList,
 		dns.NewZoneAuthList,
 		dns.NewViewList,
 		dns.NewRecordAList,
@@ -254,41 +280,52 @@ func New(version, commit string) func() provider.Provider {
 func checkAndCreatePreRequisitesForNIOS(ctx context.Context, client *niosclient.APIClient) error {
 	var readableAttributesForEADefinition = "allowed_object_types,comment,default_value,flags,list_values,max,min,name,namespace,type"
 
-	filters := map[string]interface{}{
+	filters := map[string]any{
 		"name": flex.TerraformInternalID,
 	}
 
-	apiRes, _, err := client.GridAPI.ExtensibleattributedefAPI.
-		List(ctx).
-		Filters(filters).
-		ReturnFieldsPlus(readableAttributesForEADefinition).
-		ReturnAsObject(1).
-		Execute()
-	if err != nil {
-		return fmt.Errorf("error checking for existing extensible attribute: %w", err)
-	}
+	err := retry.Do(ctx, retry.Transient(), func(ctx context.Context) (int, error) {
+		// Check if EA already exists
+		apiRes, httpRes, callErr := client.GridAPI.ExtensibleattributedefAPI.
+			List(ctx).
+			Filters(filters).
+			ReturnFieldsPlus(readableAttributesForEADefinition).
+			ReturnAsObject(1).
+			Execute()
+		if callErr != nil {
+			if httpRes != nil {
+				return httpRes.StatusCode, fmt.Errorf("error checking for existing extensible attribute: %w", callErr)
+			}
+			return 0, fmt.Errorf("error checking for existing extensible attribute: %w", callErr)
+		}
 
-	// If EA already exists, creation is not required
-	if len(apiRes.ListExtensibleattributedefResponseObject.GetResult()) > 0 {
-		return nil
-	}
+		// If EA already exists, creation is not required
+		if len(apiRes.ListExtensibleattributedefResponseObject.GetResult()) > 0 {
+			return http.StatusOK, nil
+		}
 
-	// Create EA if it doesn't exist
-	data := gridclient.Extensibleattributedef{
-		Name:    gridclient.PtrString(flex.TerraformInternalID),
-		Type:    gridclient.PtrString("STRING"),
-		Comment: gridclient.PtrString("Internal ID for Terraform Resource"),
-		Flags:   gridclient.PtrString("CR"),
-	}
+		// Create EA if it doesn't exist
+		data := gridclient.Extensibleattributedef{
+			Name:    gridclient.PtrString(flex.TerraformInternalID),
+			Type:    gridclient.PtrString("STRING"),
+			Comment: gridclient.PtrString("Internal ID for Terraform Resource"),
+			Flags:   gridclient.PtrString("CR"),
+		}
 
-	_, _, err = client.GridAPI.ExtensibleattributedefAPI.
-		Create(ctx).
-		Extensibleattributedef(data).
-		ReturnFieldsPlus(readableAttributesForEADefinition).
-		ReturnAsObject(1).
-		Execute()
-	if err != nil {
-		return fmt.Errorf("error creating Terraform extensible attribute: %w", err)
-	}
-	return nil
+		_, httpRes, callErr = client.GridAPI.ExtensibleattributedefAPI.
+			Create(ctx).
+			Extensibleattributedef(data).
+			ReturnFieldsPlus(readableAttributesForEADefinition).
+			ReturnAsObject(1).
+			Execute()
+		if callErr != nil {
+			callErr = fmt.Errorf("error creating Terraform extensible attribute: %w", callErr)
+		}
+		if httpRes != nil {
+			return httpRes.StatusCode, callErr
+		}
+		return 0, callErr
+	})
+
+	return err
 }

@@ -15,9 +15,8 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
-// ExtractNIOSRef strips the leading object-type segment from a full NIOS _ref
-// (e.g. "record:a/ZG5z..." -> "ZG5z..."). Acceptance check helpers that call
-// the raw NIOS SDK must use this, since the SDK re-applies the type prefix.
+// ExtractNIOSRef strips the object-type prefix from a NIOS _ref (e.g. "record:a/ZG5z..." -> "ZG5z..."),
+// since the raw NIOS SDK re-applies the prefix and would otherwise double it.
 func ExtractNIOSRef(ref string) string {
 	return core.ExtractNIOSRef(ref)
 }
@@ -29,13 +28,12 @@ type CaseStep struct {
 	UDDI      map[string]any
 	Checks    map[string]string
 	DependsOn []string
+	// PrerequisitesHCL overrides ResourceCase.PrerequisitesHCL for steps that need different prereqs.
+	PrerequisitesHCL string
 }
 
-// ResourceCase is a per-test-case acceptance configuration, generated from the
-// legacy provider's hand-written acceptance tests. Each case maps 1:1 to a
-// legacy TestAcc<Object>Resource_<Case> function and is stored as a labelled
-// `case "<name>" { ... }` block in the merged
-// testdata/<package>/<object>/<backend>_resources.tfvars file.
+// ResourceCase is the per-subtest configuration for a Terraform resource acceptance test.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_resources.tfvars.
 type ResourceCase struct {
 	Name               string
 	Backend            string
@@ -50,11 +48,8 @@ type ResourceCase struct {
 
 var placeholderPattern = regexp.MustCompile(`\{\{[a-z0-9_]+\}\}`)
 
-// RunResourceCases loads every `case "<name>" { ... }` block from the merged
-// tfvars file at testdata/<fileRelPath> and runs each as an independent
-// subtest, replaying its steps verbatim. checksByBackend supplies the
-// verification functions for each backend a case may target (e.g. "nios",
-// "uddi").
+// RunResourceCases loads all `case` blocks from testdata/<fileRelPath> and runs each as an independent
+// subtest, replaying its steps. checksByBackend provides verification functions per backend.
 func RunResourceCases(t *testing.T, resourceType, fileRelPath string, checksByBackend map[string]CheckFuncs) {
 	path := GetTestdataPath(fileRelPath)
 	cases, err := loadResourceCases(path)
@@ -62,8 +57,7 @@ func RunResourceCases(t *testing.T, resourceType, fileRelPath string, checksByBa
 		cases = nil
 	}
 
-	// Append user-authored custom cases from the sibling custom_<file> so custom
-	// scenarios written by users run automatically alongside the generated ones.
+	// Also run custom cases from the sibling custom_<file>.
 	customCases, mErr := loadCustomResourceCases(fileRelPath)
 	if mErr != nil {
 		t.Fatalf("failed to load custom resource cases for %s: %v", fileRelPath, mErr)
@@ -103,7 +97,11 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 	var steps []resource.TestStep
 	for i, st := range rc.Steps {
 		config := buildCaseHCL(resourceType, "test", rc.Backend, st)
-		fullConfig := providerConfig + "\n" + rc.PrerequisitesHCL + "\n" + config
+		prereq := rc.PrerequisitesHCL
+		if st.PrerequisitesHCL != "" {
+			prereq = st.PrerequisitesHCL
+		}
+		fullConfig := providerConfig + "\n" + prereq + "\n" + config
 
 		t.Logf("Case %q step %d HCL:\n%s", rc.Name, i+1, fullConfig)
 
@@ -146,20 +144,20 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 // buildCaseHCL renders a single step into resource HCL for the infoblox provider.
 func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("resource %q %q {\n", resourceType, label))
+	fmt.Fprintf(&sb, "resource %q %q {\n", resourceType, label)
 
 	for k, v := range st.Common {
-		sb.WriteString(fmt.Sprintf("  %s = %s\n", k, formatHCLValue(v)))
+		fmt.Fprintf(&sb, "  %s = %s\n", k, formatHCLValue(v))
 	}
 
 	writeSection := func(name string, m map[string]any) {
 		if len(m) == 0 {
-			sb.WriteString(fmt.Sprintf("  %s = {}\n", name))
+			fmt.Fprintf(&sb, "  %s = {}\n", name)
 			return
 		}
-		sb.WriteString(fmt.Sprintf("  %s = {\n", name))
+		fmt.Fprintf(&sb, "  %s = {\n", name)
 		for k, v := range m {
-			sb.WriteString(fmt.Sprintf("    %s = %s\n", k, formatHCLValue(v)))
+			fmt.Fprintf(&sb, "    %s = %s\n", k, formatHCLValue(v))
 		}
 		sb.WriteString("  }\n")
 	}
@@ -172,16 +170,14 @@ func buildCaseHCL(resourceType, label, backend string, st CaseStep) string {
 	}
 
 	if len(st.DependsOn) > 0 {
-		sb.WriteString(fmt.Sprintf("  depends_on = [%s]\n", strings.Join(st.DependsOn, ", ")))
+		fmt.Fprintf(&sb, "  depends_on = [%s]\n", strings.Join(st.DependsOn, ", "))
 	}
 
 	sb.WriteString("}\n")
 	return sb.String()
 }
 
-// materialize replaces placeholders (e.g. {{random}}) with concrete values,
-// keeping each distinct placeholder consistent across all steps and checks of
-// the case so that, for example, a name used in config matches its check.
+// materialize replaces {{placeholder}} tokens with stable concrete values across all steps and checks.
 func (rc *ResourceCase) materialize() {
 	cache := make(map[string]string)
 
@@ -194,20 +190,26 @@ func (rc *ResourceCase) materialize() {
 		return v
 	}
 
-	replace := func(v any) any {
-		s, ok := v.(string)
-		if !ok {
-			return v
-		}
+	substitute := func(s string) string {
 		for _, ph := range placeholderPattern.FindAllString(s, -1) {
 			s = strings.ReplaceAll(s, ph, value(ph))
 		}
 		return s
 	}
 
-	// replaceDeep recurses into nested objects/lists (e.g. members, options,
-	// ext_attrs) so placeholders inside nested attribute values are materialized
-	// too, keeping each distinct placeholder consistent across the whole case.
+	replace := func(v any) any {
+		switch t := v.(type) {
+		case RawExpr:
+			// RawExpr values may still contain placeholders; substitute and keep raw.
+			return RawExpr(substitute(string(t)))
+		case string:
+			return substitute(t)
+		default:
+			return v
+		}
+	}
+
+	// replaceDeep recurses into nested objects/lists so placeholders inside nested attributes are also materialized.
 	var replaceDeep func(v any) any
 	replaceDeep = func(v any) any {
 		switch val := v.(type) {
@@ -237,6 +239,9 @@ func (rc *ResourceCase) materialize() {
 	}
 
 	for i := range rc.Steps {
+		if s, ok := replace(rc.Steps[i].PrerequisitesHCL).(string); ok {
+			rc.Steps[i].PrerequisitesHCL = s
+		}
 		replaceMap(rc.Steps[i].Common)
 		replaceMap(rc.Steps[i].NIOS)
 		replaceMap(rc.Steps[i].UDDI)
@@ -248,10 +253,8 @@ func (rc *ResourceCase) materialize() {
 	}
 }
 
-// customSibling returns the "custom_"-prefixed sibling of a testdata-relative
-// case file (e.g. "dns/record_a/nios_resources.tfvars" ->
-// "dns/record_a/custom_nios_resources.tfvars"). Custom files are hand-authored
-// by users to add custom scenarios and are never overwritten by codegen.
+// customSibling returns the "custom_"-prefixed sibling path for user-authored cases (never overwritten).
+// e.g. "dns/record_a/nios_resources.tfvars" -> "dns/record_a/custom_nios_resources.tfvars".
 func customSibling(fileRelPath string) string {
 	i := strings.LastIndex(fileRelPath, "/")
 	if i < 0 {
@@ -260,9 +263,7 @@ func customSibling(fileRelPath string) string {
 	return fileRelPath[:i+1] + "custom_" + fileRelPath[i+1:]
 }
 
-// loadCustomResourceCases loads resource cases from the sibling custom_ file if
-// present. A missing file, or a file containing only comments (a skeleton with
-// no `case` blocks), yields no cases and no error.
+// loadCustomResourceCases loads cases from the custom_ sibling file; returns nil if absent or empty.
 func loadCustomResourceCases(fileRelPath string) ([]*ResourceCase, error) {
 	full := GetTestdataPath(customSibling(fileRelPath))
 	if _, err := os.Stat(full); err != nil {
@@ -278,10 +279,8 @@ func loadCustomResourceCases(fileRelPath string) ([]*ResourceCase, error) {
 	return cases, nil
 }
 
-// loadResourceCases parses a merged tfvars file into its constituent resource
-// cases. Each case is a labelled `case "<name>" { ... }` block; the label
-// becomes the case (subtest) name. Cases are returned sorted by name for a
-// deterministic subtest order.
+// loadResourceCases parses `case "<name>" { ... }` blocks from a tfvars file,
+// sorted by name for deterministic subtest ordering.
 func loadResourceCases(path string) ([]*ResourceCase, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -321,8 +320,7 @@ func loadResourceCases(path string) ([]*ResourceCase, error) {
 	return cases, nil
 }
 
-// parseResourceCaseBody decodes a single `case` block body into a ResourceCase
-// (the Name is set by the caller from the block label).
+// parseResourceCaseBody decodes a `case` block body into a ResourceCase (Name set by caller).
 func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 	content, _, diags := body.PartialContent(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
@@ -398,6 +396,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
 			{Name: "depends_on"},
+			{Name: "prerequisites_hcl"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "common"},
@@ -412,6 +411,11 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	if attr, ok := content.Attributes["check"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		st.Checks = ctyMapToStringMap(val)
+	}
+
+	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		st.PrerequisitesHCL = val.AsString()
 	}
 
 	if attr, ok := content.Attributes["depends_on"]; ok {
@@ -441,11 +445,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	return st, nil
 }
 
-// parseCaseBlock parses a config block (common/nios/uddi) into a value map.
-// Literal values are reduced to Go values; non-literal expressions (references
-// to other resources, e.g. ${infoblox_zone_auth.prereq.nios.fqdn}, or
-// depends_on) are preserved verbatim as RawExpr so Terraform resolves them at
-// apply time.
+// parseCaseBlock parses a common/nios/uddi block into a value map; non-literal expressions are kept as RawExpr.
 func parseCaseBlock(body hcl.Body, src []byte) map[string]any {
 	result := make(map[string]any)
 	attrs, _ := body.JustAttributes()

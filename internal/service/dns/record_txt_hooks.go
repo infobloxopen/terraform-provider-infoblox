@@ -38,7 +38,8 @@ var UDDIRecordTxtRdataAttrTypes = map[string]attr.Type{
 
 var UDDIRecordTxtRdataResourceSchemaAttributes = map[string]schema.Attribute{
 	"text": schema.StringAttribute{
-		Required: true,
+		Required:            true,
+		MarkdownDescription: "The semantics of the text depends on the domain where it is found.",
 	},
 }
 
@@ -61,7 +62,7 @@ func FlattenUDDIRecordTxtRdata(ctx context.Context, from map[string]any, diags *
 		return types.ObjectNull(UDDIRecordTxtRdataAttrTypes)
 	}
 	m := UDDIRecordTxtRdataModel{
-		Text: flex.FlattenString(flex.RDataString(from["text"])),
+		Text: flex.FlattenStringPointer(flex.RDataStringPtr(from["text"])),
 	}
 	obj, d := types.ObjectValueFrom(ctx, UDDIRecordTxtRdataAttrTypes, m)
 	diags.Append(d...)

@@ -265,7 +265,7 @@ func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 
 func ExpandFrameworkListNestedBlock[T any, U any](ctx context.Context, tfList interface {
 	basetypes.ListValuable
-	ElementsAs(ctx context.Context, target interface{}, allowUnhandled bool) diag.Diagnostics
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
 }, diags *diag.Diagnostics, f FrameworkElementFlExFunc[T, *U]) []U {
 	if tfList.IsNull() || tfList.IsUnknown() {
 		return make([]U, 0)
@@ -521,14 +521,6 @@ func FlattenFrameworkListNestedBlock[T any, U any](ctx context.Context, data []T
 	return tfList
 }
 
-// RDataString coerces an untyped map value to string.
-func RDataString(v any) string {
-	if s, ok := v.(string); ok {
-		return s
-	}
-	return ""
-}
-
 // RDataStringPtr coerces an untyped map value to *string
 func RDataStringPtr(v any) *string {
 	if s, ok := v.(string); ok && s != "" {
@@ -545,6 +537,21 @@ func RDataBoolPtr(v any) *bool {
 	case string:
 		if b, err := strconv.ParseBool(t); err == nil {
 			return &b
+		}
+	}
+	return nil
+}
+
+// RDataInt64Ptr coerces an untyped map value to *int64. rdata is a decoded JSON
+// object, so a numeric subfield is a float64 rather than an integer type.
+func RDataInt64Ptr(v any) *int64 {
+	switch t := v.(type) {
+	case float64:
+		i := int64(t)
+		return &i
+	case string:
+		if i, err := strconv.ParseInt(t, 10, 64); err == nil {
+			return &i
 		}
 	}
 	return nil
