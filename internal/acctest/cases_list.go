@@ -113,7 +113,9 @@ func runListCase(t *testing.T, resourceType string, lc *ListCase, checks CheckFu
 }
 
 // buildQueryChecks assembles QueryResultChecks for the list query step.
-// Filtered cases assert an exact count of 1; list-all cases assert at least one result.
+// Filtered cases assert an exact count of 1 and verify resource attribute values.
+// List-all (basic) cases assert at least one result — known-value checks are skipped
+// because multiple pre-existing objects may be returned and include_resource is not set.
 func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResultCheck {
 	var checks []querycheck.QueryResultCheck
 
@@ -121,14 +123,14 @@ func buildQueryChecks(resourceAddr string, lc *ListCase) []querycheck.QueryResul
 		checks = append(checks, querycheck.ExpectLengthAtLeast(resourceAddr, 1))
 	} else {
 		checks = append(checks, querycheck.ExpectLength(resourceAddr, 1))
-	}
-
-	// Include all resolvable scalar step fields (e.g. ipv4addr, view) in the known-value checks.
-	knownChecks := buildStepKnownValueChecks(lc)
-	if len(knownChecks) > 0 {
-		checks = append(checks, querycheck.ExpectResourceKnownValues(
-			resourceAddr, nil, knownChecks,
-		))
+		// Filtered cases use include_resource=true and return exactly 1 result, so
+		// known-value checks are safe to add.
+		knownChecks := buildStepKnownValueChecks(lc)
+		if len(knownChecks) > 0 {
+			checks = append(checks, querycheck.ExpectResourceKnownValues(
+				resourceAddr, nil, knownChecks,
+			))
+		}
 	}
 
 	return checks
