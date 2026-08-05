@@ -1,13 +1,27 @@
 # Auto-generated resource acceptance-test cases for RecordPtr.
 case "rdata" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "10.in-addr.arpa."
+      primary_type = "cloud"
+      view = infoblox_view.test.id
+    }
+  }
+  resource "infoblox_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
-      name_in_zone = "ptr-test-1"
+      name_in_zone = "1.0.0"
       rdata        = { dname = "domain.com." }
-      zone         = "dns/auth_zone/0060207e-7664-4742-8eed-2d8e34db0035"
+      zone         = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.dname" = "domain.com."
@@ -16,12 +30,56 @@ case "rdata" {
 
   step {
     uddi {
-      name_in_zone = "ptr-test-1"
+      name_in_zone = "1.0.0"
       rdata        = { dname = "apple.com." }
-      zone         = "dns/auth_zone/0060207e-7664-4742-8eed-2d8e34db0035"
+      zone         = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.dname" = "apple.com."
+    }
+  }
+
+}
+
+case "options" {
+  backend  = "uddi"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "10.in-addr.arpa."
+      primary_type = "cloud"
+      view = infoblox_view.test.id
+    }
+  }
+  resource "infoblox_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata   = { dname = "domain.com." }
+      options = { address = "10.0.0.1" }
+      view    = infoblox_zone_auth.test.uddi.view
+    }
+    depends_on = [infoblox_zone_auth.test]
+    check = {
+      "uddi.name_in_zone" = "1.0.0"
+    }
+  }
+
+  step {
+    uddi {
+      rdata   = { dname = "domain.com." }
+      options = { address = "10.0.0.2" }
+      view    = infoblox_zone_auth.test.uddi.view
+    }
+    depends_on = [infoblox_zone_auth.test]
+    check = {
+      "uddi.name_in_zone" = "2.0.0"
     }
   }
 
