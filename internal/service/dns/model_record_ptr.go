@@ -106,7 +106,7 @@ var UDDIRecordPtrAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordPtrType            = "Ptr"
+	RecordPtrType            = "PTR"
 	RecordPtrInheritanceType = "full"
 	RecordPtrReturnFields    = "aws_rte53_record_info,cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,discovered_data,dns_name,dns_ptrdname,extattrs,forbid_reclamation,ipv4addr,ipv6addr,last_queried,ms_ad_user_data,name,ptrdname,reclaimable,shared_record_group,ttl,use_ttl,view,zone"
 )
@@ -213,7 +213,7 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidArpaOrFQDN(customvalidator.IsValidArpaIPv4(), customvalidator.IsValidArpaIPv6(), customvalidator.IsValidDomainName(customvalidator.WithAllowNullOrEmpty())),
+			customvalidator.IsValidArpaOrFQDN(customvalidator.IsValidArpaIPv4(), customvalidator.IsValidArpaIPv6(), customvalidator.IsValidNIOSDomainName(customvalidator.WithAllowNullOrEmpty())),
 		},
 		MarkdownDescription: "The name of the DNS PTR record in FQDN format.",
 	},
@@ -221,7 +221,7 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			customvalidator.IsValidDomainName(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The domain name of the DNS PTR record in FQDN format.",
 	},
@@ -294,12 +294,12 @@ var RecordPtrResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"options": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordPtrOptionsResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------",
+		MarkdownDescription: "The DNS resource record type-specific non-protocol options.",
 	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordPtrRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _PTR_ (Pointer) record:  Subfield | Description                         | Required ---------|-------------------------------------|--------- dname    | A domain name which points to some location in the domain name space. Can be absolute or relative domain name and include UTF-8. <br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -324,7 +324,7 @@ var RecordPtrResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"type": schema.StringAttribute{
 		Default:             stringdefault.StaticString("PTR"),
 		Computed:            true,
-		MarkdownDescription: "The DNS resource record type specified in the textual mnemonic format or in the \"TYPEnnn\" format where \"nnn\" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)",
+		MarkdownDescription: "The DNS resource record type. Always PTR for this resource (numeric type 2, PTR record).",
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
