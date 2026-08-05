@@ -1,6 +1,14 @@
 # Auto-generated datasource acceptance-test cases for RecordAaaa.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -12,9 +20,9 @@ case "filters" {
 
   step {
     uddi {
-      # zone  = infoblox_zone_auth.test.id
-      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      rdata = { address = "2001:db8::1" }
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
+      rdata        = { address = "{{random_ipv6}}" }
     }
   }
 

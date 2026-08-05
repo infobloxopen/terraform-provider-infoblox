@@ -1,13 +1,21 @@
 # RecordAaaa — uddi list test cases
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
-      rdata        = { address = "2001:db8::a" }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      name_in_zone = "{{random}}"
+      rdata        = { address = "{{random_ipv6}}" }
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
     }
   }
 
@@ -20,14 +28,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
-      rdata        = { address = "2001:db8::b" }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      name_in_zone = "{{random}}"
+      rdata        = { address = "{{random_ipv6}}" }
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
     }
   }
 
@@ -47,15 +63,23 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
-      rdata        = { address = "2001:db8::c" }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      name_in_zone = "{{random}}"
-      tags         = { tag1 = "{{random2}}" }
+      rdata        = { address = "{{random_ipv6}}" }
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
+      tags         = { tag1 = "{{random3}}" }
     }
   }
 

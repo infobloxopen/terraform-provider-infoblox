@@ -123,6 +123,15 @@ func RandomIP() string {
 	return fmt.Sprintf("10.%d.%d.%d", rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
 }
 
+// RandomIPv6 generates a random IPv6 address under 2001:db8::/32.
+func RandomIPv6() string {
+	third := 1 + rand.Intn(65535)
+	fourth := 1 + rand.Intn(65535)
+	host := 1 + rand.Intn(65535)
+
+	return fmt.Sprintf("2001:db8:%x:%x::%x", third, fourth, host)
+}
+
 // RandomOctet generates a random octet (0-255).
 func RandomOctet() int {
 	return rand.Intn(256)
@@ -220,6 +229,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
 	case strings.HasPrefix(name, "random_ipv6_network"):
 		return RandomIPv6Network()
+	case strings.HasPrefix(name, "random_ipv6"):
+		return RandomIPv6()
 	case strings.HasPrefix(name, "random_cidr_network"):
 		return RandomCIDRNetwork()
 	case strings.HasPrefix(name, "random_mac"):
