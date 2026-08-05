@@ -48,9 +48,3 @@ case "filters" {
 
 }
 
-case "creator_filter" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
-  skip        = true
-  skip_reason = "unmappable filter key creator"
-}
