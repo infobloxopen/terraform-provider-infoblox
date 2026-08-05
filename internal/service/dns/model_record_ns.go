@@ -83,7 +83,7 @@ var UDDIRecordNsAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordNsType            = "Ns"
+	RecordNsType            = "NS"
 	RecordNsInheritanceType = "full"
 	RecordNsReturnFields    = "addresses,cloud_info,creator,dns_name,last_queried,ms_delegation_name,name,nameserver,policy,view,zone"
 )

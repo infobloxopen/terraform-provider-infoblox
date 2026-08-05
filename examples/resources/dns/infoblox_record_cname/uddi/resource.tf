@@ -1,11 +1,19 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_zone" {
+  uddi = {
+    fqdn         = "example.com."
+    primary_type = "cloud"
+  }
+}
+
 // Create Record CNAME
 resource "infoblox_record_cname" "example" {
   uddi = {
     name_in_zone = "cname"
     rdata = {
-      cname = "example.com"
+      cname = "canonical.${infoblox_zone_auth.parent_zone.uddi.fqdn}"
     }
-    zone = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+    zone = infoblox_zone_auth.parent_zone.id
 
     # Other optional fields
     comment  = "Example comment"

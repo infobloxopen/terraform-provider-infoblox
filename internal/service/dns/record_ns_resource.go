@@ -11,7 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -79,6 +81,10 @@ func (r *RecordNsResource) Configure(_ context.Context, req resource.ConfigureRe
 	r.service = coresvc.NewRecordNsService(r.backend, client.NIOS, client.UDDI)
 }
 
+func (r *RecordNsResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.RecordNs](r.backend, op)
+}
+
 func (r *RecordNsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data RecordNsModel
 
@@ -109,9 +115,21 @@ func (r *RecordNsResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
-		ReturnFields: RecordNsReturnFields,
-		Inherit:      RecordNsInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNs
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
+			ReturnFields: RecordNsReturnFields,
+			Inherit:      RecordNsInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordNs: %s", err))
@@ -135,9 +153,21 @@ func (r *RecordNsResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	apiResp, httpResp, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-		ReturnFields: RecordNsReturnFields,
-		Inherit:      RecordNsInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNs
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+			ReturnFields: RecordNsReturnFields,
+			Inherit:      RecordNsInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
@@ -176,9 +206,21 @@ func (r *RecordNsResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-		ReturnFields: RecordNsReturnFields,
-		Inherit:      RecordNsInheritanceType,
+	var (
+		apiResp  *coremodel.RecordNs
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+			ReturnFields: RecordNsReturnFields,
+			Inherit:      RecordNsInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordNs: %s", err))
@@ -202,9 +244,18 @@ func (r *RecordNsResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpRes, err := r.service.Delete(ctx, data.Id.ValueString())
+	var httpResp *http.Response
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpDelete), func(ctx context.Context) (int, error) {
+		var apiErr error
+		httpResp, apiErr = r.service.Delete(ctx, data.Id.ValueString())
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
 	if err != nil {
-		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordNs: %s", err))

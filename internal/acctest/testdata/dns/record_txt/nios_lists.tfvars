@@ -1,13 +1,20 @@
 # Auto-generated list acceptance-test cases for RecordTxt.
 case "basic" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
-      view = "default"
+      view = infoblox_zone_auth.test.nios.view
     }
   }
 
@@ -20,14 +27,21 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name = "{{random}}.example.com"
+      name = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text = "Record Text"
-      view = "default"
+      view = infoblox_zone_auth.test.nios.view
     }
   }
 
@@ -46,14 +60,21 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       text      = "Record Text"
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

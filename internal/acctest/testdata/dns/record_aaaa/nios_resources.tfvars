@@ -1,17 +1,24 @@
 # Auto-generated resource acceptance-test cases for RecordAaaa.
 case "basic" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.ipv6addr"           = "2002:1111::1401"
-      "nios.name"               = "{{random}}.example.com"
+      "nios.ipv6addr"           = "{{random_ipv6}}"
+      "nios.name"               = "aaaa-record.{{random}}.com"
       "nios.view"               = "default"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
@@ -23,30 +30,44 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
+  parallel              = true
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
     }
   }
 
 }
 
 case "comment" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       comment  = "This is a new record"
     }
     check = {
@@ -56,9 +77,9 @@ case "comment" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       comment  = "This is an updated record"
     }
     check = {
@@ -69,14 +90,21 @@ case "comment" {
 }
 
 case "creator" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       creator  = "STATIC"
     }
     check = {
@@ -86,9 +114,9 @@ case "creator" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       creator  = "DYNAMIC"
     }
     check = {
@@ -99,14 +127,21 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      ipv6addr       = "2002:1111::1401"
-      view           = "default"
+      name           = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr       = "{{random_ipv6}}"
+      view           = infoblox_zone_auth.test.nios.view
       creator        = "DYNAMIC"
       ddns_principal = "ddns_principal"
     }
@@ -117,9 +152,9 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      ipv6addr       = "2002:1111::1401"
-      view           = "default"
+      name           = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr       = "{{random_ipv6}}"
+      view           = infoblox_zone_auth.test.nios.view
       creator        = "DYNAMIC"
       ddns_principal = "updated_ddns_principal"
     }
@@ -131,14 +166,21 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      ipv6addr       = "2002:1111::1401"
-      view           = "default"
+      name           = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr       = "{{random_ipv6}}"
+      view           = infoblox_zone_auth.test.nios.view
       ddns_protected = true
     }
     check = {
@@ -148,9 +190,9 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      ipv6addr       = "2002:1111::1401"
-      view           = "default"
+      name           = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr       = "{{random_ipv6}}"
+      view           = infoblox_zone_auth.test.nios.view
       ddns_protected = false
     }
     check = {
@@ -161,14 +203,21 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       disable  = false
     }
     check = {
@@ -178,9 +227,9 @@ case "disable" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       disable  = true
     }
     check = {
@@ -191,14 +240,21 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      ipv6addr  = "2002:1111::1401"
-      view      = "default"
+      name      = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr  = "{{random_ipv6}}"
+      view      = infoblox_zone_auth.test.nios.view
       ext_attrs = { Site = "{{random2}}" }
     }
     check = {
@@ -208,9 +264,9 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      ipv6addr  = "2002:1111::1401"
-      view      = "default"
+      name      = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr  = "{{random_ipv6}}"
+      view      = infoblox_zone_auth.test.nios.view
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
@@ -221,14 +277,21 @@ case "ext_attrs" {
 }
 
 case "forbid_reclamation" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      ipv6addr           = "2002:1111::1401"
-      view               = "default"
+      name               = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr           = "{{random_ipv6}}"
+      view               = infoblox_zone_auth.test.nios.view
       forbid_reclamation = false
     }
     check = {
@@ -238,9 +301,9 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      ipv6addr           = "2002:1111::1401"
-      view               = "default"
+      name               = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr           = "{{random_ipv6}}"
+      view               = infoblox_zone_auth.test.nios.view
       forbid_reclamation = true
     }
     check = {
@@ -251,49 +314,61 @@ case "forbid_reclamation" {
 }
 
 case "ipv6addr" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      view     = "default"
-      ipv6addr = "2002:1111::1401"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      view     = infoblox_zone_auth.test.nios.view
+      ipv6addr = "{{random_ipv6}}"
     }
     check = {
-      "nios.ipv6addr" = "2002:1111::1401"
+      "nios.ipv6addr" = "{{random_ipv6}}"
     }
   }
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      view     = "default"
-      ipv6addr = "2002:1111::1402"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      view     = infoblox_zone_auth.test.nios.view
+      ipv6addr = "{{random_ipv62}}"
     }
     check = {
-      "nios.ipv6addr" = "2002:1111::1402"
+      "nios.ipv6addr" = "{{random_ipv62}}"
     }
   }
 
 }
 
 case "func_call" {
-  backend = "nios"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
   # resource "infoblox_ipv6network" "test_func_call" {
   #   nios = {
   #     network = "{{random_ipv6_network}}"
   #     network_view = "default"
   #   }
   # }
-  # PREREQ
+  PREREQ
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
+      name               = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
       # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
       dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
       comment            = "Original Function Call"
@@ -303,8 +378,8 @@ case "func_call" {
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
+      name               = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
       # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
       dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
       comment            = "Updated Function Call"
@@ -315,42 +390,56 @@ case "func_call" {
 }
 
 case "name" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name" = "{{random}}.example.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name     = "{{random2}}.example.com"
-      ipv6addr = "2002:1111::1402"
-      view     = "default"
+      name     = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv62}}"
+      view     = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name" = "{{random2}}.example.com"
+      "nios.name" = "{{random3}}.{{random}}.com"
     }
   }
 
 }
 
 case "ttl" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       ttl      = 10
     }
     check = {
@@ -360,9 +449,9 @@ case "ttl" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      ipv6addr = "2002:1111::1401"
-      view     = "default"
+      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      view     = infoblox_zone_auth.test.nios.view
       ttl      = 0
     }
     check = {

@@ -1,14 +1,21 @@
 # Auto-generated resource acceptance-test cases for RecordTxt.
 case "rdata" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name_in_zone = "txt"
       rdata        = { text = "abc" }
-      # zone         = infoblox_zone_auth.test.id
-      zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
+      zone         = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.text" = "abc"
@@ -19,8 +26,7 @@ case "rdata" {
     uddi {
       name_in_zone = "txt"
       rdata        = { text = "xyz" }
-      # zone         = infoblox_zone_auth.test.id
-      zone  = "dns/auth_zone/491ca52a-b154-4411-a684-0faf1d118719"
+      zone         = infoblox_zone_auth.test.id
     }
     check = {
       "uddi.rdata.text" = "xyz"
