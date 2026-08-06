@@ -529,23 +529,6 @@ func RDataStringPtr(v any) *string {
 	return nil
 }
 
-// RDataInt64Ptr coerces an untyped map value to *int64.
-// JSON numbers unmarshal as float64, so both float64 and int64 are handled.
-func RDataInt64Ptr(v any) *int64 {
-	switch t := v.(type) {
-	case int64:
-		return &t
-	case float64:
-		i := int64(t)
-		return &i
-	case string:
-		if i, err := strconv.ParseInt(t, 10, 64); err == nil {
-			return &i
-		}
-	}
-	return nil
-}
-
 // RDataBoolPtr coerces an untyped map value to *bool.
 func RDataBoolPtr(v any) *bool {
 	switch t := v.(type) {
