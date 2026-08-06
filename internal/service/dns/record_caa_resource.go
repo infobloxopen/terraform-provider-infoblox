@@ -12,8 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -81,6 +83,10 @@ func (r *RecordCaaResource) Configure(_ context.Context, req resource.ConfigureR
 	r.service = coresvc.NewRecordCaaService(r.backend, client.NIOS, client.UDDI)
 }
 
+func (r *RecordCaaResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.RecordCaa](r.backend, op)
+}
+
 func (r *RecordCaaResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var data RecordCaaModel
 
@@ -131,9 +137,21 @@ func (r *RecordCaaResource) Create(ctx context.Context, req resource.CreateReque
 		}
 	}
 
-	apiResp, _, err := r.service.Create(ctx, obj, &core.Options{
-		ReturnFields: RecordCaaReturnFields,
-		Inherit:      RecordCaaInheritanceType,
+	var (
+		apiResp  *coremodel.RecordCaa
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
+			ReturnFields: RecordCaaReturnFields,
+			Inherit:      RecordCaaInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordCaa: %s", err))
@@ -164,9 +182,21 @@ func (r *RecordCaaResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	apiResp, httpResp, err := r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-		ReturnFields: RecordCaaReturnFields,
-		Inherit:      RecordCaaInheritanceType,
+	var (
+		apiResp  *coremodel.RecordCaa
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+			ReturnFields: RecordCaaReturnFields,
+			Inherit:      RecordCaaInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
@@ -250,11 +280,23 @@ func (r *RecordCaaResource) ReadByExtAttrs(ctx context.Context, data *RecordCaaM
 	}
 
 	// Search for the record using the Terraform Internal ID
-	records, _, _, err := r.service.List(ctx, &core.ListOptions{
-		ReturnFields: RecordCaaReturnFields,
-		ExtAttrFilter: map[string]string{
-			flex.TerraformInternalID: tfInternalID,
-		},
+	var (
+		records  []*coremodel.RecordCaa
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var apiErr error
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: RecordCaaReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordCaa by extattrs: %s", err))
@@ -345,9 +387,21 @@ func (r *RecordCaaResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 	}
 
-	apiResp, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-		ReturnFields: RecordCaaReturnFields,
-		Inherit:      RecordCaaInheritanceType,
+	var (
+		apiResp  *coremodel.RecordCaa
+		httpResp *http.Response
+	)
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
+		var apiErr error
+		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+			ReturnFields: RecordCaaReturnFields,
+			Inherit:      RecordCaaInheritanceType,
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordCaa: %s", err))
@@ -387,9 +441,18 @@ func (r *RecordCaaResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	httpRes, err := r.service.Delete(ctx, data.Id.ValueString())
+	var httpResp *http.Response
+
+	err := retry.Do(ctx, r.retryPolicy(retry.OpDelete), func(ctx context.Context) (int, error) {
+		var apiErr error
+		httpResp, apiErr = r.service.Delete(ctx, data.Id.ValueString())
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
 	if err != nil {
-		if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordCaa: %s", err))

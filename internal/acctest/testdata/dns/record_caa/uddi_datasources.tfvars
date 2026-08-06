@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for RecordCaa.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -11,12 +11,14 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name_in_zone = "uddi.name_in_zone"
       zone         = "uddi.zone"
     }
   }
+
+  pair_checks = ["uddi.absolute_name_spec", "uddi.comment", "uddi.disabled", "uddi.name_in_zone", "uddi.ttl", "uddi.type", "uddi.view", "uddi.zone"]
 
   step {
     uddi {

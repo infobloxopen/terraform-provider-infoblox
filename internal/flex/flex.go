@@ -265,7 +265,7 @@ func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 
 func ExpandFrameworkListNestedBlock[T any, U any](ctx context.Context, tfList interface {
 	basetypes.ListValuable
-	ElementsAs(ctx context.Context, target interface{}, allowUnhandled bool) diag.Diagnostics
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
 }, diags *diag.Diagnostics, f FrameworkElementFlExFunc[T, *U]) []U {
 	if tfList.IsNull() || tfList.IsUnknown() {
 		return make([]U, 0)

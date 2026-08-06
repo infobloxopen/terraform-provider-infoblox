@@ -1,6 +1,13 @@
 # Auto-generated datasource acceptance-test cases for RecordCname.
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -9,18 +16,27 @@ case "filters" {
     }
   }
 
+  pair_checks = ["nios.canonical", "nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.ttl", "nios.use_ttl", "nios.view"]
+
   step {
     nios {
-      canonical = "{{random}}.example.com"
-      name      = "{{random2}}.example.com"
-      view      = "default"
+      canonical = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
     }
   }
 
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend           = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "ext_attr_filters"
@@ -29,12 +45,14 @@ case "ext_attr_filters" {
     }
   }
 
+  pair_checks = ["nios.canonical", "nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.ttl", "nios.use_ttl", "nios.view"]
+
   step {
     nios {
-      canonical = "{{random}}.example.com"
-      name      = "{{random2}}.example.com"
-      view      = "default"
-      ext_attrs = { Site = "{{random3}}" }
+      canonical = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
+      ext_attrs = { Site = "{{random4}}" }
     }
   }
 

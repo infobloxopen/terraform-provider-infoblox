@@ -99,7 +99,7 @@ var UDDIRecordDnameAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordDnameType            = "Dname"
+	RecordDnameType            = "DNAME"
 	RecordDnameInheritanceType = "full"
 	RecordDnameReturnFields    = "cloud_info,comment,creation_time,creator,ddns_principal,ddns_protected,disable,dns_name,dns_target,extattrs,forbid_reclamation,last_queried,name,reclaimable,shared_record_group,target,ttl,use_ttl,view,zone"
 )

@@ -1,12 +1,20 @@
 # Auto-generated list acceptance-test cases for RecordA.
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       rdata = { address = "{{random_ip}}" }
-      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+      zone  = infoblox_zone_auth.test.id
     }
   }
 
@@ -19,14 +27,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       rdata        = { address = "{{random_ip}}" }
-      zone         = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
-      name_in_zone = "{{random}}"
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
     }
   }
 
@@ -46,13 +62,21 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       rdata = { address = "{{random_ip}}" }
-      zone  = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+      zone  = infoblox_zone_auth.test.id
       tags  = { tag1 = "{{random2}}" }
     }
   }
