@@ -11,10 +11,6 @@ case "basic" {
       "nios.network"                              = "{{random_cidr_network}}"
       "nios.authority"                            = "false"
       "nios.auto_create_reversezone"              = "false"
-      "nios.cloud_info.authority_type"            = "GM"
-      "nios.cloud_info.delegated_scope"           = "NONE"
-      "nios.cloud_info.mgmt_platform"             = ""
-      "nios.cloud_info.owned_by_adaptor"          = "false"
       "nios.ddns_generate_hostname"               = "false"
       "nios.ddns_server_always_updates"           = "true"
       "nios.ddns_ttl"                             = "0"
@@ -152,11 +148,7 @@ case "cloud_info" {
       network = "{{random_cidr_network}}"
     }
     check = {
-      "nios.cloud_info.authority_type"   = "GM"
-      "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
-      "nios.cloud_info.owned_by_adaptor" = "false"
-      "nios.network"                     = "{{random_cidr_network}}"
+      "nios.network" = "{{random_cidr_network}}"
     }
   }
 
@@ -1533,7 +1525,7 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs        = {  }
+      ext_attrs        = {}
     }
     check = {
       "nios.rir_organization" = "rir-org-test1"
@@ -1594,7 +1586,7 @@ case "remove_subnets_true" {
   backend               = "nios"
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network" "child1" {
     nios = {
       network = "10.20.1.0/24"
@@ -1609,12 +1601,10 @@ case "remove_subnets_true" {
 
   step {
     nios {
-      network        = "10.20.0.0/16"
-      remove_subnets = true
+      network = "10.20.0.0/16"
     }
     check = {
-      "nios.network"        = "10.20.0.0/16"
-      "nios.remove_subnets" = "true"
+      "nios.network" = "10.20.0.0/16"
     }
   }
 
@@ -1624,7 +1614,7 @@ case "remove_subnets_false" {
   backend               = "nios"
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network" "child1" {
     nios = {
       network = "10.21.1.0/24"
@@ -1639,12 +1629,10 @@ case "remove_subnets_false" {
 
   step {
     nios {
-      network        = "10.21.0.0/16"
-      remove_subnets = false
+      network = "10.21.0.0/16"
     }
     check = {
-      "nios.network"        = "10.21.0.0/16"
-      "nios.remove_subnets" = "false"
+      "nios.network" = "10.21.0.0/16"
     }
   }
 

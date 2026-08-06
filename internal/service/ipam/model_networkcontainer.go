@@ -15,7 +15,6 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
@@ -326,6 +325,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The DNS update Time to Live (TTL) value of a DHCP network container object. The TTL is a 32-bit unsigned integer that represents the duration, in seconds, for which the update is cached. Zero indicates that the update is not cached.",
 	},
 	"ddns_update_fixed_addresses": schema.BoolAttribute{
@@ -356,11 +356,13 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"discovery_basic_poll_settings": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerDiscoveryBasicPollSettingsResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerDiscoveryBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"discovery_member": schema.StringAttribute{
@@ -448,10 +450,14 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"high_water_mark": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(95),
 		MarkdownDescription: "The percentage of DHCP network container usage threshold above which network container usage is not expected and may warrant your attention. When the high watermark is reached, the Infoblox appliance generates a syslog message and sends a warning (if enabled). A number that specifies the percentage of allocated addresses. The range is from 1 to 100.",
 	},
 	"high_water_mark_reset": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(85),
 		MarkdownDescription: "The percentage of DHCP network container usage below which the corresponding SNMP trap is reset. A number that specifies the percentage of allocated addresses. The range is from 1 to 100. The high watermark reset value must be lower than the high watermark value.",
 	},
 	"ignore_dhcp_option_list_request": schema.BoolAttribute{
@@ -488,15 +494,18 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ipam_threshold_settings": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerIpamThresholdSettingsResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"ipam_trap_settings": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerIpamTrapSettingsResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"lease_scavenge_time": schema.Int64Attribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Any(int64validator.OneOf(-1), int64validator.Between(86400, 2147472000)),
 		},
@@ -514,6 +523,8 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"low_water_mark": schema.Int64Attribute{
 		Optional: true,
+		Computed: true,
+		Default:  int64default.StaticInt64(0),
 		Validators: []validator.Int64{
 			int64validator.Any(int64validator.Between(0, 100)),
 		},
@@ -571,7 +582,6 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		Optional: true,
 		Computed: true,
-		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: NetworkcontainerOptionsAttrTypes}, []attr.Value{})),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -580,6 +590,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"port_control_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerPortControlBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"pxe_lease_time": schema.Int64Attribute{
@@ -875,7 +886,7 @@ func (m *NetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnost
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSNetworkcontainerModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -888,10 +899,9 @@ func (m *NetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnost
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSNetworkcontainerExt {
-	return &coremodel.NIOSNetworkcontainerExt{
+func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSNetworkcontainerExt {
+	ext := &coremodel.NIOSNetworkcontainerExt{
 		Authority:                        flex.ExpandBoolPointer(m.Authority),
-		AutoCreateReversezone:            flex.ExpandBoolPointer(m.AutoCreateReversezone),
 		Bootfile:                         flex.ExpandStringPointerNullAsEmpty(m.Bootfile),
 		Bootserver:                       flex.ExpandStringPointerNullAsEmpty(m.Bootserver),
 		CloudInfo:                        ExpandNetworkcontainerCloudInfo(ctx, m.CloudInfo, diags),
@@ -930,8 +940,6 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		LowWaterMark:                     flex.ExpandInt64Pointer(m.LowWaterMark),
 		LowWaterMarkReset:                flex.ExpandInt64Pointer(m.LowWaterMarkReset),
 		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
-		Network:                          flex.ExpandIPv4Prefix(m.Network),
-		NetworkView:                      flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Nextserver:                       flex.ExpandStringPointerNullAsEmpty(m.Nextserver),
 		Options:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandNetworkcontainerOptions),
 		PortControlBlackoutSetting:       ExpandNetworkcontainerPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
@@ -948,6 +956,11 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		UpdateDnsOnLeaseRenewal:          flex.ExpandBoolPointer(m.UpdateDnsOnLeaseRenewal),
 		ZoneAssociations:                 flex.ExpandFrameworkListNestedBlock(ctx, m.ZoneAssociations, diags, ExpandNetworkcontainerZoneAssociations),
 	}
+	if isCreate {
+		ext.Network = flex.ExpandIPv4Prefix(m.Network)
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+	}
+	return ext
 }
 
 // ApplyNetworkcontainerNIOSUseFlags derives NIOS use flags from the raw config
@@ -1069,7 +1082,6 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.Authority = flex.FlattenBoolPointer(from.Authority)
-	m.AutoCreateReversezone = flex.FlattenBoolPointer(from.AutoCreateReversezone)
 	m.Bootfile = flex.FlattenStringPointerEmptyAsNull(from.Bootfile)
 	m.Bootserver = flex.FlattenStringPointerEmptyAsNull(from.Bootserver)
 	m.CloudInfo = FlattenNetworkcontainerCloudInfo(ctx, from.CloudInfo, diags)
@@ -1080,7 +1092,6 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.DdnsTtl = flex.FlattenInt64Pointer(from.DdnsTtl)
 	m.DdnsUpdateFixedAddresses = flex.FlattenBoolPointer(from.DdnsUpdateFixedAddresses)
 	m.DdnsUseOption81 = flex.FlattenBoolPointer(from.DdnsUseOption81)
-	m.DeleteReason = flex.FlattenStringPointerEmptyAsNull(from.DeleteReason)
 	m.DenyBootp = flex.FlattenBoolPointer(from.DenyBootp)
 	m.DiscoveryBasicPollSettings = FlattenNetworkcontainerDiscoveryBasicPollSettings(ctx, from.DiscoveryBasicPollSettings, diags)
 	m.DiscoveryBlackoutSetting = FlattenNetworkcontainerDiscoveryBlackoutSetting(ctx, from.DiscoveryBlackoutSetting, diags)
@@ -1090,7 +1101,6 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.EnableDhcpThresholds = flex.FlattenBoolPointer(from.EnableDhcpThresholds)
 	m.EnableDiscovery = flex.FlattenBoolPointer(from.EnableDiscovery)
 	m.EnableEmailWarnings = flex.FlattenBoolPointer(from.EnableEmailWarnings)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
 	m.EnableSnmpWarnings = flex.FlattenBoolPointer(from.EnableSnmpWarnings)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
@@ -1115,7 +1125,6 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.PortControlBlackoutSetting = FlattenNetworkcontainerPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
 	m.PxeLeaseTime = flex.FlattenInt64Pointer(from.PxeLeaseTime)
 	m.RecycleLeases = flex.FlattenBoolPointer(from.RecycleLeases)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
