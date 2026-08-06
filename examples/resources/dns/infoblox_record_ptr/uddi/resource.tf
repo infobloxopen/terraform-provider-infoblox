@@ -1,6 +1,6 @@
 resource "infoblox_zone_auth" "example" {
   uddi = {
-    fqdn         = "192.in-addr.arpa."
+    fqdn         = "193.in-addr.arpa."
     primary_type = "cloud"
   }
 }

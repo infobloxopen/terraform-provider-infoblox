@@ -1,7 +1,8 @@
-// Look up an existing Auth Zone (Required as Parent for ptrdname)
-data "infoblox_zone_auth" "parent_zone" {
-  filters = {
+// Create the parent forward zone (Required as Parent for ptrdname)
+resource "infoblox_zone_auth" "parent_zone" {
+  nios = {
     fqdn = "example.com"
+    view = "default"
   }
 }
 
@@ -37,46 +38,46 @@ resource "infoblox_zone_auth" "reverse_zone_ipv6" {
 // Create an IPv4 PTR record with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_ipv4addr" {
   nios = {
-    ptrdname = "example_record1.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     ipv4addr = "10.20.1.2"
     view     = "default"
     ext_attrs = {
       Site = "location-1"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone1]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone1]
 }
 
 // Create an IPv6 PTR record with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_ipv6addr" {
   nios = {
-    ptrdname = "example_record2.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record2.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     ipv6addr = "2001::123"
     view     = "default"
     ext_attrs = {
       Site = "location-2"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone_ipv6]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone_ipv6]
 }
 
 // Create an IPv4 PTR record by name with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_name" {
   nios = {
-    ptrdname = "example_record3.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record3.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     name     = "11.0.0.22.in-addr.arpa"
     view     = "default"
     ext_attrs = {
       Site = "location-3"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone2]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone2]
 }
 
 // Create an IPv4 PTR record with Additional Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_additional_fields" {
   nios = {
-    ptrdname = "example_record4.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record4.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     name     = "12.0.0.22.in-addr.arpa"
 
     // Additional Fields
@@ -91,7 +92,7 @@ resource "infoblox_record_ptr" "create_ptr_record_with_additional_fields" {
       Site = "location-4"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone2]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone2]
 }
 
 // Create an IPv4 reverse mapping zone (Required as Parent)

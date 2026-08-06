@@ -15,10 +15,11 @@ Manages an Infoblox RecordPtr across NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
-// Look up an existing Auth Zone (Required as Parent for ptrdname)
-data "infoblox_zone_auth" "parent_zone" {
-  filters = {
+// Create the parent forward zone (Required as Parent for ptrdname)
+resource "infoblox_zone_auth" "parent_zone" {
+  nios = {
     fqdn = "example.com"
+    view = "default"
   }
 }
 
@@ -54,46 +55,46 @@ resource "infoblox_zone_auth" "reverse_zone_ipv6" {
 // Create an IPv4 PTR record with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_ipv4addr" {
   nios = {
-    ptrdname = "example_record1.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     ipv4addr = "10.20.1.2"
     view     = "default"
     ext_attrs = {
       Site = "location-1"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone1]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone1]
 }
 
 // Create an IPv6 PTR record with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_ipv6addr" {
   nios = {
-    ptrdname = "example_record2.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record2.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     ipv6addr = "2001::123"
     view     = "default"
     ext_attrs = {
       Site = "location-2"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone_ipv6]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone_ipv6]
 }
 
 // Create an IPv4 PTR record by name with Basic Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_name" {
   nios = {
-    ptrdname = "example_record3.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record3.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     name     = "11.0.0.22.in-addr.arpa"
     view     = "default"
     ext_attrs = {
       Site = "location-3"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone2]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone2]
 }
 
 // Create an IPv4 PTR record with Additional Fields
 resource "infoblox_record_ptr" "create_ptr_record_with_additional_fields" {
   nios = {
-    ptrdname = "example_record4.${data.infoblox_zone_auth.parent_zone.results[0].nios.fqdn}"
+    ptrdname = "example_record4.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     name     = "12.0.0.22.in-addr.arpa"
 
     // Additional Fields
@@ -108,7 +109,7 @@ resource "infoblox_record_ptr" "create_ptr_record_with_additional_fields" {
       Site = "location-4"
     }
   }
-  depends_on = [infoblox_zone_auth.reverse_zone2]
+  depends_on = [infoblox_zone_auth.parent_zone, infoblox_zone_auth.reverse_zone2]
 }
 
 // Create an IPv4 reverse mapping zone (Required as Parent)
@@ -162,17 +163,23 @@ resource "infoblox_record_ptr" "create_ptr_record_with_ipv6_arpa" {
 ### UDDI Backend
 
 ```terraform
+resource "infoblox_zone_auth" "example" {
+  uddi = {
+    fqdn         = "193.in-addr.arpa."
+    primary_type = "cloud"
+  }
+}
+
 resource "infoblox_record_ptr" "example" {
   uddi = {
     rdata = {
-      dname = "example.com."
+      dname = "example.com"
     }
-    # zone: 192.in-addr.arpa.
-    zone = "dns/auth_zone/6b2be5ed-d81e-4c24-89c1-892b42a929b5"
+    zone = infoblox_zone_auth.example.id
 
     // Other optional fields
     name_in_zone = "1.0.168"
-    comment      = "Example PTR record"
+    comment      = "Example comment"
     disabled     = false
     ttl          = 3600
     tags = {
@@ -227,7 +234,7 @@ Read-Only:
 
 Required:
 
-- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _PTR_ (Pointer) record:  Subfield | Description                         | Required ---------|-------------------------------------|--------- dname    | A domain name which points to some location in the domain name space. Can be absolute or relative domain name and include UTF-8. <br><br> | Yes (see [below for nested schema](#nestedatt--uddi--rdata))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record. (see [below for nested schema](#nestedatt--uddi--rdata))
 
 Optional:
 
@@ -236,7 +243,7 @@ Optional:
 - `disabled` (Boolean) Indicates if the DNS resource record is disabled. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.
 - `inheritance_sources` (Attributes) The inheritance configuration specifies how the _Record_ object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--uddi--inheritance_sources))
 - `name_in_zone` (String) The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.
-- `options` (Attributes) The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|------------------------------------ (see [below for nested schema](#nestedatt--uddi--options))
+- `options` (Attributes) The DNS resource record type-specific non-protocol options. (see [below for nested schema](#nestedatt--uddi--options))
 - `tags` (Map of String) The tags for the DNS resource record in JSON format.
 - `ttl` (Number) The record time to live value in seconds. The range of this value is 0 to 2147483647.  Defaults to TTL value from the SOA record of the zone.
 - `view` (String) The resource identifier.
@@ -245,7 +252,7 @@ Optional:
 Read-Only:
 
 - `tags_all` (Map of String) All tags including inherited values.
-- `type` (String) The DNS resource record type specified in the textual mnemonic format or in the "TYPEnnn" format where "nnn" indicates the numeric type value.  Value  | Numeric Type | Description -------|--------------|--------------------------------------------- A      | 1            | Address record AAAA   | 28           | IPv6 Address record CAA    | 257          | Certification Authority Authorization record CNAME  | 5            | Canonical Name record DNAME  | 39           | Delegation Name record DHCID  | 49           | DHCP Identifier record MX     | 15           | Mail Exchanger record NAPTR  | 35           | Naming Authority Pointer record NS     | 2            | Name Server record PTR    | 12           | Pointer record SOA    | 6            | Start of Authority record SRV    | 33           | Service record TXT    | 16           | Text record IBMETA | 65536        | Infoblox meta records, not valid for DNS protocol (read-only)
+- `type` (String) The DNS resource record type. Always PTR for this resource (numeric type 2, PTR record).
 
 <a id="nestedatt--uddi--rdata"></a>
 ### Nested Schema for `uddi.rdata`
