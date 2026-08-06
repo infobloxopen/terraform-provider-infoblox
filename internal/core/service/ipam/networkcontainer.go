@@ -417,7 +417,6 @@ func mapNIOSNetworkcontainerToResponse(r *niosipam.Networkcontainer) *ipam.Netwo
 		PortControlBlackoutSetting:       r.PortControlBlackoutSetting,
 		PxeLeaseTime:                     r.PxeLeaseTime,
 		RecycleLeases:                    r.RecycleLeases,
-		RemoveSubnets:                    r.RemoveSubnets,
 		RestartIfNeeded:                  r.RestartIfNeeded,
 		RirOrganization:                  r.RirOrganization,
 		RirRegistrationAction:            r.RirRegistrationAction,

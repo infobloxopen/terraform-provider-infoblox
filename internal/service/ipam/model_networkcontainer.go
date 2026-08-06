@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -94,7 +95,6 @@ type NIOSNetworkcontainerModel struct {
 	PortControlBlackoutSetting       types.Object         `tfsdk:"port_control_blackout_setting"`
 	PxeLeaseTime                     types.Int64          `tfsdk:"pxe_lease_time"`
 	RecycleLeases                    types.Bool           `tfsdk:"recycle_leases"`
-	RemoveSubnets                    types.Bool           `tfsdk:"remove_subnets"`
 	RestartIfNeeded                  types.Bool           `tfsdk:"restart_if_needed"`
 	RirOrganization                  types.String         `tfsdk:"rir_organization"`
 	RirRegistrationAction            types.String         `tfsdk:"rir_registration_action"`
@@ -156,7 +156,6 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 	"port_control_blackout_setting":        types.ObjectType{AttrTypes: NetworkcontainerPortControlBlackoutSettingAttrTypes},
 	"pxe_lease_time":                       types.Int64Type,
 	"recycle_leases":                       types.BoolType,
-	"remove_subnets":                       types.BoolType,
 	"restart_if_needed":                    types.BoolType,
 	"rir_organization":                     types.StringType,
 	"rir_registration_action":              types.StringType,
@@ -219,7 +218,7 @@ var UDDINetworkcontainerAttrTypes = map[string]attr.Type{
 	"ddns_ttl_percent":              types.Float64Type,
 	"ddns_update_on_renew":          types.BoolType,
 	"ddns_use_conflict_resolution":  types.BoolType,
-	"dhcp_config":                   types.ObjectType{AttrTypes: DHCPConfigAttrTypes},
+	"dhcp_config":                   types.ObjectType{AttrTypes: NetworkcontainerDHCPConfigAttrTypes},
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"external_keys":                 types.MapType{ElemType: types.StringType},
 	"federated_realms":              internaltypes.UnorderedListStringType{},
@@ -293,7 +292,8 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"cloud_info": schema.SingleNestedAttribute{
 		Attributes:          NetworkcontainerCloudInfoResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Structure containing all cloud API related information for this object.",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
@@ -595,12 +595,6 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "If the field is set to True, the leases are kept in the Recycle Bin until one week after expiration. Otherwise, the leases are permanently deleted.",
 	},
-	"remove_subnets": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(true),
-		MarkdownDescription: "Remove subnets delete option. Determines whether all child objects should be removed alongside with the network container or child objects should be assigned to another parental container. By default child objects are deleted with the network container.",
-	},
 	"restart_if_needed": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -684,7 +678,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Attributes: ASMConfigResourceSchemaAttributes,
 		Optional:   true,
 		Computed:   true,
-		Default: objectdefault.StaticValue(types.ObjectValueMust(IpamsvcASMConfigAttrTypes, map[string]attr.Value{
+		Default: objectdefault.StaticValue(types.ObjectValueMust(ASMConfigAttrTypes, map[string]attr.Value{
 			"asm_threshold":       types.Int64Value(90),
 			"enable":              types.BoolValue(true),
 			"enable_notification": types.BoolValue(true),
@@ -755,22 +749,21 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "When true, DHCP server will apply conflict resolution, as described in RFC 4703, when attempting to fulfill the update request.  When false, DHCP server will simply attempt to update the DNS entries per the request, regardless of whether or not they conflict with existing entries owned by other DHCP4 clients.  Defaults to _true_.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
-		Attributes: DHCPConfigResourceSchemaAttributes,
+		Attributes: NetworkcontainerDHCPConfigResourceSchemaAttributes,
 		Optional:   true,
 		Computed:   true,
-		Default: objectdefault.StaticValue(types.ObjectValueMust(IpamsvcDHCPConfigAttrTypes, map[string]attr.Value{
-			"abandoned_reclaim_time": types.Int64Null(),
-			// abandonded_reclaim_time cannot be set for address block "abandoned_reclaim_time_v6": types.Int64Null(),
-			// abandonded_reclaim_time_v6 cannot be set for address block "allow_unknown": types.BoolValue(true),
-			"allow_unknown_v6": types.BoolValue(true),
-			"echo_client_id":   types.BoolNull(),
-			// echo_client_id cannot be set for address block "filters": types.ListNull(types.StringType),
-			"filters_v6":              types.ListNull(types.StringType),
+		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkcontainerDHCPConfigAttrTypes, map[string]attr.Value{
+			"abandoned_reclaim_time":  types.Int64Null(), /* abandoned_reclaim_time cannot be set for network container */
+			"allow_unknown":           types.BoolValue(true),
+			"authoritative_dhcp":      types.BoolValue(false),
+			"echo_client_id":          types.BoolNull(), /* echo_client_id cannot be set for network container */
+			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
+			"filters_v6":              types.ListNull(types.StringType),
+			"hold_reclaimed_time":     types.Int64Value(3600),
 			"ignore_client_uid":       types.BoolValue(false),
-			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IpamsvcIgnoreItemAttrTypes}),
+			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time":              types.Int64Value(3600),
-			"lease_time_v6":           types.Int64Value(3600),
 		})),
 		MarkdownDescription: "A DHCP Config object (_dhcp/dhcp_config_) represents a shared DHCP configuration that controls how leases are issued.",
 	},
@@ -913,7 +906,7 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		DenyBootp:                        flex.ExpandBoolPointer(m.DenyBootp),
 		DiscoveryBasicPollSettings:       ExpandNetworkcontainerDiscoveryBasicPollSettings(ctx, m.DiscoveryBasicPollSettings, diags),
 		DiscoveryBlackoutSetting:         ExpandNetworkcontainerDiscoveryBlackoutSetting(ctx, m.DiscoveryBlackoutSetting, diags),
-		DiscoveryMember:                  flex.ExpandStringPointerNullAsEmpty(m.DiscoveryMember),
+		DiscoveryMember:                  flex.ExpandStringPointer(m.DiscoveryMember),
 		EmailList:                        flex.ExpandFrameworkListString(ctx, m.EmailList, diags),
 		EnableDdns:                       flex.ExpandBoolPointer(m.EnableDdns),
 		EnableDhcpThresholds:             flex.ExpandBoolPointer(m.EnableDhcpThresholds),
@@ -944,10 +937,9 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		PortControlBlackoutSetting:       ExpandNetworkcontainerPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
 		PxeLeaseTime:                     flex.ExpandInt64Pointer(m.PxeLeaseTime),
 		RecycleLeases:                    flex.ExpandBoolPointer(m.RecycleLeases),
-		RemoveSubnets:                    flex.ExpandBoolPointer(m.RemoveSubnets),
 		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
-		RirOrganization:                  flex.ExpandStringPointerNullAsEmpty(m.RirOrganization),
-		RirRegistrationAction:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationAction),
+		RirOrganization:                  flex.ExpandStringPointer(m.RirOrganization),
+		RirRegistrationAction:            flex.ExpandStringPointer(m.RirRegistrationAction),
 		RirRegistrationStatus:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationStatus),
 		SamePortControlDiscoveryBlackout: flex.ExpandBoolPointer(m.SamePortControlDiscoveryBlackout),
 		SendRirRequest:                   flex.ExpandBoolPointer(m.SendRirRequest),
@@ -1014,7 +1006,7 @@ func (m *UDDINetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		DdnsTtlPercent:             flex.ExpandFloat32Pointer(m.DdnsTtlPercent),
 		DdnsUpdateOnRenew:          flex.ExpandBoolPointer(m.DdnsUpdateOnRenew),
 		DdnsUseConflictResolution:  flex.ExpandBoolPointer(m.DdnsUseConflictResolution),
-		DhcpConfig:                 ExpandDHCPConfig(ctx, m.DhcpConfig, diags),
+		DhcpConfig:                 ExpandNetworkcontainerDHCPConfig(ctx, m.DhcpConfig, diags),
 		DhcpOptions:                flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		ExternalKeys:               flex.ExpandMapStringAny(ctx, m.ExternalKeys, diags),
 		FederatedRealms:            flex.ExpandFrameworkListString(ctx, m.FederatedRealms, diags),
@@ -1123,10 +1115,8 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.PortControlBlackoutSetting = FlattenNetworkcontainerPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
 	m.PxeLeaseTime = flex.FlattenInt64Pointer(from.PxeLeaseTime)
 	m.RecycleLeases = flex.FlattenBoolPointer(from.RecycleLeases)
-	m.RemoveSubnets = flex.FlattenBoolPointer(from.RemoveSubnets)
 	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
-	m.RirRegistrationAction = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationAction)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
 	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
@@ -1155,7 +1145,7 @@ func (m *UDDINetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
-	m.DhcpConfig = FlattenDHCPConfig(ctx, from.DhcpConfig, diags)
+	m.DhcpConfig = FlattenNetworkcontainerDHCPConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
 	m.FederatedRealms = flex.FlattenFrameworkUnorderedListString(ctx, from.FederatedRealms, diags)

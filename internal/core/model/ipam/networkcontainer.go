@@ -61,7 +61,6 @@ type NIOSNetworkcontainerExt struct {
 	PortControlBlackoutSetting       *niosipam.NetworkcontainerPortControlBlackoutSetting
 	PxeLeaseTime                     *int64
 	RecycleLeases                    *bool
-	RemoveSubnets                    *bool
 	RestartIfNeeded                  *bool
 	RirOrganization                  *string
 	RirRegistrationAction            *string
