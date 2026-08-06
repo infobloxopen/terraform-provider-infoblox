@@ -1,8 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordSrv.
 case "rdata" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
-  
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -11,6 +10,7 @@ case "rdata" {
     }
   }
   PREREQ
+
   step {
     uddi {
       name_in_zone = "srv"

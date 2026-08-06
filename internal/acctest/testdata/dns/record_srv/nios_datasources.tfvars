@@ -9,6 +9,8 @@ case "filters" {
     }
   }
 
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.port", "nios.priority", "nios.target", "nios.ttl", "nios.use_ttl", "nios.view", "nios.weight"]
+
   step {
     nios {
       name     = "{{random}}.example.com"
@@ -30,6 +32,8 @@ case "ext_attr_filters" {
       Site = "nios.ext_attrs.Site"
     }
   }
+
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.name", "nios.port", "nios.priority", "nios.target", "nios.ttl", "nios.use_ttl", "nios.view", "nios.weight"]
 
   step {
     nios {

@@ -1,6 +1,6 @@
 # Auto-generated resource acceptance-test cases for RecordSrv.
 case "basic" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -27,10 +27,10 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
+  parallel              = true
 
   step {
     nios {
@@ -45,7 +45,7 @@ case "disappears" {
 }
 
 case "comment" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -79,7 +79,7 @@ case "comment" {
 }
 
 case "creator" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -113,7 +113,7 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -149,7 +149,7 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -183,7 +183,7 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -217,7 +217,7 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -251,7 +251,7 @@ case "ext_attrs" {
 }
 
 case "forbid_reclamation" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -285,7 +285,7 @@ case "forbid_reclamation" {
 }
 
 case "name" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -317,7 +317,7 @@ case "name" {
 }
 
 case "port" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -349,7 +349,7 @@ case "port" {
 }
 
 case "priority" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -381,7 +381,7 @@ case "priority" {
 }
 
 case "target" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -413,7 +413,7 @@ case "target" {
 }
 
 case "ttl" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -447,7 +447,7 @@ case "ttl" {
 }
 
 case "weight" {
-  backend = "nios"
+  backend  = "nios"
   parallel = true
 
   step {
@@ -476,4 +476,10 @@ case "weight" {
     }
   }
 
+}
+
+case "view" {
+  backend     = "nios"
+  skip        = true
+  skip_reason = "helper declares prerequisite resource 'nios_dns_view' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
 }

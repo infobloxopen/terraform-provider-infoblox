@@ -1,12 +1,36 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_auth_zone" {
+  nios = {
+    fqdn = "example-auth-zone.com"
+  }
+}
+
 resource "infoblox_record_srv" "example_1" {
   nios = {
-    name     = "_sip._tcp.example.com"
+    name     = "example-srv-record.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
+    target   = "example.target.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
     port     = 5060
     priority = 10
-    target   = "sip.example.com"
     weight   = 5
-    comment  = "This is a test SRV record"
-    ttl      = 300
-    view     = "default"
   }
+}
+
+resource "infoblox_record_srv" "create_with_additional_config" {
+  nios = {
+    name     = "example-srv-record-with-config.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
+    target   = "example_updated.target.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
+    port     = 8080
+    priority = 2
+    weight   = 100
+    view     = "default"
+    use_ttl  = true
+    ttl      = 10
+    creator  = "DYNAMIC"
+    comment  = "Example SRV record"
+    extattrs = {
+      Site = "location-2"
+    }
+  }
+
+  depends_on = [infoblox_zone_auth.parent_auth_zone]
 }

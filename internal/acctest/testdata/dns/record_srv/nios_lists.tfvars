@@ -1,6 +1,6 @@
 # Auto-generated list acceptance-test cases for RecordSrv.
 case "basic" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
 
   step {
@@ -22,7 +22,7 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
 
   step {
@@ -50,7 +50,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend        = "nios"
   min_tf_version = "1.14.0"
 
   step {

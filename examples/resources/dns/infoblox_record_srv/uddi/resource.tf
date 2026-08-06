@@ -1,6 +1,14 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "example" {
+  uddi = {
+    fqdn         = "example-auth-zone.com."
+    primary_type = "cloud"
+  }
+}
+
 resource "infoblox_record_srv" "test1" {
   uddi = {
-    name_in_zone = "record_srv.example.com"
+    name_in_zone = "record_srv"
     rdata = {
       port     = 5060
       priority = 10
@@ -9,7 +17,7 @@ resource "infoblox_record_srv" "test1" {
     }
     comment = "test comment"
     ttl     = 300
-    zone    = "dns/auth_zone/113e8a4d-440c-488f-aaf0-1acea9437ff9"
+    zone    = infoblox_zone_auth.example.id
     tags = {
       Site = "location-1"
     }
