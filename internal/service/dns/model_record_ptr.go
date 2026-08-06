@@ -196,6 +196,11 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		CustomType: iptypes.IPv4AddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("ipv4addr"),
+				path.MatchRelative().AtParent().AtName("ipv6addr"),
+				path.MatchRelative().AtParent().AtName("name"),
+			),
 		},
 		MarkdownDescription: "The IPv4 Address of the record.",
 	},
