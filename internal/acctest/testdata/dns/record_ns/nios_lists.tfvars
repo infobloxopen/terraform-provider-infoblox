@@ -1,14 +1,21 @@
 # Auto-generated list acceptance-test cases for RecordNs.
 case "basic" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name       = "example.com"
-      nameserver = "{{random}}.example.com"
-      addresses  = [{ address = "20.0.0.0", auto_create_ptr = false }]
-      view       = "default"
+      name       = infoblox_zone_auth.test_zone.nios.fqdn
+      nameserver = "{{random2}}.${infoblox_zone_auth.test_zone.nios.fqdn}"
+      addresses  = [{ address = "{{random_ip}}", auto_create_ptr = false }]
+      view       = infoblox_zone_auth.test_zone.nios.view
     }
   }
 
@@ -21,15 +28,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name       = "example.com"
-      nameserver = "{{random}}.example.com"
-      addresses  = [{ address = "20.0.0.0", auto_create_ptr = false }]
-      view       = "default"
+      name       = infoblox_zone_auth.test_zone.nios.fqdn
+      nameserver = "{{random2}}.${infoblox_zone_auth.test_zone.nios.fqdn}"
+      addresses  = [{ address = "{{random_ip}}", auto_create_ptr = false }]
+      view       = infoblox_zone_auth.test_zone.nios.view
     }
   }
 
@@ -47,4 +61,3 @@ case "filters" {
   }
 
 }
-

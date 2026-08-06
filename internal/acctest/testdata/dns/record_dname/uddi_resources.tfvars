@@ -1,6 +1,6 @@
 # Auto-generated resource acceptance-test cases for RecordDname.
 case "rdata" {
-  backend = "uddi"
+  backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {

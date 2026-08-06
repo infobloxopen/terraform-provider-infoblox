@@ -18,6 +18,8 @@ case "filters" {
     }
   }
 
+  pair_checks = ["uddi.absolute_name_spec", "uddi.comment", "uddi.disabled", "uddi.name_in_zone", "uddi.ttl", "uddi.type", "uddi.view", "uddi.zone"]
+
   step {
     uddi {
       name_in_zone = "{{random2}}"

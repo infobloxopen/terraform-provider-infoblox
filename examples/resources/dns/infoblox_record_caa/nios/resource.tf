@@ -29,7 +29,6 @@ resource "infoblox_record_caa" "record_caa_with_additional_fields" {
 
     // Additional Fields
     comment            = "CAA Record created by Terraform"
-    view               = "default"
     creator            = "STATIC"
     disable            = false
     ttl                = 10
