@@ -1052,8 +1052,10 @@ func (m *NetworkcontainerModel) Flatten(ctx context.Context, resp *coremodel.Net
 	if niosModel == nil {
 		niosModel = &NIOSNetworkcontainerModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSNetworkcontainerModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenNetworkcontainerNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSNetworkcontainerAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSNetworkcontainerAttrTypes)
@@ -1128,7 +1130,6 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
-	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
 	m.SubscribeSettings = FlattenNetworkcontainerSubscribeSettings(ctx, from.SubscribeSettings, diags)
 	m.Unmanaged = flex.FlattenBoolPointer(from.Unmanaged)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)

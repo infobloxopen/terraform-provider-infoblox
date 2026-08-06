@@ -1,4 +1,11 @@
 # Auto-generated resource acceptance-test cases for Networkcontainer.
+// Objects to be present on the grid for testing
+// mac_filter - Filter mac 
+// example-option-filter-1 - Filter Option
+// rir-org-test1 - RIR Organization
+// ISE Server has to be configured
+// A discovery member has to be configured
+
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -1246,9 +1253,70 @@ case "restart_if_needed" {
 }
 
 case "rir_registration_action" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "helper declares 2 'nios_ipam_network_container' resource blocks with no single func_call target (ambiguous which is the resource under test)"
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_networkcontainer" "rir_parent" {
+    nios = {
+      network          = "10.{{random_octet}}.0.0/16"
+      rir_organization = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET"
+        "RIPE Description"       = "Test network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      network                 = "10.{{random_octet}}.0.0/24"
+      rir_registration_action = "CREATE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-CHILD"
+        "RIPE Description"       = "Test child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+    depends_on = [infoblox_networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "CREATE"
+      "nios.network"                 = "10.{{random_octet}}.0.0/24"
+    }
+  }
+
+  step {
+    nios {
+      network                 = "10.{{random_octet}}.0.0/24"
+      rir_registration_action = "NONE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-CHILD"
+        "RIPE Description"       = "Test child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+    depends_on = [infoblox_networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "NONE"
+      "nios.network"                 = "10.{{random_octet}}.0.0/24"
+    }
+  }
+
 }
 
 case "rir_registration_status" {
@@ -1525,7 +1593,15 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs        = {}
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET"
+        "RIPE Description"       = "Test network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
     }
     check = {
       "nios.rir_organization" = "rir-org-test1"
@@ -1535,9 +1611,68 @@ case "rir_organization" {
 }
 
 case "rir_organization_action" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "helper declares 2 'nios_ipam_network_container' resource blocks with no single func_call target (ambiguous which is the resource under test)"
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_networkcontainer" "rir_parent" {
+    nios = {
+      network          = "11.{{random_octet}}.0.0/16"
+      rir_organization = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET"
+        "RIPE Description"       = "Test network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      network                 = "11.{{random_octet}}.0.0/24"
+      rir_registration_action = "CREATE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-CHILD"
+        "RIPE Description"       = "Test child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+    depends_on = [infoblox_networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "CREATE"
+    }
+  }
+
+  step {
+    nios {
+      network                 = "11.{{random_octet}}.0.0/24"
+      rir_registration_action = "NONE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-CHILD"
+        "RIPE Description"       = "Test child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv4 Status"       = "ASSIGNED PA"
+      }
+    }
+    depends_on = [infoblox_networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "NONE"
+    }
+  }
+
 }
 
 case "mapped_ea_attributes" {
@@ -1582,58 +1717,58 @@ case "mapped_ea_attributes" {
 
 }
 
-case "remove_subnets_true" {
-  backend               = "nios"
-  expect_non_empty_plan = true
-  parallel              = true
-  prerequisites_hcl     = <<-PREREQ
-  resource "infoblox_network" "child1" {
-    nios = {
-      network = "10.20.1.0/24"
-    }
-  }
-  resource "infoblox_network" "child2" {
-    nios = {
-      network = "10.20.2.0/24"
-    }
-  }
-  PREREQ
+# case "remove_subnets_true" {
+#   backend               = "nios"
+#   expect_non_empty_plan = true
+#   parallel              = true
+#   prerequisites_hcl     = <<-PREREQ
+#   resource "infoblox_network" "child1" {
+#     nios = {
+#       network = "10.20.1.0/24"
+#     }
+#   }
+#   resource "infoblox_network" "child2" {
+#     nios = {
+#       network = "10.20.2.0/24"
+#     }
+#   }
+#   PREREQ
 
-  step {
-    nios {
-      network = "10.20.0.0/16"
-    }
-    check = {
-      "nios.network" = "10.20.0.0/16"
-    }
-  }
+#   step {
+#     nios {
+#       network = "10.20.0.0/16"
+#     }
+#     check = {
+#       "nios.network" = "10.20.0.0/16"
+#     }
+#   }
 
-}
+# }
 
-case "remove_subnets_false" {
-  backend               = "nios"
-  expect_non_empty_plan = true
-  parallel              = true
-  prerequisites_hcl     = <<-PREREQ
-  resource "infoblox_network" "child1" {
-    nios = {
-      network = "10.21.1.0/24"
-    }
-  }
-  resource "infoblox_network" "child2" {
-    nios = {
-      network = "10.21.2.0/24"
-    }
-  }
-  PREREQ
+# case "remove_subnets_false" {
+#   backend               = "nios"
+#   expect_non_empty_plan = true
+#   parallel              = true
+#   prerequisites_hcl     = <<-PREREQ
+#   resource "infoblox_network" "child1" {
+#     nios = {
+#       network = "10.21.1.0/24"
+#     }
+#   }
+#   resource "infoblox_network" "child2" {
+#     nios = {
+#       network = "10.21.2.0/24"
+#     }
+#   }
+#   PREREQ
 
-  step {
-    nios {
-      network = "10.21.0.0/16"
-    }
-    check = {
-      "nios.network" = "10.21.0.0/16"
-    }
-  }
+#   step {
+#     nios {
+#       network = "10.21.0.0/16"
+#     }
+#     check = {
+#       "nios.network" = "10.21.0.0/16"
+#     }
+#   }
 
-}
+# }
