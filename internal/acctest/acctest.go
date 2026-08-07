@@ -159,6 +159,11 @@ func RandomCIDRNetwork() string {
 	return fmt.Sprintf("%d.%d.0.0/%d", base, second, cidr)
 }
 
+// RandomIPv4Network generates a random /16-aligned IPv4 network address, without a prefix length.
+func RandomIPv4Network() string {
+	return fmt.Sprintf("%d.%d.0.0", 10+rand.Intn(246), rand.Intn(256))
+}
+
 // RandomIPv6Network generates a random IPv6 network under 2001:db8::/32 (RFC 3849 test range).
 func RandomIPv6Network() string {
 	third := rand.Intn(65536)  // 0-FFFF for third hextet
@@ -231,6 +236,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomIPv6Network()
 	case strings.HasPrefix(name, "random_ipv6"):
 		return RandomIPv6()
+	case strings.HasPrefix(name, "random_ipv4_network"):
+		return RandomIPv4Network()
 	case strings.HasPrefix(name, "random_cidr_network"):
 		return RandomCIDRNetwork()
 	case strings.HasPrefix(name, "random_mac"):

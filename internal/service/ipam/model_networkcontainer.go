@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
@@ -168,7 +169,7 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 }
 
 type UDDINetworkcontainerModel struct {
-	Address                    types.String                      `tfsdk:"address"`
+	Address                    iptypes.IPv4Address               `tfsdk:"address"`
 	AsmConfig                  types.Object                      `tfsdk:"asm_config"`
 	Cidr                       types.Int64                       `tfsdk:"cidr"`
 	Comment                    types.String                      `tfsdk:"comment"`
@@ -203,7 +204,7 @@ type UDDINetworkcontainerModel struct {
 }
 
 var UDDINetworkcontainerAttrTypes = map[string]attr.Type{
-	"address":                       types.StringType,
+	"address":                       iptypes.IPv4AddressType{},
 	"asm_config":                    types.ObjectType{AttrTypes: ASMConfigAttrTypes},
 	"cidr":                          types.Int64Type,
 	"comment":                       types.StringType,
@@ -679,7 +680,8 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional: true,
+		Optional:   true,
+		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -708,27 +710,38 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The CIDR of the address block. This is required, if _address_ does not specify it in its input.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the address block. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"compartment_id": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The compartment associated with the object. If no compartment is associated with the object, the value defaults to empty.",
 	},
 	"ddns_client_update": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Controls who does the DDNS updates.  Valid values are: * _client_: DHCP server updates DNS if requested by client. * _server_: DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _ignore_: DHCP server always updates DNS, even if the client says not to. * _over_client_update_: Same as _server_. DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _over_no_update_: DHCP server updates DNS even if the client requests that no updates be done. If the client requests to do the update, DHCP server allows it.  Defaults to _client_.",
 	},
 	"ddns_conflict_resolution_mode": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("check_with_dhcid", "no_check_with_dhcid", "check_exists_with_dhcid", "no_check_without_dhcid"),
+		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The mode used for resolving conflicts while performing DDNS updates.  Valid values are: * _check_with_dhcid_: It includes adding a DHCID record and checking that record via conflict detection as per RFC 4703. * _no_check_with_dhcid_: This will ignore conflict detection but add a DHCID record when creating/updating an entry. * _check_exists_with_dhcid_: This will check if there is an existing DHCID record but does not verify the value of the record matches the update. This will also update the DHCID record for the entry. * _no_check_without_dhcid_: This ignores conflict detection and will not add a DHCID record when creating/updating a DDNS entry.  Defaults to _check_with_dhcid_.",
 	},
 	"ddns_domain": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The domain suffix for DDNS updates. FQDN, may be empty.  Defaults to empty.",
 	},
 	"ddns_generate_name": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates if DDNS needs to generate a hostname when not supplied by the client.  Defaults to _false_.",
 	},
 	"ddns_generated_prefix": schema.StringAttribute{
@@ -745,6 +758,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
@@ -764,14 +778,10 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkcontainerDHCPConfigAttrTypes, map[string]attr.Value{
-			"abandoned_reclaim_time":  types.Int64Null(), /* abandoned_reclaim_time cannot be set for network container */
 			"allow_unknown":           types.BoolValue(true),
 			"authoritative_dhcp":      types.BoolValue(false),
-			"echo_client_id":          types.BoolNull(), /* echo_client_id cannot be set for network container */
 			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
-			"filters_v6":              types.ListNull(types.StringType),
-			"hold_reclaimed_time":     types.Int64Value(3600),
 			"ignore_client_uid":       types.BoolValue(false),
 			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time":              types.Int64Value(3600),
@@ -797,15 +807,21 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"header_option_filename": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option filename field.",
 	},
 	"header_option_server_address": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server address field.",
 	},
 	"header_option_server_name": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server name field.",
 	},
 	"hostname_rewrite_char": schema.StringAttribute{
@@ -833,13 +849,16 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: DHCPInheritanceResourceSchemaAttributes,
 		Optional:   true,
+		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
 	"name": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The name of the address block. May contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"parent": schema.StringAttribute{
@@ -870,7 +889,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"threshold": schema.SingleNestedAttribute{
 		Attributes:          UtilizationThresholdResourceSchemaAttributes,
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A __UtilizationThreshold__ object represents IP address utilization threshold settings.",
 	},
 }
@@ -892,7 +911,7 @@ func (m *NetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnost
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDINetworkcontainerModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -1003,9 +1022,8 @@ func ApplyNetworkcontainerNIOSUseFlags(ctx context.Context, config tfsdk.Config,
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDINetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDINetworkcontainerExt {
-	return &coremodel.UDDINetworkcontainerExt{
-		Address:                    flex.ExpandStringPointer(m.Address),
+func (m *UDDINetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDINetworkcontainerExt {
+	ext := &coremodel.UDDINetworkcontainerExt{
 		AsmConfig:                  ExpandASMConfig(ctx, m.AsmConfig, diags),
 		Cidr:                       flex.ExpandInt64Pointer(m.Cidr),
 		Comment:                    flex.ExpandStringPointer(m.Comment),
@@ -1033,10 +1051,14 @@ func (m *UDDINetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		InheritanceSources:         ExpandDHCPInheritance(ctx, m.InheritanceSources, diags),
 		Name:                       flex.ExpandStringPointer(m.Name),
 		Parent:                     flex.ExpandStringPointer(m.Parent),
-		Space:                      flex.ExpandStringPointer(m.Space),
 		Tags:                       flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Threshold:                  ExpandUtilizationThreshold(ctx, m.Threshold, diags),
 	}
+	if isCreate {
+		ext.Address = flex.ExpandIPv4Address(m.Address)
+		ext.Space = flex.ExpandStringPointer(m.Space)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -1141,7 +1163,7 @@ func (m *UDDINetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenStringPointer(from.Address)
+	m.Address = flex.FlattenIPv4Address(from.Address)
 	m.AsmConfig = FlattenASMConfig(ctx, from.AsmConfig, diags)
 	m.Cidr = flex.FlattenInt64Pointer(from.Cidr)
 	m.Comment = flex.FlattenStringPointer(from.Comment)

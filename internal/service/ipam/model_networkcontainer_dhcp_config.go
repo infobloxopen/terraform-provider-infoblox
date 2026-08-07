@@ -17,14 +17,10 @@ import (
 
 // NetworkcontainerDHCPConfigModel is the Terraform model for DHCPConfig
 type NetworkcontainerDHCPConfigModel struct {
-	AbandonedReclaimTime  types.Int64 `tfsdk:"abandoned_reclaim_time"`
 	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
 	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
-	EchoClientId          types.Bool  `tfsdk:"echo_client_id"`
 	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
-	FiltersV6             types.List  `tfsdk:"filters_v6"`
-	HoldReclaimedTime     types.Int64 `tfsdk:"hold_reclaimed_time"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
 	IgnoreList            types.List  `tfsdk:"ignore_list"`
 	LeaseTime             types.Int64 `tfsdk:"lease_time"`
@@ -32,14 +28,10 @@ type NetworkcontainerDHCPConfigModel struct {
 
 // NetworkcontainerDHCPConfigAttrTypes contains the attribute types for NetworkcontainerDHCPConfigModel
 var NetworkcontainerDHCPConfigAttrTypes = map[string]attr.Type{
-	"abandoned_reclaim_time":  types.Int64Type,
 	"allow_unknown":           types.BoolType,
 	"authoritative_dhcp":      types.BoolType,
-	"echo_client_id":          types.BoolType,
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
-	"filters_v6":              types.ListType{ElemType: types.StringType},
-	"hold_reclaimed_time":     types.Int64Type,
 	"ignore_client_uid":       types.BoolType,
 	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
 	"lease_time":              types.Int64Type,
@@ -47,11 +39,6 @@ var NetworkcontainerDHCPConfigAttrTypes = map[string]attr.Type{
 
 // NetworkcontainerDHCPConfigResourceSchemaAttributes contains the schema attributes for NetworkcontainerDHCPConfigModel
 var NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
-	"abandoned_reclaim_time": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The abandoned reclaim time in seconds for IPV4 clients.",
-	},
 	"allow_unknown": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -64,11 +51,6 @@ var NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.Attri
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Set DHCP server as authoritative.",
 	},
-	"echo_client_id": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Enable/disable to include/exclude the client id when responding to discover or request.",
-	},
 	"filters": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
@@ -79,17 +61,6 @@ var NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.Attri
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
-	},
-	"filters_v6": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"hold_reclaimed_time": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             int64default.StaticInt64(3600),
-		MarkdownDescription: "The hold reclaimed time in seconds for IPv4 clients.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
 		Optional:            true,
@@ -131,14 +102,10 @@ func (m *NetworkcontainerDHCPConfigModel) Expand(ctx context.Context, diags *dia
 		return nil
 	}
 	to := &uddiipam.DHCPConfig{
-		AbandonedReclaimTime:  flex.ExpandInt64Pointer(m.AbandonedReclaimTime),
 		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
 		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
-		EchoClientId:          flex.ExpandBoolPointer(m.EchoClientId),
 		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
-		FiltersV6:             flex.ExpandFrameworkListString(ctx, m.FiltersV6, diags),
-		HoldReclaimedTime:     flex.ExpandInt64Pointer(m.HoldReclaimedTime),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
 		IgnoreList:            flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
 		LeaseTime:             flex.ExpandInt64Pointer(m.LeaseTime),
@@ -163,14 +130,10 @@ func (m *NetworkcontainerDHCPConfigModel) Flatten(ctx context.Context, from *udd
 	if from == nil || m == nil {
 		return
 	}
-	m.AbandonedReclaimTime = flex.FlattenInt64Pointer(from.AbandonedReclaimTime)
 	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
 	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
-	m.EchoClientId = flex.FlattenBoolPointer(from.EchoClientId)
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
-	m.FiltersV6 = flex.FlattenFrameworkListString(ctx, from.FiltersV6, diags)
-	m.HoldReclaimedTime = flex.FlattenInt64Pointer(from.HoldReclaimedTime)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
 	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
 	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
