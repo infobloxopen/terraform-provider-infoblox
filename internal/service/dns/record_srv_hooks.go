@@ -74,18 +74,10 @@ func ExpandUDDIRecordSRVRdata(ctx context.Context, o types.Object, diags *diag.D
 		return nil
 	}
 	to := map[string]any{}
-	if !m.Port.IsNull() && !m.Port.IsUnknown() {
-		to["port"] = m.Port.ValueInt64()
-	}
-	if !m.Priority.IsNull() && !m.Priority.IsUnknown() {
-		to["priority"] = m.Priority.ValueInt64()
-	}
-	if !m.Target.IsNull() && !m.Target.IsUnknown() {
-		to["target"] = m.Target.ValueString()
-	}
-	if !m.Weight.IsNull() && !m.Weight.IsUnknown() {
-		to["weight"] = m.Weight.ValueInt64()
-	}
+	to["port"] = flex.ExpandInt64(m.Port)
+	to["priority"] = flex.ExpandInt64(m.Priority)
+	to["target"] = flex.ExpandString(m.Target)
+	to["weight"] = flex.ExpandInt64(m.Weight)
 	return to
 }
 

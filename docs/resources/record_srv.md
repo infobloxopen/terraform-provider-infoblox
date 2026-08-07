@@ -45,7 +45,7 @@ resource "infoblox_record_srv" "create_with_additional_config" {
     creator  = "DYNAMIC"
     comment  = "Example SRV record"
     extattrs = {
-      Site = "location-2"
+      Site = "location-1"
     }
   }
 

@@ -2,18 +2,24 @@
 case "basic" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.name"               = "{{random}}.example.com"
-      "nios.target"             = "{{random2}}.target.com"
+      "nios.name"               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.target"             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       "nios.port"               = "80"
       "nios.priority"           = "10"
       "nios.weight"             = "360"
@@ -31,11 +37,17 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -47,11 +59,17 @@ case "disappears" {
 case "comment" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -64,8 +82,8 @@ case "comment" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -81,11 +99,17 @@ case "comment" {
 case "creator" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -98,8 +122,8 @@ case "creator" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -115,11 +139,17 @@ case "creator" {
 case "ddns_principal" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name           = "{{random}}.example.com"
-      target         = "{{random2}}.target.com"
+      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -133,8 +163,8 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      target         = "{{random2}}.target.com"
+      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -151,11 +181,17 @@ case "ddns_principal" {
 case "ddns_protected" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name           = "{{random}}.example.com"
-      target         = "{{random2}}.target.com"
+      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -168,8 +204,8 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      target         = "{{random2}}.target.com"
+      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -185,11 +221,17 @@ case "ddns_protected" {
 case "disable" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -202,8 +244,8 @@ case "disable" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -219,11 +261,17 @@ case "disable" {
 case "ext_attrs" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name      = "{{random}}.example.com"
-      target    = "{{random2}}.target.com"
+      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
@@ -236,8 +284,8 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      target    = "{{random2}}.target.com"
+      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
@@ -253,11 +301,17 @@ case "ext_attrs" {
 case "forbid_reclamation" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name               = "{{random}}.example.com"
-      target             = "{{random2}}.target.com"
+      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port               = 80
       priority           = 10
       weight             = 360
@@ -270,8 +324,8 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      target             = "{{random2}}.target.com"
+      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port               = 80
       priority           = 10
       weight             = 360
@@ -287,30 +341,36 @@ case "forbid_reclamation" {
 case "name" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random3}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.name" = "{{random}}.example.com"
+      "nios.name" = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
   step {
     nios {
-      name     = "{{random2}}.example.com"
-      target   = "{{random3}}.target.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.name" = "{{random2}}.example.com"
+      "nios.name" = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
@@ -319,11 +379,17 @@ case "name" {
 case "port" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -335,8 +401,8 @@ case "port" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 8080
       priority = 10
       weight   = 360
@@ -351,11 +417,17 @@ case "port" {
 case "priority" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -367,8 +439,8 @@ case "priority" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 1
       weight   = 360
@@ -383,30 +455,36 @@ case "priority" {
 case "target" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.target" = "{{random2}}.target.com"
+      "nios.target" = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random3}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.target" = "{{random3}}.target.com"
+      "nios.target" = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
@@ -415,11 +493,17 @@ case "target" {
 case "ttl" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -432,8 +516,8 @@ case "ttl" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -449,11 +533,17 @@ case "ttl" {
 case "weight" {
   backend  = "nios"
   parallel = true
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -465,8 +555,8 @@ case "weight" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 720
