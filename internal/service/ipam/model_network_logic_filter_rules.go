@@ -3,6 +3,7 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -37,10 +38,10 @@ var NetworkLogicFilterRulesResourceSchemaAttributes = map[string]schema.Attribut
 		MarkdownDescription: "The filter name.",
 	},
 	"type": schema.StringAttribute{
-		Required: true,
 		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
+			stringvalidator.OneOf("MAC", "NAC", "OPTION"),
 		},
+		Required:            true,
 		MarkdownDescription: "The filter type. Valid values are: * MAC * NAC * Option",
 	},
 }
