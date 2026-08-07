@@ -12,7 +12,6 @@ case "basic" {
       "nios.network_view"                         = "default"
       "nios.authority"                            = "false"
       "nios.cloud_shared"                         = "false"
-      "nios.comment"                              = ""
       "nios.ddns_generate_hostname"               = "false"
       "nios.ddns_server_always_updates"           = "true"
       "nios.ddns_ttl"                             = "0"

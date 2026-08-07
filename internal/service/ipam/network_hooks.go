@@ -6,8 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 // ValidateNetwork validates the Network configuration.
@@ -28,4 +30,12 @@ func validateNetworkUDDIConfig(ctx context.Context, m *UDDINetworkModel, resp *r
 
 func BuildNetworkFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosipam.FuncCall {
 	return nil
+}
+
+func PostFlattenNetworkNIOS(ctx context.Context, planned, flattened *NIOSNetworkModel, diags *diag.Diagnostics) {
+	if planned != nil && !planned.Options.IsUnknown() {
+		if reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options); !d.HasError() {
+			flattened.Options = reordered.(basetypes.ListValue)
+		}
+	}
 }
