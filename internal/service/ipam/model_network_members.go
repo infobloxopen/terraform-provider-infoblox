@@ -42,6 +42,7 @@ var NetworkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv4addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidIPv4OrFQDN(),
@@ -50,6 +51,7 @@ var NetworkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -57,6 +59,7 @@ var NetworkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},

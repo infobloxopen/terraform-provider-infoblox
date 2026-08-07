@@ -247,7 +247,7 @@ func ExpandIPv6Prefix(ipv6addr cidrtypes.IPv6Prefix) *string {
 	return ExpandStringPointer(ipv6addr.StringValue)
 }
 
-func ExpandMACAddr(mac internaltypes.MACAddressValue) *string {
+func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 	if mac.IsNull() || mac.IsUnknown() {
 		return nil
 	}
@@ -481,11 +481,11 @@ func FlattenIPv6Prefix(ipv6addr *string) cidrtypes.IPv6Prefix {
 	}
 }
 
-func FlattenMACAddr(mac *string) internaltypes.MACAddressValue {
+func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	if mac == nil {
 		return internaltypes.NewMACAddressNull()
 	}
-	return internaltypes.MACAddressValue{
+	return internaltypes.MACAddress{
 		StringValue: FlattenStringPointer(mac),
 	}
 }

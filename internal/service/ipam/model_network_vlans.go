@@ -6,27 +6,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // NetworkVlansModel is the Terraform model for NetworkVlans
 type NetworkVlansModel struct {
-	Vlan types.Map    `tfsdk:"vlan"`
-	Id   types.Int64  `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
+	Vlan types.Map `tfsdk:"vlan"`
 }
 
 // NetworkVlansAttrTypes contains the attribute types for NetworkVlansModel
 var NetworkVlansAttrTypes = map[string]attr.Type{
 	"vlan": types.MapType{ElemType: types.StringType},
-	"id":   types.Int64Type,
-	"name": types.StringType,
 }
 
 // NetworkVlansResourceSchemaAttributes contains the schema attributes for NetworkVlansModel
@@ -34,19 +28,8 @@ var NetworkVlansResourceSchemaAttributes = map[string]schema.Attribute{
 	"vlan": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		MarkdownDescription: "Reference to the underlying StaticVlan object vlan.",
-	},
-	"id": schema.Int64Attribute{
 		Computed:            true,
-		MarkdownDescription: "VLAN ID value.",
-	},
-	"name": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "Name of the VLAN.",
+		MarkdownDescription: "Reference to the underlying StaticVlan object vlan.",
 	},
 }
 
@@ -70,8 +53,6 @@ func (m *NetworkVlansModel) Expand(ctx context.Context, diags *diag.Diagnostics)
 	}
 	to := &niosipam.NetworkVlans{
 		Vlan: flex.ExpandMapStringAny(ctx, m.Vlan, diags),
-		Id:   flex.ExpandInt64Pointer(m.Id),
-		Name: flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 	return to
 }
@@ -94,6 +75,4 @@ func (m *NetworkVlansModel) Flatten(ctx context.Context, from *niosipam.NetworkV
 		return
 	}
 	m.Vlan = flex.FlattenMapStringAny(ctx, from.Vlan, diags)
-	m.Id = flex.FlattenInt64Pointer(from.Id)
-	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 }
