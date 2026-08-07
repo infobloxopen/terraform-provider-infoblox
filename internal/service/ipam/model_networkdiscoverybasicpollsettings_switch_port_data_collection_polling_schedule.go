@@ -64,6 +64,7 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 	},
 	"time_zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -100,7 +101,6 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 	},
 	"year": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The year for the scheduled task.",
 	},
 	"month": schema.Int64Attribute{
@@ -120,6 +120,7 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 			stringvalidator.OneOf("ONCE", "RECUR"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates if the scheduled task will be repeated or run only once.",
 	},
 	"disable": schema.BoolAttribute{

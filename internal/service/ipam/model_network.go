@@ -306,6 +306,7 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"bootfile": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -313,6 +314,7 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"bootserver": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidIPv4OrFQDN(),
@@ -323,7 +325,7 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Attributes:          NetworkCloudInfoResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Structure containing all cloud API related information for this object.",
 	},
 	"cloud_shared": schema.BoolAttribute{
 		Optional:            true,
@@ -341,6 +343,7 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_domainname": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -419,13 +422,13 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Attributes:          NetworkDiscoveryBasicPollSettingsResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "The discovery basic poll settings for this network.",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          NetworkDiscoveryBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "The discovery blackout setting for this network.",
 	},
 	"discovery_member": schema.StringAttribute{
 		Optional: true,

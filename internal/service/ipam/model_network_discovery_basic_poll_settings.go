@@ -117,6 +117,7 @@ var NetworkDiscoveryBasicPollSettingsResourceSchemaAttributes = map[string]schem
 	"switch_port_data_collection_polling_schedule": schema.SingleNestedAttribute{
 		Attributes:          NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A Schedule Setting struct that determines switch port data collection polling schedule.",
 	},
 	"switch_port_data_collection_polling_interval": schema.Int64Attribute{
