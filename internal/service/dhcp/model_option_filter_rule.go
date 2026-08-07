@@ -45,6 +45,7 @@ var OptionFilterRuleResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"substring_offset": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The offset where the substring match starts. This is used only if comparing the _option_value_ using any of the substring modes.",
 	},
 }

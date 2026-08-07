@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -248,6 +249,7 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"lease_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The lease lifetime duration in seconds.",
 	},
 	"name": schema.StringAttribute{
@@ -256,10 +258,15 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"protocol": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The type of protocol of option filter (_ip4_ or _ip6_).",
 	},
 	"role": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
 		MarkdownDescription: "The role of DHCP filter (_values_ or _selection_).  Defaults to _values_.",
 	},
 	"rules": schema.SingleNestedAttribute{
@@ -410,11 +417,11 @@ func (m *UDDIFilteroptionModel) Flatten(ctx context.Context, from *coremodel.UDD
 	if from == nil || m == nil {
 		return
 	}
-	m.Comment = flex.FlattenStringPointer(from.Comment)
+	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
-	m.HeaderOptionFilename = flex.FlattenStringPointer(from.HeaderOptionFilename)
-	m.HeaderOptionServerAddress = flex.FlattenStringPointer(from.HeaderOptionServerAddress)
-	m.HeaderOptionServerName = flex.FlattenStringPointer(from.HeaderOptionServerName)
+	m.HeaderOptionFilename = flex.FlattenStringPointerEmptyAsNull(from.HeaderOptionFilename)
+	m.HeaderOptionServerAddress = flex.FlattenStringPointerEmptyAsNull(from.HeaderOptionServerAddress)
+	m.HeaderOptionServerName = flex.FlattenStringPointerEmptyAsNull(from.HeaderOptionServerName)
 	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
 	m.Name = flex.FlattenString(from.Name)
 	m.Protocol = flex.FlattenStringPointer(from.Protocol)
