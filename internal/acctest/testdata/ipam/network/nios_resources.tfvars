@@ -1827,22 +1827,26 @@ case "vlans" {
       vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50" }]
     }
     check = {
-      "nios.vlans.0.id"   = "50"
-      "nios.vlans.0.name" = "test-vlan-for-network"
+      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50"
     }
   }
 
   step {
     nios {
       network = "{{random_cidr_network}}"
-      # Legacy renames the same VLAN here; unified cannot, since the VLAN is an
-      # out-of-band prereq. Switch to a second VLAN so the list actually changes.
-      # vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
       vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
     }
     check = {
-      "nios.vlans.0.id"   = "51"
-      "nios.vlans.0.name" = "test-vlan-2-for-network"
+      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"
+    }
+  }
+
+  step {
+    nios {
+      network = "{{random_cidr_network}}"
+    }
+    check = {
+      "nios.network" = "{{random_cidr_network}}"
     }
   }
 
