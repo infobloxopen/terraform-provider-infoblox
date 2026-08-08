@@ -341,6 +341,7 @@ type ParentalcontrolSubscribersiteAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -386,6 +387,12 @@ func (r ParentalcontrolSubscribersiteAPIListRequest) Filters(filters map[string]
 
 func (r ParentalcontrolSubscribersiteAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) ParentalcontrolSubscribersiteAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r ParentalcontrolSubscribersiteAPIListRequest) ProxySearch(proxySearch string) ParentalcontrolSubscribersiteAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -454,6 +461,9 @@ func (a *ParentalcontrolSubscribersiteAPIService) ListExecute(r ParentalcontrolS
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -508,6 +518,7 @@ type ParentalcontrolSubscribersiteAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -525,6 +536,12 @@ func (r ParentalcontrolSubscribersiteAPIReadRequest) ReturnFieldsPlus(returnFiel
 // Select 1 if result is required as an object
 func (r ParentalcontrolSubscribersiteAPIReadRequest) ReturnAsObject(returnAsObject int32) ParentalcontrolSubscribersiteAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r ParentalcontrolSubscribersiteAPIReadRequest) ProxySearch(proxySearch string) ParentalcontrolSubscribersiteAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -580,6 +597,9 @@ func (a *ParentalcontrolSubscribersiteAPIService) ReadExecute(r ParentalcontrolS
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

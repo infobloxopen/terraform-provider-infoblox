@@ -161,7 +161,7 @@ type ZoneAuth struct {
 	// The name of MS synchronization master for this zone.
 	MsSyncMasterName *string `json:"ms_sync_master_name,omitempty"`
 	// The list with the associated network/network container information.
-	NetworkAssociations []string `json:"network_associations,omitempty"`
+	NetworkAssociations []ZoneAuthNetworkAssociations `json:"network_associations,omitempty"`
 	// The name of the network view in which this zone resides.
 	NetworkView *string `json:"network_view,omitempty"`
 	// The number of seconds in delay with which notify messages are sent to secondaries.
@@ -2577,9 +2577,9 @@ func (o *ZoneAuth) SetMsSyncMasterName(v string) {
 }
 
 // GetNetworkAssociations returns the NetworkAssociations field value if set, zero value otherwise.
-func (o *ZoneAuth) GetNetworkAssociations() []string {
+func (o *ZoneAuth) GetNetworkAssociations() []ZoneAuthNetworkAssociations {
 	if o == nil || IsNil(o.NetworkAssociations) {
-		var ret []string
+		var ret []ZoneAuthNetworkAssociations
 		return ret
 	}
 	return o.NetworkAssociations
@@ -2587,7 +2587,7 @@ func (o *ZoneAuth) GetNetworkAssociations() []string {
 
 // GetNetworkAssociationsOk returns a tuple with the NetworkAssociations field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ZoneAuth) GetNetworkAssociationsOk() ([]string, bool) {
+func (o *ZoneAuth) GetNetworkAssociationsOk() ([]ZoneAuthNetworkAssociations, bool) {
 	if o == nil || IsNil(o.NetworkAssociations) {
 		return nil, false
 	}
@@ -2603,8 +2603,8 @@ func (o *ZoneAuth) HasNetworkAssociations() bool {
 	return false
 }
 
-// SetNetworkAssociations gets a reference to the given []string and assigns it to the NetworkAssociations field.
-func (o *ZoneAuth) SetNetworkAssociations(v []string) {
+// SetNetworkAssociations gets a reference to the given []ZoneAuthNetworkAssociations and assigns it to the NetworkAssociations field.
+func (o *ZoneAuth) SetNetworkAssociations(v []ZoneAuthNetworkAssociations) {
 	o.NetworkAssociations = v
 }
 

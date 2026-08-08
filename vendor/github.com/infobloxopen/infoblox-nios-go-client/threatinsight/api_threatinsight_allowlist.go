@@ -329,6 +329,7 @@ type ThreatinsightAllowlistAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -374,6 +375,12 @@ func (r ThreatinsightAllowlistAPIListRequest) Filters(filters map[string]interfa
 
 func (r ThreatinsightAllowlistAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) ThreatinsightAllowlistAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r ThreatinsightAllowlistAPIListRequest) ProxySearch(proxySearch string) ThreatinsightAllowlistAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -442,6 +449,9 @@ func (a *ThreatinsightAllowlistAPIService) ListExecute(r ThreatinsightAllowlistA
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -496,6 +506,7 @@ type ThreatinsightAllowlistAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -513,6 +524,12 @@ func (r ThreatinsightAllowlistAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus 
 // Select 1 if result is required as an object
 func (r ThreatinsightAllowlistAPIReadRequest) ReturnAsObject(returnAsObject int32) ThreatinsightAllowlistAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r ThreatinsightAllowlistAPIReadRequest) ProxySearch(proxySearch string) ThreatinsightAllowlistAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -568,6 +585,9 @@ func (a *ThreatinsightAllowlistAPIService) ReadExecute(r ThreatinsightAllowlistA
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
