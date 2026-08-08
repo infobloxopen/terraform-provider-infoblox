@@ -3,6 +3,7 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -34,10 +35,10 @@ var NetworkMembersAttrTypes = map[string]attr.Type{
 // NetworkMembersResourceSchemaAttributes contains the schema attributes for NetworkMembersModel
 var NetworkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	"struct": schema.StringAttribute{
-		Required: true,
 		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
+			stringvalidator.OneOf("dhcpmember", "msdhcpserver"),
 		},
+		Required:            true,
 		MarkdownDescription: "The struct type of the object. The value must be one of 'dhcpmember' and 'msdhcpserver'.",
 	},
 	"ipv4addr": schema.StringAttribute{
@@ -87,9 +88,9 @@ func (m *NetworkMembersModel) Expand(ctx context.Context, diags *diag.Diagnostic
 	}
 	to := &niosipam.NetworkMembers{
 		Struct:   flex.ExpandStringPointerNullAsEmpty(m.Struct),
-		Ipv4addr: flex.ExpandStringPointerNullAsEmpty(m.Ipv4addr),
-		Ipv6addr: flex.ExpandStringPointerNullAsEmpty(m.Ipv6addr),
-		Name:     flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Ipv4addr: flex.ExpandStringPointer(m.Ipv4addr),
+		Ipv6addr: flex.ExpandStringPointer(m.Ipv6addr),
+		Name:     flex.ExpandStringPointer(m.Name),
 	}
 	return to
 }

@@ -159,7 +159,7 @@ func (m *NetworkdiscoveryblackoutsettingBlackoutScheduleModel) Expand(ctx contex
 		Weekdays:        flex.ExpandFrameworkListString(ctx, m.Weekdays, diags),
 		TimeZone:        flex.ExpandStringPointerNullAsEmpty(m.TimeZone),
 		RecurringTime:   flex.ExpandInt64Pointer(m.RecurringTime),
-		Frequency:       flex.ExpandStringPointerNullAsEmpty(m.Frequency),
+		Frequency:       flex.ExpandStringPointer(m.Frequency),
 		Every:           flex.ExpandInt64Pointer(m.Every),
 		MinutesPastHour: flex.ExpandInt64Pointer(m.MinutesPastHour),
 		HourOfDay:       flex.ExpandInt64Pointer(m.HourOfDay),

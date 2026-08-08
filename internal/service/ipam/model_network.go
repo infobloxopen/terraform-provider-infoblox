@@ -541,7 +541,6 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ignore_id": schema.StringAttribute{
 		Default: stringdefault.StaticString("NONE"),
 		Validators: []validator.String{
-			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_bootfile")),
 			stringvalidator.OneOf("NONE", "CLIENT", "MACADDR"),
 		},
 		Optional:            true,
@@ -1270,7 +1269,6 @@ func (m *NIOSNetworkModel) Flatten(ctx context.Context, from *coremodel.NIOSNetw
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.Authority = flex.FlattenBoolPointer(from.Authority)
-	m.AutoCreateReversezone = flex.FlattenBoolPointer(from.AutoCreateReversezone)
 	m.Bootfile = flex.FlattenStringPointerEmptyAsNull(from.Bootfile)
 	m.Bootserver = flex.FlattenStringPointerEmptyAsNull(from.Bootserver)
 	m.CloudInfo = FlattenNetworkCloudInfo(ctx, from.CloudInfo, diags)

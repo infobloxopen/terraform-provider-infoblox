@@ -92,9 +92,11 @@ case "auto_create_reversezone" {
 
   step {
     nios {
+      network                 = "10.{{random_octet}}.{{random_octet}}.0/24"
       auto_create_reversezone = true
     }
     check = {
+      "nios.network"                 = "10.{{random_octet}}.{{random_octet}}.0/24"
       "nios.auto_create_reversezone" = "true"
     }
   }
@@ -1281,12 +1283,12 @@ case "members" {
   step {
     nios {
       network = "{{random_cidr_network}}"
-      members = [{ struct = "dhcpmember", name = "{{grid_master_hostname}}" }]
+      members = [{ struct = "dhcpmember", name = "infoblox.172_28_83_201" }]
     }
     check = {
       "nios.network"          = "{{random_cidr_network}}"
       "nios.members.0.struct" = "dhcpmember"
-      "nios.members.0.name"   = "{{grid_master_hostname}}"
+      "nios.members.0.name"   = "infoblox.172_28_83_201"
     }
   }
 
