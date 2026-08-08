@@ -797,7 +797,7 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Optional. Comment for zone configuration.",

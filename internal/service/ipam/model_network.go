@@ -846,7 +846,9 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The CIDR of the subnet. This is required if _address_ does not include CIDR.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the subnet. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"config_profiles": schema.ListAttribute{
@@ -867,7 +869,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The mode used for resolving conflicts while performing DDNS updates.  Valid values are: * _check_with_dhcid_: It includes adding a DHCID record and checking that record via conflict detection as per RFC 4703. * _no_check_with_dhcid_: This will ignore conflict detection but add a DHCID record when creating/updating an entry. * _check_exists_with_dhcid_: This will check if there is an existing DHCID record but does not verify the value of the record matches the update. This will also update the DHCID record for the entry. * _no_check_without_dhcid_: This ignores conflict detection and will not add a DHCID record when creating/updating a DDNS entry.  Defaults to _check_with_dhcid_.",
 	},
 	"ddns_domain": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The domain suffix for DDNS updates. FQDN, may be empty.  Defaults to empty.",
@@ -892,7 +894,6 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
@@ -956,19 +957,19 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"header_option_filename": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The configuration for header option filename field.",
 	},
 	"header_option_server_address": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The configuration for header option server address field.",
 	},
 	"header_option_server_name": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The configuration for header option server name field.",
@@ -1005,7 +1006,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
 	"name": schema.StringAttribute{
-		Default:             stringdefault.StaticString("empty_string"),
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The name of the subnet. May contain 1 to 256 characters. Can include UTF-8.",
