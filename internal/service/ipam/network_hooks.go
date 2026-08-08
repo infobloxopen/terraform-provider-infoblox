@@ -50,3 +50,54 @@ func PostFlattenNetworkNIOS(ctx context.Context, planned, flattened *NIOSNetwork
 		}
 	}
 }
+
+func BuildNetworkAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {
+	if allocObj.IsNull() || allocObj.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableSubnetModel
+	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	if m.NextAvailableId.IsNull() || m.NextAvailableId.IsUnknown() {
+		return nil
+	}
+
+	allocated := m.Suffixed("/nextavailablesubnet")
+	return &allocated
+}
+
+// LockNetworkAllocation serializes concurrent next-available allocations
+// that target the same parent scope by acquiring a per-scope mutex keyed on the next_available_id
+func LockNetworkAllocation(ctx context.Context, uddiBlock types.Object, diags *diag.Diagnostics) func() {
+	noop := func() {}
+	if uddiBlock.IsNull() || uddiBlock.IsUnknown() {
+		return noop
+	}
+
+	allocVal, ok := uddiBlock.Attributes()["dynamic_allocation"]
+	if !ok {
+		return noop
+	}
+	allocObj, ok := allocVal.(types.Object)
+	if !ok || allocObj.IsNull() || allocObj.IsUnknown() {
+		return noop
+	}
+
+	var m dynamicallocation.NextAvailableSubnetModel
+	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return noop
+	}
+
+	key := m.NextAvailableId.ValueString()
+	if key == "" {
+		return noop
+	}
+
+	utils.GlobalMutexStore.Lock(key)
+	return func() { utils.GlobalMutexStore.Unlock(key) }
+}
