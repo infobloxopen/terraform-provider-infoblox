@@ -244,7 +244,7 @@ var UDDINetworkAttrTypes = map[string]attr.Type{
 	"ddns_ttl_percent":              types.Float64Type,
 	"ddns_update_on_renew":          types.BoolType,
 	"ddns_use_conflict_resolution":  types.BoolType,
-	"dhcp_config":                   types.ObjectType{AttrTypes: DHCPConfigAttrTypes},
+	"dhcp_config":                   types.ObjectType{AttrTypes: NetworkDHCPConfigAttrTypes},
 	"dhcp_host":                     types.StringType,
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"disable_dhcp":                  types.BoolType,
@@ -905,22 +905,20 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "When true, DHCP server will apply conflict resolution, as described in RFC 4703, when attempting to fulfill the update request.  When false, DHCP server will simply attempt to update the DNS entries per the request, regardless of whether or not they conflict with existing entries owned by other DHCP4 clients.  Defaults to _true_.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
-		Attributes: DHCPConfigResourceSchemaAttributes,
+		Attributes: NetworkDHCPConfigResourceSchemaAttributes,
 		Optional:   true,
 		Computed:   true,
-		Default: objectdefault.StaticValue(types.ObjectValueMust(DHCPConfigAttrTypes, map[string]attr.Value{
-			"abandoned_reclaim_time":    types.Int64Null(), /* abandoned_reclaim_time cannot be set for subnet */
-			"abandoned_reclaim_time_v6": types.Int64Null(), /* abandoned_reclaim_time_v6 cannot be set for subnet */
-			"allow_unknown":             types.BoolValue(true),
-			"allow_unknown_v6":          types.BoolValue(true),
-			"echo_client_id":            types.BoolNull(), /* echo_id cannot be set for subnet */
-			"filters":                   types.ListNull(types.StringType),
-			"filters_v6":                types.ListNull(types.StringType),
-			"filters_large_selection":   types.ListNull(types.StringType),
-			"ignore_client_uid":         types.BoolValue(false),
-			"ignore_list":               types.ListNull(types.ObjectType{AttrTypes: DHCPConfigAttrTypes}),
-			"lease_time":                types.Int64Value(3600),
-			"lease_time_v6":             types.Int64Value(3600),
+		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkDHCPConfigAttrTypes, map[string]attr.Value{
+			"abandoned_reclaim_time":  types.Int64Null(), /* abandoned_reclaim_time cannot be set for subnet */
+			"allow_unknown":           types.BoolValue(true),
+			"authoritative_dhcp":      types.BoolValue(false),
+			"echo_client_id":          types.BoolNull(), /* echo_id cannot be set for subnet */
+			"filters":                 types.ListNull(types.StringType),
+			"filters_large_selection": types.ListNull(types.StringType),
+			"hold_reclaimed_time":     types.Int64Value(3600),
+			"ignore_client_uid":       types.BoolValue(false),
+			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
+			"lease_time":              types.Int64Value(3600),
 		})),
 		MarkdownDescription: "A DHCP Config object (_dhcp/dhcp_config_) represents a shared DHCP configuration that controls how leases are issued.",
 	},
@@ -1197,7 +1195,7 @@ func (m *UDDINetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		DdnsTtlPercent:             flex.ExpandFloat32Pointer(m.DdnsTtlPercent),
 		DdnsUpdateOnRenew:          flex.ExpandBoolPointer(m.DdnsUpdateOnRenew),
 		DdnsUseConflictResolution:  flex.ExpandBoolPointer(m.DdnsUseConflictResolution),
-		DhcpConfig:                 ExpandDHCPConfig(ctx, m.DhcpConfig, diags),
+		DhcpConfig:                 ExpandNetworkDHCPConfig(ctx, m.DhcpConfig, diags),
 		DhcpHost:                   flex.ExpandStringPointer(m.DhcpHost),
 		DhcpOptions:                flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		DisableDhcp:                flex.ExpandBoolPointer(m.DisableDhcp),
@@ -1354,7 +1352,7 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
-	m.DhcpConfig = FlattenDHCPConfig(ctx, from.DhcpConfig, diags)
+	m.DhcpConfig = FlattenNetworkDHCPConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpHost = flex.FlattenStringPointer(from.DhcpHost)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
