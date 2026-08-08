@@ -93,9 +93,9 @@ func (m *NetworkOptionsModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		return nil
 	}
 	to := &niosipam.NetworkOptions{
-		Name:        flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Name:        flex.ExpandStringPointer(m.Name),
 		Num:         flex.ExpandInt64Pointer(m.Num),
-		VendorClass: flex.ExpandStringPointerNullAsEmpty(m.VendorClass),
+		VendorClass: flex.ExpandStringPointer(m.VendorClass),
 		Value:       flex.ExpandStringPointerNullAsEmpty(m.Value),
 		UseOption:   flex.ExpandBoolPointer(m.UseOption),
 	}
