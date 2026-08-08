@@ -39,7 +39,7 @@ var NetworkLogicFilterRulesResourceSchemaAttributes = map[string]schema.Attribut
 	},
 	"type": schema.StringAttribute{
 		Validators: []validator.String{
-			stringvalidator.OneOf("MAC", "NAC", "OPTION"),
+			stringvalidator.OneOf("MAC", "NAC", "Option"),
 		},
 		Required:            true,
 		MarkdownDescription: "The filter type. Valid values are: * MAC * NAC * Option",

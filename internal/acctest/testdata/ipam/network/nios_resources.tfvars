@@ -633,8 +633,10 @@ case "discovery_blackout_setting" {
 }
 
 case "discovery_member" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
 
   step {
     nios {
@@ -739,8 +741,10 @@ case "enable_dhcp_thresholds" {
 }
 
 case "enable_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
 
   step {
     nios {
@@ -823,8 +827,10 @@ case "enable_ifmap_publishing" {
 }
 
 case "enable_immediate_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
 
   step {
     nios {
@@ -1555,10 +1561,13 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs        = {  }
+      # ext_attrs        = {  }
+      ext_attrs = { "RIPE Network Name" = "test-network", "RIPE Description" = "test description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
-      "nios.rir_organization" = "rir-org-test1"
+      "nios.rir_organization"            = "rir-org-test1"
+      "nios.ext_attrs.RIPE Network Name" = "test-network"
+      "nios.ext_attrs.RIPE Description"  = "test description"
     }
   }
 
@@ -1566,10 +1575,13 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs        = {  }
+      # ext_attrs        = {  }
+      ext_attrs = { "RIPE Network Name" = "updated-network", "RIPE Description" = "updated description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
-      "nios.rir_organization" = "rir-org-test1"
+      "nios.rir_organization"            = "rir-org-test1"
+      "nios.ext_attrs.RIPE Network Name" = "updated-network"
+      "nios.ext_attrs.RIPE Description"  = "updated description"
     }
   }
 
@@ -1688,8 +1700,10 @@ case "send_rir_request" {
 }
 
 case "subscribe_settings" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "NIOS_PXGRID_ENDPOINT_REF environment variable must be set for this test to run (requires Cisco ISE/pxGrid endpoint configured in NIOS)"
 
   step {
     nios {
@@ -1718,22 +1732,25 @@ case "subscribe_settings" {
 case "template" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network_template_unknown" "test_net_tmpl" {
-    nios = {
-      name = "{{random}}"
-      netmask = 24
-    }
-  }
-  PREREQ
-
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_network_template_unknown" "test_net_tmpl" {
+  #   nios = {
+  #     name = "{{random}}"
+  #     netmask = 24
+  #   }
+  # }
+  # PREREQ
+  #
   step {
     nios {
-      template = infoblox_network_template_unknown.test_net_tmpl.nios.name
+      # template = infoblox_network_template_unknown.test_net_tmpl.nios.name
+      network  = "10.{{random_octet}}.{{random_octet}}.0/24"
+      template = "test-networktemplate-for-network"
     }
-    depends_on = [infoblox_network_template_unknown.test_net_tmpl]
+    # depends_on = [infoblox_network_template_unknown.test_net_tmpl]
     check = {
-      "nios.template" = "{{random}}"
+      "nios.network"  = "10.{{random_octet}}.{{random_octet}}.0/24"
+      "nios.template" = "test-networktemplate-for-network"
     }
   }
 
@@ -1784,34 +1801,46 @@ case "update_dns_on_lease_renewal" {
 case "vlans" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlan_view" "test_vlan_view" {
-    nios = {
-      start_vlan_id = 50
-      end_vlan_id = 100
-      name = "test-vlanview-for-network"
-    }
-  }
-  resource "infoblox_vlan" "test_vlan" {
-    nios = {
-      id = 50
-      name = "test-vlan-for-network"
-      parent = infoblox_vlan_view.test_vlan_view.nios.ref
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_vlan_view" "test_vlan_view" {
+  #   nios = {
+  #     start_vlan_id = 50
+  #     end_vlan_id = 100
+  #     name = "test-vlanview-for-network"
+  #   }
+  # }
+  # resource "infoblox_vlan" "test_vlan" {
+  #   nios = {
+  #     id = 50
+  #     name = "test-vlan-for-network"
+  #     parent = infoblox_vlan_view.test_vlan_view.nios.ref
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       network = "{{random_cidr_network}}"
-      vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      # vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50" }]
+    }
+    check = {
+      "nios.vlans.0.id"   = "50"
+      "nios.vlans.0.name" = "test-vlan-for-network"
     }
   }
 
   step {
     nios {
       network = "{{random_cidr_network}}"
-      vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      # Legacy renames the same VLAN here; unified cannot, since the VLAN is an
+      # out-of-band prereq. Switch to a second VLAN so the list actually changes.
+      # vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
+    }
+    check = {
+      "nios.vlans.0.id"   = "51"
+      "nios.vlans.0.name" = "test-vlan-2-for-network"
     }
   }
 
