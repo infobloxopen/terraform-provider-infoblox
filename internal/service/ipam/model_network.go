@@ -219,10 +219,8 @@ type UDDINetworkModel struct {
 	HostnameRewriteChar        types.String                      `tfsdk:"hostname_rewrite_char"`
 	HostnameRewriteEnabled     types.Bool                        `tfsdk:"hostname_rewrite_enabled"`
 	HostnameRewriteRegex       types.String                      `tfsdk:"hostname_rewrite_regex"`
-	InheritanceParent          types.String                      `tfsdk:"inheritance_parent"`
 	InheritanceSources         types.Object                      `tfsdk:"inheritance_sources"`
 	Name                       types.String                      `tfsdk:"name"`
-	Parent                     types.String                      `tfsdk:"parent"`
 	RebindTime                 types.Int64                       `tfsdk:"rebind_time"`
 	RenewTime                  types.Int64                       `tfsdk:"renew_time"`
 	Space                      types.String                      `tfsdk:"space"`
@@ -258,10 +256,8 @@ var UDDINetworkAttrTypes = map[string]attr.Type{
 	"hostname_rewrite_char":         types.StringType,
 	"hostname_rewrite_enabled":      types.BoolType,
 	"hostname_rewrite_regex":        types.StringType,
-	"inheritance_parent":            types.StringType,
 	"inheritance_sources":           types.ObjectType{AttrTypes: DHCPInheritanceAttrTypes},
 	"name":                          types.StringType,
-	"parent":                        types.StringType,
 	"rebind_time":                   types.Int64Type,
 	"renew_time":                    types.Int64Type,
 	"space":                         types.StringType,
@@ -804,7 +800,7 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"dynamic_allocation": schema.SingleNestedAttribute{
 		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
+		MarkdownDescription: "Dynamically allocate the network using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -930,7 +926,8 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"dhcp_host": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
+		Computed:            true,
+		MarkdownDescription: "The resource identifier for the DHCP Host associated with this subnet. Omit or set to `null` to inherit from the parent address block (if applicable). Set to empty string (`\"\"`) to explicitly unset the DHCP host. Provide a resource ID to assign a specific DHCP host.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -992,10 +989,6 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The regex bracket expression to match valid characters.  Must begin with \"[\" and end with \"]\" and be a compilable POSIX regex.  Defaults to \"[^a-zA-Z0-9_.]\".",
 	},
-	"inheritance_parent": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: DHCPInheritanceResourceSchemaAttributes,
 		Optional:   true,
@@ -1011,18 +1004,12 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The name of the subnet. May contain 1 to 256 characters. Can include UTF-8.",
 	},
-	"parent": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
 	"rebind_time": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The lease rebind time (T2) in seconds.",
 	},
 	"renew_time": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The lease renew time (T1) in seconds.",
 	},
 	"space": schema.StringAttribute{
@@ -1050,7 +1037,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"dynamic_allocation": schema.SingleNestedAttribute{
 		Attributes:          dynamicallocation.NextAvailableSubnetResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the next available address from a parent scope. Mutually exclusive with the static \"address\" field.",
+		MarkdownDescription: "Dynamically allocate the next available subnet from a parent scope. Mutually exclusive with the static \"address\" field.",
 	},
 }
 
@@ -1222,10 +1209,8 @@ func (m *UDDINetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		HostnameRewriteChar:        flex.ExpandStringPointer(m.HostnameRewriteChar),
 		HostnameRewriteEnabled:     flex.ExpandBoolPointer(m.HostnameRewriteEnabled),
 		HostnameRewriteRegex:       flex.ExpandStringPointer(m.HostnameRewriteRegex),
-		InheritanceParent:          flex.ExpandStringPointer(m.InheritanceParent),
 		InheritanceSources:         ExpandDHCPInheritance(ctx, m.InheritanceSources, diags),
 		Name:                       flex.ExpandStringPointer(m.Name),
-		Parent:                     flex.ExpandStringPointer(m.Parent),
 		RebindTime:                 flex.ExpandInt64Pointer(m.RebindTime),
 		RenewTime:                  flex.ExpandInt64Pointer(m.RenewTime),
 		Tags:                       flex.ExpandMapStringAny(ctx, m.Tags, diags),
@@ -1381,10 +1366,8 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	m.HostnameRewriteChar = flex.FlattenStringPointer(from.HostnameRewriteChar)
 	m.HostnameRewriteEnabled = flex.FlattenBoolPointer(from.HostnameRewriteEnabled)
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)
-	m.InheritanceParent = flex.FlattenStringPointer(from.InheritanceParent)
 	m.InheritanceSources = FlattenDHCPInheritance(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.Parent = flex.FlattenStringPointer(from.Parent)
 	m.RebindTime = flex.FlattenInt64Pointer(from.RebindTime)
 	m.RenewTime = flex.FlattenInt64Pointer(from.RenewTime)
 	m.Space = flex.FlattenStringPointer(from.Space)
