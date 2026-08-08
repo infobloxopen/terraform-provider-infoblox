@@ -52,13 +52,10 @@ resource "infoblox_network" "complete_example" {
 resource "infoblox_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network      = "${infoblox_network.example_network.nios.network}"
+      network      = "20.0.0.0/24"
       network_view = "default"
       cidr         = 28
     }
-    comment = "Network container created with function call"
+    comment = "Network created with function call"
   }
-  depends_on = [
-    infoblox_network.example_network
-  ]
 }
