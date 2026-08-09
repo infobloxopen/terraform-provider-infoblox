@@ -911,11 +911,9 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkDHCPConfigAttrTypes, map[string]attr.Value{
 			"abandoned_reclaim_time":  types.Int64Null(), /* abandoned_reclaim_time cannot be set for subnet */
 			"allow_unknown":           types.BoolValue(true),
-			"authoritative_dhcp":      types.BoolValue(false),
 			"echo_client_id":          types.BoolNull(), /* echo_id cannot be set for subnet */
 			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
-			"hold_reclaimed_time":     types.Int64Value(3600),
 			"ignore_client_uid":       types.BoolValue(false),
 			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time":              types.Int64Value(3600),
@@ -1350,7 +1348,7 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	m.DdnsGenerateName = flex.FlattenBoolPointer(from.DdnsGenerateName)
 	m.DdnsGeneratedPrefix = flex.FlattenStringPointer(from.DdnsGeneratedPrefix)
 	m.DdnsSendUpdates = flex.FlattenBoolPointer(from.DdnsSendUpdates)
-	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
+	m.DdnsTtlPercent = flex.FlattenFloat32PointerZeroAsNull(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
 	m.DhcpConfig = FlattenNetworkDHCPConfig(ctx, from.DhcpConfig, diags)
@@ -1367,8 +1365,8 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)
 	m.InheritanceSources = FlattenDHCPInheritance(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.RebindTime = flex.FlattenInt64Pointer(from.RebindTime)
-	m.RenewTime = flex.FlattenInt64Pointer(from.RenewTime)
+	m.RebindTime = flex.FlattenInt64PointerZeroAsNull(from.RebindTime)
+	m.RenewTime = flex.FlattenInt64PointerZeroAsNull(from.RenewTime)
 	m.Space = flex.FlattenStringPointer(from.Space)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
