@@ -17,9 +17,7 @@ import (
 
 // NetworkDHCPConfigModel is the Terraform model for DHCPConfig
 type NetworkDHCPConfigModel struct {
-	AbandonedReclaimTime  types.Int64 `tfsdk:"abandoned_reclaim_time"`
 	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
-	EchoClientId          types.Bool  `tfsdk:"echo_client_id"`
 	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
@@ -29,9 +27,7 @@ type NetworkDHCPConfigModel struct {
 
 // NetworkDHCPConfigAttrTypes contains the attribute types for NetworkDHCPConfigModel
 var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
-	"abandoned_reclaim_time":  types.Int64Type,
 	"allow_unknown":           types.BoolType,
-	"echo_client_id":          types.BoolType,
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
 	"ignore_client_uid":       types.BoolType,
@@ -41,21 +37,11 @@ var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
 
 // NetworkDHCPConfigResourceSchemaAttributes contains the schema attributes for NetworkDHCPConfigModel
 var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
-	"abandoned_reclaim_time": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The abandoned reclaim time in seconds for IPV4 clients.",
-	},
 	"allow_unknown": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
-	},
-	"echo_client_id": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Enable/disable to include/exclude the client id when responding to discover or request.",
 	},
 	"filters": schema.ListAttribute{
 		ElementType:         types.StringType,
@@ -108,9 +94,7 @@ func (m *NetworkDHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnos
 		return nil
 	}
 	to := &uddiipam.DHCPConfig{
-		AbandonedReclaimTime:  flex.ExpandInt64Pointer(m.AbandonedReclaimTime),
 		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
-		EchoClientId:          flex.ExpandBoolPointer(m.EchoClientId),
 		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
@@ -137,9 +121,7 @@ func (m *NetworkDHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHC
 	if from == nil || m == nil {
 		return
 	}
-	m.AbandonedReclaimTime = flex.FlattenInt64Pointer(from.AbandonedReclaimTime)
 	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
-	m.EchoClientId = flex.FlattenBoolPointer(from.EchoClientId)
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)

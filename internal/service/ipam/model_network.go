@@ -909,9 +909,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkDHCPConfigAttrTypes, map[string]attr.Value{
-			"abandoned_reclaim_time":  types.Int64Null(), /* abandoned_reclaim_time cannot be set for subnet */
 			"allow_unknown":           types.BoolValue(true),
-			"echo_client_id":          types.BoolNull(), /* echo_id cannot be set for subnet */
 			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
 			"ignore_client_uid":       types.BoolValue(false),
