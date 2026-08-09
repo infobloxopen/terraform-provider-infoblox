@@ -19,11 +19,9 @@ import (
 type NetworkDHCPConfigModel struct {
 	AbandonedReclaimTime  types.Int64 `tfsdk:"abandoned_reclaim_time"`
 	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
-	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
 	EchoClientId          types.Bool  `tfsdk:"echo_client_id"`
 	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
-	HoldReclaimedTime     types.Int64 `tfsdk:"hold_reclaimed_time"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
 	IgnoreList            types.List  `tfsdk:"ignore_list"`
 	LeaseTime             types.Int64 `tfsdk:"lease_time"`
@@ -33,11 +31,9 @@ type NetworkDHCPConfigModel struct {
 var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
 	"abandoned_reclaim_time":  types.Int64Type,
 	"allow_unknown":           types.BoolType,
-	"authoritative_dhcp":      types.BoolType,
 	"echo_client_id":          types.BoolType,
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
-	"hold_reclaimed_time":     types.Int64Type,
 	"ignore_client_uid":       types.BoolType,
 	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
 	"lease_time":              types.Int64Type,
@@ -56,12 +52,6 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
 	},
-	"authoritative_dhcp": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "Set DHCP server as authoritative.",
-	},
 	"echo_client_id": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -77,12 +67,6 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
-	},
-	"hold_reclaimed_time": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             int64default.StaticInt64(3600),
-		MarkdownDescription: "The hold reclaimed time in seconds for IPv4 clients.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
 		Optional:            true,
@@ -126,11 +110,9 @@ func (m *NetworkDHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnos
 	to := &uddiipam.DHCPConfig{
 		AbandonedReclaimTime:  flex.ExpandInt64Pointer(m.AbandonedReclaimTime),
 		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
-		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
 		EchoClientId:          flex.ExpandBoolPointer(m.EchoClientId),
 		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
-		HoldReclaimedTime:     flex.ExpandInt64Pointer(m.HoldReclaimedTime),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
 		IgnoreList:            flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
 		LeaseTime:             flex.ExpandInt64Pointer(m.LeaseTime),
@@ -157,11 +139,9 @@ func (m *NetworkDHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHC
 	}
 	m.AbandonedReclaimTime = flex.FlattenInt64Pointer(from.AbandonedReclaimTime)
 	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
-	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
 	m.EchoClientId = flex.FlattenBoolPointer(from.EchoClientId)
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
-	m.HoldReclaimedTime = flex.FlattenInt64Pointer(from.HoldReclaimedTime)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
 	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
 	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
