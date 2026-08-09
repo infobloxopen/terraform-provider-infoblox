@@ -193,40 +193,40 @@ var NIOSNetworkAttrTypes = map[string]attr.Type{
 }
 
 type UDDINetworkModel struct {
-	Address                    types.String                      `tfsdk:"address"`
-	AsmConfig                  types.Object                      `tfsdk:"asm_config"`
-	Cidr                       types.Int64                       `tfsdk:"cidr"`
-	Comment                    types.String                      `tfsdk:"comment"`
-	ConfigProfiles             types.List                        `tfsdk:"config_profiles"`
-	DdnsClientUpdate           types.String                      `tfsdk:"ddns_client_update"`
-	DdnsConflictResolutionMode types.String                      `tfsdk:"ddns_conflict_resolution_mode"`
-	DdnsDomain                 types.String                      `tfsdk:"ddns_domain"`
-	DdnsGenerateName           types.Bool                        `tfsdk:"ddns_generate_name"`
-	DdnsGeneratedPrefix        types.String                      `tfsdk:"ddns_generated_prefix"`
-	DdnsSendUpdates            types.Bool                        `tfsdk:"ddns_send_updates"`
-	DdnsTtlPercent             types.Float64                     `tfsdk:"ddns_ttl_percent"`
-	DdnsUpdateOnRenew          types.Bool                        `tfsdk:"ddns_update_on_renew"`
-	DdnsUseConflictResolution  types.Bool                        `tfsdk:"ddns_use_conflict_resolution"`
-	DhcpConfig                 types.Object                      `tfsdk:"dhcp_config"`
-	DhcpHost                   types.String                      `tfsdk:"dhcp_host"`
-	DhcpOptions                types.List                        `tfsdk:"dhcp_options"`
-	DisableDhcp                types.Bool                        `tfsdk:"disable_dhcp"`
-	ExternalKeys               types.Map                         `tfsdk:"external_keys"`
-	FederatedRealms            internaltypes.UnorderedListString `tfsdk:"federated_realms"`
-	HeaderOptionFilename       types.String                      `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress  types.String                      `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName     types.String                      `tfsdk:"header_option_server_name"`
-	HostnameRewriteChar        types.String                      `tfsdk:"hostname_rewrite_char"`
-	HostnameRewriteEnabled     types.Bool                        `tfsdk:"hostname_rewrite_enabled"`
-	HostnameRewriteRegex       types.String                      `tfsdk:"hostname_rewrite_regex"`
-	InheritanceSources         types.Object                      `tfsdk:"inheritance_sources"`
-	Name                       types.String                      `tfsdk:"name"`
-	RebindTime                 types.Int64                       `tfsdk:"rebind_time"`
-	RenewTime                  types.Int64                       `tfsdk:"renew_time"`
-	Space                      types.String                      `tfsdk:"space"`
-	Tags                       types.Map                         `tfsdk:"tags"`
-	TagsAll                    types.Map                         `tfsdk:"tags_all"`
-	DynamicAllocation          types.Object                      `tfsdk:"dynamic_allocation"`
+	Address                    types.String                     `tfsdk:"address"`
+	AsmConfig                  types.Object                     `tfsdk:"asm_config"`
+	Cidr                       types.Int64                      `tfsdk:"cidr"`
+	Comment                    types.String                     `tfsdk:"comment"`
+	ConfigProfiles             types.List                       `tfsdk:"config_profiles"`
+	DdnsClientUpdate           types.String                     `tfsdk:"ddns_client_update"`
+	DdnsConflictResolutionMode types.String                     `tfsdk:"ddns_conflict_resolution_mode"`
+	DdnsDomain                 types.String                     `tfsdk:"ddns_domain"`
+	DdnsGenerateName           types.Bool                       `tfsdk:"ddns_generate_name"`
+	DdnsGeneratedPrefix        types.String                     `tfsdk:"ddns_generated_prefix"`
+	DdnsSendUpdates            types.Bool                       `tfsdk:"ddns_send_updates"`
+	DdnsTtlPercent             types.Float64                    `tfsdk:"ddns_ttl_percent"`
+	DdnsUpdateOnRenew          types.Bool                       `tfsdk:"ddns_update_on_renew"`
+	DdnsUseConflictResolution  types.Bool                       `tfsdk:"ddns_use_conflict_resolution"`
+	DhcpConfig                 types.Object                     `tfsdk:"dhcp_config"`
+	DhcpHost                   types.String                     `tfsdk:"dhcp_host"`
+	DhcpOptions                internaltypes.UnorderedListValue `tfsdk:"dhcp_options"`
+	DisableDhcp                types.Bool                       `tfsdk:"disable_dhcp"`
+	ExternalKeys               types.Map                        `tfsdk:"external_keys"`
+	FederatedRealms            internaltypes.UnorderedListValue `tfsdk:"federated_realms"`
+	HeaderOptionFilename       types.String                     `tfsdk:"header_option_filename"`
+	HeaderOptionServerAddress  types.String                     `tfsdk:"header_option_server_address"`
+	HeaderOptionServerName     types.String                     `tfsdk:"header_option_server_name"`
+	HostnameRewriteChar        types.String                     `tfsdk:"hostname_rewrite_char"`
+	HostnameRewriteEnabled     types.Bool                       `tfsdk:"hostname_rewrite_enabled"`
+	HostnameRewriteRegex       types.String                     `tfsdk:"hostname_rewrite_regex"`
+	InheritanceSources         types.Object                     `tfsdk:"inheritance_sources"`
+	Name                       types.String                     `tfsdk:"name"`
+	RebindTime                 types.Int64                      `tfsdk:"rebind_time"`
+	RenewTime                  types.Int64                      `tfsdk:"renew_time"`
+	Space                      types.String                     `tfsdk:"space"`
+	Tags                       types.Map                        `tfsdk:"tags"`
+	TagsAll                    types.Map                        `tfsdk:"tags_all"`
+	DynamicAllocation          types.Object                     `tfsdk:"dynamic_allocation"`
 }
 
 var UDDINetworkAttrTypes = map[string]attr.Type{
@@ -246,10 +246,10 @@ var UDDINetworkAttrTypes = map[string]attr.Type{
 	"ddns_use_conflict_resolution":  types.BoolType,
 	"dhcp_config":                   types.ObjectType{AttrTypes: NetworkDHCPConfigAttrTypes},
 	"dhcp_host":                     types.StringType,
-	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
+	"dhcp_options":                  internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
 	"disable_dhcp":                  types.BoolType,
 	"external_keys":                 types.MapType{ElemType: types.StringType},
-	"federated_realms":              internaltypes.UnorderedListStringType{},
+	"federated_realms":              internaltypes.UnorderedListOfStringType,
 	"header_option_filename":        types.StringType,
 	"header_option_server_address":  types.StringType,
 	"header_option_server_name":     types.StringType,
@@ -931,6 +931,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
+		CustomType:          internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
 		Optional:            true,
 		MarkdownDescription: "The DHCP options of the subnet. This can either be a specific option or a group of options.",
 	},
@@ -948,7 +949,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"federated_realms": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		CustomType:          internaltypes.UnorderedListStringType{},
+		CustomType:          internaltypes.UnorderedListOfStringType,
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"header_option_filename": schema.StringAttribute{
@@ -1354,7 +1355,7 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
 	m.DhcpConfig = FlattenNetworkDHCPConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpHost = flex.FlattenStringPointer(from.DhcpHost)
-	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
+	m.DhcpOptions = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
 	m.FederatedRealms = flex.FlattenFrameworkUnorderedListString(ctx, from.FederatedRealms, diags)

@@ -497,11 +497,26 @@ func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {
 	return timetypes.NewRFC3339TimeValue(*t)
 }
 
-func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, diags *diag.Diagnostics) internaltypes.UnorderedListString {
+func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, diags *diag.Diagnostics) internaltypes.UnorderedListValue {
 	if len(data) == 0 {
-		return internaltypes.NewUnorderedListStringValueNull()
+		return internaltypes.NewUnorderedListValueNull(types.StringType)
 	}
-	tfList, d := internaltypes.NewUnorderedListStringValueFrom(ctx, data)
+	tfList, d := internaltypes.NewUnorderedListValueFrom(ctx, types.StringType, data)
+	diags.Append(d...)
+	return tfList
+}
+
+func FlattenFrameworkUnorderedListNestedBlock[T any, U any](ctx context.Context, data []T, attrTypes map[string]attr.Type, diags *diag.Diagnostics, f FrameworkElementFlExFunc[*T, U]) internaltypes.UnorderedListValue {
+	if len(data) == 0 {
+		return internaltypes.NewUnorderedListValueNull(types.ObjectType{AttrTypes: attrTypes})
+	}
+
+	tfData := ApplyToAll(data, func(t T) U {
+		return f(ctx, &t, diags)
+	})
+
+	tfList, d := internaltypes.NewUnorderedListValueFrom(ctx, types.ObjectType{AttrTypes: attrTypes}, tfData)
+
 	diags.Append(d...)
 	return tfList
 }

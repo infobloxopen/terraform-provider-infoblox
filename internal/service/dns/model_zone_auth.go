@@ -60,7 +60,7 @@ type NIOSZoneAuthModel struct {
 	DdnsPrincipalGroup               types.String                        `tfsdk:"ddns_principal_group"`
 	DdnsPrincipalTracking            types.Bool                          `tfsdk:"ddns_principal_tracking"`
 	DdnsRestrictPatterns             types.Bool                          `tfsdk:"ddns_restrict_patterns"`
-	DdnsRestrictPatternsList         internaltypes.UnorderedListString   `tfsdk:"ddns_restrict_patterns_list"`
+	DdnsRestrictPatternsList         internaltypes.UnorderedListValue    `tfsdk:"ddns_restrict_patterns_list"`
 	DdnsRestrictProtected            types.Bool                          `tfsdk:"ddns_restrict_protected"`
 	DdnsRestrictSecure               types.Bool                          `tfsdk:"ddns_restrict_secure"`
 	DdnsRestrictStatic               types.Bool                          `tfsdk:"ddns_restrict_static"`
@@ -132,7 +132,7 @@ var NIOSZoneAuthAttrTypes = map[string]attr.Type{
 	"ddns_principal_group":                 types.StringType,
 	"ddns_principal_tracking":              types.BoolType,
 	"ddns_restrict_patterns":               types.BoolType,
-	"ddns_restrict_patterns_list":          internaltypes.UnorderedListStringType{},
+	"ddns_restrict_patterns_list":          internaltypes.UnorderedListOfStringType,
 	"ddns_restrict_protected":              types.BoolType,
 	"ddns_restrict_secure":                 types.BoolType,
 	"ddns_restrict_static":                 types.BoolType,
@@ -378,7 +378,7 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ddns_restrict_patterns_list": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
-		CustomType:  internaltypes.UnorderedListStringType{},
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

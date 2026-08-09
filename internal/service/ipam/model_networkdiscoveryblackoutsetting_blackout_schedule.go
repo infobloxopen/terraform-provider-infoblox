@@ -23,23 +23,23 @@ import (
 
 // NetworkdiscoveryblackoutsettingBlackoutScheduleModel is the Terraform model for NetworkdiscoveryblackoutsettingBlackoutSchedule
 type NetworkdiscoveryblackoutsettingBlackoutScheduleModel struct {
-	Weekdays        internaltypes.UnorderedListString `tfsdk:"weekdays"`
-	TimeZone        types.String                      `tfsdk:"time_zone"`
-	RecurringTime   types.Int64                       `tfsdk:"recurring_time"`
-	Frequency       types.String                      `tfsdk:"frequency"`
-	Every           types.Int64                       `tfsdk:"every"`
-	MinutesPastHour types.Int64                       `tfsdk:"minutes_past_hour"`
-	HourOfDay       types.Int64                       `tfsdk:"hour_of_day"`
-	Year            types.Int64                       `tfsdk:"year"`
-	Month           types.Int64                       `tfsdk:"month"`
-	DayOfMonth      types.Int64                       `tfsdk:"day_of_month"`
-	Repeat          types.String                      `tfsdk:"repeat"`
-	Disable         types.Bool                        `tfsdk:"disable"`
+	Weekdays        internaltypes.UnorderedListValue `tfsdk:"weekdays"`
+	TimeZone        types.String                     `tfsdk:"time_zone"`
+	RecurringTime   types.Int64                      `tfsdk:"recurring_time"`
+	Frequency       types.String                     `tfsdk:"frequency"`
+	Every           types.Int64                      `tfsdk:"every"`
+	MinutesPastHour types.Int64                      `tfsdk:"minutes_past_hour"`
+	HourOfDay       types.Int64                      `tfsdk:"hour_of_day"`
+	Year            types.Int64                      `tfsdk:"year"`
+	Month           types.Int64                      `tfsdk:"month"`
+	DayOfMonth      types.Int64                      `tfsdk:"day_of_month"`
+	Repeat          types.String                     `tfsdk:"repeat"`
+	Disable         types.Bool                       `tfsdk:"disable"`
 }
 
 // NetworkdiscoveryblackoutsettingBlackoutScheduleAttrTypes contains the attribute types for NetworkdiscoveryblackoutsettingBlackoutScheduleModel
 var NetworkdiscoveryblackoutsettingBlackoutScheduleAttrTypes = map[string]attr.Type{
-	"weekdays":          internaltypes.UnorderedListStringType{},
+	"weekdays":          internaltypes.UnorderedListOfStringType,
 	"time_zone":         types.StringType,
 	"recurring_time":    types.Int64Type,
 	"frequency":         types.StringType,
@@ -59,7 +59,7 @@ var NetworkdiscoveryblackoutsettingBlackoutScheduleResourceSchemaAttributes = ma
 		ElementType: types.StringType,
 		Optional:    true,
 		Computed:    true,
-		CustomType:  internaltypes.UnorderedListStringType{},
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(stringvalidator.OneOf("SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY")),
