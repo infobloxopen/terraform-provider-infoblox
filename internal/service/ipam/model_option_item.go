@@ -56,12 +56,16 @@ var OptionItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"option_value": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("option_code")),
 		},
 		MarkdownDescription: "The option value.",
 	},
 	"type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("group", "option"),
+		},
 		Optional:            true,
 		MarkdownDescription: "The type of item.  Valid values are: * _group_ * _option_",
 	},
