@@ -137,7 +137,7 @@ var RecordMxResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"creator": schema.StringAttribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+			stringvalidator.OneOf("STATIC", "DYNAMIC"),
 		},
 		Optional:            true,
 		Computed:            true,
@@ -278,7 +278,7 @@ var RecordMxResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordMxRdataResourceSchemaAttributes,
 		Required:            true,
-		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _MX_ (Mail Exchanger) record:  Subfield   | Description                       | Required -----------|-----------------------------------|--------- exchange   | A domain name which specifies a host willing to act as a mail exchange for the owner name.<br><br> | Yes preference | An unsigned 16-bit integer which specifies the preference given to this RR among others at the same owner. Lower values are preferred. The range of the value is 0 to 65535. <br><br> | Yes",
+		MarkdownDescription: "The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
