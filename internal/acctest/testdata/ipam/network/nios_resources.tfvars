@@ -1557,7 +1557,6 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      # ext_attrs        = {  }
       ext_attrs = { "RIPE Network Name" = "test-network", "RIPE Description" = "test description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
@@ -1571,7 +1570,6 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      # ext_attrs        = {  }
       ext_attrs = { "RIPE Network Name" = "updated-network", "RIPE Description" = "updated description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
@@ -1698,8 +1696,6 @@ case "send_rir_request" {
 case "subscribe_settings" {
   backend     = "nios"
   parallel    = true
-  skip        = true
-  skip_reason = "NIOS_PXGRID_ENDPOINT_REF environment variable must be set for this test to run (requires Cisco ISE/pxGrid endpoint configured in NIOS)"
 
   step {
     nios {
