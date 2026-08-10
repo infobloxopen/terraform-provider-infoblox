@@ -1,13 +1,13 @@
 # Auto-generated datasource acceptance-test cases for Network.
 case "filters" {
   backend = "uddi"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ip_space" "test" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # PREREQ
 
   filter {
     type   = "filters"
@@ -23,7 +23,7 @@ case "filters" {
     uddi {
       address = "11.0.0.0"
       cidr    = 24
-      space   = infoblox_ip_space.test.id
+      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
     }
   }
 
@@ -31,13 +31,13 @@ case "filters" {
 
 case "tag_filters" {
   backend = "uddi"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ip_space" "test" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # PREREQ
 
   filter {
     type   = "tag_filters"
@@ -52,7 +52,7 @@ case "tag_filters" {
     uddi {
       address = "11.0.0.0"
       cidr    = 24
-      space   = infoblox_ip_space.test.id
+      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
       tags    = { tag1 = "{{random}}" }
     }
   }
