@@ -193,7 +193,7 @@ var NIOSNetworkAttrTypes = map[string]attr.Type{
 }
 
 type UDDINetworkModel struct {
-	Address                    types.String                     `tfsdk:"address"`
+	Address                    iptypes.IPv4Address              `tfsdk:"address"`
 	AsmConfig                  types.Object                     `tfsdk:"asm_config"`
 	Cidr                       types.Int64                      `tfsdk:"cidr"`
 	Comment                    types.String                     `tfsdk:"comment"`
@@ -230,7 +230,7 @@ type UDDINetworkModel struct {
 }
 
 var UDDINetworkAttrTypes = map[string]attr.Type{
-	"address":                       types.StringType,
+	"address":                       iptypes.IPv4AddressType{},
 	"asm_config":                    types.ObjectType{AttrTypes: ASMConfigAttrTypes},
 	"cidr":                          types.Int64Type,
 	"comment":                       types.StringType,
@@ -806,8 +806,9 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
+		Optional:   true,
+		Computed:   true,
+		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 			stringplanmodifier.UseStateForUnknown(),
@@ -1211,7 +1212,7 @@ func (m *UDDINetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Tags:                       flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
-		ext.Address = flex.ExpandStringPointer(m.Address)
+		ext.Address = flex.ExpandIPv4Address(m.Address)
 		ext.Space = flex.ExpandStringPointer(m.Space)
 		if alloc := BuildNetworkAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = alloc
@@ -1334,7 +1335,7 @@ func (m *UDDINetworkModel) Flatten(ctx context.Context, from *coremodel.UDDINetw
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenStringPointer(from.Address)
+	m.Address = flex.FlattenIPv4Address(from.Address)
 	m.AsmConfig = FlattenASMConfig(ctx, from.AsmConfig, diags)
 	m.Cidr = flex.FlattenInt64Pointer(from.Cidr)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
