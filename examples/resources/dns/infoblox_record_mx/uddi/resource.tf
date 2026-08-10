@@ -14,7 +14,7 @@ resource "infoblox_record_mx" "example" {
     }
     zone = infoblox_zone_auth.example.id
     tags = {
-      managed_by = "terraform"
+      Site = "location-1"
     }
   }
 }
