@@ -52,7 +52,7 @@ resource "infoblox_network" "complete_example" {
 resource "infoblox_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network      = "20.0.0.0/24"
+      network      = "${infoblox_network.example_network.nios.network}"
       network_view = "default"
       cidr         = 28
     }
