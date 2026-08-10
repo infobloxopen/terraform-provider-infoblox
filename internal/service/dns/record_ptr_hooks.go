@@ -147,9 +147,13 @@ func ValidateRecordPtr(ctx context.Context, data RecordPtrModel, resp *resource.
 }
 
 func validateRecordPtrNIOSConfig(ctx context.Context, m *NIOSRecordPtrModel, resp *resource.ValidateConfigResponse) {
-	ipv4Set := !m.Ipv4addr.IsNull() && !m.Ipv4addr.IsUnknown() && m.Ipv4addr.ValueString() != ""
-	ipv6Set := !m.Ipv6addr.IsNull() && !m.Ipv6addr.IsUnknown() && m.Ipv6addr.ValueString() != ""
-	nameSet := !m.Name.IsNull() && !m.Name.IsUnknown() && m.Name.ValueString() != ""
+	if m.Ipv4addr.IsUnknown() || m.Ipv6addr.IsUnknown() || m.Name.IsUnknown() {
+		return
+	}
+
+	ipv4Set := !m.Ipv4addr.IsNull() && m.Ipv4addr.ValueString() != ""
+	ipv6Set := !m.Ipv6addr.IsNull() && m.Ipv6addr.ValueString() != ""
+	nameSet := !m.Name.IsNull() && m.Name.ValueString() != ""
 
 	if !ipv4Set && !ipv6Set && !nameSet {
 		resp.Diagnostics.AddAttributeError(
