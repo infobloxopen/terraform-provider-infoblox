@@ -90,6 +90,57 @@ func validateNetworkcontainerNIOSConfig(ctx context.Context, m *NIOSNetworkconta
 func validateNetworkcontainerUDDIConfig(ctx context.Context, m *UDDINetworkcontainerModel, resp *resource.ValidateConfigResponse) {
 }
 
+func BuildNetworkcontainerAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {
+	if allocObj.IsNull() || allocObj.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableSubnetModel
+	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	if m.NextAvailableId.IsNull() || m.NextAvailableId.IsUnknown() {
+		return nil
+	}
+
+	allocated := m.Suffixed("/nextavailableaddressblock")
+	return &allocated
+}
+
+// LockNetworkcontainerAllocation serializes concurrent next-available allocations
+// that target the same parent scope by acquiring a per-scope mutex keyed on the next_available_id
+func LockNetworkcontainerAllocation(ctx context.Context, uddiBlock types.Object, diags *diag.Diagnostics) func() {
+	noop := func() {}
+	if uddiBlock.IsNull() || uddiBlock.IsUnknown() {
+		return noop
+	}
+
+	allocVal, ok := uddiBlock.Attributes()["dynamic_allocation"]
+	if !ok {
+		return noop
+	}
+	allocObj, ok := allocVal.(types.Object)
+	if !ok || allocObj.IsNull() || allocObj.IsUnknown() {
+		return noop
+	}
+
+	var m dynamicallocation.NextAvailableAddressBlockModel
+	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return noop
+	}
+
+	key := m.NextAvailableId.ValueString()
+	if key == "" {
+		return noop
+	}
+
+	utils.GlobalMutexStore.Lock(key)
+	return func() { utils.GlobalMutexStore.Unlock(key) }
+}
+
 func BuildNetworkcontainerFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosipam.FuncCall {
 	if data.IsNull() || data.IsUnknown() {
 		return nil

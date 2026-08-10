@@ -112,6 +112,12 @@ func (r *NetworkcontainerResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
+	unlock := LockNetworkcontainerAllocation(ctx, data.UDDI, &resp.Diagnostics)
+	defer unlock()
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Add Terraform Internal ID to ext_attrs
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSNetworkcontainerModel](ctx, data.NIOS, &resp.Diagnostics)

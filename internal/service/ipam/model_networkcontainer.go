@@ -204,6 +204,7 @@ type UDDINetworkcontainerModel struct {
 	Tags                       types.Map                         `tfsdk:"tags"`
 	TagsAll                    types.Map                         `tfsdk:"tags_all"`
 	Threshold                  types.Object                      `tfsdk:"threshold"`
+	DynamicAllocation          types.Object                      `tfsdk:"dynamic_allocation"`
 }
 
 var UDDINetworkcontainerAttrTypes = map[string]attr.Type{
@@ -239,6 +240,7 @@ var UDDINetworkcontainerAttrTypes = map[string]attr.Type{
 	"tags":                          types.MapType{ElemType: types.StringType},
 	"tags_all":                      types.MapType{ElemType: types.StringType},
 	"threshold":                     types.ObjectType{AttrTypes: UtilizationThresholdAttrTypes},
+	"dynamic_allocation":            types.ObjectType{AttrTypes: dynamicallocation.NextAvailableAddressBlockAttrTypes},
 }
 
 const (
@@ -686,16 +688,22 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"dynamic_allocation": schema.SingleNestedAttribute{
 		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
+		MarkdownDescription: "Dynamically allocate the network using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
 }
 
 var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
+		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 		},
 		MarkdownDescription: "The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.",
 	},
@@ -856,6 +864,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"inheritance_parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
@@ -875,6 +884,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"space": schema.StringAttribute{
@@ -903,6 +913,11 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Attributes:          UtilizationThresholdResourceSchemaAttributes,
 		Computed:            true,
 		MarkdownDescription: "A __UtilizationThreshold__ object represents IP address utilization threshold settings.",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableAddressBlockResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the next available address block from a parent scope. Mutually exclusive with the static \"address\" field.",
 	},
 }
 
@@ -1070,6 +1085,9 @@ func (m *UDDINetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 	if isCreate {
 		ext.Address = flex.ExpandIPv4Address(m.Address)
 		ext.Space = flex.ExpandStringPointer(m.Space)
+		if alloc := BuildNetworkcontainerAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
+			ext.Address = alloc
+		}
 	}
 	return ext
 }
@@ -1214,4 +1232,7 @@ func (m *UDDINetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	}
 	m.TagsAll = tagsAll
 	m.Threshold = FlattenUtilizationThreshold(ctx, from.Threshold, diags)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableAddressBlockAttrTypes)
+	}
 }
