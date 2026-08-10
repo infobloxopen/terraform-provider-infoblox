@@ -13,11 +13,11 @@ case "basic" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
     }
     check = {
-      "nios.mail_exchanger"     = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.mail_exchanger"     = "mail.example.com"
       "nios.preference"         = "10"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
@@ -45,7 +45,7 @@ case "disappears" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
     }
   }
@@ -66,7 +66,7 @@ case "comment" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       comment        = "This is a comment."
     }
@@ -78,7 +78,7 @@ case "comment" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       comment        = "This is an updated comment."
     }
@@ -103,7 +103,7 @@ case "creator" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       creator        = "STATIC"
     }
@@ -115,7 +115,7 @@ case "creator" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       creator        = "DYNAMIC"
     }
@@ -140,7 +140,7 @@ case "ddns_principal" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ddns_principal = "ddns_principal"
       creator        = "DYNAMIC"
@@ -153,7 +153,7 @@ case "ddns_principal" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ddns_principal = "updated_ddns_principal"
       creator        = "DYNAMIC"
@@ -179,7 +179,7 @@ case "ddns_protected" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ddns_protected = false
     }
@@ -191,7 +191,7 @@ case "ddns_protected" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ddns_protected = true
     }
@@ -216,7 +216,7 @@ case "disable" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       disable        = false
     }
@@ -228,7 +228,7 @@ case "disable" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       disable        = true
     }
@@ -253,7 +253,7 @@ case "ext_attrs" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ext_attrs      = { Site = "{{random3}}" }
     }
@@ -265,7 +265,7 @@ case "ext_attrs" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ext_attrs      = { Site = "{{random4}}" }
     }
@@ -362,7 +362,7 @@ case "name" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
     }
   }
@@ -370,7 +370,7 @@ case "name" {
   step {
     nios {
       name           = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
     }
   }
@@ -391,7 +391,7 @@ case "preference" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
     }
     check = {
@@ -402,7 +402,7 @@ case "preference" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 20
     }
     check = {
@@ -426,7 +426,7 @@ case "ttl" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ttl            = 10
     }
@@ -438,7 +438,7 @@ case "ttl" {
   step {
     nios {
       name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      mail_exchanger = "mail.${infoblox_zone_auth.test.nios.fqdn}"
+      mail_exchanger = "mail.example.com"
       preference     = 10
       ttl            = 0
     }

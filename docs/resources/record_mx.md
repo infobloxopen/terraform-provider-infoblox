@@ -26,7 +26,7 @@ resource "infoblox_zone_auth" "parent_zone" {
 resource "infoblox_record_mx" "create_record_basic" {
   nios = {
     name           = "mx_record.${infoblox_zone_auth.parent_zone.nios.fqdn}"
-    mail_exchanger = "mail.${infoblox_zone_auth.parent_zone.nios.fqdn}"
+    mail_exchanger = "mail.example.com"
     preference     = 10
 
     // Extensible Attributes
@@ -41,7 +41,7 @@ resource "infoblox_record_mx" "create_record_additional_fields" {
   nios = {
     // Basic Fields
     name           = "mx_record1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
-    mail_exchanger = "mail1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
+    mail_exchanger = "mail1.example.com"
     preference     = 10
     view           = "default"
 
@@ -62,6 +62,7 @@ resource "infoblox_record_mx" "create_record_additional_fields" {
 ### UDDI Backend
 
 ```terraform
+// Create an Auth Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
     fqdn         = "example-rec-mx.com."
@@ -69,6 +70,7 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
+// Create Record MX
 resource "infoblox_record_mx" "example" {
   uddi = {
     name_in_zone = "mx"
@@ -77,6 +79,11 @@ resource "infoblox_record_mx" "example" {
       preference = 10
     }
     zone = infoblox_zone_auth.example.id
+
+    # Other optional fields
+    comment  = "MX record created by Terraform"
+    disabled = false
+    ttl      = 3600
     tags = {
       Site = "location-1"
     }
