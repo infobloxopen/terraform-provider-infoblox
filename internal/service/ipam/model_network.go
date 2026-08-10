@@ -1289,7 +1289,6 @@ func (m *NIOSNetworkModel) Flatten(ctx context.Context, from *coremodel.NIOSNetw
 	m.EnableDiscovery = flex.FlattenBoolPointer(from.EnableDiscovery)
 	m.EnableEmailWarnings = flex.FlattenBoolPointer(from.EnableEmailWarnings)
 	m.EnableIfmapPublishing = flex.FlattenBoolPointer(from.EnableIfmapPublishing)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
 	m.EnableSnmpWarnings = flex.FlattenBoolPointer(from.EnableSnmpWarnings)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)

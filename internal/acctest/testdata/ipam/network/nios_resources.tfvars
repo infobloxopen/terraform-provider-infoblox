@@ -637,9 +637,7 @@ case "discovery_blackout_setting" {
 case "discovery_member" {
   backend     = "nios"
   parallel    = true
-  skip        = true
-  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
-
+  
   step {
     nios {
       network          = "{{random_cidr_network}}"
@@ -745,9 +743,7 @@ case "enable_dhcp_thresholds" {
 case "enable_discovery" {
   backend     = "nios"
   parallel    = true
-  skip        = true
-  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
-
+  
   step {
     nios {
       network          = "{{random_cidr_network}}"
@@ -831,9 +827,7 @@ case "enable_ifmap_publishing" {
 case "enable_immediate_discovery" {
   backend     = "nios"
   parallel    = true
-  skip        = true
-  skip_reason = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run (requires a discovery polling node configured in NIOS)"
-
+  
   step {
     nios {
       network                    = "{{random_cidr_network}}"
