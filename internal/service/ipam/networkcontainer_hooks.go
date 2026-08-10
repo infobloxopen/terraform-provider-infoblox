@@ -6,7 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
@@ -85,6 +88,20 @@ func validateNetworkcontainerNIOSConfig(ctx context.Context, m *NIOSNetworkconta
 }
 
 func validateNetworkcontainerUDDIConfig(ctx context.Context, m *UDDINetworkcontainerModel, resp *resource.ValidateConfigResponse) {
+}
+
+func BuildNetworkcontainerFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosipam.FuncCall {
+	if data.IsNull() || data.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableNetworkModel
+	diags.Append(data.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return m.FuncCall(ctx, "Network", "networkcontainer", diags)
 }
 
 func PostFlattenNetworkcontainerNIOS(ctx context.Context, planned, flattened *NIOSNetworkcontainerModel, diags *diag.Diagnostics) {

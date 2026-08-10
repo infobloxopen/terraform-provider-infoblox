@@ -101,6 +101,7 @@ type NIOSNetworkcontainerExt struct {
 	UseUpdateDnsOnLeaseRenewal       *bool
 	UseZoneAssociations              *bool
 	ZoneAssociations                 []niosipam.NetworkcontainerZoneAssociations
+	FuncCall                         *niosipam.FuncCall
 }
 
 // UDDINetworkcontainerExt - UDDI specific fields for Networkcontainer

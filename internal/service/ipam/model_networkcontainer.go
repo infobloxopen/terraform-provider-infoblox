@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -105,6 +106,7 @@ type NIOSNetworkcontainerModel struct {
 	Unmanaged                        types.Bool           `tfsdk:"unmanaged"`
 	UpdateDnsOnLeaseRenewal          types.Bool           `tfsdk:"update_dns_on_lease_renewal"`
 	ZoneAssociations                 types.List           `tfsdk:"zone_associations"`
+	DynamicAllocation                types.Object         `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
@@ -166,6 +168,7 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 	"unmanaged":                            types.BoolType,
 	"update_dns_on_lease_renewal":          types.BoolType,
 	"zone_associations":                    types.ListType{ElemType: types.ObjectType{AttrTypes: NetworkcontainerZoneAssociationsAttrTypes}},
+	"dynamic_allocation":                   types.ObjectType{AttrTypes: dynamicallocation.NextAvailableNetworkAttrTypes},
 }
 
 type UDDINetworkcontainerModel struct {
@@ -548,11 +551,15 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"network": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: cidrtypes.IPv4PrefixType{},
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
 		},
 		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The network address in IPv4 Address/CIDR format. For regular expression searches, only the IPv4 Address portion is supported. Searches for the CIDR portion is always an exact match. For example, both network containers 10.0.0.0/8 and 20.1.0.0/16 are matched by expression '.0' and only 20.1.0.0/16 is matched by '.0/16'.",
@@ -675,6 +682,11 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of zones associated with this network.",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -978,6 +990,7 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 	if isCreate {
 		ext.Network = flex.ExpandIPv4Prefix(m.Network)
 		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+		ext.FuncCall = BuildNetworkcontainerFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
 }
@@ -1156,6 +1169,9 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.Unmanaged = flex.FlattenBoolPointer(from.Unmanaged)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
 	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, NetworkcontainerZoneAssociationsAttrTypes, diags, FlattenNetworkcontainerZoneAssociations)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

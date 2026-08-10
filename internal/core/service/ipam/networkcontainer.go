@@ -55,6 +55,9 @@ func (s *networkcontainerService) createNIOS(ctx context.Context, obj *ipam.Netw
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil && payload.Network == nil {
+		payload.Network = &niosipam.NetworkcontainerNetwork{}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err

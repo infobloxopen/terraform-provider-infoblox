@@ -91,6 +91,7 @@ var NetworkcontainerNIOSFieldMap = map[string]string{
 	"NIOS.UseUpdateDnsOnLeaseRenewal":       "UseUpdateDnsOnLeaseRenewal",
 	"NIOS.UseZoneAssociations":              "UseZoneAssociations",
 	"NIOS.ZoneAssociations":                 "ZoneAssociations",
+	"NIOS.FuncCall":                         "FuncCall",
 }
 
 // NetworkcontainerUDDIFieldMap maps infoblox model fields to UDDI struct fields
