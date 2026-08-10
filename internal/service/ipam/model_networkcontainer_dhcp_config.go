@@ -12,18 +12,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // NetworkcontainerDHCPConfigModel is the Terraform model for DHCPConfig
 type NetworkcontainerDHCPConfigModel struct {
-	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
-	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
-	Filters               types.List  `tfsdk:"filters"`
-	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
-	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
-	IgnoreList            types.List  `tfsdk:"ignore_list"`
-	LeaseTime             types.Int64 `tfsdk:"lease_time"`
+	AllowUnknown          types.Bool                       `tfsdk:"allow_unknown"`
+	AuthoritativeDhcp     types.Bool                       `tfsdk:"authoritative_dhcp"`
+	Filters               types.List                       `tfsdk:"filters"`
+	FiltersLargeSelection types.List                       `tfsdk:"filters_large_selection"`
+	IgnoreClientUid       types.Bool                       `tfsdk:"ignore_client_uid"`
+	IgnoreList            internaltypes.UnorderedListValue `tfsdk:"ignore_list"`
+	LeaseTime             types.Int64                      `tfsdk:"lease_time"`
 }
 
 // NetworkcontainerDHCPConfigAttrTypes contains the attribute types for NetworkcontainerDHCPConfigModel
@@ -33,7 +34,7 @@ var NetworkcontainerDHCPConfigAttrTypes = map[string]attr.Type{
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
 	"ignore_client_uid":       types.BoolType,
-	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
+	"ignore_list":             internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}}},
 	"lease_time":              types.Int64Type,
 }
 
@@ -73,6 +74,7 @@ var NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.Attri
 			Attributes: IgnoreItemResourceSchemaAttributes,
 		},
 		Optional:            true,
+		CustomType:          internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}}},
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
 	"lease_time": schema.Int64Attribute{
@@ -135,6 +137,6 @@ func (m *NetworkcontainerDHCPConfigModel) Flatten(ctx context.Context, from *udd
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
-	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
+	m.IgnoreList = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
 	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
 }
