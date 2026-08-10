@@ -63,10 +63,10 @@ var OptionItemResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The option value.",
 	},
 	"type": schema.StringAttribute{
-		Optional: true,
 		Validators: []validator.String{
 			stringvalidator.OneOf("group", "option"),
 		},
+		Optional:            true,
 		MarkdownDescription: "The type of item.  Valid values are: * _group_ * _option_",
 	},
 }
