@@ -15,11 +15,18 @@ Manages an Infoblox RecordMx across NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "parent_zone" {
+  nios = {
+    fqdn = "example.com"
+  }
+}
+
 // Create Record MX with Basic Fields
 resource "infoblox_record_mx" "create_record_basic" {
   nios = {
-    name           = "mx_record.example.com"
-    mail_exchanger = "mail.example.com"
+    name           = "mx_record.${infoblox_zone_auth.parent_zone.nios.fqdn}"
+    mail_exchanger = "mail.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     preference     = 10
 
     // Extensible Attributes
@@ -33,8 +40,8 @@ resource "infoblox_record_mx" "create_record_basic" {
 resource "infoblox_record_mx" "create_record_additional_fields" {
   nios = {
     // Basic Fields
-    name           = "mx_record1.example.com"
-    mail_exchanger = "mail1.example.com"
+    name           = "mx_record1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
+    mail_exchanger = "mail1.${infoblox_zone_auth.parent_zone.nios.fqdn}"
     preference     = 10
     view           = "default"
 
@@ -71,7 +78,7 @@ resource "infoblox_record_mx" "example" {
     }
     zone = infoblox_zone_auth.example.id
     tags = {
-      managed_by = "terraform"
+      Site = "location-1"
     }
   }
 }
@@ -121,7 +128,7 @@ Read-Only:
 
 Required:
 
-- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record.  Subfields for _MX_ (Mail Exchanger) record:  Subfield   | Description                       | Required -----------|-----------------------------------|--------- exchange   | A domain name which specifies a host willing to act as a mail exchange for the owner name.<br><br> | Yes preference | An unsigned 16-bit integer which specifies the preference given to this RR among others at the same owner. Lower values are preferred. The range of the value is 0 to 65535. <br><br> | Yes (see [below for nested schema](#nestedatt--uddi--rdata))
+- `rdata` (Attributes) The DNS resource record data in JSON format. Certain DNS resource record-specific subfields are required for creating the DNS resource record. (see [below for nested schema](#nestedatt--uddi--rdata))
 
 Optional:
 
