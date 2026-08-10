@@ -83,7 +83,7 @@ Read-Only:
 - `ddns_principal` (String) The GSS-TSIG principal that owns this record.
 - `ddns_protected` (Boolean) Determines if the DDNS updates for this record are allowed or not.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
-- `dynamic_allocation` (Attributes) Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
+- `dynamic_allocation` (Attributes) Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.
