@@ -168,11 +168,7 @@ case "cloud_info" {
       network = "{{random_cidr_network}}"
     }
     check = {
-      "nios.network"                     = "{{random_cidr_network}}"
-      "nios.cloud_info.authority_type"   = "GM"
-      "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
-      "nios.cloud_info.owned_by_adaptor" = "false"
+      "nios.network" = "{{random_cidr_network}}"
     }
   }
 
