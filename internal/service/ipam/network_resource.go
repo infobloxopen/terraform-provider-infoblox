@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -32,8 +33,9 @@ func NewNetworkResource() resource.Resource {
 }
 
 type NetworkResource struct {
-	backend core.BackendType
-	service coresvc.NetworkService
+	backend          core.BackendType
+	service          coresvc.NetworkService
+	containerService coresvc.NetworkcontainerService
 }
 
 func (r *NetworkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -81,6 +83,7 @@ func (r *NetworkResource) Configure(_ context.Context, req resource.ConfigureReq
 	}
 
 	r.service = coresvc.NewNetworkService(r.backend, client.NIOS, client.UDDI)
+	r.containerService = coresvc.NewNetworkcontainerService(r.backend, client.NIOS, client.UDDI)
 }
 
 func (r *NetworkResource) retryPolicy(op retry.Operation) retry.Policy {
@@ -160,6 +163,19 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 		return 0, apiErr
 	})
 	if err != nil {
+		errVal := err.Error()
+		if ((strings.Contains(errVal, "The search parameters") &&
+			strings.Contains(errVal, "for object network did not return any result")) ||
+			strings.Contains(errVal, "will overlap an existing network")) &&
+			r.isNetworkConvertedToContainer(ctx, &data) {
+			resp.Diagnostics.AddError(
+				"Unable to Create Network. Network Might Be Converted to Network Container",
+				fmt.Sprintf("Failed to create network. The parent network appears to have been converted to a network container. "+
+					"Manual intervention is needed to import it as a container. "+
+					"Got error: %s", err),
+			)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Network: %s", err))
 		return
 	}

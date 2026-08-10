@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
@@ -100,4 +101,24 @@ func LockNetworkAllocation(ctx context.Context, uddiBlock types.Object, diags *d
 
 	utils.GlobalMutexStore.Lock(key)
 	return func() { utils.GlobalMutexStore.Unlock(key) }
+}
+
+func (r *NetworkResource) isNetworkConvertedToContainer(ctx context.Context, data *NetworkModel) bool {
+	if r.backend != core.BackendNIOS || r.containerService == nil {
+		return false
+	}
+
+	var diags diag.Diagnostics
+	nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &diags)
+	if nios == nil || diags.HasError() {
+		return false
+	}
+
+	// Try to fetch as Network container
+	_, _, _, err := r.containerService.List(ctx, &core.ListOptions{
+		Filters: map[string]string{
+			"nios.network": nios.Network.ValueString(),
+		},
+	})
+	return err == nil
 }
