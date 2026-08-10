@@ -13,8 +13,6 @@ case "basic" {
       "nios.host"                    = "{{random_ip}}"
       "nios.auto_create_host_record" = "true"
       "nios.disable"                 = "false"
-      "nios.comment"                 = ""
-      "nios.sni_hostname"            = ""
     }
   }
 
@@ -167,8 +165,12 @@ case "monitors" {
 
   step {
     nios {
-      name = "{{random}}"
-      host = "{{random_ip}}"
+      name     = "{{random}}"
+      host     = "{{random_ip}}"
+      monitors = [
+        { host = "3.2.2.2",   monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHBz:https" },
+        { host = "3.231.2.2", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http" },
+      ]
     }
     check = {
       "nios.monitors.#"         = "2"
@@ -181,8 +183,11 @@ case "monitors" {
 
   step {
     nios {
-      name = "{{random}}"
-      host = "{{random_ip}}"
+      name     = "{{random}}"
+      host     = "{{random_ip}}"
+      monitors = [
+        { host = "3.2.2.2", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHBz:https" },
+      ]
     }
     check = {
       "nios.monitors.#"         = "1"

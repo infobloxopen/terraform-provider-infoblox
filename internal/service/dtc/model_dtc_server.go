@@ -39,7 +39,6 @@ type NIOSDtcServerModel struct {
 	Disable              types.Bool   `tfsdk:"disable"`
 	ExtAttrs             types.Map    `tfsdk:"ext_attrs"`
 	ExtAttrsAll          types.Map    `tfsdk:"ext_attrs_all"`
-	Health               types.Object `tfsdk:"health"`
 	Host                 types.String `tfsdk:"host"`
 	Monitors             types.List   `tfsdk:"monitors"`
 	Name                 types.String `tfsdk:"name"`
@@ -52,7 +51,6 @@ var NIOSDtcServerAttrTypes = map[string]attr.Type{
 	"disable":                 types.BoolType,
 	"ext_attrs":               types.MapType{ElemType: types.StringType},
 	"ext_attrs_all":           types.MapType{ElemType: types.StringType},
-	"health":                  types.ObjectType{AttrTypes: ServerHealthAttrTypes},
 	"host":                    types.StringType,
 	"monitors":                types.ListType{ElemType: types.ObjectType{AttrTypes: ServerMonitorsAttrTypes}},
 	"name":                    types.StringType,
@@ -146,11 +144,6 @@ var DtcServerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.Map{
 			importmod.AssociateInternalId(),
 		},
-	},
-	"health": schema.SingleNestedAttribute{
-		Attributes:          ServerHealthResourceSchemaAttributes,
-		Computed:            true,
-		MarkdownDescription: "",
 	},
 	"host": schema.StringAttribute{
 		Required: true,
@@ -277,7 +270,6 @@ func (m *NIOSDtcServerModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		Comment:              flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Disable:              flex.ExpandBoolPointer(m.Disable),
 		ExtAttrs:             flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		Health:               ExpandServerHealth(ctx, m.Health, diags),
 		Host:                 flex.ExpandStringPointerNullAsEmpty(m.Host),
 		Monitors:             flex.ExpandFrameworkListNestedBlock(ctx, m.Monitors, diags, ExpandServerMonitors),
 		Name:                 flex.ExpandStringPointerNullAsEmpty(m.Name),
@@ -357,7 +349,6 @@ func (m *NIOSDtcServerModel) Flatten(ctx context.Context, from *coremodel.NIOSDt
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.Health = FlattenServerHealth(ctx, from.Health, diags)
 	m.Host = flex.FlattenStringPointerEmptyAsNull(from.Host)
 	m.Monitors = flex.FlattenFrameworkListNestedBlock(ctx, from.Monitors, ServerMonitorsAttrTypes, diags, FlattenServerMonitors)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
