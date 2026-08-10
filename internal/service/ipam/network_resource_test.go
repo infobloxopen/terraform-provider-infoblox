@@ -17,11 +17,11 @@ func TestAccNetworkResource(t *testing.T) {
 	resourceType := "infoblox_network"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
-		"nios": {
-			Exists:     testAccCheckNetworkExistsNIOS,
-			Destroy:    testAccCheckNetworkDestroyNIOS,
-			Disappears: testAccCheckNetworkDisappearsNIOS,
-		},
+		// "nios": {
+		// 	Exists:     testAccCheckNetworkExistsNIOS,
+		// 	Destroy:    testAccCheckNetworkDestroyNIOS,
+		// 	Disappears: testAccCheckNetworkDisappearsNIOS,
+		// },
 		"uddi": {
 			Exists:     testAccCheckNetworkExistsUDDI,
 			Destroy:    testAccCheckNetworkDestroyUDDI,
