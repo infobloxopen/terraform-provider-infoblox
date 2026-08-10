@@ -1,3 +1,11 @@
+// Objects to be present on the grid for testing
+// mac_filter - Filter mac
+// example-option-filter-1 - Filter Option
+// rir-org-test1 - RIR Organization
+// ISE Server has to be configured
+// A discovery member has to be configured
+// Vlan(s) has to be configured - test-vlan-for-network and test-vlan-2-for-network
+
 # Auto-generated resource acceptance-test cases for Network.
 case "basic" {
   backend  = "nios"
@@ -1273,12 +1281,12 @@ case "members" {
   step {
     nios {
       network = "{{random_cidr_network}}"
-      members = [{ struct = "dhcpmember", name = "infoblox.172_28_83_201" }]
+      members = [{ struct = "dhcpmember", name = "{{grid_master_hostname}}" }]
     }
     check = {
       "nios.network"          = "{{random_cidr_network}}"
       "nios.members.0.struct" = "dhcpmember"
-      "nios.members.0.name"   = "infoblox.172_28_83_201"
+      "nios.members.0.name"   = "{{grid_master_hostname}}"
     }
   }
 
