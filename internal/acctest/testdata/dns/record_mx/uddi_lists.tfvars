@@ -1,4 +1,4 @@
-# Auto-generated list acceptance-test cases for RecordMx.
+# RecordMx — uddi list cases
 case "basic" {
   backend           = "uddi"
   parallel          = true
