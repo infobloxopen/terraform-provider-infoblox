@@ -278,3 +278,106 @@ func CopyFieldFromPlanToRespList(ctx context.Context, planValue, respValue attr.
 
 	return newList, &diags
 }
+
+func ReorderAndFilterDHCPOptions(
+	ctx context.Context,
+	planValue attr.Value,
+	stateValue attr.Value,
+) (attr.Value, *diag.Diagnostics) {
+
+	var diags diag.Diagnostics
+	primaryKey := "name"
+	secondaryKey := "num"
+
+	// Handle null/unknown gracefully
+	if planValue.IsNull() || planValue.IsUnknown() {
+		return stateValue, &diags
+	}
+	if stateValue.IsNull() || stateValue.IsUnknown() {
+		return planValue, &diags
+	}
+
+	planList, ok := planValue.(basetypes.ListValue)
+	if !ok {
+		diags.AddError("Type Error", "planValue must be a basetypes.ListValue")
+		return stateValue, &diags
+	}
+	stateList, ok := stateValue.(basetypes.ListValue)
+	if !ok {
+		diags.AddError("Type Error", "stateValue must be a basetypes.ListValue")
+		return planValue, &diags
+	}
+
+	// Build lookup maps from state: name->element and num->element
+	nameToState := make(map[string]attr.Value)
+	numToState := make(map[int64]attr.Value)
+
+	for _, elem := range stateList.Elements() {
+		obj, ok := elem.(basetypes.ObjectValue)
+		if !ok {
+			continue
+		}
+		attrs := obj.Attributes()
+
+		// name -> basetypes.StringValue (per your note state has both keys)
+		if nameAttr, has := attrs[primaryKey]; has && nameAttr != nil && !nameAttr.IsNull() && !nameAttr.IsUnknown() {
+			if strVal, ok := nameAttr.(basetypes.StringValue); ok {
+				nameToState[strVal.ValueString()] = elem
+			}
+		}
+
+		// num -> basetypes.Int64Value (per your note state has both keys)
+		if numAttr, has := attrs[secondaryKey]; has && numAttr != nil && !numAttr.IsNull() && !numAttr.IsUnknown() {
+			if intVal, ok := numAttr.(basetypes.Int64Value); ok {
+				numToState[intVal.ValueInt64()] = elem
+			}
+		}
+	}
+
+	// Rebuild ordered slice based on plan order
+	var reordered []attr.Value
+	for _, planElem := range planList.Elements() {
+		planObj, ok := planElem.(basetypes.ObjectValue)
+		if !ok {
+			// if plan contains something else, append it as fallback
+			reordered = append(reordered, planElem)
+			continue
+		}
+		planAttributes := planObj.Attributes()
+
+		var matchedState attr.Value
+
+		// Try primaryKey (name) first if present and valid
+		if primaryKeyAttribute, has := planAttributes[primaryKey]; has && primaryKeyAttribute != nil && !primaryKeyAttribute.IsNull() && !primaryKeyAttribute.IsUnknown() {
+			if primaryKeyAttributeValue, ok := primaryKeyAttribute.(basetypes.StringValue); ok {
+				if s, exists := nameToState[primaryKeyAttributeValue.ValueString()]; exists {
+					matchedState = s
+				}
+			}
+		}
+
+		// If not matched by name, try secondaryKey (num)
+		if matchedState == nil {
+			if secondaryKeyAttribute, has := planAttributes[secondaryKey]; has && secondaryKeyAttribute != nil && !secondaryKeyAttribute.IsNull() && !secondaryKeyAttribute.IsUnknown() {
+				if secondaryKeyAttributeValue, ok := secondaryKeyAttribute.(basetypes.Int64Value); ok {
+					if s, exists := numToState[secondaryKeyAttributeValue.ValueInt64()]; exists {
+						matchedState = s
+					}
+				}
+			}
+		}
+
+		// If matchedState found, use it; else fall back to plan element itself
+		if matchedState != nil {
+			reordered = append(reordered, matchedState)
+		} else {
+			reordered = append(reordered, planElem)
+		}
+	}
+
+	// Create new ListValue with same element type as plan list
+	newList, d := basetypes.NewListValue(planList.ElementType(ctx), reordered)
+	diags.Append(d...)
+
+	return newList, &diags
+}

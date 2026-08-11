@@ -1,0 +1,560 @@
+package ipam
+
+import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
+	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
+)
+
+type Ipv6networkcontainerModel struct {
+	Id   types.String `tfsdk:"id"`
+	NIOS types.Object `tfsdk:"nios"`
+}
+
+var Ipv6networkcontainerAttrTypes = map[string]attr.Type{
+	"id":   types.StringType,
+	"nios": types.ObjectType{AttrTypes: NIOSIpv6networkcontainerAttrTypes},
+}
+
+type NIOSIpv6networkcontainerModel struct {
+	AutoCreateReversezone            types.Bool           `tfsdk:"auto_create_reversezone"`
+	CloudInfo                        types.Object         `tfsdk:"cloud_info"`
+	Comment                          types.String         `tfsdk:"comment"`
+	DdnsDomainname                   types.String         `tfsdk:"ddns_domainname"`
+	DdnsEnableOptionFqdn             types.Bool           `tfsdk:"ddns_enable_option_fqdn"`
+	DdnsGenerateHostname             types.Bool           `tfsdk:"ddns_generate_hostname"`
+	DdnsServerAlwaysUpdates          types.Bool           `tfsdk:"ddns_server_always_updates"`
+	DdnsTtl                          types.Int64          `tfsdk:"ddns_ttl"`
+	DeleteReason                     types.String         `tfsdk:"delete_reason"`
+	DiscoveryBasicPollSettings       types.Object         `tfsdk:"discovery_basic_poll_settings"`
+	DiscoveryBlackoutSetting         types.Object         `tfsdk:"discovery_blackout_setting"`
+	DiscoveryMember                  types.String         `tfsdk:"discovery_member"`
+	DomainNameServers                types.List           `tfsdk:"domain_name_servers"`
+	EnableDdns                       types.Bool           `tfsdk:"enable_ddns"`
+	EnableDiscovery                  types.Bool           `tfsdk:"enable_discovery"`
+	EnableImmediateDiscovery         types.Bool           `tfsdk:"enable_immediate_discovery"`
+	ExtAttrs                         types.Map            `tfsdk:"ext_attrs"`
+	ExtAttrsAll                      types.Map            `tfsdk:"ext_attrs_all"`
+	FederatedRealms                  types.List           `tfsdk:"federated_realms"`
+	LogicFilterRules                 types.List           `tfsdk:"logic_filter_rules"`
+	MgmPrivate                       types.Bool           `tfsdk:"mgm_private"`
+	Network                          cidrtypes.IPv6Prefix `tfsdk:"network"`
+	NetworkView                      types.String         `tfsdk:"network_view"`
+	Options                          types.List           `tfsdk:"options"`
+	PortControlBlackoutSetting       types.Object         `tfsdk:"port_control_blackout_setting"`
+	PreferredLifetime                types.Int64          `tfsdk:"preferred_lifetime"`
+	RestartIfNeeded                  types.Bool           `tfsdk:"restart_if_needed"`
+	RirOrganization                  types.String         `tfsdk:"rir_organization"`
+	RirRegistrationAction            types.String         `tfsdk:"rir_registration_action"`
+	RirRegistrationStatus            types.String         `tfsdk:"rir_registration_status"`
+	SamePortControlDiscoveryBlackout types.Bool           `tfsdk:"same_port_control_discovery_blackout"`
+	SendRirRequest                   types.Bool           `tfsdk:"send_rir_request"`
+	SubscribeSettings                types.Object         `tfsdk:"subscribe_settings"`
+	Unmanaged                        types.Bool           `tfsdk:"unmanaged"`
+	UpdateDnsOnLeaseRenewal          types.Bool           `tfsdk:"update_dns_on_lease_renewal"`
+	ValidLifetime                    types.Int64          `tfsdk:"valid_lifetime"`
+	ZoneAssociations                 types.List           `tfsdk:"zone_associations"`
+}
+
+var NIOSIpv6networkcontainerAttrTypes = map[string]attr.Type{
+	"auto_create_reversezone":              types.BoolType,
+	"cloud_info":                           types.ObjectType{AttrTypes: Ipv6networkcontainerCloudInfoAttrTypes},
+	"comment":                              types.StringType,
+	"ddns_domainname":                      types.StringType,
+	"ddns_enable_option_fqdn":              types.BoolType,
+	"ddns_generate_hostname":               types.BoolType,
+	"ddns_server_always_updates":           types.BoolType,
+	"ddns_ttl":                             types.Int64Type,
+	"delete_reason":                        types.StringType,
+	"discovery_basic_poll_settings":        types.ObjectType{AttrTypes: Ipv6networkcontainerDiscoveryBasicPollSettingsAttrTypes},
+	"discovery_blackout_setting":           types.ObjectType{AttrTypes: Ipv6networkcontainerDiscoveryBlackoutSettingAttrTypes},
+	"discovery_member":                     types.StringType,
+	"domain_name_servers":                  types.ListType{ElemType: types.StringType},
+	"enable_ddns":                          types.BoolType,
+	"enable_discovery":                     types.BoolType,
+	"enable_immediate_discovery":           types.BoolType,
+	"ext_attrs":                            types.MapType{ElemType: types.StringType},
+	"ext_attrs_all":                        types.MapType{ElemType: types.StringType},
+	"federated_realms":                     types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkcontainerFederatedRealmsAttrTypes}},
+	"logic_filter_rules":                   types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkcontainerLogicFilterRulesAttrTypes}},
+	"mgm_private":                          types.BoolType,
+	"network":                              cidrtypes.IPv6PrefixType{},
+	"network_view":                         types.StringType,
+	"options":                              types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkcontainerOptionsAttrTypes}},
+	"port_control_blackout_setting":        types.ObjectType{AttrTypes: Ipv6networkcontainerPortControlBlackoutSettingAttrTypes},
+	"preferred_lifetime":                   types.Int64Type,
+	"restart_if_needed":                    types.BoolType,
+	"rir_organization":                     types.StringType,
+	"rir_registration_action":              types.StringType,
+	"rir_registration_status":              types.StringType,
+	"same_port_control_discovery_blackout": types.BoolType,
+	"send_rir_request":                     types.BoolType,
+	"subscribe_settings":                   types.ObjectType{AttrTypes: Ipv6networkcontainerSubscribeSettingsAttrTypes},
+	"unmanaged":                            types.BoolType,
+	"update_dns_on_lease_renewal":          types.BoolType,
+	"valid_lifetime":                       types.Int64Type,
+	"zone_associations":                    types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkcontainerZoneAssociationsAttrTypes}},
+}
+
+const (
+	Ipv6networkcontainerReturnFields = "cloud_info,comment,ddns_domainname,ddns_enable_option_fqdn,ddns_generate_hostname,ddns_server_always_updates,ddns_ttl,discover_now_status,discovery_basic_poll_settings,discovery_blackout_setting,discovery_engine_type,discovery_member,domain_name_servers,enable_ddns,enable_discovery,endpoint_sources,extattrs,federated_realms,last_rir_registration_update_sent,last_rir_registration_update_status,logic_filter_rules,mgm_private,mgm_private_overridable,ms_ad_user_data,network,network_container,network_view,options,port_control_blackout_setting,preferred_lifetime,rir,rir_organization,rir_registration_status,same_port_control_discovery_blackout,subscribe_settings,unmanaged,update_dns_on_lease_renewal,use_blackout_setting,use_ddns_domainname,use_ddns_enable_option_fqdn,use_ddns_generate_hostname,use_ddns_ttl,use_discovery_basic_polling_settings,use_domain_name_servers,use_enable_ddns,use_enable_discovery,use_logic_filter_rules,use_mgm_private,use_options,use_preferred_lifetime,use_subscribe_settings,use_update_dns_on_lease_renewal,use_valid_lifetime,use_zone_associations,utilization,valid_lifetime,zone_associations"
+)
+
+var Ipv6networkcontainerResourceSchemaAttributes = map[string]schema.Attribute{
+	"id": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "The reference to the object.",
+	},
+	"nios": schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "NIOS backend-specific fields.",
+		Attributes:          Ipv6networkcontainerResourceNiosSchemaAttributes,
+	},
+}
+
+var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
+	"auto_create_reversezone": schema.BoolAttribute{
+		Optional: true,
+		Computed: true,
+		Default:  booldefault.StaticBool(false),
+		PlanModifiers: []planmodifier.Bool{
+			immutable.ImmutableBool(),
+		},
+		MarkdownDescription: "This flag controls whether reverse zones are automatically created when the network is added.",
+	},
+	"cloud_info": schema.SingleNestedAttribute{
+		Attributes:          Ipv6networkcontainerCloudInfoResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "",
+	},
+	"comment": schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+		},
+		MarkdownDescription: "Comment for the network; maximum 256 characters.",
+	},
+	"ddns_domainname": schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+		},
+		MarkdownDescription: "The dynamic DNS domain name the appliance uses specifically for DDNS updates for this network container.",
+	},
+	"ddns_enable_option_fqdn": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Use this method to set or retrieve the ddns_enable_option_fqdn flag of a DHCP IPv6 Network Container object. This method controls whether the FQDN option sent by the client is to be used, or if the server can automatically generate the FQDN. This setting overrides the upper-level settings.",
+	},
+	"ddns_generate_hostname": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "If this field is set to True, the DHCP server generates a hostname and updates DNS with it when the DHCP client request does not contain a hostname.",
+	},
+	"ddns_server_always_updates": schema.BoolAttribute{
+		Optional: true,
+		Computed: true,
+		Default:  booldefault.StaticBool(true),
+		Validators: []validator.Bool{
+			boolvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("ddns_enable_option_fqdn")),
+		},
+		MarkdownDescription: "This field controls whether the DHCP server is allowed to update DNS, regardless of the DHCP client requests. Note that changes for this field take effect only if ddns_enable_option_fqdn is True.",
+	},
+	"ddns_ttl": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(0),
+		MarkdownDescription: "The DNS update Time to Live (TTL) value of a DHCP network container object. The TTL is a 32-bit unsigned integer that represents the duration, in seconds, for which the update is cached. Zero indicates that the update is not cached.",
+	},
+	"delete_reason": schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
+		MarkdownDescription: "The reason for deleting the RIR registration request.",
+	},
+	"discovery_basic_poll_settings": schema.SingleNestedAttribute{
+		Attributes:          Ipv6networkcontainerDiscoveryBasicPollSettingsResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "",
+	},
+	"discovery_blackout_setting": schema.SingleNestedAttribute{
+		Attributes:          Ipv6networkcontainerDiscoveryBlackoutSettingResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "",
+	},
+	"discovery_member": schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
+		MarkdownDescription: "The member that will run discovery for this network container.",
+	},
+	"domain_name_servers": schema.ListAttribute{
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+			listvalidator.ValueStringsAre(customvalidator.IsValidIPv6Address()),
+		},
+		MarkdownDescription: "Use this method to set or retrieve the dynamic DNS updates flag of a DHCP IPv6 Network Container object. The DHCP server can send DDNS updates to DNS servers in the same Grid and to external DNS servers. This setting overrides the member level settings.",
+	},
+	"enable_ddns": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "The dynamic DNS updates flag of a DHCP IPv6 network container object. If set to True, the DHCP server sends DDNS updates to DNS servers in the same Grid, and to external DNS servers.",
+	},
+	"enable_discovery": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Determines whether a discovery is enabled or not for this network container. When this is set to False, the network container discovery is disabled.",
+	},
+	"enable_immediate_discovery": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "Determines if the discovery for the network container should be immediately enabled.",
+	},
+	"ext_attrs": schema.MapAttribute{
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
+		MarkdownDescription: "Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.",
+	},
+	"ext_attrs_all": schema.MapAttribute{
+		Computed:            true,
+		ElementType:         types.StringType,
+		MarkdownDescription: "All ext_attrs including Terraform Internal ID and inherited attributes.",
+		PlanModifiers: []planmodifier.Map{
+			importmod.AssociateInternalId(),
+		},
+	},
+	"federated_realms": schema.ListNestedAttribute{
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: Ipv6networkcontainerFederatedRealmsResourceSchemaAttributes,
+		},
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
+		MarkdownDescription: "This field contains the federated realms associated to this network container.",
+	},
+	"logic_filter_rules": schema.ListNestedAttribute{
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: Ipv6networkcontainerLogicFilterRulesResourceSchemaAttributes,
+		},
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
+		MarkdownDescription: "This field contains the logic filters to be applied on the this network container. This list corresponds to the match rules that are written to the dhcpd configuration file.",
+	},
+	"mgm_private": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.",
+	},
+	"network": schema.StringAttribute{
+		Optional:   true,
+		CustomType: cidrtypes.IPv6PrefixType{},
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
+		MarkdownDescription: "The network address in IPv6 Address/CIDR format. For regular expression searches, only the IPv6 Address portion is supported. Searches for the CIDR portion is always an exact match. For example, both network containers 16::0/28 and 26::0/24 are matched by expression '.6' and only 26::0/24 is matched by '.6/24'.",
+	},
+	"network_view": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
+		MarkdownDescription: "The name of the network view in which this network resides.",
+	},
+	"options": schema.ListNestedAttribute{
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: Ipv6networkcontainerOptionsResourceSchemaAttributes,
+		},
+		Optional: true,
+		Computed: true,
+		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: Ipv6networkcontainerOptionsAttrTypes}, []attr.Value{})),
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
+		MarkdownDescription: "An array of DHCP option dhcpoption structs that lists the DHCP options associated with the object.",
+	},
+	"port_control_blackout_setting": schema.SingleNestedAttribute{
+		Attributes:          Ipv6networkcontainerPortControlBlackoutSettingResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "",
+	},
+	"preferred_lifetime": schema.Int64Attribute{
+		Optional:            true,
+		MarkdownDescription: "Use this method to set or retrieve the preferred lifetime value of a DHCP IPv6 Network Container object.",
+	},
+	"restart_if_needed": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Restarts the member service.",
+	},
+	"rir_organization": schema.StringAttribute{
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
+		MarkdownDescription: "The RIR organization associated with the IPv6 network container.",
+	},
+	"rir_registration_action": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("NONE", "CREATE", "MODIFY", "DELETE"),
+		},
+		Optional:            true,
+		MarkdownDescription: "The RIR registration action.",
+	},
+	"rir_registration_status": schema.StringAttribute{
+		Default: stringdefault.StaticString("NOT_REGISTERED"),
+		Validators: []validator.String{
+			stringvalidator.OneOf("REGISTERED", "NOT_REGISTERED"),
+		},
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "The registration status of the IPv6 network container in RIR.",
+	},
+	"same_port_control_discovery_blackout": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "If the field is set to True, the discovery blackout setting will be used for port control blackout setting.",
+	},
+	"send_rir_request": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "Determines whether to send the RIR registration request.",
+	},
+	"subscribe_settings": schema.SingleNestedAttribute{
+		Attributes:          Ipv6networkcontainerSubscribeSettingsResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "",
+	},
+	"unmanaged": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Determines whether the network container is unmanaged or not.",
+	},
+	"update_dns_on_lease_renewal": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "This field controls whether the DHCP server updates DNS when a DHCP lease is renewed.",
+	},
+	"valid_lifetime": schema.Int64Attribute{
+		Optional:            true,
+		MarkdownDescription: "Use this method to set or retrieve the valid lifetime value of a DHCP IPv6 Network Container object.",
+	},
+	"zone_associations": schema.ListNestedAttribute{
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: Ipv6networkcontainerZoneAssociationsResourceSchemaAttributes,
+		},
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
+		MarkdownDescription: "The list of zones associated with this network container.",
+	},
+}
+
+// Expand converts the TF model to the infoblox core model
+func (m *Ipv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.Ipv6networkcontainer {
+	if m == nil {
+		return nil
+	}
+
+	obj := &coremodel.Ipv6networkcontainer{}
+
+	// Expand NIOS nested attribute (returns nil if not present)
+	niosModel := flex.ExpandNestedObject[NIOSIpv6networkcontainerModel](ctx, m.NIOS, diags)
+	if niosModel != nil {
+		obj.NIOS = niosModel.Expand(ctx, diags)
+	}
+
+	return obj
+}
+
+// Expand converts the NIOS TF model to the core model.
+func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6networkcontainerExt {
+	return &coremodel.NIOSIpv6networkcontainerExt{
+		AutoCreateReversezone:            flex.ExpandBoolPointer(m.AutoCreateReversezone),
+		CloudInfo:                        ExpandIpv6networkcontainerCloudInfo(ctx, m.CloudInfo, diags),
+		Comment:                          flex.ExpandStringPointerNullAsEmpty(m.Comment),
+		DdnsDomainname:                   flex.ExpandStringPointerNullAsEmpty(m.DdnsDomainname),
+		DdnsEnableOptionFqdn:             flex.ExpandBoolPointer(m.DdnsEnableOptionFqdn),
+		DdnsGenerateHostname:             flex.ExpandBoolPointer(m.DdnsGenerateHostname),
+		DdnsServerAlwaysUpdates:          flex.ExpandBoolPointer(m.DdnsServerAlwaysUpdates),
+		DdnsTtl:                          flex.ExpandInt64Pointer(m.DdnsTtl),
+		DeleteReason:                     flex.ExpandStringPointerNullAsEmpty(m.DeleteReason),
+		DiscoveryBasicPollSettings:       ExpandIpv6networkcontainerDiscoveryBasicPollSettings(ctx, m.DiscoveryBasicPollSettings, diags),
+		DiscoveryBlackoutSetting:         ExpandIpv6networkcontainerDiscoveryBlackoutSetting(ctx, m.DiscoveryBlackoutSetting, diags),
+		DiscoveryMember:                  flex.ExpandStringPointerNullAsEmpty(m.DiscoveryMember),
+		DomainNameServers:                flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
+		EnableDdns:                       flex.ExpandBoolPointer(m.EnableDdns),
+		EnableDiscovery:                  flex.ExpandBoolPointer(m.EnableDiscovery),
+		EnableImmediateDiscovery:         flex.ExpandBoolPointer(m.EnableImmediateDiscovery),
+		ExtAttrs:                         flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
+		FederatedRealms:                  flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandIpv6networkcontainerFederatedRealms),
+		LogicFilterRules:                 flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6networkcontainerLogicFilterRules),
+		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
+		Network:                          flex.ExpandIPv6Prefix(m.Network),
+		NetworkView:                      flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
+		Options:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6networkcontainerOptions),
+		PortControlBlackoutSetting:       ExpandIpv6networkcontainerPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
+		PreferredLifetime:                flex.ExpandInt64Pointer(m.PreferredLifetime),
+		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
+		RirOrganization:                  flex.ExpandStringPointerNullAsEmpty(m.RirOrganization),
+		RirRegistrationAction:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationAction),
+		RirRegistrationStatus:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationStatus),
+		SamePortControlDiscoveryBlackout: flex.ExpandBoolPointer(m.SamePortControlDiscoveryBlackout),
+		SendRirRequest:                   flex.ExpandBoolPointer(m.SendRirRequest),
+		SubscribeSettings:                ExpandIpv6networkcontainerSubscribeSettings(ctx, m.SubscribeSettings, diags),
+		Unmanaged:                        flex.ExpandBoolPointer(m.Unmanaged),
+		UpdateDnsOnLeaseRenewal:          flex.ExpandBoolPointer(m.UpdateDnsOnLeaseRenewal),
+		ValidLifetime:                    flex.ExpandInt64Pointer(m.ValidLifetime),
+		ZoneAssociations:                 flex.ExpandFrameworkListNestedBlock(ctx, m.ZoneAssociations, diags, ExpandIpv6networkcontainerZoneAssociations),
+	}
+}
+
+// ApplyIpv6networkcontainerNIOSUseFlags derives NIOS use flags from the raw config
+// value(s) and writes them onto the core model. A flag is true when the user
+// set any of its governed value fields in config.
+func ApplyIpv6networkcontainerNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremodel.Ipv6networkcontainer, diags *diag.Diagnostics) {
+	if obj == nil || obj.NIOS == nil {
+		return
+	}
+	obj.NIOS.UseBlackoutSetting = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("discovery_blackout_setting"), path.Root("nios").AtName("port_control_blackout_setting"), path.Root("nios").AtName("same_port_control_discovery_blackout"))
+	obj.NIOS.UseDdnsDomainname = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_domainname"))
+	obj.NIOS.UseDdnsEnableOptionFqdn = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_enable_option_fqdn"))
+	obj.NIOS.UseDdnsGenerateHostname = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_generate_hostname"))
+	obj.NIOS.UseDdnsTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_ttl"))
+	obj.NIOS.UseDiscoveryBasicPollingSettings = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("discovery_basic_poll_settings"))
+	obj.NIOS.UseDomainNameServers = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("domain_name_servers"))
+	obj.NIOS.UseEnableDdns = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("enable_ddns"))
+	obj.NIOS.UseEnableDiscovery = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("discovery_member"), path.Root("nios").AtName("enable_discovery"))
+	obj.NIOS.UseLogicFilterRules = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("logic_filter_rules"))
+	obj.NIOS.UseMgmPrivate = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("mgm_private"))
+	obj.NIOS.UseOptions = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("options"))
+	obj.NIOS.UsePreferredLifetime = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("preferred_lifetime"))
+	obj.NIOS.UseSubscribeSettings = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("subscribe_settings"))
+	obj.NIOS.UseUpdateDnsOnLeaseRenewal = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("update_dns_on_lease_renewal"))
+	obj.NIOS.UseValidLifetime = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("valid_lifetime"))
+	obj.NIOS.UseZoneAssociations = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("zone_associations"))
+}
+
+// Flatten populates the TF model from a core response.
+func (m *Ipv6networkcontainerModel) Flatten(ctx context.Context, resp *coremodel.Ipv6networkcontainer, diags *diag.Diagnostics) {
+	if resp == nil {
+		return
+	}
+
+	m.Id = flex.FlattenStringPointer(resp.Id)
+
+	// Extract existing NIOS model, flatten API response onto it, convert back
+	niosModel := flex.ExpandNestedObject[NIOSIpv6networkcontainerModel](ctx, m.NIOS, diags)
+	if niosModel == nil {
+		niosModel = &NIOSIpv6networkcontainerModel{}
+	}
+	niosModel.Flatten(ctx, resp.NIOS, diags)
+	if resp.NIOS != nil {
+		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6networkcontainerAttrTypes, diags)
+	} else {
+		m.NIOS = types.ObjectNull(NIOSIpv6networkcontainerAttrTypes)
+	}
+
+}
+
+// Flatten merges API response onto existing NIOS model.
+func (m *NIOSIpv6networkcontainerModel) Flatten(ctx context.Context, from *coremodel.NIOSIpv6networkcontainerExt, diags *diag.Diagnostics) {
+	if from == nil || m == nil {
+		return
+	}
+	planExtAttrs := m.ExtAttrs
+	if planExtAttrs.IsUnknown() {
+		planExtAttrs = types.MapNull(types.StringType)
+	}
+	m.AutoCreateReversezone = flex.FlattenBoolPointer(from.AutoCreateReversezone)
+	m.CloudInfo = FlattenIpv6networkcontainerCloudInfo(ctx, from.CloudInfo, diags)
+	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
+	m.DdnsDomainname = flex.FlattenStringPointerEmptyAsNull(from.DdnsDomainname)
+	m.DdnsEnableOptionFqdn = flex.FlattenBoolPointer(from.DdnsEnableOptionFqdn)
+	m.DdnsGenerateHostname = flex.FlattenBoolPointer(from.DdnsGenerateHostname)
+	m.DdnsServerAlwaysUpdates = flex.FlattenBoolPointer(from.DdnsServerAlwaysUpdates)
+	m.DdnsTtl = flex.FlattenInt64Pointer(from.DdnsTtl)
+	m.DeleteReason = flex.FlattenStringPointerEmptyAsNull(from.DeleteReason)
+	m.DiscoveryBasicPollSettings = FlattenIpv6networkcontainerDiscoveryBasicPollSettings(ctx, from.DiscoveryBasicPollSettings, diags)
+	m.DiscoveryBlackoutSetting = FlattenIpv6networkcontainerDiscoveryBlackoutSetting(ctx, from.DiscoveryBlackoutSetting, diags)
+	m.DiscoveryMember = flex.FlattenStringPointerEmptyAsNull(from.DiscoveryMember)
+	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
+	m.EnableDdns = flex.FlattenBoolPointer(from.EnableDdns)
+	m.EnableDiscovery = flex.FlattenBoolPointer(from.EnableDiscovery)
+	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
+	m.FederatedRealms = flex.FlattenFrameworkListNestedBlock(ctx, from.FederatedRealms, Ipv6networkcontainerFederatedRealmsAttrTypes, diags, FlattenIpv6networkcontainerFederatedRealms)
+	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, Ipv6networkcontainerLogicFilterRulesAttrTypes, diags, FlattenIpv6networkcontainerLogicFilterRules)
+	m.MgmPrivate = flex.FlattenBoolPointer(from.MgmPrivate)
+	m.Network = flex.FlattenIPv6Prefix(from.Network)
+	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
+	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, Ipv6networkcontainerOptionsAttrTypes, diags, FlattenIpv6networkcontainerOptions)
+	m.PortControlBlackoutSetting = FlattenIpv6networkcontainerPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
+	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
+	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
+	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
+	m.RirRegistrationAction = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationAction)
+	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
+	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
+	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
+	m.SubscribeSettings = FlattenIpv6networkcontainerSubscribeSettings(ctx, from.SubscribeSettings, diags)
+	m.Unmanaged = flex.FlattenBoolPointer(from.Unmanaged)
+	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
+	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
+	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, Ipv6networkcontainerZoneAssociationsAttrTypes, diags, FlattenIpv6networkcontainerZoneAssociations)
+}

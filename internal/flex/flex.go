@@ -247,7 +247,7 @@ func ExpandIPv6Prefix(ipv6addr cidrtypes.IPv6Prefix) *string {
 	return ExpandStringPointer(ipv6addr.StringValue)
 }
 
-func ExpandMACAddr(mac internaltypes.MACAddressValue) *string {
+func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 	if mac.IsNull() || mac.IsUnknown() {
 		return nil
 	}
@@ -339,6 +339,13 @@ func FlattenInt64Pointer(i *int64) types.Int64 {
 	return types.Int64Value(*i)
 }
 
+func FlattenInt64PointerZeroAsNull(i *int64) types.Int64 {
+	if i == nil || *i == 0 {
+		return types.Int64Null()
+	}
+	return types.Int64Value(*i)
+}
+
 func FlattenInt32(i int32) types.Int32 {
 	return types.Int32Value(i)
 }
@@ -356,6 +363,13 @@ func FlattenFloat32(f float32) types.Float64 {
 
 func FlattenFloat32Pointer(f *float32) types.Float64 {
 	if f == nil {
+		return types.Float64Null()
+	}
+	return types.Float64Value(float64(*f))
+}
+
+func FlattenFloat32PointerZeroAsNull(f *float32) types.Float64 {
+	if f == nil || *f == 0 {
 		return types.Float64Null()
 	}
 	return types.Float64Value(float64(*f))
@@ -481,11 +495,11 @@ func FlattenIPv6Prefix(ipv6addr *string) cidrtypes.IPv6Prefix {
 	}
 }
 
-func FlattenMACAddr(mac *string) internaltypes.MACAddressValue {
+func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	if mac == nil {
 		return internaltypes.NewMACAddressNull()
 	}
-	return internaltypes.MACAddressValue{
+	return internaltypes.MACAddress{
 		StringValue: FlattenStringPointer(mac),
 	}
 }
@@ -497,11 +511,26 @@ func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {
 	return timetypes.NewRFC3339TimeValue(*t)
 }
 
-func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, diags *diag.Diagnostics) internaltypes.UnorderedListString {
+func FlattenFrameworkUnorderedListString(ctx context.Context, data []string, diags *diag.Diagnostics) internaltypes.UnorderedListValue {
 	if len(data) == 0 {
-		return internaltypes.NewUnorderedListStringValueNull()
+		return internaltypes.NewUnorderedListValueNull(types.StringType)
 	}
-	tfList, d := internaltypes.NewUnorderedListStringValueFrom(ctx, data)
+	tfList, d := internaltypes.NewUnorderedListValueFrom(ctx, types.StringType, data)
+	diags.Append(d...)
+	return tfList
+}
+
+func FlattenFrameworkUnorderedListNestedBlock[T any, U any](ctx context.Context, data []T, attrTypes map[string]attr.Type, diags *diag.Diagnostics, f FrameworkElementFlExFunc[*T, U]) internaltypes.UnorderedListValue {
+	if len(data) == 0 {
+		return internaltypes.NewUnorderedListValueNull(types.ObjectType{AttrTypes: attrTypes})
+	}
+
+	tfData := ApplyToAll(data, func(t T) U {
+		return f(ctx, &t, diags)
+	})
+
+	tfList, d := internaltypes.NewUnorderedListValueFrom(ctx, types.ObjectType{AttrTypes: attrTypes}, tfData)
+
 	diags.Append(d...)
 	return tfList
 }
