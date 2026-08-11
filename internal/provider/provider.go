@@ -212,7 +212,6 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		ipam.NewIpv6networkcontainerResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordAaaaResource,
@@ -225,12 +224,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordAResource,
 
 		ipam.NewAddressResource,
+		ipam.NewIpv6networkcontainerResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		ipam.NewIpv6networkcontainerDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
@@ -246,12 +245,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableSubnetDataSource,
 		ipam.NewNextAvailableAddressBlockDataSource,
 		ipam.NewAddressDataSource,
+		ipam.NewIpv6networkcontainerDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		ipam.NewIpv6networkcontainerList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordCnameList,
 		dns.NewRecordAaaaList,
@@ -264,6 +263,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordAList,
 
 		ipam.NewAddressList,
+		ipam.NewIpv6networkcontainerList,
 	}
 }
 

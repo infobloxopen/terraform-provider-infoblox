@@ -33,6 +33,7 @@ var Ipv6networkcontainercloudinfoDelegatedMemberAttrTypes = map[string]attr.Type
 var Ipv6networkcontainercloudinfoDelegatedMemberResourceSchemaAttributes = map[string]schema.Attribute{
 	"ipv4addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -40,6 +41,7 @@ var Ipv6networkcontainercloudinfoDelegatedMemberResourceSchemaAttributes = map[s
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -47,6 +49,7 @@ var Ipv6networkcontainercloudinfoDelegatedMemberResourceSchemaAttributes = map[s
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},

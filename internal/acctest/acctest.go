@@ -217,6 +217,8 @@ func ResolvePlaceholder(placeholder string) string {
 	switch {
 	case name == "random_octet":
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
+	case name == "random_hextet":
+		return fmt.Sprintf("%x", rand.Intn(65536)) // 0-FFFF single IPv6 hextet
 	case name == "grid_master_hostname":
 		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
 	case name == "grid_member_hostname":

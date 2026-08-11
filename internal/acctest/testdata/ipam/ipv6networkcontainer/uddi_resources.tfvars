@@ -1,4 +1,4 @@
-# Auto-generated resource acceptance-test cases for Ipv6networkcontainer.
+pn# Auto-generated resource acceptance-test cases for Ipv6networkcontainer.
 case "basic" {
   backend  = "uddi"
   parallel = true

@@ -17,28 +17,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel is the Terraform model for Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
 type Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel struct {
-	Weekdays        types.List   `tfsdk:"weekdays"`
-	TimeZone        types.String `tfsdk:"time_zone"`
-	RecurringTime   types.Int64  `tfsdk:"recurring_time"`
-	Frequency       types.String `tfsdk:"frequency"`
-	Every           types.Int64  `tfsdk:"every"`
-	MinutesPastHour types.Int64  `tfsdk:"minutes_past_hour"`
-	HourOfDay       types.Int64  `tfsdk:"hour_of_day"`
-	Year            types.Int64  `tfsdk:"year"`
-	Month           types.Int64  `tfsdk:"month"`
-	DayOfMonth      types.Int64  `tfsdk:"day_of_month"`
-	Repeat          types.String `tfsdk:"repeat"`
-	Disable         types.Bool   `tfsdk:"disable"`
+	Weekdays        internaltypes.UnorderedListValue `tfsdk:"weekdays"`
+	TimeZone        types.String                     `tfsdk:"time_zone"`
+	RecurringTime   types.Int64                      `tfsdk:"recurring_time"`
+	Frequency       types.String                     `tfsdk:"frequency"`
+	Every           types.Int64                      `tfsdk:"every"`
+	MinutesPastHour types.Int64                      `tfsdk:"minutes_past_hour"`
+	HourOfDay       types.Int64                      `tfsdk:"hour_of_day"`
+	Year            types.Int64                      `tfsdk:"year"`
+	Month           types.Int64                      `tfsdk:"month"`
+	DayOfMonth      types.Int64                      `tfsdk:"day_of_month"`
+	Repeat          types.String                     `tfsdk:"repeat"`
+	Disable         types.Bool                       `tfsdk:"disable"`
 }
 
 // Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes contains the attribute types for Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
 var Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes = map[string]attr.Type{
-	"weekdays":          types.ListType{ElemType: types.StringType},
+	"weekdays":          internaltypes.UnorderedListOfStringType,
 	"time_zone":         types.StringType,
 	"recurring_time":    types.Int64Type,
 	"frequency":         types.StringType,
@@ -57,6 +58,7 @@ var Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollin
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(stringvalidator.OneOf("SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY")),
@@ -72,6 +74,7 @@ var Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionPollin
 	},
 	"recurring_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The recurring time for the schedule in Epoch seconds format. This field is obsolete and is preserved only for backward compatibility purposes. Please use other applicable fields to define the recurring schedule. DO NOT use recurring_time together with these fields. If you use recurring_time with other fields to define the recurring schedule, recurring_time has priority over year, hour_of_day, and minutes_past_hour and will override the values of these fields, although it does not override month and day_of_month. In this case, the recurring time value might be different than the intended value that you define.",
 	},
 	"frequency": schema.StringAttribute{
@@ -154,7 +157,7 @@ func (m *Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionP
 		Weekdays:        flex.ExpandFrameworkListString(ctx, m.Weekdays, diags),
 		TimeZone:        flex.ExpandStringPointerNullAsEmpty(m.TimeZone),
 		RecurringTime:   flex.ExpandInt64Pointer(m.RecurringTime),
-		Frequency:       flex.ExpandStringPointerNullAsEmpty(m.Frequency),
+		Frequency:       flex.ExpandStringPointer(m.Frequency),
 		Every:           flex.ExpandInt64Pointer(m.Every),
 		MinutesPastHour: flex.ExpandInt64Pointer(m.MinutesPastHour),
 		HourOfDay:       flex.ExpandInt64Pointer(m.HourOfDay),
@@ -184,7 +187,7 @@ func (m *Ipv6networkcontainerdiscoverybasicpollsettingsSwitchPortDataCollectionP
 	if from == nil || m == nil {
 		return
 	}
-	m.Weekdays = flex.FlattenFrameworkListString(ctx, from.Weekdays, diags)
+	m.Weekdays = flex.FlattenFrameworkUnorderedListString(ctx, from.Weekdays, diags)
 	m.TimeZone = flex.FlattenStringPointerEmptyAsNull(from.TimeZone)
 	m.RecurringTime = flex.FlattenInt64Pointer(from.RecurringTime)
 	m.Frequency = flex.FlattenStringPointerEmptyAsNull(from.Frequency)

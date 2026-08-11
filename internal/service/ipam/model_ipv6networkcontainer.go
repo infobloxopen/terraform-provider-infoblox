@@ -30,6 +30,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -175,7 +176,7 @@ var UDDIIpv6networkcontainerAttrTypes = map[string]attr.Type{
 	"ddns_ttl_percent":              types.Float64Type,
 	"ddns_update_on_renew":          types.BoolType,
 	"ddns_use_conflict_resolution":  types.BoolType,
-	"dhcp_config":                   types.ObjectType{AttrTypes: DHCPConfigAttrTypes},
+	"dhcp_config":                   types.ObjectType{AttrTypes: Ipv6NetworkcontainerDHCPConfigAttrTypes},
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"external_keys":                 types.MapType{ElemType: types.StringType},
 	"federated_realms":              types.ListType{ElemType: types.StringType},
@@ -230,7 +231,8 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 	"cloud_info": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkcontainerCloudInfoResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Structure containing all cloud API related information for this object.",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
@@ -285,11 +287,13 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 	"discovery_basic_poll_settings": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkcontainerDiscoveryBasicPollSettingsResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkcontainerDiscoveryBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"discovery_member": schema.StringAttribute{
@@ -406,10 +410,12 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 	"port_control_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkcontainerPortControlBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the preferred lifetime value of a DHCP IPv6 Network Container object.",
 	},
 	"restart_if_needed": schema.BoolAttribute{
@@ -473,6 +479,7 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 	},
 	"valid_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the valid lifetime value of a DHCP IPv6 Network Container object.",
 	},
 	"zone_associations": schema.ListNestedAttribute{
@@ -571,22 +578,17 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "When true, DHCP server will apply conflict resolution, as described in RFC 4703, when attempting to fulfill the update request.  When false, DHCP server will simply attempt to update the DNS entries per the request, regardless of whether or not they conflict with existing entries owned by other DHCP4 clients.  Defaults to _true_.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
-		Attributes: DHCPConfigResourceSchemaAttributes,
+		Attributes: Ipv6NetworkcontainerDHCPConfigResourceSchemaAttributes,
 		Optional:   true,
 		Computed:   true,
-		Default: objectdefault.StaticValue(types.ObjectValueMust(DHCPConfigAttrTypes, map[string]attr.Value{
-			"abandoned_reclaim_time":    types.Int64Null(), /* abandonded_reclaim_time cannot be set for address block */
-			"abandoned_reclaim_time_v6": types.Int64Null(), /* abandonded_reclaim_time_v6 cannot be set for address block */
-			"allow_unknown":             types.BoolValue(true),
-			"allow_unknown_v6":          types.BoolValue(true),
-			"echo_client_id":            types.BoolNull(), /* echo_client_id cannot be set for address block */
-			"filters":                   types.ListNull(types.StringType),
-			"filters_v6":                types.ListNull(types.StringType),
-			"filters_large_selection":   types.ListNull(types.StringType),
-			"ignore_client_uid":         types.BoolValue(false),
-			"ignore_list":               types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
-			"lease_time":                types.Int64Value(3600),
-			"lease_time_v6":             types.Int64Value(3600),
+		Default: objectdefault.StaticValue(types.ObjectValueMust(Ipv6NetworkcontainerDHCPConfigAttrTypes, map[string]attr.Value{
+			"allow_unknown_v6":        types.BoolValue(true),
+			"authoritative_dhcp":      types.BoolValue(false),
+			"filters_v6":              types.ListNull(types.StringType),
+			"filters_large_selection": types.ListNull(types.StringType),
+			"ignore_client_uid":       types.BoolValue(false),
+			"ignore_list":             internaltypes.NewUnorderedListValueNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
+			"lease_time_v6":           types.Int64Value(3600),
 		})),
 		MarkdownDescription: "A DHCP Config object (_dhcp/dhcp_config_) represents a shared DHCP configuration that controls how leases are issued.",
 	},
@@ -697,7 +699,7 @@ func (m *Ipv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSIpv6networkcontainerModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -710,9 +712,8 @@ func (m *Ipv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6networkcontainerExt {
-	return &coremodel.NIOSIpv6networkcontainerExt{
-		AutoCreateReversezone:            flex.ExpandBoolPointer(m.AutoCreateReversezone),
+func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6networkcontainerExt {
+	ext := &coremodel.NIOSIpv6networkcontainerExt{
 		CloudInfo:                        ExpandIpv6networkcontainerCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:                          flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		DdnsDomainname:                   flex.ExpandStringPointerNullAsEmpty(m.DdnsDomainname),
@@ -723,7 +724,7 @@ func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		DeleteReason:                     flex.ExpandStringPointerNullAsEmpty(m.DeleteReason),
 		DiscoveryBasicPollSettings:       ExpandIpv6networkcontainerDiscoveryBasicPollSettings(ctx, m.DiscoveryBasicPollSettings, diags),
 		DiscoveryBlackoutSetting:         ExpandIpv6networkcontainerDiscoveryBlackoutSetting(ctx, m.DiscoveryBlackoutSetting, diags),
-		DiscoveryMember:                  flex.ExpandStringPointerNullAsEmpty(m.DiscoveryMember),
+		DiscoveryMember:                  flex.ExpandStringPointer(m.DiscoveryMember),
 		DomainNameServers:                flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		EnableDdns:                       flex.ExpandBoolPointer(m.EnableDdns),
 		EnableDiscovery:                  flex.ExpandBoolPointer(m.EnableDiscovery),
@@ -732,14 +733,12 @@ func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		FederatedRealms:                  flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandIpv6networkcontainerFederatedRealms),
 		LogicFilterRules:                 flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6networkcontainerLogicFilterRules),
 		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
-		Network:                          flex.ExpandIPv6Prefix(m.Network),
-		NetworkView:                      flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Options:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6networkcontainerOptions),
 		PortControlBlackoutSetting:       ExpandIpv6networkcontainerPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
 		PreferredLifetime:                flex.ExpandInt64Pointer(m.PreferredLifetime),
 		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
-		RirOrganization:                  flex.ExpandStringPointerNullAsEmpty(m.RirOrganization),
-		RirRegistrationAction:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationAction),
+		RirOrganization:                  flex.ExpandStringPointer(m.RirOrganization),
+		RirRegistrationAction:            flex.ExpandStringPointer(m.RirRegistrationAction),
 		RirRegistrationStatus:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationStatus),
 		SamePortControlDiscoveryBlackout: flex.ExpandBoolPointer(m.SamePortControlDiscoveryBlackout),
 		SendRirRequest:                   flex.ExpandBoolPointer(m.SendRirRequest),
@@ -749,6 +748,12 @@ func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		ValidLifetime:                    flex.ExpandInt64Pointer(m.ValidLifetime),
 		ZoneAssociations:                 flex.ExpandFrameworkListNestedBlock(ctx, m.ZoneAssociations, diags, ExpandIpv6networkcontainerZoneAssociations),
 	}
+	if isCreate {
+		ext.AutoCreateReversezone = flex.ExpandBoolPointer(m.AutoCreateReversezone)
+		ext.Network = flex.ExpandIPv6Prefix(m.Network)
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+	}
+	return ext
 }
 
 // ApplyIpv6networkcontainerNIOSUseFlags derives NIOS use flags from the raw config
@@ -794,7 +799,7 @@ func (m *UDDIIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		DdnsTtlPercent:             flex.ExpandFloat32Pointer(m.DdnsTtlPercent),
 		DdnsUpdateOnRenew:          flex.ExpandBoolPointer(m.DdnsUpdateOnRenew),
 		DdnsUseConflictResolution:  flex.ExpandBoolPointer(m.DdnsUseConflictResolution),
-		DhcpConfig:                 ExpandDHCPConfig(ctx, m.DhcpConfig, diags),
+		DhcpConfig:                 ExpandIpv6NetworkcontainerDHCPConfig(ctx, m.DhcpConfig, diags),
 		DhcpOptions:                flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		ExternalKeys:               flex.ExpandMapStringAny(ctx, m.ExternalKeys, diags),
 		FederatedRealms:            flex.ExpandFrameworkListString(ctx, m.FederatedRealms, diags),
@@ -827,8 +832,10 @@ func (m *Ipv6networkcontainerModel) Flatten(ctx context.Context, resp *coremodel
 	if niosModel == nil {
 		niosModel = &NIOSIpv6networkcontainerModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSIpv6networkcontainerModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenIpv6networkcontainerNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6networkcontainerAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSIpv6networkcontainerAttrTypes)
@@ -856,7 +863,6 @@ func (m *NIOSIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.AutoCreateReversezone = flex.FlattenBoolPointer(from.AutoCreateReversezone)
 	m.CloudInfo = FlattenIpv6networkcontainerCloudInfo(ctx, from.CloudInfo, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DdnsDomainname = flex.FlattenStringPointerEmptyAsNull(from.DdnsDomainname)
@@ -864,14 +870,12 @@ func (m *NIOSIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.DdnsGenerateHostname = flex.FlattenBoolPointer(from.DdnsGenerateHostname)
 	m.DdnsServerAlwaysUpdates = flex.FlattenBoolPointer(from.DdnsServerAlwaysUpdates)
 	m.DdnsTtl = flex.FlattenInt64Pointer(from.DdnsTtl)
-	m.DeleteReason = flex.FlattenStringPointerEmptyAsNull(from.DeleteReason)
 	m.DiscoveryBasicPollSettings = FlattenIpv6networkcontainerDiscoveryBasicPollSettings(ctx, from.DiscoveryBasicPollSettings, diags)
 	m.DiscoveryBlackoutSetting = FlattenIpv6networkcontainerDiscoveryBlackoutSetting(ctx, from.DiscoveryBlackoutSetting, diags)
 	m.DiscoveryMember = flex.FlattenStringPointerEmptyAsNull(from.DiscoveryMember)
 	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
 	m.EnableDdns = flex.FlattenBoolPointer(from.EnableDdns)
 	m.EnableDiscovery = flex.FlattenBoolPointer(from.EnableDiscovery)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.FederatedRealms = flex.FlattenFrameworkListNestedBlock(ctx, from.FederatedRealms, Ipv6networkcontainerFederatedRealmsAttrTypes, diags, FlattenIpv6networkcontainerFederatedRealms)
 	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, Ipv6networkcontainerLogicFilterRulesAttrTypes, diags, FlattenIpv6networkcontainerLogicFilterRules)
@@ -881,12 +885,9 @@ func (m *NIOSIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, Ipv6networkcontainerOptionsAttrTypes, diags, FlattenIpv6networkcontainerOptions)
 	m.PortControlBlackoutSetting = FlattenIpv6networkcontainerPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
 	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
-	m.RirRegistrationAction = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationAction)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
-	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
 	m.SubscribeSettings = FlattenIpv6networkcontainerSubscribeSettings(ctx, from.SubscribeSettings, diags)
 	m.Unmanaged = flex.FlattenBoolPointer(from.Unmanaged)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
@@ -913,7 +914,7 @@ func (m *UDDIIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
-	m.DhcpConfig = FlattenDHCPConfig(ctx, from.DhcpConfig, diags)
+	m.DhcpConfig = FlattenIpv6NetworkcontainerDHCPConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
 	m.FederatedRealms = flex.FlattenFrameworkListString(ctx, from.FederatedRealms, diags)

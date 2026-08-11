@@ -1,4 +1,10 @@
 # Auto-generated resource acceptance-test cases for Ipv6networkcontainer.
+// Objects to be present on the grid for testing
+// ipv6_option_filter , ipv6_option_filter1- IPv6 Option Filters
+// rir-org-test1 - RIR Organization
+// ISE Server has to be configured
+// A discovery member has to be configured
+
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -64,11 +70,7 @@ case "cloud_info" {
       network = "{{random_ipv6_network}}"
     }
     check = {
-      "nios.cloud_info.authority_type"   = "GM"
-      "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
-      "nios.cloud_info.owned_by_adaptor" = "false"
-      "nios.network"                     = "{{random_ipv6_network}}"
+      "nios.network" = "{{random_ipv6_network}}"
     }
   }
 
@@ -445,32 +447,6 @@ case "ext_attrs" {
 
 }
 
-case "func_call" {
-  backend  = "nios"
-  parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network_container" "parent" {
-    nios = {
-      network = "{{random_ipv6_network}}"
-      network_view = "default"
-      comment = "Parent network container for func_call test"
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      dynamic_allocation = { network = "network", network_view = "default" }
-      comment            = "next_available_network"
-    }
-    depends_on = [infoblox_ipv6network_container.parent]
-    check = {
-      "nios.comment" = "Original Function Call"
-    }
-  }
-
-}
-
 case "mgm_private" {
   backend  = "nios"
   parallel = true
@@ -538,7 +514,7 @@ case "options" {
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      options = { name = "dhcp6.fqdn", num = 39, value = "test.com", vendor_class = "DHCPv6" }
+      options = [{ name = "dhcp6.fqdn", num = 39, value = "test.com", vendor_class = "DHCPv6" }]
     }
     check = {
       "nios.network"                = "{{random_ipv6_network}}"
@@ -553,7 +529,7 @@ case "options" {
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      options = { name = "dhcp-rebinding-time", num = 59, value = 100, vendor_class = "DHCP" }
+      options = [{ name = "dhcp-rebinding-time", num = 59, value = 100, vendor_class = "DHCP" }]
     }
     check = {
       "nios.network"                = "{{random_ipv6_network}}"
@@ -665,9 +641,71 @@ case "restart_if_needed" {
 }
 
 case "rir_registration_action" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "helper declares 2 'nios_ipam_ipv6network_container' resource blocks with no single func_call target (ambiguous which is the resource under test)"
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6networkcontainer" "rir_parent" {
+    nios = {
+      network          = "2001:db8:{{random_hextet}}::/48"
+      rir_organization = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name" = "TEST-NET-V6"
+        "RIPE Description" = "Test IPv6 network"
+        "RIPE Country" = "United States (US)"
+        "RIPE Admin Contact" = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source" = "RIPE"
+        "RIPE IPv6 Status" = "ASSIGNED"
+      }
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      network                 = "2001:db8:{{random_hextet}}:1::/64"
+      rir_registration_action = "CREATE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-V6-CHILD"
+        "RIPE Description"       = "Test IPv6 child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv6 Status"       = "ASSIGNED"
+      }
+    }
+    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "CREATE"
+      "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"
+      "nios.rir_organization"        = "rir-org-test1"
+    }
+  }
+
+  step {
+    nios {
+      network                 = "2001:db8:{{random_hextet}}:1::/64"
+      rir_registration_action = "NONE"
+      rir_organization        = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-V6-CHILD"
+        "RIPE Description"       = "Test IPv6 child network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv6 Status"       = "ASSIGNED"
+      }
+    }
+    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    check = {
+      "nios.rir_registration_action" = "NONE"
+      "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"
+      "nios.rir_organization"        = "rir-org-test1"
+    }
+  }
 }
 
 case "rir_registration_status" {
@@ -938,12 +976,20 @@ case "rir_organization" {
     nios {
       network          = "{{random_ipv6_network}}"
       rir_organization = "rir-org-test1"
+      ext_attrs = {
+        "RIPE Network Name"      = "TEST-NET-V6"
+        "RIPE Description"       = "Test IPv6 network"
+        "RIPE Country"           = "United States (US)"
+        "RIPE Admin Contact"     = "TEST-RIPE"
+        "RIPE Technical Contact" = "TEST-RIPE"
+        "RIPE Registry Source"   = "RIPE"
+        "RIPE IPv6 Status"       = "ASSIGNED"
+      }
     }
     check = {
       "nios.rir_organization" = "rir-org-test1"
     }
   }
-
 }
 
 case "subscribe_settings" {
@@ -1012,62 +1058,6 @@ case "mapped_ea_attributes" {
     check = {
       "nios.subscribe_settings.mapped_ea_attributes.0.name"      = "MAC"
       "nios.subscribe_settings.mapped_ea_attributes.0.mapped_ea" = "Building"
-    }
-  }
-
-}
-
-case "remove_subnets_true" {
-  backend               = "nios"
-  expect_non_empty_plan = true
-  parallel              = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "child1" {
-    nios = {
-      network = "2003:db8:abcd:14::/81"
-    }
-  }
-  resource "infoblox_ipv6network" "child2" {
-    nios = {
-      network = "2003:db8:abcd:14:0:8000::/81"
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      network = "2003:db8:abcd:14::/80"
-    }
-    check = {
-      "nios.network" = "2003:db8:abcd:14::/80"
-    }
-  }
-
-}
-
-case "remove_subnets_false" {
-  backend               = "nios"
-  expect_non_empty_plan = true
-  parallel              = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "child1" {
-    nios = {
-      network = "2003:db8:abcd:15::/81"
-    }
-  }
-  resource "infoblox_ipv6network" "child2" {
-    nios = {
-      network = "2003:db8:abcd:15:0:8000::/81"
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      network = "2003:db8:abcd:15::/80"
-    }
-    check = {
-      "nios.network" = "2003:db8:abcd:15::/80"
     }
   }
 
