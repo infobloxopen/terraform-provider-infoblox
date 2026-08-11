@@ -160,7 +160,7 @@ func PostFlattenNetworkcontainerNIOS(ctx context.Context, planned, flattened *NI
 		return
 	}
 	if !planned.Options.IsNull() && !planned.Options.IsUnknown() {
-		if reordered, d := utils.ReorderAndFilterNestedListResponse(ctx, planned.Options, flattened.Options, "name"); !d.HasError() {
+		if reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options); !d.HasError() {
 			flattened.Options = reordered.(basetypes.ListValue)
 		}
 	}
