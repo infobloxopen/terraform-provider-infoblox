@@ -15,25 +15,18 @@ import (
 
 // RecordModel is the Terraform model for Record
 type RecordModel struct {
-	DnsRdata types.String `tfsdk:"dns_rdata"`
-	Rdata    types.Map    `tfsdk:"rdata"`
-	Type     types.String `tfsdk:"type"`
+	Rdata types.Map    `tfsdk:"rdata"`
+	Type  types.String `tfsdk:"type"`
 }
 
 // RecordAttrTypes contains the attribute types for RecordModel
 var RecordAttrTypes = map[string]attr.Type{
-	"dns_rdata": types.StringType,
-	"rdata":     types.MapType{ElemType: types.StringType},
-	"type":      types.StringType,
+	"rdata": types.MapType{ElemType: types.StringType},
+	"type":  types.StringType,
 }
 
 // RecordResourceSchemaAttributes contains the schema attributes for RecordModel
 var RecordResourceSchemaAttributes = map[string]schema.Attribute{
-	"dns_rdata": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The DNS protocol textual representation of the record data.",
-	},
 	"rdata": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
@@ -66,9 +59,8 @@ func (m *RecordModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddi
 		return nil
 	}
 	to := &uddidtc.Record{
-		DnsRdata: flex.ExpandStringPointer(m.DnsRdata),
-		Rdata:    flex.ExpandMapStringAny(ctx, m.Rdata, diags),
-		Type:     flex.ExpandString(m.Type),
+		Rdata: flex.ExpandMapStringAny(ctx, m.Rdata, diags),
+		Type:  flex.ExpandString(m.Type),
 	}
 	return to
 }
@@ -90,7 +82,6 @@ func (m *RecordModel) Flatten(ctx context.Context, from *uddidtc.Record, diags *
 	if from == nil || m == nil {
 		return
 	}
-	m.DnsRdata = flex.FlattenStringPointer(from.DnsRdata)
 	m.Rdata = flex.FlattenMapStringAny(ctx, from.Rdata, diags)
 	m.Type = flex.FlattenString(from.Type)
 }
