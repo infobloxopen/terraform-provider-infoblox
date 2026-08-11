@@ -12,6 +12,37 @@ Retrieves a list of Infoblox DtcServer from the configured backend (NIOS or UDDI
 
 ## Example Usage
 
+### NIOS Backend
+
+```terraform
+// List specific DTC Servers using filters
+list "infoblox_dtc_server" "list_dtc_server_using_filters" {
+  provider = infoblox
+  config {
+    filters = {
+      comment = "Created by Terraform"
+    }
+  }
+  limit = 10
+}
+
+// List specific DTC Servers using Extensible Attributes
+list "infoblox_dtc_server" "list_dtc_server_using_extensible_attributes" {
+  provider = infoblox
+  config {
+    ext_attr_filters = {
+      Site = "location-1"
+    }
+  }
+}
+
+// List DTC Servers with resource details included
+list "infoblox_dtc_server" "list_dtc_server_with_resource" {
+  provider         = infoblox
+  include_resource = true
+}
+```
+
 ### UDDI Backend
 
 ```terraform

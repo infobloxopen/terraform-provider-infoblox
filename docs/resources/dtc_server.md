@@ -187,7 +187,6 @@ Read-Only:
 
 Optional:
 
-- `dns_rdata` (String) The DNS protocol textual representation of the record data.
 - `rdata` (Map of String) JSON representation of resource record data.
 - `type` (String) Resource record type.  List of supported types: * _A_ (_TYPE1_) * _AAAA_ (_TYPE28_) * _CNAME_ (_TYPE5_) * _HTTPS_ (_TYPE65_) * _SRV_ (_TYPE33_) * _SVCB_ (_TYPE64_)
 
