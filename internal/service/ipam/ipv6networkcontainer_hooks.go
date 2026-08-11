@@ -12,7 +12,13 @@ func ValidateIpv6networkcontainer(ctx context.Context, data Ipv6networkcontainer
 	if nios := flex.ExpandNestedObject[NIOSIpv6networkcontainerModel](ctx, data.NIOS, &resp.Diagnostics); nios != nil {
 		validateIpv6networkcontainerNIOSConfig(ctx, nios, resp)
 	}
+	if uddi := flex.ExpandNestedObject[UDDIIpv6networkcontainerModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
+		validateIpv6networkcontainerUDDIConfig(ctx, uddi, resp)
+	}
 }
 
 func validateIpv6networkcontainerNIOSConfig(ctx context.Context, m *NIOSIpv6networkcontainerModel, resp *resource.ValidateConfigResponse) {
+}
+
+func validateIpv6networkcontainerUDDIConfig(ctx context.Context, m *UDDIIpv6networkcontainerModel, resp *resource.ValidateConfigResponse) {
 }

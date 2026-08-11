@@ -16,6 +16,7 @@ import (
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
@@ -94,6 +95,12 @@ func (r *Ipv6networkcontainerResource) ValidateConfig(ctx context.Context, req r
 		return
 	}
 
+	// Common backend block validations
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, data.UDDI, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	ValidateIpv6networkcontainer(ctx, data, resp)
 }
 
@@ -139,6 +146,7 @@ func (r *Ipv6networkcontainerResource) Create(ctx context.Context, req resource.
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
 			ReturnFields: Ipv6networkcontainerReturnFields,
+			Inherit:      Ipv6networkcontainerInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -183,6 +191,7 @@ func (r *Ipv6networkcontainerResource) Read(ctx context.Context, req resource.Re
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
 			ReturnFields: Ipv6networkcontainerReturnFields,
+			Inherit:      Ipv6networkcontainerInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -387,6 +396,7 @@ func (r *Ipv6networkcontainerResource) Update(ctx context.Context, req resource.
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
 			ReturnFields: Ipv6networkcontainerReturnFields,
+			Inherit:      Ipv6networkcontainerInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr

@@ -2,12 +2,14 @@ package ipam
 
 import (
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // Infoblox Ipv6networkcontainer model
 type Ipv6networkcontainer struct {
 	Id   *string
 	NIOS *NIOSIpv6networkcontainerExt
+	UDDI *UDDIIpv6networkcontainerExt
 }
 
 // NIOSIpv6networkcontainerExt - NIOS specific fields for Ipv6networkcontainer
@@ -65,4 +67,39 @@ type NIOSIpv6networkcontainerExt struct {
 	UseZoneAssociations              *bool
 	ValidLifetime                    *int64
 	ZoneAssociations                 []niosipam.Ipv6networkcontainerZoneAssociations
+}
+
+// UDDIIpv6networkcontainerExt - UDDI specific fields for Ipv6networkcontainer
+type UDDIIpv6networkcontainerExt struct {
+	Address                    *string
+	AsmConfig                  *uddiipam.ASMConfig
+	Cidr                       *int64
+	Comment                    *string
+	CompartmentId              *string
+	DdnsClientUpdate           *string
+	DdnsConflictResolutionMode *string
+	DdnsDomain                 *string
+	DdnsGenerateName           *bool
+	DdnsGeneratedPrefix        *string
+	DdnsSendUpdates            *bool
+	DdnsTtlPercent             *float32
+	DdnsUpdateOnRenew          *bool
+	DdnsUseConflictResolution  *bool
+	DhcpConfig                 *uddiipam.DHCPConfig
+	DhcpOptions                []uddiipam.OptionItem
+	ExternalKeys               map[string]any
+	FederatedRealms            []string
+	HeaderOptionFilename       *string
+	HeaderOptionServerAddress  *string
+	HeaderOptionServerName     *string
+	HostnameRewriteChar        *string
+	HostnameRewriteEnabled     *bool
+	HostnameRewriteRegex       *string
+	InheritanceParent          *string
+	InheritanceSources         *uddiipam.DHCPInheritance
+	Name                       *string
+	Parent                     *string
+	Space                      *string
+	Tags                       map[string]any
+	Threshold                  *uddiipam.UtilizationThreshold
 }

@@ -15,9 +15,13 @@ func TestAccIpv6networkcontainerDataSource(t *testing.T) {
 			Exists:  testAccCheckIpv6networkcontainerExistsNIOS,
 			Destroy: testAccCheckIpv6networkcontainerDestroyNIOS,
 		},
+		"uddi": {
+			Exists:  testAccCheckIpv6networkcontainerExistsUDDI,
+			Destroy: testAccCheckIpv6networkcontainerDestroyUDDI,
+		},
 	}
 
-	for _, backend := range []string{"nios"} {
+	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
 			acctest.RunDataSourceCases(t, dsType, resourceType, "ipam/ipv6networkcontainer/"+backend+"_datasources.tfvars", checksByBackend)
 		})

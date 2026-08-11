@@ -3,6 +3,7 @@ package ipam
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
@@ -12,6 +13,7 @@ import (
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 type Ipv6networkcontainerService interface {
@@ -25,12 +27,14 @@ type Ipv6networkcontainerService interface {
 type ipv6networkcontainerService struct {
 	backend    core.BackendType
 	niosClient *niosclient.APIClient
+	uddiClient *uddiclient.APIClient
 }
 
 func NewIpv6networkcontainerService(backend core.BackendType, nios *niosclient.APIClient, uddi *uddiclient.APIClient) Ipv6networkcontainerService {
 	return &ipv6networkcontainerService{
 		backend:    backend,
 		niosClient: nios,
+		uddiClient: uddi,
 	}
 }
 
@@ -39,6 +43,8 @@ func (s *ipv6networkcontainerService) Create(ctx context.Context, obj *ipam.Ipv6
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.createNIOS(ctx, obj, opts)
+	case core.BackendUDDI:
+		return s.createUDDI(ctx, obj, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -74,11 +80,37 @@ func (s *ipv6networkcontainerService) createNIOS(ctx context.Context, obj *ipam.
 	return mapNIOSIpv6networkcontainerToResponse(&result), httpResp, nil
 }
 
+func (s *ipv6networkcontainerService) createUDDI(ctx context.Context, obj *ipam.Ipv6networkcontainer, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error) {
+	payload, err := common.MapTo[uddiipam.AddressBlock](obj, mapper.Ipv6networkcontainerUDDIFieldMap)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req := s.uddiClient.IPAddressManagementAPI.AddressBlockAPI.
+		Create(ctx).
+		Body(payload)
+
+	if opts != nil && opts.Inherit != "" {
+		req = req.Inherit(opts.Inherit)
+	}
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIIpv6networkcontainerToResponse(&result), httpResp, nil
+}
+
 // Read retrieves a Ipv6networkcontainer by ID
 func (s *ipv6networkcontainerService) Read(ctx context.Context, id string, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.readNIOS(ctx, id, opts)
+	case core.BackendUDDI:
+		return s.readUDDI(ctx, id, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -103,11 +135,31 @@ func (s *ipv6networkcontainerService) readNIOS(ctx context.Context, id string, o
 	return mapNIOSIpv6networkcontainerToResponse(&result), httpResp, nil
 }
 
+func (s *ipv6networkcontainerService) readUDDI(ctx context.Context, id string, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error) {
+	req := s.uddiClient.IPAddressManagementAPI.AddressBlockAPI.
+		Read(ctx, id)
+
+	if opts != nil && opts.Inherit != "" {
+		req = req.Inherit(opts.Inherit)
+	}
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIIpv6networkcontainerToResponse(&result), httpResp, nil
+}
+
 // Update modifies an existing Ipv6networkcontainer and returns the updated object
 func (s *ipv6networkcontainerService) Update(ctx context.Context, id string, obj *ipam.Ipv6networkcontainer, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.updateNIOS(ctx, id, obj, opts)
+	case core.BackendUDDI:
+		return s.updateUDDI(ctx, id, obj, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -143,11 +195,37 @@ func (s *ipv6networkcontainerService) updateNIOS(ctx context.Context, id string,
 	return mapNIOSIpv6networkcontainerToResponse(&result), httpResp, nil
 }
 
+func (s *ipv6networkcontainerService) updateUDDI(ctx context.Context, id string, obj *ipam.Ipv6networkcontainer, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error) {
+	payload, err := common.MapTo[uddiipam.AddressBlock](obj, mapper.Ipv6networkcontainerUDDIFieldMap)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req := s.uddiClient.IPAddressManagementAPI.AddressBlockAPI.
+		Update(ctx, id).
+		Body(payload)
+
+	if opts != nil && opts.Inherit != "" {
+		req = req.Inherit(opts.Inherit)
+	}
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIIpv6networkcontainerToResponse(&result), httpResp, nil
+}
+
 // Delete removes a Ipv6networkcontainer by ID
 func (s *ipv6networkcontainerService) Delete(ctx context.Context, id string) (*http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.deleteNIOS(ctx, id)
+	case core.BackendUDDI:
+		return s.deleteUDDI(ctx, id)
 	default:
 		return nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -160,11 +238,20 @@ func (s *ipv6networkcontainerService) deleteNIOS(ctx context.Context, id string)
 	return httpResp, err
 }
 
+func (s *ipv6networkcontainerService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
+	httpResp, err := s.uddiClient.IPAddressManagementAPI.AddressBlockAPI.
+		Delete(ctx, id).
+		Execute()
+	return httpResp, err
+}
+
 // List retrieves Ipv6networkcontainer objects based on filter options
 func (s *ipv6networkcontainerService) List(ctx context.Context, opts *core.ListOptions) ([]*ipam.Ipv6networkcontainer, *http.Response, string, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.listNIOS(ctx, opts)
+	case core.BackendUDDI:
+		return s.listUDDI(ctx, opts)
 	default:
 		return nil, nil, "", fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -230,6 +317,54 @@ func (s *ipv6networkcontainerService) listNIOS(ctx context.Context, opts *core.L
 	}
 
 	return items, httpResp, nextPageID, nil
+}
+
+func (s *ipv6networkcontainerService) listUDDI(ctx context.Context, opts *core.ListOptions) ([]*ipam.Ipv6networkcontainer, *http.Response, string, error) {
+	req := s.uddiClient.IPAddressManagementAPI.AddressBlockAPI.List(ctx)
+	req = req.Limit(core.DefaultListLimit)
+
+	if opts != nil {
+		var filters []string
+		for k, v := range opts.InternalFilters {
+			filters = append(filters, k+"=='"+v+"'")
+		}
+		translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.Ipv6networkcontainerFilterFieldMap[core.BackendUDDI])
+		for k, v := range translatedFilters {
+			filters = append(filters, k+"=='"+v+"'")
+		}
+		if len(filters) > 0 {
+			req = req.Filter(core.JoinFilters(filters))
+		}
+
+		if len(opts.TagFilter) > 0 {
+			var tfilters []string
+			for k, v := range opts.TagFilter {
+				tfilters = append(tfilters, "'"+k+"'=='"+v+"'")
+			}
+			req = req.Tfilter(core.JoinFilters(tfilters))
+		}
+
+		if opts.Offset > 0 {
+			req = req.Offset(opts.Offset)
+		}
+
+		if opts.Limit > 0 {
+			req = req.Limit(opts.Limit)
+		}
+	}
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, "", err
+	}
+
+	results := resp.GetResults()
+	items := make([]*ipam.Ipv6networkcontainer, 0, len(results))
+	for i := range results {
+		items = append(items, mapUDDIIpv6networkcontainerToResponse(&results[i]))
+	}
+
+	return items, httpResp, "", nil
 }
 
 func mapNIOSIpv6networkcontainerToResponse(r *niosipam.Ipv6networkcontainer) *ipam.Ipv6networkcontainer {
@@ -298,6 +433,50 @@ func mapNIOSIpv6networkcontainerToResponse(r *niosipam.Ipv6networkcontainer) *ip
 			attrs[k] = core.StringifyEAValue(v.Value)
 		}
 		resp.NIOS.ExtAttrs = attrs
+	}
+	return resp
+}
+
+func mapUDDIIpv6networkcontainerToResponse(r *uddiipam.AddressBlock) *ipam.Ipv6networkcontainer {
+	resp := &ipam.Ipv6networkcontainer{
+		Id: r.Id,
+	}
+	resp.UDDI = &ipam.UDDIIpv6networkcontainerExt{
+		Address:                    r.Address,
+		AsmConfig:                  r.AsmConfig,
+		Cidr:                       r.Cidr,
+		Comment:                    r.Comment,
+		CompartmentId:              r.CompartmentId,
+		DdnsClientUpdate:           r.DdnsClientUpdate,
+		DdnsConflictResolutionMode: r.DdnsConflictResolutionMode,
+		DdnsDomain:                 r.DdnsDomain,
+		DdnsGenerateName:           r.DdnsGenerateName,
+		DdnsGeneratedPrefix:        r.DdnsGeneratedPrefix,
+		DdnsSendUpdates:            r.DdnsSendUpdates,
+		DdnsTtlPercent:             r.DdnsTtlPercent,
+		DdnsUpdateOnRenew:          r.DdnsUpdateOnRenew,
+		DdnsUseConflictResolution:  r.DdnsUseConflictResolution,
+		DhcpConfig:                 r.DhcpConfig,
+		DhcpOptions:                r.DhcpOptions,
+		ExternalKeys:               r.ExternalKeys,
+		FederatedRealms:            r.FederatedRealms,
+		HeaderOptionFilename:       r.HeaderOptionFilename,
+		HeaderOptionServerAddress:  r.HeaderOptionServerAddress,
+		HeaderOptionServerName:     r.HeaderOptionServerName,
+		HostnameRewriteChar:        r.HostnameRewriteChar,
+		HostnameRewriteEnabled:     r.HostnameRewriteEnabled,
+		HostnameRewriteRegex:       r.HostnameRewriteRegex,
+		InheritanceParent:          r.InheritanceParent,
+		InheritanceSources:         r.InheritanceSources,
+		Name:                       r.Name,
+		Parent:                     r.Parent,
+		Space:                      r.Space,
+		Threshold:                  r.Threshold,
+	}
+	if r.Tags != nil {
+		tags := make(map[string]any, len(r.Tags))
+		maps.Copy(tags, r.Tags)
+		resp.UDDI.Tags = tags
 	}
 	return resp
 }
