@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -25,6 +26,73 @@ func ValidateNetwork(ctx context.Context, data NetworkModel, resp *resource.Vali
 }
 
 func validateNetworkNIOSConfig(ctx context.Context, m *NIOSNetworkModel, resp *resource.ValidateConfigResponse) {
+	niosPath := path.Root("nios")
+
+	// DHCP options validation
+	utils.ValidateDHCPOptionsConfig(ctx, m.Options, niosPath.AtName("options"), &resp.Diagnostics)
+
+	// Members validation
+	if !m.Members.IsNull() && !m.Members.IsUnknown() {
+		var members []NetworkMembersModel
+		resp.Diagnostics.Append(m.Members.ElementsAs(ctx, &members, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		membersPath := niosPath.AtName("members")
+		for i, member := range members {
+			if member.Struct.ValueString() == "msdhcpserver" {
+				if !member.Ipv6addr.IsNull() && !member.Ipv6addr.IsUnknown() {
+					resp.Diagnostics.AddAttributeError(
+						membersPath.AtListIndex(i).AtName("ipv6addr"),
+						"Invalid Configuration",
+						"ipv6addr cannot be set when struct is 'msdhcpserver'. Only ipv4addr is supported for msdhcpserver.",
+					)
+				}
+
+				if !member.Name.IsNull() && !member.Name.IsUnknown() {
+					resp.Diagnostics.AddAttributeError(
+						membersPath.AtListIndex(i).AtName("name"),
+						"Invalid Configuration",
+						"name cannot be set when struct is 'msdhcpserver'. Only ipv4addr is supported for msdhcpserver.",
+					)
+				}
+			}
+		}
+	}
+
+	// Validate discovery_blackout_setting blackout_schedule
+	if !m.DiscoveryBlackoutSetting.IsNull() && !m.DiscoveryBlackoutSetting.IsUnknown() {
+		utils.ValidateScheduleConfig(
+			m.DiscoveryBlackoutSetting,
+			"blackout_schedule",
+			niosPath.AtName("discovery_blackout_setting"),
+			&resp.Diagnostics,
+		)
+	}
+
+	// Validate port_control_blackout_setting blackout_schedule
+	if !m.PortControlBlackoutSetting.IsNull() && !m.PortControlBlackoutSetting.IsUnknown() {
+		utils.ValidateScheduleConfig(
+			m.PortControlBlackoutSetting,
+			"blackout_schedule",
+			niosPath.AtName("port_control_blackout_setting"),
+			&resp.Diagnostics,
+		)
+	}
+
+	// enabled_attributes is required when subscribe_settings is configured
+	if !m.SubscribeSettings.IsNull() && !m.SubscribeSettings.IsUnknown() {
+		attrs := m.SubscribeSettings.Attributes()
+		enabledAttrs, exists := attrs["enabled_attributes"]
+		if !exists || enabledAttrs.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("subscribe_settings").AtName("enabled_attributes"),
+				"Missing Required Attribute",
+				"The 'enabled_attributes' attribute is required when 'subscribe_settings' is configured.",
+			)
+		}
+	}
 }
 
 func validateNetworkUDDIConfig(ctx context.Context, m *UDDINetworkModel, resp *resource.ValidateConfigResponse) {
