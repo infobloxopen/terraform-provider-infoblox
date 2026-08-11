@@ -5,6 +5,7 @@ resource "infoblox_zone_auth" "parent_auth_zone" {
   }
 }
 
+// Create Record SRV with Basic Fields
 resource "infoblox_record_srv" "example_1" {
   nios = {
     name     = "example-srv-record.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
@@ -15,6 +16,7 @@ resource "infoblox_record_srv" "example_1" {
   }
 }
 
+// Create Record SRV with Additional Fields
 resource "infoblox_record_srv" "create_with_additional_config" {
   nios = {
     name     = "example-srv-record-with-config.${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
@@ -27,7 +29,7 @@ resource "infoblox_record_srv" "create_with_additional_config" {
     ttl      = 10
     creator  = "DYNAMIC"
     comment  = "Example SRV record"
-    extattrs = {
+    ext_attrs = {
       Site = "location-1"
     }
   }

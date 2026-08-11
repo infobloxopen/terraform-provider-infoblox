@@ -6,6 +6,7 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
+// Create Record SRV
 resource "infoblox_record_srv" "test1" {
   uddi = {
     name_in_zone = "record_srv"

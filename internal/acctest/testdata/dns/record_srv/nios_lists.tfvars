@@ -2,6 +2,13 @@
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -24,11 +31,17 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -52,15 +65,21 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   step {
     nios {
-      name      = "{{random}}.example.com"
-      target    = "{{random2}}.target.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
   }
 

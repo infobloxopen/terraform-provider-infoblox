@@ -1,6 +1,13 @@
 # Auto-generated datasource acceptance-test cases for RecordSrv.
 case "filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -13,8 +20,8 @@ case "filters" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -25,7 +32,13 @@ case "filters" {
 
 case "ext_attr_filters" {
   backend = "nios"
-
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
   filter {
     type   = "ext_attr_filters"
     values = {
@@ -37,12 +50,12 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      target    = "{{random2}}.target.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
   }
 

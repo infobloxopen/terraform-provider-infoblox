@@ -11,15 +11,15 @@ case "basic" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.name"               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      "nios.target"             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.name"               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.target"             = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       "nios.port"               = "80"
       "nios.priority"           = "10"
       "nios.weight"             = "360"
@@ -46,8 +46,8 @@ case "disappears" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -68,8 +68,8 @@ case "comment" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -82,8 +82,8 @@ case "comment" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -108,8 +108,8 @@ case "creator" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -122,8 +122,8 @@ case "creator" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -148,8 +148,8 @@ case "ddns_principal" {
   PREREQ
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -163,8 +163,8 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -190,8 +190,8 @@ case "ddns_protected" {
   PREREQ
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -204,8 +204,8 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target         = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target         = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port           = 80
       priority       = 10
       weight         = 360
@@ -230,8 +230,8 @@ case "disable" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -244,8 +244,8 @@ case "disable" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -270,22 +270,22 @@ case "ext_attrs" {
   PREREQ
   step {
     nios {
-      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
     check = {
-      "nios.ext_attrs.Site" = "{{random3}}"
+      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
   step {
     nios {
-      name      = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target    = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target    = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port      = 80
       priority  = 10
       weight    = 360
@@ -310,8 +310,8 @@ case "forbid_reclamation" {
   PREREQ
   step {
     nios {
-      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target             = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port               = 80
       priority           = 10
       weight             = 360
@@ -324,8 +324,8 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target             = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target             = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port               = 80
       priority           = 10
       weight             = 360
@@ -350,14 +350,14 @@ case "name" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.name" = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.name" = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
@@ -388,8 +388,8 @@ case "port" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -401,8 +401,8 @@ case "port" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 8080
       priority = 10
       weight   = 360
@@ -426,8 +426,8 @@ case "priority" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -439,8 +439,8 @@ case "priority" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 1
       weight   = 360
@@ -464,20 +464,20 @@ case "target" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
     }
     check = {
-      "nios.target" = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      "nios.target" = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
     }
   }
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
@@ -502,8 +502,8 @@ case "ttl" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -516,8 +516,8 @@ case "ttl" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -542,8 +542,8 @@ case "weight" {
   PREREQ
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360
@@ -555,8 +555,8 @@ case "weight" {
 
   step {
     nios {
-      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 720
