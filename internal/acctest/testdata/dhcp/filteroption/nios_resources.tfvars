@@ -7,8 +7,6 @@ case "basic" {
     nios {
       name = "{{random}}"
     }
-    # comment and expression are omitted by NIOS when unset, so they flatten to
-    # null rather than "" and cannot be asserted here.
     check = {
       "nios.name"           = "{{random}}"
       "nios.apply_as_class" = "true"
@@ -65,20 +63,20 @@ case "bootfile" {
   step {
     nios {
       name     = "{{random}}"
-      bootfile = "BOOTFILE_REPLACE_ME"
+      bootfile = "pxelinux.0"
     }
     check = {
-      "nios.bootfile" = "BOOTFILE_REPLACE_ME"
+      "nios.bootfile" = "pxelinux.0"
     }
   }
 
   step {
     nios {
       name     = "{{random}}"
-      bootfile = "BOOTFILE_UPDATE_REPLACE_ME"
+      bootfile = "pxelinux.efi"
     }
     check = {
-      "nios.bootfile" = "BOOTFILE_UPDATE_REPLACE_ME"
+      "nios.bootfile" = "pxelinux.efi"
     }
   }
 
@@ -91,20 +89,20 @@ case "bootserver" {
   step {
     nios {
       name       = "{{random}}"
-      bootserver = "BOOTSERVER_REPLACE_ME"
+      bootserver = "boot.example.com"
     }
     check = {
-      "nios.bootserver" = "BOOTSERVER_REPLACE_ME"
+      "nios.bootserver" = "boot.example.com"
     }
   }
 
   step {
     nios {
       name       = "{{random}}"
-      bootserver = "BOOTSERVER_UPDATE_REPLACE_ME"
+      bootserver = "boot-updated.example.com"
     }
     check = {
-      "nios.bootserver" = "BOOTSERVER_UPDATE_REPLACE_ME"
+      "nios.bootserver" = "boot-updated.example.com"
     }
   }
 
@@ -117,20 +115,20 @@ case "comment" {
   step {
     nios {
       name    = "{{random}}"
-      comment = "COMMENT_REPLACE_ME"
+      comment = "test filter option"
     }
     check = {
-      "nios.comment" = "COMMENT_REPLACE_ME"
+      "nios.comment" = "test filter option"
     }
   }
 
   step {
     nios {
       name    = "{{random}}"
-      comment = "COMMENT_UPDATE_REPLACE_ME"
+      comment = "updated filter option"
     }
     check = {
-      "nios.comment" = "COMMENT_UPDATE_REPLACE_ME"
+      "nios.comment" = "updated filter option"
     }
   }
 
@@ -245,20 +243,20 @@ case "next_server" {
   step {
     nios {
       name        = "{{random}}"
-      next_server = "NEXT_SERVER_REPLACE_ME"
+      next_server = "192.168.1.1"
     }
     check = {
-      "nios.next_server" = "NEXT_SERVER_REPLACE_ME"
+      "nios.next_server" = "192.168.1.1"
     }
   }
 
   step {
     nios {
       name        = "{{random}}"
-      next_server = "NEXT_SERVER_UPDATE_REPLACE_ME"
+      next_server = "192.168.1.2"
     }
     check = {
-      "nios.next_server" = "NEXT_SERVER_UPDATE_REPLACE_ME"
+      "nios.next_server" = "192.168.1.2"
     }
   }
 
@@ -292,9 +290,6 @@ case "option_list" {
 
 }
 
-# The generator emitted a prerequisite for a DHCP option space resource, but the
-# provider exposes no such resource and "DHCP" is the only space defined on the
-# grid, so this case covers the one value that can be asserted.
 case "option_space" {
   backend  = "nios"
   parallel = true

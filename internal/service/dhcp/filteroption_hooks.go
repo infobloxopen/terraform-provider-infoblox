@@ -31,10 +31,6 @@ func PostFlattenFilteroptionNIOS(ctx context.Context, planned, flattened *NIOSFi
 		return
 	}
 
-	// NIOS returns the option list in its own order and includes options the
-	// configuration never asked for, so reconcile it against the plan. This also
-	// restores a planned empty list when NIOS reports no options at all, which
-	// otherwise flattens to null and breaks apply consistency.
 	if !planned.OptionList.IsUnknown() {
 		if reordered, d := reorderAndFilterDHCPOptions(ctx, planned.OptionList, flattened.OptionList); !d.HasError() {
 			flattened.OptionList = reordered.(basetypes.ListValue)
