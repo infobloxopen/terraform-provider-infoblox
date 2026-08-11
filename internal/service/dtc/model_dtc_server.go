@@ -185,26 +185,37 @@ var DtcServerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "IP Address of the __Server__. Must be set to a valid IP address if __endpoint_type__ is set to __address__. Alternatively, it can be left blank.",
 	},
 	"auto_create_response_records": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. If the flag is enabled, A, AAAA or CNAME __Record__ is automatically generated.  Defaults to _false_.",
 	},
 	"comment": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Comment for __Server__.",
 	},
 	"disabled": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. Flag which enables/disables __Server__.  Defaults to _false_.",
 	},
 	"endpoint_type": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The endpoint type configured for the __Server__. Can be IP Address or FQDN. The values of both fields __address__ and __fqdn__ are preserved and are not mutually exclusive, and the __endpoint_type__ defines which one to use.  Allowed values: * address * fqdn  Defaults to __address__.",
 	},
 	"fqdn": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "Fully Qualified Domain name of the __Server__. Must be set to a valid FQDN if __endpoint_type__ is set to __fqdn__. Alternatively, it can be left blank.",
 	},
 	"metadata": schema.SingleNestedAttribute{
@@ -221,6 +232,7 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: RecordResourceSchemaAttributes,
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. List of __Records__ of the __Server__.",
 	},
 	"tags": schema.MapAttribute{

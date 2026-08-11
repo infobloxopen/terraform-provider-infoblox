@@ -37,10 +37,12 @@ var RecordResourceSchemaAttributes = map[string]schema.Attribute{
 	"rdata": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "JSON representation of resource record data.",
 	},
 	"type": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Resource record type.  List of supported types: * _A_ (_TYPE1_) * _AAAA_ (_TYPE28_) * _CNAME_ (_TYPE5_) * _HTTPS_ (_TYPE65_) * _SRV_ (_TYPE33_) * _SVCB_ (_TYPE64_)",
 	},
 }
