@@ -32,9 +32,8 @@ type SyslogEndpointSyslogServers struct {
 	// Facility values for syslog endpoint server
 	Facility *string `json:"facility,omitempty"`
 	// Severity values for syslog endpoint server.
-	Severity *string `json:"severity,omitempty"`
-	// Reference for creating sysog endpoint server.
-	Certificate *string `json:"certificate,omitempty"`
+	Severity    *string                                 `json:"severity,omitempty"`
+	Certificate *SyslogEndpointSyslogServersCertificate `json:"certificate,omitempty"`
 	// The token returned by the uploadinit function call in object fileop.
 	CertificateToken     *string `json:"certificate_token,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -284,9 +283,9 @@ func (o *SyslogEndpointSyslogServers) SetSeverity(v string) {
 }
 
 // GetCertificate returns the Certificate field value if set, zero value otherwise.
-func (o *SyslogEndpointSyslogServers) GetCertificate() string {
+func (o *SyslogEndpointSyslogServers) GetCertificate() SyslogEndpointSyslogServersCertificate {
 	if o == nil || IsNil(o.Certificate) {
-		var ret string
+		var ret SyslogEndpointSyslogServersCertificate
 		return ret
 	}
 	return *o.Certificate
@@ -294,7 +293,7 @@ func (o *SyslogEndpointSyslogServers) GetCertificate() string {
 
 // GetCertificateOk returns a tuple with the Certificate field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SyslogEndpointSyslogServers) GetCertificateOk() (*string, bool) {
+func (o *SyslogEndpointSyslogServers) GetCertificateOk() (*SyslogEndpointSyslogServersCertificate, bool) {
 	if o == nil || IsNil(o.Certificate) {
 		return nil, false
 	}
@@ -310,8 +309,8 @@ func (o *SyslogEndpointSyslogServers) HasCertificate() bool {
 	return false
 }
 
-// SetCertificate gets a reference to the given string and assigns it to the Certificate field.
-func (o *SyslogEndpointSyslogServers) SetCertificate(v string) {
+// SetCertificate gets a reference to the given SyslogEndpointSyslogServersCertificate and assigns it to the Certificate field.
+func (o *SyslogEndpointSyslogServers) SetCertificate(v SyslogEndpointSyslogServersCertificate) {
 	o.Certificate = &v
 }
 

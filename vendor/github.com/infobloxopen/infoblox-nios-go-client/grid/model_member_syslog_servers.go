@@ -20,9 +20,8 @@ var _ MappedNullable = &MemberSyslogServers{}
 // MemberSyslogServers struct for MemberSyslogServers
 type MemberSyslogServers struct {
 	// The server address or FQDN.
-	AddressOrFqdn *string `json:"address_or_fqdn,omitempty"`
-	// Reference to the underlying X509Certificate object grid:x509certificate.
-	Certificate *string `json:"certificate,omitempty"`
+	AddressOrFqdn *string                         `json:"address_or_fqdn,omitempty"`
+	Certificate   *MemberSyslogServersCertificate `json:"certificate,omitempty"`
 	// The token returned by the uploadinit function call in object fileop.
 	CertificateToken *string `json:"certificate_token,omitempty"`
 	// The connection type for communicating with this server.
@@ -96,9 +95,9 @@ func (o *MemberSyslogServers) SetAddressOrFqdn(v string) {
 }
 
 // GetCertificate returns the Certificate field value if set, zero value otherwise.
-func (o *MemberSyslogServers) GetCertificate() string {
+func (o *MemberSyslogServers) GetCertificate() MemberSyslogServersCertificate {
 	if o == nil || IsNil(o.Certificate) {
-		var ret string
+		var ret MemberSyslogServersCertificate
 		return ret
 	}
 	return *o.Certificate
@@ -106,7 +105,7 @@ func (o *MemberSyslogServers) GetCertificate() string {
 
 // GetCertificateOk returns a tuple with the Certificate field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *MemberSyslogServers) GetCertificateOk() (*string, bool) {
+func (o *MemberSyslogServers) GetCertificateOk() (*MemberSyslogServersCertificate, bool) {
 	if o == nil || IsNil(o.Certificate) {
 		return nil, false
 	}
@@ -122,8 +121,8 @@ func (o *MemberSyslogServers) HasCertificate() bool {
 	return false
 }
 
-// SetCertificate gets a reference to the given string and assigns it to the Certificate field.
-func (o *MemberSyslogServers) SetCertificate(v string) {
+// SetCertificate gets a reference to the given MemberSyslogServersCertificate and assigns it to the Certificate field.
+func (o *MemberSyslogServers) SetCertificate(v MemberSyslogServersCertificate) {
 	o.Certificate = &v
 }
 

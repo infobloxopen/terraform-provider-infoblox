@@ -79,6 +79,7 @@ type OrderedresponsepolicyzonesAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +125,12 @@ func (r OrderedresponsepolicyzonesAPIListRequest) Filters(filters map[string]int
 
 func (r OrderedresponsepolicyzonesAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) OrderedresponsepolicyzonesAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r OrderedresponsepolicyzonesAPIListRequest) ProxySearch(proxySearch string) OrderedresponsepolicyzonesAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +199,9 @@ func (a *OrderedresponsepolicyzonesAPIService) ListExecute(r Orderedresponsepoli
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +256,7 @@ type OrderedresponsepolicyzonesAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +274,12 @@ func (r OrderedresponsepolicyzonesAPIReadRequest) ReturnFieldsPlus(returnFieldsP
 // Select 1 if result is required as an object
 func (r OrderedresponsepolicyzonesAPIReadRequest) ReturnAsObject(returnAsObject int32) OrderedresponsepolicyzonesAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r OrderedresponsepolicyzonesAPIReadRequest) ProxySearch(proxySearch string) OrderedresponsepolicyzonesAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +335,9 @@ func (a *OrderedresponsepolicyzonesAPIService) ReadExecute(r Orderedresponsepoli
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

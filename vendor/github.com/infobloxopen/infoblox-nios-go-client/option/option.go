@@ -2,6 +2,8 @@ package option
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/infobloxopen/infoblox-nios-go-client/internal"
 )
@@ -74,5 +76,19 @@ func WithClientName(clientName string) ClientOption {
 func WithDebug(debug bool) ClientOption {
 	return func(configuration *internal.Configuration) {
 		configuration.Debug = debug
+	}
+}
+
+// WithProxyURL returns a ClientOption that sets the URL for Proxy Server
+func WithProxyURL(proxyURL string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if strings.TrimSpace(proxyURL) != "" {
+			parsedURL, err := url.Parse(strings.TrimSpace(proxyURL))
+			if err != nil {
+				configuration.ProxyURL = nil
+			} else {
+				configuration.ProxyURL = parsedURL
+			}
+		}
 	}
 }

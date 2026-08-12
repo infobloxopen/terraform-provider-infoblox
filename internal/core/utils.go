@@ -71,6 +71,16 @@ func JoinFilters(filters []string) string {
 	return strings.Join(filters, " and ")
 }
 
+func FilterExpr(key, value string) string {
+	if _, err := strconv.Atoi(value); err == nil {
+		return key + "==" + value
+	}
+	if _, err := strconv.ParseFloat(value, 64); err == nil {
+		return key + "==" + value
+	}
+	return key + "=='" + value + "'"
+}
+
 // BuildTagFilter builds a UDDI tfilter expression from tag key/value pairs.
 // e.g. {"a": "1", "b": "2"} -> "'a'=='1' and 'b'=='2'".
 func BuildTagFilter(tags map[string]string) string {
