@@ -141,7 +141,6 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("STATIC", "DYNAMIC"),
-			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
 		},
 		Optional:            true,
 		Computed:            true,
