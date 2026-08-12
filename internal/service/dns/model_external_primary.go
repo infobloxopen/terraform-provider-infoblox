@@ -44,6 +44,7 @@ var ExternalPrimaryAttrTypes = map[string]attr.Type{
 var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
@@ -51,6 +52,7 @@ var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"fqdn": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
