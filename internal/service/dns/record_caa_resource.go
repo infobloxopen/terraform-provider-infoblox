@@ -55,7 +55,7 @@ func (r *RecordCaaResource) IdentitySchema(_ context.Context, _ resource.Identit
 
 func (r *RecordCaaResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordCaa across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordCaa in both NIOS and UDDI backends.",
 		Attributes:          RecordCaaResourceSchemaAttributes,
 	}
 }
