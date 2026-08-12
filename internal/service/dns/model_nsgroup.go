@@ -190,15 +190,15 @@ func (m *NsgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSNsgroupModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSNsgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSNsgroupExt {
-	return &coremodel.NIOSNsgroupExt{
+func (m *NIOSNsgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSNsgroupExt {
+	ext := &coremodel.NIOSNsgroupExt{
 		Comment:             flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		ExtAttrs:            flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		ExternalPrimaries:   flex.ExpandFrameworkListNestedBlock(ctx, m.ExternalPrimaries, diags, ExpandNsgroupExternalPrimaries),
@@ -206,10 +206,13 @@ func (m *NIOSNsgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		GridPrimary:         flex.ExpandFrameworkListNestedBlock(ctx, m.GridPrimary, diags, ExpandNsgroupGridPrimary),
 		GridSecondaries:     flex.ExpandFrameworkListNestedBlock(ctx, m.GridSecondaries, diags, ExpandNsgroupGridSecondaries),
 		IsGridDefault:       flex.ExpandBoolPointer(m.IsGridDefault),
-		IsMultimaster:       flex.ExpandBoolPointer(m.IsMultimaster),
 		Name:                flex.ExpandStringPointerNullAsEmpty(m.Name),
 		UseExternalPrimary:  flex.ExpandBoolPointer(m.UseExternalPrimary),
 	}
+	if isCreate {
+		ext.IsMultimaster = flex.ExpandBoolPointer(m.IsMultimaster)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
