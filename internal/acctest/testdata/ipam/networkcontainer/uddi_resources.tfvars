@@ -1076,14 +1076,34 @@ case "tags" {
 
 }
 
-case "next_available_id" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "helper declares 2 'bloxone_ipam_address_block' resource blocks with no single func_call target (ambiguous which is the resource under test)"
-}
+case "next_available_network" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_networkcontainer" "alloc_parent" {
+    uddi = {
+      address = "{{random_ipv4_network}}"
+      cidr    = 16
+      name    = "{{random}}"
+      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    }
+  }
+  PREREQ
 
-case "next_available_id_count" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "helper declares 2 'bloxone_ipam_address_block' resource blocks with no single func_call target (ambiguous which is the resource under test)"
+  step {
+    uddi {
+      dynamic_allocation = {
+        next_available_id = infoblox_networkcontainer.alloc_parent.id
+      }
+      cidr    = 24
+      comment = "Created by Dynamic Allocation"
+      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    }
+    depends_on = [infoblox_networkcontainer.alloc_parent]
+    check = {
+      "uddi.cidr"    = "24"
+      "uddi.comment" = "Created by Dynamic Allocation"
+    }
+  }
+
 }

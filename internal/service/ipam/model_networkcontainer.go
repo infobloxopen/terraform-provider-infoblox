@@ -1181,6 +1181,7 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.PxeLeaseTime = flex.FlattenInt64Pointer(from.PxeLeaseTime)
 	m.RecycleLeases = flex.FlattenBoolPointer(from.RecycleLeases)
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
+	m.RirRegistrationAction = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationAction)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
 	m.SubscribeSettings = FlattenNetworkcontainerSubscribeSettings(ctx, from.SubscribeSettings, diags)

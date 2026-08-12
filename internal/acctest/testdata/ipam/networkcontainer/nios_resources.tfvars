@@ -1717,58 +1717,33 @@ case "mapped_ea_attributes" {
 
 }
 
-# case "remove_subnets_true" {
-#   backend               = "nios"
-#   expect_non_empty_plan = true
-#   parallel              = true
-#   prerequisites_hcl     = <<-PREREQ
-#   resource "infoblox_network" "child1" {
-#     nios = {
-#       network = "10.20.1.0/24"
-#     }
-#   }
-#   resource "infoblox_network" "child2" {
-#     nios = {
-#       network = "10.20.2.0/24"
-#     }
-#   }
-#   PREREQ
 
-#   step {
-#     nios {
-#       network = "10.20.0.0/16"
-#     }
-#     check = {
-#       "nios.network" = "10.20.0.0/16"
-#     }
-#   }
+case "next_available_network" {
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_networkcontainer" "alloc_parent" {
+    nios = {
+      network      = "10.{{random_octet}}.0.0/16"
+      network_view = "default"
+    }
+  }
+  PREREQ
 
-# }
+  step {
+    nios {
+      dynamic_allocation = {
+        network      = infoblox_networkcontainer.alloc_parent.nios.network
+        network_view = "default"
+        cidr         = 24
+      }
+      comment = "Created by Dynamic Allocation"
+    }
+    depends_on = [infoblox_networkcontainer.alloc_parent]
+    check = {
+      "nios.comment"      = "Created by Dynamic Allocation"
+      "nios.network_view" = "default"
+    }
+  }
 
-# case "remove_subnets_false" {
-#   backend               = "nios"
-#   expect_non_empty_plan = true
-#   parallel              = true
-#   prerequisites_hcl     = <<-PREREQ
-#   resource "infoblox_network" "child1" {
-#     nios = {
-#       network = "10.21.1.0/24"
-#     }
-#   }
-#   resource "infoblox_network" "child2" {
-#     nios = {
-#       network = "10.21.2.0/24"
-#     }
-#   }
-#   PREREQ
-
-#   step {
-#     nios {
-#       network = "10.21.0.0/16"
-#     }
-#     check = {
-#       "nios.network" = "10.21.0.0/16"
-#     }
-#   }
-
-# }
+}

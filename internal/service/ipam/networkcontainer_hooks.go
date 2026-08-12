@@ -164,4 +164,7 @@ func PostFlattenNetworkcontainerNIOS(ctx context.Context, planned, flattened *NI
 			flattened.Options = reordered.(basetypes.ListValue)
 		}
 	}
+	if !planned.RirRegistrationAction.IsUnknown() {
+		flattened.RirRegistrationAction = planned.RirRegistrationAction
+	}
 }
