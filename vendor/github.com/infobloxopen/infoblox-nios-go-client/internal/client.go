@@ -127,6 +127,10 @@ func NewAPIClient(basePath string, cfg *Configuration) *APIClient {
 		TLSClientConfig: tlsConfig,
 	}
 
+	if cfg.ProxyURL != nil {
+		baseTransport.Proxy = http.ProxyURL(cfg.ProxyURL)
+	}
+
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
 		log.Printf("Error creating cookie jar: %v", err)

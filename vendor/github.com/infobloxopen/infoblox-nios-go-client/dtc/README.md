@@ -169,6 +169,7 @@ Class | Method | HTTP request | Description
 *DtcTopologyAPI* | [**Update**](docs/DtcTopologyAPI.md#update) | **Put** /dtc:topology/{reference} | Update a dtc:topology object
 *DtcTopologyLabelAPI* | [**List**](docs/DtcTopologyLabelAPI.md#list) | **Get** /dtc:topology:label | Retrieve dtc:topology:label objects
 *DtcTopologyLabelAPI* | [**Read**](docs/DtcTopologyLabelAPI.md#read) | **Get** /dtc:topology:label/{reference} | Get a specific dtc:topology:label object
+*DtcTopologyRuleAPI* | [**Create**](docs/DtcTopologyRuleAPI.md#create) | **Post** /dtc:topology:rule | Create a dtc:topology:rule object
 *DtcTopologyRuleAPI* | [**List**](docs/DtcTopologyRuleAPI.md#list) | **Get** /dtc:topology:rule | Retrieve dtc:topology:rule objects
 *DtcTopologyRuleAPI* | [**Read**](docs/DtcTopologyRuleAPI.md#read) | **Get** /dtc:topology:rule/{reference} | Get a specific dtc:topology:rule object
 *DtcTopologyRuleAPI* | [**Update**](docs/DtcTopologyRuleAPI.md#update) | **Put** /dtc:topology:rule/{reference} | Update a dtc:topology:rule object
@@ -206,6 +207,8 @@ Class | Method | HTTP request | Description
  - [CreateDtcServerResponseAsObject](docs/CreateDtcServerResponseAsObject.md)
  - [CreateDtcTopologyResponse](docs/CreateDtcTopologyResponse.md)
  - [CreateDtcTopologyResponseAsObject](docs/CreateDtcTopologyResponseAsObject.md)
+ - [CreateDtcTopologyRuleResponse](docs/CreateDtcTopologyRuleResponse.md)
+ - [CreateDtcTopologyRuleResponseAsObject](docs/CreateDtcTopologyRuleResponseAsObject.md)
  - [Dtc](docs/Dtc.md)
  - [DtcAllrecords](docs/DtcAllrecords.md)
  - [DtcCertificate](docs/DtcCertificate.md)
@@ -238,6 +241,8 @@ Class | Method | HTTP request | Description
  - [DtcTopology](docs/DtcTopology.md)
  - [DtcTopologyLabel](docs/DtcTopologyLabel.md)
  - [DtcTopologyRule](docs/DtcTopologyRule.md)
+ - [DtcTopologyRuleDestinationLink](docs/DtcTopologyRuleDestinationLink.md)
+ - [DtcTopologyRuleDestinationLinkOneOf](docs/DtcTopologyRuleDestinationLinkOneOf.md)
  - [DtcTopologyRuleSources](docs/DtcTopologyRuleSources.md)
  - [DtcTopologyRulesInner](docs/DtcTopologyRulesInner.md)
  - [DtcTopologyRulesInnerOneOf](docs/DtcTopologyRulesInnerOneOf.md)

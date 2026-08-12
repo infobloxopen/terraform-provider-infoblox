@@ -1715,12 +1715,8 @@ func (o Vdiscoverytask) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CredentialsType) {
 		toSerialize["credentials_type"] = o.CredentialsType
 	}
-	if !IsNil(o.DnsViewPrivateIp) {
-		toSerialize["dns_view_private_ip"] = o.DnsViewPrivateIp
-	}
-	if !IsNil(o.DnsViewPublicIp) {
-		toSerialize["dns_view_public_ip"] = o.DnsViewPublicIp
-	}
+	toSerialize["dns_view_private_ip"] = o.DnsViewPrivateIp
+	toSerialize["dns_view_public_ip"] = o.DnsViewPublicIp
 	if !IsNil(o.DomainName) {
 		toSerialize["domain_name"] = o.DomainName
 	}

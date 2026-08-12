@@ -341,6 +341,7 @@ type Ipv6fixedaddresstemplateAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -386,6 +387,12 @@ func (r Ipv6fixedaddresstemplateAPIListRequest) Filters(filters map[string]inter
 
 func (r Ipv6fixedaddresstemplateAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) Ipv6fixedaddresstemplateAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r Ipv6fixedaddresstemplateAPIListRequest) ProxySearch(proxySearch string) Ipv6fixedaddresstemplateAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -454,6 +461,9 @@ func (a *Ipv6fixedaddresstemplateAPIService) ListExecute(r Ipv6fixedaddresstempl
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -508,6 +518,7 @@ type Ipv6fixedaddresstemplateAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -525,6 +536,12 @@ func (r Ipv6fixedaddresstemplateAPIReadRequest) ReturnFieldsPlus(returnFieldsPlu
 // Select 1 if result is required as an object
 func (r Ipv6fixedaddresstemplateAPIReadRequest) ReturnAsObject(returnAsObject int32) Ipv6fixedaddresstemplateAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r Ipv6fixedaddresstemplateAPIReadRequest) ProxySearch(proxySearch string) Ipv6fixedaddresstemplateAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -580,6 +597,9 @@ func (a *Ipv6fixedaddresstemplateAPIService) ReadExecute(r Ipv6fixedaddresstempl
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
