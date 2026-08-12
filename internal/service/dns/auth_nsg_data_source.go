@@ -68,7 +68,7 @@ func (m *AuthNsgDataSourceModel) FlattenResults(ctx context.Context, from []*cor
 
 func (d *AuthNsgDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about existing Infoblox AuthNsg across NIOS and UDDI backends.",
+		MarkdownDescription: "Retrieves information about existing Infoblox AuthNsg from the UDDI backend.",
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",

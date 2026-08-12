@@ -52,7 +52,7 @@ func (r *AuthNsgResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *AuthNsgResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox AuthNsg across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox AuthNsg in the UDDI backend.",
 		Attributes:          AuthNsgResourceSchemaAttributes,
 	}
 }
