@@ -65,6 +65,7 @@ type ThreatprotectionRuletemplateAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -110,6 +111,12 @@ func (r ThreatprotectionRuletemplateAPIListRequest) Filters(filters map[string]i
 
 func (r ThreatprotectionRuletemplateAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) ThreatprotectionRuletemplateAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r ThreatprotectionRuletemplateAPIListRequest) ProxySearch(proxySearch string) ThreatprotectionRuletemplateAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -178,6 +185,9 @@ func (a *ThreatprotectionRuletemplateAPIService) ListExecute(r ThreatprotectionR
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -232,6 +242,7 @@ type ThreatprotectionRuletemplateAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -249,6 +260,12 @@ func (r ThreatprotectionRuletemplateAPIReadRequest) ReturnFieldsPlus(returnField
 // Select 1 if result is required as an object
 func (r ThreatprotectionRuletemplateAPIReadRequest) ReturnAsObject(returnAsObject int32) ThreatprotectionRuletemplateAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r ThreatprotectionRuletemplateAPIReadRequest) ProxySearch(proxySearch string) ThreatprotectionRuletemplateAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -304,6 +321,9 @@ func (a *ThreatprotectionRuletemplateAPIService) ReadExecute(r ThreatprotectionR
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
