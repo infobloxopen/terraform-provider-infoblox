@@ -68,7 +68,7 @@ func (m *RecordCaaDataSourceModel) FlattenResults(ctx context.Context, from []*c
 
 func (d *RecordCaaDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about existing Infoblox RecordCaa across NIOS and UDDI backends.",
+		MarkdownDescription: "Retrieves information about existing Infoblox RecordCaa from both the NIOS and UDDI backends.",
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",

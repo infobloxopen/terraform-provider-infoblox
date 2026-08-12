@@ -3,12 +3,12 @@
 page_title: "infoblox_record_naptr Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox RecordNaptr across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox RecordNaptr from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_naptr (Data Source)
 
-Retrieves information about existing Infoblox RecordNaptr across NIOS and UDDI backends.
+Retrieves information about existing Infoblox RecordNaptr from both the NIOS and UDDI backends.
 
 ## Example Usage
 
