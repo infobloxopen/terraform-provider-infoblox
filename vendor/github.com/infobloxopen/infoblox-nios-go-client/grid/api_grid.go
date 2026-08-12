@@ -23,6 +23,19 @@ import (
 
 type GridAPI interface {
 	/*
+		Create Invoke a grid function.
+
+		Invoke a grid function. Use the '_function' query parameter to specify the function name and include the arguments in the request body
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return GridAPICreateRequest
+	*/
+	Create(ctx context.Context) GridAPICreateRequest
+
+	// CreateExecute executes the request
+	//  @return CreateGridJoinResponse
+	CreateExecute(r GridAPICreateRequest) (*CreateGridJoinResponse, *http.Response, error)
+	/*
 		List Retrieve grid objects
 
 		Returns a list of grid objects matching the search criteria
@@ -68,6 +81,132 @@ type GridAPI interface {
 // GridAPIService GridAPI service
 type GridAPIService internal.Service
 
+type GridAPICreateRequest struct {
+	ctx            context.Context
+	ApiService     GridAPI
+	function       *string
+	gridJoin       *GridJoin
+	returnAsObject *int32
+}
+
+// Function call to execute.
+func (r GridAPICreateRequest) Function(function string) GridAPICreateRequest {
+	r.function = &function
+	return r
+}
+
+// Object data to create
+func (r GridAPICreateRequest) GridJoin(gridJoin GridJoin) GridAPICreateRequest {
+	r.gridJoin = &gridJoin
+	return r
+}
+
+// Select 1 if result is required as an object
+func (r GridAPICreateRequest) ReturnAsObject(returnAsObject int32) GridAPICreateRequest {
+	r.returnAsObject = &returnAsObject
+	return r
+}
+
+func (r GridAPICreateRequest) Execute() (*CreateGridJoinResponse, *http.Response, error) {
+	return r.ApiService.CreateExecute(r)
+}
+
+/*
+Create Invoke a grid function.
+
+Invoke a grid function. Use the '_function' query parameter to specify the function name and include the arguments in the request body
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return GridAPICreateRequest
+*/
+func (a *GridAPIService) Create(ctx context.Context) GridAPICreateRequest {
+	return GridAPICreateRequest{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return CreateGridJoinResponse
+func (a *GridAPIService) CreateExecute(r GridAPICreateRequest) (*CreateGridJoinResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []internal.FormFile
+		localVarReturnValue *CreateGridJoinResponse
+	)
+
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "GridAPIService.Create")
+	if err != nil {
+		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
+	}
+
+	localVarPath := localBasePath + "/grid"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.function == nil {
+		return localVarReturnValue, nil, internal.ReportError("function is required and must be specified")
+	}
+	if r.gridJoin == nil {
+		return localVarReturnValue, nil, internal.ReportError("gridJoin is required and must be specified")
+	}
+
+	if r.returnAsObject != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_function", r.function, "form", "")
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := internal.SelectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.gridJoin
+	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.Client.CallAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.Client.Decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type GridAPIListRequest struct {
 	ctx              context.Context
 	ApiService       GridAPI
@@ -79,6 +218,7 @@ type GridAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +264,12 @@ func (r GridAPIListRequest) Filters(filters map[string]interface{}) GridAPIListR
 
 func (r GridAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) GridAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r GridAPIListRequest) ProxySearch(proxySearch string) GridAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +338,9 @@ func (a *GridAPIService) ListExecute(r GridAPIListRequest) (*ListGridResponse, *
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +395,7 @@ type GridAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +413,12 @@ func (r GridAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus string) GridAPIRea
 // Select 1 if result is required as an object
 func (r GridAPIReadRequest) ReturnAsObject(returnAsObject int32) GridAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r GridAPIReadRequest) ProxySearch(proxySearch string) GridAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +474,9 @@ func (a *GridAPIService) ReadExecute(r GridAPIReadRequest) (*GetGridResponse, *h
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
