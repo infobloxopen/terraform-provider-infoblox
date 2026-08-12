@@ -64,7 +64,6 @@ type UDDIDtcServerModel struct {
 	Disabled                  types.Bool   `tfsdk:"disabled"`
 	EndpointType              types.String `tfsdk:"endpoint_type"`
 	Fqdn                      types.String `tfsdk:"fqdn"`
-	Metadata                  types.Object `tfsdk:"metadata"`
 	Name                      types.String `tfsdk:"name"`
 	Records                   types.List   `tfsdk:"records"`
 	Tags                      types.Map    `tfsdk:"tags"`
@@ -78,7 +77,6 @@ var UDDIDtcServerAttrTypes = map[string]attr.Type{
 	"disabled":                     types.BoolType,
 	"endpoint_type":                types.StringType,
 	"fqdn":                         types.StringType,
-	"metadata":                     types.ObjectType{AttrTypes: MetadataAttrTypes},
 	"name":                         types.StringType,
 	"records":                      types.ListType{ElemType: types.ObjectType{AttrTypes: RecordAttrTypes}},
 	"tags":                         types.MapType{ElemType: types.StringType},
@@ -218,11 +216,6 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "Fully Qualified Domain name of the __Server__. Must be set to a valid FQDN if __endpoint_type__ is set to __fqdn__. Alternatively, it can be left blank.",
 	},
-	"metadata": schema.SingleNestedAttribute{
-		Attributes:          MetadataResourceSchemaAttributes,
-		Computed:            true,
-		MarkdownDescription: "Metadata of a configuration resource.",
-	},
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "Display name of __Server__.",
@@ -308,7 +301,6 @@ func (m *UDDIDtcServerModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		Disabled:                  flex.ExpandBoolPointer(m.Disabled),
 		EndpointType:              flex.ExpandStringPointer(m.EndpointType),
 		Fqdn:                      flex.ExpandStringPointer(m.Fqdn),
-		Metadata:                  ExpandMetadata(ctx, m.Metadata, diags),
 		Name:                      flex.ExpandString(m.Name),
 		Records:                   flex.ExpandFrameworkListNestedBlock(ctx, m.Records, diags, ExpandRecord),
 		Tags:                      flex.ExpandMapStringAny(ctx, m.Tags, diags),
@@ -378,7 +370,6 @@ func (m *UDDIDtcServerModel) Flatten(ctx context.Context, from *coremodel.UDDIDt
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.EndpointType = flex.FlattenStringPointer(from.EndpointType)
 	m.Fqdn = flex.FlattenStringPointer(from.Fqdn)
-	m.Metadata = FlattenMetadata(ctx, from.Metadata, diags)
 	m.Name = flex.FlattenString(from.Name)
 	m.Records = flex.FlattenFrameworkListNestedBlock(ctx, from.Records, RecordAttrTypes, diags, FlattenRecord)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)

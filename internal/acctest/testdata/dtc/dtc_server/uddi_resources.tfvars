@@ -8,7 +8,6 @@ case "basic" {
     uddi {
       name    = "{{random}}"
       address = "{{random_ip}}"
-      endpoint_type = "address"
     }
     check = {
       "uddi.name"          = "{{random}}"
@@ -43,7 +42,6 @@ case "address" {
     uddi {
       name    = "{{random}}"
       address = "{{random_ip}}"
-      endpoint_type = "address"
     }
     check = {
       "uddi.address" = "{{random_ip}}"
@@ -71,7 +69,6 @@ case "auto_create_response_records" {
     uddi {
       name                         = "{{random}}"
       address                      = "{{random_ip}}"
-      endpoint_type                = "address"
       auto_create_response_records = true
     }
     check = {
@@ -167,10 +164,10 @@ case "endpoint_type" {
     uddi {
       name          = "{{random}}"
       fqdn          = "{{random2}}.example.com."
-      endpoint_type = "address"
+      endpoint_type = "fqdn"
     }
     check = {
-      "uddi.endpoint_type" = "address"
+      "uddi.endpoint_type" = "fqdn"
       "uddi.fqdn"          = "{{random2}}.example.com."
     }
   }
