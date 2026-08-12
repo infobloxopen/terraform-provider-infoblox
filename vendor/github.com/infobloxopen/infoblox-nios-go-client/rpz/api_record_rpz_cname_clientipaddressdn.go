@@ -341,6 +341,7 @@ type RecordRpzCnameClientipaddressdnAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -386,6 +387,12 @@ func (r RecordRpzCnameClientipaddressdnAPIListRequest) Filters(filters map[strin
 
 func (r RecordRpzCnameClientipaddressdnAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) RecordRpzCnameClientipaddressdnAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r RecordRpzCnameClientipaddressdnAPIListRequest) ProxySearch(proxySearch string) RecordRpzCnameClientipaddressdnAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -454,6 +461,9 @@ func (a *RecordRpzCnameClientipaddressdnAPIService) ListExecute(r RecordRpzCname
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -508,6 +518,7 @@ type RecordRpzCnameClientipaddressdnAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -525,6 +536,12 @@ func (r RecordRpzCnameClientipaddressdnAPIReadRequest) ReturnFieldsPlus(returnFi
 // Select 1 if result is required as an object
 func (r RecordRpzCnameClientipaddressdnAPIReadRequest) ReturnAsObject(returnAsObject int32) RecordRpzCnameClientipaddressdnAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r RecordRpzCnameClientipaddressdnAPIReadRequest) ProxySearch(proxySearch string) RecordRpzCnameClientipaddressdnAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -580,6 +597,9 @@ func (a *RecordRpzCnameClientipaddressdnAPIService) ReadExecute(r RecordRpzCname
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

@@ -276,6 +276,8 @@ Class | Method | HTTP request | Description
  - [Search](docs/Search.md)
  - [SyslogEndpoint](docs/SyslogEndpoint.md)
  - [SyslogEndpointSyslogServers](docs/SyslogEndpointSyslogServers.md)
+ - [SyslogEndpointSyslogServersCertificate](docs/SyslogEndpointSyslogServersCertificate.md)
+ - [SyslogEndpointSyslogServersCertificateOneOf](docs/SyslogEndpointSyslogServersCertificateOneOf.md)
  - [SyslogEndpointTemplateInstance](docs/SyslogEndpointTemplateInstance.md)
  - [SyslogendpointtemplateinstanceParameters](docs/SyslogendpointtemplateinstanceParameters.md)
  - [Taxii](docs/Taxii.md)

@@ -22,9 +22,8 @@ type DtcTopologyRule struct {
 	// The reference to the object.
 	Ref *string `json:"_ref,omitempty"`
 	// The type of the destination for this DTC Topology rule.
-	DestType *string `json:"dest_type,omitempty"`
-	// The reference to the destination DTC pool or DTC server.
-	DestinationLink *string `json:"destination_link,omitempty"`
+	DestType        *string                         `json:"dest_type,omitempty"`
+	DestinationLink *DtcTopologyRuleDestinationLink `json:"destination_link,omitempty"`
 	// Type of the DNS response for rule.
 	ReturnType *string `json:"return_type,omitempty"`
 	// The conditions for matching sources. Should be empty to set rule as default destination.
@@ -117,9 +116,9 @@ func (o *DtcTopologyRule) SetDestType(v string) {
 }
 
 // GetDestinationLink returns the DestinationLink field value if set, zero value otherwise.
-func (o *DtcTopologyRule) GetDestinationLink() string {
+func (o *DtcTopologyRule) GetDestinationLink() DtcTopologyRuleDestinationLink {
 	if o == nil || IsNil(o.DestinationLink) {
-		var ret string
+		var ret DtcTopologyRuleDestinationLink
 		return ret
 	}
 	return *o.DestinationLink
@@ -127,7 +126,7 @@ func (o *DtcTopologyRule) GetDestinationLink() string {
 
 // GetDestinationLinkOk returns a tuple with the DestinationLink field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *DtcTopologyRule) GetDestinationLinkOk() (*string, bool) {
+func (o *DtcTopologyRule) GetDestinationLinkOk() (*DtcTopologyRuleDestinationLink, bool) {
 	if o == nil || IsNil(o.DestinationLink) {
 		return nil, false
 	}
@@ -143,8 +142,8 @@ func (o *DtcTopologyRule) HasDestinationLink() bool {
 	return false
 }
 
-// SetDestinationLink gets a reference to the given string and assigns it to the DestinationLink field.
-func (o *DtcTopologyRule) SetDestinationLink(v string) {
+// SetDestinationLink gets a reference to the given DtcTopologyRuleDestinationLink and assigns it to the DestinationLink field.
+func (o *DtcTopologyRule) SetDestinationLink(v DtcTopologyRuleDestinationLink) {
 	o.DestinationLink = &v
 }
 

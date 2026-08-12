@@ -79,6 +79,7 @@ type MemberThreatprotectionAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +125,12 @@ func (r MemberThreatprotectionAPIListRequest) Filters(filters map[string]interfa
 
 func (r MemberThreatprotectionAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) MemberThreatprotectionAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r MemberThreatprotectionAPIListRequest) ProxySearch(proxySearch string) MemberThreatprotectionAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +199,9 @@ func (a *MemberThreatprotectionAPIService) ListExecute(r MemberThreatprotectionA
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +256,7 @@ type MemberThreatprotectionAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +274,12 @@ func (r MemberThreatprotectionAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus 
 // Select 1 if result is required as an object
 func (r MemberThreatprotectionAPIReadRequest) ReturnAsObject(returnAsObject int32) MemberThreatprotectionAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r MemberThreatprotectionAPIReadRequest) ProxySearch(proxySearch string) MemberThreatprotectionAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +335,9 @@ func (a *MemberThreatprotectionAPIService) ReadExecute(r MemberThreatprotectionA
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
