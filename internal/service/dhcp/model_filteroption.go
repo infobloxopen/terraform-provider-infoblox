@@ -177,6 +177,7 @@ var FilteroptionResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"lease_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Determines the lease time of a DHCP filter option object.",
 	},
 	"name": schema.StringAttribute{
@@ -216,6 +217,7 @@ var FilteroptionResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"pxe_lease_time": schema.Int64Attribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Between(0, 2147483647),
 		},
@@ -279,7 +281,7 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"rules": schema.SingleNestedAttribute{
 		Attributes:          OptionFilterRuleListResourceSchemaAttributes,
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "An __OptionFilterRuleList__ object (_dhcp/option_filter_rule_list_) represents a collection of DHCP option filter rules that supports matching all or any rules.",
 	},
 	"tags": schema.MapAttribute{
@@ -299,6 +301,7 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"vendor_specific_option_option_space": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 }

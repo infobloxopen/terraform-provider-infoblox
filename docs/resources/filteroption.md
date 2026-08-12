@@ -165,6 +165,7 @@ Optional:
 Required:
 
 - `name` (String) The name of the option filter. Must contain 1 to 256 characters. Can include UTF-8.
+- `rules` (Attributes) An __OptionFilterRuleList__ object (_dhcp/option_filter_rule_list_) represents a collection of DHCP option filter rules that supports matching all or any rules. (see [below for nested schema](#nestedatt--uddi--rules))
 
 Optional:
 
@@ -176,24 +177,12 @@ Optional:
 - `lease_time` (Number) The lease lifetime duration in seconds.
 - `protocol` (String) The type of protocol of option filter (_ip4_ or _ip6_).
 - `role` (String) The role of DHCP filter (_values_ or _selection_).  Defaults to _values_.
-- `rules` (Attributes) An __OptionFilterRuleList__ object (_dhcp/option_filter_rule_list_) represents a collection of DHCP option filter rules that supports matching all or any rules. (see [below for nested schema](#nestedatt--uddi--rules))
 - `tags` (Map of String) The tags for the option filter in JSON format.
 - `vendor_specific_option_option_space` (String) The resource identifier.
 
 Read-Only:
 
 - `tags_all` (Map of String) All tags including inherited values.
-
-<a id="nestedatt--uddi--dhcp_options"></a>
-### Nested Schema for `uddi.dhcp_options`
-
-Optional:
-
-- `group` (String) The resource identifier.
-- `option_code` (String) The resource identifier.
-- `option_value` (String) The option value.
-- `type` (String) The type of item.  Valid values are: * _group_ * _option_
-
 
 <a id="nestedatt--uddi--rules"></a>
 ### Nested Schema for `uddi.rules`
@@ -212,3 +201,15 @@ Optional:
 - `option_code` (String) The resource identifier.
 - `option_value` (String) The value to match against.
 - `substring_offset` (Number) The offset where the substring match starts. This is used only if comparing the _option_value_ using any of the substring modes.
+
+
+
+<a id="nestedatt--uddi--dhcp_options"></a>
+### Nested Schema for `uddi.dhcp_options`
+
+Optional:
+
+- `group` (String) The resource identifier.
+- `option_code` (String) The resource identifier.
+- `option_value` (String) The option value.
+- `type` (String) The type of item.  Valid values are: * _group_ * _option_
