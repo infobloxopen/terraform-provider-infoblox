@@ -3,12 +3,12 @@
 page_title: "infoblox_record_ns Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox RecordNs across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox RecordNs from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_ns (Data Source)
 
-Retrieves information about existing Infoblox RecordNs across NIOS and UDDI backends.
+Retrieves information about existing Infoblox RecordNs from both the NIOS and UDDI backends.
 
 ## Example Usage
 

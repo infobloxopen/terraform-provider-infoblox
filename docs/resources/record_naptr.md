@@ -3,12 +3,12 @@
 page_title: "infoblox_record_naptr Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordNaptr across NIOS and UDDI backends.
+  Manages an Infoblox RecordNaptr in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_naptr (Resource)
 
-Manages an Infoblox RecordNaptr across NIOS and UDDI backends.
+Manages an Infoblox RecordNaptr in both NIOS and UDDI backends.
 
 ## Example Usage
 

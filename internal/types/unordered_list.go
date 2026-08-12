@@ -11,89 +11,65 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
-var (
-	_ basetypes.ListTypable = (*UnorderedListStringType)(nil)
-)
+var UnorderedListOfStringType = UnorderedList{basetypes.ListType{ElemType: basetypes.StringType{}}}
 
-// UnorderedListStringType is a custom list type whose elements are strings and
-// whose element order is not significant. The zero value (UnorderedListStringType{})
-// is fully usable because the element type is fixed to basetypes.StringType.
-type UnorderedListStringType struct {
+var _ basetypes.ListValuableWithSemanticEquals = UnorderedListValue{}
+var _ basetypes.ListTypable = UnorderedList{}
+
+// UnorderedList is a type representing a list of values where the order of the elements is not significant.
+type UnorderedList struct {
 	basetypes.ListType
 }
 
-// String returns a human-friendly name for the type.
-func (t UnorderedListStringType) String() string {
-	return "types.UnorderedListStringType"
-}
+func (t UnorderedList) Equal(o attr.Type) bool {
+	other, ok := o.(UnorderedList)
 
-// ElementType returns the fixed element type (string).
-func (t UnorderedListStringType) ElementType() attr.Type {
-	return basetypes.StringType{}
-}
-
-// WithElementType returns the type unchanged; the element type is fixed to string.
-func (t UnorderedListStringType) WithElementType(attr.Type) attr.TypeWithElementType {
-	return t
-}
-
-// TerraformType returns the tftypes.Type for this type.
-func (t UnorderedListStringType) TerraformType(ctx context.Context) tftypes.Type {
-	return basetypes.ListType{ElemType: basetypes.StringType{}}.TerraformType(ctx)
-}
-
-// Equal returns true if the given type is also an UnorderedListStringType.
-func (t UnorderedListStringType) Equal(o attr.Type) bool {
-	_, ok := o.(UnorderedListStringType)
-	return ok
-}
-
-// ApplyTerraform5AttributePathStep applies the given path step.
-func (t UnorderedListStringType) ApplyTerraform5AttributePathStep(step tftypes.AttributePathStep) (any, error) {
-	return basetypes.ListType{ElemType: basetypes.StringType{}}.ApplyTerraform5AttributePathStep(step)
-}
-
-// ValueType returns the Value type.
-func (t UnorderedListStringType) ValueType(_ context.Context) attr.Value {
-	return UnorderedListString{
-		ListValue: basetypes.NewListNull(basetypes.StringType{}),
+	if !ok {
+		return false
 	}
+
+	return t.ListType.Equal(other.ListType)
 }
 
-// ValueFromList converts a ListValue to an UnorderedListString.
-func (t UnorderedListStringType) ValueFromList(_ context.Context, in basetypes.ListValue) (basetypes.ListValuable, diag.Diagnostics) {
+func (UnorderedList) String() string {
+	return "UnorderedList"
+}
+
+func (t UnorderedList) ValueFromList(ctx context.Context, in basetypes.ListValue) (basetypes.ListValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	if in.IsNull() {
-		return NewUnorderedListStringValueNull(), diags
+		return NewUnorderedListValueNull(t.ElemType), diags
 	}
 
 	if in.IsUnknown() {
-		return NewUnorderedListStringValueUnknown(), diags
+		return NewUnorderedListValueUnknown(t.ElemType), diags
 	}
 
-	v, d := basetypes.NewListValue(basetypes.StringType{}, in.Elements())
+	v, d := basetypes.NewListValue(t.ElemType, in.Elements())
 	diags.Append(d...)
 	if diags.HasError() {
-		return NewUnorderedListStringValueUnknown(), diags
+		return NewUnorderedListValueUnknown(t.ElemType), diags
 	}
 
-	return UnorderedListString{ListValue: v}, diags
+	return UnorderedListValue{ListValue: v}, diags
 }
 
-// ValueFromTerraform converts a tftypes.Value to an attr.Value.
-func (t UnorderedListStringType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	attrValue, err := basetypes.ListType{ElemType: basetypes.StringType{}}.ValueFromTerraform(ctx, in)
+func (t UnorderedList) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	attrValue, err := t.ListType.ValueFromTerraform(ctx, in)
+
 	if err != nil {
 		return nil, err
 	}
 
 	listValue, ok := attrValue.(basetypes.ListValue)
+
 	if !ok {
 		return nil, fmt.Errorf("unexpected value type of %T", attrValue)
 	}
 
 	listValuable, diags := t.ValueFromList(ctx, listValue)
+
 	if diags.HasError() {
 		return nil, fmt.Errorf("unexpected error converting ListValue to ListValuable: %v", diags)
 	}
@@ -101,37 +77,24 @@ func (t UnorderedListStringType) ValueFromTerraform(ctx context.Context, in tfty
 	return listValuable, nil
 }
 
-var (
-	_ basetypes.ListValuable                   = (*UnorderedListString)(nil)
-	_ basetypes.ListValuableWithSemanticEquals = (*UnorderedListString)(nil)
-)
+func (t UnorderedList) ValueType(ctx context.Context) attr.Value {
+	return UnorderedListValue{
+		ListValue: t.ListType.ValueType(ctx).(basetypes.ListValue),
+	}
+}
 
-// UnorderedListString is the value type for UnorderedListStringType.
-type UnorderedListString struct {
+func NewUnorderedList(elemType attr.Type) UnorderedList {
+	return UnorderedList{basetypes.ListType{ElemType: elemType}}
+}
+
+type UnorderedListValue struct {
 	basetypes.ListValue
 }
 
-// Type returns an UnorderedListStringType.
-func (v UnorderedListString) Type(_ context.Context) attr.Type {
-	return UnorderedListStringType{}
-}
-
-// Equal returns true if the given value is an equivalent UnorderedListString.
-func (v UnorderedListString) Equal(o attr.Value) bool {
-	other, ok := o.(UnorderedListString)
-	if !ok {
-		return false
-	}
-
-	return v.ListValue.Equal(other.ListValue)
-}
-
-// ListSemanticEquals returns true if both lists contain the same elements,
-// regardless of their order.
-func (v UnorderedListString) ListSemanticEquals(ctx context.Context, newValuable basetypes.ListValuable) (bool, diag.Diagnostics) {
+func (v UnorderedListValue) ListSemanticEquals(ctx context.Context, newValuable basetypes.ListValuable) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	newValue, ok := newValuable.(UnorderedListString)
+	newValue, ok := newValuable.(UnorderedListValue)
 	if !ok {
 		return false, diags
 	}
@@ -171,38 +134,47 @@ func (v UnorderedListString) ListSemanticEquals(ctx context.Context, newValuable
 	return len(oldElems) == 0, diags
 }
 
-// NewUnorderedListStringValueNull creates a null UnorderedListString.
-func NewUnorderedListStringValueNull() UnorderedListString {
-	return UnorderedListString{ListValue: basetypes.NewListNull(basetypes.StringType{})}
-}
+func (v UnorderedListValue) Equal(o attr.Value) bool {
+	other, ok := o.(UnorderedListValue)
 
-// NewUnorderedListStringValueUnknown creates an unknown UnorderedListString.
-func NewUnorderedListStringValueUnknown() UnorderedListString {
-	return UnorderedListString{ListValue: basetypes.NewListUnknown(basetypes.StringType{})}
-}
-
-// NewUnorderedListStringValue creates an UnorderedListString from string-typed elements.
-func NewUnorderedListStringValue(elements []attr.Value) (UnorderedListString, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	v, d := basetypes.NewListValue(basetypes.StringType{}, elements)
-	diags.Append(d...)
-	if diags.HasError() {
-		return NewUnorderedListStringValueUnknown(), diags
+	if !ok {
+		return false
 	}
 
-	return UnorderedListString{ListValue: v}, diags
+	return v.ListValue.Equal(other.ListValue)
 }
 
-// NewUnorderedListStringValueFrom creates an UnorderedListString from a Go value (e.g. []string).
-func NewUnorderedListStringValueFrom(ctx context.Context, elements any) (UnorderedListString, diag.Diagnostics) {
+func (v UnorderedListValue) Type(ctx context.Context) attr.Type {
+	return NewUnorderedList(v.ElementType(ctx))
+}
+
+func NewUnorderedListValueNull(elemType attr.Type) UnorderedListValue {
+	return UnorderedListValue{ListValue: basetypes.NewListNull(elemType)}
+}
+
+func NewUnorderedListValueUnknown(elemType attr.Type) UnorderedListValue {
+	return UnorderedListValue{ListValue: basetypes.NewListUnknown(elemType)}
+}
+func NewUnorderedListValue(elemType attr.Type, elements []attr.Value) (UnorderedListValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	v, d := basetypes.NewListValueFrom(ctx, basetypes.StringType{}, elements)
+	v, d := basetypes.NewListValue(elemType, elements)
 	diags.Append(d...)
 	if diags.HasError() {
-		return NewUnorderedListStringValueUnknown(), diags
+		return NewUnorderedListValueUnknown(elemType), diags
 	}
 
-	return UnorderedListString{ListValue: v}, diags
+	return UnorderedListValue{ListValue: v}, diags
+}
+
+func NewUnorderedListValueFrom(ctx context.Context, elemType attr.Type, elements any) (UnorderedListValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	v, d := basetypes.NewListValueFrom(ctx, elemType, elements)
+	diags.Append(d...)
+	if diags.HasError() {
+		return NewUnorderedListValueUnknown(elemType), diags
+	}
+
+	return UnorderedListValue{ListValue: v}, diags
 }

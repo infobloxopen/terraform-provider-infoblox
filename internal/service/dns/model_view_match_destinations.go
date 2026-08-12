@@ -45,11 +45,11 @@ var ViewMatchDestinationsAttrTypes = map[string]attr.Type{
 // ViewMatchDestinationsResourceSchemaAttributes contains the schema attributes for ViewMatchDestinationsModel
 var ViewMatchDestinationsResourceSchemaAttributes = map[string]schema.Attribute{
 	"struct": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.OneOf("addressac", "tsigac"),
 		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The struct type of the object. The value must be one of 'addressac' and 'tsigac'.",
 	},
 	"ref": schema.StringAttribute{
