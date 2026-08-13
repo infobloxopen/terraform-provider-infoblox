@@ -3,12 +3,12 @@
 page_title: "infoblox_view List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox View from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox View from both the NIOS and UDDI backends.
 ---
 
 # infoblox_view (List Resource)
 
-Retrieves a list of Infoblox View from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox View from both the NIOS and UDDI backends.
 
 ## Example Usage
 
