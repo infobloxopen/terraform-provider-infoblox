@@ -41,10 +41,12 @@ var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attr
 			stringvalidator.OneOf("MONITOR", "ROUND_TRIP_DELAY"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The method of the DTC dynamic ratio load balancing.",
 	},
 	"monitor": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -52,6 +54,7 @@ var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attr
 	},
 	"monitor_metric": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -62,10 +65,12 @@ var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attr
 			stringvalidator.OneOf("PRIORITY", "RATIO"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The DTC monitor weight. 'PRIORITY' means that all clients will be forwarded to the least loaded server. 'RATIO' means that distribution will be calculated based on dynamic weights.",
 	},
 	"invert_monitor_metric": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Determines whether the inverted values of the DTC SNMP monitor metric will be used.",
 	},
 }

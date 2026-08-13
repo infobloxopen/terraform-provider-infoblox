@@ -298,31 +298,17 @@ case "lb_preferred_topology" {
 case "monitors" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dtc_monitor_http_unknown" "test_http_monitor1" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_dtc_monitor_snmp_unknown" "test_snmp_monitor1" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_dtc_monitor_icmp_unknown" "test_icmp_monitor1" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
+      monitors = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http","dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
     }
     check = {
       "nios.monitors.#" = "2"
+      "nios.monitors.0" = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"
+      "nios.monitors.1" = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"
     }
   }
 
@@ -330,9 +316,13 @@ case "monitors" {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
+      monitors = ["dtc:monitor:pdp/ZG5zLmlkbnNfbW9uaXRvcl9wZHAkcGRw:pdp"]
     }
   }
-
+  check = {
+      "nios.monitors.#" = "1"
+      "nios.monitors.0" = "dtc:monitor:pdp/ZG5zLmlkbnNfbW9uaXRvcl9wZHAkcGRw:pdp"
+  }
 }
 
 case "name" {
@@ -398,9 +388,32 @@ case "quorum" {
 }
 
 case "servers" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolServers' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                = "{{random}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+    }
+    check = {
+      "nios.servers.0.ratio" = "1"
+      "nios.servers.1.ratio" = "2"
+    }
+  }
+
+  step {
+    nios {
+      name                = "{{random}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }]
+    }
+    check = {
+      "nios.servers.0.ratio" = "1"
+    }
+  }
+
 }
 
 case "ttl" {
