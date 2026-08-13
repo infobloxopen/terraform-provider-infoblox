@@ -125,6 +125,8 @@ case "comment" {
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: config helper 'testAccDtcPoolConsolidatedMonitors' could not be parsed (no resource block found)
 case "consolidated_monitors" {
   backend     = "nios"
   skip        = true
@@ -187,12 +189,16 @@ case "ext_attrs" {
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: config helper 'testAccDtcPoolLbAlternateMethod' could not be parsed (no resource block found)
 case "lb_alternate_method" {
   backend     = "nios"
   skip        = true
   skip_reason = "config helper 'testAccDtcPoolLbAlternateMethod' could not be parsed (no resource block found)"
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: config helper 'testAccDtcPoolLbAlternateTopology' could not be parsed (no resource block found)
 case "lb_alternate_topology" {
   backend     = "nios"
   skip        = true
@@ -200,15 +206,81 @@ case "lb_alternate_topology" {
 }
 
 case "lb_dynamic_ratio_alternate" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolLbDynamicRatioAlternate' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                       = "{{random}}"
+      lb_preferred_method        = "ROUND_ROBIN"
+      lb_alternate_method        = "DYNAMIC_RATIO"
+      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      lb_dynamic_ratio_alternate = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
+    }
+    check = {
+      "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
+      "nios.lb_dynamic_ratio_alternate.method"                = "ROUND_TRIP_DELAY"
+      "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".0"
+      "nios.lb_dynamic_ratio_alternate.monitor_weighing"      = "RATIO"
+      "nios.lb_dynamic_ratio_alternate.invert_monitor_metric" = "false"
+    }
+  }
+
+  step {
+    nios {
+      name                       = "{{random}}"
+      lb_preferred_method        = "ROUND_ROBIN"
+      lb_alternate_method        = "DYNAMIC_RATIO"
+      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      lb_dynamic_ratio_alternate = { method = "MONITOR", monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = false }
+    }
+    check = {
+      "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
+      "nios.lb_dynamic_ratio_alternate.method"                = "MONITOR"
+      "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".2"
+      "nios.lb_dynamic_ratio_alternate.monitor_weighing"      = "RATIO"
+      "nios.lb_dynamic_ratio_alternate.invert_monitor_metric" = "false"
+    }
+  }
+
 }
 
 case "lb_dynamic_ratio_preferred" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolLbDynamicRatioPreferred' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                       = "{{random}}"
+      lb_preferred_method        = "DYNAMIC_RATIO"
+      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
+    }
+    check = {
+      "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
+      "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
+      "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".0"
+      "nios.lb_dynamic_ratio_preferred.monitor_weighing"      = "RATIO"
+      "nios.lb_dynamic_ratio_preferred.invert_monitor_metric" = "false"
+    }
+  }
+
+  step {
+    nios {
+      name                       = "{{random}}"
+      lb_preferred_method        = "DYNAMIC_RATIO"
+      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = true }
+    }
+    check = {
+      "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
+      "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
+      "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".2"
+      "nios.lb_dynamic_ratio_preferred.monitor_weighing"      = "RATIO"
+      "nios.lb_dynamic_ratio_preferred.invert_monitor_metric" = "true"
+    }
+  }
+
 }
 
 case "lb_preferred_method" {
@@ -289,6 +361,8 @@ case "lb_preferred_method_ratio" {
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: config helper 'testAccDtcPoolLbPreferredTopology' could not be parsed (no resource block found)
 case "lb_preferred_topology" {
   backend     = "nios"
   skip        = true
@@ -307,8 +381,6 @@ case "monitors" {
     }
     check = {
       "nios.monitors.#" = "2"
-      "nios.monitors.0" = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"
-      "nios.monitors.1" = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"
     }
   }
 
@@ -373,6 +445,7 @@ case "quorum" {
       lb_preferred_method = "ROUND_ROBIN"
       quorum              = 1
       availability        = "QUORUM"
+      monitors            = ["${nios_dtc_monitor_http.test_http_monitor1.ref}", "${nios_dtc_monitor_snmp.test_snmp_monitor1.ref}"]
     }
   }
 
@@ -382,11 +455,14 @@ case "quorum" {
       lb_preferred_method = "ROUND_ROBIN"
       quorum              = 2
       availability        = "QUORUM"
+      monitors            = ["${nios_dtc_monitor_http.test_http_monitor1.ref}", "${nios_dtc_monitor_snmp.test_snmp_monitor1.ref}"]
     }
   }
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: config helper 'testAccDtcPoolServers' could not be parsed (no resource block found)
 case "servers" {
   backend  = "nios"
   parallel = true
