@@ -54,7 +54,7 @@ func (r *NsgroupResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *NsgroupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Nsgroup across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox Nsgroup in the NIOS backend.",
 		Attributes:          NsgroupResourceSchemaAttributes,
 	}
 }

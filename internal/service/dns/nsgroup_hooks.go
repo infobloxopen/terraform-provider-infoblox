@@ -12,14 +12,6 @@ import (
 
 // ValidateNsgroup validates the Nsgroup configuration.
 func ValidateNsgroup(ctx context.Context, data NsgroupModel, resp *resource.ValidateConfigResponse) {
-	// Nsgroup is a NIOS-only object, so the 'nios' block is always required.
-	if data.NIOS.IsNull() {
-		resp.Diagnostics.AddError(
-			"Missing Required Block",
-			"The 'nios' block is required when using the NIOS backend. Use 'nios = {}' if no attributes needed.",
-		)
-		return
-	}
 
 	if nios := flex.ExpandNestedObject[NIOSNsgroupModel](ctx, data.NIOS, &resp.Diagnostics); nios != nil {
 		validateNsgroupNIOSConfig(ctx, nios, resp)

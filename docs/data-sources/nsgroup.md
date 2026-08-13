@@ -3,12 +3,12 @@
 page_title: "infoblox_nsgroup Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox Nsgroup across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox Nsgroup from the NIOS backend.
 ---
 
 # infoblox_nsgroup (Data Source)
 
-Retrieves information about existing Infoblox Nsgroup across NIOS and UDDI backends.
+Retrieves information about existing Infoblox Nsgroup from the NIOS backend.
 
 ## Example Usage
 

@@ -3,12 +3,12 @@
 page_title: "infoblox_nsgroup List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox Nsgroup from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox Nsgroup from the NIOS backend.
 ---
 
 # infoblox_nsgroup (List Resource)
 
-Retrieves a list of Infoblox Nsgroup from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox Nsgroup from the NIOS backend.
 
 ## Example Usage
 

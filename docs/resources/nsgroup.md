@@ -3,12 +3,12 @@
 page_title: "infoblox_nsgroup Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox Nsgroup across NIOS and UDDI backends.
+  Manages an Infoblox Nsgroup in the NIOS backend.
 ---
 
 # infoblox_nsgroup (Resource)
 
-Manages an Infoblox Nsgroup across NIOS and UDDI backends.
+Manages an Infoblox Nsgroup in the NIOS backend.
 
 ## Example Usage
 
