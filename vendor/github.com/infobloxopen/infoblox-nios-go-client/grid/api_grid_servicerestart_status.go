@@ -65,6 +65,7 @@ type GridServicerestartStatusAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -110,6 +111,12 @@ func (r GridServicerestartStatusAPIListRequest) Filters(filters map[string]inter
 
 func (r GridServicerestartStatusAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) GridServicerestartStatusAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r GridServicerestartStatusAPIListRequest) ProxySearch(proxySearch string) GridServicerestartStatusAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -178,6 +185,9 @@ func (a *GridServicerestartStatusAPIService) ListExecute(r GridServicerestartSta
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -232,6 +242,7 @@ type GridServicerestartStatusAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -249,6 +260,12 @@ func (r GridServicerestartStatusAPIReadRequest) ReturnFieldsPlus(returnFieldsPlu
 // Select 1 if result is required as an object
 func (r GridServicerestartStatusAPIReadRequest) ReturnAsObject(returnAsObject int32) GridServicerestartStatusAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r GridServicerestartStatusAPIReadRequest) ProxySearch(proxySearch string) GridServicerestartStatusAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -304,6 +321,9 @@ func (a *GridServicerestartStatusAPIService) ReadExecute(r GridServicerestartSta
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

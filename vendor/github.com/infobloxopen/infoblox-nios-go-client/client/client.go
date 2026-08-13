@@ -10,7 +10,7 @@ import (
 	"github.com/infobloxopen/infoblox-nios-go-client/federatedrealms"
 	"github.com/infobloxopen/infoblox-nios-go-client/grid"
 	"github.com/infobloxopen/infoblox-nios-go-client/ipam"
-	"github.com/infobloxopen/infoblox-nios-go-client/microsoftserver"
+	"github.com/infobloxopen/infoblox-nios-go-client/microsoft"
 	"github.com/infobloxopen/infoblox-nios-go-client/misc"
 	"github.com/infobloxopen/infoblox-nios-go-client/notification"
 	"github.com/infobloxopen/infoblox-nios-go-client/option"
@@ -34,7 +34,7 @@ type APIClient struct {
 	FederatedRealmsAPI  *federatedrealms.APIClient
 	GridAPI             *grid.APIClient
 	IPAMAPI             *ipam.APIClient
-	MicrosoftServerAPI  *microsoftserver.APIClient
+	MicrosoftAPI        *microsoft.APIClient
 	MiscAPI             *misc.APIClient
 	NotificationAPI     *notification.APIClient
 	ParentalControlAPI  *parentalcontrol.APIClient
@@ -58,7 +58,7 @@ type APIClient struct {
 // - FederatedRealmsAPI
 // - GridAPI
 // - IPAMAPI
-// - MicrosoftServerAPI
+// - MicrosoftAPI
 // - MiscAPI
 // - NotificationAPI
 // - ParentalControlAPI
@@ -87,7 +87,7 @@ func NewAPIClient(options ...option.ClientOption) *APIClient {
 		FederatedRealmsAPI:  federatedrealms.NewAPIClient(options...),
 		GridAPI:             grid.NewAPIClient(options...),
 		IPAMAPI:             ipam.NewAPIClient(options...),
-		MicrosoftServerAPI:  microsoftserver.NewAPIClient(options...),
+		MicrosoftAPI:        microsoft.NewAPIClient(options...),
 		MiscAPI:             misc.NewAPIClient(options...),
 		NotificationAPI:     notification.NewAPIClient(options...),
 		ParentalControlAPI:  parentalcontrol.NewAPIClient(options...),

@@ -3,12 +3,12 @@
 page_title: "infoblox_zone_auth Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox ZoneAuth across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox ZoneAuth from both the NIOS and UDDI backends.
 ---
 
 # infoblox_zone_auth (Data Source)
 
-Retrieves information about existing Infoblox ZoneAuth across NIOS and UDDI backends.
+Retrieves information about existing Infoblox ZoneAuth from both the NIOS and UDDI backends.
 
 ## Example Usage
 

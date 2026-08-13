@@ -3,12 +3,12 @@
 page_title: "infoblox_zone_auth List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox ZoneAuth from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox ZoneAuth from both the NIOS and UDDI backends.
 ---
 
 # infoblox_zone_auth (List Resource)
 
-Retrieves a list of Infoblox ZoneAuth from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox ZoneAuth from both the NIOS and UDDI backends.
 
 ## Example Usage
 

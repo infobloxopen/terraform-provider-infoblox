@@ -79,6 +79,7 @@ type DiscoveryDiagnostictaskAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +125,12 @@ func (r DiscoveryDiagnostictaskAPIListRequest) Filters(filters map[string]interf
 
 func (r DiscoveryDiagnostictaskAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) DiscoveryDiagnostictaskAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r DiscoveryDiagnostictaskAPIListRequest) ProxySearch(proxySearch string) DiscoveryDiagnostictaskAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +199,9 @@ func (a *DiscoveryDiagnostictaskAPIService) ListExecute(r DiscoveryDiagnostictas
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +256,7 @@ type DiscoveryDiagnostictaskAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +274,12 @@ func (r DiscoveryDiagnostictaskAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus
 // Select 1 if result is required as an object
 func (r DiscoveryDiagnostictaskAPIReadRequest) ReturnAsObject(returnAsObject int32) DiscoveryDiagnostictaskAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r DiscoveryDiagnostictaskAPIReadRequest) ProxySearch(proxySearch string) DiscoveryDiagnostictaskAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +335,9 @@ func (a *DiscoveryDiagnostictaskAPIService) ReadExecute(r DiscoveryDiagnostictas
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
