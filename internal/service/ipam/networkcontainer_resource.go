@@ -55,7 +55,7 @@ func (r *NetworkcontainerResource) IdentitySchema(_ context.Context, _ resource.
 
 func (r *NetworkcontainerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Networkcontainer across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox Networkcontainer in both NIOS and UDDI backends.",
 		Attributes:          NetworkcontainerResourceSchemaAttributes,
 	}
 }

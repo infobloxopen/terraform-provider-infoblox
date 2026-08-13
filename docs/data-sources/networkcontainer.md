@@ -3,12 +3,12 @@
 page_title: "infoblox_networkcontainer Data Source - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Retrieves information about existing Infoblox Networkcontainer across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox Networkcontainer from both the NIOS and UDDI backends.
 ---
 
 # infoblox_networkcontainer (Data Source)
 
-Retrieves information about existing Infoblox Networkcontainer across NIOS and UDDI backends.
+Retrieves information about existing Infoblox Networkcontainer from both the NIOS and UDDI backends.
 
 ## Example Usage
 

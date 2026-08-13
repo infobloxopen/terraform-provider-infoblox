@@ -3,12 +3,12 @@
 page_title: "infoblox_networkcontainer List Resource - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Retrieves a list of Infoblox Networkcontainer from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox Networkcontainer from both the NIOS and UDDI backends.
 ---
 
 # infoblox_networkcontainer (List Resource)
 
-Retrieves a list of Infoblox Networkcontainer from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox Networkcontainer from both the NIOS and UDDI backends.
 
 ## Example Usage
 
