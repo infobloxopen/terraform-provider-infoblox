@@ -114,8 +114,13 @@ func BuildNetworkFuncCall(ctx context.Context, data types.Object, diags *diag.Di
 
 func PostFlattenNetworkNIOS(ctx context.Context, planned, flattened *NIOSNetworkModel, diags *diag.Diagnostics) {
 	if planned != nil && !planned.Options.IsUnknown() {
-		if reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options); !d.HasError() {
-			flattened.Options = reordered.(basetypes.ListValue)
+		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
+		diags.Append(*d...)
+		if d.HasError() {
+			return
+		}
+		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
+			flattened.Options = reorderedList
 		}
 	}
 }
@@ -183,10 +188,10 @@ func (r *NetworkResource) isNetworkConvertedToContainer(ctx context.Context, dat
 	}
 
 	// Try to fetch as Network container
-	_, _, _, err := r.containerService.List(ctx, &core.ListOptions{
+	records, _, _, err := r.containerService.List(ctx, &core.ListOptions{
 		Filters: map[string]string{
 			"nios.network": nios.Network.ValueString(),
 		},
 	})
-	return err == nil
+	return err == nil && len(records) > 0
 }
