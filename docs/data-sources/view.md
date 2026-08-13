@@ -3,12 +3,12 @@
 page_title: "infoblox_view Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox View across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox View from both the NIOS and UDDI backends.
 ---
 
 # infoblox_view (Data Source)
 
-Retrieves information about existing Infoblox View across NIOS and UDDI backends.
+Retrieves information about existing Infoblox View from both the NIOS and UDDI backends.
 
 ## Example Usage
 

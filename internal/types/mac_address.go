@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
-var _ basetypes.StringValuableWithSemanticEquals = MACAddressValue{}
+var _ basetypes.StringValuableWithSemanticEquals = MACAddress{}
 var _ basetypes.StringTypable = MACAddressType{}
 
 // MACAddressType is a custom type for MAC addresses with semantic equality
@@ -26,7 +26,7 @@ func (t MACAddressType) String() string {
 }
 
 func (t MACAddressType) ValueType(ctx context.Context) attr.Value {
-	return MACAddressValue{}
+	return MACAddress{}
 }
 
 func (t MACAddressType) Equal(o attr.Type) bool {
@@ -38,7 +38,7 @@ func (t MACAddressType) Equal(o attr.Type) bool {
 }
 
 func (t MACAddressType) ValueFromString(_ context.Context, in basetypes.StringValue) (basetypes.StringValuable, diag.Diagnostics) {
-	return MACAddressValue{
+	return MACAddress{
 		StringValue: in,
 	}, nil
 }
@@ -62,27 +62,27 @@ func (t MACAddressType) ValueFromTerraform(ctx context.Context, in tftypes.Value
 	return stringValuable, nil
 }
 
-// MACAddressValue is the value type with semantic equality
-type MACAddressValue struct {
+// MACAddress is the value type with semantic equality
+type MACAddress struct {
 	basetypes.StringValue
 }
 
-func (v MACAddressValue) Type(ctx context.Context) attr.Type {
+func (v MACAddress) Type(ctx context.Context) attr.Type {
 	return MACAddressType{}
 }
 
-func (v MACAddressValue) Equal(o attr.Value) bool {
-	other, ok := o.(MACAddressValue)
+func (v MACAddress) Equal(o attr.Value) bool {
+	other, ok := o.(MACAddress)
 	if !ok {
 		return false
 	}
 	return v.StringValue.Equal(other.StringValue)
 }
 
-func (v MACAddressValue) StringSemanticEquals(ctx context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
+func (v MACAddress) StringSemanticEquals(ctx context.Context, newValuable basetypes.StringValuable) (bool, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	newValue, ok := newValuable.(MACAddressValue)
+	newValue, ok := newValuable.(MACAddress)
 	if !ok {
 		return false, diags
 	}
@@ -122,13 +122,19 @@ func (v MACAddressValue) StringSemanticEquals(ctx context.Context, newValuable b
 	return currentNormalized == newNormalized, diags
 }
 
-func NewMACAddressValue(value string) MACAddressValue {
-	return MACAddressValue{StringValue: basetypes.NewStringValue(value)}
+func NewMACAddressValue(value string) MACAddress {
+	return MACAddress{StringValue: basetypes.NewStringValue(value)}
 }
 
-func NewMACAddressNull() MACAddressValue {
-	return MACAddressValue{
+func NewMACAddressNull() MACAddress {
+	return MACAddress{
 		StringValue: basetypes.NewStringNull(),
+	}
+}
+
+func NewMACAddressUnknown() MACAddress {
+	return MACAddress{
+		StringValue: basetypes.NewStringUnknown(),
 	}
 }
 

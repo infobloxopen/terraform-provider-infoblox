@@ -229,7 +229,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"dynamic_allocation": schema.SingleNestedAttribute{
 		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
+		MarkdownDescription: "Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
 	},
 }
 

@@ -3,10 +3,23 @@ package utils
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+// isSet reports whether v holds a known, non-null value.
+func isSet(v attr.Value) bool {
+	return v != nil && !v.IsNull() && !v.IsUnknown()
+}
+
+// isUnset reports whether v is definitively absent from config. Unknown values
+// (driven by variables or other resources) are never treated as absent, since
+// their final value is not yet knowable at validation time.
+func isUnset(v attr.Value) bool {
+	return v != nil && !v.IsUnknown() && v.IsNull()
+}
 
 // ValidateScheduleConfig validates schedule configuration for various schedule types (blackout_schedule, recurring_schedule, etc.)
 func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, basePath path.Path, diagnostics *diag.Diagnostics) {
@@ -64,11 +77,8 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 	year := schedule["year"]
 
 	// Validate recurring_time conflicts
-	if !recurringTime.IsNull() && !recurringTime.IsUnknown() {
-		if (!hourOfDay.IsNull() && !hourOfDay.IsUnknown()) ||
-			(!year.IsNull() && !year.IsUnknown()) ||
-			(!month.IsNull() && !month.IsUnknown()) ||
-			(!dayOfMonth.IsNull() && !dayOfMonth.IsUnknown()) {
+	if isSet(recurringTime) {
+		if isSet(hourOfDay) || isSet(year) || isSet(month) || isSet(dayOfMonth) {
 			diagnostics.AddAttributeError(
 				schedulePath.AtName("recurring_time"),
 				"Invalid Configuration for "+scheduleAttrName,
@@ -78,7 +88,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 	}
 
 	// Validate repeat field logic
-	if !repeat.IsNull() && !repeat.IsUnknown() {
+	if isSet(repeat) {
 		repeatStr, ok := repeat.(types.String)
 		if !ok {
 			diagnostics.AddAttributeError(
@@ -97,9 +107,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 		switch repeatValue {
 		case "ONCE":
 			// For ONCE: cannot set weekdays, frequency, every
-			if (!weekdays.IsNull() && !weekdays.IsUnknown()) ||
-				(!frequency.IsNull() && !frequency.IsUnknown()) ||
-				(!every.IsNull() && !every.IsUnknown()) {
+			if isSet(weekdays) || isSet(frequency) || isSet(every) {
 				diagnostics.AddAttributeError(
 					schedulePath.AtName("repeat"),
 					"Invalid Configuration for Repeat",
@@ -109,7 +117,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 			}
 
 			// For ONCE: must set month, day_of_month, hour_of_day, minutes_past_hour
-			if month.IsNull() || dayOfMonth.IsNull() || hourOfDay.IsNull() || minutesPastHour.IsNull() {
+			if isUnset(month) || isUnset(dayOfMonth) || isUnset(hourOfDay) || isUnset(minutesPastHour) {
 				diagnostics.AddAttributeError(
 					schedulePath.AtName("repeat"),
 					"Invalid Configuration for Schedule",
@@ -120,9 +128,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 
 		case "RECUR":
 			// For RECUR: cannot set month, day_of_month, year
-			if (!month.IsNull() && !month.IsUnknown()) ||
-				(!dayOfMonth.IsNull() && !dayOfMonth.IsUnknown()) ||
-				(!year.IsNull() && !year.IsUnknown()) {
+			if isSet(month) || isSet(dayOfMonth) || isSet(year) {
 				diagnostics.AddAttributeError(
 					schedulePath.AtName("repeat"),
 					"Invalid Configuration for Repeat",
@@ -132,9 +138,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 			}
 
 			// For RECUR: must set frequency, hour_of_day, minutes_past_hour
-			if frequency.IsNull() ||
-				hourOfDay.IsNull() ||
-				minutesPastHour.IsNull() {
+			if isUnset(frequency) || isUnset(hourOfDay) || isUnset(minutesPastHour) {
 				diagnostics.AddAttributeError(
 					schedulePath.AtName("repeat"),
 					"Invalid Configuration for Schedule",
@@ -144,11 +148,11 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 			}
 
 			// Handle weekdays validation based on frequency for RECUR only
-			if !frequency.IsNull() && !frequency.IsUnknown() {
+			if isSet(frequency) {
 				freqStr, ok := frequency.(types.String)
 				if ok && freqStr.ValueString() == "WEEKLY" {
 					// WEEKLY requires weekdays
-					if weekdays.IsNull() {
+					if isUnset(weekdays) {
 						diagnostics.AddAttributeError(
 							schedulePath.AtName("weekdays"),
 							"Invalid Configuration for Weekdays",
@@ -157,7 +161,7 @@ func ValidateScheduleConfig(settingObj types.Object, scheduleAttrName string, ba
 					}
 				} else {
 					// Non-WEEKLY cannot have weekdays
-					if !weekdays.IsNull() && !weekdays.IsUnknown() {
+					if isSet(weekdays) {
 						diagnostics.AddAttributeError(
 							schedulePath.AtName("weekdays"),
 							"Invalid Configuration for Weekdays",

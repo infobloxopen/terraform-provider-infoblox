@@ -279,7 +279,11 @@ func CopyFieldFromPlanToRespList(ctx context.Context, planValue, respValue attr.
 	return newList, &diags
 }
 
-func ReorderAndFilterDHCPOptions(ctx context.Context, planValue attr.Value, stateValue attr.Value) (attr.Value, *diag.Diagnostics) {
+func ReorderAndFilterDHCPOptions(
+	ctx context.Context,
+	planValue attr.Value,
+	stateValue attr.Value,
+) (attr.Value, *diag.Diagnostics) {
 
 	var diags diag.Diagnostics
 	primaryKey := "name"
