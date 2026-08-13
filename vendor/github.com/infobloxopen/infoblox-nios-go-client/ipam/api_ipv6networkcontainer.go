@@ -378,6 +378,7 @@ type Ipv6networkcontainerAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -423,6 +424,12 @@ func (r Ipv6networkcontainerAPIListRequest) Filters(filters map[string]interface
 
 func (r Ipv6networkcontainerAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) Ipv6networkcontainerAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r Ipv6networkcontainerAPIListRequest) ProxySearch(proxySearch string) Ipv6networkcontainerAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -491,6 +498,9 @@ func (a *Ipv6networkcontainerAPIService) ListExecute(r Ipv6networkcontainerAPILi
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -545,6 +555,7 @@ type Ipv6networkcontainerAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -562,6 +573,12 @@ func (r Ipv6networkcontainerAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus st
 // Select 1 if result is required as an object
 func (r Ipv6networkcontainerAPIReadRequest) ReturnAsObject(returnAsObject int32) Ipv6networkcontainerAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r Ipv6networkcontainerAPIReadRequest) ProxySearch(proxySearch string) Ipv6networkcontainerAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -617,6 +634,9 @@ func (a *Ipv6networkcontainerAPIService) ReadExecute(r Ipv6networkcontainerAPIRe
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

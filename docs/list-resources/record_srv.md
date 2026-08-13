@@ -3,12 +3,12 @@
 page_title: "infoblox_record_srv List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox RecordSrv from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox RecordSrv from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_srv (List Resource)
 
-Retrieves a list of Infoblox RecordSrv from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox RecordSrv from both the NIOS and UDDI backends.
 
 ## Example Usage
 

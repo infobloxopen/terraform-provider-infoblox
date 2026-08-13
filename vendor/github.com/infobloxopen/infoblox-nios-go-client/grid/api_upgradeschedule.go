@@ -79,6 +79,7 @@ type UpgradescheduleAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +125,12 @@ func (r UpgradescheduleAPIListRequest) Filters(filters map[string]interface{}) U
 
 func (r UpgradescheduleAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) UpgradescheduleAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r UpgradescheduleAPIListRequest) ProxySearch(proxySearch string) UpgradescheduleAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +199,9 @@ func (a *UpgradescheduleAPIService) ListExecute(r UpgradescheduleAPIListRequest)
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +256,7 @@ type UpgradescheduleAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +274,12 @@ func (r UpgradescheduleAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus string)
 // Select 1 if result is required as an object
 func (r UpgradescheduleAPIReadRequest) ReturnAsObject(returnAsObject int32) UpgradescheduleAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r UpgradescheduleAPIReadRequest) ProxySearch(proxySearch string) UpgradescheduleAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +335,9 @@ func (a *UpgradescheduleAPIService) ReadExecute(r UpgradescheduleAPIReadRequest)
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

@@ -341,6 +341,7 @@ type NotificationRestEndpointAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -386,6 +387,12 @@ func (r NotificationRestEndpointAPIListRequest) Filters(filters map[string]inter
 
 func (r NotificationRestEndpointAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) NotificationRestEndpointAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r NotificationRestEndpointAPIListRequest) ProxySearch(proxySearch string) NotificationRestEndpointAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -454,6 +461,9 @@ func (a *NotificationRestEndpointAPIService) ListExecute(r NotificationRestEndpo
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -508,6 +518,7 @@ type NotificationRestEndpointAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -525,6 +536,12 @@ func (r NotificationRestEndpointAPIReadRequest) ReturnFieldsPlus(returnFieldsPlu
 // Select 1 if result is required as an object
 func (r NotificationRestEndpointAPIReadRequest) ReturnAsObject(returnAsObject int32) NotificationRestEndpointAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r NotificationRestEndpointAPIReadRequest) ProxySearch(proxySearch string) NotificationRestEndpointAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -580,6 +597,9 @@ func (a *NotificationRestEndpointAPIService) ReadExecute(r NotificationRestEndpo
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

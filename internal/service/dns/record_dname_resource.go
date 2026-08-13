@@ -55,7 +55,7 @@ func (r *RecordDnameResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *RecordDnameResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordDname across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordDname in both NIOS and UDDI backends.",
 		Attributes:          RecordDnameResourceSchemaAttributes,
 	}
 }

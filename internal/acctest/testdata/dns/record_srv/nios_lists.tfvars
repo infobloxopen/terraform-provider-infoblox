@@ -12,8 +12,8 @@ case "basic" {
 
   step {
     nios {
-      name     = "{{random}}.example.com"
-      target   = "{{random2}}.target.com"
+      name     = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target   = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       port     = 80
       priority = 10
       weight   = 360

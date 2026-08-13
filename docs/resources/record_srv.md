@@ -3,12 +3,12 @@
 page_title: "infoblox_record_srv Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordSrv across NIOS and UDDI backends.
+  Manages an Infoblox RecordSrv in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_srv (Resource)
 
-Manages an Infoblox RecordSrv across NIOS and UDDI backends.
+Manages an Infoblox RecordSrv in both NIOS and UDDI backends.
 
 ## Example Usage
 
