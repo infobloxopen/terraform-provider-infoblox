@@ -272,8 +272,8 @@ provider "infoblox" {
 		return fmt.Sprintf(`
 provider "infoblox" {
   uddi = {
-    csp_url = %q
-    api_key = %q
+    infoblox_portal_url = %q
+    infoblox_portal_key = %q
   }
 }
 `, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"))
