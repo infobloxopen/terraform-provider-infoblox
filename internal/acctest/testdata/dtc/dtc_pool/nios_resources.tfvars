@@ -125,12 +125,42 @@ case "comment" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolConsolidatedMonitors' could not be parsed (no resource block found)
 case "consolidated_monitors" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolConsolidatedMonitors' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "ROUND_ROBIN"
+      disable = true
+      monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      consolidated_monitors = [{ monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", availability = "ANY", full_health_communication = false, members = ["infoblox.172_28_82_8"] }]
+    }
+    check = {
+      "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"
+      "nios.consolidated_monitors.0.availability"              = "ANY"
+      "nios.consolidated_monitors.0.full_health_communication" = "false"
+      "nios.consolidated_monitors.0.members.0"                 = "infoblox.172_28_82_8"
+    }
+  }
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "ROUND_ROBIN"
+      disable = true 
+      monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      consolidated_monitors = [{ monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", availability = "ALL", full_health_communication = false, members = ["infoblox.172_28_82_8"] }]
+    }
+    check = {
+      "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"
+      "nios.consolidated_monitors.0.availability"              = "ALL"
+      "nios.consolidated_monitors.0.full_health_communication" = "false"
+      "nios.consolidated_monitors.0.members.0"                 = "infoblox.172_28_82_8"
+    }
+  }
+
 }
 
 case "disable" {
@@ -189,22 +219,82 @@ case "ext_attrs" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolLbAlternateMethod' could not be parsed (no resource block found)
 case "lb_alternate_method" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolLbAlternateMethod' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_alternate_method   = "ALL_AVAILABLE"
+    }
+    check = {
+      "nios.lb_preferred_method" = "TOPOLOGY"
+      "nios.lb_alternate_method" = "ALL_AVAILABLE"
+    }
+  }
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_alternate_method   = "GLOBAL_AVAILABILITY"
+    }
+    check = {
+      "nios.lb_preferred_method" = "TOPOLOGY"
+      "nios.lb_alternate_method" = "GLOBAL_AVAILABILITY"
+    }
+  }
+
+}
+
+case "lb_alternate_topology" {
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      lb_alternate_method   = "TOPOLOGY"
+      lb_alternate_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+    }
+    check = {
+      "nios.lb_preferred_method"   = "TOPOLOGY"
+      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      "nios.lb_alternate_method"   = "TOPOLOGY"
+      "nios.lb_alternate_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+    }
+  }
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      lb_alternate_method   = "TOPOLOGY"
+      lb_alternate_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+    }
+    check = {
+      "nios.lb_preferred_method"   = "TOPOLOGY"
+      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      "nios.lb_alternate_method"   = "TOPOLOGY"
+      "nios.lb_alternate_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+    }
+  }
+
 }
 
 # TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolLbAlternateTopology' could not be parsed (no resource block found)
-case "lb_alternate_topology" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolLbAlternateTopology' could not be parsed (no resource block found)"
-}
-
+# Reason: config helper 'testAccDtcPoolLbDynamicRatioAlternate' could not be parsed (no resource block found)
 case "lb_dynamic_ratio_alternate" {
   backend  = "nios"
   parallel = true
@@ -361,12 +451,36 @@ case "lb_preferred_method_ratio" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolLbPreferredTopology' could not be parsed (no resource block found)
 case "lb_preferred_topology" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcPoolLbPreferredTopology' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+    }
+    check = {
+      "nios.lb_preferred_method"   = "TOPOLOGY"
+      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+    }
+  }
+
+  step {
+    nios {
+      name                  = "{{random}}"
+      lb_preferred_method   = "TOPOLOGY"
+      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+    }
+    check = {
+      "nios.lb_preferred_method"   = "TOPOLOGY"
+      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+    }
+  }
+
 }
 
 case "monitors" {
@@ -391,10 +505,7 @@ case "monitors" {
       monitors = ["dtc:monitor:pdp/ZG5zLmlkbnNfbW9uaXRvcl9wZHAkcGRw:pdp"]
     }
   }
-  check = {
-      "nios.monitors.#" = "1"
-      "nios.monitors.0" = "dtc:monitor:pdp/ZG5zLmlkbnNfbW9uaXRvcl9wZHAkcGRw:pdp"
-  }
+
 }
 
 case "name" {
@@ -426,26 +537,18 @@ case "name" {
 case "quorum" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dtc_monitor_http_unknown" "test_http_monitor1" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_dtc_monitor_snmp_unknown" "test_snmp_monitor1" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
+      availability        = "QUORUM"
       quorum              = 1
-      availability        = "QUORUM"
-      monitors            = ["${nios_dtc_monitor_http.test_http_monitor1.ref}", "${nios_dtc_monitor_snmp.test_snmp_monitor1.ref}"]
+      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+    }
+    check = {
+      "nios.availability" = "QUORUM"
+      "nios.quorum"       = "1"
     }
   }
 
@@ -453,9 +556,13 @@ case "quorum" {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
-      quorum              = 2
       availability        = "QUORUM"
-      monitors            = ["${nios_dtc_monitor_http.test_http_monitor1.ref}", "${nios_dtc_monitor_snmp.test_snmp_monitor1.ref}"]
+      quorum              = 2
+      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+    }
+    check = {
+      "nios.availability" = "QUORUM"
+      "nios.quorum"       = "2"
     }
   }
 

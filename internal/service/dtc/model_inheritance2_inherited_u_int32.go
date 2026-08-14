@@ -33,6 +33,7 @@ var Inheritance2InheritedUInt32AttrTypes = map[string]attr.Type{
 var Inheritance2InheritedUInt32ResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance setting for a field.  Valid values are: * _inherit_: Use the inherited value. * _override_: Use the value set in the object.  Defaults to _inherit_.",
 	},
 	"display_name": schema.StringAttribute{
@@ -42,6 +43,7 @@ var Inheritance2InheritedUInt32ResourceSchemaAttributes = map[string]schema.Attr
 	},
 	"source": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"value": schema.Int64Attribute{
