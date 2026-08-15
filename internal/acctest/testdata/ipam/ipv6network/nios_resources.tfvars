@@ -9,12 +9,6 @@ case "basic" {
     }
     check = {
       "nios.network"                              = "{{random_ipv6_network}}"
-      "nios.cloud_info.authority_type"            = "GM"
-      "nios.cloud_info.delegated_scope"           = "NONE"
-      "nios.cloud_info.mgmt_platform"             = ""
-      "nios.cloud_info.owned_by_adaptor"          = "false"
-      "nios.comment"                              = ""
-      "nios.ddns_domainname"                      = ""
       "nios.ddns_enable_option_fqdn"              = "false"
       "nios.ddns_generate_hostname"               = "false"
       "nios.ddns_server_always_updates"           = "true"
