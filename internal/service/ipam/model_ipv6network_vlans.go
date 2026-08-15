@@ -18,37 +18,22 @@ import (
 // Ipv6networkVlansModel is the Terraform model for Ipv6networkVlans
 type Ipv6networkVlansModel struct {
 	Vlan types.String `tfsdk:"vlan"`
-	Id   types.Int64  `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
 }
 
 // Ipv6networkVlansAttrTypes contains the attribute types for Ipv6networkVlansModel
 var Ipv6networkVlansAttrTypes = map[string]attr.Type{
 	"vlan": types.StringType,
-	"id":   types.Int64Type,
-	"name": types.StringType,
 }
 
 // Ipv6networkVlansResourceSchemaAttributes contains the schema attributes for Ipv6networkVlansModel
 var Ipv6networkVlansResourceSchemaAttributes = map[string]schema.Attribute{
 	"vlan": schema.StringAttribute{
 		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "Reference to the underlying StaticVlan object vlan.",
-	},
-	"id": schema.Int64Attribute{
-		Computed:            true,
-		MarkdownDescription: "VLAN ID value.",
-	},
-	"name": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
-		MarkdownDescription: "Name of the VLAN.",
+		MarkdownDescription: "Reference to the underlying StaticVlan object vlan.",
 	},
 }
 
@@ -72,8 +57,6 @@ func (m *Ipv6networkVlansModel) Expand(ctx context.Context, diags *diag.Diagnost
 	}
 	to := &niosipam.Ipv6networkVlans{
 		Vlan: flex.ExpandStringPointerNullAsEmpty(m.Vlan),
-		Id:   flex.ExpandInt64Pointer(m.Id),
-		Name: flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 	return to
 }
@@ -96,6 +79,4 @@ func (m *Ipv6networkVlansModel) Flatten(ctx context.Context, from *niosipam.Ipv6
 		return
 	}
 	m.Vlan = flex.FlattenStringPointerEmptyAsNull(from.Vlan)
-	m.Id = flex.FlattenInt64Pointer(from.Id)
-	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 }

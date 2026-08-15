@@ -87,7 +87,6 @@ type NIOSIpv6networkModel struct {
 	SamePortControlDiscoveryBlackout types.Bool           `tfsdk:"same_port_control_discovery_blackout"`
 	SendRirRequest                   types.Bool           `tfsdk:"send_rir_request"`
 	SubscribeSettings                types.Object         `tfsdk:"subscribe_settings"`
-	Template                         types.String         `tfsdk:"template"`
 	Unmanaged                        types.Bool           `tfsdk:"unmanaged"`
 	UpdateDnsOnLeaseRenewal          types.Bool           `tfsdk:"update_dns_on_lease_renewal"`
 	ValidLifetime                    types.Int64          `tfsdk:"valid_lifetime"`
@@ -137,7 +136,6 @@ var NIOSIpv6networkAttrTypes = map[string]attr.Type{
 	"same_port_control_discovery_blackout": types.BoolType,
 	"send_rir_request":                     types.BoolType,
 	"subscribe_settings":                   types.ObjectType{AttrTypes: Ipv6networkSubscribeSettingsAttrTypes},
-	"template":                             types.StringType,
 	"unmanaged":                            types.BoolType,
 	"update_dns_on_lease_renewal":          types.BoolType,
 	"valid_lifetime":                       types.Int64Type,
@@ -500,6 +498,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the preferred lifetime value of a DHCP IPv6 Network object.",
 	},
 	"recycle_leases": schema.BoolAttribute{
@@ -553,14 +552,8 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"subscribe_settings": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkSubscribeSettingsResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
-	},
-	"template": schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "If set on creation, the network is created according to the values specified in the selected template.",
+		Computed:            true,
+		MarkdownDescription: "The DHCP IPv6 Network Cisco ISE subscribe settings.",
 	},
 	"unmanaged": schema.BoolAttribute{
 		Optional:            true,
@@ -576,6 +569,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"valid_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the valid lifetime value of a DHCP IPv6 Network object.",
 	},
 	"vlans": schema.ListNestedAttribute{
@@ -583,6 +577,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6networkVlansResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -593,6 +588,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6networkZoneAssociationsResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -894,7 +890,6 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		SamePortControlDiscoveryBlackout: flex.ExpandBoolPointer(m.SamePortControlDiscoveryBlackout),
 		SendRirRequest:                   flex.ExpandBoolPointer(m.SendRirRequest),
 		SubscribeSettings:                ExpandIpv6networkSubscribeSettings(ctx, m.SubscribeSettings, diags),
-		Template:                         flex.ExpandStringPointerNullAsEmpty(m.Template),
 		Unmanaged:                        flex.ExpandBoolPointer(m.Unmanaged),
 		UpdateDnsOnLeaseRenewal:          flex.ExpandBoolPointer(m.UpdateDnsOnLeaseRenewal),
 		ValidLifetime:                    flex.ExpandInt64Pointer(m.ValidLifetime),
@@ -1058,7 +1053,6 @@ func (m *NIOSIpv6networkModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
 	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
 	m.SubscribeSettings = FlattenIpv6networkSubscribeSettings(ctx, from.SubscribeSettings, diags)
-	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
 	m.Unmanaged = flex.FlattenBoolPointer(from.Unmanaged)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
 	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
