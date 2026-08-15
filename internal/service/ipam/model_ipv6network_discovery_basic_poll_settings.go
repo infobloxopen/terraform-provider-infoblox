@@ -117,6 +117,7 @@ var Ipv6networkDiscoveryBasicPollSettingsResourceSchemaAttributes = map[string]s
 	"switch_port_data_collection_polling_schedule": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A Schedule Setting struct that determines switch port data collection polling schedule.",
 	},
 	"switch_port_data_collection_polling_interval": schema.Int64Attribute{

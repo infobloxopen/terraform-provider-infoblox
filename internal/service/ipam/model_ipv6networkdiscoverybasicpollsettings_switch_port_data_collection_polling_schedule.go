@@ -56,6 +56,7 @@ var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(stringvalidator.OneOf("SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY")),
@@ -64,6 +65,7 @@ var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
 	},
 	"time_zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -78,6 +80,7 @@ var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
 			stringvalidator.OneOf("DAILY", "HOURLY", "MONTHLY", "WEEKLY"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The frequency for the scheduled task.",
 	},
 	"every": schema.Int64Attribute{
@@ -119,6 +122,7 @@ var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
 			stringvalidator.OneOf("ONCE", "RECUR"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates if the scheduled task will be repeated or run only once.",
 	},
 	"disable": schema.BoolAttribute{

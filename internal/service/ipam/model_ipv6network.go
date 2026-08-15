@@ -256,7 +256,8 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"cloud_info": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkCloudInfoResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Structure containing all cloud API related information for this object.",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
@@ -268,6 +269,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_domainname": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -315,7 +317,9 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines whether a network is disabled or not. When this is set to False, the network is enabled.",
 	},
 	"discovered_bridge_domain": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -323,7 +327,9 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Discovered bridge domain.",
 	},
 	"discovered_tenant": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -333,12 +339,14 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"discovery_basic_poll_settings": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkDiscoveryBasicPollSettingsResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "The discovery basic poll settings for this network.",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkDiscoveryBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "The discovery blackout setting for this network.",
 	},
 	"discovery_member": schema.StringAttribute{
 		Optional: true,
