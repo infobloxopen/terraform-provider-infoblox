@@ -350,6 +350,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"discovery_member": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -357,6 +358,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"domain_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -853,7 +855,7 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		DiscoveredTenant:                 flex.ExpandStringPointerNullAsEmpty(m.DiscoveredTenant),
 		DiscoveryBasicPollSettings:       ExpandIpv6networkDiscoveryBasicPollSettings(ctx, m.DiscoveryBasicPollSettings, diags),
 		DiscoveryBlackoutSetting:         ExpandIpv6networkDiscoveryBlackoutSetting(ctx, m.DiscoveryBlackoutSetting, diags),
-		DiscoveryMember:                  flex.ExpandStringPointerNullAsEmpty(m.DiscoveryMember),
+		DiscoveryMember:                  flex.ExpandStringPointer(m.DiscoveryMember),
 		DomainName:                       flex.ExpandStringPointerNullAsEmpty(m.DomainName),
 		DomainNameServers:                flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		EnableDdns:                       flex.ExpandBoolPointer(m.EnableDdns),
