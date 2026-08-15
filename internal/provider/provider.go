@@ -226,6 +226,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewAddressResource,
 		ipam.NewNetworkResource,
 		ipam.NewNetworkcontainerResource,
+		ipam.NewIpv6networkResource,
 	}
 }
 
@@ -248,6 +249,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewAddressDataSource,
 		ipam.NewNetworkDataSource,
 		ipam.NewNetworkcontainerDataSource,
+		ipam.NewIpv6networkDataSource,
 	}
 }
 
@@ -267,6 +269,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewAddressList,
 		ipam.NewNetworkList,
 		ipam.NewNetworkcontainerList,
+		ipam.NewIpv6networkList,
 	}
 }
 
