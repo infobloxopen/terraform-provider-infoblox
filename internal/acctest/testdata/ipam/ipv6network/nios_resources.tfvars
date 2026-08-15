@@ -69,10 +69,6 @@ case "cloud_info" {
       network = "{{random_ipv6_network}}"
     }
     check = {
-      "nios.cloud_info.authority_type"   = "GM"
-      "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
-      "nios.cloud_info.owned_by_adaptor" = "false"
       "nios.network"                     = "{{random_ipv6_network}}"
     }
   }
@@ -1051,6 +1047,9 @@ case "discovery_member" {
     nios {
       network = "{{random_ipv6_network}}"
     }
+    check = {
+      "nios.discovery_member" = "{{discovery_member_hostname}}"
+    }
   }
 
 }
@@ -1258,34 +1257,50 @@ case "members" {
 case "vlans" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlan_view" "test_vlan_view" {
-    nios = {
-      start_vlan_id = 50
-      end_vlan_id = 100
-      name = "test-vlanview-for-ipv6network"
-    }
-  }
-  resource "infoblox_vlan" "test_vlan" {
-    nios = {
-      id = 50
-      name = "test-vlan-for-ipv6network"
-      parent = infoblox_vlan_view.test_vlan_view.nios.ref
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_vlan_view" "test_vlan_view" {
+  #   nios = {
+  #     start_vlan_id = 50
+  #     end_vlan_id = 100
+  #     name = "test-vlanview-for-ipv6network"
+  #   }
+  # }
+  # resource "infoblox_vlan" "test_vlan" {
+  #   nios = {
+  #     id = 50
+  #     name = "test-vlan-for-ipv6network"
+  #     parent = infoblox_vlan_view.test_vlan_view.nios.ref
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      # vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50" }]
+    }
+    check = {
+      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50"
     }
   }
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
+      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
+    }
+    check = {
+      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"
+    }
+  }
+
+  step {
+    nios {
+      network = "{{random_ipv6_network}}"
+    }
+    check = {
+      "nios.network" = "{{random_ipv6_network}}"
     }
   }
 
