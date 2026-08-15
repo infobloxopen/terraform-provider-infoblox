@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -31,6 +32,8 @@ var Ipv6networkPortControlBlackoutSettingAttrTypes = map[string]attr.Type{
 var Ipv6networkPortControlBlackoutSettingResourceSchemaAttributes = map[string]schema.Attribute{
 	"enable_blackout": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether a blackout is enabled or not.",
 	},
 	"blackout_duration": schema.Int64Attribute{

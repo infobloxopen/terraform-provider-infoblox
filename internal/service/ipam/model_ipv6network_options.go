@@ -39,6 +39,7 @@ var Ipv6networkOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Name of the DHCP option.",
 	},
@@ -50,6 +51,7 @@ var Ipv6networkOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The name of the space this DHCP option is associated to.",
 	},
@@ -57,6 +59,7 @@ var Ipv6networkOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Value of the DHCP option",
 	},

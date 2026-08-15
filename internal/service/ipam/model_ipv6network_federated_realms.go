@@ -30,7 +30,7 @@ var Ipv6networkFederatedRealmsAttrTypes = map[string]attr.Type{
 // Ipv6networkFederatedRealmsResourceSchemaAttributes contains the schema attributes for Ipv6networkFederatedRealmsModel
 var Ipv6networkFederatedRealmsResourceSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},

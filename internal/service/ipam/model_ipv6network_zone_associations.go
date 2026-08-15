@@ -32,9 +32,10 @@ var Ipv6networkZoneAssociationsAttrTypes = map[string]attr.Type{
 // Ipv6networkZoneAssociationsResourceSchemaAttributes contains the schema attributes for Ipv6networkZoneAssociationsModel
 var Ipv6networkZoneAssociationsResourceSchemaAttributes = map[string]schema.Attribute{
 	"fqdn": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The FQDN of the authoritative forward zone.",
 	},
@@ -46,6 +47,7 @@ var Ipv6networkZoneAssociationsResourceSchemaAttributes = map[string]schema.Attr
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The view to which the zone belongs. If a view is not specified, the default view is used.",
 	},

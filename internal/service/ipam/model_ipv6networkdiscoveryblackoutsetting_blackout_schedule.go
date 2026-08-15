@@ -7,10 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -55,11 +59,14 @@ var Ipv6networkdiscoveryblackoutsettingBlackoutScheduleResourceSchemaAttributes 
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
+			listvalidator.ValueStringsAre(stringvalidator.OneOf("SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY")),
 		},
 		MarkdownDescription: "Days of the week when scheduling is triggered.",
 	},
 	"time_zone": schema.StringAttribute{
+		Default:  stringdefault.StaticString("UTC"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -81,11 +88,17 @@ var Ipv6networkdiscoveryblackoutsettingBlackoutScheduleResourceSchemaAttributes 
 		MarkdownDescription: "The number of frequency to wait before repeating the scheduled task.",
 	},
 	"minutes_past_hour": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 59),
+		},
 		MarkdownDescription: "The minutes past the hour for the scheduled task.",
 	},
 	"hour_of_day": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 23),
+		},
 		MarkdownDescription: "The hour of day for the scheduled task.",
 	},
 	"year": schema.Int64Attribute{
@@ -93,22 +106,32 @@ var Ipv6networkdiscoveryblackoutsettingBlackoutScheduleResourceSchemaAttributes 
 		MarkdownDescription: "The year for the scheduled task.",
 	},
 	"month": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.Int64{
+			int64validator.Between(1, 12),
+		},
 		MarkdownDescription: "The month for the scheduled task.",
 	},
 	"day_of_month": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.Int64{
+			int64validator.Between(1, 31),
+		},
 		MarkdownDescription: "The day of the month for the scheduled task.",
 	},
 	"repeat": schema.StringAttribute{
+		Default: stringdefault.StaticString("ONCE"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("ONCE", "RECUR"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates if the scheduled task will be repeated or run only once.",
 	},
 	"disable": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "If set to True, the scheduled task is disabled.",
 	},
 }

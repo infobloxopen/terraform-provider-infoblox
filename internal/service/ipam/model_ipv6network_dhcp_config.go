@@ -13,8 +13,8 @@ import (
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
-// DHCPConfigModel is the Terraform model for DHCPConfig
-type DHCPConfigModel struct {
+// Ipv6networkDhcpConfigModel is the Terraform model for DHCPConfig
+type Ipv6networkDhcpConfigModel struct {
 	AbandonedReclaimTime   types.Int64 `tfsdk:"abandoned_reclaim_time"`
 	AbandonedReclaimTimeV6 types.Int64 `tfsdk:"abandoned_reclaim_time_v6"`
 	AllowUnknown           types.Bool  `tfsdk:"allow_unknown"`
@@ -32,8 +32,8 @@ type DHCPConfigModel struct {
 	LeaseTimeV6            types.Int64 `tfsdk:"lease_time_v6"`
 }
 
-// DHCPConfigAttrTypes contains the attribute types for DHCPConfigModel
-var DHCPConfigAttrTypes = map[string]attr.Type{
+// Ipv6networkDhcpConfigAttrTypes contains the attribute types for Ipv6networkDhcpConfigModel
+var Ipv6networkDhcpConfigAttrTypes = map[string]attr.Type{
 	"abandoned_reclaim_time":    types.Int64Type,
 	"abandoned_reclaim_time_v6": types.Int64Type,
 	"allow_unknown":             types.BoolType,
@@ -51,8 +51,8 @@ var DHCPConfigAttrTypes = map[string]attr.Type{
 	"lease_time_v6":             types.Int64Type,
 }
 
-// DHCPConfigResourceSchemaAttributes contains the schema attributes for DHCPConfigModel
-var DHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
+// Ipv6networkDhcpConfigResourceSchemaAttributes contains the schema attributes for Ipv6networkDhcpConfigModel
+var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"abandoned_reclaim_time": schema.Int64Attribute{
 		Optional:            true,
 		MarkdownDescription: "The abandoned reclaim time in seconds for IPV4 clients.",
@@ -121,12 +121,12 @@ var DHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-// ExpandDHCPConfig converts a Terraform Object to SDK type
-func ExpandDHCPConfig(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
+// ExpandIpv6networkDhcpConfig converts a Terraform Object to SDK type
+func ExpandIpv6networkDhcpConfig(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m DHCPConfigModel
+	var m Ipv6networkDhcpConfigModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -135,7 +135,7 @@ func ExpandDHCPConfig(ctx context.Context, o types.Object, diags *diag.Diagnosti
 }
 
 // Expand converts the Terraform model to SDK type
-func (m *DHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
+func (m *Ipv6networkDhcpConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
 	if m == nil {
 		return nil
 	}
@@ -159,20 +159,20 @@ func (m *DHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *
 	return to
 }
 
-// FlattenDHCPConfig converts an SDK type to Terraform Object
-func FlattenDHCPConfig(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) types.Object {
+// FlattenIpv6networkDhcpConfig converts an SDK type to Terraform Object
+func FlattenIpv6networkDhcpConfig(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(DHCPConfigAttrTypes)
+		return types.ObjectNull(Ipv6networkDhcpConfigAttrTypes)
 	}
-	m := &DHCPConfigModel{}
+	m := &Ipv6networkDhcpConfigModel{}
 	m.Flatten(ctx, from, diags)
-	t, d := types.ObjectValueFrom(ctx, DHCPConfigAttrTypes, m)
+	t, d := types.ObjectValueFrom(ctx, Ipv6networkDhcpConfigAttrTypes, m)
 	diags.Append(d...)
 	return t
 }
 
 // Flatten populates the Terraform model from SDK type
-func (m *DHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) {
+func (m *Ipv6networkDhcpConfigModel) Flatten(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}

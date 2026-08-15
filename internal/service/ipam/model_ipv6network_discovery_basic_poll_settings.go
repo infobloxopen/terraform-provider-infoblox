@@ -7,10 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -56,41 +59,59 @@ var Ipv6networkDiscoveryBasicPollSettingsAttrTypes = map[string]attr.Type{
 var Ipv6networkDiscoveryBasicPollSettingsResourceSchemaAttributes = map[string]schema.Attribute{
 	"port_scanning": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether port scanning is enabled or not.",
 	},
 	"device_profile": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether device profile is enabled or not.",
 	},
 	"snmp_collection": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Determines whether SNMP collection is enabled or not.",
 	},
 	"cli_collection": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Determines whether CLI collection is enabled or not.",
 	},
 	"netbios_scanning": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether netbios scanning is enabled or not.",
 	},
 	"complete_ping_sweep": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether complete ping sweep is enabled or not.",
 	},
 	"smart_subnet_ping_sweep": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether smart subnet ping sweep is enabled or not.",
 	},
 	"auto_arp_refresh_before_switch_port_polling": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Determines whether auto ARP refresh before switch port polling is enabled or not.",
 	},
 	"switch_port_data_collection_polling": schema.StringAttribute{
+		Default: stringdefault.StaticString("PERIODIC"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("DISABLED", "PERIODIC", "SCHEDULED"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A switch port data collection polling mode.",
 	},
 	"switch_port_data_collection_polling_schedule": schema.SingleNestedAttribute{
@@ -100,17 +121,23 @@ var Ipv6networkDiscoveryBasicPollSettingsResourceSchemaAttributes = map[string]s
 	},
 	"switch_port_data_collection_polling_interval": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(3600),
 		MarkdownDescription: "Indicates the interval for switch port data collection polling.",
 	},
 	"credential_group": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "Credential group.",
 	},
 	"polling_frequency_modifier": schema.StringAttribute{
+		Default:  stringdefault.StaticString("1"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -118,6 +145,8 @@ var Ipv6networkDiscoveryBasicPollSettingsResourceSchemaAttributes = map[string]s
 	},
 	"use_global_polling_frequency_modifier": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Use Global Polling Frequency Modifier.",
 	},
 }

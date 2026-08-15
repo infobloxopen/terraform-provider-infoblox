@@ -30,14 +30,14 @@ var Ipv6networkLogicFilterRulesAttrTypes = map[string]attr.Type{
 // Ipv6networkLogicFilterRulesResourceSchemaAttributes contains the schema attributes for Ipv6networkLogicFilterRulesModel
 var Ipv6networkLogicFilterRulesResourceSchemaAttributes = map[string]schema.Attribute{
 	"filter": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The filter name.",
 	},
 	"type": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},

@@ -34,6 +34,7 @@ var Ipv6networkSubscribeSettingsResourceSchemaAttributes = map[string]schema.Att
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
+			customvalidator.StringsInSlice([]string{"DOMAINNAME", "ENDPOINT_PROFILE", "SECURITY_GROUP", "SESSION_STATE", "SSID", "USERNAME", "VLAN"}),
 		},
 		MarkdownDescription: "The list of Cisco ISE attributes allowed for subscription.",
 	},

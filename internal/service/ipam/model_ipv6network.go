@@ -3,20 +3,32 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
+	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
+	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -34,52 +46,52 @@ var Ipv6networkAttrTypes = map[string]attr.Type{
 }
 
 type NIOSIpv6networkModel struct {
-	AutoCreateReversezone            types.Bool   `tfsdk:"auto_create_reversezone"`
-	CloudInfo                        types.Object `tfsdk:"cloud_info"`
-	Comment                          types.String `tfsdk:"comment"`
-	DdnsDomainname                   types.String `tfsdk:"ddns_domainname"`
-	DdnsEnableOptionFqdn             types.Bool   `tfsdk:"ddns_enable_option_fqdn"`
-	DdnsGenerateHostname             types.Bool   `tfsdk:"ddns_generate_hostname"`
-	DdnsServerAlwaysUpdates          types.Bool   `tfsdk:"ddns_server_always_updates"`
-	DdnsTtl                          types.Int64  `tfsdk:"ddns_ttl"`
-	DeleteReason                     types.String `tfsdk:"delete_reason"`
-	Disable                          types.Bool   `tfsdk:"disable"`
-	DiscoveredBridgeDomain           types.String `tfsdk:"discovered_bridge_domain"`
-	DiscoveredTenant                 types.String `tfsdk:"discovered_tenant"`
-	DiscoveryBasicPollSettings       types.Object `tfsdk:"discovery_basic_poll_settings"`
-	DiscoveryBlackoutSetting         types.Object `tfsdk:"discovery_blackout_setting"`
-	DiscoveryMember                  types.String `tfsdk:"discovery_member"`
-	DomainName                       types.String `tfsdk:"domain_name"`
-	DomainNameServers                types.List   `tfsdk:"domain_name_servers"`
-	EnableDdns                       types.Bool   `tfsdk:"enable_ddns"`
-	EnableDiscovery                  types.Bool   `tfsdk:"enable_discovery"`
-	EnableIfmapPublishing            types.Bool   `tfsdk:"enable_ifmap_publishing"`
-	EnableImmediateDiscovery         types.Bool   `tfsdk:"enable_immediate_discovery"`
-	ExtAttrs                         types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll                      types.Map    `tfsdk:"ext_attrs_all"`
-	FederatedRealms                  types.List   `tfsdk:"federated_realms"`
-	LogicFilterRules                 types.List   `tfsdk:"logic_filter_rules"`
-	Members                          types.List   `tfsdk:"members"`
-	MgmPrivate                       types.Bool   `tfsdk:"mgm_private"`
-	Network                          types.String `tfsdk:"network"`
-	NetworkView                      types.String `tfsdk:"network_view"`
-	Options                          types.List   `tfsdk:"options"`
-	PortControlBlackoutSetting       types.Object `tfsdk:"port_control_blackout_setting"`
-	PreferredLifetime                types.Int64  `tfsdk:"preferred_lifetime"`
-	RecycleLeases                    types.Bool   `tfsdk:"recycle_leases"`
-	RestartIfNeeded                  types.Bool   `tfsdk:"restart_if_needed"`
-	RirOrganization                  types.String `tfsdk:"rir_organization"`
-	RirRegistrationAction            types.String `tfsdk:"rir_registration_action"`
-	RirRegistrationStatus            types.String `tfsdk:"rir_registration_status"`
-	SamePortControlDiscoveryBlackout types.Bool   `tfsdk:"same_port_control_discovery_blackout"`
-	SendRirRequest                   types.Bool   `tfsdk:"send_rir_request"`
-	SubscribeSettings                types.Object `tfsdk:"subscribe_settings"`
-	Template                         types.String `tfsdk:"template"`
-	Unmanaged                        types.Bool   `tfsdk:"unmanaged"`
-	UpdateDnsOnLeaseRenewal          types.Bool   `tfsdk:"update_dns_on_lease_renewal"`
-	ValidLifetime                    types.Int64  `tfsdk:"valid_lifetime"`
-	Vlans                            types.List   `tfsdk:"vlans"`
-	ZoneAssociations                 types.List   `tfsdk:"zone_associations"`
+	AutoCreateReversezone            types.Bool           `tfsdk:"auto_create_reversezone"`
+	CloudInfo                        types.Object         `tfsdk:"cloud_info"`
+	Comment                          types.String         `tfsdk:"comment"`
+	DdnsDomainname                   types.String         `tfsdk:"ddns_domainname"`
+	DdnsEnableOptionFqdn             types.Bool           `tfsdk:"ddns_enable_option_fqdn"`
+	DdnsGenerateHostname             types.Bool           `tfsdk:"ddns_generate_hostname"`
+	DdnsServerAlwaysUpdates          types.Bool           `tfsdk:"ddns_server_always_updates"`
+	DdnsTtl                          types.Int64          `tfsdk:"ddns_ttl"`
+	DeleteReason                     types.String         `tfsdk:"delete_reason"`
+	Disable                          types.Bool           `tfsdk:"disable"`
+	DiscoveredBridgeDomain           types.String         `tfsdk:"discovered_bridge_domain"`
+	DiscoveredTenant                 types.String         `tfsdk:"discovered_tenant"`
+	DiscoveryBasicPollSettings       types.Object         `tfsdk:"discovery_basic_poll_settings"`
+	DiscoveryBlackoutSetting         types.Object         `tfsdk:"discovery_blackout_setting"`
+	DiscoveryMember                  types.String         `tfsdk:"discovery_member"`
+	DomainName                       types.String         `tfsdk:"domain_name"`
+	DomainNameServers                types.List           `tfsdk:"domain_name_servers"`
+	EnableDdns                       types.Bool           `tfsdk:"enable_ddns"`
+	EnableDiscovery                  types.Bool           `tfsdk:"enable_discovery"`
+	EnableIfmapPublishing            types.Bool           `tfsdk:"enable_ifmap_publishing"`
+	EnableImmediateDiscovery         types.Bool           `tfsdk:"enable_immediate_discovery"`
+	ExtAttrs                         types.Map            `tfsdk:"ext_attrs"`
+	ExtAttrsAll                      types.Map            `tfsdk:"ext_attrs_all"`
+	FederatedRealms                  types.List           `tfsdk:"federated_realms"`
+	LogicFilterRules                 types.List           `tfsdk:"logic_filter_rules"`
+	Members                          types.List           `tfsdk:"members"`
+	MgmPrivate                       types.Bool           `tfsdk:"mgm_private"`
+	Network                          cidrtypes.IPv6Prefix `tfsdk:"network"`
+	NetworkView                      types.String         `tfsdk:"network_view"`
+	Options                          types.List           `tfsdk:"options"`
+	PortControlBlackoutSetting       types.Object         `tfsdk:"port_control_blackout_setting"`
+	PreferredLifetime                types.Int64          `tfsdk:"preferred_lifetime"`
+	RecycleLeases                    types.Bool           `tfsdk:"recycle_leases"`
+	RestartIfNeeded                  types.Bool           `tfsdk:"restart_if_needed"`
+	RirOrganization                  types.String         `tfsdk:"rir_organization"`
+	RirRegistrationAction            types.String         `tfsdk:"rir_registration_action"`
+	RirRegistrationStatus            types.String         `tfsdk:"rir_registration_status"`
+	SamePortControlDiscoveryBlackout types.Bool           `tfsdk:"same_port_control_discovery_blackout"`
+	SendRirRequest                   types.Bool           `tfsdk:"send_rir_request"`
+	SubscribeSettings                types.Object         `tfsdk:"subscribe_settings"`
+	Template                         types.String         `tfsdk:"template"`
+	Unmanaged                        types.Bool           `tfsdk:"unmanaged"`
+	UpdateDnsOnLeaseRenewal          types.Bool           `tfsdk:"update_dns_on_lease_renewal"`
+	ValidLifetime                    types.Int64          `tfsdk:"valid_lifetime"`
+	Vlans                            types.List           `tfsdk:"vlans"`
+	ZoneAssociations                 types.List           `tfsdk:"zone_associations"`
 }
 
 var NIOSIpv6networkAttrTypes = map[string]attr.Type{
@@ -110,7 +122,7 @@ var NIOSIpv6networkAttrTypes = map[string]attr.Type{
 	"logic_filter_rules":                   types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkLogicFilterRulesAttrTypes}},
 	"members":                              types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkMembersAttrTypes}},
 	"mgm_private":                          types.BoolType,
-	"network":                              types.StringType,
+	"network":                              cidrtypes.IPv6PrefixType{},
 	"network_view":                         types.StringType,
 	"options":                              types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkOptionsAttrTypes}},
 	"port_control_blackout_setting":        types.ObjectType{AttrTypes: Ipv6networkPortControlBlackoutSettingAttrTypes},
@@ -185,7 +197,7 @@ var UDDIIpv6networkAttrTypes = map[string]attr.Type{
 	"ddns_ttl_percent":              types.Float64Type,
 	"ddns_update_on_renew":          types.BoolType,
 	"ddns_use_conflict_resolution":  types.BoolType,
-	"dhcp_config":                   types.ObjectType{AttrTypes: DHCPConfigAttrTypes},
+	"dhcp_config":                   types.ObjectType{AttrTypes: Ipv6networkDhcpConfigAttrTypes},
 	"dhcp_host":                     types.StringType,
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"disable_dhcp":                  types.BoolType,
@@ -233,7 +245,12 @@ var Ipv6networkResourceSchemaAttributes = map[string]schema.Attribute{
 
 var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"auto_create_reversezone": schema.BoolAttribute{
-		Optional:            true,
+		Optional: true,
+		Computed: true,
+		Default:  booldefault.StaticBool(false),
+		PlanModifiers: []planmodifier.Bool{
+			immutable.ImmutableBool(),
+		},
 		MarkdownDescription: "This flag controls whether reverse zones are automatically created when the network is added.",
 	},
 	"cloud_info": schema.SingleNestedAttribute{
@@ -245,6 +262,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the network; maximum 256 characters.",
 	},
@@ -252,23 +270,35 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The dynamic DNS domain name the appliance uses specifically for DDNS updates for this network.",
 	},
 	"ddns_enable_option_fqdn": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Use this method to set or retrieve the ddns_enable_option_fqdn flag of a DHCP IPv6 Network object. This method controls whether the FQDN option sent by the client is to be used, or if the server can automatically generate the FQDN. This setting overrides the upper-level settings.",
 	},
 	"ddns_generate_hostname": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "If this field is set to True, the DHCP server generates a hostname and updates DNS with it when the DHCP client request does not contain a hostname.",
 	},
 	"ddns_server_always_updates": schema.BoolAttribute{
-		Optional:            true,
+		Optional: true,
+		Computed: true,
+		Default:  booldefault.StaticBool(true),
+		Validators: []validator.Bool{
+			boolvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("ddns_enable_option_fqdn")),
+		},
 		MarkdownDescription: "This field controls whether only the DHCP server is allowed to update DNS, regardless of the DHCP clients requests. Note that changes for this field take effect only if ddns_enable_option_fqdn is True.",
 	},
 	"ddns_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(0),
 		MarkdownDescription: "The DNS update Time to Live (TTL) value of a DHCP network object. The TTL is a 32-bit unsigned integer that represents the duration, in seconds, for which the update is cached. Zero indicates that the update is not cached.",
 	},
 	"delete_reason": schema.StringAttribute{
@@ -280,12 +310,15 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"disable": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether a network is disabled or not. When this is set to False, the network is enabled.",
 	},
 	"discovered_bridge_domain": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Discovered bridge domain.",
 	},
@@ -293,6 +326,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Discovered tenant.",
 	},
@@ -325,19 +359,26 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
+			listvalidator.ValueStringsAre(customvalidator.IsValidIPv6Address()),
 		},
 		MarkdownDescription: "Use this method to set or retrieve the dynamic DNS updates flag of a DHCP IPv6 Network object. The DHCP server can send DDNS updates to DNS servers in the same Grid and to external DNS servers. This setting overrides the member level settings.",
 	},
 	"enable_ddns": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "The dynamic DNS updates flag of a DHCP IPv6 network object. If set to True, the DHCP server sends DDNS updates to DNS servers in the same Grid, and to external DNS servers.",
 	},
 	"enable_discovery": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether a discovery is enabled or not for this network. When this is set to False, the network discovery is disabled.",
 	},
 	"enable_ifmap_publishing": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if IFMAP publishing is enabled for the network.",
 	},
 	"enable_immediate_discovery": schema.BoolAttribute{
@@ -394,17 +435,28 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"mgm_private": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.",
 	},
 	"network": schema.StringAttribute{
-		Optional: true,
+		Optional:   true,
+		CustomType: cidrtypes.IPv6PrefixType{},
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The network address in IPv6 Address/CIDR format. For regular expression searches, only the IPv6 Address portion is supported. Searches for the CIDR portion is always an exact match. For example, both network containers 16::0/28 and 26::0/24 are matched by expression '.6' and only 26::0/24 is matched by '.6/24'.",
 	},
 	"network_view": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -415,6 +467,8 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6networkOptionsResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
+		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: Ipv6networkOptionsAttrTypes}, []attr.Value{})),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -431,14 +485,21 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"recycle_leases": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "If the field is set to True, the leases are kept in the Recycle Bin until one week after expiration. Otherwise, the leases are permanently deleted.",
 	},
 	"restart_if_needed": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Restarts the member service.",
 	},
 	"rir_organization": schema.StringAttribute{
 		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -452,14 +513,18 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The RIR registration action.",
 	},
 	"rir_registration_status": schema.StringAttribute{
+		Default: stringdefault.StaticString("NOT_REGISTERED"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("REGISTERED", "NOT_REGISTERED"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The registration status of the IPv6 network in RIR.",
 	},
 	"same_port_control_discovery_blackout": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "If the field is set to True, the discovery blackout setting will be used for port control blackout setting.",
 	},
 	"send_rir_request": schema.BoolAttribute{
@@ -480,10 +545,14 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"unmanaged": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether the DHCP IPv6 Network is unmanaged or not.",
 	},
 	"update_dns_on_lease_renewal": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "This field controls whether the DHCP server updates DNS when a DHCP lease is renewed.",
 	},
 	"valid_lifetime": schema.Int64Attribute{
@@ -514,16 +583,33 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The address of the subnet in the form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.",
 	},
 	"asm_config": schema.SingleNestedAttribute{
-		Attributes:          ASMConfigResourceSchemaAttributes,
-		Optional:            true,
+		Attributes: ASMConfigResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		Default: objectdefault.StaticValue(types.ObjectValueMust(ASMConfigAttrTypes, map[string]attr.Value{
+			"asm_threshold":       types.Int64Value(90),
+			"enable":              types.BoolValue(true),
+			"enable_notification": types.BoolValue(true),
+			"forecast_period":     types.Int64Value(14),
+			"growth_factor":       types.Int64Value(20),
+			"growth_type":         types.StringValue("percent"),
+			"history":             types.Int64Value(30),
+			"min_total":           types.Int64Value(10),
+			"min_unused":          types.Int64Value(10),
+			"reenable_date":       timetypes.NewRFC3339ValueMust("1970-01-01T00:00:00Z"),
+		})),
 		MarkdownDescription: "The __ASMConfig__ object represents Automated Scope Management configuration.",
 	},
 	"cidr": schema.Int64Attribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The CIDR of the subnet. This is required if _address_ does not include CIDR.",
 	},
 	"comment": schema.StringAttribute{
@@ -536,11 +622,15 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ddns_client_update": schema.StringAttribute{
+		Default:             stringdefault.StaticString("client"),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Controls who does the DDNS updates.  Valid values are: * _client_: DHCP server updates DNS if requested by client. * _server_: DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _ignore_: DHCP server always updates DNS, even if the client says not to. * _over_client_update_: Same as _server_. DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _over_no_update_: DHCP server updates DNS even if the client requests that no updates be done. If the client requests to do the update, DHCP server allows it.  Defaults to _client_.",
 	},
 	"ddns_conflict_resolution_mode": schema.StringAttribute{
+		Default:             stringdefault.StaticString("check_with_dhcid"),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The mode used for resolving conflicts while performing DDNS updates.  Valid values are: * _check_with_dhcid_: It includes adding a DHCID record and checking that record via conflict detection as per RFC 4703. * _no_check_with_dhcid_: This will ignore conflict detection but add a DHCID record when creating/updating an entry. * _check_exists_with_dhcid_: This will check if there is an existing DHCID record but does not verify the value of the record matches the update. This will also update the DHCID record for the entry. * _no_check_without_dhcid_: This ignores conflict detection and will not add a DHCID record when creating/updating a DDNS entry.  Defaults to _check_with_dhcid_.",
 	},
 	"ddns_domain": schema.StringAttribute{
@@ -549,14 +639,20 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_generate_name": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Indicates if DDNS needs to generate a hostname when not supplied by the client.  Defaults to _false_.",
 	},
 	"ddns_generated_prefix": schema.StringAttribute{
+		Default:             stringdefault.StaticString("myhost"),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The prefix used in the generation of an FQDN.  When generating a name, DHCP server will construct the name in the format: [ddns-generated-prefix]-[address-text].[ddns-qualifying-suffix]. where address-text is simply the lease IP address converted to a hyphenated string.  Defaults to \"myhost\".",
 	},
 	"ddns_send_updates": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Determines if DDNS updates are enabled at the subnet level. Defaults to _true_.",
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
@@ -565,15 +661,34 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Instructs the DHCP server to always update the DNS information when a lease is renewed even if its DNS information has not changed.  Defaults to _false_.",
 	},
 	"ddns_use_conflict_resolution": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "When true, DHCP server will apply conflict resolution, as described in RFC 4703, when attempting to fulfill the update request.  When false, DHCP server will simply attempt to update the DNS entries per the request, regardless of whether or not they conflict with existing entries owned by other DHCP4 clients.  Defaults to _true_.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
-		Attributes:          DHCPConfigResourceSchemaAttributes,
-		Optional:            true,
+		Attributes: Ipv6networkDhcpConfigResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		Default: objectdefault.StaticValue(types.ObjectValueMust(Ipv6networkDhcpConfigAttrTypes, map[string]attr.Value{
+			"abandoned_reclaim_time":    types.Int64Null(), /* abandoned_reclaim_time cannot be set for subnet */
+			"abandoned_reclaim_time_v6": types.Int64Null(), /* abandoned_reclaim_time_v6 cannot be set for subnet */
+			"allow_unknown":             types.BoolValue(true),
+			"allow_unknown_v6":          types.BoolValue(true),
+			"echo_client_id":            types.BoolNull(), /* echo_id cannot be set for subnet */
+			"filters":                   types.ListNull(types.StringType),
+			"filters_v6":                types.ListNull(types.StringType),
+			"filters_large_selection":   types.ListNull(types.StringType),
+			"ignore_client_uid":         types.BoolValue(false),
+			"ignore_list":               types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
+			"lease_time":                types.Int64Value(3600),
+			"lease_time_v6":             types.Int64Value(3600),
+		})),
 		MarkdownDescription: "A DHCP Config object (_dhcp/dhcp_config_) represents a shared DHCP configuration that controls how leases are issued.",
 	},
 	"dhcp_host": schema.StringAttribute{
@@ -589,6 +704,8 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"disable_dhcp": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. _true_ to disable object. A disabled object is effectively non-existent when generating configuration.  Defaults to _false_.",
 	},
 	"external_keys": schema.MapAttribute{
@@ -614,15 +731,21 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The configuration for header option server name field.",
 	},
 	"hostname_rewrite_char": schema.StringAttribute{
+		Default:             stringdefault.StaticString("-"),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The character to replace non-matching characters with, when hostname rewrite is enabled.  Any single ASCII character or no character if the invalid characters should be removed without replacement.  Defaults to \"-\".",
 	},
 	"hostname_rewrite_enabled": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Indicates if client supplied hostnames will be rewritten prior to DDNS update by replacing every character that does not match _hostname_rewrite_regex_ by _hostname_rewrite_char_.  Defaults to _false_.",
 	},
 	"hostname_rewrite_regex": schema.StringAttribute{
+		Default:             stringdefault.StaticString("[^a-zA-Z0-9_.]"),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The regex bracket expression to match valid characters.  Must begin with \"[\" and end with \"]\" and be a compilable POSIX regex.  Defaults to \"[^a-zA-Z0-9_.]\".",
 	},
 	"inheritance_parent": schema.StringAttribute{
@@ -630,8 +753,11 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
-		Attributes:          DHCPInheritanceResourceSchemaAttributes,
-		Optional:            true,
+		Attributes: DHCPInheritanceResourceSchemaAttributes,
+		Optional:   true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
 	"name": schema.StringAttribute{
@@ -651,7 +777,10 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The lease renew time (T1) in seconds.",
 	},
 	"space": schema.StringAttribute{
-		Optional:            true,
+		Required: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
@@ -728,7 +857,7 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		LogicFilterRules:                 flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6networkLogicFilterRules),
 		Members:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Members, diags, ExpandIpv6networkMembers),
 		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
-		Network:                          flex.ExpandStringPointer(m.Network),
+		Network:                          flex.ExpandIPv6Prefix(m.Network),
 		NetworkView:                      flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Options:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6networkOptions),
 		PortControlBlackoutSetting:       ExpandIpv6networkPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
@@ -796,7 +925,7 @@ func (m *UDDIIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		DdnsTtlPercent:             flex.ExpandFloat32Pointer(m.DdnsTtlPercent),
 		DdnsUpdateOnRenew:          flex.ExpandBoolPointer(m.DdnsUpdateOnRenew),
 		DdnsUseConflictResolution:  flex.ExpandBoolPointer(m.DdnsUseConflictResolution),
-		DhcpConfig:                 ExpandDHCPConfig(ctx, m.DhcpConfig, diags),
+		DhcpConfig:                 ExpandIpv6networkDhcpConfig(ctx, m.DhcpConfig, diags),
 		DhcpHost:                   flex.ExpandStringPointer(m.DhcpHost),
 		DhcpOptions:                flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		DisableDhcp:                flex.ExpandBoolPointer(m.DisableDhcp),
@@ -888,7 +1017,7 @@ func (m *NIOSIpv6networkModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, Ipv6networkLogicFilterRulesAttrTypes, diags, FlattenIpv6networkLogicFilterRules)
 	m.Members = flex.FlattenFrameworkListNestedBlock(ctx, from.Members, Ipv6networkMembersAttrTypes, diags, FlattenIpv6networkMembers)
 	m.MgmPrivate = flex.FlattenBoolPointer(from.MgmPrivate)
-	m.Network = flex.FlattenStringPointer(from.Network)
+	m.Network = flex.FlattenIPv6Prefix(from.Network)
 	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, Ipv6networkOptionsAttrTypes, diags, FlattenIpv6networkOptions)
 	m.PortControlBlackoutSetting = FlattenIpv6networkPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
@@ -928,7 +1057,7 @@ func (m *UDDIIpv6networkModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
-	m.DhcpConfig = FlattenDHCPConfig(ctx, from.DhcpConfig, diags)
+	m.DhcpConfig = FlattenIpv6networkDhcpConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpHost = flex.FlattenStringPointer(from.DhcpHost)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
