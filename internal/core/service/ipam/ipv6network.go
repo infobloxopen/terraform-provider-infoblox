@@ -55,6 +55,9 @@ func (s *ipv6networkService) createNIOS(ctx context.Context, obj *ipam.Ipv6netwo
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil && payload.Network == nil {
+		payload.Network = &niosipam.Ipv6networkNetwork{}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err

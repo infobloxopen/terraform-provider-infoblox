@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -92,6 +93,7 @@ type NIOSIpv6networkModel struct {
 	ValidLifetime                    types.Int64          `tfsdk:"valid_lifetime"`
 	Vlans                            types.List           `tfsdk:"vlans"`
 	ZoneAssociations                 types.List           `tfsdk:"zone_associations"`
+	DynamicAllocation                types.Object         `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSIpv6networkAttrTypes = map[string]attr.Type{
@@ -141,6 +143,7 @@ var NIOSIpv6networkAttrTypes = map[string]attr.Type{
 	"valid_lifetime":                       types.Int64Type,
 	"vlans":                                types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkVlansAttrTypes}},
 	"zone_associations":                    types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkZoneAssociationsAttrTypes}},
+	"dynamic_allocation":                   types.ObjectType{AttrTypes: dynamicallocation.NextAvailableNetworkAttrTypes},
 }
 
 type UDDIIpv6networkModel struct {
@@ -438,6 +441,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6networkMembersResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -451,11 +455,15 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"network": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: cidrtypes.IPv6PrefixType{},
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
 		},
 		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The network address in IPv6 Address/CIDR format. For regular expression searches, only the IPv6 Address portion is supported. Searches for the CIDR portion is always an exact match. For example, both network containers 16::0/28 and 26::0/24 are matched by expression '.6' and only 26::0/24 is matched by '.6/24'.",
@@ -487,7 +495,8 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"port_control_blackout_setting": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkPortControlBlackoutSettingResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "The port control blackout setting for this network.",
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
@@ -588,6 +597,11 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of zones associated with this network.",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the network using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -826,7 +840,7 @@ func (m *Ipv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -839,8 +853,8 @@ func (m *Ipv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6networkExt {
-	return &coremodel.NIOSIpv6networkExt{
+func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6networkExt {
+	ext := &coremodel.NIOSIpv6networkExt{
 		AutoCreateReversezone:            flex.ExpandBoolPointer(m.AutoCreateReversezone),
 		CloudInfo:                        ExpandIpv6networkCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:                          flex.ExpandStringPointerNullAsEmpty(m.Comment),
@@ -887,6 +901,10 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		Vlans:                            flex.ExpandFrameworkListNestedBlock(ctx, m.Vlans, diags, ExpandIpv6networkVlans),
 		ZoneAssociations:                 flex.ExpandFrameworkListNestedBlock(ctx, m.ZoneAssociations, diags, ExpandIpv6networkZoneAssociations),
 	}
+	if isCreate {
+		ext.FuncCall = BuildIpv6networkFuncCall(ctx, m.DynamicAllocation, diags)
+	}
+	return ext
 }
 
 // ApplyIpv6networkNIOSUseFlags derives NIOS use flags from the raw config
@@ -1046,6 +1064,9 @@ func (m *NIOSIpv6networkModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
 	m.Vlans = flex.FlattenFrameworkListNestedBlock(ctx, from.Vlans, Ipv6networkVlansAttrTypes, diags, FlattenIpv6networkVlans)
 	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, Ipv6networkZoneAssociationsAttrTypes, diags, FlattenIpv6networkZoneAssociations)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

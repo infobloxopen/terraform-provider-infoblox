@@ -38,11 +38,13 @@ var Ipv6networkPortControlBlackoutSettingResourceSchemaAttributes = map[string]s
 	},
 	"blackout_duration": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The blackout duration in seconds; minimum value is 1 minute.",
 	},
 	"blackout_schedule": schema.SingleNestedAttribute{
 		Attributes:          Ipv6networkportcontrolblackoutsettingBlackoutScheduleResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A Schedule Setting struct that determines blackout schedule.",
 	},
 }

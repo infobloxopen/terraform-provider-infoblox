@@ -69,6 +69,7 @@ var Ipv6networkNIOSFieldMap = map[string]string{
 	"NIOS.ValidLifetime":                    "ValidLifetime",
 	"NIOS.Vlans":                            "Vlans",
 	"NIOS.ZoneAssociations":                 "ZoneAssociations",
+	"NIOS.FuncCall":                         "FuncCall",
 }
 
 // Ipv6networkUDDIFieldMap maps infoblox model fields to UDDI struct fields

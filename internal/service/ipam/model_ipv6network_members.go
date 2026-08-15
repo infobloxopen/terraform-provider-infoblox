@@ -33,6 +33,7 @@ var Ipv6networkMembersAttrTypes = map[string]attr.Type{
 var Ipv6networkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	"ipv4addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -40,6 +41,7 @@ var Ipv6networkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -47,6 +49,7 @@ var Ipv6networkMembersResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -73,9 +76,9 @@ func (m *Ipv6networkMembersModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosipam.Ipv6networkMembers{
-		Ipv4addr: flex.ExpandStringPointerNullAsEmpty(m.Ipv4addr),
-		Ipv6addr: flex.ExpandStringPointerNullAsEmpty(m.Ipv6addr),
-		Name:     flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Ipv4addr: flex.ExpandStringPointer(m.Ipv4addr),
+		Ipv6addr: flex.ExpandStringPointer(m.Ipv6addr),
+		Name:     flex.ExpandStringPointer(m.Name),
 	}
 	return to
 }

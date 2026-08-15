@@ -3,7 +3,10 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
@@ -21,4 +24,8 @@ func validateIpv6networkNIOSConfig(ctx context.Context, m *NIOSIpv6networkModel,
 }
 
 func validateIpv6networkUDDIConfig(ctx context.Context, m *UDDIIpv6networkModel, resp *resource.ValidateConfigResponse) {
+}
+
+func BuildIpv6networkFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosipam.FuncCall {
+	return nil
 }

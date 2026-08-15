@@ -79,6 +79,7 @@ type NIOSIpv6networkExt struct {
 	ValidLifetime                    *int64
 	Vlans                            []niosipam.Ipv6networkVlans
 	ZoneAssociations                 []niosipam.Ipv6networkZoneAssociations
+	FuncCall                         *niosipam.FuncCall
 }
 
 // UDDIIpv6networkExt - UDDI specific fields for Ipv6network
