@@ -6,8 +6,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 // ValidateIpv6network validates the Ipv6network configuration.
@@ -28,4 +30,17 @@ func validateIpv6networkUDDIConfig(ctx context.Context, m *UDDIIpv6networkModel,
 
 func BuildIpv6networkFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosipam.FuncCall {
 	return nil
+}
+
+func PostFlattenIpv6networkNIOS(ctx context.Context, planned, flattened *NIOSIpv6networkModel, diags *diag.Diagnostics) {
+	if planned != nil && !planned.Options.IsUnknown() {
+		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
+		diags.Append(*d...)
+		if d.HasError() {
+			return
+		}
+		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
+			flattened.Options = reorderedList
+		}
+	}
 }

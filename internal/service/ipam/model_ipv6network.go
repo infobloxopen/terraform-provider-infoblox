@@ -318,9 +318,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines whether a network is disabled or not. When this is set to False, the network is enabled.",
 	},
 	"discovered_bridge_domain": schema.StringAttribute{
-		Default:  stringdefault.StaticString(""),
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -328,9 +326,7 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Discovered bridge domain.",
 	},
 	"discovered_tenant": schema.StringAttribute{
-		Default:  stringdefault.StaticString(""),
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -700,10 +696,13 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			"abandoned_reclaim_time_v6": types.Int64Null(), /* abandoned_reclaim_time_v6 cannot be set for subnet */
 			"allow_unknown":             types.BoolValue(true),
 			"allow_unknown_v6":          types.BoolValue(true),
+			"authoritative_dhcp":        types.BoolNull(),
 			"echo_client_id":            types.BoolNull(), /* echo_id cannot be set for subnet */
 			"filters":                   types.ListNull(types.StringType),
 			"filters_v6":                types.ListNull(types.StringType),
 			"filters_large_selection":   types.ListNull(types.StringType),
+			"hold_reclaimed_time":       types.Int64Null(),
+			"hold_reclaimed_time_v6":    types.Int64Null(),
 			"ignore_client_uid":         types.BoolValue(false),
 			"ignore_list":               types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time":                types.Int64Value(3600),
@@ -851,7 +850,6 @@ func (m *Ipv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 // Expand converts the NIOS TF model to the core model.
 func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6networkExt {
 	ext := &coremodel.NIOSIpv6networkExt{
-		AutoCreateReversezone:            flex.ExpandBoolPointer(m.AutoCreateReversezone),
 		CloudInfo:                        ExpandIpv6networkCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:                          flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		DdnsDomainname:                   flex.ExpandStringPointerNullAsEmpty(m.DdnsDomainname),
@@ -877,15 +875,13 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		LogicFilterRules:                 flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6networkLogicFilterRules),
 		Members:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Members, diags, ExpandIpv6networkMembers),
 		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
-		Network:                          flex.ExpandIPv6Prefix(m.Network),
-		NetworkView:                      flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Options:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6networkOptions),
 		PortControlBlackoutSetting:       ExpandIpv6networkPortControlBlackoutSetting(ctx, m.PortControlBlackoutSetting, diags),
 		PreferredLifetime:                flex.ExpandInt64Pointer(m.PreferredLifetime),
 		RecycleLeases:                    flex.ExpandBoolPointer(m.RecycleLeases),
 		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
-		RirOrganization:                  flex.ExpandStringPointerNullAsEmpty(m.RirOrganization),
-		RirRegistrationAction:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationAction),
+		RirOrganization:                  flex.ExpandStringPointer(m.RirOrganization),
+		RirRegistrationAction:            flex.ExpandStringPointer(m.RirRegistrationAction),
 		RirRegistrationStatus:            flex.ExpandStringPointerNullAsEmpty(m.RirRegistrationStatus),
 		SamePortControlDiscoveryBlackout: flex.ExpandBoolPointer(m.SamePortControlDiscoveryBlackout),
 		SendRirRequest:                   flex.ExpandBoolPointer(m.SendRirRequest),
@@ -897,6 +893,9 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		ZoneAssociations:                 flex.ExpandFrameworkListNestedBlock(ctx, m.ZoneAssociations, diags, ExpandIpv6networkZoneAssociations),
 	}
 	if isCreate {
+		ext.AutoCreateReversezone = flex.ExpandBoolPointer(m.AutoCreateReversezone)
+		ext.Network = flex.ExpandIPv6Prefix(m.Network)
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
 		ext.FuncCall = BuildIpv6networkFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
@@ -985,8 +984,10 @@ func (m *Ipv6networkModel) Flatten(ctx context.Context, resp *coremodel.Ipv6netw
 	if niosModel == nil {
 		niosModel = &NIOSIpv6networkModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenIpv6networkNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6networkAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSIpv6networkAttrTypes)
@@ -1014,7 +1015,6 @@ func (m *NIOSIpv6networkModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.AutoCreateReversezone = flex.FlattenBoolPointer(from.AutoCreateReversezone)
 	m.CloudInfo = FlattenIpv6networkCloudInfo(ctx, from.CloudInfo, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DdnsDomainname = flex.FlattenStringPointerEmptyAsNull(from.DdnsDomainname)
@@ -1046,9 +1046,7 @@ func (m *NIOSIpv6networkModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.PortControlBlackoutSetting = FlattenIpv6networkPortControlBlackoutSetting(ctx, from.PortControlBlackoutSetting, diags)
 	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
 	m.RecycleLeases = flex.FlattenBoolPointer(from.RecycleLeases)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.RirOrganization = flex.FlattenStringPointerEmptyAsNull(from.RirOrganization)
-	m.RirRegistrationAction = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationAction)
 	m.RirRegistrationStatus = flex.FlattenStringPointerEmptyAsNull(from.RirRegistrationStatus)
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
 	m.SendRirRequest = flex.FlattenBoolPointer(from.SendRirRequest)
