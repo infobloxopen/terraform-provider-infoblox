@@ -9,7 +9,7 @@ terraform {
 
 provider "infoblox" {
   uddi = {
-    csp_url = "<CSP_URL>"
-    api_key = "<API_KEY>"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
