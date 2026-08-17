@@ -9,82 +9,54 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // Ipv6networkDhcpConfigModel is the Terraform model for DHCPConfig
 type Ipv6networkDhcpConfigModel struct {
-	AbandonedReclaimTime   types.Int64 `tfsdk:"abandoned_reclaim_time"`
-	AbandonedReclaimTimeV6 types.Int64 `tfsdk:"abandoned_reclaim_time_v6"`
-	AllowUnknown           types.Bool  `tfsdk:"allow_unknown"`
-	AllowUnknownV6         types.Bool  `tfsdk:"allow_unknown_v6"`
-	AuthoritativeDhcp      types.Bool  `tfsdk:"authoritative_dhcp"`
-	EchoClientId           types.Bool  `tfsdk:"echo_client_id"`
-	Filters                types.List  `tfsdk:"filters"`
-	FiltersLargeSelection  types.List  `tfsdk:"filters_large_selection"`
-	FiltersV6              types.List  `tfsdk:"filters_v6"`
-	HoldReclaimedTime      types.Int64 `tfsdk:"hold_reclaimed_time"`
-	HoldReclaimedTimeV6    types.Int64 `tfsdk:"hold_reclaimed_time_v6"`
-	IgnoreClientUid        types.Bool  `tfsdk:"ignore_client_uid"`
-	IgnoreList             types.List  `tfsdk:"ignore_list"`
-	LeaseTime              types.Int64 `tfsdk:"lease_time"`
-	LeaseTimeV6            types.Int64 `tfsdk:"lease_time_v6"`
+	AllowUnknownV6        types.Bool  `tfsdk:"allow_unknown_v6"`
+	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
+	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
+	FiltersV6             types.List  `tfsdk:"filters_v6"`
+	HoldReclaimedTimeV6   types.Int64 `tfsdk:"hold_reclaimed_time_v6"`
+	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
+	IgnoreList            types.List  `tfsdk:"ignore_list"`
+	LeaseTimeV6           types.Int64 `tfsdk:"lease_time_v6"`
 }
 
 // Ipv6networkDhcpConfigAttrTypes contains the attribute types for Ipv6networkDhcpConfigModel
 var Ipv6networkDhcpConfigAttrTypes = map[string]attr.Type{
-	"abandoned_reclaim_time":    types.Int64Type,
-	"abandoned_reclaim_time_v6": types.Int64Type,
-	"allow_unknown":             types.BoolType,
-	"allow_unknown_v6":          types.BoolType,
-	"authoritative_dhcp":        types.BoolType,
-	"echo_client_id":            types.BoolType,
-	"filters":                   types.ListType{ElemType: types.StringType},
-	"filters_large_selection":   types.ListType{ElemType: types.StringType},
-	"filters_v6":                types.ListType{ElemType: types.StringType},
-	"hold_reclaimed_time":       types.Int64Type,
-	"hold_reclaimed_time_v6":    types.Int64Type,
-	"ignore_client_uid":         types.BoolType,
-	"ignore_list":               types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
-	"lease_time":                types.Int64Type,
-	"lease_time_v6":             types.Int64Type,
+	"allow_unknown_v6":        types.BoolType,
+	"authoritative_dhcp":      types.BoolType,
+	"filters_large_selection": types.ListType{ElemType: types.StringType},
+	"filters_v6":              types.ListType{ElemType: types.StringType},
+	"hold_reclaimed_time_v6":  types.Int64Type,
+	"ignore_client_uid":       types.BoolType,
+	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
+	"lease_time_v6":           types.Int64Type,
 }
 
 // Ipv6networkDhcpConfigResourceSchemaAttributes contains the schema attributes for Ipv6networkDhcpConfigModel
 var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
-	"abandoned_reclaim_time": schema.Int64Attribute{
-		Optional:            true,
-		MarkdownDescription: "The abandoned reclaim time in seconds for IPV4 clients.",
-	},
-	"abandoned_reclaim_time_v6": schema.Int64Attribute{
-		Optional:            true,
-		MarkdownDescription: "The abandoned reclaim time in seconds for IPV6 clients.",
-	},
-	"allow_unknown": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
-	},
 	"allow_unknown_v6": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Disable to allow leases only for known IPV6 clients, those for which a fixed address is configured.",
 	},
 	"authoritative_dhcp": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Set DHCP server as authoritative.",
-	},
-	"echo_client_id": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Enable/disable to include/exclude the client id when responding to discover or request.",
-	},
-	"filters": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_large_selection": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_v6": schema.ListAttribute{
@@ -92,16 +64,14 @@ var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
-	"hold_reclaimed_time": schema.Int64Attribute{
-		Optional:            true,
-		MarkdownDescription: "The hold reclaimed time in seconds for IPv4 clients.",
-	},
 	"hold_reclaimed_time_v6": schema.Int64Attribute{
 		Optional:            true,
 		MarkdownDescription: "The hold reclaimed time in seconds for IPv6 clients.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Enable to ignore the client UID when issuing a DHCP lease. Use this option to prevent assigning two IP addresses for a client which does not have a UID during one phase of PXE boot but acquires one for the other phase.",
 	},
 	"ignore_list": schema.ListNestedAttribute{
@@ -111,12 +81,10 @@ var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
-	"lease_time": schema.Int64Attribute{
-		Optional:            true,
-		MarkdownDescription: "The lease duration in seconds.",
-	},
 	"lease_time_v6": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             int64default.StaticInt64(3600),
 		MarkdownDescription: "The lease duration in seconds for IPV6 clients.",
 	},
 }
@@ -140,21 +108,14 @@ func (m *Ipv6networkDhcpConfigModel) Expand(ctx context.Context, diags *diag.Dia
 		return nil
 	}
 	to := &uddiipam.DHCPConfig{
-		AbandonedReclaimTime:   flex.ExpandInt64Pointer(m.AbandonedReclaimTime),
-		AbandonedReclaimTimeV6: flex.ExpandInt64Pointer(m.AbandonedReclaimTimeV6),
-		AllowUnknown:           flex.ExpandBoolPointer(m.AllowUnknown),
-		AllowUnknownV6:         flex.ExpandBoolPointer(m.AllowUnknownV6),
-		AuthoritativeDhcp:      flex.ExpandBoolPointer(m.AuthoritativeDhcp),
-		EchoClientId:           flex.ExpandBoolPointer(m.EchoClientId),
-		Filters:                flex.ExpandFrameworkListString(ctx, m.Filters, diags),
-		FiltersLargeSelection:  flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
-		FiltersV6:              flex.ExpandFrameworkListString(ctx, m.FiltersV6, diags),
-		HoldReclaimedTime:      flex.ExpandInt64Pointer(m.HoldReclaimedTime),
-		HoldReclaimedTimeV6:    flex.ExpandInt64Pointer(m.HoldReclaimedTimeV6),
-		IgnoreClientUid:        flex.ExpandBoolPointer(m.IgnoreClientUid),
-		IgnoreList:             flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
-		LeaseTime:              flex.ExpandInt64Pointer(m.LeaseTime),
-		LeaseTimeV6:            flex.ExpandInt64Pointer(m.LeaseTimeV6),
+		AllowUnknownV6:        flex.ExpandBoolPointer(m.AllowUnknownV6),
+		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
+		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
+		FiltersV6:             flex.ExpandFrameworkListString(ctx, m.FiltersV6, diags),
+		HoldReclaimedTimeV6:   flex.ExpandInt64Pointer(m.HoldReclaimedTimeV6),
+		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
+		IgnoreList:            flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
+		LeaseTimeV6:           flex.ExpandInt64Pointer(m.LeaseTimeV6),
 	}
 	return to
 }
@@ -176,19 +137,12 @@ func (m *Ipv6networkDhcpConfigModel) Flatten(ctx context.Context, from *uddiipam
 	if from == nil || m == nil {
 		return
 	}
-	m.AbandonedReclaimTime = flex.FlattenInt64Pointer(from.AbandonedReclaimTime)
-	m.AbandonedReclaimTimeV6 = flex.FlattenInt64Pointer(from.AbandonedReclaimTimeV6)
-	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
 	m.AllowUnknownV6 = flex.FlattenBoolPointer(from.AllowUnknownV6)
 	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
-	m.EchoClientId = flex.FlattenBoolPointer(from.EchoClientId)
-	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.FiltersV6 = flex.FlattenFrameworkListString(ctx, from.FiltersV6, diags)
-	m.HoldReclaimedTime = flex.FlattenInt64Pointer(from.HoldReclaimedTime)
 	m.HoldReclaimedTimeV6 = flex.FlattenInt64Pointer(from.HoldReclaimedTimeV6)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
 	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
-	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
 	m.LeaseTimeV6 = flex.FlattenInt64Pointer(from.LeaseTimeV6)
 }

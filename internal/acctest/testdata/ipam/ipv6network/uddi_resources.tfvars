@@ -622,13 +622,11 @@ case "dhcp_config" {
       address     = "10.0.0.0"
       cidr        = 24
       space       = infoblox_ip_space.test.id
-      dhcp_config = { allow_unknown = true, allow_unknown_v6 = true, ignore_client_uid = true, lease_time = 50, lease_time_v6 = 60 }
+      dhcp_config = { allow_unknown_v6 = true, ignore_client_uid = true, lease_time_v6 = 60 }
     }
     check = {
-      "uddi.dhcp_config.allow_unknown"     = "true"
       "uddi.dhcp_config.allow_unknown_v6"  = "true"
       "uddi.dhcp_config.ignore_client_uid" = "true"
-      "uddi.dhcp_config.lease_time"        = "50"
       "uddi.dhcp_config.lease_time_v6"     = "60"
     }
   }
@@ -638,13 +636,11 @@ case "dhcp_config" {
       address     = "10.0.0.0"
       cidr        = 24
       space       = infoblox_ip_space.test.id
-      dhcp_config = { allow_unknown = false, allow_unknown_v6 = false, ignore_client_uid = false, lease_time = 55, lease_time_v6 = 65 }
+      dhcp_config = { allow_unknown_v6 = false, ignore_client_uid = false, lease_time_v6 = 65 }
     }
     check = {
-      "uddi.dhcp_config.allow_unknown"     = "false"
       "uddi.dhcp_config.allow_unknown_v6"  = "false"
       "uddi.dhcp_config.ignore_client_uid" = "false"
-      "uddi.dhcp_config.lease_time"        = "55"
       "uddi.dhcp_config.lease_time_v6"     = "65"
     }
   }
