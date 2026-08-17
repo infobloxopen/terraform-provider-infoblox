@@ -99,15 +99,12 @@ var Ipv6networkUDDIFieldMap = map[string]string{
 	"UDDI.HostnameRewriteChar":        "HostnameRewriteChar",
 	"UDDI.HostnameRewriteEnabled":     "HostnameRewriteEnabled",
 	"UDDI.HostnameRewriteRegex":       "HostnameRewriteRegex",
-	"UDDI.InheritanceParent":          "InheritanceParent",
 	"UDDI.InheritanceSources":         "InheritanceSources",
 	"UDDI.Name":                       "Name",
-	"UDDI.Parent":                     "Parent",
 	"UDDI.RebindTime":                 "RebindTime",
 	"UDDI.RenewTime":                  "RenewTime",
 	"UDDI.Space":                      "Space",
 	"UDDI.Tags":                       "Tags",
-	"UDDI.Threshold":                  "Threshold",
 }
 
 // TODO: only searchable fields should be included here
@@ -207,14 +204,11 @@ var Ipv6networkFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.hostname_rewrite_char":         "hostname_rewrite_char",
 		"uddi.hostname_rewrite_enabled":      "hostname_rewrite_enabled",
 		"uddi.hostname_rewrite_regex":        "hostname_rewrite_regex",
-		"uddi.inheritance_parent":            "inheritance_parent",
 		"uddi.inheritance_sources":           "inheritance_sources",
 		"uddi.name":                          "name",
-		"uddi.parent":                        "parent",
 		"uddi.rebind_time":                   "rebind_time",
 		"uddi.renew_time":                    "renew_time",
 		"uddi.space":                         "space",
 		"uddi.tags":                          "tags",
-		"uddi.threshold":                     "threshold",
 	},
 }
