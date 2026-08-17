@@ -75,12 +75,12 @@ func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilt
 // ValidateListFilters validates backend-specific filter fields for lists.
 func ValidateListFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, diags *diag.Diagnostics) {
 	// ext_attr_filters is NIOS only
-	if !extAttrFilters.IsNull() && backend == core.BackendUDDI {
+	if !extAttrFilters.IsNull() && !extAttrFilters.IsUnknown() && backend == core.BackendUDDI {
 		AddBackendFieldError(diags, "ext_attr_filters", "NIOS")
 	}
 
 	// tag_filters is UDDI only
-	if !tagFilters.IsNull() && backend == core.BackendNIOS {
+	if !tagFilters.IsNull() && !tagFilters.IsUnknown() && backend == core.BackendNIOS {
 		AddBackendFieldError(diags, "tag_filters", "UDDI")
 	}
 }

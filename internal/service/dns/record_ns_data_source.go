@@ -41,13 +41,12 @@ func (d *RecordNsDataSource) Metadata(_ context.Context, req datasource.Metadata
 
 // RecordNsDataSourceModel is the filter model for the datasource
 type RecordNsDataSourceModel struct {
-	Filters        types.Map   `tfsdk:"filters"`
-	ExtAttrFilters types.Map   `tfsdk:"ext_attr_filters"`
-	TagFilters     types.Map   `tfsdk:"tag_filters"`
-	Results        types.List  `tfsdk:"results"`
-	MaxResults     types.Int32 `tfsdk:"max_results"`
-	Paging         types.Int32 `tfsdk:"paging"`
-	Limit          types.Int32 `tfsdk:"limit"`
+	Filters    types.Map   `tfsdk:"filters"`
+	TagFilters types.Map   `tfsdk:"tag_filters"`
+	Results    types.List  `tfsdk:"results"`
+	MaxResults types.Int32 `tfsdk:"max_results"`
+	Paging     types.Int32 `tfsdk:"paging"`
+	Limit      types.Int32 `tfsdk:"limit"`
 }
 
 // FlattenResults flattens core records to the Results list using existing Flatten method.
@@ -75,11 +74,6 @@ func (d *RecordNsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",
-				ElementType: types.StringType,
-				Optional:    true,
-			},
-			"ext_attr_filters": schema.MapAttribute{
-				Description: "Extensible Attribute Filters are used to return a more specific list of results by filtering on extensible attributes. Only applicable for NIOS backend.",
 				ElementType: types.StringType,
 				Optional:    true,
 			},
@@ -144,7 +138,7 @@ func (d *RecordNsDataSource) ValidateConfig(ctx context.Context, req datasource.
 		return
 	}
 
-	customvalidator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Limit, &resp.Diagnostics)
+	customvalidator.ValidateDataSourceFilters(d.backend, types.MapNull(types.StringType), data.TagFilters, data.MaxResults, data.Limit, &resp.Diagnostics)
 }
 
 func (d *RecordNsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -159,7 +153,6 @@ func (d *RecordNsDataSource) Read(ctx context.Context, req datasource.ReadReques
 	opts := &core.ListOptions{
 		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
 		InternalFilters: map[string]string{"type": RecordNsType},
-		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
 		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
 		ReturnFields:    RecordNsReturnFields,
 		Paging:          1,
