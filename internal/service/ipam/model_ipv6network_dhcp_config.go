@@ -21,7 +21,6 @@ type Ipv6networkDhcpConfigModel struct {
 	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
 	FiltersV6             types.List  `tfsdk:"filters_v6"`
-	HoldReclaimedTimeV6   types.Int64 `tfsdk:"hold_reclaimed_time_v6"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
 	IgnoreList            types.List  `tfsdk:"ignore_list"`
 	LeaseTimeV6           types.Int64 `tfsdk:"lease_time_v6"`
@@ -33,7 +32,6 @@ var Ipv6networkDhcpConfigAttrTypes = map[string]attr.Type{
 	"authoritative_dhcp":      types.BoolType,
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
 	"filters_v6":              types.ListType{ElemType: types.StringType},
-	"hold_reclaimed_time_v6":  types.Int64Type,
 	"ignore_client_uid":       types.BoolType,
 	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
 	"lease_time_v6":           types.Int64Type,
@@ -63,10 +61,6 @@ var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		ElementType:         types.StringType,
 		Optional:            true,
 		MarkdownDescription: "The resource identifier.",
-	},
-	"hold_reclaimed_time_v6": schema.Int64Attribute{
-		Optional:            true,
-		MarkdownDescription: "The hold reclaimed time in seconds for IPv6 clients.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
 		Optional:            true,
@@ -112,7 +106,6 @@ func (m *Ipv6networkDhcpConfigModel) Expand(ctx context.Context, diags *diag.Dia
 		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
 		FiltersV6:             flex.ExpandFrameworkListString(ctx, m.FiltersV6, diags),
-		HoldReclaimedTimeV6:   flex.ExpandInt64Pointer(m.HoldReclaimedTimeV6),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
 		IgnoreList:            flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
 		LeaseTimeV6:           flex.ExpandInt64Pointer(m.LeaseTimeV6),
@@ -141,7 +134,6 @@ func (m *Ipv6networkDhcpConfigModel) Flatten(ctx context.Context, from *uddiipam
 	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.FiltersV6 = flex.FlattenFrameworkListString(ctx, from.FiltersV6, diags)
-	m.HoldReclaimedTimeV6 = flex.FlattenInt64Pointer(from.HoldReclaimedTimeV6)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
 	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
 	m.LeaseTimeV6 = flex.FlattenInt64Pointer(from.LeaseTimeV6)

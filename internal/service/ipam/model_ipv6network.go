@@ -704,7 +704,6 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			"authoritative_dhcp":      types.BoolValue(false),
 			"filters_large_selection": types.ListNull(types.StringType),
 			"filters_v6":              types.ListNull(types.StringType),
-			"hold_reclaimed_time_v6":  types.Int64Null(),
 			"ignore_client_uid":       types.BoolValue(false),
 			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time_v6":           types.Int64Value(3600),
@@ -1082,7 +1081,7 @@ func (m *UDDIIpv6networkModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.DdnsGenerateName = flex.FlattenBoolPointer(from.DdnsGenerateName)
 	m.DdnsGeneratedPrefix = flex.FlattenStringPointer(from.DdnsGeneratedPrefix)
 	m.DdnsSendUpdates = flex.FlattenBoolPointer(from.DdnsSendUpdates)
-	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
+	m.DdnsTtlPercent = flex.FlattenFloat32PointerZeroAsNull(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
 	m.DhcpConfig = FlattenIpv6networkDhcpConfig(ctx, from.DhcpConfig, diags)
@@ -1099,8 +1098,8 @@ func (m *UDDIIpv6networkModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)
 	m.InheritanceSources = FlattenDHCPInheritance(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.RebindTime = flex.FlattenInt64Pointer(from.RebindTime)
-	m.RenewTime = flex.FlattenInt64Pointer(from.RenewTime)
+	m.RebindTime = flex.FlattenInt64PointerZeroAsNull(from.RebindTime)
+	m.RenewTime = flex.FlattenInt64PointerZeroAsNull(from.RenewTime)
 	m.Space = flex.FlattenStringPointer(from.Space)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {

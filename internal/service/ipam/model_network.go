@@ -914,7 +914,6 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			"authoritative_dhcp":      types.BoolValue(false),
 			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
-			"hold_reclaimed_time":     types.Int64Null(),
 			"ignore_client_uid":       types.BoolValue(false),
 			"ignore_list":             types.ListNull(types.ObjectType{AttrTypes: IgnoreItemAttrTypes}),
 			"lease_time":              types.Int64Value(3600),
