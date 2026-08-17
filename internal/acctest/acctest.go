@@ -22,7 +22,13 @@ import (
 
 const (
 	letterBytes = "abcdefghijklmnopqrstuvwxyz"
+
+	envNIOSPassthru = "INFOBLOX_ACC_NIOS_PASSTHRU"
 )
+
+func NIOSPassthruEnabled() bool {
+	return os.Getenv(envNIOSPassthru) == "true"
+}
 
 var packageDir string
 
@@ -47,7 +53,16 @@ var (
 )
 
 // PreCheckNIOS validates NIOS environment and initializes the client.
+// With INFOBLOX_ACC_NIOS_PASSTHRU=true the Grid is reached through the Infoblox Portal, and the
+// verification client takes the same route as the provider rather than connecting to the Grid directly.
 func PreCheckNIOS(t *testing.T) {
+	if NIOSPassthruEnabled() {
+		preCheckNIOSPassthru(t)
+		return
+	}
+
+	t.Logf("NIOS transport: direct Grid (set %s=true for Infoblox Portal passthrough)", envNIOSPassthru)
+
 	hostURL := os.Getenv("NIOS_HOST_URL")
 	if hostURL == "" {
 		t.Fatal("NIOS_HOST_URL must be set for NIOS acceptance tests")
@@ -68,6 +83,36 @@ func PreCheckNIOS(t *testing.T) {
 		niosoption.WithNIOSHostUrl(hostURL),
 		niosoption.WithNIOSUsername(username),
 		niosoption.WithNIOSPassword(password),
+		niosoption.WithDebug(true),
+	)
+}
+
+// preCheckNIOSPassthru validates the Infoblox Portal environment and initializes a NIOS client
+// that reaches the Grid through the Portal. Grid credentials are not used on this route.
+func preCheckNIOSPassthru(t *testing.T) {
+	t.Logf("NIOS transport: Infoblox Portal passthrough (%s=true)", envNIOSPassthru)
+
+	portalURL := os.Getenv("INFOBLOX_PORTAL_URL")
+	if portalURL == "" {
+		t.Fatalf("INFOBLOX_PORTAL_URL must be set when %s=true", envNIOSPassthru)
+	}
+
+	portalKey := os.Getenv("INFOBLOX_PORTAL_KEY")
+	if portalKey == "" {
+		t.Fatalf("INFOBLOX_PORTAL_KEY must be set when %s=true", envNIOSPassthru)
+	}
+
+	licenseUID := os.Getenv("NIOS_LICENSE_UID")
+	if licenseUID == "" {
+		t.Fatalf("NIOS_LICENSE_UID must be set when %s=true", envNIOSPassthru)
+	}
+
+	NIOSClient = niosclient.NewAPIClient(
+		niosoption.WithClientName("terraform-acceptance-tests"),
+		niosoption.WithNIOSPassthrough(true),
+		niosoption.WithPortalUrl(portalURL),
+		niosoption.WithPortalAPIKey(portalKey),
+		niosoption.WithNIOSLicenseUID(licenseUID),
 		niosoption.WithDebug(true),
 	)
 }
@@ -258,6 +303,19 @@ func ReplacePlaceholders(content string) string {
 func ProviderConfigHCL(backend string) string {
 	switch backend {
 	case "nios":
+		if NIOSPassthruEnabled() {
+			return fmt.Sprintf(`
+provider "infoblox" {
+  uddi = {
+    infoblox_portal_url  = %q
+    infoblox_portal_key  = %q
+    nios_license_uid     = %q
+    enable_nios_passthru = true
+  }
+}
+`, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"), os.Getenv("NIOS_LICENSE_UID"))
+		}
+
 		return fmt.Sprintf(`
 provider "infoblox" {
   nios = {
