@@ -3,7 +3,6 @@ package ipam
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -11,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
@@ -56,16 +56,12 @@ var OptionItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"option_value": schema.StringAttribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("option_code")),
 		},
 		MarkdownDescription: "The option value.",
 	},
 	"type": schema.StringAttribute{
-		Validators: []validator.String{
-			stringvalidator.OneOf("group", "option"),
-		},
 		Optional:            true,
 		MarkdownDescription: "The type of item.  Valid values are: * _group_ * _option_",
 	},
