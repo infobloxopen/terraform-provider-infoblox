@@ -573,7 +573,6 @@ var Ipv6networkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6networkVlansResourceSchemaAttributes,
 		},
 		Optional: true,
-		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
