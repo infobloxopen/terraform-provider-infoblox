@@ -278,6 +278,7 @@ var RecordNaptrResourceUddiSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),
 			),
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
