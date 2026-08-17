@@ -600,12 +600,12 @@ case "func_call" {
 
   step {
     nios {
-      dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
-      comment            = "network"
+      dynamic_allocation = { network = infoblox_ipv6network.parent.nios.network, network_view = "default", cidr = 126 }
+      comment            = "Created by Dynamic Allocation"
     }
     depends_on = [infoblox_ipv6network.parent]
     check = {
-      "nios.comment" = "Original Function Call"
+      "nios.comment" = "Created by Dynamic Allocation"
     }
   }
 
@@ -1296,7 +1296,7 @@ case "vlans" {
       "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"
     }
   }
-  
+
   step {
     nios {
       network = "{{random_ipv6_network}}"
