@@ -94,7 +94,7 @@ case "ddns_dns_view" {
   step {
     nios {
       name          = "{{random}}"
-      ddns_dns_view = "default"
+      ddns_dns_view = null
     }
     check = {
       "nios.ddns_dns_view" = "default"
@@ -103,7 +103,8 @@ case "ddns_dns_view" {
 
   step {
     nios {
-      name = "{{random}}"
+      name          = "{{random}}"
+      ddns_dns_view = "default.{{random}}"
     }
     check = {
       "nios.ddns_dns_view" = "default.{{random}}"
@@ -113,8 +114,10 @@ case "ddns_dns_view" {
 }
 
 case "ddns_zone_primaries" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  skip        = true
+  skip_reason = "requires_infra: NIOS grid member hostname not available in test environment"
+  parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "parent_zone1" {
     nios = {

@@ -2,9 +2,11 @@ package ipam
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
@@ -24,5 +26,26 @@ func validateNetworkviewNIOSConfig(ctx context.Context, m *NIOSNetworkviewModel,
 func validateNetworkviewUDDIConfig(ctx context.Context, m *UDDINetworkviewModel, resp *resource.ValidateConfigResponse) {
 }
 
+// PostFlattenNetworkviewNIOS normalizes fields that NIOS modifies on read-back.
+//
+// When ddns_dns_view is left unconfigured (null), NIOS auto-assigns the default
+// DNS view for the network view and names it "default.<networkview_name>". Strip
+// the ".<networkview_name>" suffix so Terraform sees "default", matching what
+// NIOS does when the field is left unconfigured.
+//
+// When the user explicitly sets ddns_dns_view (non-null), NIOS stores and returns
+// the exact value — no suffix is appended, so no stripping is needed.
 func PostFlattenNetworkviewNIOS(ctx context.Context, planned, flattened *NIOSNetworkviewModel, diags *diag.Diagnostics) {
+	if planned == nil || flattened == nil {
+		return
+	}
+	if (planned.DdnsDnsView.IsNull() || planned.DdnsDnsView.IsUnknown()) &&
+		!flattened.DdnsDnsView.IsNull() && !flattened.DdnsDnsView.IsUnknown() &&
+		!flattened.Name.IsNull() && !flattened.Name.IsUnknown() {
+		flattenedVal := flattened.DdnsDnsView.ValueString()
+		name := flattened.Name.ValueString()
+		if strings.HasSuffix(flattenedVal, "."+name) {
+			flattened.DdnsDnsView = types.StringValue(strings.TrimSuffix(flattenedVal, "."+name))
+		}
+	}
 }
