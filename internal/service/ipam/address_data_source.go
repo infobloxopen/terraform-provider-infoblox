@@ -134,7 +134,7 @@ func (d *AddressDataSource) ValidateConfig(ctx context.Context, req datasource.V
 		return
 	}
 
-	validator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Paging, &resp.Diagnostics)
+	validator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, types.Int32Null(), &resp.Diagnostics)
 }
 
 func (d *AddressDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

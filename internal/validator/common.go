@@ -50,7 +50,7 @@ func AddBackendFieldError(diags *diag.Diagnostics, fieldName, requiredBackend st
 }
 
 // ValidateDataSourceFilters validates backend-specific filter fields for datasources.
-func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, maxResults, paging types.Int32, diags *diag.Diagnostics) {
+func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, maxResults, limit types.Int32, diags *diag.Diagnostics) {
 	// ext_attr_filters is NIOS only
 	if !extAttrFilters.IsNull() && backend == core.BackendUDDI {
 		AddBackendFieldError(diags, "ext_attr_filters", "NIOS")
@@ -61,9 +61,9 @@ func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilt
 		AddBackendFieldError(diags, "max_results", "NIOS")
 	}
 
-	// paging is NIOS only
-	if !paging.IsNull() && backend == core.BackendUDDI {
-		AddBackendFieldError(diags, "paging", "NIOS")
+	// limit is UDDI only
+	if !limit.IsNull() && backend == core.BackendNIOS {
+		AddBackendFieldError(diags, "limit", "UDDI")
 	}
 
 	// tag_filters is UDDI only
