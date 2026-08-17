@@ -12,32 +12,35 @@ import (
 // ValidateBackendBlocks validates that the correct backend-specific block is present
 // and the wrong backend block is not specified.
 func ValidateBackendBlocks(backend core.BackendType, niosBlock, uddiBlock types.Object, diags *diag.Diagnostics) {
-	// Require backend-specific block (can be empty)
-	if backend == core.BackendNIOS && niosBlock.IsNull() {
-		diags.AddError(
-			"Missing Required Block",
-			"The 'nios' block is required when using the NIOS backend. Use 'nios = {}' if no attributes needed.",
-		)
-	}
-	if backend == core.BackendUDDI && uddiBlock.IsNull() {
-		diags.AddError(
-			"Missing Required Block",
-			"The 'uddi' block is required when using the UDDI backend. Use 'uddi = {}' if no attributes needed.",
-		)
-	}
-
-	// Disallow wrong backend block
-	if backend == core.BackendNIOS && !uddiBlock.IsNull() {
-		diags.AddError(
-			"Invalid Configuration",
-			"The 'uddi' block is not allowed when using the NIOS backend.",
-		)
-	}
-	if backend == core.BackendUDDI && !niosBlock.IsNull() {
-		diags.AddError(
-			"Invalid Configuration",
-			"The 'nios' block is not allowed when using the UDDI backend.",
-		)
+	switch backend {
+	case core.BackendNIOS:
+		if !uddiBlock.IsNull() {
+			diags.AddError(
+				"Invalid Configuration",
+				"The 'uddi' block is not allowed when using the NIOS backend or NIOS via the Infoblox Portal. Use the 'nios' block here, or to manage UDDI objects use a provider configured with a 'uddi' block and 'enable_nios_passthru = false'.",
+			)
+			return
+		}
+		if niosBlock.IsNull() {
+			diags.AddError(
+				"Missing Required Block",
+				"The 'nios' block is required when using the NIOS backend or NIOS via the Infoblox Portal. Add a 'nios' block here, or to manage UDDI objects use a provider configured with a 'uddi' block and 'enable_nios_passthru = false'.",
+			)
+		}
+	case core.BackendUDDI:
+		if !niosBlock.IsNull() {
+			diags.AddError(
+				"Invalid Configuration",
+				"The 'nios' block is not allowed when using the UDDI backend. Use the 'uddi' block here, or to manage NIOS objects use a provider configured with a 'nios' block, or a 'uddi' block with 'enable_nios_passthru = true'.",
+			)
+			return
+		}
+		if uddiBlock.IsNull() {
+			diags.AddError(
+				"Missing Required Block",
+				"The 'uddi' block is required when using the UDDI backend. Add a 'uddi' block here, or to manage NIOS objects use a provider configured with a 'nios' block, or a 'uddi' block with 'enable_nios_passthru = true'.",
+			)
+		}
 	}
 }
 
