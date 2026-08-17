@@ -51,8 +51,8 @@ type (
 	}
 
 	UDDIConfig struct {
-		InfobloxPortalURL  types.String `tfsdk:"infoblox_portal_url"`
-		InfobloxPortalKey  types.String `tfsdk:"infoblox_portal_key"`
+		PortalURL          types.String `tfsdk:"portal_url"`
+		PortalKey          types.String `tfsdk:"portal_key"`
 		NIOSLicenseUID     types.String `tfsdk:"nios_license_uid"`
 		EnableNIOSPassthru types.Bool   `tfsdk:"enable_nios_passthru"`
 	}
@@ -111,11 +111,11 @@ func buildUDDIAttribute() schema.Attribute {
 		Description: "Configuration for UDDI backend.",
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
-			"infoblox_portal_url": schema.StringAttribute{
+			"portal_url": schema.StringAttribute{
 				MarkdownDescription: "URL for the Infoblox Portal, or its WAPI endpoint when `enable_nios_passthru` is true.",
 				Optional:            true,
 			},
-			"infoblox_portal_key": schema.StringAttribute{
+			"portal_key": schema.StringAttribute{
 				MarkdownDescription: "API key for accessing the UDDI API.",
 				Optional:            true,
 				Sensitive:           true,
@@ -188,7 +188,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 		// Passthrough reaches NIOS through the Infoblox Portal, so the backend is NIOS.
 		if data.UDDI.EnableNIOSPassthru.ValueBool() {
-			if data.UDDI.InfobloxPortalURL.IsUnknown() || data.UDDI.InfobloxPortalKey.IsUnknown() || data.UDDI.NIOSLicenseUID.IsUnknown() {
+			if data.UDDI.PortalURL.IsUnknown() || data.UDDI.PortalKey.IsUnknown() || data.UDDI.NIOSLicenseUID.IsUnknown() {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
 					"The 'uddi' attributes for NIOS through the Infoblox Portal are not known until apply, but the provider needs them during planning. Use values that are known before apply.",
@@ -213,8 +213,8 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 			client := uddiclient.NewAPIClient(
 				uddioption.WithClientName(fmt.Sprintf("terraform/%s#%s", p.version, p.commit)),
-				uddioption.WithCSPUrl(data.UDDI.InfobloxPortalURL.ValueString()),
-				uddioption.WithAPIKey(data.UDDI.InfobloxPortalKey.ValueString()),
+				uddioption.WithCSPUrl(data.UDDI.PortalURL.ValueString()),
+				uddioption.WithAPIKey(data.UDDI.PortalKey.ValueString()),
 				uddioption.WithDebug(true),
 			)
 
@@ -241,8 +241,8 @@ func (p *InfobloxProvider) newNIOSPassthruClient(
 	options := []niosoption.ClientOption{
 		niosoption.WithClientName(fmt.Sprintf("terraform/%s#%s", p.version, p.commit)),
 		niosoption.WithNIOSPassthrough(true),
-		niosoption.WithPortalUrl(uddi.InfobloxPortalURL.ValueString()),
-		niosoption.WithPortalAPIKey(uddi.InfobloxPortalKey.ValueString()),
+		niosoption.WithPortalUrl(uddi.PortalURL.ValueString()),
+		niosoption.WithPortalAPIKey(uddi.PortalKey.ValueString()),
 		niosoption.WithNIOSLicenseUID(uddi.NIOSLicenseUID.ValueString()),
 		niosoption.WithDebug(true),
 	}

@@ -307,8 +307,8 @@ func ProviderConfigHCL(backend string) string {
 			return fmt.Sprintf(`
 provider "infoblox" {
   uddi = {
-    infoblox_portal_url  = %q
-    infoblox_portal_key  = %q
+    portal_url           = %q
+    portal_key           = %q
     nios_license_uid     = %q
     enable_nios_passthru = true
   }
@@ -330,8 +330,8 @@ provider "infoblox" {
 		return fmt.Sprintf(`
 provider "infoblox" {
   uddi = {
-    infoblox_portal_url = %q
-    infoblox_portal_key = %q
+    portal_url = %q
+    portal_key = %q
   }
 }
 `, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"))
