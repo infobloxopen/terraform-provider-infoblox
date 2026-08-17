@@ -69,7 +69,7 @@ func (l *RecordTxtList) Configure(_ context.Context, req resource.ConfigureReque
 
 func (l *RecordTxtList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox RecordTxt from the configured backend (NIOS or UDDI).",
+		MarkdownDescription: "Retrieves a list of Infoblox RecordTxt from both the NIOS and UDDI backends.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",

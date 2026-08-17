@@ -3,12 +3,12 @@
 page_title: "infoblox_record_caa Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordCaa across NIOS and UDDI backends.
+  Manages an Infoblox RecordCaa in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_caa (Resource)
 
-Manages an Infoblox RecordCaa across NIOS and UDDI backends.
+Manages an Infoblox RecordCaa in both NIOS and UDDI backends.
 
 ## Example Usage
 
