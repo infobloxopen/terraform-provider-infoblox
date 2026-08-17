@@ -50,7 +50,7 @@ case "auto_create_reversezone" {
 
   step {
     nios {
-      network                 = "{{random_ipv6_network}}"
+      network                 = "{{random_ipv6_network_4bit_boundary}}"
       auto_create_reversezone = true
     }
     check = {
@@ -832,12 +832,14 @@ case "restart_if_needed" {
 case "rir_registration_action" {
   backend  = "nios"
   parallel = true
+  skip = true
+  skip_reason = "Skipping this test case as ipv6networkcontainer resource is under development as of now"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network_container" "test_rir_parent" {
+  resource "infoblox_ipv6networkcontainer" "test_rir_parent" {
     nios = {
       network = "{{random_ipv6_network}}"
       rir_organization = "rir-org-test1"
-      extattrs = { RIPE Network Name = "TEST-NET-V6", RIPE Description = "Test IPv6 network", RIPE Country = "United States (US)", RIPE Admin Contact = "TEST-RIPE", RIPE Technical Contact = "TEST-RIPE", RIPE Registry Source = "RIPE", RIPE IPv6 Status = "ASSIGNED" }
+      extattrs = { "RIPE Network Name" = "TEST-NET-V6", "RIPE Description" = "Test IPv6 network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE","RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
     }
   }
   PREREQ
@@ -849,7 +851,7 @@ case "rir_registration_action" {
       rir_organization        = "rir-org-test1"
       ext_attrs               = { "RIPE Network Name" = "TEST-NET-V6-CHILD", "RIPE Description" = "Test IPv6 child network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE", "RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
     }
-    depends_on = [infoblox_ipv6network_container.test_rir_parent]
+    depends_on = [infoblox_ipv6networkcontainer.test_rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
     }
