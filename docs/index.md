@@ -77,7 +77,7 @@ Optional:
 
 Optional:
 
-- `enable_nios_passthru` (Boolean) Manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Infoblox Portal. Default value: false
+- `enable_nios_passthru` (Boolean) Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false
 - `nios_license_uid` (String) License UID of the NIOS Grid to manage, required when `enable_nios_passthru` is true.
 - `portal_key` (String, Sensitive) API key for accessing the UDDI API.
 - `portal_url` (String) URL for the Infoblox Portal, or its WAPI endpoint when `enable_nios_passthru` is true.

@@ -125,7 +125,7 @@ func buildUDDIAttribute() schema.Attribute {
 				Optional:            true,
 			},
 			"enable_nios_passthru": schema.BoolAttribute{
-				MarkdownDescription: "Manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Infoblox Portal. Default value: false",
+				MarkdownDescription: "Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false",
 				Optional:            true,
 			},
 		},
