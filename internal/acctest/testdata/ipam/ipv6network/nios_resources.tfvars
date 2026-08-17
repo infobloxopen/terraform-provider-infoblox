@@ -1296,7 +1296,7 @@ case "vlans" {
       "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"
     }
   }
-
+  
   step {
     nios {
       network = "{{random_ipv6_network}}"
