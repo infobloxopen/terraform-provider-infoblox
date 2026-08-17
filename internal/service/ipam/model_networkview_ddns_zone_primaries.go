@@ -93,9 +93,9 @@ func (m *NetworkviewDdnsZonePrimariesModel) Expand(ctx context.Context, diags *d
 	to := &niosipam.NetworkviewDdnsZonePrimaries{
 		ZoneMatch:      flex.ExpandStringPointerNullAsEmpty(m.ZoneMatch),
 		DnsGridZone:    ExpandNetworkviewDdnsZonePrimariesDnsGridZone(ctx, m.DnsGridZone, diags),
-		DnsGridPrimary: flex.ExpandStringPointerNullAsEmpty(m.DnsGridPrimary),
-		DnsExtZone:     flex.ExpandStringPointerNullAsEmpty(m.DnsExtZone),
-		DnsExtPrimary:  flex.ExpandStringPointerNullAsEmpty(m.DnsExtPrimary),
+		DnsGridPrimary: flex.ExpandStringPointer(m.DnsGridPrimary),
+		DnsExtZone:     flex.ExpandStringPointer(m.DnsExtZone),
+		DnsExtPrimary:  flex.ExpandStringPointer(m.DnsExtPrimary),
 	}
 	return to
 }

@@ -94,7 +94,7 @@ case "ddns_dns_view" {
   step {
     nios {
       name          = "{{random}}"
-      ddns_dns_view = "null"
+      ddns_dns_view = "default"
     }
     check = {
       "nios.ddns_dns_view" = "default"
@@ -119,12 +119,14 @@ case "ddns_zone_primaries" {
   resource "infoblox_zone_auth" "parent_zone1" {
     nios = {
       fqdn = "{{random2}}.com"
+      grid_primary = [{ name = "{{grid_member_hostname}}" }]
       view = "default"
     }
   }
   resource "infoblox_zone_auth" "parent_zone2" {
     nios = {
       fqdn = "{{random3}}.com"
+      grid_primary = [{ name = "{{grid_member_hostname}}" }]
       view = "default"
     }
   }
@@ -133,7 +135,7 @@ case "ddns_zone_primaries" {
   step {
     nios {
       name                = "{{random}}"
-      ddns_zone_primaries = { dns_grid_primary = "{{grid_member_hostname}}", zone_match = "GRID", dns_grid_zone = { ref = "$${nios_dns_zone_auth.parent_zone1.ref}" } }
+      ddns_zone_primaries = [{ dns_grid_primary = "{{grid_member_hostname}}", zone_match = "GRID", dns_grid_zone = { ref = "${infoblox_zone_auth.parent_zone1.id}" } }]
     }
     check = {
       "nios.ddns_zone_primaries.0.dns_grid_primary" = "{{grid_member_hostname}}"
@@ -144,7 +146,7 @@ case "ddns_zone_primaries" {
   step {
     nios {
       name                = "{{random}}"
-      ddns_zone_primaries = { dns_grid_primary = "{{grid_member_hostname}}", zone_match = "GRID", dns_grid_zone = { ref = "$${nios_dns_zone_auth.parent_zone2.ref}" } }
+      ddns_zone_primaries = [{ dns_grid_primary = "{{grid_member_hostname}}", zone_match = "GRID", dns_grid_zone = { ref = "${infoblox_zone_auth.parent_zone2.id}" } }]
     }
     check = {
       "nios.ddns_zone_primaries.0.dns_grid_primary" = "{{grid_member_hostname}}"
@@ -217,13 +219,13 @@ case "internal_forward_zones" {
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
       fqdn = "example_fqdn_internal_forward_zone_1"
-      view = "default.%[1]s"
+      view = "default.{{random}}"
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
       fqdn = "example_fqdn_internal_forward_zone_2"
-      view = "default.%[1]s"
+      view = "default.{{random}}"
     }
   }
   PREREQ
@@ -240,14 +242,14 @@ case "internal_forward_zones" {
   step {
     nios {
       name                   = "{{random}}"
-      internal_forward_zones = ["${nios_dns_zone_auth.test_zone1.ref}"]
+      internal_forward_zones = ["${infoblox_zone_auth.test_zone1.id}"]
     }
   }
 
   step {
     nios {
       name                   = "{{random}}"
-      internal_forward_zones = ["${nios_dns_zone_auth.test_zone1.ref}", "${nios_dns_zone_auth.test_zone2.ref}"]
+      internal_forward_zones = ["${infoblox_zone_auth.test_zone1.id}", "${infoblox_zone_auth.test_zone2.id}"]
     }
   }
 
@@ -314,7 +316,7 @@ case "remote_forward_zones" {
   step {
     nios {
       name                 = "{{random}}"
-      remote_forward_zones = { fqdn = "fwdzone1.com", key_type = "TSIG", server_address = "192.168.12.12", tsig_key_name = "tsigkey", tsig_key_alg = "HMAC-SHA256", tsig_key = "dGhpc2lzdGVzdHRzaWdrZXk=" }
+      remote_forward_zones = [{ fqdn = "fwdzone1.com", key_type = "TSIG", server_address = "192.168.12.12", tsig_key_name = "tsigkey", tsig_key_alg = "HMAC-SHA256", tsig_key = "dGhpc2lzdGVzdHRzaWdrZXk=" }]
     }
     check = {
       "nios.remote_forward_zones.0.fqdn"           = "fwdzone1.com"
@@ -326,7 +328,7 @@ case "remote_forward_zones" {
   step {
     nios {
       name                 = "{{random}}"
-      remote_forward_zones = { fqdn = "fwdzone2.com", key_type = "TSIG", server_address = "192.168.12.13", tsig_key_name = "tsigkey2", tsig_key_alg = "HMAC-SHA256", tsig_key = "dGhpc2lzdGBzdHRzaWdrZXk=" }
+      remote_forward_zones = [{ fqdn = "fwdzone2.com", key_type = "TSIG", server_address = "192.168.12.13", tsig_key_name = "tsigkey2", tsig_key_alg = "HMAC-SHA256", tsig_key = "dGhpc2lzdGBzdHRzaWdrZXk=" }]
     }
     check = {
       "nios.remote_forward_zones.0.fqdn"           = "fwdzone2.com"
