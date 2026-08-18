@@ -3,12 +3,12 @@
 page_title: "infoblox_network List Resource - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Retrieves a list of Infoblox Network from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox Network from both the NIOS and UDDI backends.
 ---
 
 # infoblox_network (List Resource)
 
-Retrieves a list of Infoblox Network from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox Network from both the NIOS and UDDI backends.
 
 ## Example Usage
 

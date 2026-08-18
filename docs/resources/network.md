@@ -3,12 +3,12 @@
 page_title: "infoblox_network Resource - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Manages an Infoblox Network across NIOS and UDDI backends.
+  Manages an Infoblox Network in both NIOS and UDDI backends.
 ---
 
 # infoblox_network (Resource)
 
-Manages an Infoblox Network across NIOS and UDDI backends.
+Manages an Infoblox Network in both NIOS and UDDI backends.
 
 ## Example Usage
 
