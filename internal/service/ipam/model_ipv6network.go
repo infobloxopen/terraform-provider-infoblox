@@ -177,7 +177,6 @@ type UDDIIpv6networkModel struct {
 	Space                      types.String                     `tfsdk:"space"`
 	Tags                       types.Map                        `tfsdk:"tags"`
 	TagsAll                    types.Map                        `tfsdk:"tags_all"`
-	DynamicAllocation          types.Object                     `tfsdk:"dynamic_allocation"`
 }
 
 var UDDIIpv6networkAttrTypes = map[string]attr.Type{
@@ -211,7 +210,6 @@ var UDDIIpv6networkAttrTypes = map[string]attr.Type{
 	"space":                         types.StringType,
 	"tags":                          types.MapType{ElemType: types.StringType},
 	"tags_all":                      types.MapType{ElemType: types.StringType},
-	"dynamic_allocation":            types.ObjectType{AttrTypes: dynamicallocation.NextAvailableSubnetAttrTypes},
 }
 
 const (
@@ -597,11 +595,6 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 			stringplanmodifier.UseStateForUnknown(),
 		},
-		Validators: []validator.String{
-			stringvalidator.ExactlyOneOf(
-				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
-			),
-		},
 		MarkdownDescription: "The address of the subnet in the form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.",
 	},
 	"asm_config": schema.SingleNestedAttribute{
@@ -797,11 +790,6 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
 	},
-	"dynamic_allocation": schema.SingleNestedAttribute{
-		Attributes:          dynamicallocation.NextAvailableSubnetResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the next available subnet from a parent scope. Mutually exclusive with the static \"address\" field.",
-	},
 }
 
 // Expand converts the TF model to the infoblox core model
@@ -944,9 +932,6 @@ func (m *UDDIIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 	if isCreate {
 		ext.Address = flex.ExpandIPv6Address(m.Address)
 		ext.Space = flex.ExpandStringPointer(m.Space)
-		if alloc := BuildIpv6networkAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
-			ext.Address = alloc
-		}
 	}
 	return ext
 }
@@ -1076,7 +1061,4 @@ func (m *UDDIIpv6networkModel) Flatten(ctx context.Context, from *coremodel.UDDI
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
-	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
-		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableSubnetAttrTypes)
-	}
 }
