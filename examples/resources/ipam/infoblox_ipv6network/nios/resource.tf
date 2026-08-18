@@ -20,7 +20,7 @@ resource "infoblox_ipv6network" "complete_example" {
 
     // Basic configuration
     network_view = "default"
-    comment      = "Complete network container example with all possible writable attributes"
+    comment      = "Complete network example with all possible writable attributes"
 
     ddns_enable_option_fqdn    = true
     ddns_generate_hostname     = true
@@ -46,6 +46,7 @@ resource "infoblox_ipv6network" "complete_example" {
       enable_blackout = false
     }
     preferred_lifetime          = 27000
+    valid_lifetime              = 43200
     recycle_leases              = true
     update_dns_on_lease_renewal = true
   }
@@ -59,7 +60,7 @@ resource "infoblox_ipv6network" "example_func_call" {
       network_view = "default"
       cidr         = 72
     }
-    comment = "Network container created with function call"
+    comment = "Network created with function call"
   }
   depends_on = [
     infoblox_ipv6network.example_network
