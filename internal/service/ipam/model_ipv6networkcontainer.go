@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -85,6 +86,7 @@ type NIOSIpv6networkcontainerModel struct {
 	UpdateDnsOnLeaseRenewal          types.Bool           `tfsdk:"update_dns_on_lease_renewal"`
 	ValidLifetime                    types.Int64          `tfsdk:"valid_lifetime"`
 	ZoneAssociations                 types.List           `tfsdk:"zone_associations"`
+	DynamicAllocation                types.Object         `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSIpv6networkcontainerAttrTypes = map[string]attr.Type{
@@ -125,6 +127,7 @@ var NIOSIpv6networkcontainerAttrTypes = map[string]attr.Type{
 	"update_dns_on_lease_renewal":          types.BoolType,
 	"valid_lifetime":                       types.Int64Type,
 	"zone_associations":                    types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6networkcontainerZoneAssociationsAttrTypes}},
+	"dynamic_allocation":                   types.ObjectType{AttrTypes: dynamicallocation.NextAvailableNetworkAttrTypes},
 }
 
 type UDDIIpv6networkcontainerModel struct {
@@ -369,11 +372,15 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 	},
 	"network": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: cidrtypes.IPv6PrefixType{},
 		PlanModifiers: []planmodifier.String{
 			immutable.ImmutableString(),
 		},
 		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The network address in IPv6 Address/CIDR format. For regular expression searches, only the IPv6 Address portion is supported. Searches for the CIDR portion is always an exact match. For example, both network containers 16::0/28 and 26::0/24 are matched by expression '.6' and only 26::0/24 is matched by '.6/24'.",
@@ -486,6 +493,11 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of zones associated with this network container.",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the network using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -753,6 +765,7 @@ func (m *NIOSIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		ext.AutoCreateReversezone = flex.ExpandBoolPointer(m.AutoCreateReversezone)
 		ext.Network = flex.ExpandIPv6Prefix(m.Network)
 		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+		ext.FuncCall = BuildIpv6networkcontainerFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
 }
@@ -894,6 +907,9 @@ func (m *NIOSIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
 	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
 	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, Ipv6networkcontainerZoneAssociationsAttrTypes, diags, FlattenIpv6networkcontainerZoneAssociations)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
