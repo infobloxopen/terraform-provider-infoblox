@@ -3,12 +3,12 @@
 page_title: "infoblox_record_mx Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordMx across NIOS and UDDI backends.
+  Manages an Infoblox RecordMx in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_mx (Resource)
 
-Manages an Infoblox RecordMx across NIOS and UDDI backends.
+Manages an Infoblox RecordMx in both NIOS and UDDI backends.
 
 ## Example Usage
 
