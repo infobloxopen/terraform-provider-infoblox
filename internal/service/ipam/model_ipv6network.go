@@ -966,11 +966,11 @@ func (m *UDDIIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		Name:                       flex.ExpandStringPointer(m.Name),
 		RebindTime:                 flex.ExpandInt64Pointer(m.RebindTime),
 		RenewTime:                  flex.ExpandInt64Pointer(m.RenewTime),
-		Space:                      flex.ExpandStringPointer(m.Space),
 		Tags:                       flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
 		ext.Address = flex.ExpandIPv6Address(m.Address)
+		ext.Space = flex.ExpandStringPointer(m.Space)
 		if alloc := BuildIpv6networkAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = alloc
 		}

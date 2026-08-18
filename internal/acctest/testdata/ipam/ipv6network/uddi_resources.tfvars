@@ -466,27 +466,27 @@ case "ddns_generated_prefix" {
 case "dhcp_options" {
   backend  = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_dhcp_option_code_unknown" "test" {
-    uddi = {
-      code = 234
-      name = "test_dhcp_option_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
-      type = "boolean"
-    }
-  }
-  resource "infoblox_dhcp_option_group_unknown" "test" {
-    uddi = {
-      name = "\"og-\"+name"
-      protocol = "ip4"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ip_space" "test" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # resource "infoblox_dhcp_option_code_unknown" "test" {
+  #   uddi = {
+  #     code = 234
+  #     name = "test_dhcp_option_code"
+  #     option_space = infoblox_dhcp_option_space_unknown.test.id
+  #     type = "boolean"
+  #   }
+  # }
+  # resource "infoblox_dhcp_option_group_unknown" "test" {
+  #   uddi = {
+  #     name = "\"og-\"+name"
+  #     protocol = "ip4"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
@@ -495,7 +495,7 @@ case "dhcp_options" {
       # space        = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
       name         = "option_group_test"
-      dhcp_options = [{ type = "option", option_code = infoblox_dhcp_option_code_unknown.test.id, option_value = true }]
+      dhcp_options = [{ type = "option", option_code = "dhcp/option_code/016b0949-e4d2-40f0-88ef-843a99f7413c", option_value = true }]
     }
     check = {
       "uddi.dhcp_options.#"              = "1"
@@ -510,7 +510,7 @@ case "dhcp_options" {
       # space        = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
       name         = "option_group_test"
-      dhcp_options = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
+      dhcp_options = [{ type = "group", group = "dhcp/option_group/803f89ac-6f30-4097-a536-62af9821aed0" }]
     }
     check = {
       "uddi.dhcp_options.#" = "1"
@@ -1210,39 +1210,40 @@ case "tags" {
 case "next_available_id" {
   backend  = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_address_block" "one" {
-    uddi = {
-      # space = infoblox_ip_space.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
-      address = "{{random_ipv6}}"
-      cidr = 16
-    }
-  }
-  resource "infoblox_address_block" "two" {
-    uddi = {
-      # space = infoblox_ip_space.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
-      address = "11.0.0.0"
-      cidr = 16
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_ip_space" "test" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # resource "infoblox_address_block" "one" {
+  #   uddi = {
+  #     # space = infoblox_ip_space.test.id
+  #     space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+  #     address = "{{random_ipv6}}"
+  #     cidr = 16
+  #   }
+  # }
+  # resource "infoblox_address_block" "two" {
+  #   uddi = {
+  #     # space = infoblox_ip_space.test.id
+  #     space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+  #     address = "11.0.0.0"
+  #     cidr = 16
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       cidr  = 128
       # space = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      dynamic_allocation = { next_available_id = "ipam/address_block/0acbbbed-94a4-11f1-8e35-aee0083f614b" }
     }
     check = {
       "uddi.address" = "{{random_ipv6}}"
-      "uddi.cidr"    = "24"
+      "uddi.cidr"    = "128"
     }
   }
 
@@ -1251,19 +1252,11 @@ case "next_available_id" {
       cidr  = 128
       # space = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      dynamic_allocation = { next_available_id = "ipam/address_block/f8c37fe7-9250-11f1-a6f1-7207525c291d" }
     }
     check = {
       "uddi.address" = "11.0.0.0"
-      "uddi.cidr"    = "24"
+      "uddi.cidr"    = "128"
     }
   }
-
-  step {
-    uddi {
-      cidr  = 128
-      # space = infoblox_ip_space.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
-    }
-  }
-
 }
