@@ -95,7 +95,7 @@ func (m *PoolLbDynamicRatioPreferredModel) Expand(ctx context.Context, diags *di
 	}
 	to := &niosdtc.DtcPoolLbDynamicRatioPreferred{
 		Method:              flex.ExpandStringPointerNullAsEmpty(m.Method),
-		Monitor:             flex.ExpandStringPointerNullAsEmpty(m.Monitor),
+		Monitor:             flex.ExpandStringPointer(m.Monitor),
 		MonitorMetric:       flex.ExpandStringPointerNullAsEmpty(m.MonitorMetric),
 		MonitorWeighing:     flex.ExpandStringPointerNullAsEmpty(m.MonitorWeighing),
 		InvertMonitorMetric: flex.ExpandBoolPointer(m.InvertMonitorMetric),
