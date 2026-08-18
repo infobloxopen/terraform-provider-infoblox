@@ -153,9 +153,10 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.LengthBetween(0, 256),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The comment for the DTC Pool; maximum 256 characters.",
 	},

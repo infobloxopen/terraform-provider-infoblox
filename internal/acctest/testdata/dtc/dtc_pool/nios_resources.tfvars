@@ -544,7 +544,7 @@ case "quorum" {
       lb_preferred_method = "ROUND_ROBIN"
       availability        = "QUORUM"
       quorum              = 1
-      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"]
     }
     check = {
       "nios.availability" = "QUORUM"
