@@ -55,7 +55,7 @@ func (r *FilteroptionResource) IdentitySchema(_ context.Context, _ resource.Iden
 
 func (r *FilteroptionResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Filteroption across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox Filteroption in both NIOS and UDDI backends.",
 		Attributes:          FilteroptionResourceSchemaAttributes,
 	}
 }
