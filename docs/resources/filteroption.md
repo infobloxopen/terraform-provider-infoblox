@@ -3,12 +3,12 @@
 page_title: "infoblox_filteroption Resource - terraform-provider-infoblox"
 subcategory: "DHCP"
 description: |-
-  Manages an Infoblox Filteroption across NIOS and UDDI backends.
+  Manages an Infoblox Filteroption in both NIOS and UDDI backends.
 ---
 
 # infoblox_filteroption (Resource)
 
-Manages an Infoblox Filteroption across NIOS and UDDI backends.
+Manages an Infoblox Filteroption in both NIOS and UDDI backends.
 
 ## Example Usage
 

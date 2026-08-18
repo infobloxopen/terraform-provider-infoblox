@@ -3,12 +3,12 @@
 page_title: "infoblox_filteroption List Resource - terraform-provider-infoblox"
 subcategory: "DHCP"
 description: |-
-  Retrieves a list of Infoblox Filteroption from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox Filteroption from both the NIOS and UDDI backends.
 ---
 
 # infoblox_filteroption (List Resource)
 
-Retrieves a list of Infoblox Filteroption from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox Filteroption from both the NIOS and UDDI backends.
 
 ## Example Usage
 
