@@ -98,6 +98,7 @@ Class | Method | HTTP request | Description
 *GmcscheduleAPI* | [**List**](docs/GmcscheduleAPI.md#list) | **Get** /gmcschedule | Retrieve gmcschedule objects
 *GmcscheduleAPI* | [**Read**](docs/GmcscheduleAPI.md#read) | **Get** /gmcschedule/{reference} | Get a specific gmcschedule object
 *GmcscheduleAPI* | [**Update**](docs/GmcscheduleAPI.md#update) | **Put** /gmcschedule/{reference} | Update a gmcschedule object
+*GridAPI* | [**Create**](docs/GridAPI.md#create) | **Post** /grid | Invoke a grid function.
 *GridAPI* | [**List**](docs/GridAPI.md#list) | **Get** /grid | Retrieve grid objects
 *GridAPI* | [**Read**](docs/GridAPI.md#read) | **Get** /grid/{reference} | Get a specific grid object
 *GridAPI* | [**Update**](docs/GridAPI.md#update) | **Put** /grid/{reference} | Update a grid object
@@ -226,6 +227,7 @@ Class | Method | HTTP request | Description
  - [CreateExtensibleattributedefResponseAsObject](docs/CreateExtensibleattributedefResponseAsObject.md)
  - [CreateGmcgroupResponse](docs/CreateGmcgroupResponse.md)
  - [CreateGmcgroupResponseAsObject](docs/CreateGmcgroupResponseAsObject.md)
+ - [CreateGridJoinResponse](docs/CreateGridJoinResponse.md)
  - [CreateGridServicerestartGroupOrderResponse](docs/CreateGridServicerestartGroupOrderResponse.md)
  - [CreateGridServicerestartGroupOrderResponseAsObject](docs/CreateGridServicerestartGroupOrderResponseAsObject.md)
  - [CreateGridServicerestartGroupResponse](docs/CreateGridServicerestartGroupResponse.md)
@@ -389,6 +391,7 @@ Class | Method | HTTP request | Description
  - [GridFiledistribution](docs/GridFiledistribution.md)
  - [GridHttpProxyServerSetting](docs/GridHttpProxyServerSetting.md)
  - [GridInformationalBannerSetting](docs/GridInformationalBannerSetting.md)
+ - [GridJoin](docs/GridJoin.md)
  - [GridLicensePool](docs/GridLicensePool.md)
  - [GridLicensePoolContainer](docs/GridLicensePoolContainer.md)
  - [GridLicensePoolSubpools](docs/GridLicensePoolSubpools.md)
@@ -604,6 +607,8 @@ Class | Method | HTTP request | Description
  - [MemberStaticRoutes](docs/MemberStaticRoutes.md)
  - [MemberSyslogProxySetting](docs/MemberSyslogProxySetting.md)
  - [MemberSyslogServers](docs/MemberSyslogServers.md)
+ - [MemberSyslogServersCertificate](docs/MemberSyslogServersCertificate.md)
+ - [MemberSyslogServersCertificateOneOf](docs/MemberSyslogServersCertificateOneOf.md)
  - [MemberThreatinsight](docs/MemberThreatinsight.md)
  - [MemberThreatprotection](docs/MemberThreatprotection.md)
  - [MemberThreatprotectionNatRules](docs/MemberThreatprotectionNatRules.md)
@@ -641,6 +646,9 @@ Class | Method | HTTP request | Description
  - [MemberntpsettingntpaclaclistAddressAc](docs/MemberntpsettingntpaclaclistAddressAc.md)
  - [MemberpreprovisioningHardwareInfo](docs/MemberpreprovisioningHardwareInfo.md)
  - [MembersnmpsettingSnmpv3QueriesUsers](docs/MembersnmpsettingSnmpv3QueriesUsers.md)
+ - [MembersnmpsettingSnmpv3QueriesUsersOneOf](docs/MembersnmpsettingSnmpv3QueriesUsersOneOf.md)
+ - [MembersnmpsettingSnmpv3QueriesUsersOneOf1](docs/MembersnmpsettingSnmpv3QueriesUsersOneOf1.md)
+ - [MembersnmpsettingSnmpv3QueriesUsersOneOf1User](docs/MembersnmpsettingSnmpv3QueriesUsersOneOf1User.md)
  - [MembersnmpsettingTrapReceivers](docs/MembersnmpsettingTrapReceivers.md)
  - [MembersyslogproxysettingClientAcls](docs/MembersyslogproxysettingClientAcls.md)
  - [MemberthreatprotectionnatrulesNatPorts](docs/MemberthreatprotectionnatrulesNatPorts.md)

@@ -329,6 +329,7 @@ type ExtensibleattributedefAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -374,6 +375,12 @@ func (r ExtensibleattributedefAPIListRequest) Filters(filters map[string]interfa
 
 func (r ExtensibleattributedefAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) ExtensibleattributedefAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r ExtensibleattributedefAPIListRequest) ProxySearch(proxySearch string) ExtensibleattributedefAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -442,6 +449,9 @@ func (a *ExtensibleattributedefAPIService) ListExecute(r ExtensibleattributedefA
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -496,6 +506,7 @@ type ExtensibleattributedefAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -513,6 +524,12 @@ func (r ExtensibleattributedefAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus 
 // Select 1 if result is required as an object
 func (r ExtensibleattributedefAPIReadRequest) ReturnAsObject(returnAsObject int32) ExtensibleattributedefAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r ExtensibleattributedefAPIReadRequest) ProxySearch(proxySearch string) ExtensibleattributedefAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -568,6 +585,9 @@ func (a *ExtensibleattributedefAPIService) ReadExecute(r ExtensibleattributedefA
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

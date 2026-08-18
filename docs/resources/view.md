@@ -3,12 +3,12 @@
 page_title: "infoblox_view Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox View across NIOS and UDDI backends.
+  Manages an Infoblox View in both NIOS and UDDI backends.
 ---
 
 # infoblox_view (Resource)
 
-Manages an Infoblox View across NIOS and UDDI backends.
+Manages an Infoblox View in both NIOS and UDDI backends.
 
 ## Example Usage
 

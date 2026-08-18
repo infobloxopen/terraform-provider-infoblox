@@ -3,12 +3,12 @@
 page_title: "infoblox_zone_auth Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox ZoneAuth across NIOS and UDDI backends.
+  Manages an Infoblox ZoneAuth in both NIOS and UDDI backends.
 ---
 
 # infoblox_zone_auth (Resource)
 
-Manages an Infoblox ZoneAuth across NIOS and UDDI backends.
+Manages an Infoblox ZoneAuth in both NIOS and UDDI backends.
 
 ## Example Usage
 

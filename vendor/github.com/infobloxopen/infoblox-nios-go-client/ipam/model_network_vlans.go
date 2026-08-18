@@ -20,7 +20,7 @@ var _ MappedNullable = &NetworkVlans{}
 // NetworkVlans struct for NetworkVlans
 type NetworkVlans struct {
 	// Reference to the underlying StaticVlan object vlan.
-	Vlan map[string]interface{} `json:"vlan,omitempty"`
+	Vlan *string `json:"vlan,omitempty"`
 	// VLAN ID value.
 	Id *int64 `json:"id,omitempty"`
 	// Name of the VLAN.
@@ -48,19 +48,19 @@ func NewNetworkVlansWithDefaults() *NetworkVlans {
 }
 
 // GetVlan returns the Vlan field value if set, zero value otherwise.
-func (o *NetworkVlans) GetVlan() map[string]interface{} {
+func (o *NetworkVlans) GetVlan() string {
 	if o == nil || IsNil(o.Vlan) {
-		var ret map[string]interface{}
+		var ret string
 		return ret
 	}
-	return o.Vlan
+	return *o.Vlan
 }
 
 // GetVlanOk returns a tuple with the Vlan field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *NetworkVlans) GetVlanOk() (map[string]interface{}, bool) {
+func (o *NetworkVlans) GetVlanOk() (*string, bool) {
 	if o == nil || IsNil(o.Vlan) {
-		return map[string]interface{}{}, false
+		return nil, false
 	}
 	return o.Vlan, true
 }
@@ -74,9 +74,9 @@ func (o *NetworkVlans) HasVlan() bool {
 	return false
 }
 
-// SetVlan gets a reference to the given map[string]interface{} and assigns it to the Vlan field.
-func (o *NetworkVlans) SetVlan(v map[string]interface{}) {
-	o.Vlan = v
+// SetVlan gets a reference to the given string and assigns it to the Vlan field.
+func (o *NetworkVlans) SetVlan(v string) {
+	o.Vlan = &v
 }
 
 // GetId returns the Id field value if set, zero value otherwise.

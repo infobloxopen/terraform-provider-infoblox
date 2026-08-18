@@ -6,6 +6,7 @@ import (
 	"github.com/infobloxopen/universal-ddi-go-client/dfp"
 	"github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 	"github.com/infobloxopen/universal-ddi-go-client/dnsdata"
+	"github.com/infobloxopen/universal-ddi-go-client/dtc"
 	"github.com/infobloxopen/universal-ddi-go-client/fw"
 	"github.com/infobloxopen/universal-ddi-go-client/inframgmt"
 	"github.com/infobloxopen/universal-ddi-go-client/infraprovision"
@@ -24,6 +25,7 @@ type APIClient struct {
 	DiscoveryConfigurationAPIV2 *clouddiscovery.APIClient
 	DNSConfigurationAPI         *dnsconfig.APIClient
 	DNSDataAPI                  *dnsdata.APIClient
+	DNSTrafficControlAPI        *dtc.APIClient
 	HostActivationAPI           *infraprovision.APIClient
 	InfraManagementAPI          *inframgmt.APIClient
 	KeysAPI                     *keys.APIClient
@@ -42,6 +44,7 @@ type APIClient struct {
 // - DiscoveryConfigurationAPIV2
 // - DNSConfigurationAPI
 // - DNSDataAPI
+// - DNSTrafficControlAPI
 // - HostActivationAPI
 // - InfraManagementAPI
 // - KeysAPI
@@ -64,6 +67,7 @@ func NewAPIClient(options ...option.ClientOption) *APIClient {
 		DiscoveryConfigurationAPIV2: clouddiscovery.NewAPIClient(options...),
 		DNSConfigurationAPI:         dnsconfig.NewAPIClient(options...),
 		DNSDataAPI:                  dnsdata.NewAPIClient(options...),
+		DNSTrafficControlAPI:        dtc.NewAPIClient(options...),
 		HostActivationAPI:           infraprovision.NewAPIClient(options...),
 		InfraManagementAPI:          inframgmt.NewAPIClient(options...),
 		KeysAPI:                     keys.NewAPIClient(options...),

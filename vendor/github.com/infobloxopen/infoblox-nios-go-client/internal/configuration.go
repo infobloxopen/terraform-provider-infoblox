@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -61,6 +62,10 @@ type Configuration struct {
 	NIOSHostURL      string            `json:"niosHostURL,omitempty"`
 	NIOSUsername     string            `json:"niosUsername,omitempty"`
 	NIOSPassword     string            `json:"niosPassword,omitempty"`
+	NIOSLicenseUID   string            `json:"niosLicenseUID,omitempty"`
+	NIOSPassthrough  bool              `json:"niosPassthrough,omitempty"`
+	PortalURL        string            `json:"portalURL,omitempty"`
+	PortalAPIKey     string            `json:"portalAPIKey,omitempty"`
 	DefaultHeader    map[string]string `json:"defaultHeader,omitempty"`
 	UserAgent        string            `json:"userAgent,omitempty"`
 	Debug            bool              `json:"debug,omitempty"`
@@ -71,6 +76,7 @@ type Configuration struct {
 	ClientCert       []byte
 	ClientKey        []byte
 	SslVerify        bool
+	ProxyURL         *url.URL
 }
 
 // NewConfiguration returns a new Configuration object.
@@ -84,6 +90,9 @@ func NewConfiguration() *Configuration {
 		NIOSHostURL:      lookupEnv(envNiosHostURL, ""),
 		NIOSUsername:     lookupEnv(envNiosUsername, ""),
 		NIOSPassword:     lookupEnv(envNiosPassword, ""),
+		NIOSLicenseUID:   lookupEnv(envNiosLicenseUID, ""),
+		PortalURL:        lookupEnv(envPortalURL, ""),
+		PortalAPIKey:     lookupEnv(envPortalKey, ""),
 		DefaultHeader:    make(map[string]string),
 		Debug:            lookupEnvBool(envIBLogLevel, true),
 		UserAgent:        fmt.Sprintf("nios-%s/%s", sdkIdentifier, version),
@@ -100,6 +109,48 @@ func NewConfiguration() *Configuration {
 // AddDefaultHeader adds a new HTTP header to the default header in the request
 func (c *Configuration) AddDefaultHeader(key string, value string) {
 	c.DefaultHeader[key] = value
+}
+
+// IsPassthrough reports whether requests reach NIOS through the Infoblox Portal.
+func (c *Configuration) IsPassthrough() bool {
+	return c.NIOSPassthrough
+}
+
+// BaseURL returns the endpoint requests are sent to.
+func (c *Configuration) BaseURL() string {
+	if c.IsPassthrough() {
+		return c.PortalURL
+	}
+	return c.NIOSHostURL
+}
+
+// VerifyTLS reports whether server certificates are verified. A Grid usually serves a
+// self-signed certificate, so SslVerify stays off by default, but the Infoblox Portal is
+// a public endpoint reached with an API key and is always verified.
+func (c *Configuration) VerifyTLS() bool {
+	return c.SslVerify || c.IsPassthrough()
+}
+
+// CheckPortalConfig reports which Infoblox Portal settings passthrough mode is missing.
+func (c *Configuration) CheckPortalConfig() error {
+	if !c.IsPassthrough() {
+		return nil
+	}
+
+	var missing []string
+	if c.PortalURL == "" {
+		missing = append(missing, fmt.Sprintf("'infoblox_portal_url' (or %s)", envPortalURL))
+	}
+	if c.PortalAPIKey == "" {
+		missing = append(missing, fmt.Sprintf("'infoblox_portal_key' (or %s)", envPortalKey))
+	}
+	if c.NIOSLicenseUID == "" {
+		missing = append(missing, fmt.Sprintf("'nios_license_uid' (or %s)", envNiosLicenseUID))
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("NIOS through the Infoblox Portal requires %s", strings.Join(missing, ", "))
+	}
+	return nil
 }
 
 // URL formats template on a index using given variables

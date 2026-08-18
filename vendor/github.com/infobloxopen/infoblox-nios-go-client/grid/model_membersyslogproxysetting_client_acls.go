@@ -19,6 +19,8 @@ var _ MappedNullable = &MembersyslogproxysettingClientAcls{}
 
 // MembersyslogproxysettingClientAcls struct for MembersyslogproxysettingClientAcls
 type MembersyslogproxysettingClientAcls struct {
+	// The struct type of the object. The value must be one of 'addressac' and 'tsigac'.
+	Struct *string `json:"_struct,omitempty"`
 	// The address this rule applies to or \"Any\".
 	Address *string `json:"address,omitempty"`
 	// The permission to use for this address.
@@ -51,6 +53,38 @@ func NewMembersyslogproxysettingClientAcls() *MembersyslogproxysettingClientAcls
 func NewMembersyslogproxysettingClientAclsWithDefaults() *MembersyslogproxysettingClientAcls {
 	this := MembersyslogproxysettingClientAcls{}
 	return &this
+}
+
+// GetStruct returns the Struct field value if set, zero value otherwise.
+func (o *MembersyslogproxysettingClientAcls) GetStruct() string {
+	if o == nil || IsNil(o.Struct) {
+		var ret string
+		return ret
+	}
+	return *o.Struct
+}
+
+// GetStructOk returns a tuple with the Struct field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *MembersyslogproxysettingClientAcls) GetStructOk() (*string, bool) {
+	if o == nil || IsNil(o.Struct) {
+		return nil, false
+	}
+	return o.Struct, true
+}
+
+// HasStruct returns a boolean if a field has been set.
+func (o *MembersyslogproxysettingClientAcls) HasStruct() bool {
+	if o != nil && !IsNil(o.Struct) {
+		return true
+	}
+
+	return false
+}
+
+// SetStruct gets a reference to the given string and assigns it to the Struct field.
+func (o *MembersyslogproxysettingClientAcls) SetStruct(v string) {
+	o.Struct = &v
 }
 
 // GetAddress returns the Address field value if set, zero value otherwise.
@@ -255,6 +289,9 @@ func (o MembersyslogproxysettingClientAcls) MarshalJSON() ([]byte, error) {
 
 func (o MembersyslogproxysettingClientAcls) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.Struct) {
+		toSerialize["_struct"] = o.Struct
+	}
 	if !IsNil(o.Address) {
 		toSerialize["address"] = o.Address
 	}
@@ -295,6 +332,7 @@ func (o *MembersyslogproxysettingClientAcls) UnmarshalJSON(data []byte) (err err
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "_struct")
 		delete(additionalProperties, "address")
 		delete(additionalProperties, "permission")
 		delete(additionalProperties, "tsig_key")
