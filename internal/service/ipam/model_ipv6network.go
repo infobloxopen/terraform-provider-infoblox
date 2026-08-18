@@ -167,9 +167,6 @@ type UDDIIpv6networkModel struct {
 	DisableDhcp                types.Bool                       `tfsdk:"disable_dhcp"`
 	ExternalKeys               types.Map                        `tfsdk:"external_keys"`
 	FederatedRealms            internaltypes.UnorderedListValue `tfsdk:"federated_realms"`
-	HeaderOptionFilename       types.String                     `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress  types.String                     `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName     types.String                     `tfsdk:"header_option_server_name"`
 	HostnameRewriteChar        types.String                     `tfsdk:"hostname_rewrite_char"`
 	HostnameRewriteEnabled     types.Bool                       `tfsdk:"hostname_rewrite_enabled"`
 	HostnameRewriteRegex       types.String                     `tfsdk:"hostname_rewrite_regex"`
@@ -204,9 +201,6 @@ var UDDIIpv6networkAttrTypes = map[string]attr.Type{
 	"disable_dhcp":                  types.BoolType,
 	"external_keys":                 types.MapType{ElemType: types.StringType},
 	"federated_realms":              internaltypes.UnorderedListOfStringType,
-	"header_option_filename":        types.StringType,
-	"header_option_server_address":  types.StringType,
-	"header_option_server_name":     types.StringType,
 	"hostname_rewrite_char":         types.StringType,
 	"hostname_rewrite_enabled":      types.BoolType,
 	"hostname_rewrite_regex":        types.StringType,
@@ -740,24 +734,6 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		CustomType:          internaltypes.UnorderedListOfStringType,
 		MarkdownDescription: "Reserved for future use.",
 	},
-	"header_option_filename": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option filename field.",
-	},
-	"header_option_server_address": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option server address field.",
-	},
-	"header_option_server_name": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option server name field.",
-	},
 	"hostname_rewrite_char": schema.StringAttribute{
 		Default:             stringdefault.StaticString("-"),
 		Optional:            true,
@@ -956,9 +932,6 @@ func (m *UDDIIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		DisableDhcp:                flex.ExpandBoolPointer(m.DisableDhcp),
 		ExternalKeys:               flex.ExpandMapStringAny(ctx, m.ExternalKeys, diags),
 		FederatedRealms:            flex.ExpandFrameworkListString(ctx, m.FederatedRealms, diags),
-		HeaderOptionFilename:       flex.ExpandStringPointer(m.HeaderOptionFilename),
-		HeaderOptionServerAddress:  flex.ExpandStringPointer(m.HeaderOptionServerAddress),
-		HeaderOptionServerName:     flex.ExpandStringPointer(m.HeaderOptionServerName),
 		HostnameRewriteChar:        flex.ExpandStringPointer(m.HostnameRewriteChar),
 		HostnameRewriteEnabled:     flex.ExpandBoolPointer(m.HostnameRewriteEnabled),
 		HostnameRewriteRegex:       flex.ExpandStringPointer(m.HostnameRewriteRegex),
@@ -1090,9 +1063,6 @@ func (m *UDDIIpv6networkModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
 	m.FederatedRealms = flex.FlattenFrameworkUnorderedListString(ctx, from.FederatedRealms, diags)
-	m.HeaderOptionFilename = flex.FlattenStringPointer(from.HeaderOptionFilename)
-	m.HeaderOptionServerAddress = flex.FlattenStringPointer(from.HeaderOptionServerAddress)
-	m.HeaderOptionServerName = flex.FlattenStringPointer(from.HeaderOptionServerName)
 	m.HostnameRewriteChar = flex.FlattenStringPointer(from.HostnameRewriteChar)
 	m.HostnameRewriteEnabled = flex.FlattenBoolPointer(from.HostnameRewriteEnabled)
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)
