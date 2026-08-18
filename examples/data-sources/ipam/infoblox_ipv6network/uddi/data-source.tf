@@ -1,8 +1,8 @@
 // Get subnets filtered by an attribute
 data "infoblox_ipv6network" "example_by_attribute" {
   filters = {
-    "address" = "10.0.0.0"
-    "cidr"    = "24"
+    "address" = "2001:db8:1ef8:e4ee::"
+    "cidr"    = "64"
   }
 }
 
