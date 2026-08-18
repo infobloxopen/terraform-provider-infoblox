@@ -55,7 +55,7 @@ func (r *Ipv6networkcontainerResource) IdentitySchema(_ context.Context, _ resou
 
 func (r *Ipv6networkcontainerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Ipv6networkcontainer across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox Ipv6networkcontainer in both NIOS and UDDI backends.",
 		Attributes:          Ipv6networkcontainerResourceSchemaAttributes,
 	}
 }

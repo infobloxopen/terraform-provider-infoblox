@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -127,42 +128,39 @@ var NIOSIpv6networkcontainerAttrTypes = map[string]attr.Type{
 }
 
 type UDDIIpv6networkcontainerModel struct {
-	Address                    types.String  `tfsdk:"address"`
-	AsmConfig                  types.Object  `tfsdk:"asm_config"`
-	Cidr                       types.Int64   `tfsdk:"cidr"`
-	Comment                    types.String  `tfsdk:"comment"`
-	CompartmentId              types.String  `tfsdk:"compartment_id"`
-	DdnsClientUpdate           types.String  `tfsdk:"ddns_client_update"`
-	DdnsConflictResolutionMode types.String  `tfsdk:"ddns_conflict_resolution_mode"`
-	DdnsDomain                 types.String  `tfsdk:"ddns_domain"`
-	DdnsGenerateName           types.Bool    `tfsdk:"ddns_generate_name"`
-	DdnsGeneratedPrefix        types.String  `tfsdk:"ddns_generated_prefix"`
-	DdnsSendUpdates            types.Bool    `tfsdk:"ddns_send_updates"`
-	DdnsTtlPercent             types.Float64 `tfsdk:"ddns_ttl_percent"`
-	DdnsUpdateOnRenew          types.Bool    `tfsdk:"ddns_update_on_renew"`
-	DdnsUseConflictResolution  types.Bool    `tfsdk:"ddns_use_conflict_resolution"`
-	DhcpConfig                 types.Object  `tfsdk:"dhcp_config"`
-	DhcpOptions                types.List    `tfsdk:"dhcp_options"`
-	ExternalKeys               types.Map     `tfsdk:"external_keys"`
-	FederatedRealms            types.List    `tfsdk:"federated_realms"`
-	HeaderOptionFilename       types.String  `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress  types.String  `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName     types.String  `tfsdk:"header_option_server_name"`
-	HostnameRewriteChar        types.String  `tfsdk:"hostname_rewrite_char"`
-	HostnameRewriteEnabled     types.Bool    `tfsdk:"hostname_rewrite_enabled"`
-	HostnameRewriteRegex       types.String  `tfsdk:"hostname_rewrite_regex"`
-	InheritanceParent          types.String  `tfsdk:"inheritance_parent"`
-	InheritanceSources         types.Object  `tfsdk:"inheritance_sources"`
-	Name                       types.String  `tfsdk:"name"`
-	Parent                     types.String  `tfsdk:"parent"`
-	Space                      types.String  `tfsdk:"space"`
-	Tags                       types.Map     `tfsdk:"tags"`
-	TagsAll                    types.Map     `tfsdk:"tags_all"`
-	Threshold                  types.Object  `tfsdk:"threshold"`
+	Address                    iptypes.IPv6Address `tfsdk:"address"`
+	AsmConfig                  types.Object        `tfsdk:"asm_config"`
+	Cidr                       types.Int64         `tfsdk:"cidr"`
+	Comment                    types.String        `tfsdk:"comment"`
+	CompartmentId              types.String        `tfsdk:"compartment_id"`
+	DdnsClientUpdate           types.String        `tfsdk:"ddns_client_update"`
+	DdnsConflictResolutionMode types.String        `tfsdk:"ddns_conflict_resolution_mode"`
+	DdnsDomain                 types.String        `tfsdk:"ddns_domain"`
+	DdnsGenerateName           types.Bool          `tfsdk:"ddns_generate_name"`
+	DdnsGeneratedPrefix        types.String        `tfsdk:"ddns_generated_prefix"`
+	DdnsSendUpdates            types.Bool          `tfsdk:"ddns_send_updates"`
+	DdnsTtlPercent             types.Float64       `tfsdk:"ddns_ttl_percent"`
+	DdnsUpdateOnRenew          types.Bool          `tfsdk:"ddns_update_on_renew"`
+	DdnsUseConflictResolution  types.Bool          `tfsdk:"ddns_use_conflict_resolution"`
+	DhcpConfig                 types.Object        `tfsdk:"dhcp_config"`
+	DhcpOptions                types.List          `tfsdk:"dhcp_options"`
+	ExternalKeys               types.Map           `tfsdk:"external_keys"`
+	FederatedRealms            types.List          `tfsdk:"federated_realms"`
+	HostnameRewriteChar        types.String        `tfsdk:"hostname_rewrite_char"`
+	HostnameRewriteEnabled     types.Bool          `tfsdk:"hostname_rewrite_enabled"`
+	HostnameRewriteRegex       types.String        `tfsdk:"hostname_rewrite_regex"`
+	InheritanceParent          types.String        `tfsdk:"inheritance_parent"`
+	InheritanceSources         types.Object        `tfsdk:"inheritance_sources"`
+	Name                       types.String        `tfsdk:"name"`
+	Parent                     types.String        `tfsdk:"parent"`
+	Space                      types.String        `tfsdk:"space"`
+	Tags                       types.Map           `tfsdk:"tags"`
+	TagsAll                    types.Map           `tfsdk:"tags_all"`
+	Threshold                  types.Object        `tfsdk:"threshold"`
 }
 
 var UDDIIpv6networkcontainerAttrTypes = map[string]attr.Type{
-	"address":                       types.StringType,
+	"address":                       iptypes.IPv6AddressType{},
 	"asm_config":                    types.ObjectType{AttrTypes: ASMConfigAttrTypes},
 	"cidr":                          types.Int64Type,
 	"comment":                       types.StringType,
@@ -180,9 +178,6 @@ var UDDIIpv6networkcontainerAttrTypes = map[string]attr.Type{
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"external_keys":                 types.MapType{ElemType: types.StringType},
 	"federated_realms":              types.ListType{ElemType: types.StringType},
-	"header_option_filename":        types.StringType,
-	"header_option_server_address":  types.StringType,
-	"header_option_server_name":     types.StringType,
 	"hostname_rewrite_char":         types.StringType,
 	"hostname_rewrite_enabled":      types.BoolType,
 	"hostname_rewrite_regex":        types.StringType,
@@ -496,7 +491,8 @@ var Ipv6networkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribu
 
 var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional: true,
+		Optional:   true,
+		CustomType: iptypes.IPv6AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 			stringplanmodifier.UseStateForUnknown(),
@@ -526,27 +522,38 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "The CIDR of the address block. This is required, if _address_ does not specify it in its input.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the address block. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"compartment_id": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The compartment associated with the object. If no compartment is associated with the object, the value defaults to empty.",
 	},
 	"ddns_client_update": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Controls who does the DDNS updates.  Valid values are: * _client_: DHCP server updates DNS if requested by client. * _server_: DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _ignore_: DHCP server always updates DNS, even if the client says not to. * _over_client_update_: Same as _server_. DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _over_no_update_: DHCP server updates DNS even if the client requests that no updates be done. If the client requests to do the update, DHCP server allows it.  Defaults to _client_.",
 	},
 	"ddns_conflict_resolution_mode": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("check_with_dhcid", "no_check_with_dhcid", "check_exists_with_dhcid", "no_check_without_dhcid"),
+		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The mode used for resolving conflicts while performing DDNS updates.  Valid values are: * _check_with_dhcid_: It includes adding a DHCID record and checking that record via conflict detection as per RFC 4703. * _no_check_with_dhcid_: This will ignore conflict detection but add a DHCID record when creating/updating an entry. * _check_exists_with_dhcid_: This will check if there is an existing DHCID record but does not verify the value of the record matches the update. This will also update the DHCID record for the entry. * _no_check_without_dhcid_: This ignores conflict detection and will not add a DHCID record when creating/updating a DDNS entry.  Defaults to _check_with_dhcid_.",
 	},
 	"ddns_domain": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The domain suffix for DDNS updates. FQDN, may be empty.  Defaults to empty.",
 	},
 	"ddns_generate_name": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates if DDNS needs to generate a hostname when not supplied by the client.  Defaults to _false_.",
 	},
 	"ddns_generated_prefix": schema.StringAttribute{
@@ -563,6 +570,7 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
@@ -609,18 +617,6 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 		Optional:            true,
 		MarkdownDescription: "Reserved for future use.",
 	},
-	"header_option_filename": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The configuration for header option filename field.",
-	},
-	"header_option_server_address": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The configuration for header option server address field.",
-	},
-	"header_option_server_name": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The configuration for header option server name field.",
-	},
 	"hostname_rewrite_char": schema.StringAttribute{
 		Default:             stringdefault.StaticString("-"),
 		Optional:            true,
@@ -641,22 +637,27 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 	},
 	"inheritance_parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: DHCPInheritanceResourceSchemaAttributes,
 		Optional:   true,
+		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
 	"name": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The name of the address block. May contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"space": schema.StringAttribute{
@@ -683,7 +684,7 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 	},
 	"threshold": schema.SingleNestedAttribute{
 		Attributes:          UtilizationThresholdResourceSchemaAttributes,
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A __UtilizationThreshold__ object represents IP address utilization threshold settings.",
 	},
 }
@@ -705,7 +706,7 @@ func (m *Ipv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIIpv6networkcontainerModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -783,9 +784,8 @@ func ApplyIpv6networkcontainerNIOSUseFlags(ctx context.Context, config tfsdk.Con
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIIpv6networkcontainerExt {
-	return &coremodel.UDDIIpv6networkcontainerExt{
-		Address:                    flex.ExpandStringPointer(m.Address),
+func (m *UDDIIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIIpv6networkcontainerExt {
+	ext := &coremodel.UDDIIpv6networkcontainerExt{
 		AsmConfig:                  ExpandASMConfig(ctx, m.AsmConfig, diags),
 		Cidr:                       flex.ExpandInt64Pointer(m.Cidr),
 		Comment:                    flex.ExpandStringPointer(m.Comment),
@@ -803,9 +803,6 @@ func (m *UDDIIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		DhcpOptions:                flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		ExternalKeys:               flex.ExpandMapStringAny(ctx, m.ExternalKeys, diags),
 		FederatedRealms:            flex.ExpandFrameworkListString(ctx, m.FederatedRealms, diags),
-		HeaderOptionFilename:       flex.ExpandStringPointer(m.HeaderOptionFilename),
-		HeaderOptionServerAddress:  flex.ExpandStringPointer(m.HeaderOptionServerAddress),
-		HeaderOptionServerName:     flex.ExpandStringPointer(m.HeaderOptionServerName),
 		HostnameRewriteChar:        flex.ExpandStringPointer(m.HostnameRewriteChar),
 		HostnameRewriteEnabled:     flex.ExpandBoolPointer(m.HostnameRewriteEnabled),
 		HostnameRewriteRegex:       flex.ExpandStringPointer(m.HostnameRewriteRegex),
@@ -813,10 +810,14 @@ func (m *UDDIIpv6networkcontainerModel) Expand(ctx context.Context, diags *diag.
 		InheritanceSources:         ExpandDHCPInheritance(ctx, m.InheritanceSources, diags),
 		Name:                       flex.ExpandStringPointer(m.Name),
 		Parent:                     flex.ExpandStringPointer(m.Parent),
-		Space:                      flex.ExpandStringPointer(m.Space),
 		Tags:                       flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Threshold:                  ExpandUtilizationThreshold(ctx, m.Threshold, diags),
 	}
+	if isCreate {
+		ext.Address = flex.ExpandIPv6Address(m.Address)
+		ext.Space = flex.ExpandStringPointer(m.Space)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -900,7 +901,7 @@ func (m *UDDIIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenStringPointer(from.Address)
+	m.Address = flex.FlattenIPv6Address(from.Address)
 	m.AsmConfig = FlattenASMConfig(ctx, from.AsmConfig, diags)
 	m.Cidr = flex.FlattenInt64Pointer(from.Cidr)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
@@ -918,9 +919,6 @@ func (m *UDDIIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
 	m.FederatedRealms = flex.FlattenFrameworkListString(ctx, from.FederatedRealms, diags)
-	m.HeaderOptionFilename = flex.FlattenStringPointer(from.HeaderOptionFilename)
-	m.HeaderOptionServerAddress = flex.FlattenStringPointer(from.HeaderOptionServerAddress)
-	m.HeaderOptionServerName = flex.FlattenStringPointer(from.HeaderOptionServerName)
 	m.HostnameRewriteChar = flex.FlattenStringPointer(from.HostnameRewriteChar)
 	m.HostnameRewriteEnabled = flex.FlattenBoolPointer(from.HostnameRewriteEnabled)
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)

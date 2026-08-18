@@ -218,6 +218,11 @@ func RandomIPv6Network() string {
 	return fmt.Sprintf("2001:db8:%x:%x::/%d", third, fourth, cidr)
 }
 
+// RandomIPv6NetworkAddress generates a random /64-aligned IPv6 network address, without a prefix length.
+func RandomIPv6NetworkAddress() string {
+	return fmt.Sprintf("2001:db8:%x:%x::", rand.Intn(65536), rand.Intn(65536))
+}
+
 // RandomAlphaNumeric generates a random alphanumeric string of the specified length.
 func RandomAlphaNumeric(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -279,6 +284,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
+	case strings.HasPrefix(name, "random_ipv6_network_address"):
+		return RandomIPv6NetworkAddress()
 	case strings.HasPrefix(name, "random_ipv6_network"):
 		return RandomIPv6Network()
 	case strings.HasPrefix(name, "random_ipv6"):

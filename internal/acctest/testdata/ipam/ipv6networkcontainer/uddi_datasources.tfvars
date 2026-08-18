@@ -21,8 +21,8 @@ case "filters" {
   step {
     uddi {
       name    = "{{random}}"
-      address = "12.0.0.0"
-      cidr    = 8
+      address = "{{random_ipv6_network_address}}"
+      cidr    = 64
       space   = infoblox_ip_space.test.id
     }
   }
@@ -51,8 +51,8 @@ case "tag_filters" {
   step {
     uddi {
       name    = "{{random}}"
-      address = "12.0.0.0"
-      cidr    = 8
+      address = "{{random_ipv6_network_address}}"
+      cidr    = 64
       space   = infoblox_ip_space.test.id
       tags    = { tag1 = "{{random}}" }
     }

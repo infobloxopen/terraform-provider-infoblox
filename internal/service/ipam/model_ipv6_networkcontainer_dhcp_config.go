@@ -42,6 +42,7 @@ var Ipv6NetworkcontainerDHCPConfigAttrTypes = map[string]attr.Type{
 var Ipv6NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"allow_unknown_v6": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Disable to allow leases only for known IPV6 clients, those for which a fixed address is configured.",
 	},
 	"authoritative_dhcp": schema.BoolAttribute{
