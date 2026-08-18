@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -16,7 +17,7 @@ func ValidateExtensibleattributedef(ctx context.Context, data Extensibleattribut
 	}
 }
 
-func validateExtensibleattributedefNIOSConfig(_ context.Context, m *NIOSExtensibleattributedefModel, resp *resource.ValidateConfigResponse) {
+func validateExtensibleattributedefNIOSConfig(ctx context.Context, m *NIOSExtensibleattributedefModel, resp *resource.ValidateConfigResponse) {
 	if m.Type.IsUnknown() {
 		return
 	}
@@ -39,4 +40,8 @@ func validateExtensibleattributedefNIOSConfig(_ context.Context, m *NIOSExtensib
 			)
 		}
 	}
+}
+
+func PostFlattenExtensibleattributedefNIOS(ctx context.Context, planned, flattened *NIOSExtensibleattributedefModel, diags *diag.Diagnostics) {
+
 }

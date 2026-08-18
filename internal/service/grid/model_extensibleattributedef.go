@@ -185,8 +185,10 @@ func (m *ExtensibleattributedefModel) Flatten(ctx context.Context, resp *coremod
 	if niosModel == nil {
 		niosModel = &NIOSExtensibleattributedefModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSExtensibleattributedefModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenExtensibleattributedefNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSExtensibleattributedefAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSExtensibleattributedefAttrTypes)
