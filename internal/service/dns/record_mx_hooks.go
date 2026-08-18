@@ -67,10 +67,6 @@ func ExpandUDDIRecordMxRdata(ctx context.Context, o types.Object, diags *diag.Di
 
 func FlattenUDDIRecordMxRdata(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		diags.AddError(
-			"Missing Rdata",
-			"The API response did not include rdata for the RecordMx, but rdata is required. This is an unexpected API response.",
-		)
 		return types.ObjectNull(UDDIRecordMxRdataAttrTypes)
 	}
 	m := UDDIRecordMxRdataModel{
