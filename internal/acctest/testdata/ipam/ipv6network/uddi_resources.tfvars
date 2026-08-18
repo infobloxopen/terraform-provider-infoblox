@@ -495,11 +495,11 @@ case "dhcp_options" {
       # space        = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
       name         = "option_group_test"
-      dhcp_options = [{ type = "option", option_code = "dhcp/option_code/016b0949-e4d2-40f0-88ef-843a99f7413c", option_value = true }]
+      dhcp_options = [{ type = "option", option_code = "dhcp/option_code/88810e74-3909-4346-b0e9-de28d4a7c3ce", option_value = "http://example.com" }]
     }
     check = {
       "uddi.dhcp_options.#"              = "1"
-      "uddi.dhcp_options.0.option_value" = "true"
+      "uddi.dhcp_options.0.option_value" = "http://example.com"
     }
   }
 
@@ -510,10 +510,11 @@ case "dhcp_options" {
       # space        = infoblox_ip_space.test.id
       space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
       name         = "option_group_test"
-      dhcp_options = [{ type = "group", group = "dhcp/option_group/803f89ac-6f30-4097-a536-62af9821aed0" }]
+      dhcp_options = [{ type = "option", option_code = "dhcp/option_code/8a67f062-edd7-4a5f-98d3-00fb4fad944b", option_value = "http://example.org/boot" }]
     }
     check = {
       "uddi.dhcp_options.#" = "1"
+      "uddi.dhcp_options.0.option_value" = "http://example.org/boot"
     }
   }
 
