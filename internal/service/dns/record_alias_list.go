@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &RecordAliasList{}
-	_ list.ListResourceWithConfigure = &RecordAliasList{}
+	_ list.ListResource                   = &RecordAliasList{}
+	_ list.ListResourceWithConfigure      = &RecordAliasList{}
+	_ list.ListResourceWithValidateConfig = &RecordAliasList{}
 )
 
 func NewRecordAliasList() list.ListResource {
@@ -37,7 +37,6 @@ type RecordAliasList struct {
 type RecordAliasListModel struct {
 	Filters        types.Map `tfsdk:"filters"`
 	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
-	TagFilters     types.Map `tfsdk:"tag_filters"`
 }
 
 func (l *RecordAliasList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -69,7 +68,7 @@ func (l *RecordAliasList) Configure(_ context.Context, req resource.ConfigureReq
 
 func (l *RecordAliasList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox RecordAlias from the configured backend (NIOS or UDDI).",
+		MarkdownDescription: "Retrieves a list of Infoblox RecordAlias from the NIOS backend.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
@@ -81,16 +80,11 @@ func (l *RecordAliasList) ListResourceConfigSchema(_ context.Context, _ list.Lis
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"tag_filters": listschema.MapAttribute{
-				MarkdownDescription: "Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
 		},
 	}
 }
 
-func (d *RecordAliasList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *RecordAliasList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data RecordAliasListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +92,7 @@ func (d *RecordAliasList) ValidateConfig(ctx context.Context, req datasource.Val
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, types.MapNull(types.StringType), &resp.Diagnostics)
 }
 
 func (l *RecordAliasList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -110,26 +104,6 @@ func (l *RecordAliasList) List(ctx context.Context, req list.ListRequest, stream
 		return
 	}
 
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
 	requestLimit := int32(req.Limit)
 	tflog.Info(ctx, fmt.Sprintf("infoblox_record_alias list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
@@ -137,7 +111,6 @@ func (l *RecordAliasList) List(ctx context.Context, req list.ListRequest, stream
 	opts := &core.ListOptions{
 		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
 		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields:  RecordAliasReturnFields,
 		Paging:        1,
 	}

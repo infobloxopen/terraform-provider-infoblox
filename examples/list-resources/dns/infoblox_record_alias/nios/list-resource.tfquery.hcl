@@ -6,7 +6,6 @@ list "infoblox_record_alias" "list_alias_records_using_filters" {
       name = "alias-record.example.com"
     }
   }
-  limit = 10
 }
 
 // List specific Alias Records using Extensible Attributes

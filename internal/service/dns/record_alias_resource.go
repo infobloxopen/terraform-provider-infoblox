@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
@@ -16,6 +17,7 @@ import (
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
@@ -54,7 +56,7 @@ func (r *RecordAliasResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *RecordAliasResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordAlias across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordAlias in the NIOS backend.",
 		Attributes:          RecordAliasResourceSchemaAttributes,
 	}
 }
@@ -90,6 +92,12 @@ func (r *RecordAliasResource) ValidateConfig(ctx context.Context, req resource.V
 	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Common backend block validations
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, types.ObjectNull(map[string]attr.Type{}), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
