@@ -3,7 +3,7 @@ list "infoblox_ipv6networkcontainer" "list_containers_using_filters" {
   provider = infoblox
   config {
     filters = {
-      network = "2001:db8::/32"
+      network = "10::/64"
     }
   }
   limit = 10

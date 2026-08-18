@@ -1,19 +1,12 @@
 // Create IPV6 Network Container with Basic Fields
-resource "infoblox_ipv6networkcontainer" "example_container" {
+resource "infoblox_ipv6networkcontainer" "ipv6networkcontainer_with_basic_fields" {
   nios = {
-    network      = "10::/64"
-    network_view = "default"
-    comment      = "Created by Terraform"
-
-    // Optional: Configure extensible attributes
-    ext_attrs = {
-      Site = "location-1"
-    }
+    network = "10::/64"
   }
 }
 
 // Create IPV6 Network Container with Additional Fields
-resource "infoblox_ipv6networkcontainer" "complete_example" {
+resource "infoblox_ipv6networkcontainer" "ipv6networkcontainer_with_additional_fields" {
   nios = {
     // Required attributes
     network = "11::/64"
@@ -54,6 +47,6 @@ resource "infoblox_ipv6networkcontainer" "example_func_call" {
     comment = "Network container created with function call"
   }
   depends_on = [
-    infoblox_ipv6networkcontainer.example_container
+    infoblox_ipv6networkcontainer.ipv6networkcontainer_with_basic_fields
   ]
 }

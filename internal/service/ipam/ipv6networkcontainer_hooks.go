@@ -2,6 +2,7 @@ package ipam
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -27,6 +28,90 @@ func ValidateIpv6networkcontainer(ctx context.Context, data Ipv6networkcontainer
 func validateIpv6networkcontainerNIOSConfig(ctx context.Context, m *NIOSIpv6networkcontainerModel, resp *resource.ValidateConfigResponse) {
 	// DHCP option rules are identical across every NIOS object carrying options.
 	utils.ValidateDHCPOptionsConfig(ctx, m.Options, path.Root("nios").AtName("options"), &resp.Diagnostics)
+
+	var dhcpLeaseTimeValue string
+	var hasDhcpLeaseTime bool
+	if !m.Options.IsNull() && !m.Options.IsUnknown() {
+		var options []Ipv6networkcontainerOptionsModel
+		resp.Diagnostics.Append(m.Options.ElementsAs(ctx, &options, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for _, option := range options {
+			if option.Name.ValueString() == "dhcp-lease-time" && !option.Value.IsNull() && !option.Value.IsUnknown() {
+				hasDhcpLeaseTime = true
+				dhcpLeaseTimeValue = option.Value.ValueString()
+			}
+		}
+
+		// When dhcp-lease-time option is set, valid_lifetime attribute must have the same value as option value
+		if hasDhcpLeaseTime && !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown() {
+			if dhcpLeaseTimeValue != strconv.FormatInt(m.ValidLifetime.ValueInt64(), 10) {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("nios").AtName("valid_lifetime"),
+					"Invalid configuration for Valid Lifetime",
+					"valid_lifetime attribute must match the 'value' attribute for DHCP Option 'dhcp-lease-time'.",
+				)
+			}
+		}
+	}
+
+	// Preferred lifetime must be less than or equal to valid lifetime
+	if !m.PreferredLifetime.IsNull() && !m.PreferredLifetime.IsUnknown() {
+		if m.ValidLifetime.IsNull() && !hasDhcpLeaseTime && !m.Options.IsUnknown() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("preferred_lifetime"),
+				"Invalid configuration",
+				"Either 'valid_lifetime' attribute or 'dhcp-lease-time' option must be set when 'preferred_lifetime' is specified.",
+			)
+		} else if !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown() {
+			if m.PreferredLifetime.ValueInt64() > m.ValidLifetime.ValueInt64() {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("nios").AtName("preferred_lifetime"),
+					"Invalid configuration",
+					"The 'preferred_lifetime' must be less than or equal to 'valid_lifetime'.",
+				)
+			}
+		} else if hasDhcpLeaseTime {
+			// if valid_lifetime is not set, compare with DHCP lease time
+			if dhcpLeaseTimeInt, err := strconv.ParseInt(dhcpLeaseTimeValue, 10, 64); err == nil {
+				if m.PreferredLifetime.ValueInt64() > dhcpLeaseTimeInt {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("nios").AtName("preferred_lifetime"),
+						"Invalid configuration",
+						"The 'preferred_lifetime' must be less than or equal to 'dhcp-lease-time' (valid_lifetime) option value.",
+					)
+				}
+			}
+		}
+	}
+
+	// Check for valid lifetime or dhcp-lease-time when preferred_lifetime is NOT set
+	if m.PreferredLifetime.IsNull() {
+		// validate that valid_lifetime is >= 27000
+		if !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown() && m.ValidLifetime.ValueInt64() < 27000 {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("valid_lifetime"),
+				"Invalid configuration",
+				"When 'preferred_lifetime' is not set, "+
+					"'valid_lifetime' must be greater than or equal to 27000.",
+			)
+		}
+
+		// validate that dhcp-lease-time  is >= 27000
+		if hasDhcpLeaseTime {
+			if dhcpLeaseTimeInt, err := strconv.ParseInt(dhcpLeaseTimeValue, 10, 64); err == nil {
+				if dhcpLeaseTimeInt < 27000 {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("nios").AtName("options"),
+						"Invalid configuration",
+						"When 'preferred_lifetime' is not set, the DHCP option "+
+							"'dhcp-lease-time' must be greater than or equal to 27000.",
+					)
+				}
+			}
+		}
+	}
 
 	// Validate discovery_blackout_setting blackout_schedule
 	if !m.DiscoveryBlackoutSetting.IsNull() && !m.DiscoveryBlackoutSetting.IsUnknown() {
