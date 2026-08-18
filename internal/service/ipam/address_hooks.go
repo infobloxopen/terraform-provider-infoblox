@@ -12,8 +12,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
-// ValidateAddress validates the Address configuration. Hooks live in the service
-// package so they can work with the typed TF model directly (no import cycle).
+// ValidateAddress validates the Address configuration.
 func ValidateAddress(ctx context.Context, data AddressModel, resp *resource.ValidateConfigResponse) {
 	if uddi := flex.ExpandNestedObject[UDDIAddressModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
 		validateAddressUDDIConfig(ctx, uddi, resp)
