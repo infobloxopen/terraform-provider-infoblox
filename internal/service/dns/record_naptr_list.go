@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &RecordNaptrList{}
-	_ list.ListResourceWithConfigure = &RecordNaptrList{}
+	_ list.ListResource                   = &RecordNaptrList{}
+	_ list.ListResourceWithConfigure      = &RecordNaptrList{}
+	_ list.ListResourceWithValidateConfig = &RecordNaptrList{}
 )
 
 func NewRecordNaptrList() list.ListResource {
@@ -69,7 +69,7 @@ func (l *RecordNaptrList) Configure(_ context.Context, req resource.ConfigureReq
 
 func (l *RecordNaptrList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox RecordNaptr from the configured backend (NIOS or UDDI).",
+		MarkdownDescription: "Retrieves a list of Infoblox RecordNaptr from both the NIOS and UDDI backends.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
@@ -90,7 +90,7 @@ func (l *RecordNaptrList) ListResourceConfigSchema(_ context.Context, _ list.Lis
 	}
 }
 
-func (d *RecordNaptrList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *RecordNaptrList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data RecordNaptrListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +98,7 @@ func (d *RecordNaptrList) ValidateConfig(ctx context.Context, req datasource.Val
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
 }
 
 func (l *RecordNaptrList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -106,26 +106,6 @@ func (l *RecordNaptrList) List(ctx context.Context, req list.ListRequest, stream
 
 	diags := req.Config.Get(ctx, &data)
 	if diags.HasError() {
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}

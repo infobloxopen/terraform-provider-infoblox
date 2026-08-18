@@ -1,0 +1,155 @@
+package ipam
+
+import (
+	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
+)
+
+// Infoblox Network model
+type Network struct {
+	Id   *string
+	NIOS *NIOSNetworkExt
+	UDDI *UDDINetworkExt
+}
+
+// NIOSNetworkExt - NIOS specific fields for Network
+type NIOSNetworkExt struct {
+	Authority                        *bool
+	AutoCreateReversezone            *bool
+	Bootfile                         *string
+	Bootserver                       *string
+	CloudInfo                        *niosipam.NetworkCloudInfo
+	CloudShared                      *bool
+	Comment                          *string
+	DdnsDomainname                   *string
+	DdnsGenerateHostname             *bool
+	DdnsServerAlwaysUpdates          *bool
+	DdnsTtl                          *int64
+	DdnsUpdateFixedAddresses         *bool
+	DdnsUseOption81                  *bool
+	DeleteReason                     *string
+	DenyBootp                        *bool
+	Disable                          *bool
+	DiscoveredBridgeDomain           *string
+	DiscoveredTenant                 *string
+	DiscoveryBasicPollSettings       *niosipam.NetworkDiscoveryBasicPollSettings
+	DiscoveryBlackoutSetting         *niosipam.NetworkDiscoveryBlackoutSetting
+	DiscoveryMember                  *string
+	EmailList                        []string
+	EnableDdns                       *bool
+	EnableDhcpThresholds             *bool
+	EnableDiscovery                  *bool
+	EnableEmailWarnings              *bool
+	EnableIfmapPublishing            *bool
+	EnableImmediateDiscovery         *bool
+	EnablePxeLeaseTime               *bool
+	EnableSnmpWarnings               *bool
+	ExtAttrs                         map[string]any
+	FederatedRealms                  []niosipam.NetworkFederatedRealms
+	HighWaterMark                    *int64
+	HighWaterMarkReset               *int64
+	IgnoreDhcpOptionListRequest      *bool
+	IgnoreId                         *string
+	IgnoreMacAddresses               []string
+	IpamEmailAddresses               []string
+	IpamThresholdSettings            *niosipam.NetworkIpamThresholdSettings
+	IpamTrapSettings                 *niosipam.NetworkIpamTrapSettings
+	Ipv4addr                         *string
+	LeaseScavengeTime                *int64
+	LogicFilterRules                 []niosipam.NetworkLogicFilterRules
+	LowWaterMark                     *int64
+	LowWaterMarkReset                *int64
+	Members                          []niosipam.NetworkMembers
+	MgmPrivate                       *bool
+	Netmask                          *int64
+	Network                          *string
+	NetworkView                      *string
+	Nextserver                       *string
+	Options                          []niosipam.NetworkOptions
+	PortControlBlackoutSetting       *niosipam.NetworkPortControlBlackoutSetting
+	PxeLeaseTime                     *int64
+	RecycleLeases                    *bool
+	RestartIfNeeded                  *bool
+	RirOrganization                  *string
+	RirRegistrationAction            *string
+	RirRegistrationStatus            *string
+	SamePortControlDiscoveryBlackout *bool
+	SendRirRequest                   *bool
+	SubscribeSettings                *niosipam.NetworkSubscribeSettings
+	Template                         *string
+	Unmanaged                        *bool
+	UpdateDnsOnLeaseRenewal          *bool
+	UseAuthority                     *bool
+	UseBlackoutSetting               *bool
+	UseBootfile                      *bool
+	UseBootserver                    *bool
+	UseDdnsDomainname                *bool
+	UseDdnsGenerateHostname          *bool
+	UseDdnsTtl                       *bool
+	UseDdnsUpdateFixedAddresses      *bool
+	UseDdnsUseOption81               *bool
+	UseDenyBootp                     *bool
+	UseDiscoveryBasicPollingSettings *bool
+	UseEmailList                     *bool
+	UseEnableDdns                    *bool
+	UseEnableDhcpThresholds          *bool
+	UseEnableDiscovery               *bool
+	UseEnableIfmapPublishing         *bool
+	UseIgnoreDhcpOptionListRequest   *bool
+	UseIgnoreId                      *bool
+	UseIpamEmailAddresses            *bool
+	UseIpamThresholdSettings         *bool
+	UseIpamTrapSettings              *bool
+	UseLeaseScavengeTime             *bool
+	UseLogicFilterRules              *bool
+	UseMgmPrivate                    *bool
+	UseNextserver                    *bool
+	UseOptions                       *bool
+	UsePxeLeaseTime                  *bool
+	UseRecycleLeases                 *bool
+	UseSubscribeSettings             *bool
+	UseUpdateDnsOnLeaseRenewal       *bool
+	UseZoneAssociations              *bool
+	Vlans                            []niosipam.NetworkVlans
+	ZoneAssociations                 []niosipam.NetworkZoneAssociations
+	FuncCall                         *niosipam.FuncCall
+}
+
+// UDDINetworkExt - UDDI specific fields for Network
+type UDDINetworkExt struct {
+	Address                    *string
+	AsmConfig                  *uddiipam.ASMConfig
+	Cidr                       *int64
+	Comment                    *string
+	ConfigProfiles             []string
+	DdnsClientUpdate           *string
+	DdnsConflictResolutionMode *string
+	DdnsDomain                 *string
+	DdnsGenerateName           *bool
+	DdnsGeneratedPrefix        *string
+	DdnsSendUpdates            *bool
+	DdnsTtlPercent             *float32
+	DdnsUpdateOnRenew          *bool
+	DdnsUseConflictResolution  *bool
+	DhcpConfig                 *uddiipam.DHCPConfig
+	DhcpHost                   *string
+	DhcpOptions                []uddiipam.OptionItem
+	DisableDhcp                *bool
+	ExternalKeys               map[string]any
+	FederatedRealms            []string
+	HeaderOptionFilename       *string
+	HeaderOptionServerAddress  *string
+	HeaderOptionServerName     *string
+	HostnameRewriteChar        *string
+	HostnameRewriteEnabled     *bool
+	HostnameRewriteRegex       *string
+	InheritanceParent          *string
+	InheritanceSources         *uddiipam.DHCPInheritance
+	Name                       *string
+	Parent                     *string
+	RebindTime                 *int64
+	RenewTime                  *int64
+	Space                      *string
+	Tags                       map[string]any
+	Threshold                  *uddiipam.UtilizationThreshold
+}
