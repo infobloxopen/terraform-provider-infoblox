@@ -18,11 +18,11 @@ resource "infoblox_dtc_pool" "dtc_pool_advanced" {
     // servers must reference existing DTC server refs on NIOS
     servers = [
       {
-        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHNlcnZlcjE:server1"
+        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com"
         ratio  = 34
       },
       {
-        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHNlcnZlcjI:server2"
+        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com"
         ratio  = 55
       }
     ]
@@ -41,6 +41,7 @@ resource "infoblox_dtc_pool" "dtc_pool_quorum" {
     name                = "dtc_pool_quorum"
     lb_preferred_method = "ROUND_ROBIN"
     availability        = "QUORUM"
+    monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"]
     quorum              = 1
   }
 }
