@@ -55,7 +55,7 @@ func (r *RecordNaptrResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *RecordNaptrResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordNaptr across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordNaptr in both NIOS and UDDI backends.",
 		Attributes:          RecordNaptrResourceSchemaAttributes,
 	}
 }

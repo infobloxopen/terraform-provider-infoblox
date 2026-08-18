@@ -326,11 +326,11 @@ func (s *recordCaaService) listUDDI(ctx context.Context, opts *core.ListOptions)
 	if opts != nil {
 		var filters []string
 		for k, v := range opts.InternalFilters {
-			filters = append(filters, k+"=='"+v+"'")
+			filters = append(filters, core.FilterExpr(k, v))
 		}
 		translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.RecordCaaFilterFieldMap[core.BackendUDDI])
 		for k, v := range translatedFilters {
-			filters = append(filters, k+"=='"+v+"'")
+			filters = append(filters, core.FilterExpr(k, v))
 		}
 		if len(filters) > 0 {
 			req = req.Filter(core.JoinFilters(filters))

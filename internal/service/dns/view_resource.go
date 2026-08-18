@@ -55,7 +55,7 @@ func (r *ViewResource) IdentitySchema(_ context.Context, _ resource.IdentitySche
 
 func (r *ViewResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox View across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox View in both NIOS and UDDI backends.",
 		Attributes:          ViewResourceSchemaAttributes,
 	}
 }

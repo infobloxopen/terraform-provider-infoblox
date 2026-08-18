@@ -333,7 +333,7 @@ github.com/huandu/xstrings
 # github.com/imdario/mergo v0.3.15
 ## explicit; go 1.13
 github.com/imdario/mergo
-# github.com/infobloxopen/infoblox-nios-go-client v0.1.1
+# github.com/infobloxopen/infoblox-nios-go-client v0.1.2-0.20260817063941-577ef39fbd51
 ## explicit; go 1.25.1
 github.com/infobloxopen/infoblox-nios-go-client/acl
 github.com/infobloxopen/infoblox-nios-go-client/client
@@ -346,7 +346,7 @@ github.com/infobloxopen/infoblox-nios-go-client/federatedrealms
 github.com/infobloxopen/infoblox-nios-go-client/grid
 github.com/infobloxopen/infoblox-nios-go-client/internal
 github.com/infobloxopen/infoblox-nios-go-client/ipam
-github.com/infobloxopen/infoblox-nios-go-client/microsoftserver
+github.com/infobloxopen/infoblox-nios-go-client/microsoft
 github.com/infobloxopen/infoblox-nios-go-client/misc
 github.com/infobloxopen/infoblox-nios-go-client/notification
 github.com/infobloxopen/infoblox-nios-go-client/option
@@ -357,7 +357,7 @@ github.com/infobloxopen/infoblox-nios-go-client/security
 github.com/infobloxopen/infoblox-nios-go-client/smartfolder
 github.com/infobloxopen/infoblox-nios-go-client/threatinsight
 github.com/infobloxopen/infoblox-nios-go-client/threatprotection
-# github.com/infobloxopen/universal-ddi-go-client v0.4.0
+# github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260807145052-09f312f4c5d6
 ## explicit; go 1.23
 github.com/infobloxopen/universal-ddi-go-client/anycast
 github.com/infobloxopen/universal-ddi-go-client/client
@@ -365,6 +365,7 @@ github.com/infobloxopen/universal-ddi-go-client/clouddiscovery
 github.com/infobloxopen/universal-ddi-go-client/dfp
 github.com/infobloxopen/universal-ddi-go-client/dnsconfig
 github.com/infobloxopen/universal-ddi-go-client/dnsdata
+github.com/infobloxopen/universal-ddi-go-client/dtc
 github.com/infobloxopen/universal-ddi-go-client/fw
 github.com/infobloxopen/universal-ddi-go-client/inframgmt
 github.com/infobloxopen/universal-ddi-go-client/infraprovision
@@ -454,7 +455,7 @@ github.com/zclconf/go-cty/cty/set
 # go.abhg.dev/goldmark/frontmatter v0.2.0
 ## explicit; go 1.20
 go.abhg.dev/goldmark/frontmatter
-# golang.org/x/crypto v0.50.0
+# golang.org/x/crypto v0.51.0
 ## explicit; go 1.25.0
 golang.org/x/crypto/argon2
 golang.org/x/crypto/bcrypt
@@ -477,7 +478,7 @@ golang.org/x/mod/internal/lazyregexp
 golang.org/x/mod/modfile
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/net v0.52.0
+# golang.org/x/net v0.55.0
 ## explicit; go 1.25.0
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
@@ -491,12 +492,12 @@ golang.org/x/net/trace
 # golang.org/x/sync v0.20.0
 ## explicit; go 1.25.0
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.43.0
+# golang.org/x/sys v0.45.0
 ## explicit; go 1.25.0
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/text v0.36.0
+# golang.org/x/text v0.37.0
 ## explicit; go 1.25.0
 golang.org/x/text/cases
 golang.org/x/text/internal
@@ -508,7 +509,7 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/tools v0.43.0
+# golang.org/x/tools v0.44.0
 ## explicit; go 1.25.0
 golang.org/x/tools/cmd/stringer
 golang.org/x/tools/go/ast/edge
