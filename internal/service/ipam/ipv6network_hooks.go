@@ -2,12 +2,14 @@ package ipam
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
@@ -54,4 +56,31 @@ func PostFlattenIpv6networkNIOS(ctx context.Context, planned, flattened *NIOSIpv
 			flattened.Options = reorderedList
 		}
 	}
+}
+
+func (r *Ipv6networkResource) isIpv6networkContainerConversionError(err error) bool {
+	errVal := err.Error()
+	return (strings.Contains(errVal, "The search parameters") &&
+		strings.Contains(errVal, "for object ipv6network did not return any result")) ||
+		strings.Contains(errVal, "will overlap an existing network")
+}
+
+func (r *Ipv6networkResource) isIpv6networkConvertedToContainer(ctx context.Context, data *Ipv6networkModel) bool {
+	if r.backend != core.BackendNIOS || r.containerService == nil {
+		return false
+	}
+
+	var diags diag.Diagnostics
+	nios := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &diags)
+	if nios == nil || diags.HasError() {
+		return false
+	}
+
+	// Try to fetch as Network container
+	records, _, _, err := r.containerService.List(ctx, &core.ListOptions{
+		Filters: map[string]string{
+			"nios.network": nios.Network.ValueString(),
+		},
+	})
+	return err == nil && len(records) > 0
 }

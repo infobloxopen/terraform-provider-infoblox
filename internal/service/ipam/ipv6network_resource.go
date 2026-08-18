@@ -32,8 +32,9 @@ func NewIpv6networkResource() resource.Resource {
 }
 
 type Ipv6networkResource struct {
-	backend core.BackendType
-	service coresvc.Ipv6networkService
+	backend          core.BackendType
+	service          coresvc.Ipv6networkService
+	containerService coresvc.Ipv6networkcontainerService
 }
 
 func (r *Ipv6networkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -81,6 +82,7 @@ func (r *Ipv6networkResource) Configure(_ context.Context, req resource.Configur
 	}
 
 	r.service = coresvc.NewIpv6networkService(r.backend, client.NIOS, client.UDDI)
+	r.containerService = coresvc.NewIpv6networkcontainerService(r.backend, client.NIOS, client.UDDI)
 }
 
 func (r *Ipv6networkResource) retryPolicy(op retry.Operation) retry.Policy {
@@ -154,6 +156,16 @@ func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateReq
 		return 0, apiErr
 	})
 	if err != nil {
+		if r.isIpv6networkContainerConversionError(err) &&
+			r.isIpv6networkConvertedToContainer(ctx, &data) {
+			resp.Diagnostics.AddError(
+				"Unable to Create Ipv6network. Ipv6network Might Be Converted to Ipv6network Container",
+				fmt.Sprintf("Failed to create ipv6network. The parent ipv6network appears to have been converted to a ipv6network container. "+
+					"Manual intervention is needed to import it as a container. "+
+					"Got error: %s", err),
+			)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Ipv6network: %s", err))
 		return
 	}

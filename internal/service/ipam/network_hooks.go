@@ -2,6 +2,7 @@ package ipam
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -174,6 +175,13 @@ func LockNetworkAllocation(ctx context.Context, uddiBlock types.Object, diags *d
 
 	utils.GlobalMutexStore.Lock(key)
 	return func() { utils.GlobalMutexStore.Unlock(key) }
+}
+
+func (r *NetworkResource) isNetworkContainerConversionError(err error) bool {
+	errVal := err.Error()
+	return (strings.Contains(errVal, "The search parameters") &&
+		strings.Contains(errVal, "for object network did not return any result")) ||
+		strings.Contains(errVal, "will overlap an existing network")
 }
 
 func (r *NetworkResource) isNetworkConvertedToContainer(ctx context.Context, data *NetworkModel) bool {
