@@ -290,6 +290,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		dhcp.NewFilteroptionResource,
 		dns.NewRecordNaptrResource,
+		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordAaaaResource,
 		dns.NewRecordTxtResource,
@@ -310,6 +311,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 	return []func() datasource.DataSource{
 		dhcp.NewFilteroptionDataSource,
 		dns.NewRecordNaptrDataSource,
+		dns.NewRecordMxDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
@@ -333,6 +335,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 	return []func() list.ListResource{
 		dhcp.NewFilteroptionList,
 		dns.NewRecordNaptrList,
+		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
 		dns.NewRecordAaaaList,
 		dns.NewRecordTxtList,
