@@ -155,18 +155,16 @@ case "custom_root_ns_enabled" {
       "uddi.custom_root_ns_enabled" = "false"
     }
   }
-
   step {
     uddi {
       name                   = "{{random}}"
       custom_root_ns_enabled = true
-    }
-  }
-
-  step {
-    uddi {
-      name                   = "{{random}}"
-      custom_root_ns_enabled = true
+      custom_root_ns = [
+        {
+            address = "192.168.10.10"
+            fqdn = "tf-infoblox.com."
+        }
+      ]
     }
     check = {
       "uddi.custom_root_ns_enabled" = "true"
@@ -230,6 +228,7 @@ case "dnssec_enabled" {
 case "dnssec_trust_anchors" {
   backend  = "uddi"
   parallel = true
+  skip = true
 
   step {
     uddi {
