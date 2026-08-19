@@ -218,6 +218,11 @@ func RandomIPv6Network() string {
 	return fmt.Sprintf("2001:db8:%x:%x::/%d", third, fourth, cidr)
 }
 
+// RandomIPv6NetworkAddress generates a random /64-aligned IPv6 network address, without a prefix length.
+func RandomIPv6NetworkAddress() string {
+	return fmt.Sprintf("2001:db8:%x:%x::", rand.Intn(65536), rand.Intn(65536))
+}
+
 // RandomIPv6NetworkWith4BitBoundary generates a random IPv6 network with a CIDR
 // that is a 4-bit boundary (multiple of 4). This is required for operations like
 // auto_create_reversezone which only supports 4-bit boundary CIDRs.
@@ -280,6 +285,8 @@ func ResolvePlaceholder(placeholder string) string {
 	switch {
 	case name == "random_octet":
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
+	case name == "random_hextet":
+		return fmt.Sprintf("%x", rand.Intn(65536)) // 0-FFFF single IPv6 hextet
 	case name == "grid_master_hostname":
 		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
 	case name == "grid_member_hostname":
@@ -290,6 +297,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
+	case strings.HasPrefix(name, "random_ipv6_network_address"):
+		return RandomIPv6NetworkAddress()
 	case strings.HasPrefix(name, "random_ipv6_network_4bit_boundary"):
 		return RandomIPv6NetworkWith4BitBoundary()
 	case strings.HasPrefix(name, "random_ipv6_network"):

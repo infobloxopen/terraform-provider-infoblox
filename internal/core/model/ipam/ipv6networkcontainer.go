@@ -67,6 +67,7 @@ type NIOSIpv6networkcontainerExt struct {
 	UseZoneAssociations              *bool
 	ValidLifetime                    *int64
 	ZoneAssociations                 []niosipam.Ipv6networkcontainerZoneAssociations
+	FuncCall                         *niosipam.FuncCall
 }
 
 // UDDIIpv6networkcontainerExt - UDDI specific fields for Ipv6networkcontainer

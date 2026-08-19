@@ -57,6 +57,7 @@ var Ipv6networkcontainerNIOSFieldMap = map[string]string{
 	"NIOS.UseZoneAssociations":              "UseZoneAssociations",
 	"NIOS.ValidLifetime":                    "ValidLifetime",
 	"NIOS.ZoneAssociations":                 "ZoneAssociations",
+	"NIOS.FuncCall":                         "FuncCall",
 }
 
 // Ipv6networkcontainerUDDIFieldMap maps infoblox model fields to UDDI struct fields
@@ -79,9 +80,6 @@ var Ipv6networkcontainerUDDIFieldMap = map[string]string{
 	"UDDI.DhcpOptions":                "DhcpOptions",
 	"UDDI.ExternalKeys":               "ExternalKeys",
 	"UDDI.FederatedRealms":            "FederatedRealms",
-	"UDDI.HeaderOptionFilename":       "HeaderOptionFilename",
-	"UDDI.HeaderOptionServerAddress":  "HeaderOptionServerAddress",
-	"UDDI.HeaderOptionServerName":     "HeaderOptionServerName",
 	"UDDI.HostnameRewriteChar":        "HostnameRewriteChar",
 	"UDDI.HostnameRewriteEnabled":     "HostnameRewriteEnabled",
 	"UDDI.HostnameRewriteRegex":       "HostnameRewriteRegex",
@@ -172,9 +170,6 @@ var Ipv6networkcontainerFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.dhcp_options":                  "dhcp_options",
 		"uddi.external_keys":                 "external_keys",
 		"uddi.federated_realms":              "federated_realms",
-		"uddi.header_option_filename":        "header_option_filename",
-		"uddi.header_option_server_address":  "header_option_server_address",
-		"uddi.header_option_server_name":     "header_option_server_name",
 		"uddi.hostname_rewrite_char":         "hostname_rewrite_char",
 		"uddi.hostname_rewrite_enabled":      "hostname_rewrite_enabled",
 		"uddi.hostname_rewrite_regex":        "hostname_rewrite_regex",
