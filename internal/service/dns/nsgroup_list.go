@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &NsgroupList{}
-	_ list.ListResourceWithConfigure = &NsgroupList{}
+	_ list.ListResource                   = &NsgroupList{}
+	_ list.ListResourceWithConfigure      = &NsgroupList{}
+	_ list.ListResourceWithValidateConfig = &NsgroupList{}
 )
 
 func NewNsgroupList() list.ListResource {
@@ -37,7 +37,6 @@ type NsgroupList struct {
 type NsgroupListModel struct {
 	Filters        types.Map `tfsdk:"filters"`
 	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
-	TagFilters     types.Map `tfsdk:"tag_filters"`
 }
 
 func (l *NsgroupList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -81,16 +80,11 @@ func (l *NsgroupList) ListResourceConfigSchema(_ context.Context, _ list.ListRes
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"tag_filters": listschema.MapAttribute{
-				MarkdownDescription: "Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
 		},
 	}
 }
 
-func (d *NsgroupList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *NsgroupList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data NsgroupListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +92,7 @@ func (d *NsgroupList) ValidateConfig(ctx context.Context, req datasource.Validat
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, types.MapNull(types.StringType), &resp.Diagnostics)
 }
 
 func (l *NsgroupList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -110,26 +104,6 @@ func (l *NsgroupList) List(ctx context.Context, req list.ListRequest, stream *li
 		return
 	}
 
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
 	requestLimit := int32(req.Limit)
 	tflog.Info(ctx, fmt.Sprintf("infoblox_nsgroup list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
@@ -137,7 +111,6 @@ func (l *NsgroupList) List(ctx context.Context, req list.ListRequest, stream *li
 	opts := &core.ListOptions{
 		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
 		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields:  NsgroupReturnFields,
 		Paging:        1,
 	}
