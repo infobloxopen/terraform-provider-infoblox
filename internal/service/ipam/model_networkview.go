@@ -492,7 +492,7 @@ func (m *NIOSNetworkviewModel) Expand(ctx context.Context, diags *diag.Diagnosti
 	return &coremodel.NIOSNetworkviewExt{
 		CloudInfo:            ExpandNetworkviewCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:              flex.ExpandStringPointerNullAsEmpty(m.Comment),
-		DdnsDnsView:          flex.ExpandStringPointerNullAsEmpty(m.DdnsDnsView),
+		DdnsDnsView:          flex.ExpandStringPointer(m.DdnsDnsView),
 		DdnsZonePrimaries:    flex.ExpandFrameworkListNestedBlock(ctx, m.DdnsZonePrimaries, diags, ExpandNetworkviewDdnsZonePrimaries),
 		ExtAttrs:             flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		FederatedRealms:      flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
@@ -581,7 +581,7 @@ func (m *NIOSNetworkviewModel) Flatten(ctx context.Context, from *coremodel.NIOS
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.CloudInfo = FlattenNetworkviewCloudInfo(ctx, from.CloudInfo, diags)
-	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
+	m.Comment = flex.FlattenStringPointerNullAsEmpty(from.Comment)
 	m.DdnsDnsView = flex.FlattenStringPointerEmptyAsNull(from.DdnsDnsView)
 	m.DdnsZonePrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.DdnsZonePrimaries, NetworkviewDdnsZonePrimariesAttrTypes, diags, FlattenNetworkviewDdnsZonePrimaries)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)

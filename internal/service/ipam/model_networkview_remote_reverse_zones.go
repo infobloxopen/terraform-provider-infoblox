@@ -135,7 +135,7 @@ func (m *NetworkviewRemoteReverseZonesModel) Expand(ctx context.Context, diags *
 		GssTsigDnsPrincipal: flex.ExpandStringPointerNullAsEmpty(m.GssTsigDnsPrincipal),
 		GssTsigDomain:       flex.ExpandStringPointerNullAsEmpty(m.GssTsigDomain),
 		TsigKey:             flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:          flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
+		TsigKeyAlg:          flex.ExpandStringPointer(m.TsigKeyAlg),
 		TsigKeyName:         flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
 		KeyType:             flex.ExpandStringPointerNullAsEmpty(m.KeyType),
 	}
