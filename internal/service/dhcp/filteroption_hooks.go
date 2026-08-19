@@ -2,8 +2,10 @@ package dhcp
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -21,6 +23,30 @@ func ValidateFilteroption(ctx context.Context, data FilteroptionModel, resp *res
 }
 
 func validateFilteroptionNIOSConfig(ctx context.Context, m *NIOSFilteroptionModel, resp *resource.ValidateConfigResponse) {
+	niosPath := path.Root("nios")
+
+	utils.ValidateDHCPOptionsConfig(ctx, m.OptionList, niosPath.AtName("option_list"), &resp.Diagnostics)
+
+	if m.LeaseTime.IsNull() || m.LeaseTime.IsUnknown() || m.OptionList.IsNull() || m.OptionList.IsUnknown() {
+		return
+	}
+	var options []FilteroptionOptionListModel
+	resp.Diagnostics.Append(m.OptionList.ElementsAs(ctx, &options, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	for i, option := range options {
+		if !option.Name.IsNull() && !option.Name.IsUnknown() && option.Name.ValueString() == "dhcp-lease-time" {
+			if !option.Value.IsNull() && !option.Value.IsUnknown() &&
+				option.Value.ValueString() != strconv.FormatInt(m.LeaseTime.ValueInt64(), 10) {
+				resp.Diagnostics.AddAttributeError(
+					niosPath.AtName("option_list").AtListIndex(i).AtName("value"),
+					"Invalid configuration for Lease Time",
+					"lease_time attribute must match the 'value' attribute for DHCP Option 'dhcp-lease-time'.",
+				)
+			}
+		}
+	}
 }
 
 func validateFilteroptionUDDIConfig(ctx context.Context, m *UDDIFilteroptionModel, resp *resource.ValidateConfigResponse) {
