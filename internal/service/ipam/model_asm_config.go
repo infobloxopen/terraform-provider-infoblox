@@ -7,14 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
@@ -104,12 +102,10 @@ var ASMConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The minimum percentage of addresses that must be available outside of the DHCP ranges and fixed addresses when making a suggested change..",
 	},
 	"reenable_date": schema.StringAttribute{
-		Optional:   true,
-		Computed:   true,
-		CustomType: timetypes.RFC3339Type{},
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
+		CustomType:          timetypes.RFC3339Type{},
+		Default:             stringdefault.StaticString("1970-01-01T00:00:00Z"),
 		MarkdownDescription: "",
 	},
 }

@@ -6,11 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
@@ -61,106 +59,103 @@ var IPSpaceInheritanceResourceSchemaAttributes = map[string]schema.Attribute{
 	"asm_config": schema.SingleNestedAttribute{
 		Attributes:          InheritedASMConfigResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _asm_config_ field.",
 	},
 	"ddns_client_update": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_client_update_ field from _IPSpace_ object.",
 	},
 	"ddns_conflict_resolution_mode": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_conflict_resolution_mode_ field from _IPSpace_ object.",
 	},
 	"ddns_enabled": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedBoolResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_enabled_ field. Only action allowed is 'inherit'.",
 	},
 	"ddns_hostname_block": schema.SingleNestedAttribute{
 		Attributes:          InheritedDDNSHostnameBlockResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_generate_name_ and _ddns_generated_prefix_ fields from _IPSpace_ object.",
 	},
 	"ddns_ttl_percent": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedFloatResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_ttl_percent_ field from _IPSpace_ object.",
 	},
 	"ddns_update_block": schema.SingleNestedAttribute{
-		Attributes: InheritedDDNSUpdateBlockResourceSchemaAttributes,
-		Optional:   true,
-		Computed:   true,
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
+		Attributes:          InheritedDDNSUpdateBlockResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_send_updates_ and _ddns_domain_ fields from _IPSpace_ object.",
 	},
 	"ddns_update_on_renew": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedBoolResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_update_on_renew_ field from _IPSpace_ object.",
 	},
 	"ddns_use_conflict_resolution": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedBoolResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _ddns_use_conflict_resolution_ field from _IPSpace_ object.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
-		Attributes: InheritedDHCPConfigResourceSchemaAttributes,
-		Optional:   true,
-		Computed:   true,
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
+		Attributes:          InheritedDHCPConfigResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _dhcp_config_ field.",
 	},
 	"dhcp_options": schema.SingleNestedAttribute{
-		Attributes: InheritedDHCPOptionListResourceSchemaAttributes,
-		Optional:   true,
-		Computed:   true,
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
+		Attributes:          InheritedDHCPOptionListResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _dhcp_options_ field.",
 	},
 	"dhcp_options_v6": schema.SingleNestedAttribute{
-		Attributes: InheritedDHCPOptionListResourceSchemaAttributes,
-		Optional:   true,
-		Computed:   true,
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
+		Attributes:          InheritedDHCPOptionListResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _dhcp_options_v6_ field.",
 	},
 	"header_option_filename": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_filename_ field.",
 	},
 	"header_option_server_address": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_server_address_ field.",
 	},
 	"header_option_server_name": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_server_name_ field.",
 	},
 	"hostname_rewrite_block": schema.SingleNestedAttribute{
 		Attributes:          InheritedHostnameRewriteBlockResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _hostname_rewrite_enabled_, _hostname_rewrite_regex_, and _hostname_rewrite_char_ fields from _IPSpace_ object.",
 	},
 	"vendor_specific_option_option_space": schema.SingleNestedAttribute{
-		Attributes: InheritanceInheritedIdentifierResourceSchemaAttributes,
-		Optional:   true,
-		Computed:   true,
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
+		Attributes:          InheritanceInheritedIdentifierResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _vendor_specific_option_option_space_ field.",
 	},
 }

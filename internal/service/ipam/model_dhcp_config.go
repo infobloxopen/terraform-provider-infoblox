@@ -6,15 +6,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	boolplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	int64planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	listplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
@@ -54,19 +50,13 @@ var DHCPConfigAttrTypes = map[string]attr.Type{
 // DHCPConfigResourceSchemaAttributes contains the schema attributes for DHCPConfigModel
 var DHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"abandoned_reclaim_time": schema.Int64Attribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.Int64{
-			int64planmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The abandoned reclaim time in seconds for IPV4 clients.",
 	},
 	"abandoned_reclaim_time_v6": schema.Int64Attribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.Int64{
-			int64planmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The abandoned reclaim time in seconds for IPV6 clients.",
 	},
 	"allow_unknown": schema.BoolAttribute{
@@ -82,29 +72,19 @@ var DHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Disable to allow leases only for known IPV6 clients, those for which a fixed address is configured.",
 	},
 	"echo_client_id": schema.BoolAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.Bool{
-			boolplanmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Enable/disable to include/exclude the client id when responding to discover or request.",
 	},
 	"filters": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Computed:    true,
-		PlanModifiers: []planmodifier.List{
-			listplanmodifier.UseStateForUnknown(),
-		},
+		ElementType:         types.StringType,
+		Optional:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_large_selection": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Computed:    true,
-		PlanModifiers: []planmodifier.List{
-			listplanmodifier.UseStateForUnknown(),
-		},
+		ElementType:         types.StringType,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_v6": schema.ListAttribute{
@@ -115,7 +95,7 @@ var DHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"ignore_client_uid": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             booldefault.StaticBool(true),
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Enable to ignore the client UID when issuing a DHCP lease. Use this option to prevent assigning two IP addresses for a client which does not have a UID during one phase of PXE boot but acquires one for the other phase.",
 	},
 	"ignore_list": schema.ListNestedAttribute{

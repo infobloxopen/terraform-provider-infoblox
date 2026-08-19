@@ -8,23 +8,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	float64planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
-	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	planmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -138,10 +134,7 @@ const (
 
 var NetworkviewResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
 	},
 	"nios": schema.SingleNestedAttribute{
@@ -239,9 +232,6 @@ var NetworkviewResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"name": schema.StringAttribute{
 		Required: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.RequiresReplaceIfConfigured(),
-		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -289,45 +279,42 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			"min_unused":          types.Int64Value(10),
 			"reenable_date":       timetypes.NewRFC3339ValueMust("1970-01-01T00:00:00Z"),
 		})),
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
 		MarkdownDescription: "The __ASMConfig__ object represents Automated Scope Management configuration.",
 	},
 	"comment": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the IP space. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"compartment_id": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The compartment associated with the object. If no compartment is associated with the object, the value defaults to empty.",
 	},
 	"ddns_client_update": schema.StringAttribute{
-		Default:             stringdefault.StaticString("client"),
+		Default: stringdefault.StaticString("client"),
+		Validators: []validator.String{
+			stringvalidator.OneOf("client", "server", "ignore", "over_client_update", "over_no_update"),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Controls who does the DDNS updates.  Valid values are: * _client_: DHCP server updates DNS if requested by client. * _server_: DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _ignore_: DHCP server always updates DNS, even if the client says not to. * _over_client_update_: Same as _server_. DHCP server always updates DNS, overriding an update request from the client, unless the client requests no updates. * _over_no_update_: DHCP server updates DNS even if the client requests that no updates be done. If the client requests to do the update, DHCP server allows it.  Defaults to _client_.",
 	},
 	"ddns_conflict_resolution_mode": schema.StringAttribute{
-		Default:             stringdefault.StaticString("check_with_dhcid"),
+		Default: stringdefault.StaticString("check_with_dhcid"),
+		Validators: []validator.String{
+			stringvalidator.OneOf("check_with_dhcid", "no_check_with_dhcid", "check_exists_with_dhcid", "no_check_without_dhcid"),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The mode used for resolving conflicts while performing DDNS updates.  Valid values are: * _check_with_dhcid_: It includes adding a DHCID record and checking that record via conflict detection as per RFC 4703. * _no_check_with_dhcid_: This will ignore conflict detection but add a DHCID record when creating/updating an entry. * _check_exists_with_dhcid_: This will check if there is an existing DHCID record but does not verify the value of the record matches the update. This will also update the DHCID record for the entry. * _no_check_without_dhcid_: This ignores conflict detection and will not add a DHCID record when creating/updating a DDNS entry.  Defaults to _check_with_dhcid_.",
 	},
 	"ddns_domain": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The domain suffix for DDNS updates. FQDN, may be empty.  Defaults to empty.",
 	},
 	"ddns_generate_name": schema.BoolAttribute{
@@ -349,11 +336,7 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines if DDNS updates are enabled at the IP space level. Defaults to _true_.",
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.Float64{
-			float64planmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
@@ -371,6 +354,7 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"default_realms": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
@@ -391,9 +375,6 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			"lease_time":                types.Int64Value(3600),
 			"lease_time_v6":             types.Int64Value(3600),
 		})),
-		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
-		},
 		MarkdownDescription: "A DHCP Config object (_dhcp/dhcp_config_) represents a shared DHCP configuration that controls how leases are issued.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
@@ -411,27 +392,21 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The list of IPv6 DHCP options for IP space. May be either a specific option or a group of options.",
 	},
 	"header_option_filename": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option filename field.",
 	},
 	"header_option_server_address": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server address field.",
 	},
 	"header_option_server_name": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Default:             stringdefault.StaticString(""),
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server name field.",
 	},
 	"hostname_rewrite_char": schema.StringAttribute{
@@ -479,11 +454,8 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The tags for the IP space in JSON format.",
 	},
 	"tags_all": schema.MapAttribute{
-		Computed:    true,
-		ElementType: types.StringType,
-		PlanModifiers: []planmodifier.Map{
-			planmod.TagsAllUseStateForUnknown(path.Root("uddi").AtName("tags")),
-		},
+		Computed:            true,
+		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
 	},
 	"vendor_specific_option_option_space": schema.StringAttribute{
@@ -520,7 +492,7 @@ func (m *NIOSNetworkviewModel) Expand(ctx context.Context, diags *diag.Diagnosti
 	return &coremodel.NIOSNetworkviewExt{
 		CloudInfo:            ExpandNetworkviewCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:              flex.ExpandStringPointerNullAsEmpty(m.Comment),
-		DdnsDnsView:          flex.ExpandStringPointer(m.DdnsDnsView),
+		DdnsDnsView:          flex.ExpandStringPointerNullAsEmpty(m.DdnsDnsView),
 		DdnsZonePrimaries:    flex.ExpandFrameworkListNestedBlock(ctx, m.DdnsZonePrimaries, diags, ExpandNetworkviewDdnsZonePrimaries),
 		ExtAttrs:             flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		FederatedRealms:      flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
@@ -609,7 +581,7 @@ func (m *NIOSNetworkviewModel) Flatten(ctx context.Context, from *coremodel.NIOS
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.CloudInfo = FlattenNetworkviewCloudInfo(ctx, from.CloudInfo, diags)
-	m.Comment = flex.FlattenStringPointerNullAsEmpty(from.Comment)
+	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DdnsDnsView = flex.FlattenStringPointerEmptyAsNull(from.DdnsDnsView)
 	m.DdnsZonePrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.DdnsZonePrimaries, NetworkviewDdnsZonePrimariesAttrTypes, diags, FlattenNetworkviewDdnsZonePrimaries)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
@@ -635,7 +607,7 @@ func (m *UDDINetworkviewModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.DdnsGenerateName = flex.FlattenBoolPointer(from.DdnsGenerateName)
 	m.DdnsGeneratedPrefix = flex.FlattenStringPointer(from.DdnsGeneratedPrefix)
 	m.DdnsSendUpdates = flex.FlattenBoolPointer(from.DdnsSendUpdates)
-	m.DdnsTtlPercent = flex.FlattenFloat32Pointer(from.DdnsTtlPercent)
+	m.DdnsTtlPercent = flex.FlattenFloat32PointerZeroAsNull(from.DdnsTtlPercent)
 	m.DdnsUpdateOnRenew = flex.FlattenBoolPointer(from.DdnsUpdateOnRenew)
 	m.DdnsUseConflictResolution = flex.FlattenBoolPointer(from.DdnsUseConflictResolution)
 	m.DefaultRealms = flex.FlattenFrameworkListString(ctx, from.DefaultRealms, diags)

@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -17,7 +19,7 @@ import (
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var _ datasource.DataSource = &NetworkviewDataSource{}
@@ -45,6 +47,7 @@ type NetworkviewDataSourceModel struct {
 	Results        types.List  `tfsdk:"results"`
 	MaxResults     types.Int32 `tfsdk:"max_results"`
 	Paging         types.Int32 `tfsdk:"paging"`
+	Limit          types.Int32 `tfsdk:"limit"`
 }
 
 // FlattenResults flattens core records to the Results list using existing Flatten method.
@@ -93,11 +96,18 @@ func (d *NetworkviewDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 			},
 			"paging": schema.Int32Attribute{
 				Optional:    true,
-				Description: "Enable (1) or disable (0) paging for the data source query. Only applicable for NIOS backend.",
+				Description: "Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.",
+				Validators: []validator.Int32{
+					int32validator.OneOf(0, 1),
+				},
 			},
 			"max_results": schema.Int32Attribute{
 				Optional:    true,
-				Description: "Maximum number of results to return.",
+				Description: "Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.",
+			},
+			"limit": schema.Int32Attribute{
+				Optional:    true,
+				Description: "Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.",
 			},
 		},
 	}
@@ -134,7 +144,7 @@ func (d *NetworkviewDataSource) ValidateConfig(ctx context.Context, req datasour
 		return
 	}
 
-	validator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Paging, &resp.Diagnostics)
+	customvalidator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Limit, &resp.Diagnostics)
 }
 
 func (d *NetworkviewDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -160,6 +170,9 @@ func (d *NetworkviewDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if !data.Paging.IsNull() {
 		opts.Paging = data.Paging.ValueInt32()
 	}
+	if !data.Limit.IsNull() {
+		opts.Limit = data.Limit.ValueInt32()
+	}
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -178,9 +191,10 @@ func (d *NetworkviewDataSource) Read(ctx context.Context, req datasource.ReadReq
 	case core.BackendUDDI:
 		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Networkview, error) {
 			opts.Offset = offset
+			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
 			return recs, e
-		})
+		}, opts.Limit, opts.Paging)
 	}
 
 	if err != nil {

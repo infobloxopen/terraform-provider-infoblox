@@ -50,6 +50,7 @@ var NetworkviewDdnsZonePrimariesResourceSchemaAttributes = map[string]schema.Att
 	},
 	"dns_grid_primary": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -57,6 +58,7 @@ var NetworkviewDdnsZonePrimariesResourceSchemaAttributes = map[string]schema.Att
 	},
 	"dns_ext_zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidNIOSDomainName(),
@@ -65,6 +67,7 @@ var NetworkviewDdnsZonePrimariesResourceSchemaAttributes = map[string]schema.Att
 	},
 	"dns_ext_primary": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -93,9 +96,9 @@ func (m *NetworkviewDdnsZonePrimariesModel) Expand(ctx context.Context, diags *d
 	to := &niosipam.NetworkviewDdnsZonePrimaries{
 		ZoneMatch:      flex.ExpandStringPointerNullAsEmpty(m.ZoneMatch),
 		DnsGridZone:    ExpandNetworkviewDdnsZonePrimariesDnsGridZone(ctx, m.DnsGridZone, diags),
-		DnsGridPrimary: flex.ExpandStringPointer(m.DnsGridPrimary),
-		DnsExtZone:     flex.ExpandStringPointer(m.DnsExtZone),
-		DnsExtPrimary:  flex.ExpandStringPointer(m.DnsExtPrimary),
+		DnsGridPrimary: flex.ExpandStringPointerNullAsEmpty(m.DnsGridPrimary),
+		DnsExtZone:     flex.ExpandStringPointerNullAsEmpty(m.DnsExtZone),
+		DnsExtPrimary:  flex.ExpandStringPointerNullAsEmpty(m.DnsExtPrimary),
 	}
 	return to
 }

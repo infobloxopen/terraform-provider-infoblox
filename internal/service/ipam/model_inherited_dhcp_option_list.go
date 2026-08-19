@@ -6,12 +6,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	listplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
-	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
@@ -31,22 +28,16 @@ var InheritedDHCPOptionListAttrTypes = map[string]attr.Type{
 // InheritedDHCPOptionListResourceSchemaAttributes contains the schema attributes for InheritedDHCPOptionListModel
 var InheritedDHCPOptionListResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.",
 	},
 	"value": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: InheritedDHCPOptionResourceSchemaAttributes,
 		},
-		Optional: true,
-		Computed: true,
-		PlanModifiers: []planmodifier.List{
-			listplanmodifier.UseStateForUnknown(),
-		},
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inherited DHCP option values.",
 	},
 }

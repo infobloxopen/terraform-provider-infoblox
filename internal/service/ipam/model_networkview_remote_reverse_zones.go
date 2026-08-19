@@ -62,6 +62,7 @@ var NetworkviewRemoteReverseZonesResourceSchemaAttributes = map[string]schema.At
 	},
 	"gss_tsig_dns_principal": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -69,6 +70,7 @@ var NetworkviewRemoteReverseZonesResourceSchemaAttributes = map[string]schema.At
 	},
 	"gss_tsig_domain": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -76,6 +78,7 @@ var NetworkviewRemoteReverseZonesResourceSchemaAttributes = map[string]schema.At
 	},
 	"tsig_key": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -86,10 +89,12 @@ var NetworkviewRemoteReverseZonesResourceSchemaAttributes = map[string]schema.At
 			stringvalidator.OneOf("HMAC-MD5", "HMAC-SHA256"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The TSIG key alorithm name.",
 	},
 	"tsig_key_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -130,7 +135,7 @@ func (m *NetworkviewRemoteReverseZonesModel) Expand(ctx context.Context, diags *
 		GssTsigDnsPrincipal: flex.ExpandStringPointerNullAsEmpty(m.GssTsigDnsPrincipal),
 		GssTsigDomain:       flex.ExpandStringPointerNullAsEmpty(m.GssTsigDomain),
 		TsigKey:             flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:          flex.ExpandStringPointer(m.TsigKeyAlg),
+		TsigKeyAlg:          flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
 		TsigKeyName:         flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
 		KeyType:             flex.ExpandStringPointerNullAsEmpty(m.KeyType),
 	}
