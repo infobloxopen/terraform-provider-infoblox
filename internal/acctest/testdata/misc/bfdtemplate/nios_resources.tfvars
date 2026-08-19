@@ -32,10 +32,6 @@ case "disappears" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "authentication_key" {
   backend  = "nios"
   parallel = true
@@ -45,37 +41,39 @@ case "authentication_key" {
       name = "{{random}}"
     }
     check = {
-      "nios.name"                 = "{{random}}"
-      "nios.authentication_type"  = "NONE"
-      "nios.detection_multiplier" = "3"
-      "nios.min_rx_interval"      = "100"
-      "nios.min_tx_interval"      = "100"
+      "nios.name"                         = "{{random}}"
+      "nios.authentication_type"          = "NONE"
+      "nios.detection_multiplier"         = "3"
+      "nios.min_rx_interval"              = "100"
+      "nios.min_tx_interval"              = "100"
     }
   }
 
   step {
     nios {
-      name = "{{random}}"
+      name               = "{{random}}"
+      authentication_key = "auth_key_1234"
     }
     check = {
-      "nios.name"                 = "{{random}}"
-      "nios.authentication_type"  = "NONE"
-      "nios.detection_multiplier" = "3"
-      "nios.min_rx_interval"      = "100"
-      "nios.min_tx_interval"      = "100"
+      "nios.name"                         = "{{random}}"
+      "nios.authentication_type"          = "NONE"
+      "nios.detection_multiplier"         = "3"
+      "nios.min_rx_interval"              = "100"
+      "nios.min_tx_interval"              = "100"
     }
   }
 
   step {
     nios {
-      name = "{{random}}"
+      name               = "{{random}}"
+      authentication_key = "updated_auth_key_1234"
     }
     check = {
-      "nios.name"                 = "{{random}}"
-      "nios.authentication_type"  = "NONE"
-      "nios.detection_multiplier" = "3"
-      "nios.min_rx_interval"      = "100"
-      "nios.min_tx_interval"      = "100"
+      "nios.name"                         = "{{random}}"
+      "nios.authentication_type"          = "NONE"
+      "nios.detection_multiplier"         = "3"
+      "nios.min_rx_interval"              = "100"
+      "nios.min_tx_interval"              = "100"
     }
   }
 
