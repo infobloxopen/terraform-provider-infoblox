@@ -198,11 +198,15 @@ func (s *nsgroupService) listNIOS(ctx context.Context, opts *core.ListOptions) (
 			req = req.PageId(opts.PageID)
 		}
 		req = req.Paging(opts.Paging)
-		maxResults := opts.MaxResults
-		if maxResults <= 0 {
-			maxResults = core.DefaultListLimit
+		if opts.Paging == 1 {
+			maxResults := opts.MaxResults
+			if maxResults <= 0 {
+				maxResults = core.DefaultListLimit
+			}
+			req = req.MaxResults(maxResults)
+		} else if opts.MaxResults > 0 {
+			req = req.MaxResults(opts.MaxResults)
 		}
-		req = req.MaxResults(maxResults)
 	}
 
 	resp, httpResp, err := req.Execute()

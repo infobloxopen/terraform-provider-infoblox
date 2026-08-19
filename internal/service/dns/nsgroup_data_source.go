@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -19,7 +17,7 @@ import (
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
-	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var _ datasource.DataSource = &NsgroupDataSource{}
@@ -43,6 +41,7 @@ func (d *NsgroupDataSource) Metadata(_ context.Context, req datasource.MetadataR
 type NsgroupDataSourceModel struct {
 	Filters        types.Map   `tfsdk:"filters"`
 	ExtAttrFilters types.Map   `tfsdk:"ext_attr_filters"`
+	TagFilters     types.Map   `tfsdk:"tag_filters"`
 	Results        types.List  `tfsdk:"results"`
 	MaxResults     types.Int32 `tfsdk:"max_results"`
 	Paging         types.Int32 `tfsdk:"paging"`
@@ -81,6 +80,11 @@ func (d *NsgroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				ElementType: types.StringType,
 				Optional:    true,
 			},
+			"tag_filters": schema.MapAttribute{
+				Description: "Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.",
+				ElementType: types.StringType,
+				Optional:    true,
+			},
 			"results": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: utils.DataSourceResultAttributes(NsgroupResourceSchemaAttributes),
@@ -89,14 +93,11 @@ func (d *NsgroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 			},
 			"paging": schema.Int32Attribute{
 				Optional:    true,
-				Description: "Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.",
-				Validators: []validator.Int32{
-					int32validator.OneOf(0, 1),
-				},
+				Description: "Enable (1) or disable (0) paging for the data source query. Only applicable for NIOS backend.",
 			},
 			"max_results": schema.Int32Attribute{
 				Optional:    true,
-				Description: "Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.",
+				Description: "Maximum number of results to return.",
 			},
 		},
 	}
@@ -133,7 +134,7 @@ func (d *NsgroupDataSource) ValidateConfig(ctx context.Context, req datasource.V
 		return
 	}
 
-	customvalidator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, types.MapNull(types.StringType), data.MaxResults, types.Int32Null(), &resp.Diagnostics)
+	validator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Paging, &resp.Diagnostics)
 }
 
 func (d *NsgroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -148,6 +149,7 @@ func (d *NsgroupDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	opts := &core.ListOptions{
 		Filters:       flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
 		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
+		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
 		ReturnFields:  NsgroupReturnFields,
 		Paging:        1,
 	}
@@ -176,10 +178,9 @@ func (d *NsgroupDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	case core.BackendUDDI:
 		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Nsgroup, error) {
 			opts.Offset = offset
-			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
 			return recs, e
-		}, opts.Limit, opts.Paging)
+		})
 	}
 
 	if err != nil {
