@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -287,6 +288,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		misc.NewBfdtemplateResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
@@ -310,6 +312,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		misc.NewBfdtemplateDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
@@ -336,6 +339,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		misc.NewBfdtemplateList,
 		dns.NewRecordSrvList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
