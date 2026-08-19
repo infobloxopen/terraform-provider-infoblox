@@ -46,18 +46,18 @@ list "infoblox_ipv6network" "list_ipv6networks_with_resource" {
 ### UDDI Backend
 
 ```terraform
-// List specific Ipv6Networks using filters
+// List specific Ipv6 Networks using filters
 list "infoblox_ipv6network" "list_ipv6network_using_filters" {
   provider = infoblox
   config {
     filters = {
-      address = "10.0.0.0"
+      address = "2001:db8:1ef8:e4ee::"
     }
   }
   limit = 10
 }
 
-// List specific Ipv6Networks using Tags
+// List specific Ipv6 Networks using Tags
 list "infoblox_ipv6network" "list_ipv6network_using_tags" {
   provider = infoblox
   config {
@@ -67,7 +67,7 @@ list "infoblox_ipv6network" "list_ipv6network_using_tags" {
   }
 }
 
-// List Ipv6Networks with resource details included
+// List Ipv6 Networks with resource details included
 list "infoblox_ipv6network" "list_ipv6network_with_resource" {
   provider         = infoblox
   include_resource = true

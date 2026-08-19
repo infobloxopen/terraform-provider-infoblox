@@ -15,28 +15,28 @@ Retrieves information about existing Infoblox Ipv6network from both the NIOS and
 ### NIOS Backend
 
 ```terraform
-// Retrieve a specific IPAM IPv6 network using filters
+// Retrieve a specific IPAM IPv6 Network using filters
 data "infoblox_ipv6network" "get_ipv6network_using_filters" {
   filters = {
     network = "10::/64"
   }
 }
 
-// Retrieve specific IPAM IPv6 networks using Extensible Attributes
+// Retrieve specific IPAM IPv6 Networks using Extensible Attributes
 data "infoblox_ipv6network" "get_ipv6network_using_extensible_attributes" {
   ext_attr_filters = {
     Site = "location-1"
   }
 }
 
-// Retrieve all IPAM IPv6 networks
+// Retrieve all IPAM IPv6 Networks
 data "infoblox_ipv6network" "get_all_ipv6networks" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
-// Get subnets filtered by an attribute
+// Retrieve a specific IPAM IPv6 Network using filters
 data "infoblox_ipv6network" "example_by_attribute" {
   filters = {
     "address" = "2001:db8:1ef8:e4ee::"
@@ -44,14 +44,14 @@ data "infoblox_ipv6network" "example_by_attribute" {
   }
 }
 
-// Get subnets filtered by tag
+// Retrieve specific IPAM IPv6 Networks using tags
 data "infoblox_ipv6network" "example_by_tag" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Get all subnets
+// Retrieve all IPAM IPv6 Networks
 data "infoblox_ipv6network" "example_all" {}
 ```
 

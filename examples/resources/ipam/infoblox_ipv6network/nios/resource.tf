@@ -1,26 +1,19 @@
 // Create an IPAM IPv6 Network with Basic Fields
-resource "infoblox_ipv6network" "example_network" {
+resource "infoblox_ipv6network" "example_network_basic" {
   nios = {
-    network      = "10::/64"
-    network_view = "default"
-    comment      = "Created by Terraform"
-
-    // Optional: Configure extensible attributes
-    ext_attrs = {
-      Site = "location-1"
-    }
+    network = "10::/64"
   }
 }
 
 // Create an IPAM IPv6 Network with Additional Fields
-resource "infoblox_ipv6network" "complete_example" {
+resource "infoblox_ipv6network" "example_network_additional" {
   nios = {
     // Required attributes
     network = "11::/64"
 
     // Basic configuration
     network_view = "default"
-    comment      = "Complete network example with all possible writable attributes"
+    comment      = "Created by Terraform"
 
     ddns_enable_option_fqdn    = true
     ddns_generate_hostname     = true
@@ -63,6 +56,6 @@ resource "infoblox_ipv6network" "example_func_call" {
     comment = "Network created with function call"
   }
   depends_on = [
-    infoblox_ipv6network.example_network
+    infoblox_ipv6network.example_network_basic
   ]
 }
