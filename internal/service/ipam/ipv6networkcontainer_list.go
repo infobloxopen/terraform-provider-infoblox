@@ -1,4 +1,4 @@
-package dns
+package ipam
 
 import (
 	"context"
@@ -12,39 +12,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
-	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
-	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource                   = &RecordSrvList{}
-	_ list.ListResourceWithConfigure      = &RecordSrvList{}
-	_ list.ListResourceWithValidateConfig = &RecordSrvList{}
+	_ list.ListResource                   = &Ipv6networkcontainerList{}
+	_ list.ListResourceWithConfigure      = &Ipv6networkcontainerList{}
+	_ list.ListResourceWithValidateConfig = &Ipv6networkcontainerList{}
 )
 
-func NewRecordSrvList() list.ListResource {
-	return &RecordSrvList{}
+func NewIpv6networkcontainerList() list.ListResource {
+	return &Ipv6networkcontainerList{}
 }
 
-type RecordSrvList struct {
+type Ipv6networkcontainerList struct {
 	backend core.BackendType
-	service coresvc.RecordSrvService
+	service coresvc.Ipv6networkcontainerService
 }
 
-type RecordSrvListModel struct {
+type Ipv6networkcontainerListModel struct {
 	Filters        types.Map `tfsdk:"filters"`
 	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
 	TagFilters     types.Map `tfsdk:"tag_filters"`
 }
 
-func (l *RecordSrvList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_record_srv"
+func (l *Ipv6networkcontainerList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_ipv6networkcontainer"
 }
 
-func (l *RecordSrvList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (l *Ipv6networkcontainerList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,12 +64,12 @@ func (l *RecordSrvList) Configure(_ context.Context, req resource.ConfigureReque
 		l.backend = core.BackendUDDI
 	}
 
-	l.service = coresvc.NewRecordSrvService(l.backend, client.NIOS, client.UDDI)
+	l.service = coresvc.NewIpv6networkcontainerService(l.backend, client.NIOS, client.UDDI)
 }
 
-func (l *RecordSrvList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
+func (l *Ipv6networkcontainerList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox RecordSrv from both the NIOS and UDDI backends.",
+		MarkdownDescription: "Retrieves a list of Infoblox Ipv6networkcontainer from both the NIOS and UDDI backends.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
@@ -90,8 +90,8 @@ func (l *RecordSrvList) ListResourceConfigSchema(_ context.Context, _ list.ListR
 	}
 }
 
-func (l *RecordSrvList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
-	var data RecordSrvListModel
+func (l *Ipv6networkcontainerList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
+	var data Ipv6networkcontainerListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -101,8 +101,8 @@ func (l *RecordSrvList) ValidateListResourceConfig(ctx context.Context, req list
 	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
 }
 
-func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
-	var data RecordSrvListModel
+func (l *Ipv6networkcontainerList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
+	var data Ipv6networkcontainerListModel
 
 	diags := req.Config.Get(ctx, &data)
 	if diags.HasError() {
@@ -111,23 +111,22 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_record_srv list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6networkcontainer list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
-		InternalFilters: map[string]string{"type": RecordSrvType},
-		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:    RecordSrvReturnFields,
-		Paging:          1,
+		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
+		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
+		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:  Ipv6networkcontainerReturnFields,
+		Paging:        1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}
 
-	var records []*coremodel.RecordSrv
+	var records []*coremodel.Ipv6networkcontainer
 	var err error
 	var totalFetched int32
 	pageCount := 0
@@ -135,7 +134,7 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 	switch l.backend {
 	case core.BackendNIOS:
 		records, err = core.ReadAllPagesNIOS(
-			func(pageID string) ([]*coremodel.RecordSrv, string, error) {
+			func(pageID string) ([]*coremodel.Ipv6networkcontainer, string, error) {
 				// Shrink page size so we never over-fetch past the caller's limit.
 				pageSize := min(requestLimit-totalFetched, core.DefaultListLimit)
 				pageCount++
@@ -158,7 +157,7 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 
 	case core.BackendUDDI:
 		records, err = core.ReadAllPagesUDDI(
-			func(offset, _ int32) ([]*coremodel.RecordSrv, error) {
+			func(offset, _ int32) ([]*coremodel.Ipv6networkcontainer, error) {
 				// Once the cap is reached, return an empty page
 				remaining := requestLimit - totalFetched
 				if remaining <= 0 {
@@ -182,7 +181,7 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 	}
 
 	if err != nil {
-		diags.AddError("Client Error", fmt.Sprintf("Unable to list RecordSrv records: %s", err))
+		diags.AddError("Client Error", fmt.Sprintf("Unable to list Ipv6networkcontainer records: %s", err))
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}
@@ -207,7 +206,7 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 			// By default, list only returns the identity. If IncludeResource is true,
 			// the full resource is flattened and set on result.Resource.
 			if req.IncludeResource {
-				model := &RecordSrvModel{}
+				model := &Ipv6networkcontainerModel{}
 				model.Flatten(ctx, item, &result.Diagnostics)
 				if !result.Diagnostics.HasError() {
 					result.Diagnostics.Append(result.Resource.Set(ctx, model)...)

@@ -105,6 +105,7 @@ var ASMConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		CustomType:          timetypes.RFC3339Type{},
+		Default:             stringdefault.StaticString("1970-01-01T00:00:00Z"),
 		MarkdownDescription: "",
 	},
 }
