@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -226,6 +227,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewAddressResource,
 		ipam.NewNetworkResource,
 		ipam.NewNetworkcontainerResource,
+
+		rpz.NewRecordRpzAaaaIpaddressResource,
 	}
 }
 
@@ -248,6 +251,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewAddressDataSource,
 		ipam.NewNetworkDataSource,
 		ipam.NewNetworkcontainerDataSource,
+
+		rpz.NewRecordRpzAaaaIpaddressDataSource,
 	}
 }
 
@@ -267,6 +272,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewAddressList,
 		ipam.NewNetworkList,
 		ipam.NewNetworkcontainerList,
+
+		rpz.NewRecordRpzAaaaIpaddressList,
 	}
 }
 
