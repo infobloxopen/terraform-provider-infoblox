@@ -11,9 +11,16 @@ import (
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 )
 
-var testResourceDtcMonitorHttp = `
+var testResourceDtcMonitorHttpMinimal = `
 	resource "infoblox_dtc_monitor_http" "test-monitor_http1" {
 		name = "test-monitor_http1"
+		port = 81
+	}
+`
+
+var testResourceDtcMonitorHttpMinimalRenamed = `
+	resource "infoblox_dtc_monitor_http" "test-monitor_http1" {
+		name = "test-monitor_http1_renamed"
 		port = 81
 	}
 `
@@ -303,11 +310,21 @@ func TestAccResourceDtcMonitorHttp(t *testing.T) {
 		Steps: []resource.TestStep{
 			// minimum params
 			{
-				Config: testResourceDtcMonitorHttp,
+				Config: testResourceDtcMonitorHttpMinimal,
 				Check: testDtcMonitorHttpCompare(t,
 					"infoblox_dtc_monitor_http.test-monitor_http1",
 					setDtcMonitorHttpObjectDefaults(&ibclient.DtcMonitorHttp{
 						Name: utils.StringPtr("test-monitor_http1"),
+						Port: utils.Uint32Ptr(81),
+					})),
+			},
+			// rename
+			{
+				Config: testResourceDtcMonitorHttpMinimalRenamed,
+				Check: testDtcMonitorHttpCompare(t,
+					"infoblox_dtc_monitor_http.test-monitor_http1",
+					setDtcMonitorHttpObjectDefaults(&ibclient.DtcMonitorHttp{
+						Name: utils.StringPtr("test-monitor_http1_renamed"),
 						Port: utils.Uint32Ptr(81),
 					})),
 			},

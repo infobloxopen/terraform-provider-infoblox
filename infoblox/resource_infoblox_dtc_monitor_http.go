@@ -284,7 +284,7 @@ func resourceDtcMonitorHttpCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error while creating a dtc:monitor:http: %s", err.Error())
 	}
 
-	d.SetId(mb.internalID)
+	d.SetId(createdObject.Ref)
 	if err = d.Set("ref", createdObject.Ref); err != nil {
 		return err
 	}
@@ -365,8 +365,8 @@ func resourceDtcMonitorHttpUpdate(d *schema.ResourceData, m interface{}) (err er
 			_ = d.Set("enable_sni", prevEnableSNI.(bool))
 			_ = d.Set("port", prevPort.(int))
 			_ = d.Set("request", prevRequest)
-			_ = d.Set("result", prevResult.(int))
-			_ = d.Set("result_code", prevResultCode.(string))
+			_ = d.Set("result", prevResult.(string))
+			_ = d.Set("result_code", prevResultCode.(int))
 			_ = d.Set("secure", prevSecure.(bool))
 			_ = d.Set("validate_cert", prevValidateCert.(bool))
 		}
@@ -396,7 +396,7 @@ func resourceDtcMonitorHttpUpdate(d *schema.ResourceData, m interface{}) (err er
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	rec, err := searchObjectByRefOrInternalId("DtcMonitor", d, m)
+	rec, err := searchObjectByRefOrInternalId("DtcMonitorHttp", d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return ibclient.NewNotFoundError(fmt.Sprintf(

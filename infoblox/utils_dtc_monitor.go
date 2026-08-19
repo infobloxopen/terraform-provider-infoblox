@@ -94,8 +94,12 @@ func resourceDtcMonitorGetFromTfState(d *schema.ResourceData) (DtcMonitorBase, e
 		tenantID = tempVal.(string)
 	}
 
-	internalId := generateInternalId()
-	extAttrs[eaNameForInternalId] = internalId.String()
+	// If 'internal_id' is not set, then generate a new one and set it to the EA.
+	internalId := d.Get("internal_id").(string)
+	if internalId == "" {
+		internalId = generateInternalId().String()
+	}
+	extAttrs[eaNameForInternalId] = newInternalResourceIdFromString(internalId).String()
 
 	return DtcMonitorBase{
 		extAttrs:   extAttrs,
@@ -106,7 +110,7 @@ func resourceDtcMonitorGetFromTfState(d *schema.ResourceData) (DtcMonitorBase, e
 		retry_up:   uint32(d.Get("retry_up").(int)),
 		timeout:    uint32(d.Get("timeout").(int)),
 		tenantID:   tenantID,
-		internalID: internalId.String(),
+		internalID: internalId,
 	}, nil
 
 }

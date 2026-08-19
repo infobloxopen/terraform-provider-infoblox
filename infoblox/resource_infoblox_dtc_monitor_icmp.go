@@ -56,7 +56,7 @@ func resourceDtcMonitorIcmpCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error while creating a dtc:monitor:icmp: %s", err.Error())
 	}
 
-	d.SetId(mb.internalID)
+	d.SetId(createdObject.Ref)
 	if err = d.Set("ref", createdObject.Ref); err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func resourceDtcMonitorIcmpUpdate(d *schema.ResourceData, m interface{}) (err er
 	connector := m.(ibclient.IBConnector)
 	objMgr := ibclient.NewObjectManager(connector, "Terraform", tenantID)
 
-	rec, err := searchObjectByRefOrInternalId("DtcMonitor", d, m)
+	rec, err := searchObjectByRefOrInternalId("DtcMonitorIcmp", d, m)
 	if err != nil {
 		if _, ok := err.(*ibclient.NotFoundError); !ok {
 			return ibclient.NewNotFoundError(fmt.Sprintf(

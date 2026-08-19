@@ -11,9 +11,14 @@ import (
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 )
 
-var testResourceDtcMonitorIcmp = `
+var testResourceDtcMonitorIcmp1 = `
 	resource "infoblox_dtc_monitor_icmp" "test-monitor_icmp1" {
 		name = "test-monitor_icmp1"
+	}
+`
+var testResourceDtcMonitorIcmp1_Rename = `
+	resource "infoblox_dtc_monitor_icmp" "test-monitor_icmp1" {
+		name = "test-monitor_icmp1_rename"
 	}
 `
 
@@ -145,11 +150,20 @@ func TestAccResourceDtcMonitorIcmp(t *testing.T) {
 		Steps: []resource.TestStep{
 			// minimum params
 			{
-				Config: testResourceDtcMonitorIcmp,
+				Config: testResourceDtcMonitorIcmp1,
 				Check: testDtcMonitorIcmpCompare(t,
 					"infoblox_dtc_monitor_icmp.test-monitor_icmp1",
 					&ibclient.DtcMonitorIcmp{
 						Name: utils.StringPtr("test-monitor_icmp1"),
+					}),
+			},
+			// rename
+			{
+				Config: testResourceDtcMonitorIcmp1_Rename,
+				Check: testDtcMonitorIcmpCompare(t,
+					"infoblox_dtc_monitor_icmp.test-monitor_icmp1",
+					&ibclient.DtcMonitorIcmp{
+						Name: utils.StringPtr("test-monitor_icmp1_rename"),
 					}),
 			},
 			// maximum params
