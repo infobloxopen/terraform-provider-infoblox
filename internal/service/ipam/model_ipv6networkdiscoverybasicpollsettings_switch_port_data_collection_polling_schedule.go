@@ -19,8 +19,8 @@ import (
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
-// NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel is the Terraform model for NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
-type NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel struct {
+// Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel is the Terraform model for Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule
+type Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel struct {
 	Weekdays        types.List   `tfsdk:"weekdays"`
 	TimeZone        types.String `tfsdk:"time_zone"`
 	RecurringTime   types.Int64  `tfsdk:"recurring_time"`
@@ -35,8 +35,8 @@ type NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleMod
 	Disable         types.Bool   `tfsdk:"disable"`
 }
 
-// NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes contains the attribute types for NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
-var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes = map[string]attr.Type{
+// Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes contains the attribute types for Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
+var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes = map[string]attr.Type{
 	"weekdays":          types.ListType{ElemType: types.StringType},
 	"time_zone":         types.StringType,
 	"recurring_time":    types.Int64Type,
@@ -51,8 +51,8 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttr
 	"disable":           types.BoolType,
 }
 
-// NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes contains the schema attributes for NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
-var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes = map[string]schema.Attribute{
+// Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes contains the schema attributes for Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
+var Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleResourceSchemaAttributes = map[string]schema.Attribute{
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
@@ -133,12 +133,12 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 	},
 }
 
-// ExpandNetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule converts a Terraform Object to SDK type
-func ExpandNetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule(ctx context.Context, o types.Object, diags *diag.Diagnostics) *niosipam.NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule {
+// ExpandIpv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule converts a Terraform Object to SDK type
+func ExpandIpv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule(ctx context.Context, o types.Object, diags *diag.Diagnostics) *niosipam.Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
+	var m Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -147,11 +147,11 @@ func ExpandNetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSched
 }
 
 // Expand converts the Terraform model to SDK type
-func (m *NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel) Expand(ctx context.Context, diags *diag.Diagnostics) *niosipam.NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule {
+func (m *Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel) Expand(ctx context.Context, diags *diag.Diagnostics) *niosipam.Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule {
 	if m == nil {
 		return nil
 	}
-	to := &niosipam.NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule{
+	to := &niosipam.Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule{
 		Weekdays:        flex.ExpandFrameworkListString(ctx, m.Weekdays, diags),
 		TimeZone:        flex.ExpandStringPointerNullAsEmpty(m.TimeZone),
 		RecurringTime:   flex.ExpandInt64Pointer(m.RecurringTime),
@@ -168,20 +168,20 @@ func (m *NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedul
 	return to
 }
 
-// FlattenNetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule converts an SDK type to Terraform Object
-func FlattenNetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule(ctx context.Context, from *niosipam.NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule, diags *diag.Diagnostics) types.Object {
+// FlattenIpv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule converts an SDK type to Terraform Object
+func FlattenIpv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule(ctx context.Context, from *niosipam.Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes)
+		return types.ObjectNull(Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes)
 	}
-	m := &NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel{}
+	m := &Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel{}
 	m.Flatten(ctx, from, diags)
-	t, d := types.ObjectValueFrom(ctx, NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes, m)
+	t, d := types.ObjectValueFrom(ctx, Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleAttrTypes, m)
 	diags.Append(d...)
 	return t
 }
 
 // Flatten populates the Terraform model from SDK type
-func (m *NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel) Flatten(ctx context.Context, from *niosipam.NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule, diags *diag.Diagnostics) {
+func (m *Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleModel) Flatten(ctx context.Context, from *niosipam.Ipv6networkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingSchedule, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}

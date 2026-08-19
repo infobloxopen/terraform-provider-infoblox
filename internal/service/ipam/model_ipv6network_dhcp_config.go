@@ -15,35 +15,35 @@ import (
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
-// NetworkDHCPConfigModel is the Terraform model for DHCPConfig
-type NetworkDHCPConfigModel struct {
-	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
+// Ipv6networkDhcpConfigModel is the Terraform model for DHCPConfig
+type Ipv6networkDhcpConfigModel struct {
+	AllowUnknownV6        types.Bool  `tfsdk:"allow_unknown_v6"`
 	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
-	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
+	FiltersV6             types.List  `tfsdk:"filters_v6"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
 	IgnoreList            types.List  `tfsdk:"ignore_list"`
-	LeaseTime             types.Int64 `tfsdk:"lease_time"`
+	LeaseTimeV6           types.Int64 `tfsdk:"lease_time_v6"`
 }
 
-// NetworkDHCPConfigAttrTypes contains the attribute types for NetworkDHCPConfigModel
-var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
-	"allow_unknown":           types.BoolType,
+// Ipv6networkDhcpConfigAttrTypes contains the attribute types for Ipv6networkDhcpConfigModel
+var Ipv6networkDhcpConfigAttrTypes = map[string]attr.Type{
+	"allow_unknown_v6":        types.BoolType,
 	"authoritative_dhcp":      types.BoolType,
-	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
+	"filters_v6":              types.ListType{ElemType: types.StringType},
 	"ignore_client_uid":       types.BoolType,
 	"ignore_list":             types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}},
-	"lease_time":              types.Int64Type,
+	"lease_time_v6":           types.Int64Type,
 }
 
-// NetworkDHCPConfigResourceSchemaAttributes contains the schema attributes for NetworkDHCPConfigModel
-var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
-	"allow_unknown": schema.BoolAttribute{
+// Ipv6networkDhcpConfigResourceSchemaAttributes contains the schema attributes for Ipv6networkDhcpConfigModel
+var Ipv6networkDhcpConfigResourceSchemaAttributes = map[string]schema.Attribute{
+	"allow_unknown_v6": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(true),
-		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
+		MarkdownDescription: "Disable to allow leases only for known IPV6 clients, those for which a fixed address is configured.",
 	},
 	"authoritative_dhcp": schema.BoolAttribute{
 		Optional:            true,
@@ -51,15 +51,15 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Set DHCP server as authoritative.",
 	},
-	"filters": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
 	"filters_large_selection": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
 		Computed:            true,
+		MarkdownDescription: "The resource identifier.",
+	},
+	"filters_v6": schema.ListAttribute{
+		ElementType:         types.StringType,
+		Optional:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
@@ -75,20 +75,20 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
-	"lease_time": schema.Int64Attribute{
+	"lease_time_v6": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             int64default.StaticInt64(3600),
-		MarkdownDescription: "The lease duration in seconds.",
+		MarkdownDescription: "The lease duration in seconds for IPV6 clients.",
 	},
 }
 
-// ExpandNetworkDHCPConfig converts a Terraform Object to SDK type
-func ExpandNetworkDHCPConfig(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
+// ExpandIpv6networkDhcpConfig converts a Terraform Object to SDK type
+func ExpandIpv6networkDhcpConfig(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m NetworkDHCPConfigModel
+	var m Ipv6networkDhcpConfigModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -97,44 +97,44 @@ func ExpandNetworkDHCPConfig(ctx context.Context, o types.Object, diags *diag.Di
 }
 
 // Expand converts the Terraform model to SDK type
-func (m *NetworkDHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
+func (m *Ipv6networkDhcpConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.DHCPConfig {
 	if m == nil {
 		return nil
 	}
 	to := &uddiipam.DHCPConfig{
-		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
+		AllowUnknownV6:        flex.ExpandBoolPointer(m.AllowUnknownV6),
 		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
-		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
+		FiltersV6:             flex.ExpandFrameworkListString(ctx, m.FiltersV6, diags),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
 		IgnoreList:            flex.ExpandFrameworkListNestedBlock(ctx, m.IgnoreList, diags, ExpandIgnoreItem),
-		LeaseTime:             flex.ExpandInt64Pointer(m.LeaseTime),
+		LeaseTimeV6:           flex.ExpandInt64Pointer(m.LeaseTimeV6),
 	}
 	return to
 }
 
-// FlattenNetworkDHCPConfig converts an SDK type to Terraform Object
-func FlattenNetworkDHCPConfig(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) types.Object {
+// FlattenIpv6networkDhcpConfig converts an SDK type to Terraform Object
+func FlattenIpv6networkDhcpConfig(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(NetworkDHCPConfigAttrTypes)
+		return types.ObjectNull(Ipv6networkDhcpConfigAttrTypes)
 	}
-	m := &NetworkDHCPConfigModel{}
+	m := &Ipv6networkDhcpConfigModel{}
 	m.Flatten(ctx, from, diags)
-	t, d := types.ObjectValueFrom(ctx, NetworkDHCPConfigAttrTypes, m)
+	t, d := types.ObjectValueFrom(ctx, Ipv6networkDhcpConfigAttrTypes, m)
 	diags.Append(d...)
 	return t
 }
 
 // Flatten populates the Terraform model from SDK type
-func (m *NetworkDHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) {
+func (m *Ipv6networkDhcpConfigModel) Flatten(ctx context.Context, from *uddiipam.DHCPConfig, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}
-	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
+	m.AllowUnknownV6 = flex.FlattenBoolPointer(from.AllowUnknownV6)
 	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
-	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
+	m.FiltersV6 = flex.FlattenFrameworkListString(ctx, from.FiltersV6, diags)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
 	m.IgnoreList = flex.FlattenFrameworkListNestedBlock(ctx, from.IgnoreList, IgnoreItemAttrTypes, diags, FlattenIgnoreItem)
-	m.LeaseTime = flex.FlattenInt64Pointer(from.LeaseTime)
+	m.LeaseTimeV6 = flex.FlattenInt64Pointer(from.LeaseTimeV6)
 }

@@ -20,31 +20,31 @@ import (
 )
 
 var (
-	_ resource.Resource                   = &NetworkResource{}
-	_ resource.ResourceWithValidateConfig = &NetworkResource{}
-	_ resource.ResourceWithConfigure      = &NetworkResource{}
-	_ resource.ResourceWithImportState    = &NetworkResource{}
-	_ resource.ResourceWithIdentity       = &NetworkResource{}
+	_ resource.Resource                   = &Ipv6networkResource{}
+	_ resource.ResourceWithValidateConfig = &Ipv6networkResource{}
+	_ resource.ResourceWithConfigure      = &Ipv6networkResource{}
+	_ resource.ResourceWithImportState    = &Ipv6networkResource{}
+	_ resource.ResourceWithIdentity       = &Ipv6networkResource{}
 )
 
-func NewNetworkResource() resource.Resource {
-	return &NetworkResource{}
+func NewIpv6networkResource() resource.Resource {
+	return &Ipv6networkResource{}
 }
 
-type NetworkResource struct {
+type Ipv6networkResource struct {
 	backend          core.BackendType
-	service          coresvc.NetworkService
-	containerService coresvc.NetworkcontainerService
+	service          coresvc.Ipv6networkService
+	containerService coresvc.Ipv6networkcontainerService
 }
 
-func (r *NetworkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_network"
+func (r *Ipv6networkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_ipv6network"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
 }
 
-func (r *NetworkResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+func (r *Ipv6networkResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
 	resp.IdentitySchema = identityschema.Schema{
 		Attributes: map[string]identityschema.Attribute{
 			"id": identityschema.StringAttribute{
@@ -54,14 +54,14 @@ func (r *NetworkResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 	}
 }
 
-func (r *NetworkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *Ipv6networkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Network in both NIOS and UDDI backends.",
-		Attributes:          NetworkResourceSchemaAttributes,
+		MarkdownDescription: "Manages an Infoblox Ipv6network in both NIOS and UDDI backends.",
+		Attributes:          Ipv6networkResourceSchemaAttributes,
 	}
 }
 
-func (r *NetworkResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *Ipv6networkResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -81,16 +81,16 @@ func (r *NetworkResource) Configure(_ context.Context, req resource.ConfigureReq
 		r.backend = core.BackendUDDI
 	}
 
-	r.service = coresvc.NewNetworkService(r.backend, client.NIOS, client.UDDI)
-	r.containerService = coresvc.NewNetworkcontainerService(r.backend, client.NIOS, client.UDDI)
+	r.service = coresvc.NewIpv6networkService(r.backend, client.NIOS, client.UDDI)
+	r.containerService = coresvc.NewIpv6networkcontainerService(r.backend, client.NIOS, client.UDDI)
 }
 
-func (r *NetworkResource) retryPolicy(op retry.Operation) retry.Policy {
-	return retry.For[coremodel.Network](r.backend, op)
+func (r *Ipv6networkResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.Ipv6network](r.backend, op)
 }
 
-func (r *NetworkResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data NetworkModel
+func (r *Ipv6networkResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data Ipv6networkModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -103,34 +103,28 @@ func (r *NetworkResource) ValidateConfig(ctx context.Context, req resource.Valid
 		return
 	}
 
-	ValidateNetwork(ctx, data, resp)
+	ValidateIpv6network(ctx, data, resp)
 }
 
-func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data NetworkModel
+func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data Ipv6networkModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	unlock := LockNetworkAllocation(ctx, data.UDDI, &resp.Diagnostics)
-	defer unlock()
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	// Add Terraform Internal ID to ext_attrs
 	if r.backend == core.BackendNIOS {
-		nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+		nios := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
-			nios = &NIOSNetworkModel{}
+			nios = &NIOSIpv6networkModel{}
 		}
 		nios.ExtAttrs = flex.SetInternalID(ctx, nios.ExtAttrs, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSNetworkAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSIpv6networkAttrTypes, &resp.Diagnostics)
 	}
 
 	obj := data.Expand(ctx, &resp.Diagnostics, true)
@@ -139,22 +133,22 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	if r.backend == core.BackendNIOS {
-		ApplyNetworkNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		ApplyIpv6networkNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
 	var (
-		apiResp  *coremodel.Network
+		apiResp  *coremodel.Ipv6network
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
-			ReturnFields: NetworkReturnFields,
-			Inherit:      NetworkInheritanceType,
+			ReturnFields: Ipv6networkReturnFields,
+			Inherit:      Ipv6networkInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -162,17 +156,17 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 		return 0, apiErr
 	})
 	if err != nil {
-		if r.isNetworkContainerConversionError(err) &&
-			r.isNetworkConvertedToContainer(ctx, &data) {
+		if r.isIpv6networkContainerConversionError(err) &&
+			r.isIpv6networkConvertedToContainer(ctx, &data) {
 			resp.Diagnostics.AddError(
-				"Unable to Create Network. Network Might Be Converted to Network Container",
-				fmt.Sprintf("Failed to create network. The parent network appears to have been converted to a network container. "+
+				"Unable to Create Ipv6network. Ipv6network Might Be Converted to Ipv6network Container",
+				fmt.Sprintf("Failed to create ipv6network. The parent ipv6network appears to have been converted to a ipv6network container. "+
 					"Manual intervention is needed to import it as a container. "+
 					"Got error: %s", err),
 			)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Network: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Ipv6network: %s", err))
 		return
 	}
 
@@ -185,8 +179,8 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data NetworkModel
+func (r *Ipv6networkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data Ipv6networkModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -201,15 +195,15 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	var (
-		apiResp  *coremodel.Network
+		apiResp  *coremodel.Ipv6network
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-			ReturnFields: NetworkReturnFields,
-			Inherit:      NetworkInheritanceType,
+			ReturnFields: Ipv6networkReturnFields,
+			Inherit:      Ipv6networkInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -227,18 +221,18 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 				return
 			}
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Network: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read Ipv6network: %s", err))
 		return
 	}
 
 	// For NIOS verify internal ID matches (handles case where ref changes but resource still exists)
 	if r.backend == core.BackendNIOS && associateInternalId == nil && apiResp.NIOS != nil {
 		// Get state internal ID
-		stateNIOS := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
 		if stateNIOS == nil || stateNIOS.ExtAttrsAll.IsNull() || stateNIOS.ExtAttrsAll.IsUnknown() {
 			resp.Diagnostics.AddError(
 				"Missing Internal ID",
-				"Unable to read Network because the internal ID (from ext_attrs_all) is missing or invalid.",
+				"Unable to read Ipv6network because the internal ID (from ext_attrs_all) is missing or invalid.",
 			)
 			return
 		}
@@ -276,13 +270,13 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *NetworkResource) ReadByExtAttrs(ctx context.Context, data *NetworkModel, resp *resource.ReadResponse) bool {
+func (r *Ipv6networkResource) ReadByExtAttrs(ctx context.Context, data *Ipv6networkModel, resp *resource.ReadResponse) bool {
 	// Only applicable for NIOS backend
 	if r.backend != core.BackendNIOS {
 		return false
 	}
 
-	nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+	nios := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
 	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
 		return false
 	}
@@ -299,14 +293,14 @@ func (r *NetworkResource) ReadByExtAttrs(ctx context.Context, data *NetworkModel
 
 	// Search for the record using the Terraform Internal ID
 	var (
-		records  []*coremodel.Network
+		records  []*coremodel.Ipv6network
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: NetworkReturnFields,
+			ReturnFields: Ipv6networkReturnFields,
 			ExtAttrFilter: map[string]string{
 				flex.TerraformInternalID: tfInternalID,
 			},
@@ -317,7 +311,7 @@ func (r *NetworkResource) ReadByExtAttrs(ctx context.Context, data *NetworkModel
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search Network by extattrs: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search Ipv6network by extattrs: %s", err))
 		return true
 	}
 
@@ -337,8 +331,8 @@ func (r *NetworkResource) ReadByExtAttrs(ctx context.Context, data *NetworkModel
 	return true
 }
 
-func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data NetworkModel
+func (r *Ipv6networkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data Ipv6networkModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -369,10 +363,10 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 			return
 		}
 
-		planNIOS := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
-		stateNIOS := flex.ExpandNestedObject[NIOSNetworkModel](ctx, stateNIOSObj, &resp.Diagnostics)
+		planNIOS := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, stateNIOSObj, &resp.Diagnostics)
 		if planNIOS == nil {
-			planNIOS = &NIOSNetworkModel{}
+			planNIOS = &NIOSIpv6networkModel{}
 		}
 
 		// Preserve the plan ext_attrs (without inherited EAs) for restore after Update
@@ -390,7 +384,7 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 		if stateNIOS != nil {
 			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, stateNIOS.ExtAttrsAll)
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSNetworkAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSIpv6networkAttrTypes, &resp.Diagnostics)
 	}
 
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
@@ -399,22 +393,22 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if r.backend == core.BackendNIOS {
-		ApplyNetworkNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		ApplyIpv6networkNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
 	var (
-		apiResp  *coremodel.Network
+		apiResp  *coremodel.Ipv6network
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-			ReturnFields: NetworkReturnFields,
-			Inherit:      NetworkInheritanceType,
+			ReturnFields: Ipv6networkReturnFields,
+			Inherit:      Ipv6networkInheritanceType,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -422,16 +416,16 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update Network: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update Ipv6network: %s", err))
 		return
 	}
 
 	// Restore the plan ext_attrs (without inherited EAs) so Flatten preserves the user's input
 	if r.backend == core.BackendNIOS {
-		niosObj := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+		niosObj := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
 		if niosObj != nil {
 			niosObj.ExtAttrs = planExtAttrs
-			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSNetworkAttrTypes, &resp.Diagnostics)
+			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSIpv6networkAttrTypes, &resp.Diagnostics)
 			if resp.Diagnostics.HasError() {
 				return
 			}
@@ -451,8 +445,8 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 }
 
-func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data NetworkModel
+func (r *Ipv6networkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data Ipv6networkModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -473,11 +467,11 @@ func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Network: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Ipv6network: %s", err))
 	}
 }
 
-func (r *NetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *Ipv6networkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
 		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
 		if diags.HasError() {
