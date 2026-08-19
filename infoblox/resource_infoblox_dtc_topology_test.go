@@ -13,8 +13,12 @@ import (
 	"github.com/infobloxopen/infoblox-go-client/v2/utils"
 )
 
-var testResourceDtcTopology = `resource "infoblox_dtc_topology" "test-topology1" {
+var testResourceDtcTopology1 = `resource "infoblox_dtc_topology" "test-topology1" {
 		name = "test-topology1"
+}`
+
+var testResourceDtcTopology1_rename = `resource "infoblox_dtc_topology" "test-topology1" {
+		name = "test-topology1-rename"
 }`
 
 var testResourceDtcTopology2 = `resource "infoblox_dtc_topology" "test-topology2" {
@@ -150,11 +154,19 @@ func TestAccResourceDtcTopology(t *testing.T) {
 		Steps: []resource.TestStep{
 			// minimum params
 			{
-				Config: testResourceDtcTopology,
+				Config: testResourceDtcTopology1,
 				Check: testDtcTopologyCompare(t, "infoblox_dtc_topology.test-topology1", &ibclient.DtcTopology{
 					Name: utils.StringPtr("test-topology1"),
 				}),
 			},
+			//rename
+			{
+				Config: testResourceDtcTopology1_rename,
+				Check: testDtcTopologyCompare(t, "infoblox_dtc_topology.test-topology1", &ibclient.DtcTopology{
+					Name: utils.StringPtr("test-topology1-rename"),
+				}),
+			},
+
 			// maximum params
 			{
 				Config: testResourceDtcTopology2,
