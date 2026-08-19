@@ -26,7 +26,7 @@ func ValidateIpv6networkcontainer(ctx context.Context, data Ipv6networkcontainer
 }
 
 func validateIpv6networkcontainerNIOSConfig(ctx context.Context, m *NIOSIpv6networkcontainerModel, resp *resource.ValidateConfigResponse) {
-	// DHCP option rules are identical across every NIOS object carrying options.
+	// Validate DHCP Options
 	utils.ValidateDHCPOptionsConfig(ctx, m.Options, path.Root("nios").AtName("options"), &resp.Diagnostics)
 
 	var dhcpLeaseTimeValue string
