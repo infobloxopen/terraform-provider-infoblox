@@ -1,3 +1,83 @@
 # HaGroup — uddi list cases
-# No legacy list test was found for this object.
-# Add list cases here manually.
+# DHCP host IDs are pre-provisioned test fixtures in the stage portal.
+case "basic" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      hosts = [
+        { host = "dhcp/host/470520", role = "active" },
+        { host = "dhcp/host/470521", role = "active" }
+      ]
+      name = "{{random}}"
+      mode = "active-active"
+    }
+  }
+
+  step {
+    query    = true
+    provider = infoblox
+    limit    = 5
+  }
+
+}
+
+case "filters" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      hosts = [
+        { host = "dhcp/host/470520", role = "active" },
+        { host = "dhcp/host/470521", role = "active" }
+      ]
+      name = "{{random}}"
+      mode = "active-active"
+    }
+  }
+
+  step {
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    filter {
+      type = "filters"
+      values = {
+        name = "uddi.name"
+      }
+    }
+  }
+
+}
+
+case "tag_filters" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      hosts = [
+        { host = "dhcp/host/470520", role = "active" },
+        { host = "dhcp/host/470521", role = "passive" }
+      ]
+      name = "{{random}}"
+      mode = "active-passive"
+      tags = { tag1 = "{{random2}}" }
+    }
+  }
+
+  step {
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    filter {
+      type = "tag_filters"
+      values = {
+        tag1 = "uddi.tags.tag1"
+      }
+    }
+  }
+
+}

@@ -156,11 +156,8 @@ func (m *UDDIHaGroupModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		AnycastConfigId: flex.ExpandStringPointer(m.AnycastConfigId),
 		Comment:         flex.ExpandStringPointer(m.Comment),
 		Hosts:           flex.ExpandFrameworkListNestedBlock(ctx, m.Hosts, diags, ExpandHAGroupHost),
-		IpSpace:         flex.ExpandStringPointer(m.IpSpace),
 		Mode:            flex.ExpandStringPointer(m.Mode),
 		Name:            flex.ExpandString(m.Name),
-		Status:          flex.ExpandStringPointer(m.Status),
-		StatusV6:        flex.ExpandStringPointer(m.StatusV6),
 		Tags:            flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 }
