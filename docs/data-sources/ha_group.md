@@ -67,8 +67,6 @@ Read-Only:
 - `ip_space` (String) The resource identifier.
 - `mode` (String) The mode of the HA group.  Valid values are: * _active-active_: Both on-prem hosts remain active. * _active-passive_: One on-prem host remains active and one remains passive. When the active on-prem host is down, the passive on-prem host takes over. * _advanced-active-passive_: One on-prem host may be part of multiple HA groups. When the active on-prem host is down, the passive on-prem host takes over.
 - `name` (String) The name of the HA group. Must contain 1 to 256 characters. Can include UTF-8.
-- `status` (String) Status of the HA group. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.
-- `status_v6` (String) Status of the DHCPv6 HA group. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.
 - `tags` (Map of String) The tags for the HA group.
 - `tags_all` (Map of String) All tags including inherited values.
 
@@ -78,19 +76,5 @@ Read-Only:
 Read-Only:
 
 - `address` (String) The address on which this host listens.
-- `heartbeats` (Attributes List) Last successful heartbeat received from its peer/s. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request. (see [below for nested schema](#nestedatt--results--uddi--hosts--heartbeats))
 - `host` (String) The resource identifier.
-- `port` (Number) The HA port.
-- `port_v6` (Number) The HA port used for IPv6 communication.
 - `role` (String) The role of this host in the HA relationship: _active_ or _passive_.
-- `state` (String) The state of DHCP on the host. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.
-- `state_v6` (String) The state of DHCPv6 on the host. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.
-
-<a id="nestedatt--results--uddi--hosts--heartbeats"></a>
-### Nested Schema for `results.uddi.hosts.heartbeats`
-
-Read-Only:
-
-- `peer` (String) The name of the peer.
-- `successful_heartbeat` (String) The timestamp as a string of the last successful heartbeat received from the peer above.
-- `successful_heartbeat_v6` (String) The timestamp as a string of the last successful DHCPv6 heartbeat received from the peer above.
