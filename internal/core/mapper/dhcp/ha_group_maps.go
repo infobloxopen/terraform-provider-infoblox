@@ -10,8 +10,6 @@ var HaGroupUDDIFieldMap = map[string]string{
 	"UDDI.IpSpace":         "IpSpace",
 	"UDDI.Mode":            "Mode",
 	"UDDI.Name":            "Name",
-	"UDDI.Status":          "Status",
-	"UDDI.StatusV6":        "StatusV6",
 	"UDDI.Tags":            "Tags",
 }
 
@@ -25,8 +23,6 @@ var HaGroupFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.ip_space":          "ip_space",
 		"uddi.mode":              "mode",
 		"uddi.name":              "name",
-		"uddi.status":            "status",
-		"uddi.status_v6":         "status_v6",
 		"uddi.tags":              "tags",
 	},
 }

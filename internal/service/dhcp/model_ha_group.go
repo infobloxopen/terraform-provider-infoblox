@@ -34,8 +34,6 @@ type UDDIHaGroupModel struct {
 	IpSpace         types.String `tfsdk:"ip_space"`
 	Mode            types.String `tfsdk:"mode"`
 	Name            types.String `tfsdk:"name"`
-	Status          types.String `tfsdk:"status"`
-	StatusV6        types.String `tfsdk:"status_v6"`
 	Tags            types.Map    `tfsdk:"tags"`
 	TagsAll         types.Map    `tfsdk:"tags_all"`
 }
@@ -47,8 +45,6 @@ var UDDIHaGroupAttrTypes = map[string]attr.Type{
 	"ip_space":          types.StringType,
 	"mode":              types.StringType,
 	"name":              types.StringType,
-	"status":            types.StringType,
-	"status_v6":         types.StringType,
 	"tags":              types.MapType{ElemType: types.StringType},
 	"tags_all":          types.MapType{ElemType: types.StringType},
 }
@@ -107,14 +103,6 @@ var HaGroupResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.LengthBetween(1, 256),
 		},
 		MarkdownDescription: "The name of the HA group. Must contain 1 to 256 characters. Can include UTF-8.",
-	},
-	"status": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "Status of the HA group. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.",
-	},
-	"status_v6": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "Status of the DHCPv6 HA group. This field is set when the _collect_stats_ is set to _true_ in the _GET_ _/dhcp/ha_group_ request.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -194,8 +182,6 @@ func (m *UDDIHaGroupModel) Flatten(ctx context.Context, from *coremodel.UDDIHaGr
 	m.IpSpace = flex.FlattenStringPointer(from.IpSpace)
 	m.Mode = flex.FlattenStringPointer(from.Mode)
 	m.Name = flex.FlattenString(from.Name)
-	m.Status = flex.FlattenStringPointer(from.Status)
-	m.StatusV6 = flex.FlattenStringPointer(from.StatusV6)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
