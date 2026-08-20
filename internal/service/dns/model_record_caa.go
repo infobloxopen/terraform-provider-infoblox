@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -126,7 +127,10 @@ var RecordCaaResourceSchemaAttributes = map[string]schema.Attribute{
 
 var RecordCaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ca_flag": schema.Int64Attribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 255),
+		},
 		MarkdownDescription: "Flag of CAA record.",
 	},
 	"ca_tag": schema.StringAttribute{
