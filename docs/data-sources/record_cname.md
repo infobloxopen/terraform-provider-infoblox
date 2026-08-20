@@ -3,12 +3,12 @@
 page_title: "infoblox_record_cname Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox RecordCname across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox RecordCname from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_cname (Data Source)
 
-Retrieves information about existing Infoblox RecordCname across NIOS and UDDI backends.
+Retrieves information about existing Infoblox RecordCname from both the NIOS and UDDI backends.
 
 ## Example Usage
 
@@ -62,8 +62,9 @@ data "infoblox_record_cname" "get_all_cname_records" {}
 
 - `ext_attr_filters` (Map of String) Extensible Attribute Filters are used to return a more specific list of results by filtering on extensible attributes. Only applicable for NIOS backend.
 - `filters` (Map of String) Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.
-- `max_results` (Number) Maximum number of results to return.
-- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Only applicable for NIOS backend.
+- `limit` (Number) Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.
+- `max_results` (Number) Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.
+- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.
 - `tag_filters` (Map of String) Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.
 
 ### Read-Only
