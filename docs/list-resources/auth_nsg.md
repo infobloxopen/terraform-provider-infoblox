@@ -3,12 +3,12 @@
 page_title: "infoblox_auth_nsg List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox AuthNsg from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox AuthNsg from the UDDI backend.
 ---
 
 # infoblox_auth_nsg (List Resource)
 
-Retrieves a list of Infoblox AuthNsg from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox AuthNsg from the UDDI backend.
 
 ## Example Usage
 
@@ -49,6 +49,5 @@ list "infoblox_auth_nsg" "list_auth_nsg_with_resource" {
 
 ### Optional
 
-- `ext_attr_filters` (Map of String) Extensible Attribute Filters are used to filter results by NIOS extensible attributes. Only applicable for the NIOS backend.
 - `filters` (Map of String) Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.
 - `tag_filters` (Map of String) Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.
