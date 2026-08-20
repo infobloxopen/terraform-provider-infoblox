@@ -911,6 +911,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:   true,
 		Default: objectdefault.StaticValue(types.ObjectValueMust(NetworkDHCPConfigAttrTypes, map[string]attr.Value{
 			"allow_unknown":           types.BoolValue(true),
+			"authoritative_dhcp":      types.BoolValue(false),
 			"filters":                 types.ListNull(types.StringType),
 			"filters_large_selection": types.ListNull(types.StringType),
 			"ignore_client_uid":       types.BoolValue(false),
