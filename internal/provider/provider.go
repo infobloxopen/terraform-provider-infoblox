@@ -20,6 +20,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
@@ -288,8 +289,11 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dhcp.NewFilteroptionResource,
+		dns.NewRecordSrvResource,
 		grid.NewExtensibleattributedefResource,
 		dns.NewRecordNaptrResource,
+		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordAaaaResource,
 		dns.NewRecordTxtResource,
@@ -303,13 +307,18 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewAddressResource,
 		ipam.NewNetworkResource,
 		ipam.NewNetworkcontainerResource,
+		ipam.NewIpv6networkResource,
+		ipam.NewIpv6networkcontainerResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dhcp.NewFilteroptionDataSource,
+		dns.NewRecordSrvDataSource,
 		grid.NewExtensibleattributedefDataSource,
 		dns.NewRecordNaptrDataSource,
+		dns.NewRecordMxDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
@@ -326,13 +335,18 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewAddressDataSource,
 		ipam.NewNetworkDataSource,
 		ipam.NewNetworkcontainerDataSource,
+		ipam.NewIpv6networkDataSource,
+		ipam.NewIpv6networkcontainerDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dhcp.NewFilteroptionList,
+		dns.NewRecordSrvList,
 		grid.NewExtensibleattributedefList,
 		dns.NewRecordNaptrList,
+		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
 		dns.NewRecordAaaaList,
 		dns.NewRecordTxtList,
@@ -346,6 +360,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewAddressList,
 		ipam.NewNetworkList,
 		ipam.NewNetworkcontainerList,
+		ipam.NewIpv6networkList,
+		ipam.NewIpv6networkcontainerList,
 	}
 }
 

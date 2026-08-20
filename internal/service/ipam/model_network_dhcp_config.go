@@ -18,6 +18,7 @@ import (
 // NetworkDHCPConfigModel is the Terraform model for DHCPConfig
 type NetworkDHCPConfigModel struct {
 	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
+	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
 	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
@@ -28,6 +29,7 @@ type NetworkDHCPConfigModel struct {
 // NetworkDHCPConfigAttrTypes contains the attribute types for NetworkDHCPConfigModel
 var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
 	"allow_unknown":           types.BoolType,
+	"authoritative_dhcp":      types.BoolType,
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
 	"ignore_client_uid":       types.BoolType,
@@ -42,6 +44,12 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
+	},
+	"authoritative_dhcp": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Set DHCP server as authoritative.",
 	},
 	"filters": schema.ListAttribute{
 		ElementType:         types.StringType,
@@ -95,6 +103,7 @@ func (m *NetworkDHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnos
 	}
 	to := &uddiipam.DHCPConfig{
 		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
+		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
 		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
@@ -122,6 +131,7 @@ func (m *NetworkDHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHC
 		return
 	}
 	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
+	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)
