@@ -35,12 +35,61 @@ case "disappears" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcLbdnAuthZones' could not be parsed (no resource block found)
 case "auth_zones" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcLbdnAuthZones' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test_zone1" {
+    nios = {
+      fqdn         = "{{random}}.test.com"
+      view         = "default"
+      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+    }
+  }
+  resource "infoblox_zone_auth" "test_zone2" {
+    nios = {
+      fqdn         = "{{random2}}.record_test.com"
+      view         = "default"
+      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+    }
+  }
+  resource "infoblox_zone_auth" "test_zone3" {
+    nios = {
+      fqdn         = "{{random3}}.test.com"
+      view         = "default"
+      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      name       = "dtc-lbdn-{{random}}"
+      lb_method  = "SOURCE_IP_HASH"
+      auth_zones = ["$${infoblox_zone_auth.test_zone1.id}", "$${infoblox_zone_auth.test_zone2.id}"]
+      pools      = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+      patterns   = ["*.test.com", "*.record_test.com"]
+      disable    = true
+    }
+    check = {
+      "nios.auth_zones.#" = "2"
+    }
+  }
+
+  step {
+    nios {
+      name       = "dtc-lbdn-{{random}}"
+      lb_method  = "SOURCE_IP_HASH"
+      auth_zones = ["$${infoblox_zone_auth.test_zone3.id}"]
+      pools      = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+      patterns   = ["*.test.com", "*.record_test.com"]
+      disable    = true
+    }
+    check = {
+      "nios.auth_zones.#" = "1"
+    }
+  }
+
 }
 
 case "auto_consolidated_monitors" {
@@ -155,32 +204,9 @@ case "ext_attrs" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "lb_method" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dtc_pool_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}"
-      lb_preferred_method = "ROUND_ROBIN"
-    }
-  }
-  resource "infoblox_dtc_server_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}-server"
-      host = "2.3.3.4"
-    }
-  }
-  resource "infoblox_dtc_topology_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
 
   step {
     nios {
@@ -226,9 +252,11 @@ case "lb_method" {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
+      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
     }
     check = {
       "nios.lb_method" = "TOPOLOGY"
+      "nios.topology"  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
     }
   }
 
@@ -320,12 +348,36 @@ case "persistence" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcLbdnPools' could not be parsed (no resource block found)
 case "pools" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "config helper 'testAccDtcLbdnPools' could not be parsed (no resource block found)"
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name      = "dtc-lbdn-{{random}}"
+      lb_method = "ROUND_ROBIN"
+      pools     = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+    }
+    check = {
+      "nios.pools.#"       = "1"
+      "nios.pools.0.pool"  = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1"
+      "nios.pools.0.ratio" = "2"
+    }
+  }
+
+  step {
+    nios {
+      name      = "dtc-lbdn-{{random}}"
+      lb_method = "ROUND_ROBIN"
+      pools     = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDI:TestPool2", ratio = 2 }]
+    }
+    check = {
+      "nios.pools.#"       = "1"
+      "nios.pools.0.pool"  = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDI:TestPool2"
+      "nios.pools.0.ratio" = "2"
+    }
+  }
+
 }
 
 case "priority" {
@@ -359,31 +411,15 @@ case "priority" {
 case "topology" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dtc_pool_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}"
-      lb_preferred_method = "ROUND_ROBIN"
-    }
-  }
-  resource "infoblox_dtc_server_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}-server"
-      host = "2.3.3.4"
-    }
-  }
-  resource "infoblox_dtc_topology_unknown" "test_server_for_pool" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
 
   step {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
-      topology  = "$${nios_dtc_topology.test_rules_pool.ref}"
+      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
+    }
+    check = {
+      "nios.topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
     }
   }
 
@@ -391,7 +427,10 @@ case "topology" {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
-      topology  = "$${nios_dtc_topology.test_rules_pool.ref}"
+      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMl9kZXN0X3Bvb2w:tc02_dest_pool"
+    }
+    check = {
+      "nios.topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMl9kZXN0X3Bvb2w:tc02_dest_pool"
     }
   }
 
