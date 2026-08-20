@@ -289,6 +289,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dhcp.NewHaGroupResource,
+		dhcp.NewFilteroptionResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
@@ -313,6 +314,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dhcp.NewHaGroupDataSource,
+		dhcp.NewFilteroptionDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
@@ -340,6 +342,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dhcp.NewHaGroupList,
+		dhcp.NewFilteroptionList,
 		dns.NewRecordSrvList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
