@@ -23,6 +23,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -288,6 +289,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		rpz.NewRecordRpzNaptrResource,
 		dhcp.NewFilteroptionResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordNaptrResource,
@@ -312,6 +314,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		rpz.NewRecordRpzNaptrDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordNaptrDataSource,
@@ -339,6 +342,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		rpz.NewRecordRpzNaptrList,
 		dhcp.NewFilteroptionList,
 		dns.NewRecordSrvList,
 		dns.NewRecordNaptrList,
