@@ -14,7 +14,7 @@ type Extensibleattributedef struct {
 type NIOSExtensibleattributedefExt struct {
 	AllowedObjectTypes []string
 	Comment            *string
-	DefaultValue       *string
+	DefaultValue       *niosgrid.ExtensibleattributedefDefaultValue
 	DescendantsAction  *niosgrid.ExtensibleattributedefDescendantsAction
 	Flags              *string
 	ListValues         []niosgrid.ExtensibleattributedefListValues

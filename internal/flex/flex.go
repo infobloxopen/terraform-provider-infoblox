@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/infobloxopen/infoblox-nios-go-client/grid"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 )
 
@@ -584,4 +585,55 @@ func RDataInt64Ptr(v any) *int64 {
 		}
 	}
 	return nil
+}
+func ExpandExtensibleAttributeDefDefaultValue(ctx context.Context, defaultValue types.String, eaType types.String, diags *diag.Diagnostics) *grid.ExtensibleattributedefDefaultValue {
+	if defaultValue.IsNull() || defaultValue.IsUnknown() {
+		return nil
+	}
+
+	value := defaultValue.ValueString()
+	if value == "" {
+		return nil
+	}
+
+	// Check the type to determine if we should send as integer or string
+	if !eaType.IsNull() && !eaType.IsUnknown() && eaType.ValueString() == "INTEGER" {
+		// Convert string to integer for INTEGER type
+		if intVal, err := strconv.ParseInt(value, 10, 32); err == nil {
+			int32Val := int32(intVal)
+			return &grid.ExtensibleattributedefDefaultValue{
+				Int32: &int32Val,
+			}
+		} else {
+			diags.AddError(
+				"Invalid Integer Default Value",
+				fmt.Sprintf("Cannot convert default_value '%s' to integer: %v", value, err),
+			)
+			return nil
+		}
+	}
+
+	// For all other types (STRING, EMAIL, URL, DATE, ENUM), send as string
+	return &grid.ExtensibleattributedefDefaultValue{
+		String: &value,
+	}
+}
+
+func FlattenExtensibleAttributeDefDefaultValue(ctx context.Context, from *grid.ExtensibleattributedefDefaultValue, diags *diag.Diagnostics) types.String {
+	if from == nil {
+		return types.StringNull()
+	}
+
+	if from.Int32 != nil {
+		// Convert int32 to string for Terraform
+		return types.StringValue(strconv.FormatInt(int64(*from.Int32), 10))
+	}
+
+	// Check if string value is set
+	if from.String != nil {
+		return types.StringValue(*from.String)
+	}
+
+	// No value set
+	return types.StringNull()
 }

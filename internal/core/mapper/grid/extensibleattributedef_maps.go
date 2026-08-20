@@ -7,7 +7,7 @@ var ExtensibleattributedefNIOSFieldMap = map[string]string{
 	"Id":                      "Ref",
 	"NIOS.AllowedObjectTypes": "AllowedObjectTypes",
 	"NIOS.Comment":            "Comment",
-	"NIOS.DefaultValue":       "DefaultValue.String",
+	"NIOS.DefaultValue":       "DefaultValue",
 	"NIOS.Flags":              "Flags",
 	"NIOS.ListValues":         "ListValues",
 	"NIOS.Max":                "Max",

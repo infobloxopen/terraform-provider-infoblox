@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -40,8 +39,4 @@ func validateExtensibleattributedefNIOSConfig(ctx context.Context, m *NIOSExtens
 			)
 		}
 	}
-}
-
-func PostFlattenExtensibleattributedefNIOS(ctx context.Context, planned, flattened *NIOSExtensibleattributedefModel, diags *diag.Diagnostics) {
-
 }

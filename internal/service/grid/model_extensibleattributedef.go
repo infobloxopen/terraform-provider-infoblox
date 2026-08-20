@@ -162,7 +162,7 @@ func (m *NIOSExtensibleattributedefModel) Expand(ctx context.Context, diags *dia
 	return &coremodel.NIOSExtensibleattributedefExt{
 		AllowedObjectTypes: flex.ExpandFrameworkListString(ctx, m.AllowedObjectTypes, diags),
 		Comment:            flex.ExpandStringPointerNullAsEmpty(m.Comment),
-		DefaultValue:       flex.ExpandStringPointer(m.DefaultValue),
+		DefaultValue:       flex.ExpandExtensibleAttributeDefDefaultValue(ctx, m.DefaultValue, m.Type, diags),
 		Flags:              flex.ExpandStringPointerNullAsEmpty(m.Flags),
 		ListValues:         flex.ExpandFrameworkListNestedBlock(ctx, m.ListValues, diags, ExpandExtensibleattributedefListValues),
 		Max:                flex.ExpandInt64Pointer(m.Max),
@@ -185,10 +185,8 @@ func (m *ExtensibleattributedefModel) Flatten(ctx context.Context, resp *coremod
 	if niosModel == nil {
 		niosModel = &NIOSExtensibleattributedefModel{}
 	}
-	plannedNIOS := flex.ExpandNestedObject[NIOSExtensibleattributedefModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		PostFlattenExtensibleattributedefNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSExtensibleattributedefAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSExtensibleattributedefAttrTypes)
@@ -203,7 +201,7 @@ func (m *NIOSExtensibleattributedefModel) Flatten(ctx context.Context, from *cor
 	}
 	m.AllowedObjectTypes = flex.FlattenFrameworkListString(ctx, from.AllowedObjectTypes, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
-	m.DefaultValue = flex.FlattenStringPointer(from.DefaultValue)
+	m.DefaultValue = flex.FlattenExtensibleAttributeDefDefaultValue(ctx, from.DefaultValue, diags)
 	m.Flags = flex.FlattenStringPointerEmptyAsNull(from.Flags)
 	m.ListValues = flex.FlattenFrameworkListNestedBlock(ctx, from.ListValues, ExtensibleattributedefListValuesAttrTypes, diags, FlattenExtensibleattributedefListValues)
 	m.Max = flex.FlattenInt64Pointer(from.Max)

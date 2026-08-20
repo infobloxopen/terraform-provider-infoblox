@@ -238,7 +238,7 @@ func mapNIOSExtensibleattributedefToResponse(r *niosgrid.Extensibleattributedef)
 		Type:               r.Type,
 	}
 	if r.DefaultValue != nil {
-		resp.NIOS.DefaultValue = r.DefaultValue.String
+		resp.NIOS.DefaultValue = r.DefaultValue
 	}
 	return resp
 }
