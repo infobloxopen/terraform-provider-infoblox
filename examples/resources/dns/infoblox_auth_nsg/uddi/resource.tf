@@ -1,3 +1,4 @@
+# Manage a UDDI Auth NSG
 resource "infoblox_auth_nsg" "example" {
   uddi = {
     name = "example_dns_auth_nsg"

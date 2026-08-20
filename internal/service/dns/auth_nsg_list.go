@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &AuthNsgList{}
-	_ list.ListResourceWithConfigure = &AuthNsgList{}
+	_ list.ListResource                   = &AuthNsgList{}
+	_ list.ListResourceWithConfigure      = &AuthNsgList{}
+	_ list.ListResourceWithValidateConfig = &AuthNsgList{}
 )
 
 func NewAuthNsgList() list.ListResource {
@@ -35,9 +35,8 @@ type AuthNsgList struct {
 }
 
 type AuthNsgListModel struct {
-	Filters        types.Map `tfsdk:"filters"`
-	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
-	TagFilters     types.Map `tfsdk:"tag_filters"`
+	Filters    types.Map `tfsdk:"filters"`
+	TagFilters types.Map `tfsdk:"tag_filters"`
 }
 
 func (l *AuthNsgList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -69,15 +68,10 @@ func (l *AuthNsgList) Configure(_ context.Context, req resource.ConfigureRequest
 
 func (l *AuthNsgList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox AuthNsg from the configured backend (NIOS or UDDI).",
+		MarkdownDescription: "Retrieves a list of Infoblox AuthNsg from the UDDI backend.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
-			"ext_attr_filters": listschema.MapAttribute{
-				MarkdownDescription: "Extensible Attribute Filters are used to filter results by NIOS extensible attributes. Only applicable for the NIOS backend.",
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
@@ -90,7 +84,7 @@ func (l *AuthNsgList) ListResourceConfigSchema(_ context.Context, _ list.ListRes
 	}
 }
 
-func (d *AuthNsgList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *AuthNsgList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data AuthNsgListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +92,7 @@ func (d *AuthNsgList) ValidateConfig(ctx context.Context, req datasource.Validat
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), data.TagFilters, &resp.Diagnostics)
 }
 
 func (l *AuthNsgList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -110,36 +104,15 @@ func (l *AuthNsgList) List(ctx context.Context, req list.ListRequest, stream *li
 		return
 	}
 
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
 	requestLimit := int32(req.Limit)
 	tflog.Info(ctx, fmt.Sprintf("infoblox_auth_nsg list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:  AuthNsgReturnFields,
-		Paging:        1,
+		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
+		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields: AuthNsgReturnFields,
+		Paging:       1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
