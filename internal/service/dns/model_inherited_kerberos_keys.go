@@ -33,6 +33,7 @@ var InheritedKerberosKeysAttrTypes = map[string]attr.Type{
 var InheritedKerberosKeysResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Inheritance setting for a field. Defaults to _inherit_.",
 	},
 	"display_name": schema.StringAttribute{
