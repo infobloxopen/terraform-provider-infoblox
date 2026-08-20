@@ -563,8 +563,10 @@ func (m *NetworkviewModel) Flatten(ctx context.Context, resp *coremodel.Networkv
 	if uddiModel == nil {
 		uddiModel = &UDDINetworkviewModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDINetworkviewModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenNetworkviewUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDINetworkviewAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDINetworkviewAttrTypes)

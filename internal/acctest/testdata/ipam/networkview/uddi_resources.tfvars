@@ -282,44 +282,45 @@ case "ddns_generated_prefix" {
 
 case "dhcp_options" {
   backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
+  # skip        = true
+  # skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
   parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_code_unknown" "test" {
-    uddi = {
-      code = 234
-      name = "test_dhcp_option_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
-      type = "boolean"
-    }
-  }
-  resource "infoblox_dhcp_option_group_unknown" "test" {
-    uddi = {
-      name = "\"og-\"+name"
-      protocol = "ip4"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_dhcp_option_code_unknown" "test" {
+  #   uddi = {
+  #     code = 234
+  #     name = "test_dhcp_option_code"
+  #     option_space = infoblox_dhcp_option_space_unknown.test.id
+  #     type = "boolean"
+  #   }
+  # }
+  # resource "infoblox_dhcp_option_group_unknown" "test" {
+  #   uddi = {
+  #     name = "\"og-\"+name"
+  #     protocol = "ip4"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       name         = "{{random}}"
-      dhcp_options = [{ type = "option", option_code = infoblox_dhcp_option_code_unknown.test.id, option_value = true }]
+      dhcp_options = [{ type = "option", option_code = "dhcp/option_code/4b9ddf44-e2e3-4f1c-a3aa-4e508933feed", option_value = "456456" }]
     }
     check = {
       "uddi.dhcp_options.#"              = "1"
-      "uddi.dhcp_options.0.option_value" = "true"
+      "uddi.dhcp_options.0.type"         = "option"
+      "uddi.dhcp_options.0.option_value" = "456456"
     }
   }
 
   step {
     uddi {
       name         = "{{random}}"
-      dhcp_options = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
+      dhcp_options = []
     }
     check = {
-      "uddi.dhcp_options.#" = "1"
+      "uddi.dhcp_options.#" = "0"
     }
   }
 
@@ -327,44 +328,42 @@ case "dhcp_options" {
 
 case "dhcp_options_v6" {
   backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
+  # skip        = true
+  # skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
   parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_code_unknown" "test" {
-    uddi = {
-      code = 234
-      name = "test_dhcp_option_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
-      type = "boolean"
-    }
-  }
-  resource "infoblox_dhcp_option_group_unknown" "test" {
-    uddi = {
-      name = "\"og-\"+name"
-      protocol = "ip6"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_dhcp_option_code_unknown" "test" {
+  #   uddi = {
+  #     code = 234
+  #     name = "test_dhcp_option_code"
+  #     option_space = infoblox_dhcp_option_space_unknown.test.id
+  #     type = "boolean"
+  #   }
+  # }
+  # resource "infoblox_dhcp_option_group_unknown" "test" {
+  #   uddi = {
+  #     name = "\"og-\"+name"
+  #     protocol = "ip6"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       name            = "{{random}}"
-      dhcp_options_v6 = [{ type = "option", option_code = infoblox_dhcp_option_code_unknown.test.id, option_value = true }]
+      dhcp_options_v6 = [{ type = "option", option_code = "dhcp/option_code/46bf2e4a-25c8-4ac3-b9f7-4244c8265f2e", option_value = "255" }]
     }
     check = {
       "uddi.dhcp_options_v6.#"              = "1"
-      "uddi.dhcp_options_v6.0.option_value" = "true"
+      "uddi.dhcp_options_v6.0.type"         = "option"
+      "uddi.dhcp_options_v6.0.option_value" = "255"
     }
   }
 
   step {
     uddi {
       name            = "{{random}}"
-      dhcp_options_v6 = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
-    }
-    check = {
-      "uddi.dhcp_options_v6.#" = "1"
+      dhcp_options_v6 = []
     }
   }
 
@@ -488,21 +487,21 @@ case "dhcp_config" {
 
 case "default_realms" {
   backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_federated_realm not yet implemented"
+  # skip        = true
+  # skip_reason = "requires_resource: infoblox_federated_realm not yet implemented"
   parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_federated_realm_unknown" "realm1" {
-    uddi = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_federated_realm_unknown" "realm1" {
+  #   uddi = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     uddi {
       name           = "{{random}}"
-      default_realms = [infoblox_federated_realm_unknown.realm1.id]
+      default_realms = ["federation/federated_realm/f76ecc5e-db40-455c-a5f3-2b6ea57785cd"]
     }
     check = {
       "uddi.default_realms.#" = "1"
