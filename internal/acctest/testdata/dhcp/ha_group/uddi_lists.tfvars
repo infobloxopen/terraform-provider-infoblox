@@ -1,5 +1,4 @@
 # HaGroup — uddi list cases
-# DHCP host IDs are pre-provisioned test fixtures in the stage portal.
 case "basic" {
   backend  = "uddi"
   parallel = true

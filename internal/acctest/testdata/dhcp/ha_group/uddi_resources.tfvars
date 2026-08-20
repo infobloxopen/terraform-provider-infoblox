@@ -1,5 +1,4 @@
 # Auto-generated resource acceptance-test cases for HaGroup.
-# DHCP host IDs are pre-provisioned test fixtures in the stage portal.
 case "basic" {
   backend = "uddi"
 

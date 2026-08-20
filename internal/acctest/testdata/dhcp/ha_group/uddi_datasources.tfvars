@@ -1,5 +1,4 @@
 # Auto-generated datasource acceptance-test cases for HaGroup.
-# DHCP host IDs are pre-provisioned test fixtures in the stage portal.
 case "filters" {
   backend = "uddi"
 
