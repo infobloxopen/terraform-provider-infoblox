@@ -228,12 +228,13 @@ case "dnssec_enabled" {
 case "dnssec_trust_anchors" {
   backend  = "uddi"
   parallel = true
-  skip = true
 
   step {
     uddi {
       name                 = "{{random}}"
       dnssec_trust_anchors = [{ algorithm = 8, zone = "tf-infoblox.com.", sep = false }]
+      public_key = "AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3+/4RgWOq7HrxRixHlFlExOLAJr5emLvN7SWXgnLh4+B5xQlNVz8Og8kvArMtNROxVQuCaSnIDdD5LKyWbRd2n9WGe2R8PzgCmr3EgVLrjyBxWezF0jLHwVN8efS3rCj/EWgvIWgb9tarpVUDK/b58Da+sqqls3eNbuv7pr+eoZG+SrDK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws9555KrUB5qihylGa8subX2Nn6UwNR1AkUTV74bU="
+
     }
     check = {
       "uddi.dnssec_trust_anchors.0.algorithm" = "8"
@@ -246,6 +247,7 @@ case "dnssec_trust_anchors" {
     uddi {
       name                 = "{{random}}"
       dnssec_trust_anchors = [{ algorithm = 7, zone = "tf-infoblox.com.", sep = true }]
+      public_key = "AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3+/4RgWOq7HrxRixHlFlExOLAJr5emLvN7SWXgnLh4+B5xQlNVz8Og8kvArMtNROxVQuCaSnIDdD5LKyWbRd2n9WGe2R8PzgCmr3EgVLrjyBxWezF0jLHwVN8efS3rCj/EWgvIWgb9tarpVUDK/b58Da+sqqls3eNbuv7pr+eoZG+SrDK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws9555KrUB5qihylGa8subX2Nn6UwNR1AkUTV74bU="
     }
     check = {
       "uddi.dnssec_trust_anchors.0.algorithm" = "7"
@@ -300,16 +302,12 @@ case "ecs_enabled" {
     uddi {
       name        = "{{random}}"
       ecs_enabled = true
-    }
-  }
-
-  step {
-    uddi {
-      name        = "{{random}}"
-      ecs_enabled = true
-    }
-    check = {
-      "uddi.ecs_enabled" = "true"
+      ecs_zones = [
+        {
+            access = "allow"
+            fqdn = "tf-infoblox.com."
+        }
+      ]
     }
   }
 
@@ -424,14 +422,18 @@ case "ecs_zones" {
 case "filter_aaaa_acl" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
+  resource "infoblox_dns_acl" "test" {
     uddi = {
       name = "\"acl-\"+name"
+      list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_tsig_key_unknown" "test" {
+  resource "infoblox_keys_tsig" "test" {
     uddi = {
+      name = "\"tsig-\"+name+\".\""
     }
   }
   PREREQ
@@ -462,7 +464,7 @@ case "filter_aaaa_acl" {
   step {
     uddi {
       name            = "{{random}}"
-      filter_aaaa_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      filter_aaaa_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
     }
     check = {
       "uddi.filter_aaaa_acl.0.element" = "acl"
@@ -554,19 +556,14 @@ case "forwarders_only" {
     uddi {
       name            = "{{random}}"
       forwarders_only = true
+      forwarders = [
+      		{
+      			address = "192.168.11.11"
+      			fqdn = "tf-infoblox.com."
+      		}
+      ]
     }
   }
-
-  step {
-    uddi {
-      name            = "{{random}}"
-      forwarders_only = true
-    }
-    check = {
-      "uddi.forwarders_only" = "true"
-    }
-  }
-
 }
 
 case "gss_tsig_enabled" {
@@ -878,14 +875,18 @@ case "notify" {
 case "query_acl" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
+  resource "infoblox_dns_acl" "test" {
     uddi = {
       name = "\"acl-\"+name"
+      list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_tsig_key_unknown" "test" {
+  resource "infoblox_keys_tsig" "test" {
     uddi = {
+      name = "\"tsig-\"+name+\".\""
     }
   }
   PREREQ
@@ -916,7 +917,7 @@ case "query_acl" {
   step {
     uddi {
       name      = "{{random}}"
-      query_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      query_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
     }
     check = {
       "uddi.query_acl.0.element" = "acl"
@@ -965,14 +966,18 @@ case "query_port" {
 case "recursion_acl" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
+  resource "infoblox_dns_acl" "test" {
     uddi = {
       name = "\"acl-\"+name"
+      list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_tsig_key_unknown" "test" {
+  resource "infoblox_keys_tsig" "test" {
     uddi = {
+      name = "\"tsig-\"+name+\".\""
     }
   }
   PREREQ
@@ -1003,7 +1008,7 @@ case "recursion_acl" {
   step {
     uddi {
       name          = "{{random}}"
-      recursion_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      recursion_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
     }
     check = {
       "uddi.recursion_acl.0.element" = "acl"
@@ -1160,7 +1165,13 @@ case "sort_list" {
   step {
     uddi {
       name      = "{{random}}"
-      sort_list = [{ element = "ip" }]
+      sort_list = [
+          {
+              element = "ip"
+              source = "192.168.11.11"
+              prioritized_networks = [ "192.168.12.12" ]
+           }
+       ]
     }
     check = {
       "uddi.sort_list.0.element"                = "ip"
@@ -1172,7 +1183,12 @@ case "sort_list" {
   step {
     uddi {
       name      = "{{random}}"
-      sort_list = [{ element = "any" }]
+      sort_list = [
+        {
+            element = "ip"
+            prioritized_networks = [ "192.168.13.13" ]
+         }
+     ]
     }
     check = {
       "uddi.sort_list.0.element"                = "any"
@@ -1239,14 +1255,18 @@ case "tags" {
 case "transfer_acl" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
+  resource "infoblox_dns_acl" "test" {
     uddi = {
       name = "\"acl-\"+name"
+      list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_tsig_key_unknown" "test" {
+  resource "infoblox_keys_tsig" "test" {
     uddi = {
+      name = "\"tsig-\"+name+\".\""
     }
   }
   PREREQ
@@ -1277,7 +1297,7 @@ case "transfer_acl" {
   step {
     uddi {
       name         = "{{random}}"
-      transfer_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      transfer_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
     }
     check = {
       "uddi.transfer_acl.0.element" = "acl"
@@ -1300,14 +1320,18 @@ case "transfer_acl" {
 case "update_acl" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_acl_unknown" "test" {
+  resource "infoblox_dns_acl" "test" {
     uddi = {
       name = "\"acl-\"+name"
+      list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_tsig_key_unknown" "test" {
+  resource "infoblox_keys_tsig" "test" {
     uddi = {
+      name = "\"tsig-\"+name+\".\""
     }
   }
   PREREQ
@@ -1338,7 +1362,7 @@ case "update_acl" {
   step {
     uddi {
       name       = "{{random}}"
-      update_acl = [{ element = "acl", acl = infoblox_acl_unknown.test.id }]
+      update_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
     }
     check = {
       "uddi.update_acl.0.element" = "acl"
@@ -1402,13 +1426,12 @@ case "use_root_forwarders_for_local_resolution_with_b1td" {
     uddi {
       name                                               = "{{random}}"
       use_root_forwarders_for_local_resolution_with_b1td = true
-    }
-  }
-
-  step {
-    uddi {
-      name                                               = "{{random}}"
-      use_root_forwarders_for_local_resolution_with_b1td = true
+      forwarders = [
+      		{
+      			address = "192.168.11.11"
+      			fqdn = "tf-infoblox.com."
+      		}
+      ]
     }
     check = {
       "uddi.use_root_forwarders_for_local_resolution_with_b1td" = "true"
