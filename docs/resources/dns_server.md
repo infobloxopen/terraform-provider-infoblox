@@ -15,6 +15,7 @@ Manages an Infoblox DnsServer in the UDDI backend.
 ### UDDI Backend
 
 ```terraform
+# Manage a UDDI DNS Server
 resource "infoblox_dns_server" "example_server" {
   uddi = {
     name = "example_dns_server"
