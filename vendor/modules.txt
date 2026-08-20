@@ -333,7 +333,7 @@ github.com/huandu/xstrings
 # github.com/imdario/mergo v0.3.15
 ## explicit; go 1.13
 github.com/imdario/mergo
-# github.com/infobloxopen/infoblox-nios-go-client v0.1.2
+# github.com/infobloxopen/infoblox-nios-go-client v0.1.2-0.20260817063941-577ef39fbd51
 ## explicit; go 1.25.1
 github.com/infobloxopen/infoblox-nios-go-client/acl
 github.com/infobloxopen/infoblox-nios-go-client/client
