@@ -9,8 +9,8 @@ resource "infoblox_extensibleattributedef" "create_ea_basic" {
 // Create Extensible Attribute Definition with Additional Fields
 resource "infoblox_extensibleattributedef" "create_ea_additional_fields" {
   nios = {
-    name = "example_ea_2"
-    type = "INTEGER"
+    name                 = "example_ea_2"
+    type                 = "INTEGER"
     min                  = 1
     max                  = 4094
     default_value        = "1"
