@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -57,7 +56,7 @@ func (r *NetworkResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *NetworkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox Network across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox Network in both NIOS and UDDI backends.",
 		Attributes:          NetworkResourceSchemaAttributes,
 	}
 }
@@ -163,10 +162,7 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 		return 0, apiErr
 	})
 	if err != nil {
-		errVal := err.Error()
-		if ((strings.Contains(errVal, "The search parameters") &&
-			strings.Contains(errVal, "for object network did not return any result")) ||
-			strings.Contains(errVal, "will overlap an existing network")) &&
+		if r.isNetworkContainerConversionError(err) &&
 			r.isNetworkConvertedToContainer(ctx, &data) {
 			resp.Diagnostics.AddError(
 				"Unable to Create Network. Network Might Be Converted to Network Container",

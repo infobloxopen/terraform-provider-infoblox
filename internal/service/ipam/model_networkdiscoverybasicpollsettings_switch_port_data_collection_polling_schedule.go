@@ -56,6 +56,7 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(stringvalidator.OneOf("SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY")),
@@ -79,6 +80,7 @@ var NetworkdiscoverybasicpollsettingsSwitchPortDataCollectionPollingScheduleReso
 			stringvalidator.OneOf("DAILY", "HOURLY", "MONTHLY", "WEEKLY"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The frequency for the scheduled task.",
 	},
 	"every": schema.Int64Attribute{

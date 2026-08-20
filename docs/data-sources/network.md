@@ -3,12 +3,12 @@
 page_title: "infoblox_network Data Source - terraform-provider-infoblox"
 subcategory: "IPAM"
 description: |-
-  Retrieves information about existing Infoblox Network across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox Network from both the NIOS and UDDI backends.
 ---
 
 # infoblox_network (Data Source)
 
-Retrieves information about existing Infoblox Network across NIOS and UDDI backends.
+Retrieves information about existing Infoblox Network from both the NIOS and UDDI backends.
 
 ## Example Usage
 
@@ -63,8 +63,9 @@ data "infoblox_network" "example_all" {}
 
 - `ext_attr_filters` (Map of String) Extensible Attribute Filters are used to return a more specific list of results by filtering on extensible attributes. Only applicable for NIOS backend.
 - `filters` (Map of String) Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.
-- `max_results` (Number) Maximum number of results to return.
-- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Only applicable for NIOS backend.
+- `limit` (Number) Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.
+- `max_results` (Number) Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.
+- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.
 - `tag_filters` (Map of String) Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.
 
 ### Read-Only
@@ -442,6 +443,7 @@ Read-Only:
 Read-Only:
 
 - `allow_unknown` (Boolean) Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.
+- `authoritative_dhcp` (Boolean) Set DHCP server as authoritative.
 - `filters` (List of String) The resource identifier.
 - `filters_large_selection` (List of String) The resource identifier.
 - `ignore_client_uid` (Boolean) Enable to ignore the client UID when issuing a DHCP lease. Use this option to prevent assigning two IP addresses for a client which does not have a UID during one phase of PXE boot but acquires one for the other phase.
