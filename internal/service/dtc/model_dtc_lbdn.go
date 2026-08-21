@@ -44,7 +44,6 @@ type NIOSDtcLbdnModel struct {
 	Disable                  types.Bool   `tfsdk:"disable"`
 	ExtAttrs                 types.Map    `tfsdk:"ext_attrs"`
 	ExtAttrsAll              types.Map    `tfsdk:"ext_attrs_all"`
-	Health                   types.Object `tfsdk:"health"`
 	LbMethod                 types.String `tfsdk:"lb_method"`
 	Name                     types.String `tfsdk:"name"`
 	Patterns                 types.List   `tfsdk:"patterns"`
@@ -63,7 +62,6 @@ var NIOSDtcLbdnAttrTypes = map[string]attr.Type{
 	"disable":                    types.BoolType,
 	"ext_attrs":                  types.MapType{ElemType: types.StringType},
 	"ext_attrs_all":              types.MapType{ElemType: types.StringType},
-	"health":                     types.ObjectType{AttrTypes: LbdnHealthAttrTypes},
 	"lb_method":                  types.StringType,
 	"name":                       types.StringType,
 	"patterns":                   types.ListType{ElemType: types.StringType},
@@ -168,11 +166,6 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.Map{
 			importmod.AssociateInternalId(),
 		},
-	},
-	"health": schema.SingleNestedAttribute{
-		Attributes:          LbdnHealthResourceSchemaAttributes,
-		Computed:            true,
-		MarkdownDescription: "",
 	},
 	"lb_method": schema.StringAttribute{
 		Validators: []validator.String{
@@ -333,7 +326,6 @@ func (m *NIOSDtcLbdnModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		Comment:                  flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Disable:                  flex.ExpandBoolPointer(m.Disable),
 		ExtAttrs:                 flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		Health:                   ExpandLbdnHealth(ctx, m.Health, diags),
 		LbMethod:                 flex.ExpandStringPointerNullAsEmpty(m.LbMethod),
 		Name:                     flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Patterns:                 flex.ExpandFrameworkListString(ctx, m.Patterns, diags),
@@ -417,7 +409,6 @@ func (m *NIOSDtcLbdnModel) Flatten(ctx context.Context, from *coremodel.NIOSDtcL
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.Health = FlattenLbdnHealth(ctx, from.Health, diags)
 	m.LbMethod = flex.FlattenStringPointerEmptyAsNull(from.LbMethod)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Patterns = flex.FlattenFrameworkListString(ctx, from.Patterns, diags)
