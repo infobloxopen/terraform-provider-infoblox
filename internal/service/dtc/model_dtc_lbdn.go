@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -247,6 +248,7 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Optional. Comment for __LBDN__.",
@@ -254,6 +256,7 @@ var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"disabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. _true_ to disable object. A disabled object is effectively non-existent when generating configuration.",
 	},
 	"dtc_policy": schema.SingleNestedAttribute{
@@ -267,6 +270,7 @@ var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"precedence": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Precedence.",
 	},
 	"tags": schema.MapAttribute{
