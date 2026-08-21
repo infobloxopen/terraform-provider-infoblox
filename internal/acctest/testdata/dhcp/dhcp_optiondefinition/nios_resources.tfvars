@@ -133,6 +133,12 @@ case "space" {
       name = "{{random2}}"
     }
   }
+
+  resource "infoblox_dhcp_optionspace" "test2" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
   PREREQ
 
   step {
