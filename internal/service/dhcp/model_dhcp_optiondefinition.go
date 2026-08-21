@@ -129,7 +129,9 @@ var DhcpOptiondefinitionResourceUddiSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "The option code.",
 	},
 	"comment": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},
