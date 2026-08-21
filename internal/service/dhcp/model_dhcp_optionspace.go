@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -30,15 +31,13 @@ var DhcpOptionspaceAttrTypes = map[string]attr.Type{
 }
 
 type NIOSDhcpOptionspaceModel struct {
-	Comment           types.String `tfsdk:"comment"`
-	Name              types.String `tfsdk:"name"`
-	OptionDefinitions types.List   `tfsdk:"option_definitions"`
+	Comment types.String `tfsdk:"comment"`
+	Name    types.String `tfsdk:"name"`
 }
 
 var NIOSDhcpOptionspaceAttrTypes = map[string]attr.Type{
-	"comment":            types.StringType,
-	"name":               types.StringType,
-	"option_definitions": types.ListType{ElemType: types.StringType},
+	"comment": types.StringType,
+	"name":    types.StringType,
 }
 
 type UDDIDhcpOptionspaceModel struct {
@@ -94,19 +93,13 @@ var DhcpOptionspaceResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The name of a DHCP option space object.",
 	},
-	"option_definitions": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
-		MarkdownDescription: "The list of DHCP option definition objects.",
-	},
 }
 
 var DhcpOptionspaceResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},
@@ -120,7 +113,8 @@ var DhcpOptionspaceResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the option space. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"protocol": schema.StringAttribute{
-		Required:            true,
+		Default:             stringdefault.StaticString("ip4"),
+		Computed:            true,
 		MarkdownDescription: "The type of protocol for the option space (_ip4_ or _ip6_).",
 	},
 	"tags": schema.MapAttribute{
@@ -157,7 +151,7 @@ func (m *DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnosti
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIDhcpOptionspaceModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -166,20 +160,22 @@ func (m *DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnosti
 // Expand converts the NIOS TF model to the core model.
 func (m *NIOSDhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSDhcpOptionspaceExt {
 	return &coremodel.NIOSDhcpOptionspaceExt{
-		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
-		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
-		OptionDefinitions: flex.ExpandFrameworkListString(ctx, m.OptionDefinitions, diags),
+		Comment: flex.ExpandStringPointerNullAsEmpty(m.Comment),
+		Name:    flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIDhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIDhcpOptionspaceExt {
-	return &coremodel.UDDIDhcpOptionspaceExt{
-		Comment:  flex.ExpandStringPointer(m.Comment),
-		Name:     flex.ExpandString(m.Name),
-		Protocol: flex.ExpandStringPointer(m.Protocol),
-		Tags:     flex.ExpandMapStringAny(ctx, m.Tags, diags),
+func (m *UDDIDhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIDhcpOptionspaceExt {
+	ext := &coremodel.UDDIDhcpOptionspaceExt{
+		Comment: flex.ExpandStringPointer(m.Comment),
+		Name:    flex.ExpandString(m.Name),
+		Tags:    flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
+	if isCreate {
+		ext.Protocol = flex.ExpandStringPointer(m.Protocol)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -222,7 +218,6 @@ func (m *NIOSDhcpOptionspaceModel) Flatten(ctx context.Context, from *coremodel.
 	}
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.OptionDefinitions = flex.FlattenFrameworkListString(ctx, from.OptionDefinitions, diags)
 }
 
 // Flatten merges API response onto existing UDDI model.

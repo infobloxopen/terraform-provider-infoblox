@@ -4,10 +4,9 @@ import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 
 // DhcpOptionspaceNIOSFieldMap maps infoblox model fields to NIOS struct fields
 var DhcpOptionspaceNIOSFieldMap = map[string]string{
-	"Id":                     "Ref",
-	"NIOS.Comment":           "Comment",
-	"NIOS.Name":              "Name",
-	"NIOS.OptionDefinitions": "OptionDefinitions",
+	"Id":           "Ref",
+	"NIOS.Comment": "Comment",
+	"NIOS.Name":    "Name",
 }
 
 // DhcpOptionspaceUDDIFieldMap maps infoblox model fields to UDDI struct fields
@@ -22,10 +21,9 @@ var DhcpOptionspaceUDDIFieldMap = map[string]string{
 // DhcpOptionspaceFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
 var DhcpOptionspaceFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendNIOS: {
-		"id":                      "_ref",
-		"nios.comment":            "comment",
-		"nios.name":               "name",
-		"nios.option_definitions": "option_definitions",
+		"id":           "_ref",
+		"nios.comment": "comment",
+		"nios.name":    "name",
 	},
 	core.BackendUDDI: {
 		"uddi.comment":  "comment",

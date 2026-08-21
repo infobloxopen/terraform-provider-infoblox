@@ -5,12 +5,10 @@ case "basic" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
+      name = "{{random}}"
     }
     check = {
-      "uddi.name"     = "{{random}}"
-      "uddi.protocol" = "ip4"
+      "uddi.name" = "{{random}}"
     }
   }
 
@@ -24,8 +22,7 @@ case "disappears" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
+      name = "{{random}}"
     }
   }
 
@@ -37,9 +34,8 @@ case "comment" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
-      comment  = "test comment"
+      name    = "{{random}}"
+      comment = "test comment"
     }
     check = {
       "uddi.comment" = "test comment"
@@ -48,9 +44,8 @@ case "comment" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
-      comment  = "test comment update"
+      name    = "{{random}}"
+      comment = "test comment update"
     }
     check = {
       "uddi.comment" = "test comment update"
@@ -65,8 +60,7 @@ case "name" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
+      name = "{{random}}"
     }
     check = {
       "uddi.name" = "{{random}}"
@@ -75,8 +69,7 @@ case "name" {
 
   step {
     uddi {
-      name     = "{{random2}}"
-      protocol = "ip4"
+      name = "{{random2}}"
     }
     check = {
       "uddi.name" = "{{random2}}"
@@ -91,9 +84,8 @@ case "tags" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
-      tags     = { tag1 = "value1", tag2 = "value2" }
+      name = "{{random}}"
+      tags = { tag1 = "value1", tag2 = "value2" }
     }
     check = {
       "uddi.tags.tag1" = "value1"
@@ -103,9 +95,8 @@ case "tags" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      protocol = "ip4"
-      tags     = { tag2 = "value2changed", tag3 = "value3" }
+      name = "{{random}}"
+      tags = { tag2 = "value2changed", tag3 = "value3" }
     }
     check = {
       "uddi.tags.tag2" = "value2changed"
