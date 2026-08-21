@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
@@ -25,6 +26,14 @@ func validateNetworkviewUDDIConfig(ctx context.Context, m *UDDINetworkviewModel,
 }
 
 func PostFlattenNetworkviewNIOS(ctx context.Context, planned, flattened *NIOSNetworkviewModel, diags *diag.Diagnostics) {
+	if flattened == nil {
+		return
+	}
+	// NIOS returns nil for an empty comment; normalize to "" to match the
+	// schema default and avoid "was "" but now null" inconsistency errors.
+	if flattened.Comment.IsNull() {
+		flattened.Comment = types.StringValue("")
+	}
 }
 
 func PostFlattenNetworkviewUDDI(ctx context.Context, planned, flattened *UDDINetworkviewModel, diags *diag.Diagnostics) {
