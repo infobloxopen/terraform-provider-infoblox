@@ -583,7 +583,7 @@ func (m *NIOSNetworkviewModel) Flatten(ctx context.Context, from *coremodel.NIOS
 		planExtAttrs = types.MapNull(types.StringType)
 	}
 	m.CloudInfo = FlattenNetworkviewCloudInfo(ctx, from.CloudInfo, diags)
-	m.Comment = flex.FlattenStringPointerNullAsEmpty(from.Comment)
+	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DdnsDnsView = flex.FlattenStringPointerEmptyAsNull(from.DdnsDnsView)
 	m.DdnsZonePrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.DdnsZonePrimaries, NetworkviewDdnsZonePrimariesAttrTypes, diags, FlattenNetworkviewDdnsZonePrimaries)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)

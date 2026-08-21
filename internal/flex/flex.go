@@ -295,15 +295,6 @@ func FlattenStringPointerEmptyAsNull(s *string) types.String {
 	return types.StringValue(*s)
 }
 
-// FlattenStringPointerNullAsEmpty returns "" for nil or empty-string pointers.
-// Use when the API omits the field for empty strings but the schema default is "".
-func FlattenStringPointerNullAsEmpty(s *string) types.String {
-	if s == nil || *s == "" {
-		return types.StringValue("")
-	}
-	return types.StringValue(*s)
-}
-
 // FlattenOneOfString flattens a oneOf wrapper pointer to types.String.
 // Returns types.StringNull() if ptr is nil, otherwise extracts the string using flattenFn.
 // This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
