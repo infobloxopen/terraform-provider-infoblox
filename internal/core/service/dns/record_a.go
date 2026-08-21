@@ -288,15 +288,11 @@ func (s *recordAService) listNIOS(ctx context.Context, opts *core.ListOptions) (
 			req = req.PageId(opts.PageID)
 		}
 		req = req.Paging(opts.Paging)
-		if opts.Paging == 1 {
-			maxResults := opts.MaxResults
-			if maxResults <= 0 {
-				maxResults = core.DefaultListLimit
-			}
-			req = req.MaxResults(maxResults)
-		} else if opts.MaxResults > 0 {
-			req = req.MaxResults(opts.MaxResults)
+		maxResults := opts.MaxResults
+		if maxResults <= 0 {
+			maxResults = core.DefaultListLimit
 		}
+		req = req.MaxResults(maxResults)
 	}
 
 	resp, httpResp, err := req.Execute()
@@ -329,11 +325,11 @@ func (s *recordAService) listUDDI(ctx context.Context, opts *core.ListOptions) (
 	if opts != nil {
 		var filters []string
 		for k, v := range opts.InternalFilters {
-			filters = append(filters, k+"=='"+v+"'")
+			filters = append(filters, core.FilterExpr(k, v))
 		}
 		translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.RecordAFilterFieldMap[core.BackendUDDI])
 		for k, v := range translatedFilters {
-			filters = append(filters, k+"=='"+v+"'")
+			filters = append(filters, core.FilterExpr(k, v))
 		}
 		if len(filters) > 0 {
 			req = req.Filter(core.JoinFilters(filters))

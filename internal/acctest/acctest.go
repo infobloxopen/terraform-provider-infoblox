@@ -22,7 +22,13 @@ import (
 
 const (
 	letterBytes = "abcdefghijklmnopqrstuvwxyz"
+
+	envNIOSPassthru = "INFOBLOX_ACC_NIOS_PASSTHRU"
 )
+
+func NIOSPassthruEnabled() bool {
+	return os.Getenv(envNIOSPassthru) == "true"
+}
 
 var packageDir string
 
@@ -47,7 +53,16 @@ var (
 )
 
 // PreCheckNIOS validates NIOS environment and initializes the client.
+// With INFOBLOX_ACC_NIOS_PASSTHRU=true the Grid is reached through the Infoblox Portal, and the
+// verification client takes the same route as the provider rather than connecting to the Grid directly.
 func PreCheckNIOS(t *testing.T) {
+	if NIOSPassthruEnabled() {
+		preCheckNIOSPassthru(t)
+		return
+	}
+
+	t.Logf("NIOS transport: direct Grid (set %s=true for Infoblox Portal passthrough)", envNIOSPassthru)
+
 	hostURL := os.Getenv("NIOS_HOST_URL")
 	if hostURL == "" {
 		t.Fatal("NIOS_HOST_URL must be set for NIOS acceptance tests")
@@ -68,6 +83,36 @@ func PreCheckNIOS(t *testing.T) {
 		niosoption.WithNIOSHostUrl(hostURL),
 		niosoption.WithNIOSUsername(username),
 		niosoption.WithNIOSPassword(password),
+		niosoption.WithDebug(true),
+	)
+}
+
+// preCheckNIOSPassthru validates the Infoblox Portal environment and initializes a NIOS client
+// that reaches the Grid through the Portal. Grid credentials are not used on this route.
+func preCheckNIOSPassthru(t *testing.T) {
+	t.Logf("NIOS transport: Infoblox Portal passthrough (%s=true)", envNIOSPassthru)
+
+	portalURL := os.Getenv("INFOBLOX_PORTAL_URL")
+	if portalURL == "" {
+		t.Fatalf("INFOBLOX_PORTAL_URL must be set when %s=true", envNIOSPassthru)
+	}
+
+	portalKey := os.Getenv("INFOBLOX_PORTAL_KEY")
+	if portalKey == "" {
+		t.Fatalf("INFOBLOX_PORTAL_KEY must be set when %s=true", envNIOSPassthru)
+	}
+
+	licenseUID := os.Getenv("NIOS_LICENSE_UID")
+	if licenseUID == "" {
+		t.Fatalf("NIOS_LICENSE_UID must be set when %s=true", envNIOSPassthru)
+	}
+
+	NIOSClient = niosclient.NewAPIClient(
+		niosoption.WithClientName("terraform-acceptance-tests"),
+		niosoption.WithNIOSPassthrough(true),
+		niosoption.WithPortalUrl(portalURL),
+		niosoption.WithPortalAPIKey(portalKey),
+		niosoption.WithNIOSLicenseUID(licenseUID),
 		niosoption.WithDebug(true),
 	)
 }
@@ -159,11 +204,34 @@ func RandomCIDRNetwork() string {
 	return fmt.Sprintf("%d.%d.0.0/%d", base, second, cidr)
 }
 
+// RandomIPv4Network generates a random /16-aligned IPv4 network address, without a prefix length.
+func RandomIPv4Network() string {
+	return fmt.Sprintf("%d.%d.0.0", 10+rand.Intn(246), rand.Intn(256))
+}
+
 // RandomIPv6Network generates a random IPv6 network under 2001:db8::/32 (RFC 3849 test range).
 func RandomIPv6Network() string {
 	third := rand.Intn(65536)  // 0-FFFF for third hextet
 	fourth := rand.Intn(65536) // 0-FFFF for fourth hextet
 	cidr := 64 + rand.Intn(60)
+
+	return fmt.Sprintf("2001:db8:%x:%x::/%d", third, fourth, cidr)
+}
+
+// RandomIPv6NetworkAddress generates a random /64-aligned IPv6 network address, without a prefix length.
+func RandomIPv6NetworkAddress() string {
+	return fmt.Sprintf("2001:db8:%x:%x::", rand.Intn(65536), rand.Intn(65536))
+}
+
+// RandomIPv6NetworkWith4BitBoundary generates a random IPv6 network with a CIDR
+// that is a 4-bit boundary (multiple of 4). This is required for operations like
+// auto_create_reversezone which only supports 4-bit boundary CIDRs.
+func RandomIPv6NetworkWith4BitBoundary() string {
+	third := rand.Intn(65536)  // 0-FFFF for third hextet
+	fourth := rand.Intn(65536) // 0-FFFF for fourth hextet
+	// Valid 4-bit boundary CIDRs for IPv6: multiples of 4 between 64 and 124
+	validCidrs := []int{64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124}
+	cidr := validCidrs[rand.Intn(len(validCidrs))]
 
 	return fmt.Sprintf("2001:db8:%x:%x::/%d", third, fourth, cidr)
 }
@@ -217,6 +285,8 @@ func ResolvePlaceholder(placeholder string) string {
 	switch {
 	case name == "random_octet":
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
+	case name == "random_hextet":
+		return fmt.Sprintf("%x", rand.Intn(65536)) // 0-FFFF single IPv6 hextet
 	case name == "grid_master_hostname":
 		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
 	case name == "grid_member_hostname":
@@ -227,10 +297,16 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
+	case strings.HasPrefix(name, "random_ipv6_network_address"):
+		return RandomIPv6NetworkAddress()
+	case strings.HasPrefix(name, "random_ipv6_network_4bit_boundary"):
+		return RandomIPv6NetworkWith4BitBoundary()
 	case strings.HasPrefix(name, "random_ipv6_network"):
 		return RandomIPv6Network()
 	case strings.HasPrefix(name, "random_ipv6"):
 		return RandomIPv6()
+	case strings.HasPrefix(name, "random_ipv4_network"):
+		return RandomIPv4Network()
 	case strings.HasPrefix(name, "random_cidr_network"):
 		return RandomCIDRNetwork()
 	case strings.HasPrefix(name, "random_mac"):
@@ -258,6 +334,19 @@ func ReplacePlaceholders(content string) string {
 func ProviderConfigHCL(backend string) string {
 	switch backend {
 	case "nios":
+		if NIOSPassthruEnabled() {
+			return fmt.Sprintf(`
+provider "infoblox" {
+  uddi = {
+    portal_url           = %q
+    portal_key           = %q
+    nios_license_uid     = %q
+    enable_nios_passthru = true
+  }
+}
+`, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"), os.Getenv("NIOS_LICENSE_UID"))
+		}
+
 		return fmt.Sprintf(`
 provider "infoblox" {
   nios = {
@@ -272,8 +361,8 @@ provider "infoblox" {
 		return fmt.Sprintf(`
 provider "infoblox" {
   uddi = {
-    csp_url = %q
-    api_key = %q
+    portal_url = %q
+    portal_key = %q
   }
 }
 `, os.Getenv("INFOBLOX_PORTAL_URL"), os.Getenv("INFOBLOX_PORTAL_KEY"))

@@ -23,6 +23,19 @@ import (
 
 type DtcTopologyRuleAPI interface {
 	/*
+		Create Create a dtc:topology:rule object
+
+		Creates a new dtc:topology:rule object
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return DtcTopologyRuleAPICreateRequest
+	*/
+	Create(ctx context.Context) DtcTopologyRuleAPICreateRequest
+
+	// CreateExecute executes the request
+	//  @return CreateDtcTopologyRuleResponse
+	CreateExecute(r DtcTopologyRuleAPICreateRequest) (*CreateDtcTopologyRuleResponse, *http.Response, error)
+	/*
 		List Retrieve dtc:topology:rule objects
 
 		Returns a list of dtc:topology:rule objects matching the search criteria
@@ -68,6 +81,141 @@ type DtcTopologyRuleAPI interface {
 // DtcTopologyRuleAPIService DtcTopologyRuleAPI service
 type DtcTopologyRuleAPIService internal.Service
 
+type DtcTopologyRuleAPICreateRequest struct {
+	ctx              context.Context
+	ApiService       DtcTopologyRuleAPI
+	dtcTopologyRule  *DtcTopologyRule
+	returnFields     *string
+	returnFieldsPlus *string
+	returnAsObject   *int32
+}
+
+// Object data to create
+func (r DtcTopologyRuleAPICreateRequest) DtcTopologyRule(dtcTopologyRule DtcTopologyRule) DtcTopologyRuleAPICreateRequest {
+	r.dtcTopologyRule = &dtcTopologyRule
+	return r
+}
+
+// Enter the field names followed by comma
+func (r DtcTopologyRuleAPICreateRequest) ReturnFields(returnFields string) DtcTopologyRuleAPICreateRequest {
+	r.returnFields = &returnFields
+	return r
+}
+
+// Enter the field names followed by comma, this returns the required fields along with the default fields
+func (r DtcTopologyRuleAPICreateRequest) ReturnFieldsPlus(returnFieldsPlus string) DtcTopologyRuleAPICreateRequest {
+	r.returnFieldsPlus = &returnFieldsPlus
+	return r
+}
+
+// Select 1 if result is required as an object
+func (r DtcTopologyRuleAPICreateRequest) ReturnAsObject(returnAsObject int32) DtcTopologyRuleAPICreateRequest {
+	r.returnAsObject = &returnAsObject
+	return r
+}
+
+func (r DtcTopologyRuleAPICreateRequest) Execute() (*CreateDtcTopologyRuleResponse, *http.Response, error) {
+	return r.ApiService.CreateExecute(r)
+}
+
+/*
+Create Create a dtc:topology:rule object
+
+Creates a new dtc:topology:rule object
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return DtcTopologyRuleAPICreateRequest
+*/
+func (a *DtcTopologyRuleAPIService) Create(ctx context.Context) DtcTopologyRuleAPICreateRequest {
+	return DtcTopologyRuleAPICreateRequest{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+//
+//	@return CreateDtcTopologyRuleResponse
+func (a *DtcTopologyRuleAPIService) CreateExecute(r DtcTopologyRuleAPICreateRequest) (*CreateDtcTopologyRuleResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []internal.FormFile
+		localVarReturnValue *CreateDtcTopologyRuleResponse
+	)
+
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DtcTopologyRuleAPIService.Create")
+	if err != nil {
+		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
+	}
+
+	localVarPath := localBasePath + "/dtc:topology:rule"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.dtcTopologyRule == nil {
+		return localVarReturnValue, nil, internal.ReportError("dtcTopologyRule is required and must be specified")
+	}
+
+	if r.returnFields != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_fields", r.returnFields, "form", "")
+	}
+	if r.returnFieldsPlus != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_fields+", r.returnFieldsPlus, "form", "")
+	}
+	if r.returnAsObject != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := internal.SelectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.dtcTopologyRule
+	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.Client.CallAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.Client.Decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type DtcTopologyRuleAPIListRequest struct {
 	ctx              context.Context
 	ApiService       DtcTopologyRuleAPI
@@ -79,6 +227,7 @@ type DtcTopologyRuleAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -124,6 +273,12 @@ func (r DtcTopologyRuleAPIListRequest) Filters(filters map[string]interface{}) D
 
 func (r DtcTopologyRuleAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) DtcTopologyRuleAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r DtcTopologyRuleAPIListRequest) ProxySearch(proxySearch string) DtcTopologyRuleAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -192,6 +347,9 @@ func (a *DtcTopologyRuleAPIService) ListExecute(r DtcTopologyRuleAPIListRequest)
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -246,6 +404,7 @@ type DtcTopologyRuleAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -263,6 +422,12 @@ func (r DtcTopologyRuleAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus string)
 // Select 1 if result is required as an object
 func (r DtcTopologyRuleAPIReadRequest) ReturnAsObject(returnAsObject int32) DtcTopologyRuleAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r DtcTopologyRuleAPIReadRequest) ProxySearch(proxySearch string) DtcTopologyRuleAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -318,6 +483,9 @@ func (a *DtcTopologyRuleAPIService) ReadExecute(r DtcTopologyRuleAPIReadRequest)
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

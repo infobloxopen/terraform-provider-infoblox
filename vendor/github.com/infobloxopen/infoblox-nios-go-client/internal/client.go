@@ -32,10 +32,14 @@ const (
 	headerClient        = "x-infoblox-client"
 	headerSDK           = "x-infoblox-sdk"
 	headerAuthorization = "Authorization"
+	headerLicenseUID    = "license_uid"
 
-	envNiosHostURL  = "NIOS_HOST_URL"
-	envNiosUsername = "NIOS_USERNAME"
-	envNiosPassword = "NIOS_PASSWORD"
+	envNiosHostURL    = "NIOS_HOST_URL"
+	envNiosUsername   = "NIOS_USERNAME"
+	envNiosPassword   = "NIOS_PASSWORD"
+	envNiosLicenseUID = "NIOS_LICENSE_UID"
+	envPortalURL      = "INFOBLOX_PORTAL_URL"
+	envPortalKey      = "INFOBLOX_PORTAL_KEY"
 
 	envIBLogLevel = "IB_LOG_LEVEL"
 
@@ -74,6 +78,13 @@ type RetryableTransport struct {
 
 // RoundTrip overrides the RoundTrip method of http.RoundTripper for the RetryableTransport
 func (t *RetryableTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+
+	// The Infoblox Portal authenticates every request with an API key and never issues an
+	// ibapauth cookie, so the cookie check and the 401 re-auth retry below do not apply.
+	if t.Client.Cfg.IsPassthrough() {
+		t.setPassthroughAuth(request)
+		return t.Transport.RoundTrip(request)
+	}
 
 	var ibapAuthCookie *http.Cookie
 	cookies := t.Client.Cfg.HTTPClient.Jar.Cookies(request.URL)
@@ -120,11 +131,15 @@ func (t *RetryableTransport) RoundTrip(request *http.Request) (*http.Response, e
 func NewAPIClient(basePath string, cfg *Configuration) *APIClient {
 
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: !cfg.SslVerify,
+		InsecureSkipVerify: !cfg.VerifyTLS(),
 	}
 
 	baseTransport := &http.Transport{
 		TLSClientConfig: tlsConfig,
+	}
+
+	if cfg.ProxyURL != nil {
+		baseTransport.Proxy = http.ProxyURL(cfg.ProxyURL)
 	}
 
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
@@ -150,7 +165,7 @@ func NewAPIClient(basePath string, cfg *Configuration) *APIClient {
 		cfg.DefaultExtAttrs = make(map[string]struct{ Value string })
 	}
 
-	apiUrl := cfg.NIOSHostURL + basePath
+	apiUrl := cfg.BaseURL() + basePath
 	cfg.Servers = []ServerConfiguration{{URL: apiUrl}}
 	cfg.DefaultHeader[headerSDK] = sdkIdentifier
 	cfg.DefaultHeader[headerClient] = cfg.ClientName
@@ -179,6 +194,15 @@ func (t *RetryableTransport) setCertificateAuth() *tls.Config {
 		}
 	}
 	return tlsConfig
+}
+
+// setPassthroughAuth authenticates against the Infoblox Portal with its API key and the NIOS license UID,
+// and redirects the request to the NIOS Grid.
+func (t *RetryableTransport) setPassthroughAuth(request *http.Request) {
+	cfg := t.Client.Cfg
+
+	request.Header.Set(headerAuthorization, "Token "+cfg.PortalAPIKey)
+	request.Header.Set(headerLicenseUID, cfg.NIOSLicenseUID)
 }
 
 // setAuth sets the authentication for the request

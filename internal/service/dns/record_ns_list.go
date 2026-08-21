@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &RecordNsList{}
-	_ list.ListResourceWithConfigure = &RecordNsList{}
+	_ list.ListResource                   = &RecordNsList{}
+	_ list.ListResourceWithConfigure      = &RecordNsList{}
+	_ list.ListResourceWithValidateConfig = &RecordNsList{}
 )
 
 func NewRecordNsList() list.ListResource {
@@ -35,9 +35,8 @@ type RecordNsList struct {
 }
 
 type RecordNsListModel struct {
-	Filters        types.Map `tfsdk:"filters"`
-	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
-	TagFilters     types.Map `tfsdk:"tag_filters"`
+	Filters    types.Map `tfsdk:"filters"`
+	TagFilters types.Map `tfsdk:"tag_filters"`
 }
 
 func (l *RecordNsList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -69,15 +68,10 @@ func (l *RecordNsList) Configure(_ context.Context, req resource.ConfigureReques
 
 func (l *RecordNsList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox RecordNs from the configured backend (NIOS or UDDI).",
+		MarkdownDescription: "Retrieves a list of Infoblox RecordNs from both the NIOS and UDDI backends.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
-			"ext_attr_filters": listschema.MapAttribute{
-				MarkdownDescription: "Extensible Attribute Filters are used to filter results by NIOS extensible attributes. Only applicable for the NIOS backend.",
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
@@ -90,7 +84,7 @@ func (l *RecordNsList) ListResourceConfigSchema(_ context.Context, _ list.ListRe
 	}
 }
 
-func (d *RecordNsList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *RecordNsList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data RecordNsListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +92,7 @@ func (d *RecordNsList) ValidateConfig(ctx context.Context, req datasource.Valida
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), data.TagFilters, &resp.Diagnostics)
 }
 
 func (l *RecordNsList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -110,26 +104,6 @@ func (l *RecordNsList) List(ctx context.Context, req list.ListRequest, stream *l
 		return
 	}
 
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
 	requestLimit := int32(req.Limit)
 	tflog.Info(ctx, fmt.Sprintf("infoblox_record_ns list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
@@ -137,7 +111,6 @@ func (l *RecordNsList) List(ctx context.Context, req list.ListRequest, stream *l
 	opts := &core.ListOptions{
 		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
 		InternalFilters: map[string]string{"type": RecordNsType},
-		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
 		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields:    RecordNsReturnFields,
 		Paging:          1,

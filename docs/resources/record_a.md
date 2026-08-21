@@ -3,12 +3,12 @@
 page_title: "infoblox_record_a Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordA across NIOS and UDDI backends.
+  Manages an Infoblox RecordA in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_a (Resource)
 
-Manages an Infoblox RecordA across NIOS and UDDI backends.
+Manages an Infoblox RecordA in both NIOS and UDDI backends.
 
 ## Example Usage
 
@@ -110,7 +110,7 @@ Optional:
 - `ddns_principal` (String) The GSS-TSIG principal that owns this record.
 - `ddns_protected` (Boolean) Determines if the DDNS updates for this record are allowed or not.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
-- `dynamic_allocation` (Attributes) Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--nios--dynamic_allocation))
+- `dynamic_allocation` (Attributes) Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.
 - `ipv4addr` (String) The IPv4 Address of the record.

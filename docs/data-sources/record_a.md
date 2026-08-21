@@ -3,12 +3,12 @@
 page_title: "infoblox_record_a Data Source - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves information about existing Infoblox RecordA across NIOS and UDDI backends.
+  Retrieves information about existing Infoblox RecordA from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_a (Data Source)
 
-Retrieves information about existing Infoblox RecordA across NIOS and UDDI backends.
+Retrieves information about existing Infoblox RecordA from both the NIOS and UDDI backends.
 
 ## Example Usage
 
@@ -56,8 +56,9 @@ data "infoblox_record_a" "get_all_a_records" {}
 
 - `ext_attr_filters` (Map of String) Extensible Attribute Filters are used to return a more specific list of results by filtering on extensible attributes. Only applicable for NIOS backend.
 - `filters` (Map of String) Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.
-- `max_results` (Number) Maximum number of results to return.
-- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Only applicable for NIOS backend.
+- `limit` (Number) Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.
+- `max_results` (Number) Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.
+- `paging` (Number) Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.
 - `tag_filters` (Map of String) Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.
 
 ### Read-Only
@@ -83,7 +84,7 @@ Read-Only:
 - `ddns_principal` (String) The GSS-TSIG principal that owns this record.
 - `ddns_protected` (Boolean) Determines if the DDNS updates for this record are allowed or not.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
-- `dynamic_allocation` (Attributes) Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
+- `dynamic_allocation` (Attributes) Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.

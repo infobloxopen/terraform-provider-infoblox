@@ -12,32 +12,35 @@ import (
 // ValidateBackendBlocks validates that the correct backend-specific block is present
 // and the wrong backend block is not specified.
 func ValidateBackendBlocks(backend core.BackendType, niosBlock, uddiBlock types.Object, diags *diag.Diagnostics) {
-	// Require backend-specific block (can be empty)
-	if backend == core.BackendNIOS && niosBlock.IsNull() {
-		diags.AddError(
-			"Missing Required Block",
-			"The 'nios' block is required when using the NIOS backend. Use 'nios = {}' if no attributes needed.",
-		)
-	}
-	if backend == core.BackendUDDI && uddiBlock.IsNull() {
-		diags.AddError(
-			"Missing Required Block",
-			"The 'uddi' block is required when using the UDDI backend. Use 'uddi = {}' if no attributes needed.",
-		)
-	}
-
-	// Disallow wrong backend block
-	if backend == core.BackendNIOS && !uddiBlock.IsNull() {
-		diags.AddError(
-			"Invalid Configuration",
-			"The 'uddi' block is not allowed when using the NIOS backend.",
-		)
-	}
-	if backend == core.BackendUDDI && !niosBlock.IsNull() {
-		diags.AddError(
-			"Invalid Configuration",
-			"The 'nios' block is not allowed when using the UDDI backend.",
-		)
+	switch backend {
+	case core.BackendNIOS:
+		if !uddiBlock.IsNull() {
+			diags.AddError(
+				"Invalid Configuration",
+				"The 'uddi' block is not allowed when using the NIOS backend or NIOS via the Infoblox Portal. Use the 'nios' block here, or to manage UDDI objects use a provider configured with a 'uddi' block and 'enable_nios_passthru = false'.",
+			)
+			return
+		}
+		if niosBlock.IsNull() {
+			diags.AddError(
+				"Missing Required Block",
+				"The 'nios' block is required when using the NIOS backend or NIOS via the Infoblox Portal. Add a 'nios' block here, or to manage UDDI objects use a provider configured with a 'uddi' block and 'enable_nios_passthru = false'.",
+			)
+		}
+	case core.BackendUDDI:
+		if !niosBlock.IsNull() {
+			diags.AddError(
+				"Invalid Configuration",
+				"The 'nios' block is not allowed when using the UDDI backend. Use the 'uddi' block here, or to manage NIOS objects use a provider configured with a 'nios' block, or a 'uddi' block with 'enable_nios_passthru = true'.",
+			)
+			return
+		}
+		if uddiBlock.IsNull() {
+			diags.AddError(
+				"Missing Required Block",
+				"The 'uddi' block is required when using the UDDI backend. Add a 'uddi' block here, or to manage NIOS objects use a provider configured with a 'nios' block, or a 'uddi' block with 'enable_nios_passthru = true'.",
+			)
+		}
 	}
 }
 
@@ -50,7 +53,7 @@ func AddBackendFieldError(diags *diag.Diagnostics, fieldName, requiredBackend st
 }
 
 // ValidateDataSourceFilters validates backend-specific filter fields for datasources.
-func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, maxResults, paging types.Int32, diags *diag.Diagnostics) {
+func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, maxResults, limit types.Int32, diags *diag.Diagnostics) {
 	// ext_attr_filters is NIOS only
 	if !extAttrFilters.IsNull() && backend == core.BackendUDDI {
 		AddBackendFieldError(diags, "ext_attr_filters", "NIOS")
@@ -61,9 +64,9 @@ func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilt
 		AddBackendFieldError(diags, "max_results", "NIOS")
 	}
 
-	// paging is NIOS only
-	if !paging.IsNull() && backend == core.BackendUDDI {
-		AddBackendFieldError(diags, "paging", "NIOS")
+	// limit is UDDI only
+	if !limit.IsNull() && backend == core.BackendNIOS {
+		AddBackendFieldError(diags, "limit", "UDDI")
 	}
 
 	// tag_filters is UDDI only
@@ -75,12 +78,12 @@ func ValidateDataSourceFilters(backend core.BackendType, extAttrFilters, tagFilt
 // ValidateListFilters validates backend-specific filter fields for lists.
 func ValidateListFilters(backend core.BackendType, extAttrFilters, tagFilters types.Map, diags *diag.Diagnostics) {
 	// ext_attr_filters is NIOS only
-	if !extAttrFilters.IsNull() && backend == core.BackendUDDI {
+	if !extAttrFilters.IsNull() && !extAttrFilters.IsUnknown() && backend == core.BackendUDDI {
 		AddBackendFieldError(diags, "ext_attr_filters", "NIOS")
 	}
 
 	// tag_filters is UDDI only
-	if !tagFilters.IsNull() && backend == core.BackendNIOS {
+	if !tagFilters.IsNull() && !tagFilters.IsUnknown() && backend == core.BackendNIOS {
 		AddBackendFieldError(diags, "tag_filters", "UDDI")
 	}
 }

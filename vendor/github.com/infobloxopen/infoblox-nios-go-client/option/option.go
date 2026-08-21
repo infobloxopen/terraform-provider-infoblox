@@ -2,6 +2,8 @@ package option
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/infobloxopen/infoblox-nios-go-client/internal"
 )
@@ -40,6 +42,52 @@ func WithNIOSPassword(NIOSPassword string) ClientOption {
 	}
 }
 
+// WithNIOSPassthrough returns a ClientOption that reaches NIOS through the Infoblox Portal.
+func WithNIOSPassthrough(enabled bool) ClientOption {
+	return func(configuration *internal.Configuration) {
+		configuration.NIOSPassthrough = enabled
+	}
+}
+
+// WithNIOSLicenseUID returns a ClientOption that sets the license UID of the NIOS Grid to reach
+// through the Infoblox Portal. Can also be configured using the `NIOS_LICENSE_UID` environment variable.
+func WithNIOSLicenseUID(NIOSLicenseUID string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if NIOSLicenseUID != "" {
+			configuration.NIOSLicenseUID = NIOSLicenseUID
+		}
+	}
+}
+
+// WithPortalUrl returns a ClientOption that sets the Infoblox Portal WAPI endpoint used in
+// passthrough mode. Can also be configured using the `INFOBLOX_PORTAL_URL` environment variable.
+func WithPortalUrl(portalURL string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if portalURL != "" {
+			configuration.PortalURL = portalURL
+		}
+	}
+}
+
+// WithPortalAPIKey returns a ClientOption that sets the Infoblox Portal API key authenticating
+// passthrough requests. Can also be configured using the `INFOBLOX_PORTAL_KEY` environment variable.
+func WithPortalAPIKey(portalAPIKey string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if portalAPIKey != "" {
+			configuration.PortalAPIKey = portalAPIKey
+		}
+	}
+}
+
+// ValidatePassthrough reports whether the options describe a usable passthrough setup.
+func ValidatePassthrough(options ...ClientOption) error {
+	configuration := internal.NewConfiguration()
+	for _, opt := range options {
+		opt(configuration)
+	}
+	return configuration.CheckPortalConfig()
+}
+
 // WithHTTPClient returns a ClientOption that sets the HTTPClient to use for the SDK.
 // Optional. The default HTTPClient will be used if not provided.
 func WithHTTPClient(httpClient *http.Client) ClientOption {
@@ -74,5 +122,19 @@ func WithClientName(clientName string) ClientOption {
 func WithDebug(debug bool) ClientOption {
 	return func(configuration *internal.Configuration) {
 		configuration.Debug = debug
+	}
+}
+
+// WithProxyURL returns a ClientOption that sets the URL for Proxy Server
+func WithProxyURL(proxyURL string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if strings.TrimSpace(proxyURL) != "" {
+			parsedURL, err := url.Parse(strings.TrimSpace(proxyURL))
+			if err != nil {
+				configuration.ProxyURL = nil
+			} else {
+				configuration.ProxyURL = parsedURL
+			}
+		}
 	}
 }

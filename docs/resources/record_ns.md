@@ -3,12 +3,12 @@
 page_title: "infoblox_record_ns Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordNs across NIOS and UDDI backends.
+  Manages an Infoblox RecordNs in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_ns (Resource)
 
-Manages an Infoblox RecordNs across NIOS and UDDI backends.
+Manages an Infoblox RecordNs in both NIOS and UDDI backends.
 
 ## Example Usage
 
