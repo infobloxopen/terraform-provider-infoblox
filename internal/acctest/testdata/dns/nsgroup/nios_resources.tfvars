@@ -10,6 +10,7 @@ case "basic" {
     }
     check = {
       "nios.name"                   = "{{random}}"
+      "nios.comment"                = ""
       "nios.grid_primary.#"         = "1"
       "nios.grid_primary.0.name"    = "{{grid_master_hostname}}"
       "nios.is_grid_default"        = "false"

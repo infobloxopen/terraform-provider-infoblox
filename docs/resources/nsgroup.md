@@ -133,7 +133,6 @@ Required:
 Optional:
 
 - `enable_preferred_primaries` (Boolean) This flag represents whether the preferred_primaries field values of this member are used.
-- `grid_replicate` (Boolean) The flag represents DNS zone transfers if set to False, and ID Grid Replication if set to True. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.
 - `lead` (Boolean) This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.
 - `preferred_primaries` (Attributes List) The primary preference list with Grid member names and\or External Server extserver structs for this member. (see [below for nested schema](#nestedatt--nios--grid_primary--preferred_primaries))
 - `stealth` (Boolean) This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.

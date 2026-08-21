@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -20,7 +19,6 @@ import (
 type NsgroupGridPrimaryModel struct {
 	Name                     types.String `tfsdk:"name"`
 	Stealth                  types.Bool   `tfsdk:"stealth"`
-	GridReplicate            types.Bool   `tfsdk:"grid_replicate"`
 	Lead                     types.Bool   `tfsdk:"lead"`
 	PreferredPrimaries       types.List   `tfsdk:"preferred_primaries"`
 	EnablePreferredPrimaries types.Bool   `tfsdk:"enable_preferred_primaries"`
@@ -30,7 +28,6 @@ type NsgroupGridPrimaryModel struct {
 var NsgroupGridPrimaryAttrTypes = map[string]attr.Type{
 	"name":                       types.StringType,
 	"stealth":                    types.BoolType,
-	"grid_replicate":             types.BoolType,
 	"lead":                       types.BoolType,
 	"preferred_primaries":        types.ListType{ElemType: types.ObjectType{AttrTypes: NsgroupgridprimaryPreferredPrimariesAttrTypes}},
 	"enable_preferred_primaries": types.BoolType,
@@ -48,12 +45,7 @@ var NsgroupGridPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 	"stealth": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
-	},
-	"grid_replicate": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "The flag represents DNS zone transfers if set to False, and ID Grid Replication if set to True. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
 	},
 	"lead": schema.BoolAttribute{
 		Optional:            true,
@@ -96,7 +88,6 @@ func (m *NsgroupGridPrimaryModel) Expand(ctx context.Context, diags *diag.Diagno
 	to := &niosdns.NsgroupGridPrimary{
 		Name:                     flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Stealth:                  flex.ExpandBoolPointer(m.Stealth),
-		GridReplicate:            flex.ExpandBoolPointer(m.GridReplicate),
 		Lead:                     flex.ExpandBoolPointer(m.Lead),
 		PreferredPrimaries:       flex.ExpandFrameworkListNestedBlock(ctx, m.PreferredPrimaries, diags, ExpandNsgroupgridprimaryPreferredPrimaries),
 		EnablePreferredPrimaries: flex.ExpandBoolPointer(m.EnablePreferredPrimaries),
@@ -123,7 +114,6 @@ func (m *NsgroupGridPrimaryModel) Flatten(ctx context.Context, from *niosdns.Nsg
 	}
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.GridReplicate = flex.FlattenBoolPointer(from.GridReplicate)
 	m.Lead = flex.FlattenBoolPointer(from.Lead)
 	m.PreferredPrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.PreferredPrimaries, NsgroupgridprimaryPreferredPrimariesAttrTypes, diags, FlattenNsgroupgridprimaryPreferredPrimaries)
 	m.EnablePreferredPrimaries = flex.FlattenBoolPointer(from.EnablePreferredPrimaries)

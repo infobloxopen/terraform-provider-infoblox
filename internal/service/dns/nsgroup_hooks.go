@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
@@ -55,7 +56,15 @@ func validateNsgroupNIOSConfig(ctx context.Context, m *NIOSNsgroupModel, resp *r
 }
 
 func PostFlattenNsgroupNIOS(ctx context.Context, planned, flattened *NIOSNsgroupModel, diags *diag.Diagnostics) {
-	if planned == nil || flattened == nil {
+	if flattened == nil {
+		return
+	}
+
+	if flattened.Comment.IsNull() {
+		flattened.Comment = types.StringValue("")
+	}
+
+	if planned == nil {
 		return
 	}
 
