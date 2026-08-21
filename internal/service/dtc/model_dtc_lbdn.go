@@ -265,7 +265,10 @@ var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The __DTC Policy__ object.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "Name of __LBDN__.",
 	},
 	"precedence": schema.Int64Attribute{
