@@ -1,9 +1,11 @@
+# Basic IP space with only the required name field.
 resource "infoblox_networkview" "example" {
   uddi = {
     name = "example_ip_space"
   }
 }
 
+# IP space with a comment and resource tags.
 resource "infoblox_networkview" "example_tags" {
   uddi = {
     name    = "example_ip_space_tags"
@@ -14,7 +16,7 @@ resource "infoblox_networkview" "example_tags" {
   }
 }
 
-// Create IP Space with DDNS and hostname-rewrite configuration
+# IP space with DDNS, hostname-rewrite, ASM, and DHCP configuration.
 resource "infoblox_networkview" "example_full" {
   uddi = {
     name    = "example_ip_space_full"
