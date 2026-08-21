@@ -80,7 +80,6 @@ Read-Only:
 
 - `address` (String) The IPv4 Address or IPv6 Address of the server.
 - `name` (String) A resolvable domain name for the external DNS server.
-- `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
 - `tsig_key` (String) A generated TSIG key.
 - `tsig_key_alg` (String) The TSIG key algorithm.
@@ -95,7 +94,6 @@ Read-Only:
 
 - `address` (String) The IPv4 Address or IPv6 Address of the server.
 - `name` (String) A resolvable domain name for the external DNS server.
-- `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
 - `tsig_key` (String) A generated TSIG key.
 - `tsig_key_alg` (String) The TSIG key algorithm.
@@ -108,26 +106,8 @@ Read-Only:
 
 Read-Only:
 
-- `enable_preferred_primaries` (Boolean) This flag represents whether the preferred_primaries field values of this member are used.
-- `lead` (Boolean) This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.
 - `name` (String) The grid member name.
-- `preferred_primaries` (Attributes List) The primary preference list with Grid member names and\or External Server extserver structs for this member. (see [below for nested schema](#nestedatt--results--nios--grid_primary--preferred_primaries))
 - `stealth` (Boolean) This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.
-
-<a id="nestedatt--results--nios--grid_primary--preferred_primaries"></a>
-### Nested Schema for `results.nios.grid_primary.preferred_primaries`
-
-Read-Only:
-
-- `address` (String) The IPv4 Address or IPv6 Address of the server.
-- `name` (String) A resolvable domain name for the external DNS server.
-- `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
-- `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-- `tsig_key` (String) A generated TSIG key.
-- `tsig_key_alg` (String) The TSIG key algorithm.
-- `tsig_key_name` (String) The TSIG key name.
-- `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
-
 
 
 <a id="nestedatt--results--nios--grid_secondaries"></a>

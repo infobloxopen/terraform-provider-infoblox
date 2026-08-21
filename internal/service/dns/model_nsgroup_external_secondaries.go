@@ -20,26 +20,24 @@ import (
 
 // NsgroupExternalSecondariesModel is the Terraform model for NsgroupExternalSecondaries
 type NsgroupExternalSecondariesModel struct {
-	Address                      iptypes.IPAddress `tfsdk:"address"`
-	Name                         types.String      `tfsdk:"name"`
-	SharedWithMsParentDelegation types.Bool        `tfsdk:"shared_with_ms_parent_delegation"`
-	Stealth                      types.Bool        `tfsdk:"stealth"`
-	TsigKey                      types.String      `tfsdk:"tsig_key"`
-	TsigKeyAlg                   types.String      `tfsdk:"tsig_key_alg"`
-	TsigKeyName                  types.String      `tfsdk:"tsig_key_name"`
-	UseTsigKeyName               types.Bool        `tfsdk:"use_tsig_key_name"`
+	Address        iptypes.IPAddress `tfsdk:"address"`
+	Name           types.String      `tfsdk:"name"`
+	Stealth        types.Bool        `tfsdk:"stealth"`
+	TsigKey        types.String      `tfsdk:"tsig_key"`
+	TsigKeyAlg     types.String      `tfsdk:"tsig_key_alg"`
+	TsigKeyName    types.String      `tfsdk:"tsig_key_name"`
+	UseTsigKeyName types.Bool        `tfsdk:"use_tsig_key_name"`
 }
 
 // NsgroupExternalSecondariesAttrTypes contains the attribute types for NsgroupExternalSecondariesModel
 var NsgroupExternalSecondariesAttrTypes = map[string]attr.Type{
-	"address":                          iptypes.IPAddressType{},
-	"name":                             types.StringType,
-	"shared_with_ms_parent_delegation": types.BoolType,
-	"stealth":                          types.BoolType,
-	"tsig_key":                         types.StringType,
-	"tsig_key_alg":                     types.StringType,
-	"tsig_key_name":                    types.StringType,
-	"use_tsig_key_name":                types.BoolType,
+	"address":           iptypes.IPAddressType{},
+	"name":              types.StringType,
+	"stealth":           types.BoolType,
+	"tsig_key":          types.StringType,
+	"tsig_key_alg":      types.StringType,
+	"tsig_key_name":     types.StringType,
+	"use_tsig_key_name": types.BoolType,
 }
 
 // NsgroupExternalSecondariesResourceSchemaAttributes contains the schema attributes for NsgroupExternalSecondariesModel
@@ -59,11 +57,6 @@ var NsgroupExternalSecondariesResourceSchemaAttributes = map[string]schema.Attri
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "A resolvable domain name for the external DNS server.",
-	},
-	"shared_with_ms_parent_delegation": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.",
 	},
 	"stealth": schema.BoolAttribute{
 		Optional:            true,
@@ -123,14 +116,13 @@ func (m *NsgroupExternalSecondariesModel) Expand(ctx context.Context, diags *dia
 		return nil
 	}
 	to := &niosdns.NsgroupExternalSecondaries{
-		Address:                      flex.ExpandIPAddress(m.Address),
-		Name:                         flex.ExpandStringPointerNullAsEmpty(m.Name),
-		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
-		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		TsigKey:                      flex.ExpandStringPointer(m.TsigKey),
-		TsigKeyAlg:                   flex.ExpandStringPointer(m.TsigKeyAlg),
-		TsigKeyName:                  flex.ExpandStringPointer(m.TsigKeyName),
-		UseTsigKeyName:               flex.ExpandBoolPointer(m.UseTsigKeyName),
+		Address:        flex.ExpandIPAddress(m.Address),
+		Name:           flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Stealth:        flex.ExpandBoolPointer(m.Stealth),
+		TsigKey:        flex.ExpandStringPointer(m.TsigKey),
+		TsigKeyAlg:     flex.ExpandStringPointer(m.TsigKeyAlg),
+		TsigKeyName:    flex.ExpandStringPointer(m.TsigKeyName),
+		UseTsigKeyName: flex.ExpandBoolPointer(m.UseTsigKeyName),
 	}
 	return to
 }
@@ -154,7 +146,6 @@ func (m *NsgroupExternalSecondariesModel) Flatten(ctx context.Context, from *nio
 	}
 	m.Address = flex.FlattenIPAddress(from.Address)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
 	m.TsigKey = flex.FlattenStringPointerEmptyAsNull(from.TsigKey)
 	m.TsigKeyAlg = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyAlg)

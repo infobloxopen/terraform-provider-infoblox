@@ -64,6 +64,7 @@ var NsgroupGridSecondariesResourceSchemaAttributes = map[string]schema.Attribute
 			Attributes: NsgroupgridsecondariesPreferredPrimariesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

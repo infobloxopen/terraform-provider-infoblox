@@ -17,20 +17,14 @@ import (
 
 // NsgroupGridPrimaryModel is the Terraform model for NsgroupGridPrimary
 type NsgroupGridPrimaryModel struct {
-	Name                     types.String `tfsdk:"name"`
-	Stealth                  types.Bool   `tfsdk:"stealth"`
-	Lead                     types.Bool   `tfsdk:"lead"`
-	PreferredPrimaries       types.List   `tfsdk:"preferred_primaries"`
-	EnablePreferredPrimaries types.Bool   `tfsdk:"enable_preferred_primaries"`
+	Name    types.String `tfsdk:"name"`
+	Stealth types.Bool   `tfsdk:"stealth"`
 }
 
 // NsgroupGridPrimaryAttrTypes contains the attribute types for NsgroupGridPrimaryModel
 var NsgroupGridPrimaryAttrTypes = map[string]attr.Type{
-	"name":                       types.StringType,
-	"stealth":                    types.BoolType,
-	"lead":                       types.BoolType,
-	"preferred_primaries":        types.ListType{ElemType: types.ObjectType{AttrTypes: NsgroupgridprimaryPreferredPrimariesAttrTypes}},
-	"enable_preferred_primaries": types.BoolType,
+	"name":    types.StringType,
+	"stealth": types.BoolType,
 }
 
 // NsgroupGridPrimaryResourceSchemaAttributes contains the schema attributes for NsgroupGridPrimaryModel
@@ -46,24 +40,6 @@ var NsgroupGridPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
-	},
-	"lead": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
-	},
-	"preferred_primaries": schema.ListNestedAttribute{
-		NestedObject: schema.NestedAttributeObject{
-			Attributes: NsgroupgridprimaryPreferredPrimariesResourceSchemaAttributes,
-		},
-		Optional: true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
-		MarkdownDescription: "The primary preference list with Grid member names and\\or External Server extserver structs for this member.",
-	},
-	"enable_preferred_primaries": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "This flag represents whether the preferred_primaries field values of this member are used.",
 	},
 }
 
@@ -86,11 +62,8 @@ func (m *NsgroupGridPrimaryModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosdns.NsgroupGridPrimary{
-		Name:                     flex.ExpandStringPointerNullAsEmpty(m.Name),
-		Stealth:                  flex.ExpandBoolPointer(m.Stealth),
-		Lead:                     flex.ExpandBoolPointer(m.Lead),
-		PreferredPrimaries:       flex.ExpandFrameworkListNestedBlock(ctx, m.PreferredPrimaries, diags, ExpandNsgroupgridprimaryPreferredPrimaries),
-		EnablePreferredPrimaries: flex.ExpandBoolPointer(m.EnablePreferredPrimaries),
+		Name:    flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Stealth: flex.ExpandBoolPointer(m.Stealth),
 	}
 	return to
 }
@@ -114,7 +87,4 @@ func (m *NsgroupGridPrimaryModel) Flatten(ctx context.Context, from *niosdns.Nsg
 	}
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.Lead = flex.FlattenBoolPointer(from.Lead)
-	m.PreferredPrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.PreferredPrimaries, NsgroupgridprimaryPreferredPrimariesAttrTypes, diags, FlattenNsgroupgridprimaryPreferredPrimaries)
-	m.EnablePreferredPrimaries = flex.FlattenBoolPointer(from.EnablePreferredPrimaries)
 }
