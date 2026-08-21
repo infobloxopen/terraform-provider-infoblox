@@ -4,7 +4,7 @@ resource "infoblox_nsgroup" "create_ns_group" {
     name = "example_ns_group"
     grid_primary = [
       {
-        name = "infoblox.172_28_83_8"
+        name = "infoblox.localdomain"
       }
     ]
   }
@@ -18,7 +18,7 @@ resource "infoblox_nsgroup" "create_ns_group_with_additional_fields" {
 
     grid_secondaries = [
       {
-        name = "infoblox.infoblox.172_28_83_8",
+        name = "infoblox.localdomain",
       },
     ]
     external_primaries = [

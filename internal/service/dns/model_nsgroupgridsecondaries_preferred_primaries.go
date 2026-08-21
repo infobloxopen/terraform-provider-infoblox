@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -19,26 +18,16 @@ import (
 
 // NsgroupgridsecondariesPreferredPrimariesModel is the Terraform model for NsgroupgridsecondariesPreferredPrimaries
 type NsgroupgridsecondariesPreferredPrimariesModel struct {
-	Address                      iptypes.IPAddress `tfsdk:"address"`
-	Name                         types.String      `tfsdk:"name"`
-	SharedWithMsParentDelegation types.Bool        `tfsdk:"shared_with_ms_parent_delegation"`
-	Stealth                      types.Bool        `tfsdk:"stealth"`
-	TsigKey                      types.String      `tfsdk:"tsig_key"`
-	TsigKeyAlg                   types.String      `tfsdk:"tsig_key_alg"`
-	TsigKeyName                  types.String      `tfsdk:"tsig_key_name"`
-	UseTsigKeyName               types.Bool        `tfsdk:"use_tsig_key_name"`
+	Address iptypes.IPAddress `tfsdk:"address"`
+	Name    types.String      `tfsdk:"name"`
+	Stealth types.Bool        `tfsdk:"stealth"`
 }
 
 // NsgroupgridsecondariesPreferredPrimariesAttrTypes contains the attribute types for NsgroupgridsecondariesPreferredPrimariesModel
 var NsgroupgridsecondariesPreferredPrimariesAttrTypes = map[string]attr.Type{
-	"address":                          iptypes.IPAddressType{},
-	"name":                             types.StringType,
-	"shared_with_ms_parent_delegation": types.BoolType,
-	"stealth":                          types.BoolType,
-	"tsig_key":                         types.StringType,
-	"tsig_key_alg":                     types.StringType,
-	"tsig_key_name":                    types.StringType,
-	"use_tsig_key_name":                types.BoolType,
+	"address": iptypes.IPAddressType{},
+	"name":    types.StringType,
+	"stealth": types.BoolType,
 }
 
 // NsgroupgridsecondariesPreferredPrimariesResourceSchemaAttributes contains the schema attributes for NsgroupgridsecondariesPreferredPrimariesModel
@@ -60,39 +49,9 @@ var NsgroupgridsecondariesPreferredPrimariesResourceSchemaAttributes = map[strin
 		},
 		MarkdownDescription: "A resolvable domain name for the external DNS server.",
 	},
-	"shared_with_ms_parent_delegation": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.",
-	},
 	"stealth": schema.BoolAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Set this flag to hide the NS record for the primary name server from DNS queries.",
-	},
-	"tsig_key": schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "A generated TSIG key.",
-	},
-	"tsig_key_alg": schema.StringAttribute{
-		Validators: []validator.String{
-			stringvalidator.OneOf("HMAC-MD5", "HMAC-SHA256"),
-		},
-		Optional:            true,
-		MarkdownDescription: "The TSIG key algorithm.",
-	},
-	"tsig_key_name": schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The TSIG key name.",
-	},
-	"use_tsig_key_name": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Use flag for: tsig_key_name",
 	},
 }
 
@@ -115,14 +74,9 @@ func (m *NsgroupgridsecondariesPreferredPrimariesModel) Expand(ctx context.Conte
 		return nil
 	}
 	to := &niosdns.NsgroupgridsecondariesPreferredPrimaries{
-		Address:                      flex.ExpandIPAddress(m.Address),
-		Name:                         flex.ExpandStringPointerNullAsEmpty(m.Name),
-		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
-		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		TsigKey:                      flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:                   flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
-		TsigKeyName:                  flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
-		UseTsigKeyName:               flex.ExpandBoolPointer(m.UseTsigKeyName),
+		Address: flex.ExpandIPAddress(m.Address),
+		Name:    flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Stealth: flex.ExpandBoolPointer(m.Stealth),
 	}
 	return to
 }
@@ -146,10 +100,5 @@ func (m *NsgroupgridsecondariesPreferredPrimariesModel) Flatten(ctx context.Cont
 	}
 	m.Address = flex.FlattenIPAddress(from.Address)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.TsigKey = flex.FlattenStringPointerEmptyAsNull(from.TsigKey)
-	m.TsigKeyAlg = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyAlg)
-	m.TsigKeyName = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyName)
-	m.UseTsigKeyName = flex.FlattenBoolPointer(from.UseTsigKeyName)
 }
