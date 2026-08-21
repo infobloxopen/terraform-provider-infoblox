@@ -113,6 +113,7 @@ var NsgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: NsgroupExternalPrimariesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_external_primary")),
@@ -124,6 +125,7 @@ var NsgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: NsgroupExternalSecondariesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -134,6 +136,7 @@ var NsgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: NsgroupGridPrimaryResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ExactlyOneOf(
@@ -148,6 +151,7 @@ var NsgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: NsgroupGridSecondariesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_external_primary")),
