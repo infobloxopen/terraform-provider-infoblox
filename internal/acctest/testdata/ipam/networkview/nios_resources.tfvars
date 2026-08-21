@@ -114,8 +114,6 @@ case "ddns_dns_view" {
 
 case "ddns_zone_primaries" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "requires_infra: NIOS grid member hostname not available in test environment"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "parent_zone1" {
