@@ -1,13 +1,13 @@
 # Auto-generated datasource acceptance-test cases for SharedrecordA.
 case "filters" {
   backend = "nios"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   filter {
     type   = "filters"
@@ -22,7 +22,7 @@ case "filters" {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
   }
 
@@ -30,13 +30,13 @@ case "filters" {
 
 case "ext_attr_filters" {
   backend = "nios"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   filter {
     type   = "ext_attr_filters"
@@ -51,7 +51,7 @@ case "ext_attr_filters" {
     nios {
       name                = "{{random}}.example.com"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ext_attrs           = { Site = "{{random3}}" }
     }
   }

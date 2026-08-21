@@ -3,11 +3,14 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -16,6 +19,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -31,14 +35,14 @@ var SharedrecordAAttrTypes = map[string]attr.Type{
 }
 
 type NIOSSharedrecordAModel struct {
-	Comment           types.String `tfsdk:"comment"`
-	Disable           types.Bool   `tfsdk:"disable"`
-	ExtAttrs          types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll       types.Map    `tfsdk:"ext_attrs_all"`
-	Ipv4addr          types.String `tfsdk:"ipv4addr"`
-	Name              types.String `tfsdk:"name"`
-	SharedRecordGroup types.String `tfsdk:"shared_record_group"`
-	Ttl               types.Int64  `tfsdk:"ttl"`
+	Comment           types.String        `tfsdk:"comment"`
+	Disable           types.Bool          `tfsdk:"disable"`
+	ExtAttrs          types.Map           `tfsdk:"ext_attrs"`
+	ExtAttrsAll       types.Map           `tfsdk:"ext_attrs_all"`
+	Ipv4addr          iptypes.IPv4Address `tfsdk:"ipv4addr"`
+	Name              types.String        `tfsdk:"name"`
+	SharedRecordGroup types.String        `tfsdk:"shared_record_group"`
+	Ttl               types.Int64         `tfsdk:"ttl"`
 }
 
 var NIOSSharedrecordAAttrTypes = map[string]attr.Type{
@@ -46,7 +50,7 @@ var NIOSSharedrecordAAttrTypes = map[string]attr.Type{
 	"disable":             types.BoolType,
 	"ext_attrs":           types.MapType{ElemType: types.StringType},
 	"ext_attrs_all":       types.MapType{ElemType: types.StringType},
-	"ipv4addr":            types.StringType,
+	"ipv4addr":            iptypes.IPv4AddressType{},
 	"name":                types.StringType,
 	"shared_record_group": types.StringType,
 	"ttl":                 types.Int64Type,
@@ -73,11 +77,15 @@ var SharedrecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+			stringvalidator.LengthBetween(0, 256),
 		},
 		MarkdownDescription: "Comment for this shared record; maximum 256 characters.",
 	},
 	"disable": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if this shared record is disabled or not. False means that the record is enabled.",
 	},
 	"ext_attrs": schema.MapAttribute{
@@ -99,21 +107,26 @@ var SharedrecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 	},
 	"ipv4addr": schema.StringAttribute{
-		Optional: true,
+		Required:   true,
+		CustomType: iptypes.IPv4AddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The IPv4 Address of the shared record.",
 	},
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Name for this shared record. This value can be in unicode format.",
 	},
 	"shared_record_group": schema.StringAttribute{
-		Optional: true,
+		Required: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -148,7 +161,7 @@ func (m *NIOSSharedrecordAModel) Expand(ctx context.Context, diags *diag.Diagnos
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Disable:           flex.ExpandBoolPointer(m.Disable),
 		ExtAttrs:          flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		Ipv4addr:          flex.ExpandStringPointerNullAsEmpty(m.Ipv4addr),
+		Ipv4addr:          flex.ExpandIPv4Address(m.Ipv4addr),
 		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
 		SharedRecordGroup: flex.ExpandStringPointerNullAsEmpty(m.SharedRecordGroup),
 		Ttl:               flex.ExpandInt64Pointer(m.Ttl),
@@ -199,7 +212,7 @@ func (m *NIOSSharedrecordAModel) Flatten(ctx context.Context, from *coremodel.NI
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.Ipv4addr = flex.FlattenStringPointerEmptyAsNull(from.Ipv4addr)
+	m.Ipv4addr = flex.FlattenIPv4Address(from.Ipv4addr)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.SharedRecordGroup = flex.FlattenStringPointerEmptyAsNull(from.SharedRecordGroup)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)

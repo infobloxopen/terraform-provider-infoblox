@@ -2,24 +2,24 @@
 case "basic" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
       "nios.name"                = "{{random}}"
       "nios.ipv4addr"            = "10.0.0.0"
-      "nios.shared_record_group" = "{{random2}}"
+      "nios.shared_record_group" = "shared_group"
       "nios.disable"             = "false"
     }
   }
@@ -31,19 +31,19 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
   }
 
@@ -52,19 +52,19 @@ case "disappears" {
 case "comment" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       comment             = "This is a comment"
     }
     check = {
@@ -76,7 +76,7 @@ case "comment" {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       comment             = "This is an updated comment"
     }
     check = {
@@ -89,19 +89,19 @@ case "comment" {
 case "disable" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       disable             = false
     }
     check = {
@@ -113,7 +113,7 @@ case "disable" {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       disable             = true
     }
     check = {
@@ -126,19 +126,19 @@ case "disable" {
 case "ext_attrs" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random4}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random4}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}.example.com"
       ipv4addr            = "10.0.0.1"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ext_attrs           = { Site = "{{random2}}" }
     }
     check = {
@@ -150,7 +150,7 @@ case "ext_attrs" {
     nios {
       name                = "{{random}}.example.com"
       ipv4addr            = "10.0.0.1"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ext_attrs           = { Site = "{{random3}}" }
     }
     check = {
@@ -163,19 +163,19 @@ case "ext_attrs" {
 case "ipv4addr" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
       "nios.ipv4addr" = "10.0.0.0"
@@ -186,7 +186,7 @@ case "ipv4addr" {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.1"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
       "nios.ipv4addr" = "10.0.0.1"
@@ -198,19 +198,19 @@ case "ipv4addr" {
 case "name" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random3}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random3}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
       "nios.name" = "{{random}}"
@@ -221,7 +221,7 @@ case "name" {
     nios {
       name                = "{{random2}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
       "nios.name" = "{{random2}}"
@@ -233,22 +233,22 @@ case "name" {
 case "shared_record_group" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
     check = {
-      "nios.shared_record_group" = "{{random2}}"
+      "nios.shared_record_group" = "shared_group"
     }
   }
 
@@ -257,19 +257,19 @@ case "shared_record_group" {
 case "ttl" {
   backend  = "nios"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ttl                 = 3600
     }
     check = {
@@ -281,7 +281,7 @@ case "ttl" {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ttl                 = 7200
     }
     check = {

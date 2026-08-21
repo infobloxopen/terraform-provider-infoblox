@@ -2,19 +2,19 @@
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
   }
 
@@ -29,19 +29,19 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       ipv4addr            = "10.0.0.0"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
     }
   }
 
@@ -62,19 +62,19 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random3}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random3}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random2}}.example.com"
       ipv4addr            = "10.0.0.1"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       ext_attrs           = { Site = "{{random}}" }
     }
   }
