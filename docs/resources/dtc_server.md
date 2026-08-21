@@ -179,7 +179,6 @@ Optional:
 
 Read-Only:
 
-- `metadata` (Attributes) Metadata of a configuration resource. (see [below for nested schema](#nestedatt--uddi--metadata))
 - `tags_all` (Map of String) All tags including inherited values.
 
 <a id="nestedatt--uddi--records"></a>
@@ -189,19 +188,3 @@ Optional:
 
 - `rdata` (Map of String) JSON representation of resource record data.
 - `type` (String) Resource record type.  List of supported types: * _A_ (_TYPE1_) * _AAAA_ (_TYPE28_) * _CNAME_ (_TYPE5_) * _HTTPS_ (_TYPE65_) * _SRV_ (_TYPE33_) * _SVCB_ (_TYPE64_)
-
-
-<a id="nestedatt--uddi--metadata"></a>
-### Nested Schema for `uddi.metadata`
-
-Optional:
-
-- `used_by` (Attributes List) List of structs representing a limited view on configuration objects that use a resource the metadata is provided for. (see [below for nested schema](#nestedatt--uddi--metadata--used_by))
-
-<a id="nestedatt--uddi--metadata--used_by"></a>
-### Nested Schema for `uddi.metadata.used_by`
-
-Read-Only:
-
-- `display_name` (String) Display name of the configuration resource.
-- `id` (String) The resource identifier.

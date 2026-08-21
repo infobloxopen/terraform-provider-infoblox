@@ -73,6 +73,8 @@ case "auto_create_response_records" {
     }
     check = {
       "uddi.auto_create_response_records" = "true"
+      "uddi.records.#"                    = "1"
+      "uddi.records.0.type"               = "A"
     }
   }
 
@@ -84,6 +86,7 @@ case "auto_create_response_records" {
     }
     check = {
       "uddi.auto_create_response_records" = "false"
+      "uddi.records.#"                    = "0"
     }
   }
 

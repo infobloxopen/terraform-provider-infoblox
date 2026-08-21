@@ -15,36 +15,42 @@ Retrieves information about existing Infoblox DtcServer across NIOS and UDDI bac
 ### NIOS Backend
 
 ```terraform
+// Retrieve a specific DTC Server using filters
 data "infoblox_dtc_server" "get_dtc_server_using_filters" {
   filters = {
     name = "dtc-server-basic"
   }
 }
 
+// Retrieve specific DTC Servers using Extensible Attributes
 data "infoblox_dtc_server" "get_dtc_server_using_extensible_attributes" {
   ext_attr_filters = {
     Site = "location-1"
   }
 }
 
+// Retrieve all DTC Servers
 data "infoblox_dtc_server" "get_all_dtc_servers" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
+// Retrieve a specific DTC Server using filters
 data "infoblox_dtc_server" "get_dtc_server_using_filters" {
   filters = {
     name = "dtc-server-basic"
   }
 }
 
+// Retrieve specific DTC Servers using tag filters
 data "infoblox_dtc_server" "get_dtc_server_using_tag_filters" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
+// Retrieve all DTC Servers
 data "infoblox_dtc_server" "get_all_dtc_servers" {}
 ```
 
@@ -109,28 +115,10 @@ Read-Only:
 - `disabled` (Boolean) Optional. Flag which enables/disables __Server__.  Defaults to _false_.
 - `endpoint_type` (String) The endpoint type configured for the __Server__. Can be IP Address or FQDN. The values of both fields __address__ and __fqdn__ are preserved and are not mutually exclusive, and the __endpoint_type__ defines which one to use.  Allowed values: * address * fqdn  Defaults to __address__.
 - `fqdn` (String) Fully Qualified Domain name of the __Server__. Must be set to a valid FQDN if __endpoint_type__ is set to __fqdn__. Alternatively, it can be left blank.
-- `metadata` (Attributes) Metadata of a configuration resource. (see [below for nested schema](#nestedatt--results--uddi--metadata))
 - `name` (String) Display name of __Server__.
 - `records` (Attributes List) Optional. List of __Records__ of the __Server__. (see [below for nested schema](#nestedatt--results--uddi--records))
 - `tags` (Map of String) Optional. The tags for __Server__ in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
-
-<a id="nestedatt--results--uddi--metadata"></a>
-### Nested Schema for `results.uddi.metadata`
-
-Read-Only:
-
-- `used_by` (Attributes List) List of structs representing a limited view on configuration objects that use a resource the metadata is provided for. (see [below for nested schema](#nestedatt--results--uddi--metadata--used_by))
-
-<a id="nestedatt--results--uddi--metadata--used_by"></a>
-### Nested Schema for `results.uddi.metadata.used_by`
-
-Read-Only:
-
-- `display_name` (String) Display name of the configuration resource.
-- `id` (String) The resource identifier.
-
-
 
 <a id="nestedatt--results--uddi--records"></a>
 ### Nested Schema for `results.uddi.records`
