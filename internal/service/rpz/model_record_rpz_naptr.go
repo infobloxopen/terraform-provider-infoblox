@@ -121,11 +121,11 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 	},
 	"flags": schema.StringAttribute{
-		Optional: true,
 		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
+			stringvalidator.OneOf("U", "S", "P", "A", ""),
 		},
+		Optional:            true,
 		MarkdownDescription: "The flags used to control the interpretation of the fields for a Substitute (NAPTR Record) Rule object. Supported values for the flags field are \"U\", \"S\", \"P\" and \"A\".",
 	},
 	"name": schema.StringAttribute{
@@ -153,6 +153,7 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"regexp": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -179,6 +180,7 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"services": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
