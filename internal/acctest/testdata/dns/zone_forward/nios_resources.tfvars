@@ -1,3 +1,8 @@
+
+// Objects to be present on the grid for testing
+// ns_group1, ns_group2 - Forwarding Member
+// ensg1, ensg2 - Forward/Stub Server
+
 # Auto-generated resource acceptance-test cases for ZoneForward.
 case "basic" {
   backend  = "nios"
@@ -299,7 +304,6 @@ case "forwarders_only" {
 case "forwarding_servers" {
   backend      = "nios"
   parallel     = true
-  requires_env = ["NIOS_GRID_MASTER_HOSTNAME"]
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -539,10 +543,31 @@ case "prefix" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: helper declares prerequisite resource 'nios_dns_view' which has no buildable infoblox equivalent (not in prereq_type_map.json)
 case "view" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'nios_dns_view' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  backend  = "nios"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_dns_view" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      fqdn              = "{{random}}.${infoblox_zone_auth.test.nios.fqdn}"
+      external_ns_group = "ensg1"
+      view              = infoblox_view.test_dns_view.nios.name
+    }
+    check = {
+      "nios.view" = "{{random2}}"
+    }
+  }
+
 }

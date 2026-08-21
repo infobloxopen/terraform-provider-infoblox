@@ -1,3 +1,8 @@
+// Objects to be present on the grid for testing
+// forwardinf_nsg
+// dns host
+// internal forwarders
+
 # Auto-generated resource acceptance-test cases for ZoneForward.
 case "basic" {
   backend  = "uddi"
@@ -139,20 +144,22 @@ case "external_forwarders_address" {
   step {
     uddi {
       fqdn                = "{{random}}.com."
-      external_forwarders = [{ address = "192.168.10.10" }]
+      external_forwarders = [{ address = "192.168.10.10", fqdn = "abc.com." }]
     }
     check = {
       "uddi.external_forwarders.0.address" = "192.168.10.10"
+      "uddi.external_forwarders.0.fqdn"    = "abc.com."
     }
   }
 
   step {
     uddi {
       fqdn                = "{{random}}.com."
-      external_forwarders = [{ address = "192.168.11.11" }]
+      external_forwarders = [{ address = "192.168.11.11", fqdn = "def.com." }]
     }
     check = {
       "uddi.external_forwarders.0.address" = "192.168.11.11"
+      "uddi.external_forwarders.0.fqdn"    = "def.com."
     }
   }
 
@@ -218,6 +225,7 @@ case "hosts" {
   step {
     uddi {
       fqdn = "{{random}}.com."
+      hosts = ["dns/host/470522"]
     }
     check = {
       "uddi.hosts.#" = "1"
@@ -227,6 +235,7 @@ case "hosts" {
   step {
     uddi {
       fqdn = "{{random}}.com."
+      hosts = ["dns/host/470521"]
     }
     check = {
       "uddi.hosts.#" = "1"
@@ -238,10 +247,24 @@ case "hosts" {
 case "internal_forwarders" {
   backend  = "uddi"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_dns_host" "one" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # resource "infoblox_dns_host" "two" {
+  #   uddi = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  PREREQ
 
   step {
     uddi {
       fqdn = "{{random}}.com."
+      internal_forwarders = ["dns/host/470521"]
+      # internal_forwarders = [infoblox_dns_host.one.id]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
@@ -251,6 +274,8 @@ case "internal_forwarders" {
   step {
     uddi {
       fqdn = "{{random}}.com."
+      internal_forwarders = ["dns/host/470522"]
+      # internal_forwarders = [infoblox_dns_host.two.id]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
@@ -263,29 +288,31 @@ case "nsgs" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ns_group_forward_unknown" "one" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_ns_group_forward_unknown" "two" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
+  # resource "infoblox_forward_nsg" "one" {
+  #   uddi = {
+  #     name = "{{random}}"
+  #   }
+  # }
+  # resource "infoblox_forward_nsg" "two" {
+  #   uddi = {
+  #     name = "{{random2}}"
+  #   }
+  # }
   PREREQ
 
   step {
     uddi {
       fqdn = "{{random}}.com."
-      nsgs = [infoblox_ns_group_forward_unknown.one.id]
+      # nsgs = [infoblox_forward_nsg.one.id]
+      nsgs = ["dns/forward_nsg/b3870ffc-9f37-4a68-b36b-a76323bac4b4"]
     }
   }
 
   step {
     uddi {
       fqdn = "{{random}}.com."
-      nsgs = [infoblox_ns_group_forward_unknown.two.id]
+      # nsgs = [infoblox_forward_nsg.two.id]
+      nsgs = ["dns/forward_nsg/0e0b5c0e-9609-4309-92de-ae178f9c8de7"]
     }
   }
 
@@ -330,7 +357,7 @@ case "view" {
   }
   resource "infoblox_view" "two" {
     uddi = {
-      name = "{{random}}"
+      name = "{{random2}}"
     }
   }
   PREREQ
@@ -344,7 +371,7 @@ case "view" {
 
   step {
     uddi {
-      fqdn = "{{random}}.com."
+      fqdn = "{{random2}}.com."
       view = infoblox_view.two.id
     }
   }

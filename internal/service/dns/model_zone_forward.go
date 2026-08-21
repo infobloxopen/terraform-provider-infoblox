@@ -285,11 +285,15 @@ var ZoneForwardResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var ZoneForwardResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Comment for zone configuration.",
 	},
 	"compartment_id": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The access view associated with the object. If no access view is associated with the object, the value defaults to empty.",
 	},
 	"disabled": schema.BoolAttribute{
@@ -312,7 +316,7 @@ var ZoneForwardResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. _true_ to only forward.",
 	},
 	"fqdn": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -354,6 +358,7 @@ var ZoneForwardResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -378,7 +383,7 @@ func (m *ZoneForwardModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIZoneForwardModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -410,21 +415,24 @@ func (m *NIOSZoneForwardModel) Expand(ctx context.Context, diags *diag.Diagnosti
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIZoneForwardModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIZoneForwardExt {
-	return &coremodel.UDDIZoneForwardExt{
+func (m *UDDIZoneForwardModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIZoneForwardExt {
+	ext := &coremodel.UDDIZoneForwardExt{
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		CompartmentId:      flex.ExpandStringPointer(m.CompartmentId),
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		ExternalForwarders: flex.ExpandFrameworkListNestedBlock(ctx, m.ExternalForwarders, diags, ExpandForwarder),
 		ForwardOnly:        flex.ExpandBoolPointer(m.ForwardOnly),
-		Fqdn:               flex.ExpandStringPointer(m.Fqdn),
 		Hosts:              flex.ExpandFrameworkListString(ctx, m.Hosts, diags),
 		InternalForwarders: flex.ExpandFrameworkListString(ctx, m.InternalForwarders, diags),
 		Nsgs:               flex.ExpandFrameworkListString(ctx, m.Nsgs, diags),
 		Parent:             flex.ExpandStringPointer(m.Parent),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
-		View:               flex.ExpandStringPointer(m.View),
 	}
+	if isCreate {
+		ext.Fqdn = flex.ExpandStringPointer(m.Fqdn)
+		ext.View = flex.ExpandStringPointer(m.View)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
