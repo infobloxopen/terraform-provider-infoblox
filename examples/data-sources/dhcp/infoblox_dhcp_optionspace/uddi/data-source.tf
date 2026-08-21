@@ -1,16 +1,16 @@
-// Get DHCP Option spaces filtered by an attribute
-data "infoblox_dhcp_optionspace" "example_by_name" {
+// Retrieve a specific DHCP Option Space by filters
+data "infoblox_dhcp_optionspace" "get_option_space_by_name" {
   filters = {
-    name = "example-space"
+    name = "example_option_space_1"
   }
 }
 
-// Get DHCP Option space/s by tag
-data "infoblox_dhcp_optionspace" "example_by_tag" {
+// Retrieve a specific DHCP Option Space by tags
+data "infoblox_dhcp_optionspace" "get_option_space_by_tag" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Get all DHCP Option spaces
-data "infoblox_dhcp_optionspace" "example_all" {}
+// Retrieve all DHCP Option Spaces
+data "infoblox_dhcp_optionspace" "get_all_option_spaces" {}

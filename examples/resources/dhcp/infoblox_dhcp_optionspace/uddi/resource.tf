@@ -1,16 +1,17 @@
+// Create a DHCP Option Space with Basic Fields
 resource "infoblox_dhcp_optionspace" "example" {
   uddi = {
-    name     = "example_dhcp_option_space"
-    protocol = "ip4"
+    name = "example_option_space_1"
   }
 }
 
+// Create a DHCP Option Space with Additional Fields 
 resource "infoblox_dhcp_optionspace" "example_with_options" {
   uddi = {
-    name     = "example_dhcp_option_space_with_options"
-    protocol = "ip6"
+    name = "example_option_space_2"
+
     //Other Optional Fields
-    comment = "dhcp option space"
+    comment = "DHCP Option Space"
     tags = {
       Site = "location-1"
     }

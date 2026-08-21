@@ -1,15 +1,15 @@
-// List specific Dhcp Optionspaces using filters
+// List specific DHCP Option Spaces using filters
 list "infoblox_dhcp_optionspace" "list_dhcp_optionspace_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example-space"
+      name = "example_option_space_1"
     }
   }
   limit = 10
 }
 
-// List specific Dhcp Optionspaces using Tags
+// List specific DHCP Option Spaces using Tags
 list "infoblox_dhcp_optionspace" "list_dhcp_optionspace_using_tags" {
   provider = infoblox
   config {
@@ -19,7 +19,7 @@ list "infoblox_dhcp_optionspace" "list_dhcp_optionspace_using_tags" {
   }
 }
 
-// List Dhcp Optionspaces with resource details included
+// List DHCP Option Spaces with resource details included
 list "infoblox_dhcp_optionspace" "list_dhcp_optionspace_with_resource" {
   provider         = infoblox
   include_resource = true
