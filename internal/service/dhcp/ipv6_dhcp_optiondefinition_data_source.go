@@ -42,7 +42,6 @@ func (d *Ipv6DhcpOptiondefinitionDataSource) Metadata(_ context.Context, req dat
 // Ipv6DhcpOptiondefinitionDataSourceModel is the filter model for the datasource
 type Ipv6DhcpOptiondefinitionDataSourceModel struct {
 	Filters    types.Map   `tfsdk:"filters"`
-	TagFilters types.Map   `tfsdk:"tag_filters"`
 	Results    types.List  `tfsdk:"results"`
 	MaxResults types.Int32 `tfsdk:"max_results"`
 	Paging     types.Int32 `tfsdk:"paging"`
@@ -74,11 +73,6 @@ func (d *Ipv6DhcpOptiondefinitionDataSource) Schema(_ context.Context, _ datasou
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",
-				ElementType: types.StringType,
-				Optional:    true,
-			},
-			"tag_filters": schema.MapAttribute{
-				Description: "Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.",
 				ElementType: types.StringType,
 				Optional:    true,
 			},
@@ -138,7 +132,7 @@ func (d *Ipv6DhcpOptiondefinitionDataSource) ValidateConfig(ctx context.Context,
 		return
 	}
 
-	customvalidator.ValidateDataSourceFilters(d.backend, types.MapNull(types.StringType), data.TagFilters, data.MaxResults, data.Limit, &resp.Diagnostics)
+	customvalidator.ValidateDataSourceFilters(d.backend, types.MapNull(types.StringType), types.MapNull(types.StringType), data.MaxResults, data.Limit, &resp.Diagnostics)
 }
 
 func (d *Ipv6DhcpOptiondefinitionDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -152,7 +146,6 @@ func (d *Ipv6DhcpOptiondefinitionDataSource) Read(ctx context.Context, req datas
 	// Build list options
 	opts := &core.ListOptions{
 		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
 		ReturnFields: Ipv6DhcpOptiondefinitionReturnFields,
 		Paging:       1,
 	}

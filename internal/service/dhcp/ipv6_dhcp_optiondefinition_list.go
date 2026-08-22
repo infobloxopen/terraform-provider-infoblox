@@ -35,8 +35,7 @@ type Ipv6DhcpOptiondefinitionList struct {
 }
 
 type Ipv6DhcpOptiondefinitionListModel struct {
-	Filters    types.Map `tfsdk:"filters"`
-	TagFilters types.Map `tfsdk:"tag_filters"`
+	Filters types.Map `tfsdk:"filters"`
 }
 
 func (l *Ipv6DhcpOptiondefinitionList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -75,11 +74,6 @@ func (l *Ipv6DhcpOptiondefinitionList) ListResourceConfigSchema(_ context.Contex
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"tag_filters": listschema.MapAttribute{
-				MarkdownDescription: "Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
 		},
 	}
 }
@@ -92,7 +86,7 @@ func (l *Ipv6DhcpOptiondefinitionList) ValidateListResourceConfig(ctx context.Co
 		return
 	}
 
-	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), types.MapNull(types.StringType), &resp.Diagnostics)
 }
 
 func (l *Ipv6DhcpOptiondefinitionList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -110,7 +104,6 @@ func (l *Ipv6DhcpOptiondefinitionList) List(ctx context.Context, req list.ListRe
 
 	opts := &core.ListOptions{
 		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields: Ipv6DhcpOptiondefinitionReturnFields,
 		Paging:       1,
 	}
