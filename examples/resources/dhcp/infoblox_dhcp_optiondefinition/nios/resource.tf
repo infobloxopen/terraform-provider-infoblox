@@ -1,7 +1,7 @@
 // Create a DHCP Option Definition in the default DHCP Option Space
-resource "infoblox_dhcp_optiondefinition" "default_option_definition" {
+resource "infoblox_dhcp_optiondefinition" "option_definition_in_default_option_space" {
   nios = {
-    code = 11
+    code = 120
     name = "example_option_definition_default_space"
     type = "string"
   }
