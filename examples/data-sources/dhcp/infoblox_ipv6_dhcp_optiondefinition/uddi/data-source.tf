@@ -1,16 +1,9 @@
-// Get DHCP Option codes filtered by an attribute
+// Get IPV6 DHCP Option Definition filtered by an attribute
 data "infoblox_ipv6_dhcp_optiondefinition" "example_by_name" {
   filters = {
-    name = "example-code"
+    name = "example-definition"
   }
 }
 
-// Get DHCP Option code/s by tag
-data "infoblox_ipv6_dhcp_optiondefinition" "example_by_tag" {
-  tag_filters = {
-    Site = "location-1"
-  }
-}
-
-// Get all DHCP Option codes
+// Get all DHCP Option Definition
 data "infoblox_ipv6_dhcp_optiondefinition" "example_all" {}
