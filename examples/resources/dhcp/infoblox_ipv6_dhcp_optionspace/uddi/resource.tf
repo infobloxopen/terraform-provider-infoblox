@@ -1,12 +1,12 @@
 resource "infoblox_ipv6_dhcp_optionspace" "example" {
   uddi = {
-    name     = "example_option_space_1"
+    name = "example_option_space_1"
   }
 }
 
 resource "infoblox_ipv6_dhcp_optionspace" "example_with_options" {
   uddi = {
-    name     = "example_option_space_2"
+    name = "example_option_space_2"
 
     //Other Optional Fields
     comment = "Ipv6 DHCP option space"
