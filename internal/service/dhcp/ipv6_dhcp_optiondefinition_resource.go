@@ -199,6 +199,17 @@ func (r *Ipv6DhcpOptiondefinitionResource) Update(ctx context.Context, req resou
 		return
 	}
 
+	var stateData Ipv6DhcpOptiondefinitionModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.refreshIpv6DhcpOptiondefinitionId(ctx, resp, &data, &stateData)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
