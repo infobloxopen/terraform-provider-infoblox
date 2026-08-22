@@ -129,7 +129,9 @@ var Ipv6DhcpOptiondefinitionResourceUddiSchemaAttributes = map[string]schema.Att
 		MarkdownDescription: "The option code.",
 	},
 	"comment": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},
@@ -147,6 +149,9 @@ var Ipv6DhcpOptiondefinitionResourceUddiSchemaAttributes = map[string]schema.Att
 		MarkdownDescription: "The resource identifier.",
 	},
 	"type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("address4", "address6", "boolean", "empty", "fqdn", "int8", "int16", "int32", "text", "uint8", "uint16", "uint32"),
+		},
 		Required:            true,
 		MarkdownDescription: "The option type for the option code.  Valid values are: * _address4_ * _address6_ * _boolean_ * _empty_ * _fqdn_ * _int8_ * _int16_ * _int32_ * _text_ * _uint8_ * _uint16_ * _uint32_",
 	},
