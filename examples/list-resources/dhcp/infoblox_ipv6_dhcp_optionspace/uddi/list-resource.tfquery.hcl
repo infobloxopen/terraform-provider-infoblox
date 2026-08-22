@@ -3,7 +3,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters"
   provider = infoblox
   config {
     filters = {
-      name = "example-space"
+      name = "example_option_space_1"
     }
   }
   limit = 10
