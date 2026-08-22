@@ -1,16 +1,15 @@
 resource "infoblox_ipv6_dhcp_optionspace" "example" {
   uddi = {
-    name     = "example_dhcp_option_space"
-    protocol = "ip4"
+    name     = "example_option_space_1"
   }
 }
 
 resource "infoblox_ipv6_dhcp_optionspace" "example_with_options" {
   uddi = {
-    name     = "example_dhcp_option_space_with_options"
-    protocol = "ip6"
+    name     = "example_option_space_2"
+
     //Other Optional Fields
-    comment = "dhcp option space"
+    comment = "Ipv6 DHCP option space"
     tags = {
       Site = "location-1"
     }
