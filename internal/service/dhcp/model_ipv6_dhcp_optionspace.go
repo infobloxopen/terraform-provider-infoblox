@@ -3,7 +3,9 @@ package dhcp
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -84,15 +86,19 @@ var Ipv6DhcpOptionspaceResourceNiosSchemaAttributes = map[string]schema.Attribut
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.LengthBetween(0, 256),
 		},
 		MarkdownDescription: "A descriptive comment of a DHCP IPv6 option space object.",
 	},
 	"enterprise_number": schema.Int64Attribute{
-		Optional:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 4294967295),
+		},
 		MarkdownDescription: "The enterprise number of a DHCP IPv6 option space object.",
 	},
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -110,15 +116,21 @@ var Ipv6DhcpOptionspaceResourceNiosSchemaAttributes = map[string]schema.Attribut
 
 var Ipv6DhcpOptionspaceResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 1024),
+		},
 		MarkdownDescription: "The description for the option space. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(1, 256),
+		},
 		MarkdownDescription: "The name of the option space. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"protocol": schema.StringAttribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The type of protocol for the option space (_ip4_ or _ip6_).",
 	},
 	"tags": schema.MapAttribute{
