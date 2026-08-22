@@ -63,7 +63,6 @@ var UDDIDhcpOptiondefinitionAttrTypes = map[string]attr.Type{
 }
 
 const (
-	DhcpOptiondefinitionType         = "DhcpOptiondefinition"
 	DhcpOptiondefinitionReturnFields = "code,name,space,type"
 )
 

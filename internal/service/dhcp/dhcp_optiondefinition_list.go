@@ -35,8 +35,7 @@ type DhcpOptiondefinitionList struct {
 }
 
 type DhcpOptiondefinitionListModel struct {
-	Filters    types.Map `tfsdk:"filters"`
-	TagFilters types.Map `tfsdk:"tag_filters"`
+	Filters types.Map `tfsdk:"filters"`
 }
 
 func (l *DhcpOptiondefinitionList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -75,11 +74,6 @@ func (l *DhcpOptiondefinitionList) ListResourceConfigSchema(_ context.Context, _
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
-			"tag_filters": listschema.MapAttribute{
-				MarkdownDescription: "Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.",
-				ElementType:         types.StringType,
-				Optional:            true,
-			},
 		},
 	}
 }
@@ -92,7 +86,7 @@ func (l *DhcpOptiondefinitionList) ValidateListResourceConfig(ctx context.Contex
 		return
 	}
 
-	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), types.MapNull(types.StringType), &resp.Diagnostics)
 }
 
 func (l *DhcpOptiondefinitionList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -109,11 +103,9 @@ func (l *DhcpOptiondefinitionList) List(ctx context.Context, req list.ListReques
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
-		InternalFilters: map[string]string{"type": DhcpOptiondefinitionType},
-		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:    DhcpOptiondefinitionReturnFields,
-		Paging:          1,
+		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
+		ReturnFields: DhcpOptiondefinitionReturnFields,
+		Paging:       1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
