@@ -1,8 +1,30 @@
 # Auto-generated datasource acceptance-test cases for DhcpOptiondefinition.
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: no filter entries found in the data source block
 case "filters" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "no filter entries found in the data source block"
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
+
+  filter {
+    type = "filters"
+    values = {
+      name = "uddi.name"
+    }
+  }
+
+  pair_checks = ["uddi.array", "uddi.code", "uddi.comment", "uddi.name", "uddi.option_space", "uddi.type"]
+
+  step {
+    uddi {
+      code         = 234
+      name         = "test_option_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+
 }
