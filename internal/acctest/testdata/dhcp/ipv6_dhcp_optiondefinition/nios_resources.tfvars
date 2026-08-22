@@ -3,7 +3,7 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
       enterprise_number = 10
@@ -16,7 +16,7 @@ case "basic" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.code"  = "10"
@@ -34,7 +34,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
       enterprise_number = 10
@@ -47,7 +47,7 @@ case "disappears" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
   }
 
@@ -57,7 +57,7 @@ case "code" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
       enterprise_number = 10
@@ -70,7 +70,7 @@ case "code" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.code" = "10"
@@ -82,7 +82,7 @@ case "code" {
       code  = 20
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.code" = "20"
@@ -95,7 +95,7 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random3}}"
       enterprise_number = 10
@@ -108,7 +108,7 @@ case "name" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.name" = "{{random}}"
@@ -120,7 +120,7 @@ case "name" {
       code  = 10
       name  = "{{random2}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.name" = "{{random2}}"
@@ -133,9 +133,15 @@ case "space" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test1" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test1" {
     nios = {
       name = "{{random2}}"
+      enterprise_number = 10
+    }
+  }
+  resource "infoblox_ipv6_dhcp_optionspace" "test2" {
+    nios = {
+      name = "{{random3}}"
       enterprise_number = 10
     }
   }
@@ -146,7 +152,7 @@ case "space" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test1.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test1.nios.name
     }
     check = {
       "nios.space" = "{{random2}}"
@@ -158,7 +164,7 @@ case "space" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test2.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test2.nios.name
     }
     check = {
       "nios.space" = "{{random3}}"
@@ -171,7 +177,7 @@ case "type" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
       enterprise_number = 10
@@ -184,7 +190,7 @@ case "type" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.type" = "string"
@@ -196,7 +202,7 @@ case "type" {
       code  = 10
       name  = "{{random}}"
       type  = "boolean"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.type" = "boolean"
@@ -208,7 +214,7 @@ case "type" {
       code  = 10
       name  = "{{random}}"
       type  = "8-bit unsigned integer"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.type" = "8-bit unsigned integer"
@@ -220,7 +226,7 @@ case "type" {
       code  = 10
       name  = "{{random}}"
       type  = "ip-address"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.type" = "ip-address"
@@ -232,7 +238,7 @@ case "type" {
       code  = 10
       name  = "{{random}}"
       type  = "array of 8-bit integer"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
     check = {
       "nios.type" = "array of 8-bit integer"

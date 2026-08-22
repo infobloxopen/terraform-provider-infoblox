@@ -3,10 +3,9 @@ case "basic" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -15,7 +14,7 @@ case "basic" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -34,10 +33,9 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -46,7 +44,7 @@ case "disappears" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
   }
@@ -57,10 +55,9 @@ case "array" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -69,7 +66,7 @@ case "array" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       array        = true
     }
@@ -82,7 +79,7 @@ case "array" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       array        = false
     }
@@ -97,10 +94,9 @@ case "code" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -109,7 +105,7 @@ case "code" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -121,7 +117,7 @@ case "code" {
     uddi {
       code         = 235
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -135,10 +131,9 @@ case "comment" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -147,7 +142,7 @@ case "comment" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       comment      = "boolean option code type"
     }
@@ -160,7 +155,7 @@ case "comment" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       comment      = "boolean option code type update"
     }
@@ -175,10 +170,9 @@ case "name" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -187,7 +181,7 @@ case "name" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -199,7 +193,7 @@ case "name" {
     uddi {
       code         = 234
       name         = "basic_opt_code_1"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -209,22 +203,18 @@ case "name" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccOptionCodeOptionSpace' could not be parsed (no resource block found)
 case "option_space" {
   backend     = "uddi"
-  skip        = true
-  skip_reason = "config helper 'testAccOptionCodeOptionSpace' could not be parsed (no resource block found)"
-}
-
-case "type" {
-  backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test1" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
+    }
+  }
+  resource "infoblox_ipv6_dhcp_optionspace" "test2" {
+    uddi = {
+      name = "{{random2}}"
     }
   }
   PREREQ
@@ -233,7 +223,43 @@ case "type" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test1.id
+      type         = "boolean"
+    }
+    check = {
+      "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test1.id
+    }
+  }
+
+  step {
+    uddi {
+      code         = 234
+      name         = "basic_opt_code"
+      option_space = infoblox_ipv6_dhcp_optionspace.test2.id
+      type         = "boolean"
+    }
+    check = {
+      "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test2.id
+    }
+  }
+}
+
+case "type" {
+  backend  = "uddi"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      code         = 234
+      name         = "basic_opt_code"
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -245,7 +271,7 @@ case "type" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_option_space_unknown.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "int16"
     }
     check = {

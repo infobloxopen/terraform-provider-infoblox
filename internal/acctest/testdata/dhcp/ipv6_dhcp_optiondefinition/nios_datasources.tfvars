@@ -2,7 +2,7 @@
 case "filters" {
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_option_space_unknown" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
       enterprise_number = 10
@@ -26,7 +26,7 @@ case "filters" {
       code  = 10
       name  = "{{random}}"
       type  = "string"
-      space = infoblox_ipv6_option_space_unknown.test.nios.name
+      space = infoblox_ipv6_dhcp_optionspace.test.nios.name
     }
   }
 
