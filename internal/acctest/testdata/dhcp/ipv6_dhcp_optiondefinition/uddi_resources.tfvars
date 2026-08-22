@@ -226,7 +226,7 @@ case "option_space" {
       option_space = infoblox_ipv6_dhcp_optionspace.test1.id
       type         = "boolean"
     }
-    check = {
+    check_pair = {
       "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test1.id
     }
   }
@@ -238,7 +238,7 @@ case "option_space" {
       option_space = infoblox_ipv6_dhcp_optionspace.test2.id
       type         = "boolean"
     }
-    check = {
+    check_pair = {
       "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test2.id
     }
   }
