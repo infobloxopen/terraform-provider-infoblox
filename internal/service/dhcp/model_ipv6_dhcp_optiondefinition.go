@@ -63,7 +63,6 @@ var UDDIIpv6DhcpOptiondefinitionAttrTypes = map[string]attr.Type{
 }
 
 const (
-	Ipv6DhcpOptiondefinitionType         = "Ipv6DhcpOptiondefinition"
 	Ipv6DhcpOptiondefinitionReturnFields = "code,name,space,type"
 )
 
