@@ -3,10 +3,13 @@ package dhcp
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -83,18 +86,23 @@ var Ipv6DhcpOptiondefinitionResourceSchemaAttributes = map[string]schema.Attribu
 
 var Ipv6DhcpOptiondefinitionResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"code": schema.Int64Attribute{
-		Optional:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			int64validator.Between(1, 65535),
+		},
 		MarkdownDescription: "The code of a DHCP IPv6 option definition object. An option code number is used to identify the DHCP option.",
 	},
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The name of a DHCP IPv6 option definition object.",
 	},
 	"space": schema.StringAttribute{
+		Default:  stringdefault.StaticString("DHCPv6"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -104,7 +112,7 @@ var Ipv6DhcpOptiondefinitionResourceNiosSchemaAttributes = map[string]schema.Att
 		Validators: []validator.String{
 			stringvalidator.OneOf("16-bit signed integer", "16-bit unsigned integer", "32-bit signed integer", "32-bit unsigned integer", "8-bit signed integer", "8-bit unsigned integer", "8-bit unsigned integer (1,2,4,8)", "array of 16-bit integer", "array of 16-bit unsigned integer", "array of 32-bit integer", "array of 32-bit unsigned integer", "array of 8-bit integer", "array of 8-bit unsigned integer", "array of ip-address", "boolean", "boolean array of ip-address", "boolean-text", "domain-list", "domain-name", "ip-address", "string", "text"),
 		},
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "The data type of the Grid DHCP IPv6 option.",
 	},
 }
@@ -112,6 +120,8 @@ var Ipv6DhcpOptiondefinitionResourceNiosSchemaAttributes = map[string]schema.Att
 var Ipv6DhcpOptiondefinitionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"array": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Indicates whether the option value is an array of the type or not.",
 	},
 	"code": schema.Int64Attribute{
@@ -119,11 +129,17 @@ var Ipv6DhcpOptiondefinitionResourceUddiSchemaAttributes = map[string]schema.Att
 		MarkdownDescription: "The option code.",
 	},
 	"comment": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 1024),
+		},
 		MarkdownDescription: "The description for the option code. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(1, 256),
+		},
 		MarkdownDescription: "The name of the option code. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"option_space": schema.StringAttribute{
