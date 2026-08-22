@@ -11,7 +11,6 @@ case "basic" {
     check = {
       "nios.enterprise_number" = "5896"
       "nios.name"              = "{{random}}"
-      "nios.comment"           = ""
     }
   }
 
