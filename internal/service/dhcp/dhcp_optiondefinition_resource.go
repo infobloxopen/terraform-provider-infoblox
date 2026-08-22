@@ -199,6 +199,17 @@ func (r *DhcpOptiondefinitionResource) Update(ctx context.Context, req resource.
 		return
 	}
 
+	var stateData DhcpOptiondefinitionModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.refreshDhcpOptiondefinitionId(ctx, resp, &data, &stateData)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
