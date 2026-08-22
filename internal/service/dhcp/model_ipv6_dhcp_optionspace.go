@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -31,17 +32,15 @@ var Ipv6DhcpOptionspaceAttrTypes = map[string]attr.Type{
 }
 
 type NIOSIpv6DhcpOptionspaceModel struct {
-	Comment           types.String `tfsdk:"comment"`
-	EnterpriseNumber  types.Int64  `tfsdk:"enterprise_number"`
-	Name              types.String `tfsdk:"name"`
-	OptionDefinitions types.List   `tfsdk:"option_definitions"`
+	Comment          types.String `tfsdk:"comment"`
+	EnterpriseNumber types.Int64  `tfsdk:"enterprise_number"`
+	Name             types.String `tfsdk:"name"`
 }
 
 var NIOSIpv6DhcpOptionspaceAttrTypes = map[string]attr.Type{
-	"comment":            types.StringType,
-	"enterprise_number":  types.Int64Type,
-	"name":               types.StringType,
-	"option_definitions": types.ListType{ElemType: types.StringType},
+	"comment":           types.StringType,
+	"enterprise_number": types.Int64Type,
+	"name":              types.StringType,
 }
 
 type UDDIIpv6DhcpOptionspaceModel struct {
@@ -104,19 +103,13 @@ var Ipv6DhcpOptionspaceResourceNiosSchemaAttributes = map[string]schema.Attribut
 		},
 		MarkdownDescription: "The name of a DHCP IPv6 option space object.",
 	},
-	"option_definitions": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
-		MarkdownDescription: "The list of DHCP IPv6 option definition objects.",
-	},
 }
 
 var Ipv6DhcpOptionspaceResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},
@@ -130,7 +123,8 @@ var Ipv6DhcpOptionspaceResourceUddiSchemaAttributes = map[string]schema.Attribut
 		MarkdownDescription: "The name of the option space. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"protocol": schema.StringAttribute{
-		Required:            true,
+		Default:             stringdefault.StaticString("ip6"),
+		Computed:            true,
 		MarkdownDescription: "The type of protocol for the option space (_ip4_ or _ip6_).",
 	},
 	"tags": schema.MapAttribute{
@@ -167,7 +161,7 @@ func (m *Ipv6DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagn
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIIpv6DhcpOptionspaceModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -176,21 +170,23 @@ func (m *Ipv6DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagn
 // Expand converts the NIOS TF model to the core model.
 func (m *NIOSIpv6DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6DhcpOptionspaceExt {
 	return &coremodel.NIOSIpv6DhcpOptionspaceExt{
-		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
-		EnterpriseNumber:  flex.ExpandInt64Pointer(m.EnterpriseNumber),
-		Name:              flex.ExpandStringPointerNullAsEmpty(m.Name),
-		OptionDefinitions: flex.ExpandFrameworkListString(ctx, m.OptionDefinitions, diags),
+		Comment:          flex.ExpandStringPointerNullAsEmpty(m.Comment),
+		EnterpriseNumber: flex.ExpandInt64Pointer(m.EnterpriseNumber),
+		Name:             flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIIpv6DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIIpv6DhcpOptionspaceExt {
-	return &coremodel.UDDIIpv6DhcpOptionspaceExt{
-		Comment:  flex.ExpandStringPointer(m.Comment),
-		Name:     flex.ExpandString(m.Name),
-		Protocol: flex.ExpandStringPointer(m.Protocol),
-		Tags:     flex.ExpandMapStringAny(ctx, m.Tags, diags),
+func (m *UDDIIpv6DhcpOptionspaceModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIIpv6DhcpOptionspaceExt {
+	ext := &coremodel.UDDIIpv6DhcpOptionspaceExt{
+		Comment: flex.ExpandStringPointer(m.Comment),
+		Name:    flex.ExpandString(m.Name),
+		Tags:    flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
+	if isCreate {
+		ext.Protocol = flex.ExpandStringPointer(m.Protocol)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -234,7 +230,6 @@ func (m *NIOSIpv6DhcpOptionspaceModel) Flatten(ctx context.Context, from *coremo
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.EnterpriseNumber = flex.FlattenInt64Pointer(from.EnterpriseNumber)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.OptionDefinitions = flex.FlattenFrameworkListString(ctx, from.OptionDefinitions, diags)
 }
 
 // Flatten merges API response onto existing UDDI model.
