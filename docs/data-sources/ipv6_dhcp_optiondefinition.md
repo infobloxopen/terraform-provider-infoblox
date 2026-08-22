@@ -57,7 +57,6 @@ data "infoblox_ipv6_dhcp_optiondefinition" "example_all" {}
 - `limit` (Number) Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.
 - `max_results` (Number) Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.
 - `paging` (Number) Enable (1) or disable (0) paging for the data source query. Enabled by default. When disabled, only a single page of results is retrieved.
-- `tag_filters` (Map of String) Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.
 
 ### Read-Only
 
