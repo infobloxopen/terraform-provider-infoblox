@@ -1,7 +1,7 @@
 // Retrieve a specific Ipv6 DHCP Option Definition by filters
 data "infoblox_ipv6_dhcp_optiondefinition" "get_ipv6_dhcp_option_definition_using_filters" {
   filters = {
-    name = "example_option_definition_1"
+    name = "dhcp6.example_option_definition_1"
   }
 }
 

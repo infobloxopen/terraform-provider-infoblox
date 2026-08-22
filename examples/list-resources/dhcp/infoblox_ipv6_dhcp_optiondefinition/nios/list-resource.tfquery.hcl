@@ -3,7 +3,7 @@ list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_usin
   provider = infoblox
   config {
     filters = {
-      name = "example_option_definition_1"
+      name = "dhcp6.example_option_definition_1"
     }
   }
   limit = 10

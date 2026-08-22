@@ -3,7 +3,7 @@
 resource "infoblox_ipv6_dhcp_optiondefinition" "ipv6_dhcp_option_definition_with_basic_fields" {
   nios = {
     code = 250
-    name = "example_option_definition_1"
+    name = "dhcp6.example_option_definition_1"
     type = "string"
   }
 }
