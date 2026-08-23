@@ -121,11 +121,13 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 	},
 	"flags": schema.StringAttribute{
+		Default: stringdefault.StaticString(""),
 		Validators: []validator.String{
 			customvalidator.ValidateTrimmedString(),
 			stringvalidator.OneOf("U", "S", "P", "A", ""),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The flags used to control the interpretation of the fields for a Substitute (NAPTR Record) Rule object. Supported values for the flags field are \"U\", \"S\", \"P\" and \"A\".",
 	},
 	"name": schema.StringAttribute{
@@ -152,6 +154,7 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The preference of the Substitute (NAPTR Record) Rule record. The preference field determines the order NAPTR records are processed when multiple records with the same order parameter are present. Valid values are from 0 to 65535 (inclusive), in 32-bit unsigned integer format.",
 	},
 	"regexp": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
@@ -179,6 +182,7 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of a response policy zone in which the record resides.",
 	},
 	"services": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
@@ -190,6 +194,7 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -266,10 +271,8 @@ func (m *RecordRpzNaptrModel) Flatten(ctx context.Context, resp *coremodel.Recor
 	if niosModel == nil {
 		niosModel = &NIOSRecordRpzNaptrModel{}
 	}
-	plannedNIOS := flex.ExpandNestedObject[NIOSRecordRpzNaptrModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		PostFlattenRecordRpzNaptrNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSRecordRpzNaptrAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSRecordRpzNaptrAttrTypes)
@@ -289,14 +292,14 @@ func (m *NIOSRecordRpzNaptrModel) Flatten(ctx context.Context, from *coremodel.N
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.Flags = flex.FlattenStringPointerEmptyAsNull(from.Flags)
+	m.Flags = flex.FlattenStringPointer(from.Flags)
 	m.Name.StringValue = flex.FlattenStringPointer(from.Name)
 	m.Order = flex.FlattenInt64Pointer(from.Order)
 	m.Preference = flex.FlattenInt64Pointer(from.Preference)
-	m.Regexp = flex.FlattenStringPointerEmptyAsNull(from.Regexp)
+	m.Regexp = flex.FlattenStringPointer(from.Regexp)
 	m.Replacement = flex.FlattenStringPointerEmptyAsNull(from.Replacement)
 	m.RpZone = flex.FlattenStringPointerEmptyAsNull(from.RpZone)
-	m.Services = flex.FlattenStringPointerEmptyAsNull(from.Services)
+	m.Services = flex.FlattenStringPointer(from.Services)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 }
