@@ -3,12 +3,12 @@
 page_title: "infoblox_record_ptr Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordPtr across NIOS and UDDI backends.
+  Manages an Infoblox RecordPtr in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_ptr (Resource)
 
-Manages an Infoblox RecordPtr across NIOS and UDDI backends.
+Manages an Infoblox RecordPtr in both NIOS and UDDI backends.
 
 ## Example Usage
 

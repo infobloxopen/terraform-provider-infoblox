@@ -3,12 +3,12 @@
 page_title: "infoblox_record_ptr List Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Retrieves a list of Infoblox RecordPtr from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox RecordPtr from both the NIOS and UDDI backends.
 ---
 
 # infoblox_record_ptr (List Resource)
 
-Retrieves a list of Infoblox RecordPtr from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox RecordPtr from both the NIOS and UDDI backends.
 
 ## Example Usage
 
