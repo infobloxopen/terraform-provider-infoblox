@@ -115,10 +115,12 @@ var ExtensibleattributedefResourceNiosSchemaAttributes = map[string]schema.Attri
 	},
 	"max": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Maximum allowed value of extensible attribute. Applicable if the extensible attribute type is INTEGER.",
 	},
 	"min": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Minimum allowed value of extensible attribute. Applicable if the extensible attribute type is INTEGER.",
 	},
 	"name": schema.StringAttribute{

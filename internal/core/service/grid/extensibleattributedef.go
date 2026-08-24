@@ -188,15 +188,11 @@ func (s *extensibleattributedefService) listNIOS(ctx context.Context, opts *core
 			req = req.PageId(opts.PageID)
 		}
 		req = req.Paging(opts.Paging)
-		if opts.Paging == 1 {
-			maxResults := opts.MaxResults
-			if maxResults <= 0 {
-				maxResults = core.DefaultListLimit
-			}
-			req = req.MaxResults(maxResults)
-		} else if opts.MaxResults > 0 {
-			req = req.MaxResults(opts.MaxResults)
+		maxResults := opts.MaxResults
+		if maxResults <= 0 {
+			maxResults = core.DefaultListLimit
 		}
+		req = req.MaxResults(maxResults)
 	}
 
 	resp, httpResp, err := req.Execute()
@@ -229,6 +225,7 @@ func mapNIOSExtensibleattributedefToResponse(r *niosgrid.Extensibleattributedef)
 	resp.NIOS = &grid.NIOSExtensibleattributedefExt{
 		AllowedObjectTypes: r.AllowedObjectTypes,
 		Comment:            r.Comment,
+		DefaultValue:       r.DefaultValue,
 		DescendantsAction:  r.DescendantsAction,
 		Flags:              r.Flags,
 		ListValues:         r.ListValues,
@@ -236,9 +233,6 @@ func mapNIOSExtensibleattributedefToResponse(r *niosgrid.Extensibleattributedef)
 		Min:                r.Min,
 		Name:               r.Name,
 		Type:               r.Type,
-	}
-	if r.DefaultValue != nil {
-		resp.NIOS.DefaultValue = r.DefaultValue
 	}
 	return resp
 }
