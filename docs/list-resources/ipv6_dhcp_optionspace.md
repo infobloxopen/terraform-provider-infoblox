@@ -15,7 +15,7 @@ Retrieves a list of Infoblox Ipv6DhcpOptionspace from both the NIOS and UDDI bac
 ### NIOS Backend
 
 ```terraform
-// List specific Ipv6 DHCP Option Spaces using filters
+// List specific IPv6 DHCP Option Spaces using filters
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters" {
   provider = infoblox
   config {
@@ -26,7 +26,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters"
   limit = 10
 }
 
-// List Ipv6 DHCP Option Spaces with resource details included
+// List IPv6 DHCP Option Spaces with resource details included
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_with_resource" {
   provider         = infoblox
   include_resource = true
@@ -36,7 +36,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_with_resource"
 ### UDDI Backend
 
 ```terraform
-// List specific Ipv6 Dhcp Optionspaces using filters
+// List specific IPv6 DHCP Option spaces using filters
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters" {
   provider = infoblox
   config {
@@ -47,7 +47,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters"
   limit = 10
 }
 
-// List specific Ipv6 Dhcp Optionspaces using Tags
+// List specific IPv6 DHCP Option spaces using Tags
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_tags" {
   provider = infoblox
   config {
@@ -57,7 +57,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_tags" {
   }
 }
 
-// List Ipv6 Dhcp Optionspaces with resource details included
+// List IPv6 DHCP Option spaces with resource details included
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_with_resource" {
   provider         = infoblox
   include_resource = true

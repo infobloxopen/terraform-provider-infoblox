@@ -15,7 +15,7 @@ Manages an Infoblox Ipv6DhcpOptionspace in both NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
-// Create an Ipv6 DHCP Option Space with Basic Fields
+// Create an IPv6 DHCP Option Space with Basic Fields
 resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_basic_fields" {
   nios = {
     name              = "example_option_space_1"
@@ -23,7 +23,7 @@ resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_basic_fie
   }
 }
 
-// Create an Ipv6 DHCP Option Space with Additional Fields
+// Create an IPv6 DHCP Option Space with Additional Fields
 resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_additional_fields" {
   nios = {
     name              = "example_option_space_2"
@@ -36,18 +36,20 @@ resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_additiona
 ### UDDI Backend
 
 ```terraform
+// Create an IPv6 DHCP Option Space with Basic Fields
 resource "infoblox_ipv6_dhcp_optionspace" "example" {
   uddi = {
     name = "example_option_space_1"
   }
 }
 
+// Create an IPv6 DHCP Option Space with Additional Fields
 resource "infoblox_ipv6_dhcp_optionspace" "example_with_options" {
   uddi = {
     name = "example_option_space_2"
 
     //Other Optional Fields
-    comment = "Ipv6 DHCP option space"
+    comment = "IPv6 DHCP option space"
     tags = {
       Site = "location-1"
     }

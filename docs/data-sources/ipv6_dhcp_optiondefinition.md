@@ -15,28 +15,28 @@ Retrieves information about existing Infoblox Ipv6DhcpOptiondefinition from both
 ### NIOS Backend
 
 ```terraform
-// Retrieve a specific Ipv6 DHCP Option Definition by filters
+// Retrieve a specific IPv6 DHCP Option Definition by filters
 data "infoblox_ipv6_dhcp_optiondefinition" "get_ipv6_dhcp_option_definition_using_filters" {
   filters = {
     name = "dhcp6.example_option_definition_1"
   }
 }
 
-// Retrieve all Ipv6 DHCP Option Definitions
+// Retrieve all IPv6 DHCP Option Definitions
 data "infoblox_ipv6_dhcp_optiondefinition" "get_all_ipv6_dhcp_option_definitions" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
-// Get IPV6 DHCP Option Definition filtered by an attribute
+// Get IPv6 DHCP Option Definition filtered by an attribute
 data "infoblox_ipv6_dhcp_optiondefinition" "example_by_name" {
   filters = {
     name = "example-definition"
   }
 }
 
-// Get all DHCP Option Definition
+// Get all IPv6 DHCP Option Definitions
 data "infoblox_ipv6_dhcp_optiondefinition" "example_all" {}
 ```
 

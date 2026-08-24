@@ -1,4 +1,4 @@
-// Create an Ipv6 DHCP Option Space with Basic Fields
+// Create an IPv6 DHCP Option Space with Basic Fields
 resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_basic_fields" {
   nios = {
     name              = "example_option_space_1"
@@ -6,7 +6,7 @@ resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_basic_fie
   }
 }
 
-// Create an Ipv6 DHCP Option Space with Additional Fields
+// Create an IPv6 DHCP Option Space with Additional Fields
 resource "infoblox_ipv6_dhcp_optionspace" "ipv6_dhcp_option_space_with_additional_fields" {
   nios = {
     name              = "example_option_space_2"

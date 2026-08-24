@@ -1,4 +1,4 @@
-// List specific Ipv6 DHCP Option Spaces using filters
+// List specific IPv6 DHCP Option Spaces using filters
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters" {
   provider = infoblox
   config {
@@ -9,7 +9,7 @@ list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_using_filters"
   limit = 10
 }
 
-// List Ipv6 DHCP Option Spaces with resource details included
+// List IPv6 DHCP Option Spaces with resource details included
 list "infoblox_ipv6_dhcp_optionspace" "list_ipv6_dhcp_optionspace_with_resource" {
   provider         = infoblox
   include_resource = true

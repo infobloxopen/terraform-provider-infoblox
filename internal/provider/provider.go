@@ -195,7 +195,6 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 		// Passthrough reaches NIOS through the Infoblox Portal, so the backend is NIOS.
 		if data.UDDI.EnableNIOSPassthru.ValueBool() {
-			// NIOS objects carry extensible attributes, not tags, so there is nothing to apply them to.
 			if !data.UDDI.DefaultTags.IsNull() {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",

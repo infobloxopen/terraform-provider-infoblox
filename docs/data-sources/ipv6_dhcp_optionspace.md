@@ -15,35 +15,35 @@ Retrieves information about existing Infoblox Ipv6DhcpOptionspace from both the 
 ### NIOS Backend
 
 ```terraform
-// Retrieve a specific Ipv6 DHCP Option Space by filters
+// Retrieve a specific IPv6 DHCP Option Space by filters
 data "infoblox_ipv6_dhcp_optionspace" "get_ipv6_dhcp_option_space_using_filters" {
   filters = {
     name = "example_option_space_1"
   }
 }
 
-// Retrieve all Ipv6 DHCP Option Spaces
+// Retrieve all IPv6 DHCP Option Spaces
 data "infoblox_ipv6_dhcp_optionspace" "get_all_ipv6_dhcp_option_spaces" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
-// Retrieve a specific DHCP Option Space by filters
+// Retrieve a specific IPv6 DHCP Option Space by filters
 data "infoblox_ipv6_dhcp_optionspace" "get_ipv6_option_space_by_name" {
   filters = {
     name = "example_option_space_1"
   }
 }
 
-// Retrieve a specific Ipv6 DHCP Option Space by tags
+// Retrieve a specific IPv6 DHCP Option Space by tags
 data "infoblox_ipv6_dhcp_optionspace" "get_option_space_by_tag" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Retrieve all Ipv6 DHCP Option Spaces
+// Retrieve all IPv6 DHCP Option Spaces
 data "infoblox_ipv6_dhcp_optionspace" "get_all_option_spaces" {}
 ```
 

@@ -15,7 +15,7 @@ Retrieves a list of Infoblox Ipv6DhcpOptiondefinition from both the NIOS and UDD
 ### NIOS Backend
 
 ```terraform
-// List specific Ipv6 DHCP Option Definitions using filters
+// List specific IPv6 DHCP Option Definitions using filters
 list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_using_filters" {
   provider = infoblox
   config {
@@ -26,7 +26,7 @@ list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_usin
   limit = 10
 }
 
-// List Ipv6 DHCP Option Definitions with resource details included
+// List IPv6 DHCP Option Definitions with resource details included
 list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_with_resource" {
   provider         = infoblox
   include_resource = true
@@ -36,18 +36,18 @@ list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_with
 ### UDDI Backend
 
 ```terraform
-// List specific Ipv6 Dhcp Optiondefinitions using filters
+// List specific IPv6 DHCP Option definitions using filters
 list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example-code"
+      name = "example_option_definition"
     }
   }
   limit = 10
 }
 
-// List specific Ipv6 Dhcp Optiondefinitions using Tags
+// List specific IPv6 DHCP Option definitions using Tags
 list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_using_tags" {
   provider = infoblox
   config {
@@ -57,7 +57,7 @@ list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_usin
   }
 }
 
-// List Ipv6 Dhcp Optiondefinitions with resource details included
+// List IPv6 DHCP Option definitions with resource details included
 list "infoblox_ipv6_dhcp_optiondefinition" "list_ipv6_dhcp_optiondefinition_with_resource" {
   provider         = infoblox
   include_resource = true
