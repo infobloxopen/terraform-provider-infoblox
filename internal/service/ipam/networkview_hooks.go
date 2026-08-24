@@ -3,7 +3,6 @@ package ipam
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -22,7 +21,4 @@ func validateNetworkviewNIOSConfig(ctx context.Context, m *NIOSNetworkviewModel,
 }
 
 func validateNetworkviewUDDIConfig(ctx context.Context, m *UDDINetworkviewModel, resp *resource.ValidateConfigResponse) {
-}
-
-func PostFlattenNetworkviewNIOS(ctx context.Context, planned, flattened *NIOSNetworkviewModel, diags *diag.Diagnostics) {
 }
