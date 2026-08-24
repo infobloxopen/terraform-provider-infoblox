@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -126,7 +127,10 @@ var RecordCaaResourceSchemaAttributes = map[string]schema.Attribute{
 
 var RecordCaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ca_flag": schema.Int64Attribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 255),
+		},
 		MarkdownDescription: "Flag of CAA record.",
 	},
 	"ca_tag": schema.StringAttribute{
@@ -240,6 +244,7 @@ var RecordCaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),
 			),
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
@@ -313,7 +318,7 @@ var RecordCaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
 		Validators: []validator.String{
-			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),

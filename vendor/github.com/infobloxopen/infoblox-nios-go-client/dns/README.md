@@ -851,6 +851,7 @@ Class | Method | HTTP request | Description
  - [ZoneAuthMsDcNsRecordCreation](docs/ZoneAuthMsDcNsRecordCreation.md)
  - [ZoneAuthMsPrimaries](docs/ZoneAuthMsPrimaries.md)
  - [ZoneAuthMsSecondaries](docs/ZoneAuthMsSecondaries.md)
+ - [ZoneAuthNetworkAssociations](docs/ZoneAuthNetworkAssociations.md)
  - [ZoneAuthScavengingSettings](docs/ZoneAuthScavengingSettings.md)
  - [ZoneAuthUpdateForwarding](docs/ZoneAuthUpdateForwarding.md)
  - [ZoneDelegated](docs/ZoneDelegated.md)

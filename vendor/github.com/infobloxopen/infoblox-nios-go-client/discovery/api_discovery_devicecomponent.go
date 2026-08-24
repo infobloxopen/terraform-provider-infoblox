@@ -65,6 +65,7 @@ type DiscoveryDevicecomponentAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -110,6 +111,12 @@ func (r DiscoveryDevicecomponentAPIListRequest) Filters(filters map[string]inter
 
 func (r DiscoveryDevicecomponentAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) DiscoveryDevicecomponentAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r DiscoveryDevicecomponentAPIListRequest) ProxySearch(proxySearch string) DiscoveryDevicecomponentAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -178,6 +185,9 @@ func (a *DiscoveryDevicecomponentAPIService) ListExecute(r DiscoveryDevicecompon
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -232,6 +242,7 @@ type DiscoveryDevicecomponentAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -249,6 +260,12 @@ func (r DiscoveryDevicecomponentAPIReadRequest) ReturnFieldsPlus(returnFieldsPlu
 // Select 1 if result is required as an object
 func (r DiscoveryDevicecomponentAPIReadRequest) ReturnAsObject(returnAsObject int32) DiscoveryDevicecomponentAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r DiscoveryDevicecomponentAPIReadRequest) ProxySearch(proxySearch string) DiscoveryDevicecomponentAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -304,6 +321,9 @@ func (a *DiscoveryDevicecomponentAPIService) ReadExecute(r DiscoveryDevicecompon
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

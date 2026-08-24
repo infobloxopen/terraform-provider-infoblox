@@ -3,12 +3,12 @@
 page_title: "infoblox_record_cname Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordCname across NIOS and UDDI backends.
+  Manages an Infoblox RecordCname in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_cname (Resource)
 
-Manages an Infoblox RecordCname across NIOS and UDDI backends.
+Manages an Infoblox RecordCname in both NIOS and UDDI backends.
 
 ## Example Usage
 

@@ -341,6 +341,7 @@ type DtcMonitorTcpAPIListRequest struct {
 	pageId           *string
 	filters          *map[string]interface{}
 	extattrfilter    *map[string]interface{}
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -386,6 +387,12 @@ func (r DtcMonitorTcpAPIListRequest) Filters(filters map[string]interface{}) Dtc
 
 func (r DtcMonitorTcpAPIListRequest) Extattrfilter(extattrfilter map[string]interface{}) DtcMonitorTcpAPIListRequest {
 	r.extattrfilter = &extattrfilter
+	return r
+}
+
+// Search Grid members for data
+func (r DtcMonitorTcpAPIListRequest) ProxySearch(proxySearch string) DtcMonitorTcpAPIListRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -454,6 +461,9 @@ func (a *DtcMonitorTcpAPIService) ListExecute(r DtcMonitorTcpAPIListRequest) (*L
 	if r.extattrfilter != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "extattrfilter", r.extattrfilter, "form", "")
 	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -508,6 +518,7 @@ type DtcMonitorTcpAPIReadRequest struct {
 	returnFields     *string
 	returnFieldsPlus *string
 	returnAsObject   *int32
+	proxySearch      *string
 }
 
 // Enter the field names followed by comma
@@ -525,6 +536,12 @@ func (r DtcMonitorTcpAPIReadRequest) ReturnFieldsPlus(returnFieldsPlus string) D
 // Select 1 if result is required as an object
 func (r DtcMonitorTcpAPIReadRequest) ReturnAsObject(returnAsObject int32) DtcMonitorTcpAPIReadRequest {
 	r.returnAsObject = &returnAsObject
+	return r
+}
+
+// Search Grid members for data
+func (r DtcMonitorTcpAPIReadRequest) ProxySearch(proxySearch string) DtcMonitorTcpAPIReadRequest {
+	r.proxySearch = &proxySearch
 	return r
 }
 
@@ -580,6 +597,9 @@ func (a *DtcMonitorTcpAPIService) ReadExecute(r DtcMonitorTcpAPIReadRequest) (*G
 	}
 	if r.returnAsObject != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	if r.proxySearch != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_proxy_search", r.proxySearch, "form", "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

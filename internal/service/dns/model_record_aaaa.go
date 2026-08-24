@@ -229,7 +229,7 @@ var RecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"dynamic_allocation": schema.SingleNestedAttribute{
 		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "Dynamically allocate the address using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
+		MarkdownDescription: "Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -243,6 +243,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),
 			),
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "Synthetic field, used to determine _zone_ and/or _name_in_zone_ field for records.",
 	},
@@ -321,7 +322,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
 		Validators: []validator.String{
-			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),

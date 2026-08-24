@@ -3,12 +3,12 @@
 page_title: "infoblox_record_txt Resource - terraform-provider-infoblox"
 subcategory: "DNS"
 description: |-
-  Manages an Infoblox RecordTxt across NIOS and UDDI backends.
+  Manages an Infoblox RecordTxt in both NIOS and UDDI backends.
 ---
 
 # infoblox_record_txt (Resource)
 
-Manages an Infoblox RecordTxt across NIOS and UDDI backends.
+Manages an Infoblox RecordTxt in both NIOS and UDDI backends.
 
 ## Example Usage
 

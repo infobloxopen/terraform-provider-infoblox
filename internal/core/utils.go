@@ -71,6 +71,16 @@ func JoinFilters(filters []string) string {
 	return strings.Join(filters, " and ")
 }
 
+func FilterExpr(key, value string) string {
+	if _, err := strconv.Atoi(value); err == nil {
+		return key + "==" + value
+	}
+	if _, err := strconv.ParseFloat(value, 64); err == nil {
+		return key + "==" + value
+	}
+	return key + "=='" + value + "'"
+}
+
 // BuildTagFilter builds a UDDI tfilter expression from tag key/value pairs.
 // e.g. {"a": "1", "b": "2"} -> "'a'=='1' and 'b'=='2'".
 func BuildTagFilter(tags map[string]string) string {
@@ -140,20 +150,31 @@ func ReadAllPagesNIOS[T any](fetchPage func(pageID string) ([]T, string, error))
 	return allResults, nil
 }
 
-// ReadAllPagesUDDI fetches all pages using offset/limit pagination
-func ReadAllPagesUDDI[T any](fetchPage func(offset, limit int32) ([]T, error)) ([]T, error) {
+// ReadAllPagesUDDI fetches all pages using offset/limit pagination.
+// pagingOpts, in order: page size (default DefaultListLimit), paging (0 = first page only).
+func ReadAllPagesUDDI[T any](fetchPage func(offset, limit int32) ([]T, error), pagingOpts ...int32) ([]T, error) {
+
+	pageSize, paging := DefaultListLimit, int32(1)
+
+	if len(pagingOpts) > 0 && pagingOpts[0] > 0 {
+		pageSize = pagingOpts[0]
+	}
+	if len(pagingOpts) > 1 {
+		paging = pagingOpts[1]
+	}
+
 	var allResults []T
 	var offset int32 = 0
 	for {
-		results, err := fetchPage(offset, DefaultListLimit)
+		results, err := fetchPage(offset, pageSize)
 		if err != nil {
 			return nil, err
 		}
 		allResults = append(allResults, results...)
-		if int32(len(results)) < DefaultListLimit {
+		if paging == 0 || int32(len(results)) < pageSize {
 			break
 		}
-		offset += DefaultListLimit
+		offset += pageSize
 	}
 	return allResults, nil
 }
