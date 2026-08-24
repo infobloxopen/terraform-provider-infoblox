@@ -10,6 +10,7 @@ case "basic" {
     check = {
       "nios.name"                 = "{{random}}"
       "nios.authentication_type"  = "NONE"
+      "nios.authentication_key_id" = "1"
       "nios.detection_multiplier" = "3"
       "nios.min_rx_interval"      = "100"
       "nios.min_tx_interval"      = "100"

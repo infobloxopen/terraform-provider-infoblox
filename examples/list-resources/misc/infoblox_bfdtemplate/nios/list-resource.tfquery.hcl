@@ -3,7 +3,7 @@ list "infoblox_bfdtemplate" "list_bfdtemplates_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "bfd-template-1"
+      name = "example_bfdtemplate"
     }
   }
   limit = 10
