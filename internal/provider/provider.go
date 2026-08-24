@@ -23,6 +23,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -320,6 +321,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dns.NewNsgroupResource,
+		misc.NewRulesetResource,
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -349,6 +351,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dns.NewNsgroupDataSource,
+		misc.NewRulesetDataSource,
+		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
@@ -378,6 +382,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dns.NewNsgroupList,
+		misc.NewRulesetList,
 		dhcp.NewIpv6DhcpOptiondefinitionList,
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewDhcpOptiondefinitionList,
