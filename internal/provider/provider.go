@@ -56,6 +56,7 @@ type (
 		PortalKey          types.String `tfsdk:"portal_key"`
 		NIOSLicenseUID     types.String `tfsdk:"nios_license_uid"`
 		EnableNIOSPassthru types.Bool   `tfsdk:"enable_nios_passthru"`
+		DefaultTags        types.Map    `tfsdk:"default_tags"`
 	}
 )
 
@@ -129,6 +130,11 @@ func buildUDDIAttribute() schema.Attribute {
 				MarkdownDescription: "Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false",
 				Optional:            true,
 			},
+			"default_tags": schema.MapAttribute{
+				ElementType:         types.StringType,
+				MarkdownDescription: "Tags applied to every UDDI object the provider creates or updates. A tag set on the resource itself takes precedence over the default of the same name. Not applicable when `enable_nios_passthru` is true.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -189,6 +195,15 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 		// Passthrough reaches NIOS through the Infoblox Portal, so the backend is NIOS.
 		if data.UDDI.EnableNIOSPassthru.ValueBool() {
+			// NIOS objects carry extensible attributes, not tags, so there is nothing to apply them to.
+			if !data.UDDI.DefaultTags.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Configuration",
+					"'uddi.default_tags' is not applicable when 'uddi.enable_nios_passthru' is true. Remove 'default_tags' to manage NIOS through the Infoblox Portal.",
+				)
+				return
+			}
+
 			if data.UDDI.PortalURL.IsUnknown() || data.UDDI.PortalKey.IsUnknown() || data.UDDI.NIOSLicenseUID.IsUnknown() {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
@@ -212,10 +227,16 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 				return
 			}
 
+			defaultTags := expandDefaultTags(ctx, data.UDDI.DefaultTags, resp)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
 			client := uddiclient.NewAPIClient(
 				uddioption.WithClientName(fmt.Sprintf("terraform/%s#%s", p.version, p.commit)),
 				uddioption.WithCSPUrl(data.UDDI.PortalURL.ValueString()),
 				uddioption.WithAPIKey(data.UDDI.PortalKey.ValueString()),
+				uddioption.WithDefaultTags(defaultTags),
 				uddioption.WithDebug(true),
 			)
 
@@ -232,6 +253,17 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 	resp.DataSourceData = &infobloxClient
 	resp.ResourceData = &infobloxClient
 	resp.ListResourceData = &infobloxClient
+}
+
+func expandDefaultTags(ctx context.Context, tags types.Map, resp *provider.ConfigureResponse) map[string]string {
+	if tags.IsNull() || tags.IsUnknown() {
+		return nil
+	}
+
+	defaultTags := make(map[string]string, len(tags.Elements()))
+	resp.Diagnostics.Append(tags.ElementsAs(ctx, &defaultTags, false)...)
+
+	return defaultTags
 }
 
 // newNIOSPassthruClient builds a NIOS client that reaches a Grid through the Infoblox Portal.
