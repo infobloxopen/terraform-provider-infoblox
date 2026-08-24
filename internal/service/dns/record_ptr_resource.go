@@ -55,7 +55,7 @@ func (r *RecordPtrResource) IdentitySchema(_ context.Context, _ resource.Identit
 
 func (r *RecordPtrResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordPtr across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox RecordPtr in both NIOS and UDDI backends.",
 		Attributes:          RecordPtrResourceSchemaAttributes,
 	}
 }
