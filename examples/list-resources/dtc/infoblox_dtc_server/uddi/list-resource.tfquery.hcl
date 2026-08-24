@@ -14,7 +14,7 @@ list "infoblox_dtc_server" "list_dtc_server_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
-      Site = "location-1"
+      Site = "us-east-1"
     }
   }
 }

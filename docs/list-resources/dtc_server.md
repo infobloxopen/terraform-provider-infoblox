@@ -31,7 +31,7 @@ list "infoblox_dtc_server" "list_dtc_server_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
-      Site = "location-1"
+      Site = "us-east-1"
     }
   }
 }
@@ -62,7 +62,7 @@ list "infoblox_dtc_server" "list_dtc_server_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
-      Site = "location-1"
+      Site = "us-east-1"
     }
   }
 }
