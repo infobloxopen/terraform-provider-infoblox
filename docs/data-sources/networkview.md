@@ -36,22 +36,22 @@ data "infoblox_networkview" "get_all_network_views" {}
 ### UDDI Backend
 
 ```terraform
-// Get IP Spaces filtered by an attribute
-data "infoblox_networkview" "example_by_attribute" {
+// Retrieve a specific Network View by filters
+data "infoblox_networkview" "get_network_views_using_filters" {
   filters = {
-    "name" = "example_ip_space"
+    "name" = "example_network_view"
   }
 }
 
-// Get IP Spaces filtered by tag
-data "infoblox_networkview" "example_by_tag" {
+// Retrieve specific Network Views using Tags
+data "infoblox_networkview" "get_network_views_using_tags" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Get all IP Spaces
-data "infoblox_networkview" "example_all" {}
+// Retrieve all Network Views
+data "infoblox_networkview" "get_all_network_views" {}
 ```
 
 

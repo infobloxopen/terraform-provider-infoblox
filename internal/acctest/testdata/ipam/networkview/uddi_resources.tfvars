@@ -315,7 +315,6 @@ case "dhcp_options" {
   step {
     uddi {
       name         = "{{random}}"
-      # dhcp_options = []
     }
     check = {
       "uddi.dhcp_options.#" = "0"
@@ -326,8 +325,6 @@ case "dhcp_options" {
 
 case "dhcp_options_v6" {
   backend     = "uddi"
-  # skip        = true
-  # skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
   parallel    = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_dhcp_option_code_unknown" "test" {
@@ -361,7 +358,6 @@ case "dhcp_options_v6" {
   step {
     uddi {
       name            = "{{random}}"
-      # dhcp_options_v6 = []
     }
   }
 
@@ -505,16 +501,6 @@ case "default_realms" {
       "uddi.default_realms.#" = "1"
     }
   }
-
-  # step {
-  #   uddi {
-  #     name           = "{{random}}"
-  #     default_realms = []
-  #   }
-  #   check = {
-  #     "uddi.default_realms.#" = "0"
-  #   }
-  # }
 
 }
 
