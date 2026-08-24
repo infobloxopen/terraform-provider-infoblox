@@ -51,7 +51,7 @@ list "infoblox_dtc_server" "list_dtc_server_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      name = "dtc-server-basic"
     }
   }
   limit = 10
