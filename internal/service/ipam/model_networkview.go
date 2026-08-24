@@ -165,8 +165,11 @@ var NetworkviewResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Comment for the network view; maximum 256 characters.",
 	},
 	"ddns_dns_view": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "DNS views that will receive the updates if you enable the appliance to send updates to Grid members.",
 	},
 	"ddns_zone_primaries": schema.ListNestedAttribute{
