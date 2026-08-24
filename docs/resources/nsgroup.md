@@ -132,21 +132,6 @@ Optional:
 
 - `stealth` (Boolean) This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.
 
-Read-Only:
-
-- `enable_preferred_primaries` (Boolean) This flag represents whether the preferred_primaries field values of this member are used.
-- `preferred_primaries` (Attributes List) The primary preference list with Grid member names and\or External Server extserver structs for this member. (see [below for nested schema](#nestedatt--nios--grid_primary--preferred_primaries))
-
-<a id="nestedatt--nios--grid_primary--preferred_primaries"></a>
-### Nested Schema for `nios.grid_primary.preferred_primaries`
-
-Read-Only:
-
-- `address` (String) The IPv4 Address or IPv6 Address of the server.
-- `name` (String) A resolvable domain name for the external DNS server.
-- `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-
-
 
 <a id="nestedatt--nios--grid_secondaries"></a>
 ### Nested Schema for `nios.grid_secondaries`
