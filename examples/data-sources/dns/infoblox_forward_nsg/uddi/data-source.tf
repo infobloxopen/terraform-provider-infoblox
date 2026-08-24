@@ -1,12 +1,12 @@
-// Retrieve Forward NSGs filtered by an attribute
-data "infoblox_forward_nsg" "by_name" {
+// Retrieve a specific Forward NSG using filters
+data "infoblox_forward_nsg" "get_forward_nsg_using_filters" {
   filters = {
     name = "example-forward-nsg"
   }
 }
 
-// Retrieve Forward NSGs filtered by tag
-data "infoblox_forward_nsg" "by_tag" {
+// Retrieve specific Forward NSGs using tags
+data "infoblox_forward_nsg" "get_forward_nsg_using_tag_filters" {
   tag_filters = {
     Site = "location-1"
   }
