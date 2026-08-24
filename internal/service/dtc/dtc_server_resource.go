@@ -55,7 +55,7 @@ func (r *DtcServerResource) IdentitySchema(_ context.Context, _ resource.Identit
 
 func (r *DtcServerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox DtcServer across NIOS and UDDI backends.",
+		MarkdownDescription: "Manages an Infoblox DtcServer in both NIOS and UDDI backends.",
 		Attributes:          DtcServerResourceSchemaAttributes,
 	}
 }
