@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
@@ -52,14 +54,20 @@ var Ipv6NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.A
 		MarkdownDescription: "Set DHCP server as authoritative.",
 	},
 	"filters_large_selection": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		Computed:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_v6": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
@@ -72,8 +80,11 @@ var Ipv6NetworkcontainerDHCPConfigResourceSchemaAttributes = map[string]schema.A
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: IgnoreItemResourceSchemaAttributes,
 		},
-		Optional:            true,
-		CustomType:          internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}}},
+		Optional:   true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: IgnoreItemAttrTypes}}},
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
 	"lease_time_v6": schema.Int64Attribute{
