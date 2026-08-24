@@ -25,6 +25,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -321,6 +322,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		grid.NewNatgroupResource,
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
@@ -352,6 +354,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
@@ -386,6 +389,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		rpz.NewRecordRpzCnameClientipaddressdnList,
 		grid.NewNatgroupList,
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
