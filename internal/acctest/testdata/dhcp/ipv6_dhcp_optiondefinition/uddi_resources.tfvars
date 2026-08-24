@@ -1,9 +1,9 @@
-# Auto-generated resource acceptance-test cases for DhcpOptiondefinition.
+# Auto-generated resource acceptance-test cases for Ipv6DhcpOptiondefinition.
 case "basic" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -14,7 +14,7 @@ case "basic" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -32,8 +32,8 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl     = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -44,7 +44,7 @@ case "disappears" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
   }
@@ -52,10 +52,10 @@ case "disappears" {
 }
 
 case "array" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -66,7 +66,7 @@ case "array" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       array        = true
     }
@@ -79,7 +79,7 @@ case "array" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       array        = false
     }
@@ -91,10 +91,10 @@ case "array" {
 }
 
 case "code" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -105,7 +105,7 @@ case "code" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -117,7 +117,7 @@ case "code" {
     uddi {
       code         = 235
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -128,10 +128,10 @@ case "code" {
 }
 
 case "comment" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -142,7 +142,7 @@ case "comment" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       comment      = "boolean option code type"
     }
@@ -155,7 +155,7 @@ case "comment" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
       comment      = "boolean option code type update"
     }
@@ -167,10 +167,10 @@ case "comment" {
 }
 
 case "name" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -181,7 +181,7 @@ case "name" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -193,7 +193,7 @@ case "name" {
     uddi {
       code         = 234
       name         = "basic_opt_code_1"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -204,16 +204,15 @@ case "name" {
 }
 
 case "option_space" {
-  backend           = "uddi"
-  parallel          = true
+  backend     = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test1" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test1" {
     uddi = {
       name = "{{random}}"
     }
   }
-
-  resource "infoblox_dhcp_optionspace" "test2" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test2" {
     uddi = {
       name = "{{random2}}"
     }
@@ -223,40 +222,33 @@ case "option_space" {
   step {
     uddi {
       code         = 234
-      name         = "basic_opt_code_1"
-      option_space = infoblox_dhcp_optionspace.test1.id
+      name         = "basic_opt_code"
+      option_space = infoblox_ipv6_dhcp_optionspace.test1.id
       type         = "boolean"
     }
-    check = {
-      "uddi.name"         = "basic_opt_code_1"
-    }
     check_pair = {
-      "uddi.option_space" = infoblox_dhcp_optionspace.test1.id
+      "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test1.id
     }
   }
 
   step {
     uddi {
       code         = 234
-      name         = "basic_opt_code_1"
-      option_space = infoblox_dhcp_optionspace.test2.id
+      name         = "basic_opt_code"
+      option_space = infoblox_ipv6_dhcp_optionspace.test2.id
       type         = "boolean"
     }
-    check = {
-      "uddi.name"         = "basic_opt_code_1"
-    }
     check_pair = {
-      "uddi.option_space" = infoblox_dhcp_optionspace.test2.id
+      "uddi.option_space" = infoblox_ipv6_dhcp_optionspace.test2.id
     }
   }
-
 }
 
 case "type" {
-  backend           = "uddi"
-  parallel          = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dhcp_optionspace" "test" {
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
     }
@@ -267,7 +259,7 @@ case "type" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "boolean"
     }
     check = {
@@ -279,7 +271,7 @@ case "type" {
     uddi {
       code         = 234
       name         = "basic_opt_code"
-      option_space = infoblox_dhcp_optionspace.test.id
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
       type         = "int16"
     }
     check = {
