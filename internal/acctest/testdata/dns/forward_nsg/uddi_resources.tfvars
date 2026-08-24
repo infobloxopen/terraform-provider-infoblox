@@ -162,6 +162,62 @@ case "name" {
 
 }
 
+case "hosts" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name  = "{{random}}"
+      hosts = ["dns/host/1008608"]
+    }
+    check = {
+      "uddi.hosts.#" = "1"
+      "uddi.hosts.0" = "dns/host/1008608"
+    }
+  }
+
+  step {
+    uddi {
+      name  = "{{random}}"
+      hosts = ["dns/host/1390921"]
+    }
+    check = {
+      "uddi.hosts.#" = "1"
+      "uddi.hosts.0" = "dns/host/1390921"
+    }
+  }
+
+}
+
+case "internal_forwarders" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name                = "{{random}}"
+      internal_forwarders = ["dns/host/1008608"]
+    }
+    check = {
+      "uddi.internal_forwarders.#" = "1"
+      "uddi.internal_forwarders.0" = "dns/host/1008608"
+    }
+  }
+
+  step {
+    uddi {
+      name                = "{{random}}"
+      internal_forwarders = ["dns/host/1390921"]
+    }
+    check = {
+      "uddi.internal_forwarders.#" = "1"
+      "uddi.internal_forwarders.0" = "dns/host/1390921"
+    }
+  }
+
+}
+
 case "nsgs" {
   backend     = "uddi"
   skip        = true
