@@ -296,11 +296,8 @@ Optional:
 
 Required:
 
-- `name` (String) The federated realm name
-
-Read-Only:
-
 - `id` (String) The federated realm id
+- `name` (String) The federated realm name
 
 
 <a id="nestedatt--nios--logic_filter_rules"></a>

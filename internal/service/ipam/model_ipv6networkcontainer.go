@@ -616,7 +616,10 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of DHCP options for the address block. May be either a specific option or a group of options.",
 	},
 	"external_keys": schema.MapAttribute{
@@ -625,8 +628,11 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "The external keys (source key) for this address block in JSON format.",
 	},
 	"federated_realms": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"hostname_rewrite_char": schema.StringAttribute{
