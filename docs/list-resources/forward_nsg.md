@@ -15,8 +15,8 @@ Retrieves a list of Infoblox ForwardNsg from the UDDI backend.
 ### UDDI Backend
 
 ```terraform
-// List Forward NSGs using filters
-list "infoblox_forward_nsg" "by_name" {
+// List specific Forward NSGs using filters
+list "infoblox_forward_nsg" "list_forward_nsg_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -26,8 +26,8 @@ list "infoblox_forward_nsg" "by_name" {
   limit = 10
 }
 
-// List Forward NSGs using tags
-list "infoblox_forward_nsg" "by_tag" {
+// List specific Forward NSGs using tags
+list "infoblox_forward_nsg" "list_forward_nsg_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
@@ -37,7 +37,7 @@ list "infoblox_forward_nsg" "by_tag" {
 }
 
 // List Forward NSGs with resource details included
-list "infoblox_forward_nsg" "with_resource" {
+list "infoblox_forward_nsg" "list_forward_nsg_with_resource" {
   provider         = infoblox
   include_resource = true
 }
@@ -49,6 +49,5 @@ list "infoblox_forward_nsg" "with_resource" {
 
 ### Optional
 
-- `ext_attr_filters` (Map of String) Extensible Attribute Filters are used to filter results by NIOS extensible attributes. Only applicable for the NIOS backend.
 - `filters` (Map of String) Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.
 - `tag_filters` (Map of String) Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.
