@@ -3,12 +3,12 @@
 page_title: "infoblox_dtc_server Resource - terraform-provider-infoblox"
 subcategory: "DTC"
 description: |-
-  Manages an Infoblox DtcServer across NIOS and UDDI backends.
+  Manages an Infoblox DtcServer in both NIOS and UDDI backends.
 ---
 
 # infoblox_dtc_server (Resource)
 
-Manages an Infoblox DtcServer across NIOS and UDDI backends.
+Manages an Infoblox DtcServer in both NIOS and UDDI backends.
 
 ## Example Usage
 

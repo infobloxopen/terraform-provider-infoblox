@@ -3,12 +3,12 @@
 page_title: "infoblox_dtc_server List Resource - terraform-provider-infoblox"
 subcategory: "DTC"
 description: |-
-  Retrieves a list of Infoblox DtcServer from the configured backend (NIOS or UDDI).
+  Retrieves a list of Infoblox DtcServer from both the NIOS and UDDI backends.
 ---
 
 # infoblox_dtc_server (List Resource)
 
-Retrieves a list of Infoblox DtcServer from the configured backend (NIOS or UDDI).
+Retrieves a list of Infoblox DtcServer from both the NIOS and UDDI backends.
 
 ## Example Usage
 
