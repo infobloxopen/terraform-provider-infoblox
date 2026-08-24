@@ -282,8 +282,6 @@ case "ddns_generated_prefix" {
 
 case "dhcp_options" {
   backend     = "uddi"
-  # skip        = true
-  # skip_reason = "requires_resource: infoblox_dhcp_option_code and infoblox_dhcp_option_group not yet implemented"
   parallel    = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_dhcp_option_code_unknown" "test" {

@@ -1,16 +1,16 @@
-// List specific Networkviews using filters
-list "infoblox_networkview" "list_networkview_using_filters" {
+// List specific Network Views using filters
+list "infoblox_networkview" "list_network_views_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_ip_space"
+      name = "example_network_view"
     }
   }
   limit = 10
 }
 
-// List specific Networkviews using Tags
-list "infoblox_networkview" "list_networkview_using_tags" {
+// List specific Network Views using Tags
+list "infoblox_networkview" "list_network_views_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
@@ -19,8 +19,8 @@ list "infoblox_networkview" "list_networkview_using_tags" {
   }
 }
 
-// List Networkviews with resource details included
-list "infoblox_networkview" "list_networkview_with_resource" {
+// List Network Views with resource details included
+list "infoblox_networkview" "list_network_views_with_resource" {
   provider         = infoblox
   include_resource = true
 }

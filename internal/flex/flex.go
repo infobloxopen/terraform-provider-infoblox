@@ -295,16 +295,6 @@ func FlattenStringPointerEmptyAsNull(s *string) types.String {
 	return types.StringValue(*s)
 }
 
-// FlattenOneOfString flattens a oneOf wrapper pointer to types.String.
-// Returns types.StringNull() if ptr is nil, otherwise extracts the string using flattenFn.
-// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
-func FlattenOneOfString[T any](ptr *T, flattenFn func(*T) *string) types.String {
-	if ptr == nil {
-		return types.StringNull()
-	}
-	return FlattenStringPointer(flattenFn(ptr))
-}
-
 func FlattenBool(b bool) types.Bool {
 	return types.BoolValue(b)
 }

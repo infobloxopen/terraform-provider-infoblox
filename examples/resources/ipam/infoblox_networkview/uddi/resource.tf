@@ -1,26 +1,26 @@
-# Basic IP space with only the required name field.
-resource "infoblox_networkview" "example" {
+// Create Network View with Basic Fields
+resource "infoblox_networkview" "create_network_view" {
   uddi = {
-    name = "example_ip_space"
+    name = "example_network_view"
   }
 }
 
-# IP space with a comment and resource tags.
-resource "infoblox_networkview" "example_tags" {
+// Create Network View with Tags
+resource "infoblox_networkview" "create_network_view_with_tags" {
   uddi = {
-    name    = "example_ip_space_tags"
-    comment = "Example IP space with tags created by the terraform provider"
+    name    = "example_network_view_tags"
+    comment = "Example Network View with tags created by the terraform provider"
     tags = {
       Site = "location-1"
     }
   }
 }
 
-# IP space with DDNS, hostname-rewrite, ASM, and DHCP configuration.
-resource "infoblox_networkview" "example_full" {
+// Create Network View with Additional Fields
+resource "infoblox_networkview" "create_network_view_with_additional_fields" {
   uddi = {
-    name    = "example_ip_space_full"
-    comment = "Full IP space example"
+    name    = "example_network_view_full"
+    comment = "Full Network View example"
 
     # DDNS settings (defaults shown with non-default values)
     ddns_client_update            = "server"

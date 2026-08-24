@@ -218,13 +218,13 @@ case "internal_forward_zones" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
-      fqdn = "example_fqdn_internal_forward_zone_1"
+      fqdn = "{{random}}"
       view = "default.{{random}}"
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
-      fqdn = "example_fqdn_internal_forward_zone_2"
+      fqdn = "{{random}}"
       view = "default.{{random}}"
     }
   }
@@ -305,10 +305,6 @@ case "name" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   ]
 case "remote_forward_zones" {
   backend  = "nios"
   parallel = true

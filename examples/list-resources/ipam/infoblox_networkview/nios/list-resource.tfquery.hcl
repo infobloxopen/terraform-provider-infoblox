@@ -1,4 +1,3 @@
-
 // List specific Network Views using filters
 list "infoblox_networkview" "list_network_views_using_filters" {
   provider = infoblox
