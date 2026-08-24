@@ -317,7 +317,7 @@ case "dhcp_options" {
   step {
     uddi {
       name         = "{{random}}"
-      dhcp_options = []
+      # dhcp_options = []
     }
     check = {
       "uddi.dhcp_options.#" = "0"
@@ -363,7 +363,7 @@ case "dhcp_options_v6" {
   step {
     uddi {
       name            = "{{random}}"
-      dhcp_options_v6 = []
+      # dhcp_options_v6 = []
     }
   }
 
@@ -508,15 +508,15 @@ case "default_realms" {
     }
   }
 
-  step {
-    uddi {
-      name           = "{{random}}"
-      default_realms = []
-    }
-    check = {
-      "uddi.default_realms.#" = "0"
-    }
-  }
+  # step {
+  #   uddi {
+  #     name           = "{{random}}"
+  #     default_realms = []
+  #   }
+  #   check = {
+  #     "uddi.default_realms.#" = "0"
+  #   }
+  # }
 
 }
 

@@ -157,10 +157,9 @@ var NetworkviewResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "",
 	},
 	"comment": schema.StringAttribute{
-		Default:  stringdefault.StaticString(""),
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the network view; maximum 256 characters.",
@@ -348,9 +347,12 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "When true, DHCP server will apply conflict resolution, as described in RFC 4703, when attempting to fulfill the update request.  When false, DHCP server will simply attempt to update the DNS entries per the request, regardless of whether or not they conflict with existing entries owned by other DHCP4 clients.  Defaults to _true_.",
 	},
 	"default_realms": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		Computed:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"dhcp_config": schema.SingleNestedAttribute{
@@ -377,14 +379,20 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of IPv4 DHCP options for IP space. May be either a specific option or a group of options.",
 	},
 	"dhcp_options_v6": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of IPv6 DHCP options for IP space. May be either a specific option or a group of options.",
 	},
 	"header_option_filename": schema.StringAttribute{

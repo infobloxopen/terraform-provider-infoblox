@@ -6,11 +6,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
+	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // InheritedDHCPOptionListModel is the Terraform model for InheritedDHCPOptionList
@@ -36,8 +38,11 @@ var InheritedDHCPOptionListResourceSchemaAttributes = map[string]schema.Attribut
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: InheritedDHCPOptionResourceSchemaAttributes,
 		},
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The inherited DHCP option values.",
 	},
 }

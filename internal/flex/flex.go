@@ -305,7 +305,6 @@ func FlattenOneOfString[T any](ptr *T, flattenFn func(*T) *string) types.String 
 	return FlattenStringPointer(flattenFn(ptr))
 }
 
-
 func FlattenBool(b bool) types.Bool {
 	return types.BoolValue(b)
 }
