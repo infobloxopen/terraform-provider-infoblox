@@ -207,6 +207,9 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. Flag which enables/disables __Server__.  Defaults to _false_.",
 	},
 	"endpoint_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("address", "fqdn"),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The endpoint type configured for the __Server__. Can be IP Address or FQDN. The values of both fields __address__ and __fqdn__ are preserved and are not mutually exclusive, and the __endpoint_type__ defines which one to use.  Allowed values: * address * fqdn  Defaults to __address__.",

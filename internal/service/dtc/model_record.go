@@ -3,9 +3,11 @@ package dtc
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -34,6 +36,9 @@ var RecordResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "JSON representation of resource record data.",
 	},
 	"type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("A", "AAAA", "CNAME", "HTTPS", "SRV", "SVCB"),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Resource record type.  List of supported types: * _A_ (_TYPE1_) * _AAAA_ (_TYPE28_) * _CNAME_ (_TYPE5_) * _HTTPS_ (_TYPE65_) * _SRV_ (_TYPE33_) * _SVCB_ (_TYPE64_)",

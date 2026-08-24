@@ -43,6 +43,9 @@ case "auto_create_host_record" {
       host                    = "{{random_ip}}"
       auto_create_host_record = false
     }
+    check = {
+      "nios.auto_create_host_record" = "false"
+    }
   }
 
   step {
@@ -50,6 +53,9 @@ case "auto_create_host_record" {
       name                    = "{{random}}"
       host                    = "{{random_ip}}"
       auto_create_host_record = true
+    }
+    check = {
+      "nios.auto_create_host_record" = "true"
     }
   }
 
@@ -93,6 +99,9 @@ case "disable" {
       host    = "{{random_ip}}"
       disable = true
     }
+    check = {
+      "nios.disable" = "true"
+    }
   }
 
   step {
@@ -100,6 +109,9 @@ case "disable" {
       name    = "{{random}}"
       host    = "{{random_ip}}"
       disable = false
+    }
+    check = {
+      "nios.disable" = "false"
     }
   }
 
