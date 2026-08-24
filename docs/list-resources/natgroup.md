@@ -15,7 +15,7 @@ Retrieves a list of Infoblox Natgroup from the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// List specific Natgroups using filters
+// List specific NAT Groups using filters
 list "infoblox_natgroup" "list_natgroups_using_filters" {
   provider = infoblox
   config {
