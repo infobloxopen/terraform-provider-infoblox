@@ -46,8 +46,8 @@ terraform {
 
 provider "infoblox" {
   uddi = {
-    csp_url = "<CSP_URL>"
-    api_key = "<API_KEY>"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
 ```
@@ -57,6 +57,7 @@ provider "infoblox" {
 
 ### Optional
 
+- `manage_internal_id_ea` (Boolean) Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true
 - `nios` (Attributes) Configuration for NIOS backend. (see [below for nested schema](#nestedatt--nios))
 - `operation_timeout` (Number) Total time (in seconds) allowed for an operation, including any retries of it. Default value: 60
 - `uddi` (Attributes) Configuration for UDDI backend. (see [below for nested schema](#nestedatt--uddi))
@@ -67,7 +68,6 @@ provider "infoblox" {
 Optional:
 
 - `host_url` (String) URL for the NIOS host
-- `manage_internal_id_ea` (Boolean) Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true
 - `password` (String, Sensitive) Password for the NIOS host
 - `username` (String) Username for the NIOS host
 
@@ -77,5 +77,8 @@ Optional:
 
 Optional:
 
-- `api_key` (String, Sensitive) API key for accessing the UDDI API.
-- `csp_url` (String) URL for UDDI Cloud Services Portal
+- `default_tags` (Map of String) Tags applied to every UDDI object the provider creates or updates. A tag set on the resource itself takes precedence over the default of the same name. Not applicable when `enable_nios_passthru` is true.
+- `enable_nios_passthru` (Boolean) Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false
+- `nios_license_uid` (String) License UID of the NIOS Grid to manage, required when `enable_nios_passthru` is true.
+- `portal_key` (String, Sensitive) API key for accessing the UDDI API.
+- `portal_url` (String) URL for the Infoblox Portal, or its WAPI endpoint when `enable_nios_passthru` is true.
