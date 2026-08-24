@@ -1196,7 +1196,7 @@ case "sort_list" {
       name      = "{{random}}"
       sort_list = [
         {
-            element = "ip"
+            element = "any"
             prioritized_networks = [ "192.168.13.13" ]
          }
      ]
