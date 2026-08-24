@@ -37,7 +37,7 @@ var Ipv6networkcontainerFederatedRealmsResourceSchemaAttributes = map[string]sch
 		MarkdownDescription: "The federated realm name",
 	},
 	"id": schema.StringAttribute{
-		Computed: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
