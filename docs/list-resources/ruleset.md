@@ -20,7 +20,7 @@ list "infoblox_ruleset" "list_rulesets_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_ruleset"
+      name = "example_ruleset_1"
     }
   }
 }
