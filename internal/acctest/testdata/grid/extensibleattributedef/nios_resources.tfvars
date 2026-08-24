@@ -75,11 +75,11 @@ case "comment" {
   step {
     nios {
       name    = "{{random}}"
-      comment = "EXTDEF COMMENT"
+      comment = "This is a sample comment"
       type    = "URL"
     }
     check = {
-      "nios.comment" = "EXTDEF COMMENT"
+      "nios.comment" = "This is a sample comment"
       "nios.type"    = "URL"
     }
   }
@@ -87,11 +87,11 @@ case "comment" {
   step {
     nios {
       name    = "{{random}}"
-      comment = "EXTDEF COMMENT UPDATE"
+      comment = "This is an updated comment"
       type    = "URL"
     }
     check = {
-      "nios.comment" = "EXTDEF COMMENT UPDATE"
+      "nios.comment" = "This is an updated comment"
       "nios.type"    = "URL"
     }
   }
