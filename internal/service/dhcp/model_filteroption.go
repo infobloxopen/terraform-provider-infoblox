@@ -236,7 +236,10 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of DHCP options for the option filter. May be either a specific option or a group of options.",
 	},
 	"header_option_filename": schema.StringAttribute{
