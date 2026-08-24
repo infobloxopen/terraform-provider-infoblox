@@ -218,13 +218,13 @@ case "internal_forward_zones" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
-      fqdn = "{{random}}"
+      fqdn = "{{random}}1"
       view = "default.{{random}}"
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
-      fqdn = "{{random}}"
+      fqdn = "{{random}}2"
       view = "default.{{random}}"
     }
   }

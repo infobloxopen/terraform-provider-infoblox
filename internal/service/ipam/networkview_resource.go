@@ -101,6 +101,7 @@ func (r *NetworkviewResource) ValidateConfig(ctx context.Context, req resource.V
 		return
 	}
 
+	ValidateNetworkview(ctx, data, resp)
 }
 
 func (r *NetworkviewResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

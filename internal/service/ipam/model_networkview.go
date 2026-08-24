@@ -556,10 +556,8 @@ func (m *NetworkviewModel) Flatten(ctx context.Context, resp *coremodel.Networkv
 	if niosModel == nil {
 		niosModel = &NIOSNetworkviewModel{}
 	}
-	plannedNIOS := flex.ExpandNestedObject[NIOSNetworkviewModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		PostFlattenNetworkviewNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSNetworkviewAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSNetworkviewAttrTypes)
@@ -570,10 +568,8 @@ func (m *NetworkviewModel) Flatten(ctx context.Context, resp *coremodel.Networkv
 	if uddiModel == nil {
 		uddiModel = &UDDINetworkviewModel{}
 	}
-	plannedUDDI := flex.ExpandNestedObject[UDDINetworkviewModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
-		PostFlattenNetworkviewUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDINetworkviewAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDINetworkviewAttrTypes)
