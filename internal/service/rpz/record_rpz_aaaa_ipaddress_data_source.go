@@ -179,7 +179,7 @@ func (d *RecordRpzAaaaIpaddressDataSource) Read(ctx context.Context, req datasou
 			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
 			return recs, e
-		})
+		}, opts.Limit, opts.Paging)
 	}
 
 	if err != nil {
