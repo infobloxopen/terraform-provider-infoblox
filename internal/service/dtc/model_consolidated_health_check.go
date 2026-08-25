@@ -6,10 +6,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dtc"
 )
 
@@ -29,7 +31,10 @@ var ConsolidatedHealthCheckResourceSchemaAttributes = map[string]schema.Attribut
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: DesignatorServiceResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Designator __DNS Service__ references where the corresponding health checks will be associated to. Must contain at least one entry when set.  On request: only _dns_service_id_ is honoured. On response: _dns_service_name_ is echoed alongside, resolved from inventory.",
 	},
 }

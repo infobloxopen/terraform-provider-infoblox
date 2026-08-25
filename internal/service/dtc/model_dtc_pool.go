@@ -297,7 +297,10 @@ var DtcPoolResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: PoolHealthCheckResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. List of __HealthCheck__ objects IDs assigned to __Pool__.  Defaults to _empty_.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
@@ -338,7 +341,10 @@ var DtcPoolResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: PoolServerResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. List of __Server__ objects assigned to __Pool__.  Defaults to _empty_.",
 	},
 	"tags": schema.MapAttribute{
