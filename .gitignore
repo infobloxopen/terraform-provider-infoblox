@@ -14,5 +14,3 @@ internal/service/*/.openapi-generator-ignore
 **/.DS_Store
 .vscode/
 .idea/
-# Local acceptance-test output
-res.txt
