@@ -36,7 +36,7 @@ type NetworkcontainerDataSource struct {
 }
 
 func (d *NetworkcontainerDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkcontainer"
+	resp.TypeName = req.ProviderTypeName + "_network_container"
 }
 
 // NetworkcontainerDataSourceModel is the filter model for the datasource
