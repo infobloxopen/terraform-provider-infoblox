@@ -1,12 +1,12 @@
 // Create IPV6 Network Container with Basic Fields
-resource "infoblox_ipv6networkcontainer" "ipv6networkcontainer_with_basic_fields" {
+resource "infoblox_ipv6_network_container" "ipv6networkcontainer_with_basic_fields" {
   nios = {
     network = "10::/64"
   }
 }
 
 // Create IPV6 Network Container with Additional Fields
-resource "infoblox_ipv6networkcontainer" "ipv6networkcontainer_with_additional_fields" {
+resource "infoblox_ipv6_network_container" "ipv6networkcontainer_with_additional_fields" {
   nios = {
     // Required attributes
     network = "11::/64"
@@ -37,7 +37,7 @@ resource "infoblox_ipv6networkcontainer" "ipv6networkcontainer_with_additional_f
 }
 
 // Create IPV6 Network Container with Function Call
-resource "infoblox_ipv6networkcontainer" "example_func_call" {
+resource "infoblox_ipv6_network_container" "example_func_call" {
   nios = {
     dynamic_allocation = {
       network      = "10::/64"
@@ -47,6 +47,6 @@ resource "infoblox_ipv6networkcontainer" "example_func_call" {
     comment = "Network container created with function call"
   }
   depends_on = [
-    infoblox_ipv6networkcontainer.ipv6networkcontainer_with_basic_fields
+    infoblox_ipv6_network_container.ipv6networkcontainer_with_basic_fields
   ]
 }

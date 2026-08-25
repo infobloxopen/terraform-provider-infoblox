@@ -1,5 +1,5 @@
 // List specific IPv6 Network Containers using filters
-list "infoblox_ipv6networkcontainer" "list_containers_using_filters" {
+list "infoblox_ipv6_network_container" "list_containers_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_ipv6networkcontainer" "list_containers_using_filters" {
 }
 
 // List specific IPv6 Network Containers using Extensible Attributes
-list "infoblox_ipv6networkcontainer" "list_containers_using_extensible_attributes" {
+list "infoblox_ipv6_network_container" "list_containers_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
@@ -20,7 +20,7 @@ list "infoblox_ipv6networkcontainer" "list_containers_using_extensible_attribute
 }
 
 // List IPv6 Network Containers with resource details included
-list "infoblox_ipv6networkcontainer" "list_containers_with_resource" {
+list "infoblox_ipv6_network_container" "list_containers_with_resource" {
   provider         = infoblox
   include_resource = true
 }

@@ -1,5 +1,5 @@
 // Create an IPv6 Network Container with Basic Fields
-resource "infoblox_ipv6networkcontainer" "example" {
+resource "infoblox_ipv6_network_container" "example" {
   uddi = {
     address = "2001:db8::"
     cidr    = 64
@@ -10,7 +10,7 @@ resource "infoblox_ipv6networkcontainer" "example" {
 
 
 // Create an IPv6 Network Container with Additional Fields
-resource "infoblox_ipv6networkcontainer" "example_tags" {
+resource "infoblox_ipv6_network_container" "example_tags" {
   uddi = {
     address = "2001:db8:1::"
     cidr    = 48
