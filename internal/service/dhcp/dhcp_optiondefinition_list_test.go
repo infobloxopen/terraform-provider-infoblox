@@ -22,7 +22,7 @@ func TestAccDhcpOptiondefinitionList(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "dhcp/dhcp_optiondefinition/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "dhcp/dhcp_optiondefinition/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

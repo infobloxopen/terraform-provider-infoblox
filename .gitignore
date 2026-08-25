@@ -14,3 +14,8 @@ internal/service/*/.openapi-generator-ignore
 **/.DS_Store
 .vscode/
 .idea/
+# Terraform variable files may hold credentials — never commit them.
+# The GCP marketplace test inputs are the deliberate, reviewed exception.
+*.tfvars
+*.tfvars.json
+!nios-public-cloud-marketplace/**/marketplace_test.tfvars
