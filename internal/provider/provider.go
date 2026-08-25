@@ -434,7 +434,7 @@ func New(version, commit string) func() provider.Provider {
 // checkAndCreatePreRequisitesForNIOS creates the Terraform Internal ID extensible
 // attribute definition on NIOS if it does not already exist. This EA is used to
 // uniquely identify resources managed by Terraform across imports and drift
-// detection .
+// detection.
 func checkAndCreatePreRequisitesForNIOS(ctx context.Context, client *niosclient.APIClient) error {
 	var readableAttributesForEADefinition = "allowed_object_types,comment,default_value,flags,list_values,max,min,name,namespace,type"
 
