@@ -349,7 +349,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkcontainerResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
-        rpz.NewRecordRpzCnameClientipaddressdnResource,
+		rpz.NewRecordRpzCnameClientipaddressdnResource,
 	}
 }
 
@@ -385,7 +385,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNetworkcontainerDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
-        rpz.NewRecordRpzCnameClientipaddressdnDataSource,
+		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 	}
 }
 
@@ -434,7 +434,7 @@ func New(version, commit string) func() provider.Provider {
 // checkAndCreatePreRequisitesForNIOS creates the Terraform Internal ID extensible
 // attribute definition on NIOS if it does not already exist. This EA is used to
 // uniquely identify resources managed by Terraform across imports and drift
-// detection.
+// detection .
 func checkAndCreatePreRequisitesForNIOS(ctx context.Context, client *niosclient.APIClient) error {
 	var readableAttributesForEADefinition = "allowed_object_types,comment,default_value,flags,list_values,max,min,name,namespace,type"
 
