@@ -17,7 +17,7 @@ func ValidateExtensibleattributedef(ctx context.Context, data Extensibleattribut
 }
 
 func validateExtensibleattributedefNIOSConfig(ctx context.Context, m *NIOSExtensibleattributedefModel, resp *resource.ValidateConfigResponse) {
-	if m.Type.IsUnknown() {
+	if m.Type.IsUnknown() || m.Type.IsNull() {
 		return
 	}
 	typeValue := m.Type.ValueString()
