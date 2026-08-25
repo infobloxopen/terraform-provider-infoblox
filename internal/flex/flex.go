@@ -54,18 +54,6 @@ func ExpandStringPointerNullAsEmpty(s types.String) *string {
 	return s.ValueStringPointer()
 }
 
-// ExpandStringOneOf expands a types.String to a oneOf wrapper type pointer.
-// Returns nil if the string is null/unknown, otherwise converts using expandFn and returns a pointer.
-// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
-func ExpandStringOneOf[T any](s types.String, expandFn func(*string) T) *T {
-	if s.IsNull() || s.IsUnknown() {
-		return nil
-	}
-	v := s.ValueString()
-	result := expandFn(&v)
-	return &result
-}
-
 func ExpandBool(b types.Bool) bool {
 	if b.IsNull() || b.IsUnknown() {
 		return false
@@ -305,16 +293,6 @@ func FlattenStringPointerEmptyAsNull(s *string) types.String {
 		return types.StringNull()
 	}
 	return types.StringValue(*s)
-}
-
-// FlattenOneOfString flattens a oneOf wrapper pointer to types.String.
-// Returns types.StringNull() if ptr is nil, otherwise extracts the string using flattenFn.
-// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
-func FlattenOneOfString[T any](ptr *T, flattenFn func(*T) *string) types.String {
-	if ptr == nil {
-		return types.StringNull()
-	}
-	return FlattenStringPointer(flattenFn(ptr))
 }
 
 func FlattenBool(b bool) types.Bool {

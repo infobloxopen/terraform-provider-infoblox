@@ -1,4 +1,7 @@
 # HaGroup — uddi list cases
+// TODO: have to be present on the grid before running the test cases.
+// dhcp/host/470520
+// dhcp/host/470521
 case "basic" {
   backend  = "uddi"
   parallel = true

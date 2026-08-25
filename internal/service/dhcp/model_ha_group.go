@@ -15,6 +15,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type HaGroupModel struct {
@@ -83,7 +84,10 @@ var HaGroupResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: HAGroupHostResourceSchemaAttributes,
 		},
-		Required:            true,
+		Required: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of hosts.",
 	},
 	"ip_space": schema.StringAttribute{
@@ -92,7 +96,7 @@ var HaGroupResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"mode": schema.StringAttribute{
 		Validators: []validator.String{
-			stringvalidator.OneOf("active-active", "active-passive", "advanced-active-passive", "anycast"),
+			stringvalidator.OneOf("active-active", "active-passive", "advanced-active-passive"),
 		},
 		Required:            true,
 		MarkdownDescription: "The mode of the HA group.  Valid values are: * _active-active_: Both on-prem hosts remain active. * _active-passive_: One on-prem host remains active and one remains passive. When the active on-prem host is down, the passive on-prem host takes over. * _advanced-active-passive_: One on-prem host may be part of multiple HA groups. When the active on-prem host is down, the passive on-prem host takes over.",
