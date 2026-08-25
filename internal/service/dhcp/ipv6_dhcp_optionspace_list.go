@@ -109,10 +109,11 @@ func (l *Ipv6DhcpOptionspaceList) List(ctx context.Context, req list.ListRequest
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields: Ipv6DhcpOptionspaceReturnFields,
-		Paging:       1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		InternalFilters: map[string]string{"protocol": "ip6"},
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:    Ipv6DhcpOptionspaceReturnFields,
+		Paging:          1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)

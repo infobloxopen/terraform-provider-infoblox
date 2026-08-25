@@ -36,7 +36,7 @@ type NetworkviewDataSource struct {
 }
 
 func (d *NetworkviewDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkview"
+	resp.TypeName = req.ProviderTypeName + "_network_view"
 }
 
 // NetworkviewDataSourceModel is the filter model for the datasource
