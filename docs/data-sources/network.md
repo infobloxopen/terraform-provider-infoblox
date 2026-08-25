@@ -443,6 +443,7 @@ Read-Only:
 Read-Only:
 
 - `allow_unknown` (Boolean) Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.
+- `authoritative_dhcp` (Boolean) Set DHCP server as authoritative.
 - `filters` (List of String) The resource identifier.
 - `filters_large_selection` (List of String) The resource identifier.
 - `ignore_client_uid` (Boolean) Enable to ignore the client UID when issuing a DHCP lease. Use this option to prevent assigning two IP addresses for a client which does not have a UID during one phase of PXE boot but acquires one for the other phase.

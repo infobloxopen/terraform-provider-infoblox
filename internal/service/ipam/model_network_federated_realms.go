@@ -37,7 +37,7 @@ var NetworkFederatedRealmsResourceSchemaAttributes = map[string]schema.Attribute
 		MarkdownDescription: "The federated realm name",
 	},
 	"id": schema.StringAttribute{
-		Computed: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
