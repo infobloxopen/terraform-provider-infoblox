@@ -35,7 +35,7 @@ resource "infoblox_upgradegroup" "upgradegroup_with_additional_config" {
     upgrade_time                 = "2026-09-02T02:00:00"
     members = [
       {
-        member = "infoblox.172_28_83_113"
+        member = "infoblox.localdomain"
       }
     ]
   }
