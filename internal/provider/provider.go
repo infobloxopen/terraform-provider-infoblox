@@ -418,7 +418,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkcontainerList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
-    rpz.NewRecordRpzCnameClientipaddressdnList,
+		rpz.NewRecordRpzCnameClientipaddressdnList,
 	}
 }
 
