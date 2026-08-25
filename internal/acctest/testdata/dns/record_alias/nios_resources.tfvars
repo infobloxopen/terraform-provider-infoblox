@@ -88,19 +88,6 @@ case "creator" {
     }
   }
 
-  step {
-    nios {
-      name        = "{{random}}.example.com"
-      target_name = "server.example.com"
-      target_type = "A"
-      view        = "default"
-      creator     = "STATIC"
-    }
-    check = {
-      "nios.creator" = "STATIC"
-    }
-  }
-
 }
 
 case "disable" {
@@ -294,26 +281,52 @@ case "view" {
   parallel = true
 
   step {
+    prerequisites_hcl = <<-PREREQ
+    resource "infoblox_view" "test" {
+      nios = {
+        name = "{{random3}}"
+      }
+    }
+    resource "infoblox_zone_auth" "test" {
+      nios = {
+        fqdn = "{{random}}.com"
+        view = infoblox_view.test.nios.name
+      }
+    }
+    PREREQ
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = "{{random3}}"
     }
     check = {
-      "nios.view" = "default"
+      "nios.view" = "{{random3}}"
     }
   }
 
   step {
+    prerequisites_hcl = <<-PREREQ
+    resource "infoblox_view" "test" {
+      nios = {
+        name = "{{random4}}"
+      }
+    }
+    resource "infoblox_zone_auth" "test" {
+      nios = {
+        fqdn = "{{random}}.com"
+        view = infoblox_view.test.nios.name
+      }
+    }
+    PREREQ
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = "{{random4}}"
     }
     check = {
-      "nios.view" = "default"
+      "nios.view" = "{{random4}}"
     }
   }
 

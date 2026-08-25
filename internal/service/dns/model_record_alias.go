@@ -80,6 +80,8 @@ var RecordAliasResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+			stringvalidator.LengthBetween(0, 256),
 		},
 		MarkdownDescription: "Comment for the record; maximum 256 characters.",
 	},
