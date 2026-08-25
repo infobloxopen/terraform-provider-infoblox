@@ -322,6 +322,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
@@ -354,6 +355,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
@@ -375,6 +377,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneAuthDataSource,
 		dns.NewViewDataSource,
 		dns.NewRecordADataSource,
+		dns.NewRecordNaptrDataSource,
 
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
@@ -389,6 +392,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewNsgroupList,
 		grid.NewNatgroupList,
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
