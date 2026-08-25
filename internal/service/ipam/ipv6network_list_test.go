@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccIpv6networkList(t *testing.T) {
-	resourceType := "infoblox_ipv6network"
+	resourceType := "infoblox_ipv6_network"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {

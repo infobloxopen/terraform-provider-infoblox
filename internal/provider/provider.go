@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
@@ -330,8 +331,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
+		dns.NewAuthNsgResource,
 		dhcp.NewFilteroptionResource,
+		dns.NewForwardNsgResource,
 		dns.NewRecordSrvResource,
+		ipam.NewNetworkviewResource,
+		dtc.NewDtcServerResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
@@ -363,8 +368,13 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
+		dns.NewAuthNsgDataSource,
 		dhcp.NewFilteroptionDataSource,
+		dns.NewForwardNsgDataSource,
 		dns.NewRecordSrvDataSource,
+		ipam.NewNetworkviewDataSource,
+		dtc.NewDtcServerDataSource,
+		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
@@ -375,7 +385,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneAuthDataSource,
 		dns.NewViewDataSource,
 		dns.NewRecordADataSource,
-		dns.NewRecordNaptrDataSource,
 
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
@@ -399,8 +408,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
+		dns.NewAuthNsgList,
 		dhcp.NewFilteroptionList,
+		dns.NewForwardNsgList,
 		dns.NewRecordSrvList,
+		ipam.NewNetworkviewList,
+		dtc.NewDtcServerList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
