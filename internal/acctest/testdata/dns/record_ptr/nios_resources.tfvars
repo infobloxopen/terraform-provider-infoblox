@@ -507,3 +507,34 @@ case "ttl" {
   }
 
 }
+
+case "reverse_mapping" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "192.168.10.0/24"
+      zone_format = "IPV4"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      ipv4addr = "192.168.10.50"
+      ptrdname = "host.example.com"
+      view     = "default"
+    }
+    check = {
+      "nios.ipv4addr" = "192.168.10.50"
+      "nios.ptrdname" = "host.example.com"
+      "nios.view"     = "default"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+}
