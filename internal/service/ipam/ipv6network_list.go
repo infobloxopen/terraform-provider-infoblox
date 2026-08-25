@@ -41,7 +41,7 @@ type Ipv6networkListModel struct {
 }
 
 func (l *Ipv6networkList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6network"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_network"
 }
 
 func (l *Ipv6networkList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -111,7 +111,7 @@ func (l *Ipv6networkList) List(ctx context.Context, req list.ListRequest, stream
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6network list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6_network list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

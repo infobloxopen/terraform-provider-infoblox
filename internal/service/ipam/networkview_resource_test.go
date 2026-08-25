@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccNetworkviewResource(t *testing.T) {
-	resourceType := "infoblox_networkview"
+	resourceType := "infoblox_network_view"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -31,7 +31,7 @@ func TestAccNetworkviewResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "ipam/networkview/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "ipam/network_view/"+backend+"_resources.tfvars", checksByBackend)
 		})
 	}
 }

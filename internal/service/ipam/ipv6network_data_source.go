@@ -36,7 +36,7 @@ type Ipv6networkDataSource struct {
 }
 
 func (d *Ipv6networkDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6network"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_network"
 }
 
 // Ipv6networkDataSourceModel is the filter model for the datasource
