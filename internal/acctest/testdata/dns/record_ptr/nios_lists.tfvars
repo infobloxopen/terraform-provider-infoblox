@@ -3,20 +3,17 @@ case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "reverse" {
+  resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn        = "192.168.121.0/24"
-      zone_format = "IPV4"
-      view        = "default"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr = "192.168.121.10"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
   }
@@ -33,20 +30,17 @@ case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "reverse" {
+  resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn        = "192.168.122.0/24"
-      zone_format = "IPV4"
-      view        = "default"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr = "192.168.122.10"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
   }
@@ -58,6 +52,7 @@ case "filters" {
     filter {
       type = "filters"
       values = {
+        name     = "nios.name"
         ptrdname = "nios.ptrdname"
       }
     }
@@ -69,22 +64,19 @@ case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "reverse" {
+  resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn        = "192.168.123.0/24"
-      zone_format = "IPV4"
-      view        = "default"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr  = "192.168.123.10"
-      ptrdname  = "host.{{random}}.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname  = "{{random3}}.com"
       view      = "default"
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
   }
 
@@ -106,20 +98,17 @@ case "creator_filter" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "reverse" {
+  resource "infoblox_zone_auth" "test" {
     nios = {
-      fqdn        = "192.168.124.0/24"
-      zone_format = "IPV4"
-      view        = "default"
+      fqdn = "{{random}}.com"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr = "192.168.124.10"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       creator  = "STATIC"
     }

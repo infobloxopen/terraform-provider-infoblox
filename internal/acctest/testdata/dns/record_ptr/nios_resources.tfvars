@@ -11,15 +11,14 @@ case "basic" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name"               = "ptrrecord.{{random}}.com"
-      "nios.ptrdname"           = "host.{{random}}.com"
+      "nios.name"               = "{{random2}}.{{random}}.com"
+      "nios.ptrdname"           = "{{random3}}.com"
       "nios.view"               = "default"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
@@ -44,10 +43,9 @@ case "disappears" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
   }
@@ -66,10 +64,9 @@ case "comment" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       comment  = "This is a comment"
     }
@@ -80,8 +77,8 @@ case "comment" {
 
   step {
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       comment  = "This is an updated comment"
     }
@@ -104,10 +101,9 @@ case "creator" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       creator  = "STATIC"
     }
@@ -118,8 +114,8 @@ case "creator" {
 
   step {
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       creator  = "DYNAMIC"
     }
@@ -142,10 +138,9 @@ case "ddns_principal" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name           = "ptrrecord.{{random}}.com"
-      ptrdname       = "host.{{random}}.com"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname       = "{{random3}}.com"
       view           = "default"
       creator        = "DYNAMIC"
       ddns_principal = "host/myhost.example.com@EXAMPLE.COM"
@@ -157,8 +152,8 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "ptrrecord.{{random}}.com"
-      ptrdname       = "host.{{random}}.com"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname       = "{{random3}}.com"
       view           = "default"
       creator        = "DYNAMIC"
       ddns_principal = "host/otherhost.example.net@EXAMPLE.NET"
@@ -182,10 +177,9 @@ case "ddns_protected" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name           = "ptrrecord.{{random}}.com"
-      ptrdname       = "host.{{random}}.com"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname       = "{{random3}}.com"
       view           = "default"
       ddns_protected = false
     }
@@ -196,8 +190,8 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "ptrrecord.{{random}}.com"
-      ptrdname       = "host.{{random}}.com"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname       = "{{random3}}.com"
       view           = "default"
       ddns_protected = true
     }
@@ -220,10 +214,9 @@ case "disable" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       disable  = false
     }
@@ -234,8 +227,8 @@ case "disable" {
 
   step {
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       disable  = true
     }
@@ -258,27 +251,26 @@ case "ext_attrs" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name      = "ptrrecord.{{random}}.com"
-      ptrdname  = "host.{{random}}.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname  = "{{random3}}.com"
       view      = "default"
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs = { Site = "{{random4}}" }
     }
     check = {
-      "nios.ext_attrs.Site" = "{{random2}}"
+      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
   step {
     nios {
-      name      = "ptrrecord.{{random}}.com"
-      ptrdname  = "host.{{random}}.com"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname  = "{{random3}}.com"
       view      = "default"
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random5}}" }
     }
     check = {
-      "nios.ext_attrs.Site" = "{{random3}}"
+      "nios.ext_attrs.Site" = "{{random5}}"
     }
   }
 
@@ -296,10 +288,9 @@ case "forbid_reclamation" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name               = "ptrrecord.{{random}}.com"
-      ptrdname           = "host.{{random}}.com"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname           = "{{random3}}.com"
       view               = "default"
       forbid_reclamation = true
     }
@@ -310,8 +301,8 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "ptrrecord.{{random}}.com"
-      ptrdname           = "host.{{random}}.com"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname           = "{{random3}}.com"
       view               = "default"
       forbid_reclamation = false
     }
@@ -334,25 +325,24 @@ case "ipv4addr" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord1.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "ptrrecord1.{{random}}.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name     = "ptrrecord2.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random4}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "ptrrecord2.{{random}}.com"
+      "nios.name" = "{{random4}}.{{random}}.com"
     }
   }
 
@@ -370,28 +360,27 @@ case "ipv6addr" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord1.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name"     = "ptrrecord1.{{random}}.com"
-      "nios.ptrdname" = "host.{{random}}.com"
+      "nios.name"     = "{{random2}}.{{random}}.com"
+      "nios.ptrdname" = "{{random3}}.com"
       "nios.view"     = "default"
     }
   }
 
   step {
     nios {
-      name     = "ptrrecord2.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random4}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name"     = "ptrrecord2.{{random}}.com"
-      "nios.ptrdname" = "host.{{random}}.com"
+      "nios.name"     = "{{random4}}.{{random}}.com"
+      "nios.ptrdname" = "{{random3}}.com"
       "nios.view"     = "default"
     }
   }
@@ -410,25 +399,24 @@ case "name" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord1.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "ptrrecord1.{{random}}.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name     = "ptrrecord2.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random4}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "ptrrecord2.{{random}}.com"
+      "nios.name" = "{{random4}}.{{random}}.com"
     }
   }
 
@@ -446,25 +434,24 @@ case "ptrdname" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.ptrdname" = "host.{{random}}.com"
+      "nios.ptrdname" = "{{random3}}.com"
     }
   }
 
   step {
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host2.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random4}}.com"
       view     = "default"
     }
     check = {
-      "nios.ptrdname" = "host2.{{random}}.com"
+      "nios.ptrdname" = "{{random4}}.com"
     }
   }
 
@@ -482,10 +469,9 @@ case "ttl" {
   PREREQ
 
   step {
-    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       ttl      = 300
     }
@@ -496,8 +482,8 @@ case "ttl" {
 
   step {
     nios {
-      name     = "ptrrecord.{{random}}.com"
-      ptrdname = "host.{{random}}.com"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ptrdname = "{{random3}}.com"
       view     = "default"
       ttl      = 600
     }
@@ -525,12 +511,12 @@ case "reverse_mapping" {
     depends_on = [infoblox_zone_auth.reverse]
     nios {
       ipv4addr = "192.168.10.50"
-      ptrdname = "host.example.com"
+      ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
       "nios.ipv4addr" = "192.168.10.50"
-      "nios.ptrdname" = "host.example.com"
+      "nios.ptrdname" = "{{random3}}.com"
       "nios.view"     = "default"
       "nios.creator"  = "STATIC"
       "nios.disable"  = "false"
