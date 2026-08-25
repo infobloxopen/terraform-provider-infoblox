@@ -1,5 +1,5 @@
 // Create an IPV4 Network Container with Basic Fields
-resource "infoblox_networkcontainer" "networkcontainer_with_basic_fields" {
+resource "infoblox_network_container" "networkcontainer_with_basic_fields" {
   uddi = {
     address = "192.168.1.0"
     cidr    = 24
@@ -9,7 +9,7 @@ resource "infoblox_networkcontainer" "networkcontainer_with_basic_fields" {
 }
 
 // Create an IPV4 Network Container with Additional Fields
-resource "infoblox_networkcontainer" "networkcontainer_with_additional_fields" {
+resource "infoblox_network_container" "networkcontainer_with_additional_fields" {
   uddi = {
     address = "10.0.0.0"
     cidr    = 8
@@ -54,9 +54,9 @@ resource "infoblox_networkcontainer" "networkcontainer_with_additional_fields" {
 }
 
 // Create an IPV4 Network Container with Dynamic Allocation
-resource "infoblox_networkcontainer" "networkcontainer_with_dynamic_allocation" {
+resource "infoblox_network_container" "networkcontainer_with_dynamic_allocation" {
   uddi = {
-    next_available_id = infoblox_networkcontainer.networkcontainer_with_basic_fields.id
+    next_available_id = infoblox_network_container.networkcontainer_with_basic_fields.id
     cidr              = 26
     space             = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
 

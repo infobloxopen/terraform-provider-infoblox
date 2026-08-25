@@ -1,5 +1,5 @@
 // Create an IPV4 Network Container with Basic Fields
-resource "infoblox_networkcontainer" "networkcontainer_with_basic_fields" {
+resource "infoblox_network_container" "networkcontainer_with_basic_fields" {
   nios = {
     network      = "10.0.0.0/24"
     network_view = "default"
@@ -11,7 +11,7 @@ resource "infoblox_networkcontainer" "networkcontainer_with_basic_fields" {
 }
 
 // Create an IPV4 Network Container with Additional Fields
-resource "infoblox_networkcontainer" "networkcontainer_with_additional_fields" {
+resource "infoblox_network_container" "networkcontainer_with_additional_fields" {
   nios = {
     network = "11.0.0.0/24"
     comment = "Complete network container example with all possible writable attributes"
@@ -45,7 +45,7 @@ resource "infoblox_networkcontainer" "networkcontainer_with_additional_fields" {
 }
 
 // Create an IPV4 Network Container with Dynamic Allocation
-resource "infoblox_networkcontainer" "example_func_call" {
+resource "infoblox_network_container" "example_func_call" {
   nios = {
     dynamic_allocation = {
       network = "88.175.0.0/21"

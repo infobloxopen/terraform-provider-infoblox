@@ -1,12 +1,12 @@
 // Create an IPAM IPv6 Network with Basic Fields
-resource "infoblox_ipv6network" "example_network_basic" {
+resource "infoblox_ipv6_network" "example_network_basic" {
   nios = {
     network = "10::/64"
   }
 }
 
 // Create an IPAM IPv6 Network with Additional Fields
-resource "infoblox_ipv6network" "example_network_additional" {
+resource "infoblox_ipv6_network" "example_network_additional" {
   nios = {
     // Required attributes
     network = "11::/64"
@@ -46,7 +46,7 @@ resource "infoblox_ipv6network" "example_network_additional" {
 }
 
 // Create an IPAM IPv6 Network with Function Call
-resource "infoblox_ipv6network" "example_func_call" {
+resource "infoblox_ipv6_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
       network      = "10::/64"
@@ -56,6 +56,6 @@ resource "infoblox_ipv6network" "example_func_call" {
     comment = "Network created with function call"
   }
   depends_on = [
-    infoblox_ipv6network.example_network_basic
+    infoblox_ipv6_network.example_network_basic
   ]
 }

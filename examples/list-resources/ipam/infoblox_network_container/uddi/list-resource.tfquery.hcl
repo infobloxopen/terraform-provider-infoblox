@@ -1,5 +1,5 @@
 // List specific Networkcontainers using filters
-list "infoblox_networkcontainer" "list_networkcontainer_using_filters" {
+list "infoblox_network_container" "list_networkcontainer_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_networkcontainer" "list_networkcontainer_using_filters" {
 }
 
 // List specific Networkcontainers using Tags
-list "infoblox_networkcontainer" "list_networkcontainer_using_tags" {
+list "infoblox_network_container" "list_networkcontainer_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
@@ -20,7 +20,7 @@ list "infoblox_networkcontainer" "list_networkcontainer_using_tags" {
 }
 
 // List Networkcontainers with resource details included
-list "infoblox_networkcontainer" "list_networkcontainer_with_resource" {
+list "infoblox_network_container" "list_networkcontainer_with_resource" {
   provider         = infoblox
   include_resource = true
 }

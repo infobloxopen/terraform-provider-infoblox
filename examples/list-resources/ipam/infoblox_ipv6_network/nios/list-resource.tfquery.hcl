@@ -1,5 +1,5 @@
 // List specific IPv6 Networks using filters
-list "infoblox_ipv6network" "list_ipv6networks_using_filters" {
+list "infoblox_ipv6_network" "list_ipv6networks_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_ipv6network" "list_ipv6networks_using_filters" {
 }
 
 // List specific IPv6 Networks using Extensible Attributes
-list "infoblox_ipv6network" "list_ipv6networks_using_extensible_attributes" {
+list "infoblox_ipv6_network" "list_ipv6networks_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
@@ -20,7 +20,7 @@ list "infoblox_ipv6network" "list_ipv6networks_using_extensible_attributes" {
 }
 
 // List IPv6 Networks with resource details included
-list "infoblox_ipv6network" "list_ipv6networks_with_resource" {
+list "infoblox_ipv6_network" "list_ipv6networks_with_resource" {
   provider         = infoblox
   include_resource = true
 }

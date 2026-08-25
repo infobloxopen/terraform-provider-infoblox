@@ -1,5 +1,5 @@
 // List specific Network Containers using filters
-list "infoblox_networkcontainer" "list_containers_using_filters" {
+list "infoblox_network_container" "list_containers_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_networkcontainer" "list_containers_using_filters" {
 }
 
 // List specific Network Containers using Extensible Attributes
-list "infoblox_networkcontainer" "list_containers_using_extensible_attributes" {
+list "infoblox_network_container" "list_containers_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
@@ -20,7 +20,7 @@ list "infoblox_networkcontainer" "list_containers_using_extensible_attributes" {
 }
 
 // List Network Containers with resource details included
-list "infoblox_networkcontainer" "list_containers_with_resource" {
+list "infoblox_network_container" "list_containers_with_resource" {
   provider         = infoblox
   include_resource = true
 }

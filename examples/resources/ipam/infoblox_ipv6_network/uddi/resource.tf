@@ -1,5 +1,5 @@
 // Create an IPAM IPv6 Network with Basic Fields
-resource "infoblox_ipv6network" "exampl_network_basic" {
+resource "infoblox_ipv6_network" "exampl_network_basic" {
   uddi = {
     address = "2001:db8:1ef8:e4ee::"
     cidr    = 64
@@ -14,7 +14,7 @@ resource "infoblox_ipv6network" "exampl_network_basic" {
   }
 }
 
-resource "infoblox_ipv6network" "example_network_additional" {
+resource "infoblox_ipv6_network" "example_network_additional" {
   uddi = {
     address = "2002:db8:1ef8:e4ee::"
     cidr    = 64
