@@ -91,13 +91,11 @@ var ForwardNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"hosts": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"internal_forwarders": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"name": schema.StringAttribute{
@@ -107,7 +105,6 @@ var ForwardNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"nsgs": schema.ListAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
