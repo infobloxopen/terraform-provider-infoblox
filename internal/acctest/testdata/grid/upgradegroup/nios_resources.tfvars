@@ -1,4 +1,8 @@
 # Auto-generated resource acceptance-test cases for Upgradegroup.
+// TODO : Objects to be present in the grid for testing
+// Upgrade/Distribution Dependent Group - example_upgrade_dependent_group1, example_upgrade_dependent_group2
+// Grid Members - set NIOS_GRID_MEMBER_HOSTNAME and NIOS_GRID_MEMBER_2_HOSTNAME env vars
+
 case "basic" {
   backend  = "nios"
   parallel = true
