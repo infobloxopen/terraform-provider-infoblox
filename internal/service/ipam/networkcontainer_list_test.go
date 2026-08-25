@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNetworkcontainerList(t *testing.T) {
-	resourceType := "infoblox_networkcontainer"
+	resourceType := "infoblox_network_container"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
