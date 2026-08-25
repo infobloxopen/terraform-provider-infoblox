@@ -1,12 +1,12 @@
 // Create Network View with Basic Fields
-resource "infoblox_networkview" "create_network_view" {
+resource "infoblox_network_view" "create_network_view" {
   uddi = {
     name = "example_network_view"
   }
 }
 
 // Create Network View with Tags
-resource "infoblox_networkview" "create_network_view_with_tags" {
+resource "infoblox_network_view" "create_network_view_with_tags" {
   uddi = {
     name    = "example_network_view_tags"
     comment = "Example Network View with tags created by the terraform provider"
@@ -17,12 +17,12 @@ resource "infoblox_networkview" "create_network_view_with_tags" {
 }
 
 // Create Network View with Additional Fields
-resource "infoblox_networkview" "create_network_view_with_additional_fields" {
+resource "infoblox_network_view" "create_network_view_with_additional_fields" {
   uddi = {
     name    = "example_network_view_full"
     comment = "Full Network View example"
 
-    # DDNS settings (defaults shown with non-default values)
+    // DDNS settings (defaults shown with non-default values)
     ddns_client_update            = "server"
     ddns_conflict_resolution_mode = "no_check_with_dhcid"
     ddns_generate_name            = true
@@ -31,12 +31,12 @@ resource "infoblox_networkview" "create_network_view_with_additional_fields" {
     ddns_update_on_renew          = true
     ddns_use_conflict_resolution  = false
 
-    # Hostname rewrite settings
+    // Hostname rewrite settings
     hostname_rewrite_enabled = true
     hostname_rewrite_char    = "-"
     hostname_rewrite_regex   = "[^a-zA-Z0-9_.]"
 
-    # ASM configuration (overriding defaults)
+    // ASM configuration
     asm_config = {
       asm_threshold       = 80
       enable              = true
@@ -50,7 +50,7 @@ resource "infoblox_networkview" "create_network_view_with_additional_fields" {
       reenable_date       = "1970-01-01T00:00:00Z"
     }
 
-    # DHCP configuration (overriding defaults)
+    // DHCP configuration
     dhcp_config = {
       abandoned_reclaim_time    = 3600
       abandoned_reclaim_time_v6 = 3600

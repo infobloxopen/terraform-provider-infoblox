@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNetworkviewList(t *testing.T) {
-	resourceType := "infoblox_networkview"
+	resourceType := "infoblox_network_view"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {

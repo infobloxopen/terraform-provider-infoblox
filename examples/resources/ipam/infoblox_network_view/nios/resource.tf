@@ -1,12 +1,12 @@
 // Create Network View with Basic Fields
-resource "infoblox_networkview" "create_network_view" {
+resource "infoblox_network_view" "create_network_view" {
   nios = {
     name = "example_network_view"
   }
 }
 
 // Create Network View with Additional Fields
-resource "infoblox_networkview" "create_network_view_with_additional_fields" {
+resource "infoblox_network_view" "create_network_view_with_additional_fields" {
   nios = {
     name    = "example-network-view2"
     comment = "Example Network View with Additional Fields"
