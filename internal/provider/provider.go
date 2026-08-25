@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
@@ -332,6 +333,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewFilteroptionResource,
 		dns.NewRecordSrvResource,
 		grid.NewExtensibleattributedefResource,
+		ipam.NewNetworkviewResource,
+		dtc.NewDtcServerResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
@@ -365,6 +368,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewFilteroptionDataSource,
 		dns.NewRecordSrvDataSource,
 		grid.NewExtensibleattributedefDataSource,
+		ipam.NewNetworkviewDataSource,
+		dtc.NewDtcServerDataSource,
+		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
@@ -375,7 +381,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneAuthDataSource,
 		dns.NewViewDataSource,
 		dns.NewRecordADataSource,
-		dns.NewRecordNaptrDataSource,
 
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
@@ -401,6 +406,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewFilteroptionList,
 		dns.NewRecordSrvList,
 		grid.NewExtensibleattributedefList,
+		ipam.NewNetworkviewList,
+		dtc.NewDtcServerList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
