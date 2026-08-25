@@ -11,15 +11,16 @@ case "basic" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      ipv4addr = "192.168.104.22"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
+      view     = "default"
     }
     check = {
-      "nios.ipv4addr"           = "192.168.104.22"
+      "nios.name"               = "ptrrecord.{{random}}.com"
       "nios.ptrdname"           = "host.{{random}}.com"
       "nios.view"               = "default"
-      "nios.name"               = "22.104.168.192.in-addr.arpa"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
       "nios.disable"            = "false"
@@ -43,9 +44,11 @@ case "disappears" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      ipv4addr = "192.168.104.23"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
+      view     = "default"
     }
   }
 
@@ -63,8 +66,9 @@ case "comment" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "23.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       comment  = "This is a comment"
@@ -76,7 +80,7 @@ case "comment" {
 
   step {
     nios {
-      name     = "23.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       comment  = "This is an updated comment"
@@ -100,8 +104,9 @@ case "creator" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "24.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       creator  = "STATIC"
@@ -113,7 +118,7 @@ case "creator" {
 
   step {
     nios {
-      name     = "24.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       creator  = "DYNAMIC"
@@ -137,8 +142,9 @@ case "ddns_principal" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name           = "25.104.168.192.in-addr.arpa"
+      name           = "ptrrecord.{{random}}.com"
       ptrdname       = "host.{{random}}.com"
       view           = "default"
       creator        = "DYNAMIC"
@@ -151,7 +157,7 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "25.104.168.192.in-addr.arpa"
+      name           = "ptrrecord.{{random}}.com"
       ptrdname       = "host.{{random}}.com"
       view           = "default"
       creator        = "DYNAMIC"
@@ -176,8 +182,9 @@ case "ddns_protected" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name           = "26.104.168.192.in-addr.arpa"
+      name           = "ptrrecord.{{random}}.com"
       ptrdname       = "host.{{random}}.com"
       view           = "default"
       ddns_protected = false
@@ -189,7 +196,7 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "26.104.168.192.in-addr.arpa"
+      name           = "ptrrecord.{{random}}.com"
       ptrdname       = "host.{{random}}.com"
       view           = "default"
       ddns_protected = true
@@ -213,8 +220,9 @@ case "disable" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "27.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       disable  = false
@@ -226,7 +234,7 @@ case "disable" {
 
   step {
     nios {
-      name     = "27.104.168.192.in-addr.arpa"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       disable  = true
@@ -250,8 +258,9 @@ case "ext_attrs" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name      = "28.104.168.192.in-addr.arpa"
+      name      = "ptrrecord.{{random}}.com"
       ptrdname  = "host.{{random}}.com"
       view      = "default"
       ext_attrs = { Site = "{{random2}}" }
@@ -263,7 +272,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "28.104.168.192.in-addr.arpa"
+      name      = "ptrrecord.{{random}}.com"
       ptrdname  = "host.{{random}}.com"
       view      = "default"
       ext_attrs = { Site = "{{random3}}" }
@@ -287,8 +296,9 @@ case "forbid_reclamation" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name               = "29.104.168.192.in-addr.arpa"
+      name               = "ptrrecord.{{random}}.com"
       ptrdname           = "host.{{random}}.com"
       view               = "default"
       forbid_reclamation = true
@@ -300,7 +310,7 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "29.104.168.192.in-addr.arpa"
+      name               = "ptrrecord.{{random}}.com"
       ptrdname           = "host.{{random}}.com"
       view               = "default"
       forbid_reclamation = false
@@ -324,24 +334,25 @@ case "ipv4addr" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      ipv4addr = "192.168.104.30"
+      name     = "ptrrecord1.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.ipv4addr" = "192.168.104.30"
+      "nios.name" = "ptrrecord1.{{random}}.com"
     }
   }
 
   step {
     nios {
-      ipv4addr = "192.168.104.31"
+      name     = "ptrrecord2.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.ipv4addr" = "192.168.104.31"
+      "nios.name" = "ptrrecord2.{{random}}.com"
     }
   }
 
@@ -359,13 +370,14 @@ case "ipv6addr" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      ipv6addr = "2001:db8::24"
+      name     = "ptrrecord1.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.ipv6addr" = "2001:db8::24"
+      "nios.name"     = "ptrrecord1.{{random}}.com"
       "nios.ptrdname" = "host.{{random}}.com"
       "nios.view"     = "default"
     }
@@ -373,12 +385,12 @@ case "ipv6addr" {
 
   step {
     nios {
-      ipv6addr = "2001:db8::25"
+      name     = "ptrrecord2.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.ipv6addr" = "2001:db8::25"
+      "nios.name"     = "ptrrecord2.{{random}}.com"
       "nios.ptrdname" = "host.{{random}}.com"
       "nios.view"     = "default"
     }
@@ -398,24 +410,25 @@ case "name" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      name     = "32.104.168.192.in-addr.arpa"
+      name     = "ptrrecord1.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "32.104.168.192.in-addr.arpa"
+      "nios.name" = "ptrrecord1.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name     = "33.104.168.192.in-addr.arpa"
+      name     = "ptrrecord2.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "33.104.168.192.in-addr.arpa"
+      "nios.name" = "ptrrecord2.{{random}}.com"
     }
   }
 
@@ -433,9 +446,10 @@ case "ptrdname" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
-      ipv4addr = "192.168.104.34"
       view     = "default"
     }
     check = {
@@ -445,8 +459,8 @@ case "ptrdname" {
 
   step {
     nios {
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host2.{{random}}.com"
-      ipv4addr = "192.168.104.34"
       view     = "default"
     }
     check = {
@@ -468,8 +482,9 @@ case "ttl" {
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.test]
     nios {
-      ipv6addr = "2001:db8::26"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       ttl      = 300
@@ -481,7 +496,7 @@ case "ttl" {
 
   step {
     nios {
-      ipv6addr = "2001:db8::26"
+      name     = "ptrrecord.{{random}}.com"
       ptrdname = "host.{{random}}.com"
       view     = "default"
       ttl      = 600
