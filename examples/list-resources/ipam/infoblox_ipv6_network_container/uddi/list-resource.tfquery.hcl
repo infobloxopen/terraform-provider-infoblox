@@ -1,4 +1,4 @@
-// List specific Ipv6 Network Containers using filters
+// List specific IPv6 Network Containers using filters
 list "infoblox_ipv6_network_container" "list_ipv6networkcontainer_using_filters" {
   provider = infoblox
   config {
@@ -9,7 +9,7 @@ list "infoblox_ipv6_network_container" "list_ipv6networkcontainer_using_filters"
   limit = 10
 }
 
-// List specific Ipv6 Network Containers using Tags
+// List specific IPv6 Network Containers using Tags
 list "infoblox_ipv6_network_container" "list_ipv6networkcontainer_using_tags" {
   provider = infoblox
   config {
@@ -19,7 +19,7 @@ list "infoblox_ipv6_network_container" "list_ipv6networkcontainer_using_tags" {
   }
 }
 
-// List Ipv6 Network Containers with resource details included
+// List IPv6 Network Containers with resource details included
 list "infoblox_ipv6_network_container" "list_ipv6networkcontainer_with_resource" {
   provider         = infoblox
   include_resource = true

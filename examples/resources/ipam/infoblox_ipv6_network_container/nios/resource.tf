@@ -1,11 +1,11 @@
-// Create IPV6 Network Container with Basic Fields
+// Create IPv6 Network Container with Basic Fields
 resource "infoblox_ipv6_network_container" "ipv6networkcontainer_with_basic_fields" {
   nios = {
     network = "10::/64"
   }
 }
 
-// Create IPV6 Network Container with Additional Fields
+// Create IPv6 Network Container with Additional Fields
 resource "infoblox_ipv6_network_container" "ipv6networkcontainer_with_additional_fields" {
   nios = {
     // Required attributes
@@ -36,7 +36,7 @@ resource "infoblox_ipv6_network_container" "ipv6networkcontainer_with_additional
   }
 }
 
-// Create IPV6 Network Container with Function Call
+// Create IPv6 Network Container with Function Call
 resource "infoblox_ipv6_network_container" "example_func_call" {
   nios = {
     dynamic_allocation = {
