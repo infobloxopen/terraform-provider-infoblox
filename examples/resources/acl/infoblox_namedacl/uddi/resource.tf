@@ -1,19 +1,3 @@
-terraform {
-  required_providers {
-    infoblox = {
-      source  = "infobloxopen/infoblox"
-      version = "0.0.1"
-    }
-  }
-}
-
-provider "infoblox" {
-  uddi = {
-    portal_url = "https://csp.eu-stg-1.eu.stage.test.infoblox.com"
-    portal_key = "7613ec68d403b3d72495f61b8be71aa9b51f07dd96d554c7799f2815ebba1f5b"
-  }
-}
-
 // Create a Named ACL with Basic Fields
 resource "infoblox_namedacl" "create_namedacl" {
   uddi = {
