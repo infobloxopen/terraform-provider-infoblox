@@ -19,7 +19,6 @@ case "basic" {
     }
     check = {
       "uddi.name"       = "{{random}}"
-      "uddi.protocol"   = "ip4"
       "uddi.role"       = "values"
       "uddi.lease_time" = "0"
     }

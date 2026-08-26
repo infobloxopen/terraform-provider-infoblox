@@ -1,6 +1,8 @@
 # Hand-authored resource acceptance-test cases for RecordRpzNaptr.
-# RPZ zones (tf-acc-rpz-naptr.example.com, tf-acc-rpz-naptr-custom.example.com)
-# and view (tf-acc-rpz-naptr-view) are pre-created on the grid and must exist before running tests.
+# TODO: The following prerequisites MUST exist on the grid before running these tests:
+#   - RPZ zone : tf-acc-rpz-naptr.example.com         (view: default)
+#   - RPZ zone : tf-acc-rpz-naptr-custom.example.com  (view: tf-acc-rpz-naptr-view)
+#   - DNS view : tf-acc-rpz-naptr-view
 
 case "basic" {
   backend  = "nios"

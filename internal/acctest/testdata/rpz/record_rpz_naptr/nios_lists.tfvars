@@ -1,4 +1,8 @@
 # RecordRpzNaptr — nios list cases
+# TODO: The following prerequisites MUST exist on the grid before running these tests:
+#   - RPZ zone : tf-acc-rpz-naptr.example.com         (view: default)
+#   - RPZ zone : tf-acc-rpz-naptr-custom.example.com  (view: tf-acc-rpz-naptr-view)
+#   - DNS view : tf-acc-rpz-naptr-view
 
 case "basic" {
   backend        = "nios"
