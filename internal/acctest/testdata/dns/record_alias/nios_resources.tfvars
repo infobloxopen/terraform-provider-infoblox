@@ -1,17 +1,24 @@
 # Auto-generated resource acceptance-test cases for RecordAlias.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name"        = "{{random}}.example.com"
+      "nios.name"        = "{{random2}}.{{random}}.com"
       "nios.target_name" = "server.example.com"
       "nios.target_type" = "A"
       "nios.view"        = "default"
@@ -27,28 +34,42 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
   }
 
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       comment     = "This is a sample comment."
     }
     check = {
@@ -58,10 +79,10 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       comment     = "This is an updated comment."
     }
     check = {
@@ -72,15 +93,22 @@ case "comment" {
 }
 
 case "creator" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       creator     = "STATIC"
     }
     check = {
@@ -91,15 +119,22 @@ case "creator" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       disable     = false
     }
     check = {
@@ -109,10 +144,10 @@ case "disable" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       disable     = true
     }
     check = {
@@ -123,28 +158,22 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
-
-  step {
-    nios {
-      name        = "{{random}}.example.com"
-      target_name = "server.example.com"
-      target_type = "A"
-      view        = "default"
-      ext_attrs   = { Site = "{{random2}}" }
-    }
-    check = {
-      "nios.ext_attrs.Site" = "{{random2}}"
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
     }
   }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       ext_attrs   = { Site = "{{random3}}" }
     }
     check = {
@@ -152,48 +181,75 @@ case "ext_attrs" {
     }
   }
 
+  step {
+    nios {
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target_name = "server.example.com"
+      target_type = "A"
+      view        = infoblox_zone_auth.test.nios.view
+      ext_attrs   = { Site = "{{random4}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random4}}"
+    }
+  }
+
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name" = "{{random}}.example.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name        = "{{random2}}.example.com"
+      name        = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name" = "{{random2}}.example.com"
+      "nios.name" = "{{random3}}.{{random}}.com"
     }
   }
 
 }
 
 case "target_name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.target_name" = "server.example.com"
@@ -202,10 +258,10 @@ case "target_name" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "updated-server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.target_name" = "updated-server.example.com"
@@ -215,15 +271,22 @@ case "target_name" {
 }
 
 case "target_type" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.target_type" = "A"
@@ -232,10 +295,10 @@ case "target_type" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "AAAA"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.target_type" = "AAAA"
@@ -245,15 +308,22 @@ case "target_type" {
 }
 
 case "ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       ttl         = 10
     }
     check = {
@@ -263,10 +333,10 @@ case "ttl" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
       ttl         = 0
     }
     check = {
@@ -277,28 +347,39 @@ case "ttl" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "view1" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_view" "view2" {
+    nios = {
+      name = "{{random4}}"
+    }
+  }
+  resource "infoblox_zone_auth" "zone1" {
+    nios = {
+      fqdn = "{{random}}.com"
+      view = infoblox_view.view1.nios.name
+    }
+  }
+  resource "infoblox_zone_auth" "zone2" {
+    nios = {
+      fqdn = "{{random}}.com"
+      view = infoblox_view.view2.nios.name
+    }
+  }
+  PREREQ
 
   step {
-    prerequisites_hcl = <<-PREREQ
-    resource "infoblox_view" "test" {
-      nios = {
-        name = "{{random3}}"
-      }
-    }
-    resource "infoblox_zone_auth" "test" {
-      nios = {
-        fqdn = "{{random}}.com"
-        view = infoblox_view.test.nios.name
-      }
-    }
-    PREREQ
     nios {
-      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_auth.zone1.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "{{random3}}"
+      view        = infoblox_view.view1.nios.name
     }
     check = {
       "nios.view" = "{{random3}}"
@@ -306,24 +387,11 @@ case "view" {
   }
 
   step {
-    prerequisites_hcl = <<-PREREQ
-    resource "infoblox_view" "test" {
-      nios = {
-        name = "{{random4}}"
-      }
-    }
-    resource "infoblox_zone_auth" "test" {
-      nios = {
-        fqdn = "{{random}}.com"
-        view = infoblox_view.test.nios.name
-      }
-    }
-    PREREQ
     nios {
-      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_auth.zone2.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "{{random4}}"
+      view        = infoblox_view.view2.nios.name
     }
     check = {
       "nios.view" = "{{random4}}"

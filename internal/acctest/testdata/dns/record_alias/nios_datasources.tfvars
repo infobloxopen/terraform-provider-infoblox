@@ -1,6 +1,13 @@
 # Auto-generated datasource acceptance-test cases for RecordAlias.
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -13,17 +20,24 @@ case "filters" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
   }
 
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend           = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "ext_attr_filters"
@@ -36,11 +50,11 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
-      ext_attrs   = { Site = "{{random2}}" }
+      view        = infoblox_zone_auth.test.nios.view
+      ext_attrs   = { Site = "{{random3}}" }
     }
   }
 

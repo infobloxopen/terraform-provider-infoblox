@@ -1,14 +1,21 @@
 # Auto-generated list acceptance-test cases for RecordAlias.
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
   }
 
@@ -21,21 +28,28 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
+      view        = infoblox_zone_auth.test.nios.view
     }
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
       type   = "filters"
@@ -48,22 +62,29 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random}}.example.com"
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       target_name = "server.example.com"
       target_type = "A"
-      view        = "default"
-      ext_attrs   = { Site = "{{random2}}" }
+      view        = infoblox_zone_auth.test.nios.view
+      ext_attrs   = { Site = "{{random3}}" }
     }
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
       type   = "ext_attr_filters"
