@@ -25,8 +25,8 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
