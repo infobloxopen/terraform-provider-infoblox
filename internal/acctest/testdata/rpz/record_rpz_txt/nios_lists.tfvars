@@ -1,5 +1,7 @@
 # RecordRpzTxt — nios list cases
-# rp_zone hardcoded to "test-rpz.com" (infoblox_zone_rp is not registered).
+# TODO : rp_zone must be present
+# test-rpz.com
+
 case "basic" {
   backend  = "nios"
   parallel = true

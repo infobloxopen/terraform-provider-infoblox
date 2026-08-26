@@ -1,6 +1,7 @@
 # Auto-generated datasource acceptance-test cases for RecordRpzTxt.
-# rp_zone hardcoded to "test-rpz.com" (infoblox_zone_rp is not registered).
-# nios.use_ttl removed from pair_checks (not a user-facing field in unified model).
+# TODO : rp_zone must be present
+# test-rpz.com
+
 case "filters" {
   backend = "nios"
 
