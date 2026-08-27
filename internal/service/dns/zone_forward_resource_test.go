@@ -31,7 +31,7 @@ func TestAccZoneForwardResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dns/zone_forward/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dns/zone_forward/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

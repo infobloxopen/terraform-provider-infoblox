@@ -55,7 +55,7 @@ resource "infoblox_zone_forward" "zone_forward_ipv4" {
 // Create an IPV6 DNS zone forward
 resource "infoblox_zone_forward" "zone_forward_ipv6_mapping" {
   nios = {
-    fqdn = "3001:db8::/64"
+    fqdn = "3002:db8::/64"
     forward_to = [
       {
         name    = "ns1.example.com"

@@ -72,7 +72,7 @@ case "ext_attr_filters" {
     nios {
       fqdn              = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       external_ns_group = "ensg1"
-      ext_attrs         = { Site = "{{random2}}" }
+      ext_attrs         = { Site = "{{random3}}" }
     }
   }
 
