@@ -36,7 +36,7 @@ type Ipv6networkDataSource struct {
 }
 
 func (d *Ipv6networkDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6network"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_network"
 }
 
 // Ipv6networkDataSourceModel is the filter model for the datasource
@@ -157,11 +157,12 @@ func (d *Ipv6networkDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields:  Ipv6networkReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"protocol": "ip6"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    Ipv6networkReturnFields,
+		Paging:          1,
 	}
 
 	if !data.MaxResults.IsNull() {
