@@ -350,13 +350,55 @@ case "inheritance_sources" {
 
 }
 
-# servers[].server_id must reference an existing UDDI Server object. There is no
-# infoblox_dtc_server resource to create one as a prerequisite, so this needs a hardcoded
-# ID from the test tenant (same approach as the NIOS servers case).
+# servers[].server_id references Server objects created as prerequisites. The second step
+# drops one server and reweights the other, covering both list membership and weight
+# updates.
 case "servers" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "needs a hardcoded UDDI Server id; no infoblox_dtc_server resource exists to create a prerequisite"
+  backend  = "uddi"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    uddi = {
+      name    = "{{random2}}"
+      address = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_server" "two" {
+    uddi = {
+      name    = "{{random3}}"
+      address = "{{random_ip2}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name    = "{{random}}"
+      method  = "round_robin"
+      servers = [{ server_id = infoblox_dtc_server.one.id, weight = 1 }, { server_id = infoblox_dtc_server.two.id, weight = 2 }]
+    }
+    check = {
+      "uddi.servers.#"        = "2"
+      "uddi.servers.0.name"   = "{{random2}}"
+      "uddi.servers.0.weight" = "1"
+      "uddi.servers.1.name"   = "{{random3}}"
+      "uddi.servers.1.weight" = "2"
+    }
+  }
+
+  step {
+    uddi {
+      name    = "{{random}}"
+      method  = "round_robin"
+      servers = [{ server_id = infoblox_dtc_server.one.id, weight = 5 }]
+    }
+    check = {
+      "uddi.servers.#"        = "1"
+      "uddi.servers.0.name"   = "{{random2}}"
+      "uddi.servers.0.weight" = "5"
+    }
+  }
+
 }
 
 # health_checks[].health_check_id must reference an existing UDDI HealthCheck object,
