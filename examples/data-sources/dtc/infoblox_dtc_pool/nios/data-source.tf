@@ -5,7 +5,7 @@ data "infoblox_dtc_pool" "get_dtc_pool_using_filters" {
   }
 }
 
-// Retrieve specific DTC Pool using Extensible Attributes
+// Retrieve specific DTC Pools using Extensible Attributes
 data "infoblox_dtc_pool" "get_dtc_pool_using_extensible_attributes" {
   ext_attr_filters = {
     Site = "location-1"

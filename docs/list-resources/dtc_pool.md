@@ -15,7 +15,7 @@ Retrieves a list of Infoblox DtcPool from both the NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
-// List specific DtcPool records using filters
+// List specific DTC Pool records using filters
 list "infoblox_dtc_pool" "list_dtc_pool_using_filters" {
   provider = infoblox
   config {
@@ -26,7 +26,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_using_filters" {
   limit = 10
 }
 
-// List specific DtcPool records using Extensible Attributes
+// List specific DTC Pool records using Extensible Attributes
 list "infoblox_dtc_pool" "list_dtc_pool_using_extensible_attributes" {
   provider = infoblox
   config {
@@ -36,7 +36,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_using_extensible_attributes" {
   }
 }
 
-// List DtcPool records with resource details included
+// List DTC Pool records with resource details included
 list "infoblox_dtc_pool" "list_dtc_pool_with_resource" {
   provider         = infoblox
   include_resource = true
@@ -46,7 +46,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_with_resource" {
 ### UDDI Backend
 
 ```terraform
-// List specific DtcPool records using filters
+// List specific DTC Pool records using filters
 list "infoblox_dtc_pool" "list_dtc_pool_using_filters" {
   provider = infoblox
   config {
@@ -57,7 +57,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_using_filters" {
   limit = 10
 }
 
-// List specific DtcPool records using Tags
+// List specific DTC Pool records using Tags
 list "infoblox_dtc_pool" "list_dtc_pool_using_tags" {
   provider = infoblox
   config {
@@ -67,7 +67,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_using_tags" {
   }
 }
 
-// List DtcPool records with resource details included
+// List DTC Pool records with resource details included
 list "infoblox_dtc_pool" "list_dtc_pool_with_resource" {
   provider         = infoblox
   include_resource = true
