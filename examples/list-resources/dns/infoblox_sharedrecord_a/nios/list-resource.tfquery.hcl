@@ -3,7 +3,11 @@ list "infoblox_sharedrecord_a" "list_shared_a_records_using_filters" {
   provider = infoblox
   config {
     filters = {
+<<<<<<< HEAD
       name = "sharedrecord_a_basic"
+=======
+      name = "example_record.example.com"
+>>>>>>> bea50a63 (Initial commit - SharedrecordA)
     }
   }
   limit = 10

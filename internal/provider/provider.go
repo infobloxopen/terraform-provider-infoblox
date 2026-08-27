@@ -324,6 +324,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dns.NewSharedrecordAResource,
+<<<<<<< HEAD
 		rpz.NewRecordRpzTxtResource,
 		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
@@ -334,6 +335,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dns.NewAuthNsgResource,
+=======
+>>>>>>> bea50a63 (Initial commit - SharedrecordA)
 		dhcp.NewFilteroptionResource,
 		dns.NewForwardNsgResource,
 		dns.NewRecordSrvResource,
@@ -363,6 +366,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dns.NewSharedrecordADataSource,
+<<<<<<< HEAD
 		rpz.NewRecordRpzTxtDataSource,
 		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
@@ -373,6 +377,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dns.NewAuthNsgDataSource,
+=======
+>>>>>>> bea50a63 (Initial commit - SharedrecordA)
 		dhcp.NewFilteroptionDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewRecordSrvDataSource,
@@ -405,6 +411,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dns.NewSharedrecordAList,
+<<<<<<< HEAD
 		rpz.NewRecordRpzTxtList,
 		dns.NewNsgroupList,
 		grid.NewNatgroupList,
@@ -415,6 +422,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
 		dns.NewAuthNsgList,
+=======
+>>>>>>> bea50a63 (Initial commit - SharedrecordA)
 		dhcp.NewFilteroptionList,
 		dns.NewForwardNsgList,
 		dns.NewRecordSrvList,
