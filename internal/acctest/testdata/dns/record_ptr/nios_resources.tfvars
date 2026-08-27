@@ -524,3 +524,34 @@ case "reverse_mapping" {
   }
 
 }
+
+case "reverse_mapping_ipv6" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "2002:5599::/64"
+      zone_format = "IPV6"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      ipv6addr = "2002:5599::50"
+      ptrdname = "{{random3}}.com"
+      view     = "default"
+    }
+    check = {
+      "nios.ipv6addr" = "2002:5599::50"
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+}

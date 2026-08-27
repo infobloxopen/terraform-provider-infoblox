@@ -98,3 +98,39 @@ case "ipv4addr_filters" {
   }
 
 }
+
+# Same as ipv4addr_filters, for an IPV6 reverse zone.
+case "ipv6addr_filters" {
+  backend = "nios"
+
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "2002:5525::/64"
+      zone_format = "IPV6"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  filter {
+    type   = "filters"
+    values = {
+      ipv6addr = "nios.ipv6addr"
+      ptrdname = "nios.ptrdname"
+      view     = "nios.view"
+    }
+  }
+
+  pair_checks = ["nios.comment", "nios.creator", "nios.ddns_principal", "nios.ddns_protected", "nios.disable", "nios.forbid_reclamation", "nios.ipv4addr", "nios.ipv6addr", "nios.name", "nios.ptrdname", "nios.ttl", "nios.use_ttl", "nios.view"]
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      ipv6addr = "2002:5525::10"
+      ptrdname = "{{random3}}.com"
+      view     = "default"
+    }
+  }
+
+}
