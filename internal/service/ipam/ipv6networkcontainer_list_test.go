@@ -22,7 +22,7 @@ func TestAccIpv6networkcontainerList(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "ipam/ipv6networkcontainer/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "ipam/ipv6_network_container/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }
