@@ -1,6 +1,6 @@
 # RecordRpzTxt — nios list cases
-# TODO : rp_zone must be present
-# test-rpz.com
+# TODO: The following prerequisites MUST exist on the grid before running these tests:
+#   - RPZ zone : test-rpz.com  (view: default)
 
 case "basic" {
   backend  = "nios"
