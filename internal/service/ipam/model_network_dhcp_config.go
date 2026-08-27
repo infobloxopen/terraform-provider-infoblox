@@ -6,18 +6,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
 // NetworkDHCPConfigModel is the Terraform model for DHCPConfig
 type NetworkDHCPConfigModel struct {
 	AllowUnknown          types.Bool  `tfsdk:"allow_unknown"`
+	AuthoritativeDhcp     types.Bool  `tfsdk:"authoritative_dhcp"`
 	Filters               types.List  `tfsdk:"filters"`
 	FiltersLargeSelection types.List  `tfsdk:"filters_large_selection"`
 	IgnoreClientUid       types.Bool  `tfsdk:"ignore_client_uid"`
@@ -28,6 +31,7 @@ type NetworkDHCPConfigModel struct {
 // NetworkDHCPConfigAttrTypes contains the attribute types for NetworkDHCPConfigModel
 var NetworkDHCPConfigAttrTypes = map[string]attr.Type{
 	"allow_unknown":           types.BoolType,
+	"authoritative_dhcp":      types.BoolType,
 	"filters":                 types.ListType{ElemType: types.StringType},
 	"filters_large_selection": types.ListType{ElemType: types.StringType},
 	"ignore_client_uid":       types.BoolType,
@@ -43,15 +47,27 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "Disable to allow leases only for known IPv4 clients, those for which a fixed address is configured.",
 	},
-	"filters": schema.ListAttribute{
-		ElementType:         types.StringType,
+	"authoritative_dhcp": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
+		MarkdownDescription: "Set DHCP server as authoritative.",
+	},
+	"filters": schema.ListAttribute{
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_large_selection": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		Computed:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
@@ -64,7 +80,10 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: IgnoreItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
 	"lease_time": schema.Int64Attribute{
@@ -95,6 +114,7 @@ func (m *NetworkDHCPConfigModel) Expand(ctx context.Context, diags *diag.Diagnos
 	}
 	to := &uddiipam.DHCPConfig{
 		AllowUnknown:          flex.ExpandBoolPointer(m.AllowUnknown),
+		AuthoritativeDhcp:     flex.ExpandBoolPointer(m.AuthoritativeDhcp),
 		Filters:               flex.ExpandFrameworkListString(ctx, m.Filters, diags),
 		FiltersLargeSelection: flex.ExpandFrameworkListString(ctx, m.FiltersLargeSelection, diags),
 		IgnoreClientUid:       flex.ExpandBoolPointer(m.IgnoreClientUid),
@@ -122,6 +142,7 @@ func (m *NetworkDHCPConfigModel) Flatten(ctx context.Context, from *uddiipam.DHC
 		return
 	}
 	m.AllowUnknown = flex.FlattenBoolPointer(from.AllowUnknown)
+	m.AuthoritativeDhcp = flex.FlattenBoolPointer(from.AuthoritativeDhcp)
 	m.Filters = flex.FlattenFrameworkListString(ctx, from.Filters, diags)
 	m.FiltersLargeSelection = flex.FlattenFrameworkListString(ctx, from.FiltersLargeSelection, diags)
 	m.IgnoreClientUid = flex.FlattenBoolPointer(from.IgnoreClientUid)

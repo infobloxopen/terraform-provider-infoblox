@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -21,8 +20,9 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource              = &RecordSrvList{}
-	_ list.ListResourceWithConfigure = &RecordSrvList{}
+	_ list.ListResource                   = &RecordSrvList{}
+	_ list.ListResourceWithConfigure      = &RecordSrvList{}
+	_ list.ListResourceWithValidateConfig = &RecordSrvList{}
 )
 
 func NewRecordSrvList() list.ListResource {
@@ -90,7 +90,7 @@ func (l *RecordSrvList) ListResourceConfigSchema(_ context.Context, _ list.ListR
 	}
 }
 
-func (d *RecordSrvList) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (l *RecordSrvList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
 	var data RecordSrvListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -98,7 +98,7 @@ func (d *RecordSrvList) ValidateConfig(ctx context.Context, req datasource.Valid
 		return
 	}
 
-	validator.ValidateListFilters(d.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
 }
 
 func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -106,26 +106,6 @@ func (l *RecordSrvList) List(ctx context.Context, req list.ListRequest, stream *
 
 	diags := req.Config.Get(ctx, &data)
 	if diags.HasError() {
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-
-	// Backend-specific filter validation.
-	if l.backend == core.BackendNIOS && !data.TagFilters.IsNull() && !data.TagFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("tag_filters"),
-			"Invalid filter for NIOS backend",
-			"tag_filters is only supported on the UDDI backend. Use ext_attr_filters for NIOS.",
-		)
-		stream.Results = list.ListResultsStreamDiagnostics(diags)
-		return
-	}
-	if l.backend == core.BackendUDDI && !data.ExtAttrFilters.IsNull() && !data.ExtAttrFilters.IsUnknown() {
-		diags.AddAttributeError(
-			path.Root("ext_attr_filters"),
-			"Invalid filter for UDDI backend",
-			"ext_attr_filters is only supported on the NIOS backend. Use tag_filters for UDDI.",
-		)
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}
