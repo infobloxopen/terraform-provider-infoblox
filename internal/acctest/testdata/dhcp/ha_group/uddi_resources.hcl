@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for HaGroup.
-// TODO: have to be present on the grid before running the test cases.
-// dhcp/host/470520,
-// dhcp/host/470521
+#  TODO: have to be present on the grid before running the test cases.
+#  dhcp/host/470520,
+#  dhcp/host/470521
 case "basic" {
   backend = "uddi"
 

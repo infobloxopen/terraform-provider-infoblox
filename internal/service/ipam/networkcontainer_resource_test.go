@@ -31,7 +31,7 @@ func TestAccNetworkcontainerResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "ipam/network_container/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "ipam/network_container/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
