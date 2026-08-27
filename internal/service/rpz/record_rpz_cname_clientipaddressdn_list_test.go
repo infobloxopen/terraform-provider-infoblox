@@ -18,7 +18,7 @@ func TestAccRecordRpzCnameClientipaddressdnList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "rpz/record_rpz_cname_clientipaddressdn/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "rpz/record_rpz_cname_clientipaddressdn/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }
