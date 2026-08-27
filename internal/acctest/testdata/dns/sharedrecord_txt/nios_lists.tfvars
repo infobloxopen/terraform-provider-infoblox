@@ -1,19 +1,24 @@
 # Auto-generated list acceptance-test cases for SharedrecordTxt.
+#
+# TODO: These cases use the shared record group "shared_group", which must already
+#       exist on the grid. The generated prerequisite is commented out because
+#       infoblox_shared_record_group is not implemented in the provider yet.
+#       Once it is, restore the prerequisite block and remove this note.
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       text                = "This is a shared record TXT record"
     }
   }
@@ -29,18 +34,18 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random2}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random2}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       text                = "This is a shared record TXT record"
     }
   }
@@ -62,18 +67,18 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-    nios = {
-      name = "{{random3}}"
-    }
-  }
-  PREREQ
+  # prerequisites_hcl = <<-PREREQ
+  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
+  #   nios = {
+  #     name = "{{random3}}"
+  #   }
+  # }
+  # PREREQ
 
   step {
     nios {
       name                = "{{random2}}"
-      shared_record_group = infoblox_shared_record_group_unknown.parent_sharedrecord_group.nios.name
+      shared_record_group = "shared_group"
       text                = "This is a shared record TXT record"
       ext_attrs           = { Site = "{{random}}" }
     }

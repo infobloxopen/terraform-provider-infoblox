@@ -113,19 +113,6 @@ func (r *SharedrecordTxtResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	// Add Terraform Internal ID to ext_attrs
-	if r.backend == core.BackendNIOS {
-		nios := flex.ExpandNestedObject[NIOSSharedrecordTxtModel](ctx, data.NIOS, &resp.Diagnostics)
-		if nios == nil {
-			nios = &NIOSSharedrecordTxtModel{}
-		}
-		nios.ExtAttrs = flex.SetInternalID(ctx, nios.ExtAttrs, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSSharedrecordTxtAttrTypes, &resp.Diagnostics)
-	}
-
 	obj := data.Expand(ctx, &resp.Diagnostics, true)
 	if resp.Diagnostics.HasError() {
 		return
@@ -175,13 +162,6 @@ func (r *SharedrecordTxtResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	// Check if we need to associate internal ID (import flow)
-	associateInternalId, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	var (
 		apiResp  *coremodel.SharedrecordTxt
 		httpResp *http.Response
@@ -199,53 +179,11 @@ func (r *SharedrecordTxtResource) Read(ctx context.Context, req resource.ReadReq
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
-			if r.backend == core.BackendNIOS {
-				if r.ReadByExtAttrs(ctx, &data, resp) {
-					return
-				}
-			} else {
-				resp.State.RemoveResource(ctx)
-				return
-			}
+			resp.State.RemoveResource(ctx)
+			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read SharedrecordTxt: %s", err))
 		return
-	}
-
-	// For NIOS verify internal ID matches (handles case where ref changes but resource still exists)
-	if r.backend == core.BackendNIOS && associateInternalId == nil && apiResp.NIOS != nil {
-		// Get state internal ID
-		stateNIOS := flex.ExpandNestedObject[NIOSSharedrecordTxtModel](ctx, data.NIOS, &resp.Diagnostics)
-		if stateNIOS == nil || stateNIOS.ExtAttrsAll.IsNull() || stateNIOS.ExtAttrsAll.IsUnknown() {
-			resp.Diagnostics.AddError(
-				"Missing Internal ID",
-				"Unable to read SharedrecordTxt because the internal ID (from ext_attrs_all) is missing or invalid.",
-			)
-			return
-		}
-
-		stateExtAttrsAll := stateNIOS.ExtAttrsAll.Elements()
-		stateTFID := ""
-		if stateTFIDVal, ok := stateExtAttrsAll[flex.TerraformInternalID]; ok {
-			if strVal, ok := stateTFIDVal.(types.String); ok {
-				stateTFID = strVal.ValueString()
-			}
-		}
-
-		// Get API internal ID
-		apiTFID := ""
-		if apiResp.NIOS.ExtAttrs != nil {
-			if apiTFIDVal, ok := apiResp.NIOS.ExtAttrs[flex.TerraformInternalID]; ok {
-				apiTFID, _ = apiTFIDVal.(string)
-			}
-		}
-
-		if apiTFID != stateTFID {
-			// Mismatch in internal ID, try to find the record using ExtAttrs
-			if r.ReadByExtAttrs(ctx, &data, resp) {
-				return
-			}
-		}
 	}
 
 	data.Flatten(ctx, apiResp, &resp.Diagnostics)
@@ -255,67 +193,6 @@ func (r *SharedrecordTxtResource) Read(ctx context.Context, req resource.ReadReq
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
-}
-
-func (r *SharedrecordTxtResource) ReadByExtAttrs(ctx context.Context, data *SharedrecordTxtModel, resp *resource.ReadResponse) bool {
-	// Only applicable for NIOS backend
-	if r.backend != core.BackendNIOS {
-		return false
-	}
-
-	nios := flex.ExpandNestedObject[NIOSSharedrecordTxtModel](ctx, data.NIOS, &resp.Diagnostics)
-	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
-		return false
-	}
-
-	extAttrsAll := nios.ExtAttrsAll.Elements()
-	tfInternalIDVal, ok := extAttrsAll[flex.TerraformInternalID]
-	if !ok {
-		return false
-	}
-	tfInternalID := tfInternalIDVal.(types.String).ValueString()
-	if tfInternalID == "" {
-		return false
-	}
-
-	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.SharedrecordTxt
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: SharedrecordTxtReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search SharedrecordTxt by extattrs: %s", err))
-		return true
-	}
-
-	// If not found, remove from state
-	if len(records) == 0 {
-		resp.State.RemoveResource(ctx)
-		return true
-	}
-
-	data.Flatten(ctx, records[0], &resp.Diagnostics)
-	if resp.Diagnostics.HasError() {
-		return true
-	}
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
-	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
-	return true
 }
 
 func (r *SharedrecordTxtResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -332,16 +209,9 @@ func (r *SharedrecordTxtResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	// Check if we need to associate internal ID (import flow)
-	associateInternalId, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	var planExtAttrs types.Map
 
-	// Merge ext_attrs with state ext_attrs_all (inherited EAs + TF ID)
+	// Merge ext_attrs with state ext_attrs_all (inherited EAs)
 	if r.backend == core.BackendNIOS {
 		var stateNIOSObj types.Object
 		diags = req.State.GetAttribute(ctx, path.Root("nios"), &stateNIOSObj)
@@ -358,14 +228,6 @@ func (r *SharedrecordTxtResource) Update(ctx context.Context, req resource.Updat
 
 		// Preserve the plan ext_attrs (without inherited EAs) for restore after Update
 		planExtAttrs = planNIOS.ExtAttrs
-
-		// If this is post-import, add the Terraform Internal ID
-		if associateInternalId != nil {
-			planNIOS.ExtAttrs = flex.SetInternalID(ctx, planNIOS.ExtAttrs, &resp.Diagnostics)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-		}
 
 		// Merge with state ext_attrs_all (inherited EAs)
 		if stateNIOS != nil {
@@ -425,10 +287,6 @@ func (r *SharedrecordTxtResource) Update(ctx context.Context, req resource.Updat
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
-
-	if associateInternalId != nil {
-		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, nil)...)
-	}
 }
 
 func (r *SharedrecordTxtResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -468,11 +326,4 @@ func (r *SharedrecordTxtResource) ImportState(ctx context.Context, req resource.
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), req.ID)...)
-
-	if r.backend == core.BackendNIOS {
-		// For NIOS backend, set the associate_internal_id private key
-		// This triggers the plan modifier to mark ext_attrs_all as unknown,
-		// and the Update method will add the Terraform Internal ID to ext_attrs
-		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
-	}
 }
