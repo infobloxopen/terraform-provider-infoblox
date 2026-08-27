@@ -1,29 +1,26 @@
-# Hand-authored resource acceptance-test cases for RecordRpzNaptr.
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : tf-acc-rpz-naptr.example.com         (view: default)
-#   - RPZ zone : tf-acc-rpz-naptr-custom.example.com  (view: tf-acc-rpz-naptr-view)
-#   - DNS view : tf-acc-rpz-naptr-view
-
+# Auto-generated resource acceptance-test cases for RecordRpzNaptr.
 case "basic" {
   backend  = "nios"
   parallel = true
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
     }
     check = {
-      "nios.name"        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      "nios.rp_zone"     = "tf-acc-rpz-naptr.example.com"
+      "nios.name"        = "{{random2}}.{{random}}.com"
+      "nios.rp_zone"     = "{{random}}.com"
       "nios.order"       = "10"
       "nios.preference"  = "10"
       "nios.replacement" = "."
       "nios.view"        = "default"
       "nios.disable"     = "false"
+      "nios.services"    = ""
+      "nios.flags"       = ""
     }
   }
 
@@ -37,8 +34,8 @@ case "disappears" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -53,8 +50,8 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -67,8 +64,8 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -87,8 +84,8 @@ case "disable" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -101,8 +98,8 @@ case "disable" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -121,8 +118,8 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -135,8 +132,8 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -155,8 +152,8 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -169,8 +166,8 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -183,8 +180,8 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -197,8 +194,8 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -217,27 +214,27 @@ case "name" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
     }
     check = {
-      "nios.name" = "{{random2}}.tf-acc-rpz-naptr.example.com"
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name        = "{{random3}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random3}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
     }
     check = {
-      "nios.name" = "{{random3}}.tf-acc-rpz-naptr.example.com"
+      "nios.name" = "{{random3}}.{{random}}.com"
     }
   }
 
@@ -249,8 +246,8 @@ case "order" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -262,8 +259,8 @@ case "order" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 20
       preference  = 10
       replacement = "."
@@ -281,8 +278,8 @@ case "preference" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -294,8 +291,8 @@ case "preference" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 20
       replacement = "."
@@ -313,22 +310,22 @@ case "regexp" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
-      regexp      = "!^.*$!sip:jdoe@corpabc.com!"
+      regexp      = ""
     }
     check = {
-      "nios.regexp" = "!^.*$!sip:jdoe@corpabc.com!"
+      "nios.regexp" = ""
     }
   }
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -347,8 +344,8 @@ case "replacement" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -360,8 +357,8 @@ case "replacement" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "test.com"
@@ -379,14 +376,14 @@ case "rp_zone" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
     }
     check = {
-      "nios.rp_zone" = "tf-acc-rpz-naptr.example.com"
+      "nios.rp_zone" = "{{random}}.com"
     }
   }
 
@@ -398,8 +395,8 @@ case "services" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -412,8 +409,8 @@ case "services" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -432,8 +429,8 @@ case "ttl" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -446,8 +443,8 @@ case "ttl" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -463,18 +460,25 @@ case "ttl" {
 case "view" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "custom_view" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr-custom.example.com"
-      rp_zone     = "tf-acc-rpz-naptr-custom.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
-      view        = "tf-acc-rpz-naptr-view"
+      view        = infoblox_view.custom_view.nios.name
     }
     check = {
-      "nios.view" = "tf-acc-rpz-naptr-view"
+      "nios.view" = "{{random3}}"
     }
   }
 

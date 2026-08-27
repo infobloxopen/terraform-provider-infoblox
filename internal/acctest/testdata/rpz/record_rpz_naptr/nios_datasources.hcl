@@ -1,9 +1,4 @@
-# Hand-authored datasource acceptance-test cases for RecordRpzNaptr.
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : tf-acc-rpz-naptr.example.com         (view: default)
-#   - RPZ zone : tf-acc-rpz-naptr-custom.example.com  (view: tf-acc-rpz-naptr-view)
-#   - DNS view : tf-acc-rpz-naptr-view
-
+# Auto-generated datasource acceptance-test cases for RecordRpzNaptr.
 case "filters" {
   backend = "nios"
 
@@ -18,8 +13,8 @@ case "filters" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -42,8 +37,8 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "{{random2}}.{{random}}.com"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
