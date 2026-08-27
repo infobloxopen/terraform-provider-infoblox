@@ -26,7 +26,7 @@ func TestAccForwardNsgResource(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dns/forward_nsg/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dns/forward_nsg/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

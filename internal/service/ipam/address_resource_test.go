@@ -26,7 +26,7 @@ func TestAccAddressResource(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "ipam/address/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "ipam/address/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
