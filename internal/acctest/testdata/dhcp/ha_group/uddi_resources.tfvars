@@ -145,6 +145,39 @@ case "mode" {
     }
   }
 
+  step {
+    uddi {
+      hosts = [
+        { host = "dhcp/host/470520", role = "active" },
+        { host = "dhcp/host/470521", role = "passive" }
+      ]
+      name = "{{random}}"
+      mode = "advanced-active-passive"
+    }
+    check = {
+      "uddi.mode" = "advanced-active-passive"
+    }
+  }
+
+}
+
+case "split_ranges" {
+  backend = "uddi"
+
+  step {
+    uddi {
+      hosts = [
+        { host = "dhcp/host/470520", role = "active" },
+        { host = "dhcp/host/470521", role = "active" }
+      ]
+      name = "{{random}}"
+      mode = "split-ranges"
+    }
+    check = {
+      "uddi.mode" = "split-ranges"
+    }
+  }
+
 }
 
 case "name" {
