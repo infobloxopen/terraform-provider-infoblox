@@ -3,7 +3,6 @@ package dhcp
 import (
 	"context"
 	"fmt"
-	"maps"
 	"net/http"
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
@@ -121,8 +120,13 @@ func (s *dhcpHostService) Delete(ctx context.Context, id string) (*http.Response
 }
 
 func (s *dhcpHostService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
-	// DhcpHost cannot be deleted via API; removing from state only.
-	return nil, nil
+	// DhcpHost has no DELETE endpoint. Destroy disassociates by clearing server.
+	payload := uddiipam.Host{Server: nil}
+	_, httpResp, err := s.uddiClient.IPAddressManagementAPI.DhcpHostAPI.
+		Update(ctx, id).
+		Body(payload).
+		Execute()
+	return httpResp, err
 }
 
 // List retrieves DhcpHost objects based on filter options
@@ -184,17 +188,19 @@ func (s *dhcpHostService) listUDDI(ctx context.Context, opts *core.ListOptions) 
 }
 
 func mapUDDIDhcpHostToResponse(r *uddiipam.Host) *dhcp.DhcpHost {
-	resp := &dhcp.DhcpHost{
-		Id: r.Id,
-	}
+	resp := &dhcp.DhcpHost{Id: r.Id}
 	resp.UDDI = &dhcp.UDDIDhcpHostExt{
-		IpSpace: r.IpSpace,
-		Server:  r.Server,
-	}
-	if r.Tags != nil {
-		tags := make(map[string]any, len(r.Tags))
-		maps.Copy(tags, r.Tags)
-		resp.UDDI.Tags = tags
+		Address:          r.Address,
+		AnycastAddresses: r.AnycastAddresses,
+		Comment:          r.Comment,
+		CurrentVersion:   r.CurrentVersion,
+		IpSpace:          r.IpSpace,
+		Name:             r.Name,
+		Ophid:            r.Ophid,
+		ProviderId:       r.ProviderId,
+		Server:           r.Server,
+		Tags:             r.Tags,
+		Type:             r.Type,
 	}
 	return resp
 }

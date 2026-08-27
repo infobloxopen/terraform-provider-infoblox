@@ -8,7 +8,15 @@ type DhcpHost struct {
 
 // UDDIDhcpHostExt - UDDI specific fields for DhcpHost
 type UDDIDhcpHostExt struct {
-	IpSpace *string
-	Server  *string
-	Tags    map[string]any
+	Address          *string
+	AnycastAddresses []string
+	Comment          *string
+	CurrentVersion   *string
+	IpSpace          *string
+	Name             *string
+	Ophid            *string
+	ProviderId       *string
+	Server           *string
+	Tags             map[string]any
+	Type             *string
 }

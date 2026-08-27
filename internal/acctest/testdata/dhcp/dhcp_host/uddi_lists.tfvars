@@ -1,14 +1,25 @@
 # Hand-authored list acceptance-test cases for DhcpHost.
-# DhcpHost is a system-managed object; tests reference pre-existing hosts by ID.
-# Host dhcp/host/1390921 (Anycast_10_39_49_37) is used as the stable test fixture.
+# DhcpHost is a system-managed object; tests reference pre-existing hosts by name.
+# The id is resolved via data source lookup so tests are env-portable.
 
 case "basic" {
   backend        = "uddi"
   min_tf_version = "1.14.0"
 
+  prerequisites_hcl = <<-HCL
+    data "infoblox_dhcp_host" "host01" {
+      filters = {
+        "uddi.name" = "TF_TEST_HOST_01"
+      }
+    }
+  HCL
+
   step {
     common {
-      id = "dhcp/host/1390921"
+      id = data.infoblox_dhcp_host.host01.results.0.id
+    }
+    uddi {
+      server = "dhcp/server/090985ed-7e7d-11f1-85df-a6a5c5dbbe56"
     }
   }
 

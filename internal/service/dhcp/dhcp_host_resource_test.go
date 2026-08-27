@@ -2,7 +2,9 @@ package dhcp_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -51,8 +53,21 @@ func testAccCheckDhcpHostExistsUDDI(resourceName string) resource.TestCheckFunc 
 
 func testAccCheckDhcpHostDestroyUDDI(resourceType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		// DhcpHost is a system-managed object that cannot be deleted via the API.
-		// "destroy" only removes it from Terraform state; the host continues to exist on the platform.
+		for name, rs := range s.RootModule().Resources {
+			if rs.Type != resourceType || strings.HasPrefix(name, "data.") {
+				continue
+			}
+			apiRes, _, err := acctest.UDDIClient.IPAddressManagementAPI.DhcpHostAPI.Read(context.Background(), rs.Primary.ID).Execute()
+			if err != nil {
+				return fmt.Errorf("failed to read DhcpHost %s: %w", rs.Primary.ID, err)
+			}
+			if !apiRes.HasResult() {
+				continue
+			}
+			if apiRes.GetResult().Server != nil {
+				return errors.New("server expected to be unassigned from host after destroy")
+			}
+		}
 		return nil
 	}
 }
