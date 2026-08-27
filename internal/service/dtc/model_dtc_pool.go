@@ -206,7 +206,6 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"lb_alternate_topology": schema.StringAttribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -233,7 +232,6 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"lb_preferred_topology": schema.StringAttribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -257,7 +255,6 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"quorum": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "For availability mode QUORUM, at least this many monitors must report the resource as up for it to be available",
 	},
 	"servers": schema.ListNestedAttribute{
@@ -272,7 +269,6 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for the DTC Pool. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 }
