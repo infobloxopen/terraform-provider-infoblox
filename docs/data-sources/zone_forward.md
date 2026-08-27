@@ -112,10 +112,6 @@ Read-Only:
 - `name` (String) A resolvable domain name for the external DNS server.
 - `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-- `tsig_key` (String) A generated TSIG key.
-- `tsig_key_alg` (String) The TSIG key algorithm.
-- `tsig_key_name` (String) The TSIG key name.
-- `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
 
 
 <a id="nestedatt--results--nios--forwarding_servers"></a>
@@ -137,10 +133,6 @@ Read-Only:
 - `name` (String) A resolvable domain name for the external DNS server.
 - `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-- `tsig_key` (String) A generated TSIG key.
-- `tsig_key_alg` (String) The TSIG key algorithm.
-- `tsig_key_name` (String) The TSIG key name.
-- `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
 
 
 

@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -23,10 +22,6 @@ type ZoneforwardforwardingserversForwardToModel struct {
 	Name                         types.String      `tfsdk:"name"`
 	SharedWithMsParentDelegation types.Bool        `tfsdk:"shared_with_ms_parent_delegation"`
 	Stealth                      types.Bool        `tfsdk:"stealth"`
-	TsigKey                      types.String      `tfsdk:"tsig_key"`
-	TsigKeyAlg                   types.String      `tfsdk:"tsig_key_alg"`
-	TsigKeyName                  types.String      `tfsdk:"tsig_key_name"`
-	UseTsigKeyName               types.Bool        `tfsdk:"use_tsig_key_name"`
 }
 
 // ZoneforwardforwardingserversForwardToAttrTypes contains the attribute types for ZoneforwardforwardingserversForwardToModel
@@ -35,10 +30,6 @@ var ZoneforwardforwardingserversForwardToAttrTypes = map[string]attr.Type{
 	"name":                             types.StringType,
 	"shared_with_ms_parent_delegation": types.BoolType,
 	"stealth":                          types.BoolType,
-	"tsig_key":                         types.StringType,
-	"tsig_key_alg":                     types.StringType,
-	"tsig_key_name":                    types.StringType,
-	"use_tsig_key_name":                types.BoolType,
 }
 
 // ZoneforwardforwardingserversForwardToResourceSchemaAttributes contains the schema attributes for ZoneforwardforwardingserversForwardToModel
@@ -68,33 +59,6 @@ var ZoneforwardforwardingserversForwardToResourceSchemaAttributes = map[string]s
 		Optional:            true,
 		MarkdownDescription: "Set this flag to hide the NS record for the primary name server from DNS queries.",
 	},
-	"tsig_key": schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-			customvalidator.ValidateTrimmedString(),
-		},
-		MarkdownDescription: "A generated TSIG key.",
-	},
-	"tsig_key_alg": schema.StringAttribute{
-		Validators: []validator.String{
-			stringvalidator.OneOf("HMAC-MD5", "HMAC-SHA256"),
-		},
-		Optional:            true,
-		MarkdownDescription: "The TSIG key algorithm.",
-	},
-	"tsig_key_name": schema.StringAttribute{
-		Optional: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-			customvalidator.ValidateTrimmedString(),
-		},
-		MarkdownDescription: "The TSIG key name.",
-	},
-	"use_tsig_key_name": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Use flag for: tsig_key_name",
-	},
 }
 
 // ExpandZoneforwardforwardingserversForwardTo converts a Terraform Object to SDK type
@@ -120,10 +84,6 @@ func (m *ZoneforwardforwardingserversForwardToModel) Expand(ctx context.Context,
 		Name:                         flex.ExpandStringPointerNullAsEmpty(m.Name),
 		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
 		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		TsigKey:                      flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:                   flex.ExpandStringPointer(m.TsigKeyAlg),
-		TsigKeyName:                  flex.ExpandStringPointer(m.TsigKeyName),
-		UseTsigKeyName:               flex.ExpandBoolPointer(m.UseTsigKeyName),
 	}
 	return to
 }
@@ -149,8 +109,4 @@ func (m *ZoneforwardforwardingserversForwardToModel) Flatten(ctx context.Context
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.TsigKey = flex.FlattenStringPointerEmptyAsNull(from.TsigKey)
-	m.TsigKeyAlg = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyAlg)
-	m.TsigKeyName = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyName)
-	m.UseTsigKeyName = flex.FlattenBoolPointer(from.UseTsigKeyName)
 }

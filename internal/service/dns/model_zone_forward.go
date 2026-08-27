@@ -136,6 +136,7 @@ var ZoneForwardResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.LengthBetween(0, 256),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the zone; maximum 256 characters.",
@@ -306,7 +307,10 @@ var ZoneForwardResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ForwarderResourceSchemaAttributes(false),
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. External DNS servers to forward to. Order is not significant.",
 	},
 	"forward_only": schema.BoolAttribute{
@@ -320,21 +324,33 @@ var ZoneForwardResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "Zone FQDN. The FQDN supplied at creation will be converted to canonical form.  Read-only after creation.",
 	},
 	"hosts": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"internal_forwarders": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"nsgs": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"parent": schema.StringAttribute{

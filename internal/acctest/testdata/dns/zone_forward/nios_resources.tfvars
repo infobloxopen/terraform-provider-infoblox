@@ -465,21 +465,31 @@ case "ns_group" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_nsgroup" "test_ns_group1" {
+    nios = {
+      name = "{{random4}}"
+      grid_primary = [
+        {
+          name = "{{grid_master_hostname}}"
+        }
+      ]
+    }
+  }
+  resource "infoblox_nsgroup" "test_ns_group2" {
+    nios = {
+      name = "{{random5}}"
+      grid_primary = [
+        {
+          name = "{{grid_master_hostname}}"
+        }
+      ]
+    }
+  }
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
     }
   }
-  # resource "infoblox_ns_group_forwarding_member_unknown" "test_group1" {
-  #   nios = {
-  #     name = "ns_group1"
-  #   }
-  # }
-  # resource "infoblox_ns_group_forwarding_member_unknown" "test_group2" {
-  #   nios = {
-  #     name = "ns_group2"
-  #   }
-  # }
   PREREQ
 
   step {
@@ -488,7 +498,7 @@ case "ns_group" {
       external_ns_group = "ensg1"
       ns_group          = "ns_group1"
     }
-    # depends_on = [infoblox_ns_group_forwarding_member_unknown.test_group1, infoblox_ns_group_forwarding_member_unknown.test_group2]
+    depends_on = [infoblox_nsgroup.test_ns_group1, infoblox_nsgroup.test_ns_group2]
     check = {
       "nios.ns_group" = "ns_group1"
     }
@@ -500,7 +510,7 @@ case "ns_group" {
       external_ns_group = "ensg1"
       ns_group          = "ns_group2"
     }
-    # depends_on = [infoblox_ns_group_forwarding_member_unknown.test_group1, infoblox_ns_group_forwarding_member_unknown.test_group2]
+    depends_on = [infoblox_nsgroup.test_ns_group1, infoblox_nsgroup.test_ns_group2]
     check = {
       "nios.ns_group" = "ns_group2"
     }

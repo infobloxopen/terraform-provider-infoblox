@@ -94,9 +94,16 @@ resource "infoblox_view" "example_view" {
   }
 }
 
+// Create a Forward NSG (Prerequisite)
+resource "infoblox_forward_nsg" "example_forward_nsg" {
+  uddi = {
+    name = "example-forward-nsg"
+  }
+}
+
 // Objects to be present on the grid
-// forwardinf_nsg, dns host, internal forwarders
-// Create a DNS Zone Forward 
+// dns host, internal forwarders
+// Create a DNS Zone Forward
 resource "infoblox_zone_forward" "example" {
   uddi = {
     fqdn = "domain.com."
@@ -106,7 +113,7 @@ resource "infoblox_zone_forward" "example" {
     tags = {
       Site = "location-1"
     }
-    nsgs                = ["dns/forward_nsg/<id>"]
+    nsgs                = [infoblox_forward_nsg.example_forward_nsg.id]
     hosts               = ["dns/host/<id>"]
     internal_forwarders = ["dns/host/<id>"]
     view                = infoblox_view.example_view.id
@@ -168,10 +175,6 @@ Optional:
 
 - `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-- `tsig_key` (String) A generated TSIG key.
-- `tsig_key_alg` (String) The TSIG key algorithm.
-- `tsig_key_name` (String) The TSIG key name.
-- `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
 
 
 <a id="nestedatt--nios--forwarding_servers"></a>
@@ -199,10 +202,6 @@ Optional:
 
 - `shared_with_ms_parent_delegation` (Boolean) This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.
 - `stealth` (Boolean) Set this flag to hide the NS record for the primary name server from DNS queries.
-- `tsig_key` (String) A generated TSIG key.
-- `tsig_key_alg` (String) The TSIG key algorithm.
-- `tsig_key_name` (String) The TSIG key name.
-- `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
 
 
 

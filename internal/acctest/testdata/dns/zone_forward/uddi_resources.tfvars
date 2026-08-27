@@ -1,5 +1,4 @@
 // Objects to be present on the grid for testing
-// forwardinf_nsg
 // dns host
 // internal forwarders
 
@@ -288,31 +287,29 @@ case "nsgs" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_forward_nsg" "one" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # resource "infoblox_forward_nsg" "two" {
-  #   uddi = {
-  #     name = "{{random2}}"
-  #   }
-  # }
+  resource "infoblox_forward_nsg" "one" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_forward_nsg" "two" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
   PREREQ
 
   step {
     uddi {
       fqdn = "{{random}}.com."
-      # nsgs = [infoblox_forward_nsg.one.id]
-      nsgs = ["dns/forward_nsg/b3870ffc-9f37-4a68-b36b-a76323bac4b4"]
+      nsgs = [infoblox_forward_nsg.one.id]
     }
   }
 
   step {
     uddi {
       fqdn = "{{random}}.com."
-      # nsgs = [infoblox_forward_nsg.two.id]
-      nsgs = ["dns/forward_nsg/0e0b5c0e-9609-4309-92de-ae178f9c8de7"]
+      nsgs = [infoblox_forward_nsg.two.id]
     }
   }
 

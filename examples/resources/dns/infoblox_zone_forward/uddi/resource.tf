@@ -5,9 +5,16 @@ resource "infoblox_view" "example_view" {
   }
 }
 
+// Create a Forward NSG (Prerequisite)
+resource "infoblox_forward_nsg" "example_forward_nsg" {
+  uddi = {
+    name = "example-forward-nsg"
+  }
+}
+
 // Objects to be present on the grid
-// forwardinf_nsg, dns host, internal forwarders
-// Create a DNS Zone Forward 
+// dns host, internal forwarders
+// Create a DNS Zone Forward
 resource "infoblox_zone_forward" "example" {
   uddi = {
     fqdn = "domain.com."
@@ -17,7 +24,7 @@ resource "infoblox_zone_forward" "example" {
     tags = {
       Site = "location-1"
     }
-    nsgs                = ["dns/forward_nsg/<id>"]
+    nsgs                = [infoblox_forward_nsg.example_forward_nsg.id]
     hosts               = ["dns/host/<id>"]
     internal_forwarders = ["dns/host/<id>"]
     view                = infoblox_view.example_view.id
