@@ -19,3 +19,5 @@ internal/service/*/.openapi-generator-ignore
 *.tfvars
 *.tfvars.json
 !nios-public-cloud-marketplace/**/marketplace_test.tfvars
+*.hcl
+*.hcl.json
