@@ -3,7 +3,6 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,7 +10,6 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -101,12 +99,6 @@ var UDDIRecordPtrOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
-		},
-		Validators: []validator.String{
-			stringvalidator.ConflictsWith(
-				path.MatchRelative().AtParent().AtParent().AtName("name_in_zone"),
-				path.MatchRelative().AtParent().AtParent().AtName("absolute_name_spec"),
-			),
 		},
 		MarkdownDescription: "For GET operation it contains the IPv4 or IPv6 address represented by the PTR record.\n\n" +
 			"For POST and PATCH operations it can be used to create/update a PTR record based on the IP address " +
