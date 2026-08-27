@@ -26,7 +26,7 @@ func TestAccRecordAliasResource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dns/record_alias/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dns/record_alias/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
