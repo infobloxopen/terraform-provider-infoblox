@@ -16,7 +16,6 @@ Manages an Infoblox RecordRpzNaptr in the NIOS backend.
 
 ```terraform
 // Note: RPZ zones must be pre-created in NIOS (infoblox_zone_rp is not managed by this provider).
-
 // Create a Substitute (NAPTR Record) Rule with Basic Fields
 resource "infoblox_record_rpz_naptr" "create_record_basic" {
   nios = {
