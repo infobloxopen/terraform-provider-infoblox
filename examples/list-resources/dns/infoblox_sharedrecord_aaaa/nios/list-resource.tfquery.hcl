@@ -3,7 +3,7 @@ list "infoblox_sharedrecord_aaaa" "list_shared_aaaa_records_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_record.example.com"
+      name = "sharedrecord_aaaa_basic"
     }
   }
   limit = 10

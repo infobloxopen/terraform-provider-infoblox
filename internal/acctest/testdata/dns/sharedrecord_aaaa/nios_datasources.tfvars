@@ -1,4 +1,9 @@
 # Auto-generated datasource acceptance-test cases for SharedrecordAaaa.
+#
+# TODO: These cases use the shared record group "shared_group", which must already
+#       exist on the grid. The generated prerequisite is commented out because
+#       infoblox_shared_record_group is not implemented in the provider yet.
+#       Once it is, restore the prerequisite block and remove this note.
 case "filters" {
   backend = "nios"
   # prerequisites_hcl = <<-PREREQ
