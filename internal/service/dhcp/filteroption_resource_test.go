@@ -31,7 +31,7 @@ func TestAccFilteroptionResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dhcp/filteroption/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dhcp/filteroption/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

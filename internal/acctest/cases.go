@@ -35,7 +35,7 @@ type CaseStep struct {
 }
 
 // ResourceCase is the per-subtest configuration for a Terraform resource acceptance test.
-// Each case maps to a `case "<name>" { ... }` block in <backend>_resources.tfvars.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_resources.hcl.
 type ResourceCase struct {
 	Name               string
 	Backend            string
@@ -265,7 +265,7 @@ func (rc *ResourceCase) materialize() {
 }
 
 // customSibling returns the "custom_"-prefixed sibling path for user-authored cases (never overwritten).
-// e.g. "dns/record_a/nios_resources.tfvars" -> "dns/record_a/custom_nios_resources.tfvars".
+// e.g. "dns/record_a/nios_resources.hcl" -> "dns/record_a/custom_nios_resources.hcl".
 func customSibling(fileRelPath string) string {
 	i := strings.LastIndex(fileRelPath, "/")
 	if i < 0 {
@@ -290,7 +290,7 @@ func loadCustomResourceCases(fileRelPath string) ([]*ResourceCase, error) {
 	return cases, nil
 }
 
-// loadResourceCases parses `case "<name>" { ... }` blocks from a tfvars file,
+// loadResourceCases parses `case "<name>" { ... }` blocks from a case file,
 // sorted by name for deterministic subtest ordering.
 func loadResourceCases(path string) ([]*ResourceCase, error) {
 	data, err := os.ReadFile(path)

@@ -19,7 +19,7 @@ func TestAccNatgroupDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/natgroup/"+backend+"_datasources.tfvars", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/natgroup/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }
