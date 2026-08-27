@@ -2,7 +2,9 @@ package dtc
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -18,6 +20,27 @@ func ValidateDtcPool(ctx context.Context, data DtcPoolModel, resp *resource.Vali
 }
 
 func validateDtcPoolNIOSConfig(ctx context.Context, m *NIOSDtcPoolModel, resp *resource.ValidateConfigResponse) {
+	if m.Availability.IsNull() || m.Availability.IsUnknown() {
+		return
+	}
+
+	if m.Availability.ValueString() == "QUORUM" {
+		if m.Quorum.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("quorum"),
+				"Missing Required Attribute",
+				"When nios.availability is set to 'QUORUM', the 'nios.quorum' attribute must be specified.",
+			)
+		}
+	} else {
+		if !m.Quorum.IsNull() && !m.Quorum.IsUnknown() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("quorum"),
+				"Invalid Attribute Combination",
+				fmt.Sprintf("The 'nios.quorum' attribute can only be set when 'nios.availability' is 'QUORUM', but got '%s'.", m.Availability.ValueString()),
+			)
+		}
+	}
 }
 
 func validateDtcPoolUDDIConfig(ctx context.Context, m *UDDIDtcPoolModel, resp *resource.ValidateConfigResponse) {
