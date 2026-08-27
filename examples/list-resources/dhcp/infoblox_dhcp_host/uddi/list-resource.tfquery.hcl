@@ -1,9 +1,9 @@
-// List DHCP hosts by IP space
-list "infoblox_dhcp_host" "by_ip_space" {
+// List DHCP hosts by name
+list "infoblox_dhcp_host" "by_name" {
   provider = infoblox
   config {
     filters = {
-      "uddi.ip_space" = "ipam/ip_space/5202ccf2-f3b6-11ed-a04c-0acb29431b1f"
+      "uddi.name" = "example-host"
     }
   }
 }

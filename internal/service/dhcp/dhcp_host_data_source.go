@@ -176,10 +176,9 @@ func (d *DhcpHostDataSource) Read(ctx context.Context, req datasource.ReadReques
 	case core.BackendUDDI:
 		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.DhcpHost, error) {
 			opts.Offset = offset
-			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
 			return recs, e
-		}, opts.Limit, opts.Paging)
+		})
 	}
 
 	if err != nil {
