@@ -219,6 +219,8 @@ case "ext_attrs" {
 
 }
 
+# servers stays hardcoded: a test-created server would also need registering in the
+# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_alternate_method" {
   backend  = "nios"
   parallel = true
@@ -253,6 +255,8 @@ case "lb_alternate_method" {
 
 }
 
+# servers stays hardcoded: a test-created server would also need registering in the
+# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_alternate_topology" {
   backend  = "nios"
   parallel = true
@@ -451,6 +455,8 @@ case "lb_preferred_method_ratio" {
 
 }
 
+# servers stays hardcoded: a test-created server would also need registering in the
+# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_preferred_topology" {
   backend  = "nios"
   parallel = true
@@ -573,14 +579,29 @@ case "quorum" {
 case "servers" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_server" "two" {
+    nios = {
+      name = "{{random3}}"
+      host = "{{random_ip2}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
-      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      servers             = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
     }
     check = {
+      "nios.servers.#"       = "2"
       "nios.servers.0.ratio" = "1"
       "nios.servers.1.ratio" = "2"
     }
@@ -590,7 +611,7 @@ case "servers" {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
-      servers             = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }]
+      servers             = [{ server = infoblox_dtc_server.one.id, ratio = 1 }]
     }
     check = {
       "nios.servers.0.ratio" = "1"

@@ -198,8 +198,10 @@ case "ttl" {
 }
 
 case "consolidated_health_enabled" {
-  backend  = "uddi"
-  parallel = true
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "consolidated health probing needs health_checks configured, which requires a HealthCheck object with no resource to provision it"
 
   step {
     uddi {
@@ -350,9 +352,6 @@ case "inheritance_sources" {
 
 }
 
-# servers[].server_id references Server objects created as prerequisites. The second step
-# drops one server and reweights the other, covering both list membership and weight
-# updates.
 case "servers" {
   backend  = "uddi"
   parallel = true
@@ -374,10 +373,11 @@ case "servers" {
   step {
     uddi {
       name    = "{{random}}"
-      method  = "round_robin"
+      method  = "ratio"
       servers = [{ server_id = infoblox_dtc_server.one.id, weight = 1 }, { server_id = infoblox_dtc_server.two.id, weight = 2 }]
     }
     check = {
+      "uddi.method"           = "ratio"
       "uddi.servers.#"        = "2"
       "uddi.servers.0.name"   = "{{random2}}"
       "uddi.servers.0.weight" = "1"
@@ -389,10 +389,11 @@ case "servers" {
   step {
     uddi {
       name    = "{{random}}"
-      method  = "round_robin"
+      method  = "ratio"
       servers = [{ server_id = infoblox_dtc_server.one.id, weight = 5 }]
     }
     check = {
+      "uddi.method"           = "ratio"
       "uddi.servers.#"        = "1"
       "uddi.servers.0.name"   = "{{random2}}"
       "uddi.servers.0.weight" = "5"
@@ -401,10 +402,3 @@ case "servers" {
 
 }
 
-# health_checks[].health_check_id must reference an existing UDDI HealthCheck object,
-# with the same prerequisite problem as servers.
-case "health_checks" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "needs a hardcoded UDDI HealthCheck id; no health-check resource exists to create a prerequisite"
-}
