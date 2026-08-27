@@ -275,6 +275,7 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var DtcPoolResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Optional. Comment for __Pool__.",
@@ -287,6 +288,7 @@ var DtcPoolResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"disabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. Flag which enables/disables __Pool__.  Defaults to _false_.",
 	},
 	"health_checks": schema.ListNestedAttribute{
@@ -314,6 +316,7 @@ var DtcPoolResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Display name of __Pool__.",
 	},
 	"pool_availability": schema.StringAttribute{
+		Default:             stringdefault.StaticString("any"),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Optional. Pool Availability setting defines how __Pool__ health is calculated.  Valid values are: * _all_ If _all_ availability selected then __Pool__ is treated healthy when all pool's servers are healthy. * _quorum_ If _quorum_ availability selected then __Pool__ is treated healthy when at least N pool's servers are healthy. N is configurable via the value from _pool_servers_quorum_ setting. * _any_ If _any_ availability selected then __Pool__ is treated healthy when at least one pool's server is healthy.  Defaults to _any_.",
