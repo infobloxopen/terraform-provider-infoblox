@@ -23,7 +23,7 @@ func TestAccIpv6networkcontainerDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "ipam/ipv6_network_container/"+backend+"_datasources.tfvars", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "ipam/ipv6_network_container/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }
