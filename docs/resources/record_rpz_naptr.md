@@ -15,11 +15,13 @@ Manages an Infoblox RecordRpzNaptr in the NIOS backend.
 ### NIOS Backend
 
 ```terraform
+// Note: RPZ zones must be pre-created in NIOS (infoblox_zone_rp is not managed by this provider).
+
 // Create a Substitute (NAPTR Record) Rule with Basic Fields
 resource "infoblox_record_rpz_naptr" "create_record_basic" {
   nios = {
-    name        = "naptr.rpz-zone.example.com"
-    rp_zone     = "rpz-zone.example.com"
+    name        = "naptr.rpz.example.com"
+    rp_zone     = "rpz.example.com"
     order       = 10
     preference  = 10
     replacement = "."
@@ -35,8 +37,8 @@ resource "infoblox_record_rpz_naptr" "create_record_basic" {
 resource "infoblox_record_rpz_naptr" "create_record_additional_fields" {
   nios = {
     // Basic Fields
-    name        = "naptr1.rpz-zone.example.com"
-    rp_zone     = "rpz-zone.example.com"
+    name        = "naptr1.rpz.example.com"
+    rp_zone     = "rpz.example.com"
     order       = 10
     preference  = 10
     replacement = "."
@@ -56,15 +58,23 @@ resource "infoblox_record_rpz_naptr" "create_record_additional_fields" {
   }
 }
 
+// Create DNS View (Required as Parent)
+// Note: RPZ zone "custom-rpz.example.com" must be pre-created in NIOS in this view.
+resource "infoblox_view" "custom_view" {
+  nios = {
+    name = "custom-view"
+  }
+}
+
 // Create a Substitute (NAPTR Record) Rule in a Custom View
 resource "infoblox_record_rpz_naptr" "create_record_custom_view" {
   nios = {
-    name        = "naptr.custom-rpz-zone.example.com"
-    rp_zone     = "custom-rpz-zone.example.com"
+    name        = "naptr.custom-rpz.example.com"
+    rp_zone     = "custom-rpz.example.com"
     order       = 20
     preference  = 20
     replacement = "."
-    view        = "custom-view"
+    view        = infoblox_view.custom_view.nios.name
   }
 }
 ```
