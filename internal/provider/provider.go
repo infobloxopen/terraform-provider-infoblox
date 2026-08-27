@@ -288,6 +288,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewSharedrecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dhcp.NewFilteroptionResource,
 		dns.NewRecordSrvResource,
@@ -313,6 +314,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewSharedrecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dhcp.NewFilteroptionDataSource,
 		dns.NewRecordSrvDataSource,
@@ -341,6 +343,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewSharedrecordTxtList,
 		dns.NewSharedrecordAList,
 		dhcp.NewFilteroptionList,
 		dns.NewRecordSrvList,
