@@ -22,6 +22,7 @@ resource "infoblox_network_view" "example" {
   }
 }
 
+// Create a Network Container (Parent for next-available allocation)
 resource "infoblox_network_container" "example" {
   uddi = {
     address = "10.0.0.0"
@@ -30,6 +31,7 @@ resource "infoblox_network_container" "example" {
   }
 }
 
+// Create a Network (Parent for next-available allocation)
 resource "infoblox_network" "example" {
   uddi = {
     address = "10.1.0.0"
@@ -46,12 +48,16 @@ resource "infoblox_address" "example" {
     space   = infoblox_network_view.example.id
 
     // Other optional fields
-    comment = "reservation for Site A"
-    hwaddr  = "00:11:22:33:44:55"
+    comment   = "reservation for Site A"
+    hwaddr    = "00:11:22:33:44:55"
+    interface = "eth0"
     names = [{
       name = "bby-1"
       type = "user"
     }]
+    external_keys = {
+      key1 = "value1"
+    }
     tags = {
       Site = "location-1"
     }

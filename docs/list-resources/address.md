@@ -15,12 +15,12 @@ Retrieves a list of Infoblox Address from the UDDI backend.
 ### UDDI Backend
 
 ```terraform
-// List specific Addresses using filters.
+// List specific Addresses using filters
 list "infoblox_address" "list_address_using_filters" {
   provider = infoblox
   config {
     filters = {
-      address = "10.0.0.0"
+      address = "10.1.0.5"
     }
   }
   limit = 10

@@ -1,7 +1,7 @@
-// Get addresses filtered by an attribute.
+// Get addresses filtered by an attribute
 data "infoblox_address" "example_by_attribute" {
   filters = {
-    "address" = "10.0.0.0"
+    "address" = "10.1.0.5"
   }
 }
 
