@@ -324,6 +324,8 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dns.NewZoneDelegatedResource,
+		rpz.NewRecordRpzNaptrResource,
+		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
 		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
@@ -337,6 +339,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewFilteroptionResource,
 		dns.NewForwardNsgResource,
 		dns.NewRecordSrvResource,
+		grid.NewExtensibleattributedefResource,
 		ipam.NewNetworkviewResource,
 		dtc.NewDtcServerResource,
 		dns.NewRecordNaptrResource,
@@ -362,6 +365,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dns.NewZoneDelegatedDataSource,
+		rpz.NewRecordRpzNaptrDataSource,
+		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
 		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
@@ -375,6 +380,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewFilteroptionDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewRecordSrvDataSource,
+		grid.NewExtensibleattributedefDataSource,
 		ipam.NewNetworkviewDataSource,
 		dtc.NewDtcServerDataSource,
 		dns.NewRecordNaptrDataSource,
@@ -403,6 +409,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dns.NewZoneDelegatedList,
+		rpz.NewRecordRpzNaptrList,
+		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
 		dns.NewNsgroupList,
 		grid.NewNatgroupList,
@@ -416,6 +424,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewFilteroptionList,
 		dns.NewForwardNsgList,
 		dns.NewRecordSrvList,
+		grid.NewExtensibleattributedefList,
 		ipam.NewNetworkviewList,
 		dtc.NewDtcServerList,
 		dns.NewRecordNaptrList,
