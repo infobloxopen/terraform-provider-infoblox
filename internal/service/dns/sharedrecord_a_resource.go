@@ -211,7 +211,7 @@ func (r *SharedrecordAResource) Update(ctx context.Context, req resource.UpdateR
 
 	var planExtAttrs types.Map
 
-	// Merge ext_attrs with state ext_attrs_all (inherited EAs)
+	// Merge ext_attrs with state ext_attrs_all (inherited)
 	if r.backend == core.BackendNIOS {
 		var stateNIOSObj types.Object
 		diags = req.State.GetAttribute(ctx, path.Root("nios"), &stateNIOSObj)

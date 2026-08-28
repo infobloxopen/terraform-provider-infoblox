@@ -1,5 +1,5 @@
 # Auto-generated resource acceptance-test cases for HaGroup.
-#  TODO: have to be present on the grid before running the test cases.
+#  TODO: Objects to be present in the grid for testing
 #  dhcp/host/470520,
 #  dhcp/host/470521
 case "basic" {
