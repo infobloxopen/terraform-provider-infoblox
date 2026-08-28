@@ -1,4 +1,5 @@
 # Auto-generated resource acceptance-test cases for Address.
+# TODO: "next_available_range" needs pre-created rang - drop this once infoblox_range is onboarded and they can be prerequisites_hcl resources.
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -546,8 +547,21 @@ case "next_available_range" {
 
   step {
     uddi {
-      space              = "REPLACE_WITH_SPACE_ID"
-      dynamic_allocation = { next_available_id = "REPLACE_WITH_RANGE_ID" }
+      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
+      dynamic_allocation = { next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572" }
+    }
+    check = {
+      "uddi.address" = "10.0.0.10"
+    }
+  }
+
+  step {
+    uddi {
+      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
+      dynamic_allocation = { next_available_id = "ipam/range/8f0bfc0e-a2d7-11f1-a4fc-eecab8c1578d" }
+    }
+    check = {
+      "uddi.address" = "10.0.0.30"
     }
   }
 
