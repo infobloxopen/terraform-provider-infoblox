@@ -15,11 +15,11 @@ func runTest(t *testing.T, parallel bool, tc resource.TestCase) {
 	}
 }
 
-// RunDataSourceTests runs filter, ext_attr, and tag-filter data source subtests for the given tfvarsPath.
-func RunDataSourceTests(t *testing.T, dsType, resourceType string, tfvarsPath string, checks CheckFuncs) {
-	tv, err := LoadTfvars(tfvarsPath)
+// RunDataSourceTests runs filter, ext_attr, and tag-filter data source subtests for the given caseFilePath.
+func RunDataSourceTests(t *testing.T, dsType, resourceType string, caseFilePath string, checks CheckFuncs) {
+	tv, err := LoadCaseFile(caseFilePath)
 	if err != nil {
-		t.Fatalf("Failed to load tfvars: %v", err)
+		t.Fatalf("Failed to load case file: %v", err)
 	}
 
 	PreCheck(t, tv.Backend)
@@ -45,13 +45,13 @@ func RunDataSourceTests(t *testing.T, dsType, resourceType string, tfvarsPath st
 	}
 }
 
-func runDataSourceFilterTest(t *testing.T, dsType, resourceType string, tv *Tfvars, checks CheckFuncs) {
+func runDataSourceFilterTest(t *testing.T, dsType, resourceType string, tv *CaseConfig, checks CheckFuncs) {
 	resourceAddr := resourceType + ".test"
 	dsAddr := "data." + dsType + ".test"
 
 	resourceConfig := BuildResourceHCL(resourceType, "test", tv)
 
-	// Use ds_filter_field from tfvars, default to "name"
+	// Use ds_filter_field from case file, default to "name"
 	filterField := "name"
 	if tv.DSFilterField != "" {
 		filterField = tv.DSFilterField
@@ -89,7 +89,7 @@ data %q "test" {
 	})
 }
 
-func runDataSourceExtAttrFilterTest(t *testing.T, dsType, resourceType string, tv *Tfvars, checks CheckFuncs) {
+func runDataSourceExtAttrFilterTest(t *testing.T, dsType, resourceType string, tv *CaseConfig, checks CheckFuncs) {
 	resourceAddr := resourceType + ".test"
 	dsAddr := "data." + dsType + ".test"
 
@@ -127,7 +127,7 @@ data %q "test" {
 	})
 }
 
-func runDataSourceTagFilterTest(t *testing.T, dsType, resourceType string, tv *Tfvars, checks CheckFuncs) {
+func runDataSourceTagFilterTest(t *testing.T, dsType, resourceType string, tv *CaseConfig, checks CheckFuncs) {
 	resourceAddr := resourceType + ".test"
 	dsAddr := "data." + dsType + ".test"
 
@@ -166,7 +166,7 @@ data %q "test" {
 }
 
 // buildDataSourceAttrPairChecks returns attr-pair checks asserting the data source results match the resource.
-func buildDataSourceAttrPairChecks(dsAddr, resourceAddr string, tv *Tfvars) []resource.TestCheckFunc {
+func buildDataSourceAttrPairChecks(dsAddr, resourceAddr string, tv *CaseConfig) []resource.TestCheckFunc {
 	var checks []resource.TestCheckFunc
 
 	for k := range tv.Common {
