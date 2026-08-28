@@ -540,16 +540,9 @@ case "next_available_address_block" {
 
 }
 
-# Ported from TestAccAddressResource_NextAvailable_Range (bloxone).
-# Blocked: the UDDI Range object (bloxone_ipam_range) has not been onboarded to
-# the unified provider yet, so there is no resource to allocate from. The
-# dynamic_allocation validator already accepts "ipam/range/<uuid>" ids, so this
-# case only needs the prerequisite resource to exist.
 case "next_available_range" {
   backend     = "uddi"
   parallel    = true
-  skip        = true
-  skip_reason = "requires infoblox_range (UDDI Range), which is not onboarded in the unified provider yet"
 
   step {
     uddi {
@@ -560,22 +553,42 @@ case "next_available_range" {
 
 }
 
-# Ported from TestAccAddressResource_NextAvailableId_Count (bloxone).
-# Blocked: the case framework always renders a single resource named
-# "<type>.test" (acctest/cases.go: resourceAddr = resourceType + ".test"), so
-# the Terraform `count` meta-argument cannot be exercised here — every check
-# and the Exists/Destroy helpers would look up an address that does not exist.
-# Cover this via a hand-written test if bulk allocation needs verification.
 case "next_available_id_count" {
-  backend     = "uddi"
-  parallel    = true
-  skip        = true
-  skip_reason = "needs the Terraform count meta-argument; the case framework only supports a single resource instance named .test"
+  backend  = "uddi"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_network" "test" {
+    uddi = {
+      address = "10.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  resource "infoblox_address" "bulk" {
+    count = 5
+    uddi = {
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network.test.id }
+    }
+  }
+  PREREQ
 
   step {
     uddi {
-      space              = "REPLACE_WITH_SPACE_ID"
-      dynamic_allocation = { next_available_id = "REPLACE_WITH_SUBNET_ID" }
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network.test.id }
+    }
+    depends_on = [infoblox_address.bulk]
+    check = {
+      "uddi.address" = "10.0.0.6"
+    }
+    check_pair = {
+      "uddi.space" = infoblox_network_view.test.id
     }
   }
 
