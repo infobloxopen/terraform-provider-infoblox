@@ -7,7 +7,7 @@ case "filters" {
     values = { name = "uddi.name" }
   }
 
-  pair_checks = ["uddi.name", "uddi.view", "uddi.comment", "uddi.disabled", "uddi.ttl"]
+  pair_checks = ["uddi.name", "uddi.view", "uddi.comment", "uddi.disabled", "uddi.ttl", "uddi.precedence"]
 
   step {
     uddi {
@@ -26,7 +26,7 @@ case "tag_filters" {
     values = { Site = "uddi.tags.Site" }
   }
 
-  pair_checks = ["uddi.name", "uddi.view", "uddi.comment", "uddi.disabled", "uddi.ttl"]
+  pair_checks = ["uddi.name", "uddi.view", "uddi.comment", "uddi.disabled", "uddi.ttl", "uddi.precedence"]
 
   step {
     uddi {

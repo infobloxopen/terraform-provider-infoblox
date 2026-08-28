@@ -9,7 +9,7 @@ case "filters" {
     }
   }
 
-  pair_checks = ["nios.auto_consolidated_monitors", "nios.comment", "nios.disable", "nios.lb_method", "nios.name", "nios.persistence", "nios.priority", "nios.topology", "nios.ttl", "nios.use_ttl"]
+  pair_checks = ["nios.auto_consolidated_monitors", "nios.comment", "nios.disable", "nios.lb_method", "nios.name", "nios.persistence", "nios.priority", "nios.topology", "nios.ttl"]
 
   step {
     nios {
@@ -30,7 +30,7 @@ case "ext_attr_filters" {
     }
   }
 
-  pair_checks = ["nios.auto_consolidated_monitors", "nios.comment", "nios.disable", "nios.lb_method", "nios.name", "nios.persistence", "nios.priority", "nios.topology", "nios.ttl", "nios.use_ttl"]
+  pair_checks = ["nios.auto_consolidated_monitors", "nios.comment", "nios.disable", "nios.lb_method", "nios.name", "nios.persistence", "nios.priority", "nios.topology", "nios.ttl"]
 
   step {
     nios {

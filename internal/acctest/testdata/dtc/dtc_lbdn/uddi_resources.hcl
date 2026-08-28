@@ -226,3 +226,33 @@ case "precedence" {
   }
 
 }
+
+case "inheritance_sources" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name                = "dtc-lbdn-{{random}}."
+      view                = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      ttl                 = 300
+      inheritance_sources = { ttl = { action = "override" } }
+    }
+    check = {
+      "uddi.inheritance_sources.ttl.action" = "override"
+      "uddi.ttl"                            = "300"
+    }
+  }
+
+  step {
+    uddi {
+      name                = "dtc-lbdn-{{random}}."
+      view                = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      inheritance_sources = { ttl = { action = "inherit" } }
+    }
+    check = {
+      "uddi.inheritance_sources.ttl.action" = "inherit"
+    }
+  }
+
+}
