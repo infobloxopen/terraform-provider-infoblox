@@ -20,6 +20,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -36,24 +37,24 @@ var DtcPoolAttrTypes = map[string]attr.Type{
 }
 
 type NIOSDtcPoolModel struct {
-	AutoConsolidatedMonitors types.Bool   `tfsdk:"auto_consolidated_monitors"`
-	Availability             types.String `tfsdk:"availability"`
-	Comment                  types.String `tfsdk:"comment"`
-	ConsolidatedMonitors     types.List   `tfsdk:"consolidated_monitors"`
-	Disable                  types.Bool   `tfsdk:"disable"`
-	ExtAttrs                 types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll              types.Map    `tfsdk:"ext_attrs_all"`
-	LbAlternateMethod        types.String `tfsdk:"lb_alternate_method"`
-	LbAlternateTopology      types.String `tfsdk:"lb_alternate_topology"`
-	LbDynamicRatioAlternate  types.Object `tfsdk:"lb_dynamic_ratio_alternate"`
-	LbDynamicRatioPreferred  types.Object `tfsdk:"lb_dynamic_ratio_preferred"`
-	LbPreferredMethod        types.String `tfsdk:"lb_preferred_method"`
-	LbPreferredTopology      types.String `tfsdk:"lb_preferred_topology"`
-	Monitors                 types.List   `tfsdk:"monitors"`
-	Name                     types.String `tfsdk:"name"`
-	Quorum                   types.Int64  `tfsdk:"quorum"`
-	Servers                  types.List   `tfsdk:"servers"`
-	Ttl                      types.Int64  `tfsdk:"ttl"`
+	AutoConsolidatedMonitors types.Bool                       `tfsdk:"auto_consolidated_monitors"`
+	Availability             types.String                     `tfsdk:"availability"`
+	Comment                  types.String                     `tfsdk:"comment"`
+	ConsolidatedMonitors     types.List                       `tfsdk:"consolidated_monitors"`
+	Disable                  types.Bool                       `tfsdk:"disable"`
+	ExtAttrs                 types.Map                        `tfsdk:"ext_attrs"`
+	ExtAttrsAll              types.Map                        `tfsdk:"ext_attrs_all"`
+	LbAlternateMethod        types.String                     `tfsdk:"lb_alternate_method"`
+	LbAlternateTopology      types.String                     `tfsdk:"lb_alternate_topology"`
+	LbDynamicRatioAlternate  types.Object                     `tfsdk:"lb_dynamic_ratio_alternate"`
+	LbDynamicRatioPreferred  types.Object                     `tfsdk:"lb_dynamic_ratio_preferred"`
+	LbPreferredMethod        types.String                     `tfsdk:"lb_preferred_method"`
+	LbPreferredTopology      types.String                     `tfsdk:"lb_preferred_topology"`
+	Monitors                 internaltypes.UnorderedListValue `tfsdk:"monitors"`
+	Name                     types.String                     `tfsdk:"name"`
+	Quorum                   types.Int64                      `tfsdk:"quorum"`
+	Servers                  types.List                       `tfsdk:"servers"`
+	Ttl                      types.Int64                      `tfsdk:"ttl"`
 }
 
 var NIOSDtcPoolAttrTypes = map[string]attr.Type{
@@ -70,7 +71,7 @@ var NIOSDtcPoolAttrTypes = map[string]attr.Type{
 	"lb_dynamic_ratio_preferred": types.ObjectType{AttrTypes: PoolLbDynamicRatioPreferredAttrTypes},
 	"lb_preferred_method":        types.StringType,
 	"lb_preferred_topology":      types.StringType,
-	"monitors":                   types.ListType{ElemType: types.StringType},
+	"monitors":                   internaltypes.UnorderedListOfStringType,
 	"name":                       types.StringType,
 	"quorum":                     types.Int64Type,
 	"servers":                    types.ListType{ElemType: types.ObjectType{AttrTypes: PoolServersAttrTypes}},
@@ -239,6 +240,7 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"monitors": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -497,7 +499,7 @@ func (m *NIOSDtcPoolModel) Flatten(ctx context.Context, from *coremodel.NIOSDtcP
 	m.LbDynamicRatioPreferred = FlattenPoolLbDynamicRatioPreferred(ctx, from.LbDynamicRatioPreferred, diags)
 	m.LbPreferredMethod = flex.FlattenStringPointerEmptyAsNull(from.LbPreferredMethod)
 	m.LbPreferredTopology = flex.FlattenStringPointerEmptyAsNull(from.LbPreferredTopology)
-	m.Monitors = flex.FlattenFrameworkListString(ctx, from.Monitors, diags)
+	m.Monitors = flex.FlattenFrameworkUnorderedListString(ctx, from.Monitors, diags)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Quorum = flex.FlattenInt64Pointer(from.Quorum)
 	m.Servers = flex.FlattenFrameworkListNestedBlock(ctx, from.Servers, PoolServersAttrTypes, diags, FlattenPoolServers)

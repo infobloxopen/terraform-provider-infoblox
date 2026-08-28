@@ -3,7 +3,7 @@ list "infoblox_dtc_pool" "list_dtc_pool_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      comment = "DTC pool creation"
     }
   }
   limit = 10
