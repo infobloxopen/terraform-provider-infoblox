@@ -7,10 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	niosdtc "github.com/infobloxopen/infoblox-nios-go-client/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -37,6 +39,7 @@ var PoolLbDynamicRatioPreferredAttrTypes = map[string]attr.Type{
 // PoolLbDynamicRatioPreferredResourceSchemaAttributes contains the schema attributes for PoolLbDynamicRatioPreferredModel
 var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attribute{
 	"method": schema.StringAttribute{
+		Default: stringdefault.StaticString("MONITOR"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("MONITOR", "ROUND_TRIP_DELAY"),
 		},
@@ -61,6 +64,7 @@ var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attr
 		MarkdownDescription: "The metric of the DTC SNMP monitor that will be used for dynamic weighing.",
 	},
 	"monitor_weighing": schema.StringAttribute{
+		Default: stringdefault.StaticString("RATIO"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("PRIORITY", "RATIO"),
 		},
@@ -71,6 +75,7 @@ var PoolLbDynamicRatioPreferredResourceSchemaAttributes = map[string]schema.Attr
 	"invert_monitor_metric": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether the inverted values of the DTC SNMP monitor metric will be used.",
 	},
 }

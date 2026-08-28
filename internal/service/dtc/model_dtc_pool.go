@@ -165,7 +165,6 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: PoolConsolidatedMonitorsResourceSchemaAttributes,
 		},
 		Optional: true,
-		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
