@@ -119,6 +119,7 @@ Read-Only:
 - `comment` (String) Optional. Comment for __LBDN__.
 - `disabled` (Boolean) Optional. _true_ to disable object. A disabled object is effectively non-existent when generating configuration.
 - `dtc_policy` (Attributes) The __DTC Policy__ object. (see [below for nested schema](#nestedatt--results--uddi--dtc_policy))
+- `inheritance_sources` (Attributes) The inheritance configuration specifies how the object inherits the _ttl_ field. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
 - `name` (String) Name of __LBDN__.
 - `precedence` (Number) Optional. Precedence.
 - `tags` (Map of String) Optional. The tags for __LBDN__ in JSON format.
@@ -133,3 +134,21 @@ Read-Only:
 
 - `name` (String) __DTC Policy__ display name.
 - `policy_id` (String) The resource identifier.
+
+
+<a id="nestedatt--results--uddi--inheritance_sources"></a>
+### Nested Schema for `results.uddi.inheritance_sources`
+
+Read-Only:
+
+- `ttl` (Attributes) (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources--ttl))
+
+<a id="nestedatt--results--uddi--inheritance_sources--ttl"></a>
+### Nested Schema for `results.uddi.inheritance_sources.ttl`
+
+Read-Only:
+
+- `action` (String) The inheritance setting for a field.  Valid values are: * _inherit_: Use the inherited value. * _override_: Use the value set in the object.  Defaults to _inherit_.
+- `display_name` (String) The human-readable display name for the object referred to by _source_.
+- `source` (String) The resource identifier.
+- `value` (Number) The inherited value.
