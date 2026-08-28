@@ -34,7 +34,7 @@ resource "infoblox_ha_group" "example" {
   }
 }
 
-// Create an active-passive HA Group with optional fields
+// Create an active-passive HA Group with additional fields
 resource "infoblox_ha_group" "example_with_options" {
   uddi = {
     name    = "example-ha-group-passive"
