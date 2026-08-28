@@ -3,16 +3,16 @@ case "basic" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -20,11 +20,14 @@ case "basic" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.address" = "10.0.0.1"
+    }
+    check_pair = {
+      "uddi.space" = infoblox_network_view.test.id
     }
   }
 
@@ -36,16 +39,16 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -53,9 +56,9 @@ case "disappears" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
   }
 
 }
@@ -64,16 +67,16 @@ case "address" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -81,9 +84,9 @@ case "address" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.address" = "10.0.0.1"
     }
@@ -92,9 +95,9 @@ case "address" {
   step {
     uddi {
       address = "10.0.0.5"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.address" = "10.0.0.5"
     }
@@ -106,16 +109,16 @@ case "comment" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -123,10 +126,10 @@ case "comment" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       comment = "some comment"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.comment" = "some comment"
     }
@@ -135,12 +138,57 @@ case "comment" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       comment = "updated comment"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.comment" = "updated comment"
+    }
+  }
+
+}
+
+case "external_keys" {
+  backend  = "uddi"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_network" "test" {
+    uddi = {
+      address = "10.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      address       = "10.0.0.1"
+      space         = infoblox_network_view.test.id
+      external_keys = { key1 = "value1" }
+    }
+    depends_on = [infoblox_network.test]
+    check = {
+      "uddi.external_keys.key1" = "value1"
+    }
+  }
+
+  step {
+    uddi {
+      address       = "10.0.0.1"
+      space         = infoblox_network_view.test.id
+      external_keys = { key1 = "value1changed", key2 = "value2" }
+    }
+    depends_on = [infoblox_network.test]
+    check = {
+      "uddi.external_keys.key1" = "value1changed"
+      "uddi.external_keys.key2" = "value2"
     }
   }
 
@@ -150,16 +198,16 @@ case "hwaddr" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -167,10 +215,10 @@ case "hwaddr" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       hwaddr  = "00:11:22:33:44:55"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.hwaddr" = "00:11:22:33:44:55"
     }
@@ -179,10 +227,10 @@ case "hwaddr" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       hwaddr  = "55:44:33:22:11:00"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.hwaddr" = "55:44:33:22:11:00"
     }
@@ -194,16 +242,16 @@ case "interface" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -211,10 +259,10 @@ case "interface" {
   step {
     uddi {
       address   = "10.0.0.1"
-      space     = infoblox_ip_space.test.id
+      space     = infoblox_network_view.test.id
       interface = "eth0"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.interface" = "eth0"
     }
@@ -223,10 +271,10 @@ case "interface" {
   step {
     uddi {
       address   = "10.0.0.1"
-      space     = infoblox_ip_space.test.id
+      space     = infoblox_network_view.test.id
       interface = "eth1"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.interface" = "eth1"
     }
@@ -238,16 +286,16 @@ case "names" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -255,9 +303,10 @@ case "names" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
+      names   = [{ name = "name1", type = "user" }]
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.names.0.name" = "name1"
       "uddi.names.0.type" = "user"
@@ -267,9 +316,10 @@ case "names" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
+      names   = [{ name = "name2", type = "user" }]
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.names.0.name" = "name2"
       "uddi.names.0.type" = "user"
@@ -282,28 +332,28 @@ case "space" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "one" {
+  resource "infoblox_network_view" "one" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "one" {
+  resource "infoblox_network" "one" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.one.id
+      cidr    = 24
+      space   = infoblox_network_view.one.id
     }
   }
-  resource "infoblox_ip_space" "two" {
+  resource "infoblox_network_view" "two" {
     uddi = {
       name = "{{random2}}"
     }
   }
-  resource "infoblox_subnet" "two" {
+  resource "infoblox_network" "two" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.two.id
+      cidr    = 24
+      space   = infoblox_network_view.two.id
     }
   }
   PREREQ
@@ -311,17 +361,23 @@ case "space" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.one.id
+      space   = infoblox_network_view.one.id
     }
-    depends_on = [infoblox_subnet.one, infoblox_subnet.two]
+    depends_on = [infoblox_network.one, infoblox_network.two]
+    check_pair = {
+      "uddi.space" = infoblox_network_view.one.id
+    }
   }
 
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.two.id
+      space   = infoblox_network_view.two.id
     }
-    depends_on = [infoblox_subnet.one, infoblox_subnet.two]
+    depends_on = [infoblox_network.one, infoblox_network.two]
+    check_pair = {
+      "uddi.space" = infoblox_network_view.two.id
+    }
   }
 
 }
@@ -330,16 +386,16 @@ case "tags" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -347,52 +403,26 @@ case "tags" {
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       tags    = { tag1 = "value1", tag2 = "value2" }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
-      "uddi.tags.tag1" = "value1"
-      "uddi.tags.tag2" = "value2"
+      "uddi.tags.tag1"     = "value1"
+      "uddi.tags.tag2"     = "value2"
     }
   }
 
   step {
     uddi {
       address = "10.0.0.1"
-      space   = infoblox_ip_space.test.id
+      space   = infoblox_network_view.test.id
       tags    = { tag2 = "value2changed", tag3 = "value3" }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.test]
     check = {
-      "uddi.tags.tag2" = "value2changed"
-      "uddi.tags.tag3" = "value3"
-    }
-  }
-
-}
-
-case "next_available_id_count" {
-  backend  = "uddi"
-  parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_subnet" "test" {
-    uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
-    }
-  }
-  PREREQ
-
-  step {
-    uddi {
-      space = infoblox_ip_space.test.id
+      "uddi.tags.tag2"     = "value2changed"
+      "uddi.tags.tag3"     = "value3"
     }
   }
 
@@ -402,23 +432,31 @@ case "next_available_subnet" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "one" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  resource "infoblox_network" "two" {
+    uddi = {
+      address = "12.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_ip_space.test.id
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network.one.id }
     }
     check = {
       "uddi.address" = "10.0.0.1"
@@ -427,7 +465,8 @@ case "next_available_subnet" {
 
   step {
     uddi {
-      space = infoblox_ip_space.test.id
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network.two.id }
     }
     check = {
       "uddi.address" = "12.0.0.1"
@@ -440,32 +479,49 @@ case "next_available_address_block" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_address_block" "test" {
+  resource "infoblox_network_container" "one" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      cidr    = 24
+      space   = infoblox_network_view.test.id
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_network" "one" {
     uddi = {
       address = "10.0.0.0"
-      cidr = 26
-      space = infoblox_ip_space.test.id
+      cidr    = 26
+      space   = infoblox_network_view.test.id
     }
+    depends_on = [infoblox_network_container.one]
+  }
+  resource "infoblox_network_container" "two" {
+    uddi = {
+      address = "12.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  resource "infoblox_network" "two" {
+    uddi = {
+      address = "12.0.0.0"
+      cidr    = 26
+      space   = infoblox_network_view.test.id
+    }
+    depends_on = [infoblox_network_container.two]
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_ip_space.test.id
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network_container.one.id }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.one]
     check = {
       "uddi.address" = "10.0.0.1"
     }
@@ -473,9 +529,10 @@ case "next_available_address_block" {
 
   step {
     uddi {
-      space = infoblox_ip_space.test.id
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_network_container.two.id }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_network.two]
     check = {
       "uddi.address" = "12.0.0.1"
     }
@@ -483,46 +540,42 @@ case "next_available_address_block" {
 
 }
 
+# Ported from TestAccAddressResource_NextAvailable_Range (bloxone).
+# Blocked: the UDDI Range object (bloxone_ipam_range) has not been onboarded to
+# the unified provider yet, so there is no resource to allocate from. The
+# dynamic_allocation validator already accepts "ipam/range/<uuid>" ids, so this
+# case only needs the prerequisite resource to exist.
 case "next_available_range" {
-  backend  = "uddi"
-  parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
-    uddi = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_subnet" "test" {
-    uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
-    }
-  }
-  resource "infoblox_range" "test" {
-    uddi = {
-      start = "10.0.0.10"
-      end = "10.0.0.20"
-      space = infoblox_ip_space.test.id
-    }
-  }
-  PREREQ
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "requires infoblox_range (UDDI Range), which is not onboarded in the unified provider yet"
 
   step {
     uddi {
-      space = infoblox_ip_space.test.id
-    }
-    check = {
-      "uddi.address" = "10.0.0.10"
+      space              = "REPLACE_WITH_SPACE_ID"
+      dynamic_allocation = { next_available_id = "REPLACE_WITH_RANGE_ID" }
     }
   }
 
+}
+
+# Ported from TestAccAddressResource_NextAvailableId_Count (bloxone).
+# Blocked: the case framework always renders a single resource named
+# "<type>.test" (acctest/cases.go: resourceAddr = resourceType + ".test"), so
+# the Terraform `count` meta-argument cannot be exercised here — every check
+# and the Exists/Destroy helpers would look up an address that does not exist.
+# Cover this via a hand-written test if bulk allocation needs verification.
+case "next_available_id_count" {
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "needs the Terraform count meta-argument; the case framework only supports a single resource instance named .test"
+
   step {
     uddi {
-      space = infoblox_ip_space.test.id
-    }
-    check = {
-      "uddi.address" = "10.0.0.16"
+      space              = "REPLACE_WITH_SPACE_ID"
+      dynamic_allocation = { next_available_id = "REPLACE_WITH_SUBNET_ID" }
     }
   }
 

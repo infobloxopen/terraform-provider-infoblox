@@ -23,7 +23,22 @@ func validateAddressUDDIConfig(ctx context.Context, m *UDDIAddressModel, resp *r
 }
 
 func BuildAddressAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {
-	return nil
+	if allocObj.IsNull() || allocObj.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableAddressModel
+	diags.Append(allocObj.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	if m.NextAvailableId.IsNull() || m.NextAvailableId.IsUnknown() {
+		return nil
+	}
+
+	allocated := m.Suffixed("/nextavailableip")
+	return &allocated
 }
 
 // LockAddressAllocation serializes concurrent next-available allocations
