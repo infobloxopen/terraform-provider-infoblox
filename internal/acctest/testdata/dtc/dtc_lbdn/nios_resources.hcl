@@ -43,21 +43,21 @@ case "auth_zones" {
     nios = {
       fqdn         = "{{random}}.test.com"
       view         = "default"
-      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
       fqdn         = "{{random2}}.record_test.com"
       view         = "default"
-      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
   resource "infoblox_zone_auth" "test_zone3" {
     nios = {
       fqdn         = "{{random3}}.test.com"
       view         = "default"
-      grid_primary = [{ name = "infoblox.172_28_82_8" }]
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
   PREREQ
