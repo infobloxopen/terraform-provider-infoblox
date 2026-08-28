@@ -24,15 +24,12 @@ case "filters" {
     }
   }
 
-  pair_checks = ["uddi.address", "uddi.comment", "uddi.hwaddr", "uddi.interface", "uddi.space"]
+  pair_checks = ["id", "uddi.address", "uddi.comment", "uddi.external_keys", "uddi.hwaddr", "uddi.interface", "uddi.names", "uddi.space", "uddi.tags"]
 
   step {
     uddi {
-      address   = "10.0.0.1"
-      space     = infoblox_network_view.test.id
-      comment   = "{{random}}"
-      hwaddr    = "00:11:22:33:44:55"
-      interface = "eth0"
+      address       = "10.0.0.1"
+      space         = infoblox_network_view.test.id
     }
     depends_on = [infoblox_network.test]
   }
@@ -63,13 +60,13 @@ case "tag_filters" {
     }
   }
 
-  pair_checks = ["uddi.address", "uddi.comment", "uddi.hwaddr", "uddi.interface", "uddi.space"]
+  pair_checks = ["id", "uddi.address", "uddi.comment", "uddi.external_keys", "uddi.hwaddr", "uddi.interface", "uddi.names", "uddi.space", "uddi.tags"]
 
   step {
     uddi {
-      address = "10.0.0.1"
-      space   = infoblox_network_view.test.id
-      tags    = { tag1 = "{{random}}" }
+      address       = "10.0.0.1"
+      space         = infoblox_network_view.test.id
+      tags          = { tag1 = "{{random}}" }
     }
     depends_on = [infoblox_network.test]
   }

@@ -1,5 +1,7 @@
 # Auto-generated resource acceptance-test cases for Address.
-# TODO: "next_available_range" needs pre-created rang - drop this once infoblox_range is onboarded and they can be prerequisites_hcl resources.
+
+# TODO: "next_available_range" case needs pre-created range - drop this once infoblox_range is onboarded.
+
 case "basic" {
   backend  = "uddi"
   parallel = true
