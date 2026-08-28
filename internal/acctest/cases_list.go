@@ -19,7 +19,7 @@ import (
 )
 
 // ListCase is the per-subtest configuration for a list query acceptance test.
-// Each case maps to a `case "<name>" { ... }` block in <backend>_lists.tfvars.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_lists.hcl.
 type ListCase struct {
 	Name         string
 	Backend      string
