@@ -23,6 +23,21 @@ resource "infoblox_dtc_pool" "dtc_pool_basic" {
   }
 }
 
+// Create DTC Servers and assign them to a Pool.
+resource "infoblox_dtc_server" "dtc_server1" {
+  nios = {
+    name = "dtc_server1"
+    host = "10.0.0.1"
+  }
+}
+
+resource "infoblox_dtc_server" "dtc_server2" {
+  nios = {
+    name = "dtc_server2"
+    host = "10.0.0.2"
+  }
+}
+
 // Create a DTC Pool with Additional Fields
 resource "infoblox_dtc_pool" "dtc_pool_advanced" {
   nios = {
@@ -32,14 +47,13 @@ resource "infoblox_dtc_pool" "dtc_pool_advanced" {
     ext_attrs = {
       Site = "location-1"
     }
-    // servers must reference existing DTC server refs on NIOS
     servers = [
       {
-        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com"
+        server = infoblox_dtc_server.dtc_server1.id
         ratio  = 34
       },
       {
-        server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com"
+        server = infoblox_dtc_server.dtc_server2.id
         ratio  = 55
       }
     ]
