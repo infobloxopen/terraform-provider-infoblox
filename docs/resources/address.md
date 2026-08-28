@@ -96,7 +96,7 @@ resource "infoblox_address" "example_na_network_container" {
 // TODO: drop this once infoblox_range is onboarded.
 resource "infoblox_address" "example_na_range" {
   uddi = {
-    space = "ipam/ip_space/00c2c546-6ad1-11f1-88c3-1e3cda826891"
+    space = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
     dynamic_allocation = {
       next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572"
     }
