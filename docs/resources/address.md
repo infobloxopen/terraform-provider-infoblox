@@ -15,26 +15,84 @@ Manages an Infoblox Address in the UDDI backend.
 ### UDDI Backend
 
 ```terraform
-resource "infoblox_address" "static" {
+// Create a Network View (Required as Parent)
+resource "infoblox_network_view" "example" {
   uddi = {
-    address = "10.0.0.5"
-    space   = "ipam/ip_space/00c2c546-6ad1-11f1-88c3-1e3cda826891"
-    comment = "statically assigned address"
+    name = "example_ip_space"
+  }
+}
+
+resource "infoblox_network_container" "example" {
+  uddi = {
+    address = "10.0.0.0"
+    cidr    = 8
+    space   = infoblox_network_view.example.id
+  }
+}
+
+resource "infoblox_network" "example" {
+  uddi = {
+    address = "10.1.0.0"
+    cidr    = 24
+    space   = infoblox_network_view.example.id
+  }
+  depends_on = [infoblox_network_container.example]
+}
+
+// Static address
+resource "infoblox_address" "example" {
+  uddi = {
+    address = "10.1.0.5"
+    space   = infoblox_network_view.example.id
+
+    // Other optional fields
+    comment = "reservation for Site A"
+    hwaddr  = "00:11:22:33:44:55"
+    names = [{
+      name = "bby-1"
+      type = "user"
+    }]
     tags = {
       Site = "location-1"
     }
   }
+  depends_on = [infoblox_network.example]
 }
 
-resource "infoblox_address" "dynamic" {
+// Next available address in a network
+resource "infoblox_address" "example_na_network" {
   uddi = {
-    space   = "ipam/ip_space/00c2c546-6ad1-11f1-88c3-1e3cda826891"
-    comment = "dynamically allocated address"
+    space = infoblox_network_view.example.id
     dynamic_allocation = {
-      next_available_id = "ipam/subnet/b7e24b63-752c-11f1-8869-1ae03fbde013"
+      next_available_id = infoblox_network.example.id
     }
+
+    // Other optional fields
+    comment = "dynamically allocated from a network"
     tags = {
       Site = "location-2"
+    }
+  }
+}
+
+// Next available address in a network container
+resource "infoblox_address" "example_na_network_container" {
+  uddi = {
+    space = infoblox_network_view.example.id
+    dynamic_allocation = {
+      next_available_id = infoblox_network_container.example.id
+    }
+  }
+  depends_on = [infoblox_network.example]
+}
+
+// Next available address in a range
+// TODO: drop this once infoblox_range is onboarded.
+resource "infoblox_address" "example_na_range" {
+  uddi = {
+    space = "ipam/ip_space/00c2c546-6ad1-11f1-88c3-1e3cda826891"
+    dynamic_allocation = {
+      next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572"
     }
   }
 }
@@ -65,11 +123,9 @@ Optional:
 - `comment` (String) The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.
 - `dynamic_allocation` (Attributes) Dynamically allocate the next available address from a parent scope. Mutually exclusive with the static "address" field. (see [below for nested schema](#nestedatt--uddi--dynamic_allocation))
 - `external_keys` (Map of String) The external keys (source key) for this address in JSON format.
-- `host` (String) The resource identifier.
 - `hwaddr` (String) The hardware address associated with this IP address.
 - `interface` (String) The name of the network interface card (NIC) associated with the address, if any.
 - `names` (Attributes List) The list of all names associated with this address. (see [below for nested schema](#nestedatt--uddi--names))
-- `range` (String) The resource identifier.
 - `tags` (Map of String) The tags for this address in JSON format.
 
 Read-Only:

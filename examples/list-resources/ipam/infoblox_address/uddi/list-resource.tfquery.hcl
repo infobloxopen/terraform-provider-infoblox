@@ -1,4 +1,4 @@
-// List specific Addresses using filters
+// List specific Addresses using filters.
 list "infoblox_address" "list_address_using_filters" {
   provider = infoblox
   config {
