@@ -22,6 +22,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -38,25 +39,25 @@ var DtcLbdnAttrTypes = map[string]attr.Type{
 }
 
 type NIOSDtcLbdnModel struct {
-	AuthZones                types.List   `tfsdk:"auth_zones"`
-	AutoConsolidatedMonitors types.Bool   `tfsdk:"auto_consolidated_monitors"`
-	Comment                  types.String `tfsdk:"comment"`
-	Disable                  types.Bool   `tfsdk:"disable"`
-	ExtAttrs                 types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll              types.Map    `tfsdk:"ext_attrs_all"`
-	LbMethod                 types.String `tfsdk:"lb_method"`
-	Name                     types.String `tfsdk:"name"`
-	Patterns                 types.List   `tfsdk:"patterns"`
-	Persistence              types.Int64  `tfsdk:"persistence"`
-	Pools                    types.List   `tfsdk:"pools"`
-	Priority                 types.Int64  `tfsdk:"priority"`
-	Topology                 types.String `tfsdk:"topology"`
-	Ttl                      types.Int64  `tfsdk:"ttl"`
-	Types                    types.List   `tfsdk:"types"`
+	AuthZones                internaltypes.UnorderedListValue `tfsdk:"auth_zones"`
+	AutoConsolidatedMonitors types.Bool                       `tfsdk:"auto_consolidated_monitors"`
+	Comment                  types.String                     `tfsdk:"comment"`
+	Disable                  types.Bool                       `tfsdk:"disable"`
+	ExtAttrs                 types.Map                        `tfsdk:"ext_attrs"`
+	ExtAttrsAll              types.Map                        `tfsdk:"ext_attrs_all"`
+	LbMethod                 types.String                     `tfsdk:"lb_method"`
+	Name                     types.String                     `tfsdk:"name"`
+	Patterns                 internaltypes.UnorderedListValue `tfsdk:"patterns"`
+	Persistence              types.Int64                      `tfsdk:"persistence"`
+	Pools                    types.List                       `tfsdk:"pools"`
+	Priority                 types.Int64                      `tfsdk:"priority"`
+	Topology                 types.String                     `tfsdk:"topology"`
+	Ttl                      types.Int64                      `tfsdk:"ttl"`
+	Types                    internaltypes.UnorderedListValue `tfsdk:"types"`
 }
 
 var NIOSDtcLbdnAttrTypes = map[string]attr.Type{
-	"auth_zones":                 types.ListType{ElemType: types.StringType},
+	"auth_zones":                 internaltypes.UnorderedListOfStringType,
 	"auto_consolidated_monitors": types.BoolType,
 	"comment":                    types.StringType,
 	"disable":                    types.BoolType,
@@ -64,37 +65,39 @@ var NIOSDtcLbdnAttrTypes = map[string]attr.Type{
 	"ext_attrs_all":              types.MapType{ElemType: types.StringType},
 	"lb_method":                  types.StringType,
 	"name":                       types.StringType,
-	"patterns":                   types.ListType{ElemType: types.StringType},
+	"patterns":                   internaltypes.UnorderedListOfStringType,
 	"persistence":                types.Int64Type,
 	"pools":                      types.ListType{ElemType: types.ObjectType{AttrTypes: LbdnPoolsAttrTypes}},
 	"priority":                   types.Int64Type,
 	"topology":                   types.StringType,
 	"ttl":                        types.Int64Type,
-	"types":                      types.ListType{ElemType: types.StringType},
+	"types":                      internaltypes.UnorderedListOfStringType,
 }
 
 type UDDIDtcLbdnModel struct {
-	Comment    types.String `tfsdk:"comment"`
-	Disabled   types.Bool   `tfsdk:"disabled"`
-	DtcPolicy  types.Object `tfsdk:"dtc_policy"`
-	Name       types.String `tfsdk:"name"`
-	Precedence types.Int64  `tfsdk:"precedence"`
-	Tags       types.Map    `tfsdk:"tags"`
-	TagsAll    types.Map    `tfsdk:"tags_all"`
-	Ttl        types.Int64  `tfsdk:"ttl"`
-	View       types.String `tfsdk:"view"`
+	Comment            types.String `tfsdk:"comment"`
+	Disabled           types.Bool   `tfsdk:"disabled"`
+	DtcPolicy          types.Object `tfsdk:"dtc_policy"`
+	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
+	Name               types.String `tfsdk:"name"`
+	Precedence         types.Int64  `tfsdk:"precedence"`
+	Tags               types.Map    `tfsdk:"tags"`
+	TagsAll            types.Map    `tfsdk:"tags_all"`
+	Ttl                types.Int64  `tfsdk:"ttl"`
+	View               types.String `tfsdk:"view"`
 }
 
 var UDDIDtcLbdnAttrTypes = map[string]attr.Type{
-	"comment":    types.StringType,
-	"disabled":   types.BoolType,
-	"dtc_policy": types.ObjectType{AttrTypes: DTCPolicyAttrTypes},
-	"name":       types.StringType,
-	"precedence": types.Int64Type,
-	"tags":       types.MapType{ElemType: types.StringType},
-	"tags_all":   types.MapType{ElemType: types.StringType},
-	"ttl":        types.Int64Type,
-	"view":       types.StringType,
+	"comment":             types.StringType,
+	"disabled":            types.BoolType,
+	"dtc_policy":          types.ObjectType{AttrTypes: DTCPolicyAttrTypes},
+	"inheritance_sources": types.ObjectType{AttrTypes: TTLInheritanceAttrTypes},
+	"name":                types.StringType,
+	"precedence":          types.Int64Type,
+	"tags":                types.MapType{ElemType: types.StringType},
+	"tags_all":            types.MapType{ElemType: types.StringType},
+	"ttl":                 types.Int64Type,
+	"view":                types.StringType,
 }
 
 const (
@@ -123,6 +126,7 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"auth_zones": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -186,6 +190,7 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"patterns": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -230,6 +235,7 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		ElementType: types.StringType,
 		Optional:    true,
 		Computed:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Default:     listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{types.StringValue("A"), types.StringValue("AAAA")})),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
@@ -256,6 +262,12 @@ var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Attributes:          DTCPolicyResourceSchemaAttributes,
 		Optional:            true,
 		MarkdownDescription: "The __DTC Policy__ object.",
+	},
+	"inheritance_sources": schema.SingleNestedAttribute{
+		Attributes:          TTLInheritanceResourceSchemaAttributes,
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "The inheritance configuration specifies how the object inherits the _ttl_ field.",
 	},
 	"name": schema.StringAttribute{
 		Required: true,
@@ -351,14 +363,15 @@ func ApplyDtcLbdnNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *cor
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIDtcLbdnModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIDtcLbdnExt {
 	return &coremodel.UDDIDtcLbdnExt{
-		Comment:    flex.ExpandStringPointer(m.Comment),
-		Disabled:   flex.ExpandBoolPointer(m.Disabled),
-		DtcPolicy:  ExpandDTCPolicy(ctx, m.DtcPolicy, diags),
-		Name:       flex.ExpandString(m.Name),
-		Precedence: flex.ExpandInt64Pointer(m.Precedence),
-		Tags:       flex.ExpandMapStringAny(ctx, m.Tags, diags),
-		Ttl:        flex.ExpandInt64Pointer(m.Ttl),
-		View:       flex.ExpandString(m.View),
+		Comment:            flex.ExpandStringPointer(m.Comment),
+		Disabled:           flex.ExpandBoolPointer(m.Disabled),
+		DtcPolicy:          ExpandDTCPolicy(ctx, m.DtcPolicy, diags),
+		InheritanceSources: ExpandTTLInheritance(ctx, m.InheritanceSources, diags),
+		Name:               flex.ExpandString(m.Name),
+		Precedence:         flex.ExpandInt64Pointer(m.Precedence),
+		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
+		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
+		View:               flex.ExpandString(m.View),
 	}
 }
 
@@ -404,20 +417,20 @@ func (m *NIOSDtcLbdnModel) Flatten(ctx context.Context, from *coremodel.NIOSDtcL
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.AuthZones = flex.FlattenFrameworkListString(ctx, from.AuthZones, diags)
+	m.AuthZones = flex.FlattenFrameworkUnorderedListString(ctx, from.AuthZones, diags)
 	m.AutoConsolidatedMonitors = flex.FlattenBoolPointer(from.AutoConsolidatedMonitors)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.LbMethod = flex.FlattenStringPointerEmptyAsNull(from.LbMethod)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.Patterns = flex.FlattenFrameworkListString(ctx, from.Patterns, diags)
+	m.Patterns = flex.FlattenFrameworkUnorderedListString(ctx, from.Patterns, diags)
 	m.Persistence = flex.FlattenInt64Pointer(from.Persistence)
 	m.Pools = flex.FlattenFrameworkListNestedBlock(ctx, from.Pools, LbdnPoolsAttrTypes, diags, FlattenLbdnPools)
 	m.Priority = flex.FlattenInt64Pointer(from.Priority)
 	m.Topology = flex.FlattenStringPointerEmptyAsNull(from.Topology)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
-	m.Types = flex.FlattenFrameworkListString(ctx, from.Types, diags)
+	m.Types = flex.FlattenFrameworkUnorderedListString(ctx, from.Types, diags)
 }
 
 // Flatten merges API response onto existing UDDI model.
@@ -428,6 +441,7 @@ func (m *UDDIDtcLbdnModel) Flatten(ctx context.Context, from *coremodel.UDDIDtcL
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.DtcPolicy = FlattenDTCPolicy(ctx, from.DtcPolicy, diags)
+	m.InheritanceSources = FlattenTTLInheritance(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenString(from.Name)
 	m.Precedence = flex.FlattenInt64Pointer(from.Precedence)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)

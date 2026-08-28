@@ -23,14 +23,15 @@ var DtcLbdnNIOSFieldMap = map[string]string{
 
 // DtcLbdnUDDIFieldMap maps infoblox model fields to UDDI struct fields
 var DtcLbdnUDDIFieldMap = map[string]string{
-	"UDDI.Comment":    "Comment",
-	"UDDI.Disabled":   "Disabled",
-	"UDDI.DtcPolicy":  "DtcPolicy",
-	"UDDI.Name":       "Name",
-	"UDDI.Precedence": "Precedence",
-	"UDDI.Tags":       "Tags",
-	"UDDI.Ttl":        "Ttl",
-	"UDDI.View":       "View",
+	"UDDI.Comment":            "Comment",
+	"UDDI.Disabled":           "Disabled",
+	"UDDI.DtcPolicy":          "DtcPolicy",
+	"UDDI.InheritanceSources": "InheritanceSources",
+	"UDDI.Name":               "Name",
+	"UDDI.Precedence":         "Precedence",
+	"UDDI.Tags":               "Tags",
+	"UDDI.Ttl":                "Ttl",
+	"UDDI.View":               "View",
 }
 
 // TODO: only searchable fields should be included here
@@ -55,13 +56,14 @@ var DtcLbdnFilterFieldMap = map[core.BackendType]map[string]string{
 		"nios.use_ttl":                    "use_ttl",
 	},
 	core.BackendUDDI: {
-		"uddi.comment":    "comment",
-		"uddi.disabled":   "disabled",
-		"uddi.dtc_policy": "dtc_policy",
-		"uddi.name":       "name",
-		"uddi.precedence": "precedence",
-		"uddi.tags":       "tags",
-		"uddi.ttl":        "ttl",
-		"uddi.view":       "view",
+		"uddi.comment":             "comment",
+		"uddi.disabled":            "disabled",
+		"uddi.dtc_policy":          "dtc_policy",
+		"uddi.inheritance_sources": "inheritance_sources",
+		"uddi.name":                "name",
+		"uddi.precedence":          "precedence",
+		"uddi.tags":                "tags",
+		"uddi.ttl":                 "ttl",
+		"uddi.view":                "view",
 	},
 }
