@@ -23,7 +23,7 @@ func TestAccDtcPoolDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "dtc/dtc_pool/"+backend+"_datasources.tfvars", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "dtc/dtc_pool/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }
