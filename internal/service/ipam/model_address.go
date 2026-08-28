@@ -179,10 +179,10 @@ func (m *UDDIAddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Hwaddr:       flex.ExpandStringPointer(m.Hwaddr),
 		Interface:    flex.ExpandStringPointer(m.Interface),
 		Names:        flex.ExpandFrameworkListNestedBlock(ctx, m.Names, diags, ExpandName),
-		Space:        flex.ExpandStringPointer(m.Space),
 		Tags:         flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
+		ext.Space = flex.ExpandStringPointer(m.Space)
 		if alloc := BuildAddressAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = *alloc
 		}
