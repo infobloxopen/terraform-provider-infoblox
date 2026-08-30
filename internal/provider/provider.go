@@ -323,6 +323,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dhcp.NewIpv6fixedaddressResource,
 		rpz.NewRecordRpzNaptrResource,
 		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
@@ -364,6 +365,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dhcp.NewIpv6fixedaddressDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
@@ -408,6 +410,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dhcp.NewIpv6fixedaddressList,
 		rpz.NewRecordRpzNaptrList,
 		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
