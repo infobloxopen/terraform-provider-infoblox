@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
@@ -15,37 +16,35 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
-	_ resource.Resource                   = &RecordDnameResource{}
-	_ resource.ResourceWithValidateConfig = &RecordDnameResource{}
-	_ resource.ResourceWithConfigure      = &RecordDnameResource{}
-	_ resource.ResourceWithImportState    = &RecordDnameResource{}
-	_ resource.ResourceWithIdentity       = &RecordDnameResource{}
-	_ resource.ResourceWithModifyPlan     = &RecordDnameResource{}
+	_ resource.Resource                   = &RecordAliasResource{}
+	_ resource.ResourceWithValidateConfig = &RecordAliasResource{}
+	_ resource.ResourceWithConfigure      = &RecordAliasResource{}
+	_ resource.ResourceWithImportState    = &RecordAliasResource{}
+	_ resource.ResourceWithIdentity       = &RecordAliasResource{}
 )
 
-func NewRecordDnameResource() resource.Resource {
-	return &RecordDnameResource{}
+func NewRecordAliasResource() resource.Resource {
+	return &RecordAliasResource{}
 }
 
-type RecordDnameResource struct {
+type RecordAliasResource struct {
 	backend core.BackendType
-	service coresvc.RecordDnameService
+	service coresvc.RecordAliasService
 }
 
-func (r *RecordDnameResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_record_dname"
+func (r *RecordAliasResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_record_alias"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
 }
 
-func (r *RecordDnameResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+func (r *RecordAliasResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
 	resp.IdentitySchema = identityschema.Schema{
 		Attributes: map[string]identityschema.Attribute{
 			"id": identityschema.StringAttribute{
@@ -55,14 +54,14 @@ func (r *RecordDnameResource) IdentitySchema(_ context.Context, _ resource.Ident
 	}
 }
 
-func (r *RecordDnameResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *RecordAliasResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox RecordDname in both NIOS and UDDI backends.",
-		Attributes:          RecordDnameResourceSchemaAttributes,
+		MarkdownDescription: "Manages an Infoblox RecordAlias in the NIOS backend.",
+		Attributes:          RecordAliasResourceSchemaAttributes,
 	}
 }
 
-func (r *RecordDnameResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *RecordAliasResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,15 +81,15 @@ func (r *RecordDnameResource) Configure(_ context.Context, req resource.Configur
 		r.backend = core.BackendUDDI
 	}
 
-	r.service = coresvc.NewRecordDnameService(r.backend, client.NIOS, client.UDDI)
+	r.service = coresvc.NewRecordAliasService(r.backend, client.NIOS, client.UDDI)
 }
 
-func (r *RecordDnameResource) retryPolicy(op retry.Operation) retry.Policy {
-	return retry.For[coremodel.RecordDname](r.backend, op)
+func (r *RecordAliasResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.RecordAlias](r.backend, op)
 }
 
-func (r *RecordDnameResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data RecordDnameModel
+func (r *RecordAliasResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -98,16 +97,16 @@ func (r *RecordDnameResource) ValidateConfig(ctx context.Context, req resource.V
 	}
 
 	// Common backend block validations
-	validator.ValidateBackendBlocks(r.backend, data.NIOS, data.UDDI, &resp.Diagnostics)
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, types.ObjectNull(map[string]attr.Type{}), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ValidateRecordDname(ctx, data, resp)
+	ValidateRecordAlias(ctx, data, resp)
 }
 
-func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data RecordDnameModel
+func (r *RecordAliasResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -116,15 +115,15 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 
 	// Add Terraform Internal ID to ext_attrs
 	if r.backend == core.BackendNIOS {
-		nios := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
+		nios := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
-			nios = &NIOSRecordDnameModel{}
+			nios = &NIOSRecordAliasModel{}
 		}
 		nios.ExtAttrs = flex.SetInternalID(ctx, nios.ExtAttrs, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordDnameAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordAliasAttrTypes, &resp.Diagnostics)
 	}
 
 	obj := data.Expand(ctx, &resp.Diagnostics, true)
@@ -133,22 +132,21 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	if r.backend == core.BackendNIOS {
-		ApplyRecordDnameNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		ApplyRecordAliasNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
 	var (
-		apiResp  *coremodel.RecordDname
+		apiResp  *coremodel.RecordAlias
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
-			ReturnFields: RecordDnameReturnFields,
-			Inherit:      RecordDnameInheritanceType,
+			ReturnFields: RecordAliasReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -156,7 +154,7 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordDname: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordAlias: %s", err))
 		return
 	}
 
@@ -169,8 +167,8 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *RecordDnameResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data RecordDnameModel
+func (r *RecordAliasResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -185,15 +183,14 @@ func (r *RecordDnameResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	var (
-		apiResp  *coremodel.RecordDname
+		apiResp  *coremodel.RecordAlias
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-			ReturnFields: RecordDnameReturnFields,
-			Inherit:      RecordDnameInheritanceType,
+			ReturnFields: RecordAliasReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -211,18 +208,18 @@ func (r *RecordDnameResource) Read(ctx context.Context, req resource.ReadRequest
 				return
 			}
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read RecordDname: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read RecordAlias: %s", err))
 		return
 	}
 
 	// For NIOS verify internal ID matches (handles case where ref changes but resource still exists)
 	if r.backend == core.BackendNIOS && associateInternalId == nil && apiResp.NIOS != nil {
 		// Get state internal ID
-		stateNIOS := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, data.NIOS, &resp.Diagnostics)
 		if stateNIOS == nil || stateNIOS.ExtAttrsAll.IsNull() || stateNIOS.ExtAttrsAll.IsUnknown() {
 			resp.Diagnostics.AddError(
 				"Missing Internal ID",
-				"Unable to read RecordDname because the internal ID (from ext_attrs_all) is missing or invalid.",
+				"Unable to read RecordAlias because the internal ID (from ext_attrs_all) is missing or invalid.",
 			)
 			return
 		}
@@ -260,13 +257,13 @@ func (r *RecordDnameResource) Read(ctx context.Context, req resource.ReadRequest
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDnameModel, resp *resource.ReadResponse) bool {
+func (r *RecordAliasResource) ReadByExtAttrs(ctx context.Context, data *RecordAliasModel, resp *resource.ReadResponse) bool {
 	// Only applicable for NIOS backend
 	if r.backend != core.BackendNIOS {
 		return false
 	}
 
-	nios := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
+	nios := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, data.NIOS, &resp.Diagnostics)
 	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
 		return false
 	}
@@ -283,14 +280,14 @@ func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDn
 
 	// Search for the record using the Terraform Internal ID
 	var (
-		records  []*coremodel.RecordDname
+		records  []*coremodel.RecordAlias
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: RecordDnameReturnFields,
+			ReturnFields: RecordAliasReturnFields,
 			ExtAttrFilter: map[string]string{
 				flex.TerraformInternalID: tfInternalID,
 			},
@@ -301,7 +298,7 @@ func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDn
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordDname by extattrs: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordAlias by extattrs: %s", err))
 		return true
 	}
 
@@ -321,8 +318,8 @@ func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDn
 	return true
 }
 
-func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data RecordDnameModel
+func (r *RecordAliasResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -353,10 +350,10 @@ func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateReq
 			return
 		}
 
-		planNIOS := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
-		stateNIOS := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, stateNIOSObj, &resp.Diagnostics)
+		planNIOS := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, stateNIOSObj, &resp.Diagnostics)
 		if planNIOS == nil {
-			planNIOS = &NIOSRecordDnameModel{}
+			planNIOS = &NIOSRecordAliasModel{}
 		}
 
 		// Preserve the plan ext_attrs (without inherited EAs) for restore after Update
@@ -374,7 +371,7 @@ func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateReq
 		if stateNIOS != nil {
 			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, stateNIOS.ExtAttrsAll)
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordDnameAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordAliasAttrTypes, &resp.Diagnostics)
 	}
 
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
@@ -383,22 +380,21 @@ func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	if r.backend == core.BackendNIOS {
-		ApplyRecordDnameNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		ApplyRecordAliasNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
 	}
 
 	var (
-		apiResp  *coremodel.RecordDname
+		apiResp  *coremodel.RecordAlias
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-			ReturnFields: RecordDnameReturnFields,
-			Inherit:      RecordDnameInheritanceType,
+			ReturnFields: RecordAliasReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -406,16 +402,16 @@ func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateReq
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordDname: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update RecordAlias: %s", err))
 		return
 	}
 
 	// Restore the plan ext_attrs (without inherited EAs) so Flatten preserves the user's input
 	if r.backend == core.BackendNIOS {
-		niosObj := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
+		niosObj := flex.ExpandNestedObject[NIOSRecordAliasModel](ctx, data.NIOS, &resp.Diagnostics)
 		if niosObj != nil {
 			niosObj.ExtAttrs = planExtAttrs
-			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSRecordDnameAttrTypes, &resp.Diagnostics)
+			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSRecordAliasAttrTypes, &resp.Diagnostics)
 			if resp.Diagnostics.HasError() {
 				return
 			}
@@ -435,8 +431,8 @@ func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 }
 
-func (r *RecordDnameResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data RecordDnameModel
+func (r *RecordAliasResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data RecordAliasModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -457,23 +453,11 @@ func (r *RecordDnameResource) Delete(ctx context.Context, req resource.DeleteReq
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordDname: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordAlias: %s", err))
 	}
 }
 
-func (r *RecordDnameResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var fields []suppressdiff.InheritedField
-
-	if r.backend == core.BackendNIOS {
-		fields = append(fields,
-			suppressdiff.InheritedField{Path: path.Root("nios").AtName("ttl"), UnknownValue: types.Int64Unknown()},
-		)
-	}
-
-	suppressdiff.MarkInheritedFieldsUnknown(ctx, req, resp, fields)
-}
-
-func (r *RecordDnameResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *RecordAliasResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
 		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
 		if diags.HasError() {
