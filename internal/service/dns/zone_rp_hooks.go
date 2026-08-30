@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
@@ -82,48 +80,4 @@ func PostFlattenZoneRpNIOS(ctx context.Context, planned, flattened *NIOSZoneRpMo
 			flattened.GridSecondaries = reordered.(basetypes.ListValue)
 		}
 	}
-
-	reconcileFireeyeAlertMapping(ctx, planned, flattened, diags)
-}
-
-func reconcileFireeyeAlertMapping(ctx context.Context, planned, flattened *NIOSZoneRpModel, diags *diag.Diagnostics) {
-	if planned.FireeyeRuleMapping.IsNull() || planned.FireeyeRuleMapping.IsUnknown() {
-		return
-	}
-	if flattened.FireeyeRuleMapping.IsNull() || flattened.FireeyeRuleMapping.IsUnknown() {
-		return
-	}
-
-	plannedAlert, ok := planned.FireeyeRuleMapping.Attributes()["fireeye_alert_mapping"]
-	if !ok {
-		return
-	}
-
-	var reconciled attr.Value
-	if plannedAlert.IsNull() || plannedAlert.IsUnknown() {
-		reconciled = types.ListNull(
-			types.ObjectType{AttrTypes: ZonerpfireeyerulemappingFireeyeAlertMappingAttrTypes},
-		)
-	} else {
-		filtered, d := utils.ReorderAndFilterNestedListResponse(
-			ctx, plannedAlert, flattened.FireeyeRuleMapping.Attributes()["fireeye_alert_mapping"], "alert_type")
-		if d.HasError() {
-			diags.Append(*d...)
-			return
-		}
-		reconciled = filtered
-	}
-
-	attrs := make(map[string]attr.Value, len(flattened.FireeyeRuleMapping.Attributes()))
-	for k, v := range flattened.FireeyeRuleMapping.Attributes() {
-		attrs[k] = v
-	}
-	attrs["fireeye_alert_mapping"] = reconciled
-
-	obj, d := types.ObjectValue(ZoneRpFireeyeRuleMappingAttrTypes, attrs)
-	if d.HasError() {
-		diags.Append(d...)
-		return
-	}
-	flattened.FireeyeRuleMapping = obj
 }
