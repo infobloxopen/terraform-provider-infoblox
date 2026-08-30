@@ -2,9 +2,9 @@
 case "filters" {
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -28,10 +28,10 @@ case "filters" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       match_client = "MAC_ADDRESS"
       mac_address  = "00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -41,9 +41,9 @@ case "filters" {
 case "ext_attr_filters" {
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -65,10 +65,10 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       match_client = "MAC_ADDRESS"
       mac_address  = "00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       ext_attrs    = { Site = "{{random}}" }
     }

@@ -47,7 +47,6 @@ type NIOSIpv6fixedaddressModel struct {
 	AddressType              types.String                        `tfsdk:"address_type"`
 	AllowTelnet              types.Bool                          `tfsdk:"allow_telnet"`
 	CliCredentials           types.List                          `tfsdk:"cli_credentials"`
-	CloudInfo                types.Object                        `tfsdk:"cloud_info"`
 	Comment                  types.String                        `tfsdk:"comment"`
 	DeviceDescription        types.String                        `tfsdk:"device_description"`
 	DeviceLocation           types.String                        `tfsdk:"device_location"`
@@ -84,7 +83,6 @@ var NIOSIpv6fixedaddressAttrTypes = map[string]attr.Type{
 	"address_type":               types.StringType,
 	"allow_telnet":               types.BoolType,
 	"cli_credentials":            types.ListType{ElemType: types.ObjectType{AttrTypes: Ipv6fixedaddressCliCredentialsAttrTypes}},
-	"cloud_info":                 types.ObjectType{AttrTypes: Ipv6fixedaddressCloudInfoAttrTypes},
 	"comment":                    types.StringType,
 	"device_description":         types.StringType,
 	"device_location":            types.StringType,
@@ -204,11 +202,6 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The CLI credentials for the IPv6 fixed address.",
-	},
-	"cloud_info": schema.SingleNestedAttribute{
-		Attributes:          Ipv6fixedaddressCloudInfoResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
@@ -399,6 +392,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The preferred lifetime value for this DHCP IPv6 fixed address object.",
 	},
 	"reserved_interface": schema.StringAttribute{
@@ -436,6 +430,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"valid_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The valid lifetime value for this DHCP IPv6 Fixed Address object.",
 	},
 }
@@ -566,7 +561,6 @@ func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diag
 		AddressType:              flex.ExpandStringPointerNullAsEmpty(m.AddressType),
 		AllowTelnet:              flex.ExpandBoolPointer(m.AllowTelnet),
 		CliCredentials:           flex.ExpandFrameworkListNestedBlock(ctx, m.CliCredentials, diags, ExpandIpv6fixedaddressCliCredentials),
-		CloudInfo:                ExpandIpv6fixedaddressCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:                  flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		DeviceDescription:        flex.ExpandStringPointerNullAsEmpty(m.DeviceDescription),
 		DeviceLocation:           flex.ExpandStringPointerNullAsEmpty(m.DeviceLocation),
@@ -590,11 +584,11 @@ func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diag
 		NetworkView:              flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Options:                  flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6fixedaddressOptions),
 		PreferredLifetime:        flex.ExpandInt64Pointer(m.PreferredLifetime),
-		ReservedInterface:        flex.ExpandStringPointerNullAsEmpty(m.ReservedInterface),
+		ReservedInterface:        flex.ExpandStringPointer(m.ReservedInterface),
 		RestartIfNeeded:          flex.ExpandBoolPointer(m.RestartIfNeeded),
 		Snmp3Credential:          ExpandIpv6fixedaddressSnmp3Credential(ctx, m.Snmp3Credential, diags),
 		SnmpCredential:           ExpandIpv6fixedaddressSnmpCredential(ctx, m.SnmpCredential, diags),
-		Template:                 flex.ExpandStringPointerNullAsEmpty(m.Template),
+		Template:                 flex.ExpandStringPointer(m.Template),
 		ValidLifetime:            flex.ExpandInt64Pointer(m.ValidLifetime),
 	}
 }
@@ -652,8 +646,10 @@ func (m *Ipv6fixedaddressModel) Flatten(ctx context.Context, resp *coremodel.Ipv
 	if niosModel == nil {
 		niosModel = &NIOSIpv6fixedaddressModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSIpv6fixedaddressModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenIpv6fixedaddressNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6fixedaddressAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSIpv6fixedaddressAttrTypes)
@@ -684,7 +680,6 @@ func (m *NIOSIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.AddressType = flex.FlattenStringPointerEmptyAsNull(from.AddressType)
 	m.AllowTelnet = flex.FlattenBoolPointer(from.AllowTelnet)
 	m.CliCredentials = flex.FlattenFrameworkListNestedBlock(ctx, from.CliCredentials, Ipv6fixedaddressCliCredentialsAttrTypes, diags, FlattenIpv6fixedaddressCliCredentials)
-	m.CloudInfo = FlattenIpv6fixedaddressCloudInfo(ctx, from.CloudInfo, diags)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.DeviceDescription = flex.FlattenStringPointerEmptyAsNull(from.DeviceDescription)
 	m.DeviceLocation = flex.FlattenStringPointerEmptyAsNull(from.DeviceLocation)
@@ -709,7 +704,6 @@ func (m *NIOSIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, Ipv6fixedaddressOptionsAttrTypes, diags, FlattenIpv6fixedaddressOptions)
 	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
 	m.ReservedInterface = flex.FlattenStringPointerEmptyAsNull(from.ReservedInterface)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.Snmp3Credential = FlattenIpv6fixedaddressSnmp3Credential(ctx, from.Snmp3Credential, diags)
 	m.SnmpCredential = FlattenIpv6fixedaddressSnmpCredential(ctx, from.SnmpCredential, diags)
 	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)

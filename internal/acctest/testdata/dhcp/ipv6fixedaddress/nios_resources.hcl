@@ -3,9 +3,9 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -18,27 +18,21 @@ case "basic" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.ipv6addr"           = "2001:db8:abcd:1231::1"
+      "nios.ipv6addr"           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       "nios.duid"               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       "nios.network_view"       = "{{random}}"
-      "nios.network"            = "2001:db8:abcd:1231::/64"
+      "nios.network"            = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       "nios.address_type"       = "ADDRESS"
       "nios.match_client"       = "DUID"
       "nios.allow_telnet"       = "false"
-      "nios.comment"            = ""
-      "nios.device_description" = ""
-      "nios.device_location"    = ""
-      "nios.device_type"        = ""
-      "nios.device_vendor"      = ""
       "nios.disable"            = "false"
       "nios.disable_discovery"  = "false"
-      "nios.name"               = ""
       "nios.preferred_lifetime" = "27000"
       "nios.valid_lifetime"     = "43200"
     }
@@ -52,9 +46,9 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -67,9 +61,9 @@ case "disappears" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -84,9 +78,9 @@ case "address_type" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -99,19 +93,19 @@ case "address_type" {
 
   step {
     nios {
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
     }
     check = {
       "nios.address_type" = "ADDRESS"
-      "nios.ipv6addr"     = "2001:db8:abcd:1231::1"
+      "nios.ipv6addr"     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
     }
   }
 
   step {
     nios {
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
     }
@@ -122,7 +116,7 @@ case "address_type" {
 
   step {
     nios {
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
     }
@@ -141,9 +135,9 @@ case "allow_telnet" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -156,9 +150,9 @@ case "allow_telnet" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       allow_telnet    = true
       cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }]
@@ -171,9 +165,9 @@ case "allow_telnet" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       allow_telnet    = false
       cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }]
@@ -195,9 +189,9 @@ case "cli_credentials" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -210,9 +204,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       cli_credentials = [{ comment = "Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
     }
@@ -226,9 +220,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
       comment         = "Updated Comment for CLI Credentials"
@@ -243,9 +237,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
       comment         = "Updated Comment for CLI Credentials"
@@ -260,9 +254,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
       comment         = "Updated Comment for CLI Credentials"
@@ -277,9 +271,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -289,9 +283,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -303,9 +297,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -318,9 +312,9 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -337,9 +331,9 @@ case "comment" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -352,9 +346,9 @@ case "comment" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       comment      = "IPV6 Fixed Address Comment"
     }
@@ -365,9 +359,9 @@ case "comment" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       comment      = "IPV6 Fixed Address Comment Updated"
     }
@@ -382,9 +376,9 @@ case "device_description" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -397,9 +391,9 @@ case "device_description" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
       device_description = "{{random2}}"
     }
@@ -410,9 +404,9 @@ case "device_description" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
       device_description = "{{random3}}"
     }
@@ -427,9 +421,9 @@ case "device_location" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -442,9 +436,9 @@ case "device_location" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       device_location = "{{random2}}"
     }
@@ -455,9 +449,9 @@ case "device_location" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       device_location = "{{random3}}"
     }
@@ -472,9 +466,9 @@ case "device_type" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -487,9 +481,9 @@ case "device_type" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       device_type  = "{{random2}}"
     }
@@ -500,9 +494,9 @@ case "device_type" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       device_type  = "{{random3}}"
     }
@@ -517,9 +511,9 @@ case "device_vendor" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -532,9 +526,9 @@ case "device_vendor" {
 
   step {
     nios {
-      ipv6addr      = "2001:db8:abcd:1231::1"
+      ipv6addr      = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid          = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network       = infoblox_ipv6network.test_ipv6_network.nios.network
+      network       = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view  = infoblox_network_view.parent_network_view.nios.name
       device_vendor = "{{random2}}"
     }
@@ -545,9 +539,9 @@ case "device_vendor" {
 
   step {
     nios {
-      ipv6addr      = "2001:db8:abcd:1231::1"
+      ipv6addr      = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid          = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network       = infoblox_ipv6network.test_ipv6_network.nios.network
+      network       = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view  = infoblox_network_view.parent_network_view.nios.name
       device_vendor = "{{random3}}"
     }
@@ -562,9 +556,9 @@ case "disable" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -577,9 +571,9 @@ case "disable" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       disable      = true
     }
@@ -590,9 +584,9 @@ case "disable" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       disable      = false
     }
@@ -607,9 +601,9 @@ case "disable_discovery" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -622,9 +616,9 @@ case "disable_discovery" {
 
   step {
     nios {
-      ipv6addr          = "2001:db8:abcd:1231::1"
+      ipv6addr          = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid              = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network           = infoblox_ipv6network.test_ipv6_network.nios.network
+      network           = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view      = infoblox_network_view.parent_network_view.nios.name
       disable_discovery = true
     }
@@ -635,9 +629,9 @@ case "disable_discovery" {
 
   step {
     nios {
-      ipv6addr          = "2001:db8:abcd:1231::1"
+      ipv6addr          = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid              = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network           = infoblox_ipv6network.test_ipv6_network.nios.network
+      network           = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view      = infoblox_network_view.parent_network_view.nios.name
       disable_discovery = false
     }
@@ -652,9 +646,9 @@ case "domain_name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -667,9 +661,9 @@ case "domain_name" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       domain_name  = "{{random2}}.com"
     }
@@ -680,9 +674,9 @@ case "domain_name" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       domain_name  = "{{random3}}.com"
     }
@@ -697,9 +691,9 @@ case "domain_name_servers" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -712,9 +706,9 @@ case "domain_name_servers" {
 
   step {
     nios {
-      ipv6addr            = "2001:db8:abcd:1231::1"
+      ipv6addr            = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid                = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network             = infoblox_ipv6network.test_ipv6_network.nios.network
+      network             = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view        = infoblox_network_view.parent_network_view.nios.name
       domain_name_servers = ["2001:4860:4860::8888", "2001:4860:4860::8844"]
     }
@@ -727,9 +721,9 @@ case "domain_name_servers" {
 
   step {
     nios {
-      ipv6addr            = "2001:db8:abcd:1231::1"
+      ipv6addr            = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid                = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network             = infoblox_ipv6network.test_ipv6_network.nios.network
+      network             = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view        = infoblox_network_view.parent_network_view.nios.name
       domain_name_servers = ["2620:fe::9", "2001:4860:4860::6844"]
     }
@@ -746,9 +740,9 @@ case "duid" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -761,9 +755,9 @@ case "duid" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -773,9 +767,9 @@ case "duid" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:11:11:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -789,9 +783,9 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -804,9 +798,9 @@ case "ext_attrs" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       ext_attrs    = { Site = "{{random2}}" }
     }
@@ -817,9 +811,9 @@ case "ext_attrs" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
       ext_attrs    = { Site = "{{random3}}" }
     }
@@ -834,9 +828,9 @@ case "ipv6addr" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -849,25 +843,25 @@ case "ipv6addr" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.ipv6addr" = "2001:db8:abcd:1231::1"
+      "nios.ipv6addr" = "2001:db8:{{random_hextet}}:{{random_int}}::1"
     }
   }
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.ipv6addr" = "2001:db8:abcd:1231::2"
+      "nios.ipv6addr" = "2001:db8:{{random_hextet}}:{{random_int}}::2"
     }
   }
 
@@ -877,9 +871,9 @@ case "func_call" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -894,7 +888,7 @@ case "func_call" {
     nios {
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       comment            = "create IPV6 Fixed Address using Func call"
-      dynamic_allocation = { network = infoblox_ipv6network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
+      dynamic_allocation = { network = infoblox_ipv6_network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -906,7 +900,7 @@ case "func_call" {
     nios {
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       comment            = "update IPV6 Fixed Address using Func call"
-      dynamic_allocation = { network = infoblox_ipv6network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
+      dynamic_allocation = { network = infoblox_ipv6_network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -920,9 +914,9 @@ case "ipv6prefix" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -937,13 +931,13 @@ case "ipv6prefix" {
     nios {
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       address_type    = "PREFIX"
-      ipv6prefix      = "2001:db8:abcd:1231::"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int}}::"
       ipv6prefix_bits = 64
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.ipv6prefix" = "2001:db8:abcd:1231::"
+      "nios.ipv6prefix" = "2001:db8:{{random_hextet}}:{{random_int}}::"
     }
   }
 
@@ -951,13 +945,13 @@ case "ipv6prefix" {
     nios {
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       address_type    = "PREFIX"
-      ipv6prefix      = "2001:db8:abcd:1241::"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int2}}::"
       ipv6prefix_bits = 64
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.ipv6prefix" = "2001:db8:abcd:1241::"
+      "nios.ipv6prefix" = "2001:db8:{{random_hextet}}:{{random_int2}}::"
     }
   }
 
@@ -967,9 +961,9 @@ case "ipv6prefix_bits" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -984,10 +978,10 @@ case "ipv6prefix_bits" {
     nios {
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       address_type    = "BOTH"
-      ipv6addr        = "2001:db8:abcd:1231::1"
-      ipv6prefix      = "2001:db8:abcd:1231::"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int}}::"
       ipv6prefix_bits = 64
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -999,10 +993,10 @@ case "ipv6prefix_bits" {
     nios {
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       address_type    = "BOTH"
-      ipv6addr        = "2001:db8:abcd:1231::1"
-      ipv6prefix      = "2001:db8:abcd:1231::"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int}}::"
       ipv6prefix_bits = 65
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1016,9 +1010,9 @@ case "logic_filter_rules" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1031,9 +1025,9 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1045,9 +1039,9 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1063,9 +1057,9 @@ case "mac_address" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1078,10 +1072,10 @@ case "mac_address" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       match_client = "MAC_ADDRESS"
       mac_address  = "00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1091,10 +1085,10 @@ case "mac_address" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       match_client = "MAC_ADDRESS"
       mac_address  = "01:2c:39:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1112,9 +1106,9 @@ case "match_client" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1127,8 +1121,8 @@ case "match_client" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1138,8 +1132,8 @@ case "match_client" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1153,9 +1147,9 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1168,10 +1162,10 @@ case "name" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       name         = "{{random2}}"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1181,10 +1175,10 @@ case "name" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       name         = "{{random3}}"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1198,9 +1192,15 @@ case "network" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6network1" {
+  resource "infoblox_ipv6_network" "test_ipv6network1" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
+      network_view = infoblox_network_view.parent_network_view.nios.name
+    }
+  }
+  resource "infoblox_ipv6_network" "test_ipv6network2" {
+    nios = {
+      network = "2001:db8:{{random_hextet}}:{{random_int2}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1213,23 +1213,23 @@ case "network" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.network" = "2001:db8:abcd:1231::/64"
+      "nios.network" = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
     }
   }
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1241::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int2}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.network" = "2001:db8:abcd:1241::/64"
+      "nios.network" = "2001:db8:{{random_hextet}}:{{random_int2}}::/64"
     }
   }
 
@@ -1239,9 +1239,9 @@ case "options" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1254,9 +1254,9 @@ case "options" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1268,9 +1268,9 @@ case "options" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1286,9 +1286,9 @@ case "preferred_lifetime" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1301,11 +1301,11 @@ case "preferred_lifetime" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       preferred_lifetime = 6200
       valid_lifetime     = 43200
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1315,11 +1315,11 @@ case "preferred_lifetime" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       preferred_lifetime = 4800
       valid_lifetime     = 43200
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1337,9 +1337,9 @@ case "template" {
   skip_reason = "requires_resource: infoblox_ipv6_fixed_address_template not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1357,10 +1357,10 @@ case "template" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::1"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       template     = infoblox_ipv6_fixed_address_template_unknown.test.nios.name
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1373,9 +1373,9 @@ case "reserved_interface" {
   skip_reason = "t.Skip: Skipping test as reserved_interface is not implemented yet"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1388,10 +1388,10 @@ case "reserved_interface" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       reserved_interface = "{{random2}}"
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1401,10 +1401,10 @@ case "reserved_interface" {
 
   step {
     nios {
-      ipv6addr           = "2001:db8:abcd:1231::1"
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       reserved_interface = "{{random3}}"
-      network            = infoblox_ipv6network.test_ipv6_network.nios.network
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view       = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1422,9 +1422,9 @@ case "snmp3_credential" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1437,10 +1437,10 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr         = "2001:db8:abcd:1231::1"
+      ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid             = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       snmp3_credential = { user = "snmp", authentication_protocol = "MD5", authentication_password = "snmp1234", privacy_protocol = "3DES", privacy_password = "snmp1234", comment = "SNMP3 Credential Comment", credential_group = "default" }
-      network          = infoblox_ipv6network.test_ipv6_network.nios.network
+      network          = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view     = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1454,10 +1454,10 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr         = "2001:db8:abcd:1231::1"
+      ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid             = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       snmp3_credential = { user = "SNMP3_USER_UPDATE", authentication_protocol = "SHA-224", authentication_password = "AUTH_PASSWORD", privacy_protocol = "AES-256", privacy_password = "PRIVACY_PASSWORD", comment = "SNMP3 Credential Comment Updated", credential_group = "default" }
-      network          = infoblox_ipv6network.test_ipv6_network.nios.network
+      network          = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view     = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1471,34 +1471,18 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-      "nios.snmp3_credential.comment"                 = "SNMP3 Credential Comment"
-      "nios.snmp3_credential.credential_group"        = "default"
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1512,9 +1496,9 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1528,9 +1512,9 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1544,9 +1528,9 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1560,9 +1544,25 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:abcd:1231::2"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
       duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6network.test_ipv6_network.nios.network
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+    }
+    check = {
+      "nios.snmp3_credential.user"                    = "user1"
+      "nios.snmp3_credential.authentication_protocol" = "SHA"
+      "nios.snmp3_credential.privacy_protocol"        = "AES"
+      "nios.snmp3_credential.comment"                 = "SNMP3 Credential Comment"
+      "nios.snmp3_credential.credential_group"        = "default"
+    }
+  }
+
+  step {
+    nios {
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
+      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1580,9 +1580,9 @@ case "snmp_credential" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1595,10 +1595,10 @@ case "snmp_credential" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       snmp_credential = { community_string = "COMMUNITY_STRING", comment = "SNMP Credential Comment", credential_group = "default" }
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1610,10 +1610,10 @@ case "snmp_credential" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:abcd:1231::1"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       snmp_credential = { community_string = "COMMUNITY_STRING_UPDATED", comment = "SNMP Credential Comment Updated", credential_group = "default" }
-      network         = infoblox_ipv6network.test_ipv6_network.nios.network
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1629,9 +1629,9 @@ case "valid_lifetime" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "test_ipv6_network" {
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
-      network = "2001:db8:abcd:1231::/64"
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
   }
@@ -1644,10 +1644,10 @@ case "valid_lifetime" {
 
   step {
     nios {
-      ipv6addr       = "2001:db8:abcd:1231::1"
+      ipv6addr       = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid           = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       valid_lifetime = 42800
-      network        = infoblox_ipv6network.test_ipv6_network.nios.network
+      network        = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view   = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1657,10 +1657,10 @@ case "valid_lifetime" {
 
   step {
     nios {
-      ipv6addr       = "2001:db8:abcd:1231::1"
+      ipv6addr       = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid           = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       valid_lifetime = 56000
-      network        = infoblox_ipv6network.test_ipv6_network.nios.network
+      network        = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view   = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
