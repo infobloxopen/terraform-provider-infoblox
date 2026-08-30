@@ -331,8 +331,17 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at \"soa_serial_number\" and pass \"set_soa_serial_number\" as True.",
 	},
 	"soa_default_ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("grid_primary"),
+			),
+		},
 		MarkdownDescription: "The Time to Live (TTL) value of the SOA record of this zone. This value is the number of seconds that data is cached.",
 	},
 	"soa_email": schema.StringAttribute{
@@ -345,23 +354,59 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The SOA email value for this zone. This value can be in unicode format.",
 	},
 	"soa_expire": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("grid_primary"),
+			),
+		},
 		MarkdownDescription: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
 	},
 	"soa_negative_ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("grid_primary"),
+			),
+		},
 		MarkdownDescription: "The negative Time to Live (TTL) value of the SOA of the zone indicates how long a secondary server can cache data for \"Does Not Respond\" responses.",
 	},
 	"soa_refresh": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("grid_primary"),
+			),
+		},
 		MarkdownDescription: "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not.",
 	},
 	"soa_retry": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("grid_primary"),
+			),
+		},
 		MarkdownDescription: "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.",
 	},
 	"soa_serial_number": schema.Int64Attribute{
