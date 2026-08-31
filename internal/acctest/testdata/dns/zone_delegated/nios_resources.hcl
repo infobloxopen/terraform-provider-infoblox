@@ -478,6 +478,7 @@ PREREQ
       delegate_to = [{ name = "{{random}}.com", address = "10.0.0.1" }]
       zone_format = "IPV4"
     }
+    depends_on = [infoblox_zone_auth.parent_auth_reverse_zone_ipv4]
     check = {
       "nios.zone_format" = "IPV4"
     }
@@ -491,7 +492,7 @@ case "zone_format_ipv6" {
   prerequisites_hcl = <<-PREREQ
 resource "infoblox_zone_auth" "parent_auth_reverse_zone_ipv6" {
   nios = {
-    fqdn = "2001::0/128"
+    fqdn = "2001::/64"
     view = "default"
     zone_format = "IPV6"
   }
@@ -504,6 +505,7 @@ PREREQ
       delegate_to = [{ name = "{{random}}.com", address = "10.0.0.1" }]
       zone_format = "IPV6"
     }
+    depends_on = [infoblox_zone_auth.parent_auth_reverse_zone_ipv6]
     check = {
       "nios.zone_format" = "IPV6"
     }

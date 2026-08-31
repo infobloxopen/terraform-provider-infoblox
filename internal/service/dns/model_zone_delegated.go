@@ -261,7 +261,10 @@ var ZoneDelegatedResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: DelegationServerResourceSchemaAttributes,
 		},
-		Required:            true,
+		Required: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Required. DNS zone delegation servers. Order is not significant.",
 	},
 	"disabled": schema.BoolAttribute{

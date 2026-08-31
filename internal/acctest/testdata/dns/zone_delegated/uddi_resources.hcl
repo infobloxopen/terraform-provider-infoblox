@@ -1,4 +1,7 @@
 # Auto-generated resource acceptance-test cases for ZoneDelegated.
+// Every case creates two prerequisites: a DNS view, and an authoritative zone in that
+// view. The delegated zone under test is always a child of that authoritative zone.
+
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -8,17 +11,24 @@ case "basic" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      fqdn               = "delegated.{{random3}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn"                         = "test.123."
+      "uddi.fqdn"                         = "delegated.{{random3}}.com."
       "uddi.delegation_servers.#"         = "1"
       "uddi.delegation_servers.0.address" = "12.0.0.0"
       "uddi.delegation_servers.0.fqdn"    = "ns1.com."
@@ -41,12 +51,19 @@ case "disappears" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      fqdn               = "delegated.{{random3}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -63,13 +80,20 @@ case "compartment_id" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random3}}.com."
       compartment_id     = "c4695."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -80,9 +104,9 @@ case "compartment_id" {
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random3}}.com."
       compartment_id     = ""
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -102,13 +126,20 @@ case "comment" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random3}}.com."
       comment            = "Delegation zone is created by Terraform"
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -119,9 +150,9 @@ case "comment" {
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random3}}.com."
       comment            = "Delegation zone was created by Terraform"
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -132,11 +163,6 @@ case "comment" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
-#   "fqdn": %q
 case "delegation_servers" {
   backend  = "uddi"
   parallel = true
@@ -146,12 +172,20 @@ case "delegation_servers" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn = "test.123."
-      view = infoblox_view.test.id
+      fqdn               = "delegated.{{random}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
+      view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
@@ -163,8 +197,9 @@ case "delegation_servers" {
 
   step {
     uddi {
-      fqdn = "test.123."
-      view = infoblox_view.test.id
+      fqdn               = "delegated.{{random}}.com."
+      delegation_servers = [{ address = "12.0.0.1", fqdn = "ns2.com." }]
+      view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
@@ -176,8 +211,9 @@ case "delegation_servers" {
 
   step {
     uddi {
-      fqdn = "test.123."
-      view = infoblox_view.test.id
+      fqdn               = "delegated.{{random}}.com."
+      delegation_servers = [{ address = "", fqdn = "ns3.com." }]
+      view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
@@ -198,13 +234,20 @@ case "disabled" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random}}.com."
       disabled           = false
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -215,9 +258,9 @@ case "disabled" {
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random}}.com."
       disabled           = true
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -237,29 +280,36 @@ case "fqdn" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      fqdn               = "delegated.{{random}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn" = "test.123."
+      "uddi.fqdn" = "delegated.{{random}}.com."
     }
   }
 
   step {
     uddi {
-      fqdn               = "test1.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      fqdn               = "delegated1.{{random}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn" = "test1.123."
+      "uddi.fqdn" = "delegated1.{{random}}.com."
     }
   }
 
@@ -274,13 +324,20 @@ case "tags" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random}}.com."
       tags               = { tag1 = "value1", tag2 = "value2" }
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -292,9 +349,9 @@ case "tags" {
 
   step {
     uddi {
-      fqdn               = "test.123."
+      fqdn               = "delegated.{{random}}.com."
       tags               = { tag2 = "value2changed", tag3 = "value3" }
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
@@ -310,27 +367,30 @@ case "view" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "%[1]q" {
+  resource "infoblox_view" "test" {
     uddi = {
       name = "{{random}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      fqdn               = "test.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+      fqdn               = "delegated.{{random}}.com."
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
+      view               = infoblox_view.test.id
     }
-    depends_on = [infoblox_zone_auth.test]
-  }
-
-  step {
-    uddi {
-      fqdn               = "test.123."
-      delegation_servers = { address = "12.0.0.0", fqdn = "ns1.com." }
+    depends_on = [infoblox_view.test, infoblox_zone_auth.test]
+    check_pair = {
+      "uddi.view" = infoblox_view.test.id
     }
-    depends_on = [infoblox_zone_auth.test]
   }
 
 }
