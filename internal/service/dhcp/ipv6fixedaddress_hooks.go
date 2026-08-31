@@ -242,14 +242,10 @@ func PostFlattenIpv6fixedaddressNIOS(ctx context.Context, planned, flattened *NI
 		}
 	}
 
-	// template is a write-only NIOS attribute; NIOS never echoes it back, so keep
-	// the configured value instead of nulling it out on read.
 	if flattened.Template.IsNull() && !planned.Template.IsNull() && !planned.Template.IsUnknown() {
 		flattened.Template = planned.Template
 	}
 
-	// NIOS accepts them but never returns
-	// them, so carry the planned values into state
 	if result, d := utils.CopyFieldFromPlanToRespList(ctx, planned.CliCredentials, flattened.CliCredentials, "password"); !d.HasError() {
 		if resultList, ok := result.(basetypes.ListValue); ok {
 			flattened.CliCredentials = resultList

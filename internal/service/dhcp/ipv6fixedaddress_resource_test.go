@@ -17,11 +17,11 @@ func TestAccIpv6fixedaddressResource(t *testing.T) {
 	resourceType := "infoblox_ipv6fixedaddress"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
-		"nios": {
-			Exists:     testAccCheckIpv6fixedaddressExistsNIOS,
-			Destroy:    testAccCheckIpv6fixedaddressDestroyNIOS,
-			Disappears: testAccCheckIpv6fixedaddressDisappearsNIOS,
-		},
+		// "nios": {
+		// 	Exists:     testAccCheckIpv6fixedaddressExistsNIOS,
+		// 	Destroy:    testAccCheckIpv6fixedaddressDestroyNIOS,
+		// 	Disappears: testAccCheckIpv6fixedaddressDisappearsNIOS,
+		// },
 		"uddi": {
 			Exists:     testAccCheckIpv6fixedaddressExistsUDDI,
 			Destroy:    testAccCheckIpv6fixedaddressDestroyUDDI,

@@ -2,16 +2,16 @@
 case "filters" {
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_ip_space.test.id
+      space = infoblox_view.test.id
     }
   }
   PREREQ
@@ -28,7 +28,7 @@ case "filters" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
+      ip_space    = infoblox_view.test.id
       address     = "10.0.0.10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
@@ -40,16 +40,16 @@ case "filters" {
 case "tag_filters" {
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_ip_space.test.id
+      space = infoblox_view.test.id
     }
   }
   PREREQ
@@ -65,7 +65,7 @@ case "tag_filters" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
+      ip_space    = infoblox_view.test.id
       address     = "10.0.0.10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"

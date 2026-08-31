@@ -445,7 +445,9 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The reserved address.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the fixed address. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
@@ -465,28 +467,38 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. _true_ to disable object. The fixed address is converted to an exclusion when generating configuration.  Defaults to _false_.",
 	},
 	"header_option_filename": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option filename field.",
 	},
 	"header_option_server_address": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server address field.",
 	},
 	"header_option_server_name": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The configuration for header option server name field.",
 	},
 	"hostname": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The DHCP host name associated with this fixed address. It is of FQDN type and it defaults to empty.",
 	},
 	"inheritance_parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: FixedAddressInheritanceResourceSchemaAttributes,
 		Optional:   true,
+		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
 		},
@@ -508,11 +520,14 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The value to match.",
 	},
 	"name": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The name of the fixed address. May contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{

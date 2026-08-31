@@ -3,30 +3,30 @@ case "basic" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.address"     = "10.0.0.10"
+      "uddi.address"     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       "uddi.match_type"  = "mac"
       "uddi.match_value" = "aa:aa:aa:aa:aa:aa"
     }
@@ -40,28 +40,28 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
   }
 
 }
@@ -70,55 +70,55 @@ case "address" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.address" = "10.0.0.10"
+      "uddi.address" = "2001:db8:{{random_hextet}}:{{random_int}}::10"
     }
   }
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.11"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::11"
       match_type  = "mac"
       match_value = "bb:bb:bb:bb:bb:bb"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.address" = "10.0.0.11"
+      "uddi.address" = "2001:db8:{{random_hextet}}:{{random_int}}::11"
     }
   }
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
+      ip_space    = infoblox_network_view.test.id
       match_type  = "mac"
       match_value = "cc:cc:cc:cc:cc:cc"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.address" = "10.0.0.1"
+      "uddi.address" = "2001:db8:{{random_hextet}}:{{random_int}}::1"
     }
   }
 
@@ -128,29 +128,29 @@ case "comment" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       comment     = "this range is created by terraform"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.comment" = "this range is created by terraform"
     }
@@ -158,13 +158,13 @@ case "comment" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       comment     = "update: this range is created by terraform"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.comment" = "update: this range is created by terraform"
     }
@@ -176,29 +176,29 @@ case "disable_dhcp" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space     = infoblox_ip_space.test.id
-      address      = "10.0.0.10"
+      ip_space     = infoblox_network_view.test.id
+      address      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       disable_dhcp = false
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.disable_dhcp" = "false"
     }
@@ -206,13 +206,13 @@ case "disable_dhcp" {
 
   step {
     uddi {
-      ip_space     = infoblox_ip_space.test.id
-      address      = "10.0.0.10"
+      ip_space     = infoblox_network_view.test.id
+      address      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       disable_dhcp = true
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.disable_dhcp" = "true"
     }
@@ -228,16 +228,16 @@ case "dhcp_options" {
   skip_reason = "requires_resource: infoblox_dhcp_option_group not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random3}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
@@ -264,14 +264,14 @@ case "dhcp_options" {
 
   step {
     uddi {
-      ip_space     = infoblox_ip_space.test.id
-      address      = "10.0.0.10"
+      ip_space     = infoblox_network_view.test.id
+      address      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       name         = "{{random2}}"
       dhcp_options = [{ type = "option", option_code = infoblox_dhcp_optiondefinition.test.id, option_value = true }]
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.dhcp_options.#"              = "1"
       "uddi.dhcp_options.0.option_value" = "true"
@@ -280,14 +280,14 @@ case "dhcp_options" {
 
   step {
     uddi {
-      ip_space     = infoblox_ip_space.test.id
-      address      = "10.0.0.10"
+      ip_space     = infoblox_network_view.test.id
+      address      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       name         = "{{random2}}"
       dhcp_options = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.dhcp_options.#" = "1"
     }
@@ -299,29 +299,29 @@ case "header_option_filename" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space               = infoblox_ip_space.test.id
-      address                = "10.0.0.10"
+      ip_space               = infoblox_network_view.test.id
+      address                = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type             = "mac"
       match_value            = "aa:aa:aa:aa:aa:aa"
       header_option_filename = "header_option_filename"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.header_option_filename" = "header_option_filename"
     }
@@ -329,13 +329,13 @@ case "header_option_filename" {
 
   step {
     uddi {
-      ip_space               = infoblox_ip_space.test.id
-      address                = "10.0.0.10"
+      ip_space               = infoblox_network_view.test.id
+      address                = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type             = "mac"
       match_value            = "aa:aa:aa:aa:aa:aa"
       header_option_filename = "header_option_filename_update"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.header_option_filename" = "header_option_filename_update"
     }
@@ -347,45 +347,45 @@ case "header_option_server_address" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space                     = infoblox_ip_space.test.id
-      address                      = "10.0.0.10"
+      ip_space                     = infoblox_network_view.test.id
+      address                      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                   = "mac"
       match_value                  = "aa:aa:aa:aa:aa:aa"
-      header_option_server_address = "10.0.0.12"
+      header_option_server_address = "2001:db8:{{random_hextet}}:{{random_int}}::12"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.header_option_server_address" = "10.0.0.12"
+      "uddi.header_option_server_address" = "2001:db8:{{random_hextet}}:{{random_int}}::12"
     }
   }
 
   step {
     uddi {
-      ip_space                     = infoblox_ip_space.test.id
-      address                      = "10.0.0.10"
+      ip_space                     = infoblox_network_view.test.id
+      address                      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                   = "mac"
       match_value                  = "aa:aa:aa:aa:aa:aa"
-      header_option_server_address = "10.0.0.13"
+      header_option_server_address = "2001:db8:{{random_hextet}}:{{random_int}}::13"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
-      "uddi.header_option_server_address" = "10.0.0.13"
+      "uddi.header_option_server_address" = "2001:db8:{{random_hextet}}:{{random_int}}::13"
     }
   }
 
@@ -395,29 +395,29 @@ case "header_option_server_name" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space                  = infoblox_ip_space.test.id
-      address                   = "10.0.0.10"
+      ip_space                  = infoblox_network_view.test.id
+      address                   = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                = "mac"
       match_value               = "aa:aa:aa:aa:aa:aa"
       header_option_server_name = "header_option_server_name"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.header_option_server_name" = "header_option_server_name"
     }
@@ -425,13 +425,13 @@ case "header_option_server_name" {
 
   step {
     uddi {
-      ip_space                  = infoblox_ip_space.test.id
-      address                   = "10.0.0.10"
+      ip_space                  = infoblox_network_view.test.id
+      address                   = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                = "mac"
       match_value               = "aa:aa:aa:aa:aa:aa"
       header_option_server_name = "header_option_server_name_update"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.header_option_server_name" = "header_option_server_name_update"
     }
@@ -443,29 +443,29 @@ case "hostname" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       hostname    = "hostname1"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.hostname" = "hostname1"
     }
@@ -473,13 +473,13 @@ case "hostname" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       hostname    = "hostname2"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.hostname" = "hostname2"
     }
@@ -491,32 +491,32 @@ case "inheritance_sources" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space                     = infoblox_ip_space.test.id
-      address                      = "10.0.0.10"
+      ip_space                     = infoblox_network_view.test.id
+      address                      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                   = "mac"
       match_value                  = "aa:aa:aa:aa:aa:aa"
       inheritance_sources          = { header_option_filename = { action = "inherit" }, header_option_server_address = { action = "inherit" }, header_option_server_name = { action = "inherit" } }
       header_option_filename       = "header_option_filename"
-      header_option_server_address = "10.0.0.12"
+      header_option_server_address = "2001:db8:{{random_hextet}}:{{random_int}}::12"
       header_option_server_name    = "header_option_server_name"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.inheritance_sources.header_option_filename.action"       = "inherit"
       "uddi.inheritance_sources.header_option_server_address.action" = "inherit"
@@ -526,16 +526,16 @@ case "inheritance_sources" {
 
   step {
     uddi {
-      ip_space                     = infoblox_ip_space.test.id
-      address                      = "10.0.0.10"
+      ip_space                     = infoblox_network_view.test.id
+      address                      = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type                   = "mac"
       match_value                  = "aa:aa:aa:aa:aa:aa"
       inheritance_sources          = { header_option_filename = { action = "override" }, header_option_server_address = { action = "override" }, header_option_server_name = { action = "override" } }
       header_option_filename       = "header_option_filename"
-      header_option_server_address = "10.0.0.12"
+      header_option_server_address = "2001:db8:{{random_hextet}}:{{random_int}}::12"
       header_option_server_name    = "header_option_server_name"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.inheritance_sources.header_option_filename.action"       = "override"
       "uddi.inheritance_sources.header_option_server_address.action" = "override"
@@ -549,38 +549,38 @@ case "ip_space" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "one" {
+  resource "infoblox_network_view" "one" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.one.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.one.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      address     = "10.0.0.10"
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
-      ip_space    = infoblox_ip_space.one.id
+      ip_space    = infoblox_network_view.one.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
   }
 
   step {
     uddi {
-      address     = "10.0.0.10"
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
-      ip_space    = infoblox_ip_space.two.id
+      ip_space    = infoblox_network_view.two.id
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
   }
 
 }
@@ -589,28 +589,28 @@ case "match_type_and_match_value" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "client_hex"
       match_value = "aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "client_hex"
       "uddi.match_value" = "aa"
@@ -619,12 +619,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "client_hex"
       match_value = "bb"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "client_hex"
       "uddi.match_value" = "bb"
@@ -633,12 +633,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "client_text"
       match_value = "clienttext"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "client_text"
       "uddi.match_value" = "clienttext"
@@ -647,12 +647,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "mac"
       "uddi.match_value" = "aa:aa:aa:aa:aa:aa"
@@ -661,12 +661,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "relay_hex"
       match_value = "aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "relay_hex"
       "uddi.match_value" = "aa"
@@ -675,12 +675,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "relay_text"
       match_value = "relaytext"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "relay_text"
       "uddi.match_value" = "relaytext"
@@ -689,12 +689,12 @@ case "match_type_and_match_value" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "client_hex"
       match_value = "aa"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.match_type"  = "client_hex"
       "uddi.match_value" = "aa"
@@ -707,29 +707,29 @@ case "name" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       name        = "example_fixed_address"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.name" = "example_fixed_address"
     }
@@ -737,13 +737,13 @@ case "name" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       name        = "example_fixed_address_updated"
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.name" = "example_fixed_address_updated"
     }
@@ -755,29 +755,29 @@ case "tags" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       tags        = { tag1 = "value1", tag2 = "value2" }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.tags.tag1" = "value1"
       "uddi.tags.tag2" = "value2"
@@ -786,13 +786,13 @@ case "tags" {
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
-      address     = "10.0.0.10"
+      ip_space    = infoblox_network_view.test.id
+      address     = "2001:db8:{{random_hextet}}:{{random_int}}::10"
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
       tags        = { tag2 = "value2changed", tag3 = "value3" }
     }
-    depends_on = [infoblox_subnet.test]
+    depends_on = [infoblox_ipv6_network.test]
     check = {
       "uddi.tags.tag2" = "value2changed"
       "uddi.tags.tag3" = "value3"
@@ -805,23 +805,23 @@ case "next_available_id_count" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ip_space" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_subnet" "test" {
+  resource "infoblox_ipv6_network" "test" {
     uddi = {
-      address = "10.0.0.0"
-      cidr = 24
-      space = infoblox_ip_space.test.id
+      address = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      cidr = 64
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      ip_space    = infoblox_ip_space.test.id
+      ip_space    = infoblox_network_view.test.id
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:$${count.index + 10}"
     }
