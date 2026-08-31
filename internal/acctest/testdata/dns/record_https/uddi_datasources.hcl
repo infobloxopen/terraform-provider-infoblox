@@ -23,7 +23,7 @@ case "filters" {
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone         = infoblox_zone_auth.test.id
+      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
       rdata        = { target_name = "example.com." }
     }
   }

@@ -7,14 +7,14 @@
 case "inheritance_sources" {
   backend           = "uddi"
   parallel          = true
-#   prerequisites_hcl = <<-PREREQ
-#   resource "infoblox_zone_auth" "test" {
-#     uddi = {
-#       fqdn = "{{random}}.com."
-#       primary_type = "cloud"
-#     }
-#   }
-#   PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -57,14 +57,14 @@ case "inheritance_sources" {
 case "rdata" {
   backend           = "uddi"
   parallel          = true
-#   prerequisites_hcl = <<-PREREQ
-#   resource "infoblox_zone_auth" "test" {
-#     uddi = {
-#       fqdn = "{{random}}.com."
-#       primary_type = "cloud"
-#     }
-#   }
-#   PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
