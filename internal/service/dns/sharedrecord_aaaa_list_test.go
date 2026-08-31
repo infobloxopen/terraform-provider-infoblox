@@ -18,7 +18,7 @@ func TestAccSharedrecordAaaaList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "dns/sharedrecord_aaaa/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "dns/sharedrecord_aaaa/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }
