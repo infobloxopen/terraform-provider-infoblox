@@ -1,7 +1,7 @@
 // Get "SVCB" records filtered by an attribute
 data "infoblox_record_svcb" "example_by_attribute" {
   filters = {
-    "absolute_name_spec" = "abc.example.com"
+    "absolute_name_spec" = "record.example.com."
   }
 }
 
