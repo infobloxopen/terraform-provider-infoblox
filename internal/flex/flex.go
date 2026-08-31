@@ -242,13 +242,6 @@ func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 	return ExpandStringPointer(mac.StringValue)
 }
 
-func ExpandIPName(name internaltypes.IPName) *string {
-	if name.IsNull() || name.IsUnknown() {
-		return nil
-	}
-	return ExpandStringPointer(name.StringValue)
-}
-
 func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 	if dt.IsNull() || dt.IsUnknown() {
 		return nil
@@ -486,12 +479,6 @@ func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	}
 	return internaltypes.MACAddress{
 		StringValue: FlattenStringPointer(mac),
-	}
-}
-
-func FlattenIPName(name *string) internaltypes.IPName {
-	return internaltypes.IPName{
-		StringValue: FlattenStringPointer(name),
 	}
 }
 

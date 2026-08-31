@@ -181,7 +181,7 @@ func (m *NIOSRecordRpzCnameClientipaddressdnModel) Expand(ctx context.Context, d
 		Comment:   flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Disable:   flex.ExpandBoolPointer(m.Disable),
 		ExtAttrs:  flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		Name:      flex.ExpandIPName(m.Name),
+		Name:      flex.ExpandStringPointer(m.Name.StringValue),
 		RpZone:    flex.ExpandStringPointerNullAsEmpty(m.RpZone),
 		Ttl:       flex.ExpandInt64Pointer(m.Ttl),
 		View:      flex.ExpandStringPointerNullAsEmpty(m.View),
@@ -233,7 +233,7 @@ func (m *NIOSRecordRpzCnameClientipaddressdnModel) Flatten(ctx context.Context, 
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.Name = flex.FlattenIPName(from.Name)
+	m.Name.StringValue = flex.FlattenStringPointer(from.Name)
 	m.RpZone = flex.FlattenStringPointerEmptyAsNull(from.RpZone)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
