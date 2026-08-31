@@ -18,7 +18,7 @@ func TestAccRecordHttpsList(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "dns/record_https/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "dns/record_https/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

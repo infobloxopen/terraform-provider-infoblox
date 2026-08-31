@@ -58,7 +58,6 @@ var UDDIRecordHttpsAttrTypes = map[string]attr.Type{
 }
 
 const (
-	RecordHttpsType            = "HTTPS"
 	RecordHttpsInheritanceType = "full"
 	RecordHttpsReturnFields    = ""
 )
