@@ -1,4 +1,7 @@
-# Auto-generated resource acceptance-test cases for DnsServer.
+# TOCO : Objects to be added in the grid for testing
+# ACL with IP - 10.0.0.0/24
+# TSIG Key with name - tsig-key.
+
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -320,6 +323,9 @@ case "ecs_enabled" {
         }
       ]
     }
+    check = {
+      "uddi.ecs_enabled" = "true"
+    }
   }
 
 }
@@ -573,6 +579,9 @@ case "forwarders_only" {
       			fqdn = "tf-infoblox.com."
       		}
       ]
+    }
+    check = {
+      "uddi.forwarders_only" = "true"
     }
   }
 }
