@@ -225,9 +225,10 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
-					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true. "+
-						"Set 'enable_nios_passthru = true' and 'portal_url' to the Infoblox Portal's WAPI endpoint to manage NIOS through the Infoblox Portal, "+
-						"or remove the license UID and set 'portal_url' to the Infoblox Portal URL to manage UDDI objects.",
+					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true.\n\n"+
+						"For NIOS via the Infoblox Portal: set 'enable_nios_passthru = true' and 'portal_url' to the Portal's WAPI passthrough endpoint.\n"+
+						"For UDDI objects: remove 'uddi.nios_license_uid' and set 'portal_url' to the Portal's CSP endpoint.\n\n"+
+						"These are different URLs, so 'portal_url' must match the mode.",
 				)
 				return
 			}
