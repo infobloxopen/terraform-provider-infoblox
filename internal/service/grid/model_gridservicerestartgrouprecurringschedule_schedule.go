@@ -84,17 +84,14 @@ var GridservicerestartgrouprecurringscheduleScheduleResourceSchemaAttributes = m
 			stringvalidator.OneOf("DAILY", "HOURLY", "MONTHLY", "WEEKLY"),
 		},
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The frequency for the scheduled task.",
 	},
 	"every": schema.Int64Attribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The number of frequency to wait before repeating the scheduled task.",
 	},
 	"minutes_past_hour": schema.Int64Attribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Between(0, 59),
 		},
@@ -102,7 +99,6 @@ var GridservicerestartgrouprecurringscheduleScheduleResourceSchemaAttributes = m
 	},
 	"hour_of_day": schema.Int64Attribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Between(0, 23),
 		},
@@ -114,7 +110,6 @@ var GridservicerestartgrouprecurringscheduleScheduleResourceSchemaAttributes = m
 	},
 	"month": schema.Int64Attribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Between(1, 12),
 		},

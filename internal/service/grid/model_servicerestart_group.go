@@ -124,6 +124,7 @@ var ServicerestartGroupResourceNiosSchemaAttributes = map[string]schema.Attribut
 	"recurring_schedule": schema.SingleNestedAttribute{
 		Attributes:          GridServicerestartGroupRecurringScheduleResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The recurring schedule for restart of a group.",
 	},
 	"service": schema.StringAttribute{

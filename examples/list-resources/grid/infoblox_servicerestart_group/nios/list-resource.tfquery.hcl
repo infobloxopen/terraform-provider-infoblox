@@ -3,7 +3,7 @@ list "infoblox_servicerestart_group" "list_servicerestart_groups_using_filters" 
   provider = infoblox
   config {
     filters = {
-      name = "servicerestart_group.example"
+      name = "example_grid_service_restart_group"
     }
   }
   limit = 10

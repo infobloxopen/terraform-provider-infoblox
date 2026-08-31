@@ -52,7 +52,6 @@ var GridServicerestartGroupRecurringScheduleResourceSchemaAttributes = map[strin
 			stringvalidator.OneOf("GROUPED", "SEQUENTIAL", "SIMULTANEOUS"),
 		},
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "The restart method for a Grid restart.",
 	},
 	"schedule": schema.SingleNestedAttribute{
