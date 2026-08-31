@@ -306,6 +306,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -338,7 +339,6 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		CustomType: internaltypes.MACAddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
-			stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("duid")),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The MAC address for this IPv6 fixed address.",
@@ -570,7 +570,7 @@ func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diag
 		DisableDiscovery:         flex.ExpandBoolPointer(m.DisableDiscovery),
 		DomainName:               flex.ExpandStringPointer(m.DomainName.StringValue),
 		DomainNameServers:        flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
-		Duid:                     flex.ExpandStringPointerNullAsEmpty(m.Duid),
+		Duid:                     flex.ExpandStringPointer(m.Duid),
 		EnableImmediateDiscovery: flex.ExpandBoolPointer(m.EnableImmediateDiscovery),
 		ExtAttrs:                 flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		Ipv6addr:                 flex.ExpandIPv6Address(m.Ipv6addr),
@@ -600,7 +600,7 @@ func ApplyIpv6fixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config,
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
-	obj.NIOS.UseCliCredentials = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("cli_credentials"))
+	obj.NIOS.UseCliCredentials = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("cli_credentials"), path.Root("nios").AtName("snmp3_credential"))
 	obj.NIOS.UseDomainName = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("domain_name"))
 	obj.NIOS.UseDomainNameServers = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("domain_name_servers"))
 	obj.NIOS.UseLogicFilterRules = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("logic_filter_rules"))

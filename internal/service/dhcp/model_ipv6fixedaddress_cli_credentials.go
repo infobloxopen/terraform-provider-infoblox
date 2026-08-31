@@ -49,6 +49,7 @@ var Ipv6fixedaddressCliCredentialsResourceSchemaAttributes = map[string]schema.A
 	},
 	"password": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),

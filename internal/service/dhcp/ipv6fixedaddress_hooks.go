@@ -247,4 +247,20 @@ func PostFlattenIpv6fixedaddressNIOS(ctx context.Context, planned, flattened *NI
 	if flattened.Template.IsNull() && !planned.Template.IsNull() && !planned.Template.IsUnknown() {
 		flattened.Template = planned.Template
 	}
+
+	// NIOS accepts them but never returns
+	// them, so carry the planned values into state
+	if result, d := utils.CopyFieldFromPlanToRespList(ctx, planned.CliCredentials, flattened.CliCredentials, "password"); !d.HasError() {
+		if resultList, ok := result.(basetypes.ListValue); ok {
+			flattened.CliCredentials = resultList
+		}
+	}
+
+	for _, field := range []string{"authentication_password", "privacy_password"} {
+		if result, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Snmp3Credential, flattened.Snmp3Credential, field); !d.HasError() {
+			if resultObj, ok := result.(basetypes.ObjectValue); ok {
+				flattened.Snmp3Credential = resultObj
+			}
+		}
+	}
 }

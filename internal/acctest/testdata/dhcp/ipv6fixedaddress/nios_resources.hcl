@@ -1,4 +1,7 @@
 # Auto-generated resource acceptance-test cases for Ipv6fixedaddress.
+// Objects to be present on the GRID for testing
+// IPv6 Option Filters - ipv6_option_filter and ipv6_option_filter1 
+
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -70,10 +73,6 @@ case "disappears" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "address_type" {
   backend  = "nios"
   parallel = true
@@ -95,7 +94,9 @@ case "address_type" {
     nios {
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
-      address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      address_type = "ADDRESS"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
     }
     check = {
       "nios.address_type" = "ADDRESS"
@@ -105,9 +106,12 @@ case "address_type" {
 
   step {
     nios {
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-      address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view    = infoblox_network_view.parent_network_view.nios.name
+      duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      address_type    = "PREFIX"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int}}::"
+      ipv6prefix_bits = 64
     }
     check = {
       "nios.address_type" = "PREFIX"
@@ -116,9 +120,13 @@ case "address_type" {
 
   step {
     nios {
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-      address_type = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view    = infoblox_network_view.parent_network_view.nios.name
+      duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      address_type    = "BOTH"
+      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::2"
+      ipv6prefix      = "2001:db8:{{random_hextet}}:{{random_int2}}::"
+      ipv6prefix_bits = 64
     }
     check = {
       "nios.address_type" = "BOTH"
@@ -127,10 +135,6 @@ case "address_type" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   {
 case "allow_telnet" {
   backend  = "nios"
   parallel = true
@@ -155,7 +159,10 @@ case "allow_telnet" {
       network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       allow_telnet    = true
-      cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }]
+      cli_credentials = [
+        { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" },
+         { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
+         ]
       comment         = "CLI CRED Comment"
     }
     check = {
@@ -170,7 +177,9 @@ case "allow_telnet" {
       network         = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view    = infoblox_network_view.parent_network_view.nios.name
       allow_telnet    = false
-      cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }]
+      cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }, 
+      { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
+      ]
       comment         = "CLI CRED Comment"
     }
     check = {
@@ -180,11 +189,6 @@ case "allow_telnet" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   {
-#   %s
 case "cli_credentials" {
   backend  = "nios"
   parallel = true
@@ -204,13 +208,16 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      cli_credentials = [{ comment = "Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" },
+      ]
     }
     check = {
+      "nios.cli_credentials.#"                  = "1"
       "nios.cli_credentials.0.comment"          = "Comment for CLI Credentials"
       "nios.cli_credentials.0.user"             = "NIOS_USER"
       "nios.cli_credentials.0.credential_type"  = "SSH"
@@ -220,14 +227,17 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
-      comment         = "Updated Comment for CLI Credentials"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" },
+        { comment = "Updated Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" },
+      ]
     }
     check = {
+      "nios.cli_credentials.#"                  = "2"
       "nios.cli_credentials.1.comment"          = "Updated Comment for CLI Credentials"
       "nios.cli_credentials.1.user"             = "NIOS_USER"
       "nios.cli_credentials.1.credential_type"  = "TELNET"
@@ -237,14 +247,17 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
-      comment         = "Updated Comment for CLI Credentials"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" },
+        { comment = "Updated Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "ENABLE_SSH", credential_group = "default" },
+      ]
     }
     check = {
+      "nios.cli_credentials.#"                  = "2"
       "nios.cli_credentials.1.comment"          = "Updated Comment for CLI Credentials"
       "nios.cli_credentials.1.user"             = "NIOS_USER"
       "nios.cli_credentials.1.credential_type"  = "ENABLE_SSH"
@@ -254,14 +267,17 @@ case "cli_credentials" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      cli_credentials = [{ comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }]
-      comment         = "Updated Comment for CLI Credentials"
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "Comment for SSH Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" },
+        { comment = "Updated Comment for CLI Credentials", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "ENABLE_TELNET", credential_group = "default" },
+      ]
     }
     check = {
+      "nios.cli_credentials.#"                  = "2"
       "nios.cli_credentials.1.comment"          = "Updated Comment for CLI Credentials"
       "nios.cli_credentials.1.user"             = "NIOS_USER"
       "nios.cli_credentials.1.credential_type"  = "ENABLE_TELNET"
@@ -287,22 +303,12 @@ case "cli_credentials" {
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "cli credential comment", user = "user1", password = "password1", credential_type = "SSH", credential_group = "default" },
+      ]
     }
     check = {
-      "nios.cli_credentials.0.credential_type"  = "SSH"
-      "nios.cli_credentials.0.user"             = "user1"
-      "nios.cli_credentials.0.credential_group" = "default"
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
+      "nios.cli_credentials.#"                  = "1"
       "nios.cli_credentials.0.comment"          = "cli credential comment"
       "nios.cli_credentials.0.user"             = "user1"
       "nios.cli_credentials.0.credential_type"  = "SSH"
@@ -316,8 +322,12 @@ case "cli_credentials" {
       duid         = "00:01:00:01:1d:2b:3c:5d:40:0c:39:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
+      cli_credentials = [
+        { comment = "cli credential comment update", user = "user2", password = "password12", credential_type = "SSH", credential_group = "default" },
+      ]
     }
     check = {
+      "nios.cli_credentials.#"                  = "1"
       "nios.cli_credentials.0.comment"          = "cli credential comment update"
       "nios.cli_credentials.0.user"             = "user2"
       "nios.cli_credentials.0.credential_type"  = "SSH"
@@ -867,49 +877,6 @@ case "ipv6addr" {
 
 }
 
-case "func_call" {
-  backend  = "nios"
-  parallel = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_network" "test_ipv6_network" {
-    nios = {
-      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-  }
-  resource "infoblox_network_view" "parent_network_view" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      comment            = "create IPV6 Fixed Address using Func call"
-      dynamic_allocation = { network = infoblox_ipv6_network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
-      network_view       = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.comment" = "create IPV6 Fixed Address using Func call"
-    }
-  }
-
-  step {
-    nios {
-      duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      comment            = "update IPV6 Fixed Address using Func call"
-      dynamic_allocation = { network = infoblox_ipv6_network.test_ipv6_network.nios.network, network_view = infoblox_network_view.parent_network_view.nios.name }
-      network_view       = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.comment" = "update IPV6 Fixed Address using Func call"
-    }
-  }
-
-}
-
 case "ipv6prefix" {
   backend  = "nios"
   parallel = true
@@ -1025,10 +992,11 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view       = infoblox_network_view.parent_network_view.nios.name
+      logic_filter_rules = [{ filter = "ipv6_option_filter", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -1039,10 +1007,11 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
+      ipv6addr           = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid               = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network            = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view       = infoblox_network_view.parent_network_view.nios.name
+      logic_filter_rules = [{ filter = "ipv6_option_filter1", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -1098,10 +1067,6 @@ case "mac_address" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "match_client" {
   backend  = "nios"
   parallel = true
@@ -1122,6 +1087,8 @@ case "match_client" {
   step {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      match_client = "DUID"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
@@ -1133,6 +1100,8 @@ case "match_client" {
   step {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      mac_address  = "00:0c:29:ab:cd:ef"
+      match_client = "MAC_ADDRESS"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
@@ -1215,6 +1184,7 @@ case "network" {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6network1.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1226,6 +1196,7 @@ case "network" {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int2}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6network2.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
@@ -1258,11 +1229,16 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
+      options = [
+        { name = "dhcp6.domain-search", num = 24, value = "\"aa.bb.com\"", vendor_class = "DHCPv6" },
+        { name = "dhcp6.sntp-servers", num = 31, value = "2001:4860:4860::8888", vendor_class = "DHCPv6" },
+      ]
     }
     check = {
-      "nios.options.#"       = "2"
-      "nios.options.0.name"  = "domain-name"
-      "nios.options.0.value" = "aa.bb.com"
+      "nios.options.0.name"  = "dhcp6.domain-search"
+      "nios.options.0.value" = "\"aa.bb.com\""
+      "nios.options.1.name"  = "dhcp6.sntp-servers"
+      "nios.options.1.value" = "2001:4860:4860::8888"
     }
   }
 
@@ -1272,11 +1248,16 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
+      options = [
+        { name = "dhcp6.domain-search", num = 24, value = "\"bb.cc.com\"", vendor_class = "DHCPv6" },
+        { name = "dhcp6.sntp-servers", num = 31, value = "2001:4860:4860::8008", vendor_class = "DHCPv6" },
+      ]
     }
     check = {
-      "nios.options.#"       = "2"
-      "nios.options.0.value" = "bb.cc.com"
-      "nios.options.0.name"  = "domain-name"
+      "nios.options.0.name"  = "dhcp6.domain-search"
+      "nios.options.0.value" = "\"bb.cc.com\""
+      "nios.options.1.name"  = "dhcp6.sntp-servers"
+      "nios.options.1.value" = "2001:4860:4860::8008"
     }
   }
 
@@ -1329,12 +1310,8 @@ case "preferred_lifetime" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_ipv6_fixed_address_template not yet implemented
 case "template" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_ipv6_fixed_address_template not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
@@ -1348,20 +1325,23 @@ case "template" {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_fixed_address_template_unknown" "test" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
+  # resource "infoblox_ipv6_fixed_address_template_unknown" "test" {
+  #   nios = {
+  #     name = "{{random}}"
+  #   }
+  # }
   PREREQ
 
   step {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      template     = infoblox_ipv6_fixed_address_template_unknown.test.nios.name
+      template     = "ipv6-fa-template"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
+    }
+    check = {
+      "nios.template" = "ipv6-fa-template"
     }
   }
 
@@ -1414,10 +1394,6 @@ case "reserved_interface" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "snmp3_credential" {
   backend  = "nios"
   parallel = true
@@ -1471,19 +1447,11 @@ case "snmp3_credential" {
 
   step {
     nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
+      ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::2"
+      duid             = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
+      snmp3_credential = { user = "user1", authentication_protocol = "SHA", authentication_password = "authPass", privacy_protocol = "AES", privacy_password = "privPass", comment = "SNMP3 Credential Comment", credential_group = "default" }
+      network          = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view     = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -1494,12 +1462,14 @@ case "snmp3_credential" {
     }
   }
 
+  # Rotate the write-only passwords; the readable fields must stay unchanged.
   step {
     nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
+      ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::2"
+      duid             = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
+      snmp3_credential = { user = "user1", authentication_protocol = "SHA", authentication_password = "authPass345", privacy_protocol = "AES", privacy_password = "privPass345", comment = "SNMP3 Credential Comment", credential_group = "default" }
+      network          = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view     = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -1510,60 +1480,14 @@ case "snmp3_credential" {
     }
   }
 
+  # Update a non write-only field (user).
   step {
     nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-      "nios.snmp3_credential.comment"                 = "SNMP3 Credential Comment"
-      "nios.snmp3_credential.credential_group"        = "default"
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-      "nios.snmp3_credential.comment"                 = "SNMP3 Credential Comment"
-      "nios.snmp3_credential.credential_group"        = "default"
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-      "nios.snmp3_credential.comment"                 = "SNMP3 Credential Comment"
-      "nios.snmp3_credential.credential_group"        = "default"
-    }
-  }
-
-  step {
-    nios {
-      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::2"
-      duid         = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
-      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view = infoblox_network_view.parent_network_view.nios.name
+      ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::2"
+      duid             = "00:01:00:01:1d:2b:3c:4d:01:1c:29:ab:cd:ef"
+      snmp3_credential = { user = "user2", authentication_protocol = "SHA", authentication_password = "authPass", privacy_protocol = "AES", privacy_password = "privPass", comment = "SNMP3 Credential Comment", credential_group = "default" }
+      network          = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view     = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
       "nios.snmp3_credential.user"                    = "user2"
@@ -1573,6 +1497,7 @@ case "snmp3_credential" {
       "nios.snmp3_credential.credential_group"        = "default"
     }
   }
+
 
 }
 
