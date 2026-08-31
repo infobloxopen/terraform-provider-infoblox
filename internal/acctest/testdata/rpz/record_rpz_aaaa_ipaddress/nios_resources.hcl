@@ -1,6 +1,8 @@
 # Hand-authored resource acceptance-test cases for RecordRpzAaaaIpaddress.
-# rp_zone is hardcoded to "rpz-test.infoblox.com" (persistent zone on the test NIOS grid)
-# because infoblox_zone_rp is not yet registered in the unified provider.
+//
+// TODO : Objects to be present in the grid before running the test cases
+// Response Policy Zone - rpz-test.infoblox.com
+//
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -8,11 +10,11 @@ case "basic" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
-      "nios.ipv6addr" = "2001:db8::10"
+      "nios.ipv6addr" = "{{random_ipv6}}"
       "nios.name"     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
       "nios.rp_zone"  = "rpz-test.infoblox.com"
       "nios.view"     = "default"
@@ -31,7 +33,7 @@ case "disappears" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
   }
@@ -45,7 +47,7 @@ case "comment" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       comment  = "test comment"
     }
@@ -57,7 +59,7 @@ case "comment" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       comment  = "test comment update"
     }
@@ -75,7 +77,7 @@ case "disable" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       disable  = false
     }
@@ -87,7 +89,7 @@ case "disable" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       disable  = true
     }
@@ -105,7 +107,7 @@ case "ext_attrs" {
   step {
     nios {
       name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr  = "2001:db8::10"
+      ipv6addr  = "{{random_ipv6}}"
       rp_zone   = "rpz-test.infoblox.com"
       ext_attrs = { Site = "value1" }
     }
@@ -117,7 +119,7 @@ case "ext_attrs" {
   step {
     nios {
       name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr  = "2001:db8::10"
+      ipv6addr  = "{{random_ipv6}}"
       rp_zone   = "rpz-test.infoblox.com"
       ext_attrs = { Site = "value2" }
     }
@@ -135,22 +137,22 @@ case "ipv6addr" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
-      "nios.ipv6addr" = "2001:db8::10"
+      "nios.ipv6addr" = "{{random_ipv6}}"
     }
   }
 
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::20"
+      ipv6addr = "{{random_ipv6_2}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
-      "nios.ipv6addr" = "2001:db8::20"
+      "nios.ipv6addr" = "{{random_ipv6_2}}"
     }
   }
 
@@ -163,7 +165,7 @@ case "name" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
@@ -174,7 +176,7 @@ case "name" {
   step {
     nios {
       name     = "{{random_ipv6_network2}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
@@ -191,7 +193,7 @@ case "ttl" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       ttl      = 600
     }
@@ -203,7 +205,7 @@ case "ttl" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
       ttl      = 3600
     }
@@ -221,7 +223,7 @@ case "view" {
   step {
     nios {
       name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      ipv6addr = "2001:db8::10"
+      ipv6addr = "{{random_ipv6}}"
       rp_zone  = "rpz-test.infoblox.com"
     }
     check = {
