@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
 var _ planmodifier.Int64 = useStateToSuppressDiffInt64{}
@@ -37,6 +38,7 @@ func userSetKey(p path.Path) string {
 // PlanModifyInt64 implements the planmodifier.Int64 interface for useStateToSuppressDiffInt64
 // config has a value                          -> use config (leave plan as-is)
 // config null, no prior state (create)        -> leave as-is (null on first apply)
+// config null, post-import                    -> unknown (state is backend truth, not a prior plan)
 // config null, userset flag true              -> user clearing it -> unknown (backend recomputes)
 // config null, state non-null                 -> carry state forward (suppress server-side mutations)
 // config null, state null, prior state exists -> null (resource ModifyPlan marks Unknown only when a complete resource update is in progress, avoiding perpetual non-empty refresh plan)
@@ -69,6 +71,13 @@ func (m useStateToSuppressDiffInt64) PlanModifyInt64(ctx context.Context, req pl
 	// stay null after create (no inheritance/echo case), and treating that as "create"
 	// would keep it unknown forever (perpetual diff).
 	if req.State.Raw.IsNull() {
+		return
+	}
+
+	// Marking the plan val as unknown during import flow if field is null in config,
+	// non-null config is already handled above
+	if v, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey); !diags.HasError() && v != nil {
+		resp.PlanValue = types.Int64Unknown()
 		return
 	}
 

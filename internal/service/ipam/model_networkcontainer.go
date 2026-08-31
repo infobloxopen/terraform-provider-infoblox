@@ -812,7 +812,10 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of DHCP options for the address block. May be either a specific option or a group of options.",
 	},
 	"external_keys": schema.MapAttribute{
@@ -821,9 +824,12 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The external keys (source key) for this address block in JSON format.",
 	},
 	"federated_realms": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		CustomType:          internaltypes.UnorderedListOfStringType,
+		ElementType: types.StringType,
+		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"header_option_filename": schema.StringAttribute{

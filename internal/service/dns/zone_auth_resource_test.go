@@ -31,7 +31,7 @@ func TestAccZoneAuthResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dns/zone_auth/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dns/zone_auth/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

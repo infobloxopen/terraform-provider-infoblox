@@ -50,7 +50,6 @@ var ExternalSecondaryResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "FQDN of nameserver.",
 	},
 	"protocol_fqdn": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "FQDN of nameserver in punycode.",
 	},
@@ -92,12 +91,11 @@ func (m *ExternalSecondaryModel) Expand(ctx context.Context, diags *diag.Diagnos
 		return nil
 	}
 	to := &uddidns.ExternalSecondary{
-		Address:      flex.ExpandString(m.Address),
-		Fqdn:         flex.ExpandString(m.Fqdn),
-		ProtocolFqdn: flex.ExpandStringPointer(m.ProtocolFqdn),
-		Stealth:      flex.ExpandBoolPointer(m.Stealth),
-		TsigEnabled:  flex.ExpandBoolPointer(m.TsigEnabled),
-		TsigKey:      ExpandTSIGKey(ctx, m.TsigKey, diags),
+		Address:     flex.ExpandString(m.Address),
+		Fqdn:        flex.ExpandString(m.Fqdn),
+		Stealth:     flex.ExpandBoolPointer(m.Stealth),
+		TsigEnabled: flex.ExpandBoolPointer(m.TsigEnabled),
+		TsigKey:     ExpandTSIGKey(ctx, m.TsigKey, diags),
 	}
 	return to
 }

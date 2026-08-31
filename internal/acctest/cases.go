@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
@@ -30,10 +31,11 @@ type CaseStep struct {
 	DependsOn []string
 	// PrerequisitesHCL overrides ResourceCase.PrerequisitesHCL for steps that need different prereqs.
 	PrerequisitesHCL string
+	PairChecks       map[string]string
 }
 
 // ResourceCase is the per-subtest configuration for a Terraform resource acceptance test.
-// Each case maps to a `case "<name>" { ... }` block in <backend>_resources.tfvars.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_resources.hcl.
 type ResourceCase struct {
 	Name               string
 	Backend            string
@@ -114,6 +116,15 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 		}
 		for attr, expected := range st.Checks {
 			checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(resourceAddr, attr, expected))
+		}
+		for attr, ref := range st.PairChecks {
+			// "infoblox_x.test1.uddi.name" -> address "infoblox_x.test1", attribute "uddi.name".
+			parts := strings.SplitN(ref, ".", 3)
+			if len(parts) < 3 {
+				t.Fatalf("case %q step %d: check_pair %q: %q must be <type>.<name>.<attr>", rc.Name, i+1, attr, ref)
+			}
+			checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrPair(
+				resourceAddr, attr, parts[0]+"."+parts[1], parts[2]))
 		}
 
 		step := resource.TestStep{
@@ -254,7 +265,7 @@ func (rc *ResourceCase) materialize() {
 }
 
 // customSibling returns the "custom_"-prefixed sibling path for user-authored cases (never overwritten).
-// e.g. "dns/record_a/nios_resources.tfvars" -> "dns/record_a/custom_nios_resources.tfvars".
+// e.g. "dns/record_a/nios_resources.hcl" -> "dns/record_a/custom_nios_resources.hcl".
 func customSibling(fileRelPath string) string {
 	i := strings.LastIndex(fileRelPath, "/")
 	if i < 0 {
@@ -279,7 +290,7 @@ func loadCustomResourceCases(fileRelPath string) ([]*ResourceCase, error) {
 	return cases, nil
 }
 
-// loadResourceCases parses `case "<name>" { ... }` blocks from a tfvars file,
+// loadResourceCases parses `case "<name>" { ... }` blocks from a case file,
 // sorted by name for deterministic subtest ordering.
 func loadResourceCases(path string) ([]*ResourceCase, error) {
 	data, err := os.ReadFile(path)
@@ -395,6 +406,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	content, _, diags := body.PartialContent(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
+			{Name: "check_pair"},
 			{Name: "depends_on"},
 			{Name: "prerequisites_hcl"},
 		},
@@ -411,6 +423,21 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	if attr, ok := content.Attributes["check"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		st.Checks = ctyMapToStringMap(val)
+	}
+
+	// check_pair values are kept as raw source text, since a reference to another resource has no
+	// static value at load time and would otherwise be dropped by ctyMapToStringMap.
+	if attr, ok := content.Attributes["check_pair"]; ok {
+		obj, ok := attr.Expr.(*hclsyntax.ObjectConsExpr)
+		if !ok {
+			return st, fmt.Errorf("check_pair must be an object literal")
+		}
+		st.PairChecks = make(map[string]string, len(obj.Items))
+		for _, item := range obj.Items {
+			key, _ := item.KeyExpr.Value(nil)
+			rng := item.ValueExpr.Range()
+			st.PairChecks[key.AsString()] = strings.TrimSpace(string(src[rng.Start.Byte:rng.End.Byte]))
+		}
 	}
 
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {

@@ -37,7 +37,7 @@ type NetworkcontainerResource struct {
 }
 
 func (r *NetworkcontainerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkcontainer"
+	resp.TypeName = req.ProviderTypeName + "_network_container"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

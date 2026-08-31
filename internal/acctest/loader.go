@@ -9,12 +9,12 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// LoadTfvars reads and parses the HCL tfvars file at relativePath, substituting all {{placeholder}} tokens.
-func LoadTfvars(relativePath string) (*Tfvars, error) {
+// LoadCaseFile reads and parses the HCL case file at relativePath, substituting all {{placeholder}} tokens.
+func LoadCaseFile(relativePath string) (*CaseConfig, error) {
 	path := GetTestdataPath(relativePath)
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read tfvars file %s: %w", path, err)
+		return nil, fmt.Errorf("failed to read case file %s: %w", path, err)
 	}
 
 	content := ReplacePlaceholders(string(data))
@@ -25,7 +25,7 @@ func LoadTfvars(relativePath string) (*Tfvars, error) {
 		return nil, fmt.Errorf("failed to parse HCL: %s", diags.Error())
 	}
 
-	tv := &Tfvars{
+	tv := &CaseConfig{
 		Common: make(map[string]any),
 		NIOS:   make(map[string]any),
 		UDDI:   make(map[string]any),
@@ -46,7 +46,7 @@ func LoadTfvars(relativePath string) (*Tfvars, error) {
 		},
 	})
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("failed to decode tfvars: %s", diags.Error())
+		return nil, fmt.Errorf("failed to decode case file: %s", diags.Error())
 	}
 
 	if attr, exists := contentBody.Attributes["backend"]; exists {

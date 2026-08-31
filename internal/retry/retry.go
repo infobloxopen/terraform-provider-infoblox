@@ -80,7 +80,7 @@ func Do(parentCtx context.Context, p Policy, fn RetryFunc) error {
 		// Wait before retrying with exponential backoff
 		select {
 		case <-ctx.Done():
-			return errors.New(operationTimeoutMsg)
+			return fmt.Errorf("%s: %w", operationTimeoutMsg, err)
 		case <-time.After(backoff):
 		}
 

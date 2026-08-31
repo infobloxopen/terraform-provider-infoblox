@@ -731,7 +731,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: RootNSResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. List of custom root nameservers. The order does not matter.  Error if empty while _custom_root_ns_enabled_ is _true_. Error if there are duplicate items in the list.  Defaults to empty.",
 	},
 	"custom_root_ns_enabled": schema.BoolAttribute{
@@ -762,7 +765,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: TrustAnchorResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. DNSSEC trust anchors.  Error if there are list items with duplicate (_zone_, _sep_, _algorithm_) combinations.  Defaults to empty.",
 	},
 	"dnssec_validate_expiry": schema.BoolAttribute{
@@ -806,7 +812,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ECSZoneResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. List of zones where ECS queries may be sent.  Error if empty while _ecs_enabled_ is _true_. Error if there are duplicate FQDNs in the list.  Defaults to empty.",
 	},
 	"edns_udp_size": schema.Int64Attribute{
@@ -819,7 +828,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Specifies a list of client addresses for which AAAA filtering is to be applied.  Defaults to _empty_.",
 	},
 	"filter_aaaa_on_v4": schema.StringAttribute{
@@ -832,7 +844,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ForwarderResourceSchemaAttributes(false),
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. List of forwarders.  Error if empty while _forwarders_only_ or _use_root_forwarders_for_local_resolution_with_b1td_ is _true_. Error if there are items in the list with duplicate addresses.  Defaults to empty.",
 	},
 	"forwarders_only": schema.BoolAttribute{
@@ -860,6 +875,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		ElementType: types.StringType,
 		Optional:    true,
 		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
 			listvalidator.SizeAtMost(1),
 		},
 		MarkdownDescription: "The resource identifier.",
@@ -879,6 +895,9 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.List{
 			planmod.UseDefaultAclForNull(),
 		},
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Specifies which clients have access to the view.  Defaults to empty.",
 	},
 	"match_destinations_acl": schema.ListNestedAttribute{
@@ -889,6 +908,9 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed: true,
 		PlanModifiers: []planmodifier.List{
 			planmod.UseDefaultAclForNull(),
+		},
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "Optional. Specifies which destination addresses have access to the view.  Defaults to empty.",
 	},
@@ -936,14 +958,20 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Clients must match this ACL to make authoritative queries. Also used for recursive queries if that ACL is unset.  Defaults to empty.",
 	},
 	"recursion_acl": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Clients must match this ACL to make recursive queries. If this ACL is empty, then the _query_acl_ will be used instead.  Defaults to empty.",
 	},
 	"recursion_enabled": schema.BoolAttribute{
@@ -956,7 +984,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: SortListItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Specifies a sorted network list for A/AAAA records in DNS query response.  Defaults to _empty_.",
 	},
 	"synthesize_address_records_from_https": schema.BoolAttribute{
@@ -984,14 +1015,20 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Clients must match this ACL to receive zone transfers.  Defaults to empty.",
 	},
 	"update_acl": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ACLItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Specifies which hosts are allowed to issue Dynamic DNS updates for authoritative zones of _primary_type_ _cloud_.  Defaults to empty.",
 	},
 	"use_forwarders_for_subzones": schema.BoolAttribute{

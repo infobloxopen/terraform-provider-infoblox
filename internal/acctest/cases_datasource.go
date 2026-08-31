@@ -14,7 +14,7 @@ import (
 )
 
 // DataSourceCase is the per-subtest configuration for a data source acceptance test.
-// Each case maps to a `case "<name>" { ... }` block in <backend>_datasources.tfvars.
+// Each case maps to a `case "<name>" { ... }` block in <backend>_datasources.hcl.
 type DataSourceCase struct {
 	Name             string
 	Backend          string
@@ -267,7 +267,7 @@ func loadCustomDataSourceCases(fileRelPath string) ([]*DataSourceCase, error) {
 	return cases, nil
 }
 
-// loadDataSourceCases parses `case "<name>" { ... }` blocks from a data source tfvars file,
+// loadDataSourceCases parses `case "<name>" { ... }` blocks from a data source case file,
 // sorted by name for deterministic subtest ordering.
 func loadDataSourceCases(path string) ([]*DataSourceCase, error) {
 	data, err := os.ReadFile(path)

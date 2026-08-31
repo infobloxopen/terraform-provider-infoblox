@@ -626,8 +626,11 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The description for the subnet. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"config_profiles": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ddns_client_update": schema.StringAttribute{
@@ -706,8 +709,11 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		CustomType:          internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
-		Optional:            true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
+		Optional:   true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The DHCP options of the subnet. This can either be a specific option or a group of options.",
 	},
 	"disable_dhcp": schema.BoolAttribute{
@@ -722,9 +728,12 @@ var Ipv6networkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The external keys (source key) for this subnet in JSON format.",
 	},
 	"federated_realms": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		CustomType:          internaltypes.UnorderedListOfStringType,
+		ElementType: types.StringType,
+		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Reserved for future use.",
 	},
 	"hostname_rewrite_char": schema.StringAttribute{

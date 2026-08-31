@@ -6,12 +6,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
@@ -52,14 +54,20 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Set DHCP server as authoritative.",
 	},
 	"filters": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"filters_large_selection": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		Computed:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ignore_client_uid": schema.BoolAttribute{
@@ -72,7 +80,10 @@ var NetworkDHCPConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: IgnoreItemResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of clients to ignore requests from.",
 	},
 	"lease_time": schema.Int64Attribute{

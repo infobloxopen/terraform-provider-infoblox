@@ -7,11 +7,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	planmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
@@ -42,8 +44,11 @@ var SortListItemResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Type of element.  Allowed values:  * _any_,  * _ip_,  * _acl_,",
 	},
 	"prioritized_networks": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. The prioritized networks. If empty, the value of _source_ or networks from _acl_ is used.",
 	},
 	"source": schema.StringAttribute{

@@ -322,7 +322,7 @@ var RecordAaaaResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
 		Validators: []validator.String{
-			stringvalidator.Any(stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")), stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("options").AtName("address"))),
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("absolute_name_spec")),
 			stringvalidator.ConflictsWith(
 				path.MatchRelative().AtParent().AtName("zone"),
 				path.MatchRelative().AtParent().AtName("name_in_zone"),

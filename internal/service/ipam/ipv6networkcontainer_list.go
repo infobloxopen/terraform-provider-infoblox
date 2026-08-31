@@ -41,7 +41,7 @@ type Ipv6networkcontainerListModel struct {
 }
 
 func (l *Ipv6networkcontainerList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6networkcontainer"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_network_container"
 }
 
 func (l *Ipv6networkcontainerList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -111,15 +111,16 @@ func (l *Ipv6networkcontainerList) List(ctx context.Context, req list.ListReques
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6networkcontainer list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6_network_container list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:  Ipv6networkcontainerReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		InternalFilters: map[string]string{"protocol": "ip6"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:    Ipv6networkcontainerReturnFields,
+		Paging:          1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)

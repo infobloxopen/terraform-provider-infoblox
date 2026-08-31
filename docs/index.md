@@ -77,6 +77,7 @@ Optional:
 
 Optional:
 
+- `default_tags` (Map of String) Tags applied to every UDDI object the provider creates or updates. A tag set on the resource itself takes precedence over the default of the same name. Not applicable when `enable_nios_passthru` is true.
 - `enable_nios_passthru` (Boolean) Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false
 - `nios_license_uid` (String) License UID of the NIOS Grid to manage, required when `enable_nios_passthru` is true.
 - `portal_key` (String, Sensitive) API key for accessing the UDDI API.

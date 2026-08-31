@@ -636,9 +636,12 @@ Optional:
 - `address` (String) Optional. Required only if _type_ is _server_. IP Address of nameserver.
 - `fqdn` (String) Optional. Required only if _type_ is _server_. FQDN of nameserver.
 - `nsg` (String) The resource identifier.
-- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 - `tsig_enabled` (Boolean) Optional. If enabled, secondaries will use the configured TSIG key when requesting a zone transfer from this primary.
 - `tsig_key` (Attributes) Optional. TSIG key.  Error if empty while _tsig_enabled_ is _true_. (see [below for nested schema](#nestedatt--uddi--external_primaries--tsig_key))
+
+Read-Only:
+
+- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 
 <a id="nestedatt--uddi--external_primaries--tsig_key"></a>
 ### Nested Schema for `uddi.external_primaries.tsig_key`
@@ -659,10 +662,13 @@ Required:
 
 Optional:
 
-- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 - `stealth` (Boolean) If enabled, the NS record and glue record will NOT be automatically generated according to secondaries nameserver assignment.  Default: _false_
 - `tsig_enabled` (Boolean) If enabled, secondaries will use the configured TSIG key when requesting a zone transfer.  Default: _false_
 - `tsig_key` (Attributes) TSIG key.  Error if empty while _tsig_enabled_ is _true_. (see [below for nested schema](#nestedatt--uddi--external_secondaries--tsig_key))
+
+Read-Only:
+
+- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 
 <a id="nestedatt--uddi--external_secondaries--tsig_key"></a>
 ### Nested Schema for `uddi.external_secondaries.tsig_key`
