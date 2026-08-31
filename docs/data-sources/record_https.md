@@ -97,4 +97,13 @@ Read-Only:
 Read-Only:
 
 - `priority` (Number) An unsigned 16-bit integer in the range 0 to 65535 that indicates the priority of the HTTPS record. Lower values are preferred.
+- `svc_params` (Attributes List) A list of service parameters for the HTTPS record. Each entry is a key-value pair (e.g. port, ipv4hint, ipv6hint, ech, alpn). (see [below for nested schema](#nestedatt--results--uddi--rdata--svc_params))
 - `target_name` (String) The domain name of the HTTPS target. Use "." to indicate the service is located at the owner name itself.
+
+<a id="nestedatt--results--uddi--rdata--svc_params"></a>
+### Nested Schema for `results.uddi.rdata.svc_params`
+
+Read-Only:
+
+- `key` (String) The service parameter key (e.g. "port", "ipv4hint", "ipv6hint", "ech", "alpn").
+- `value` (String) The service parameter value.

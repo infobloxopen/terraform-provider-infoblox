@@ -90,6 +90,19 @@ Required:
 Optional:
 
 - `priority` (Number) An unsigned 16-bit integer in the range 0 to 65535 that indicates the priority of the HTTPS record. Lower values are preferred.
+- `svc_params` (Attributes List) A list of service parameters for the HTTPS record. Each entry is a key-value pair (e.g. port, ipv4hint, ipv6hint, ech, alpn). (see [below for nested schema](#nestedatt--uddi--rdata--svc_params))
+
+<a id="nestedatt--uddi--rdata--svc_params"></a>
+### Nested Schema for `uddi.rdata.svc_params`
+
+Required:
+
+- `key` (String) The service parameter key (e.g. "port", "ipv4hint", "ipv6hint", "ech", "alpn").
+
+Optional:
+
+- `value` (String) The service parameter value.
+
 
 
 <a id="nestedatt--uddi--inheritance_sources"></a>
