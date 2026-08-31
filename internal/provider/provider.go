@@ -323,6 +323,9 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewZoneForwardResource,
+		dns.NewDnsServerResource,
+		dhcp.NewHaGroupResource,
 		dtc.NewDtcTopologyResource,
 		rpz.NewRecordRpzNaptrResource,
 		dns.NewSharedrecordAResource,
@@ -343,6 +346,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		grid.NewExtensibleattributedefResource,
 		ipam.NewNetworkviewResource,
 		dtc.NewDtcServerResource,
+		dtc.NewDtcPoolResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
@@ -365,6 +369,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewZoneForwardDataSource,
+		dns.NewDnsServerDataSource,
+		dhcp.NewHaGroupDataSource,
 		dtc.NewDtcTopologyDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		dns.NewSharedrecordADataSource,
@@ -384,6 +391,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewExtensibleattributedefDataSource,
 		ipam.NewNetworkviewDataSource,
 		dtc.NewDtcServerDataSource,
+		dtc.NewDtcPoolDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordAliasDataSource,
@@ -410,6 +418,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewZoneForwardList,
+		dns.NewDnsServerList,
+		dhcp.NewHaGroupList,
 		dtc.NewDtcTopologyList,
 		rpz.NewRecordRpzNaptrList,
 		dns.NewSharedrecordAList,
@@ -430,6 +441,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		grid.NewExtensibleattributedefList,
 		ipam.NewNetworkviewList,
 		dtc.NewDtcServerList,
+		dtc.NewDtcPoolList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
