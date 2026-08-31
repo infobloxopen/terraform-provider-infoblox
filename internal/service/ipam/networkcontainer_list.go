@@ -41,7 +41,7 @@ type NetworkcontainerListModel struct {
 }
 
 func (l *NetworkcontainerList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkcontainer"
+	resp.TypeName = req.ProviderTypeName + "_network_container"
 }
 
 func (l *NetworkcontainerList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -111,15 +111,16 @@ func (l *NetworkcontainerList) List(ctx context.Context, req list.ListRequest, s
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_networkcontainer list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_network_container list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:  NetworkcontainerReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:    NetworkcontainerReturnFields,
+		Paging:          1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
