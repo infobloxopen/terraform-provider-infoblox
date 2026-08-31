@@ -1,4 +1,4 @@
-// Manage HTTPS Records with basic fields
+// Create an Auth Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
     fqdn         = "example.com."
@@ -6,7 +6,7 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
-// Manage HTTPS Records with optional fields
+// Manage an HTTPS Record
 resource "infoblox_record_https" "example" {
   uddi = {
     rdata = {
