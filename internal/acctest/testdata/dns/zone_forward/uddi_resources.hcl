@@ -246,24 +246,11 @@ case "hosts" {
 case "internal_forwarders" {
   backend  = "uddi"
   parallel = true
-  prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_dns_host" "one" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # resource "infoblox_dns_host" "two" {
-  #   uddi = {
-  #     name = "{{random2}}"
-  #   }
-  # }
-  PREREQ
 
   step {
     uddi {
       fqdn = "{{random}}.com."
       internal_forwarders = ["dns/host/470521"]
-      # internal_forwarders = [infoblox_dns_host.one.id]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
@@ -274,7 +261,6 @@ case "internal_forwarders" {
     uddi {
       fqdn = "{{random}}.com."
       internal_forwarders = ["dns/host/470522"]
-      # internal_forwarders = [infoblox_dns_host.two.id]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
