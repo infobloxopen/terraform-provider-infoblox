@@ -19,7 +19,7 @@ func TestAccUpgradegroupDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/upgradegroup/"+backend+"_datasources.tfvars", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/upgradegroup/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }
