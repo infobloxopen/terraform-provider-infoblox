@@ -225,7 +225,10 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
-					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true. Set 'enable_nios_passthru = true' to manage NIOS through the Infoblox Portal, or remove the license UID to manage UDDI objects.",
+					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true.\n\n"+
+						"For NIOS via the Infoblox Portal: set 'enable_nios_passthru = true' and 'portal_url' to the Portal's WAPI passthrough endpoint.\n"+
+						"For UDDI objects: remove 'uddi.nios_license_uid' and set 'portal_url' to the Portal's CSP endpoint.\n\n"+
+						"These are different URLs, so 'portal_url' must match the mode.",
 				)
 				return
 			}
@@ -324,6 +327,9 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		grid.NewServicerestartGroupResource,
+		dns.NewZoneForwardResource,
+		dns.NewDnsServerResource,
+		dhcp.NewHaGroupResource,
 		rpz.NewRecordRpzNaptrResource,
 		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
@@ -339,9 +345,11 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewFilteroptionResource,
 		dns.NewForwardNsgResource,
 		dns.NewRecordSrvResource,
+		dns.NewRecordAliasResource,
 		grid.NewExtensibleattributedefResource,
 		ipam.NewNetworkviewResource,
 		dtc.NewDtcServerResource,
+		dtc.NewDtcPoolResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
@@ -365,6 +373,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		grid.NewServicerestartGroupDataSource,
+		dns.NewZoneForwardDataSource,
+		dns.NewDnsServerDataSource,
+		dhcp.NewHaGroupDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
@@ -383,8 +394,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewExtensibleattributedefDataSource,
 		ipam.NewNetworkviewDataSource,
 		dtc.NewDtcServerDataSource,
+		dtc.NewDtcPoolDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
+		dns.NewRecordAliasDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
@@ -409,6 +422,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		grid.NewServicerestartGroupList,
+		dns.NewZoneForwardList,
+		dns.NewDnsServerList,
+		dhcp.NewHaGroupList,
 		rpz.NewRecordRpzNaptrList,
 		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
@@ -424,9 +440,11 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewFilteroptionList,
 		dns.NewForwardNsgList,
 		dns.NewRecordSrvList,
+		dns.NewRecordAliasList,
 		grid.NewExtensibleattributedefList,
 		ipam.NewNetworkviewList,
 		dtc.NewDtcServerList,
+		dtc.NewDtcPoolList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
