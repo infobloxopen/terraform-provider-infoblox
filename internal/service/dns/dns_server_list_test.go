@@ -18,7 +18,7 @@ func TestAccDnsServerList(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "dns/dns_server/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "dns/dns_server/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }
