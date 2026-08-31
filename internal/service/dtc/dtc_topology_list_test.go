@@ -14,9 +14,13 @@ func TestAccDtcTopologyList(t *testing.T) {
 			Exists:  testAccCheckDtcTopologyExistsNIOS,
 			Destroy: testAccCheckDtcTopologyDestroyNIOS,
 		},
+		"uddi": {
+			Exists:  testAccCheckDtcTopologyExistsUDDI,
+			Destroy: testAccCheckDtcTopologyDestroyUDDI,
+		},
 	}
 
-	for _, backend := range []string{"nios"} {
+	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
 			acctest.RunListCases(t, resourceType, "dtc/dtc_topology/"+backend+"_lists.hcl", checksByBackend)
 		})

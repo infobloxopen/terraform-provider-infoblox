@@ -22,11 +22,13 @@ import (
 type DtcTopologyModel struct {
 	Id   types.String `tfsdk:"id"`
 	NIOS types.Object `tfsdk:"nios"`
+	UDDI types.Object `tfsdk:"uddi"`
 }
 
 var DtcTopologyAttrTypes = map[string]attr.Type{
 	"id":   types.StringType,
 	"nios": types.ObjectType{AttrTypes: NIOSDtcTopologyAttrTypes},
+	"uddi": types.ObjectType{AttrTypes: UDDIDtcTopologyAttrTypes},
 }
 
 type NIOSDtcTopologyModel struct {
@@ -45,6 +47,24 @@ var NIOSDtcTopologyAttrTypes = map[string]attr.Type{
 	"rules":         types.ListType{ElemType: types.ObjectType{AttrTypes: TopologyRulesInnerAttrTypes}},
 }
 
+type UDDIDtcTopologyModel struct {
+	Comment  types.String `tfsdk:"comment"`
+	Disabled types.Bool   `tfsdk:"disabled"`
+	Name     types.String `tfsdk:"name"`
+	Rules    types.List   `tfsdk:"rules"`
+	Tags     types.Map    `tfsdk:"tags"`
+	TagsAll  types.Map    `tfsdk:"tags_all"`
+}
+
+var UDDIDtcTopologyAttrTypes = map[string]attr.Type{
+	"comment":  types.StringType,
+	"disabled": types.BoolType,
+	"name":     types.StringType,
+	"rules":    types.ListType{ElemType: types.ObjectType{AttrTypes: TopologyRulePresetAttrTypes}},
+	"tags":     types.MapType{ElemType: types.StringType},
+	"tags_all": types.MapType{ElemType: types.StringType},
+}
+
 const (
 	DtcTopologyReturnFields = "comment,extattrs,name,rules"
 )
@@ -58,6 +78,11 @@ var DtcTopologyResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
 		Attributes:          DtcTopologyResourceNiosSchemaAttributes,
+	},
+	"uddi": schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "UDDI backend-specific fields.",
+		Attributes:          DtcTopologyResourceUddiSchemaAttributes,
 	},
 }
 
@@ -109,6 +134,46 @@ var DtcTopologyResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
+var DtcTopologyResourceUddiSchemaAttributes = map[string]schema.Attribute{
+	"comment": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "Optional. Comment for __Topology__.",
+	},
+	"disabled": schema.BoolAttribute{
+		Optional:            true,
+		MarkdownDescription: "Optional. Flag which enables/disables __Topology__.  Defaults to _false_.",
+	},
+	"name": schema.StringAttribute{
+		Required:            true,
+		MarkdownDescription: "Display name of __Topology__.",
+	},
+	"rules": schema.ListNestedAttribute{
+		NestedObject: schema.NestedAttributeObject{
+			Attributes: TopologyRulePresetResourceSchemaAttributes,
+		},
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
+		MarkdownDescription: "List of __TopologyRulePreset__ objects defining the resolving strategy for __Policy__. Preset names must be unique within __Topology__.  Defaults to a list with a single, default __TopologyRulePreset__.",
+	},
+	"tags": schema.MapAttribute{
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
+		MarkdownDescription: "Optional. The tags for __Topology__ in JSON format.",
+	},
+	"tags_all": schema.MapAttribute{
+		Computed:            true,
+		ElementType:         types.StringType,
+		MarkdownDescription: "All tags including inherited values.",
+	},
+}
+
 // Expand converts the TF model to the infoblox core model
 func (m *DtcTopologyModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.DtcTopology {
 	if m == nil {
@@ -123,6 +188,12 @@ func (m *DtcTopologyModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		obj.NIOS = niosModel.Expand(ctx, diags)
 	}
 
+	// Expand UDDI nested attribute (returns nil if not present)
+	uddiModel := flex.ExpandNestedObject[UDDIDtcTopologyModel](ctx, m.UDDI, diags)
+	if uddiModel != nil {
+		obj.UDDI = uddiModel.Expand(ctx, diags)
+	}
+
 	return obj
 }
 
@@ -133,6 +204,17 @@ func (m *NIOSDtcTopologyModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		ExtAttrs: flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		Name:     flex.ExpandStringPointerNullAsEmpty(m.Name),
 		Rules:    flex.ExpandFrameworkListNestedBlock(ctx, m.Rules, diags, ExpandTopologyRulesInner),
+	}
+}
+
+// Expand converts the UDDI TF model to the core model.
+func (m *UDDIDtcTopologyModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIDtcTopologyExt {
+	return &coremodel.UDDIDtcTopologyExt{
+		Comment:  flex.ExpandStringPointer(m.Comment),
+		Disabled: flex.ExpandBoolPointer(m.Disabled),
+		Name:     flex.ExpandString(m.Name),
+		Rules:    flex.ExpandFrameworkListNestedBlock(ctx, m.Rules, diags, ExpandTopologyRulePreset),
+		Tags:     flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 }
 
@@ -156,6 +238,17 @@ func (m *DtcTopologyModel) Flatten(ctx context.Context, resp *coremodel.DtcTopol
 		m.NIOS = types.ObjectNull(NIOSDtcTopologyAttrTypes)
 	}
 
+	// Extract existing UDDI model, flatten API response onto it, convert back
+	uddiModel := flex.ExpandNestedObject[UDDIDtcTopologyModel](ctx, m.UDDI, diags)
+	if uddiModel == nil {
+		uddiModel = &UDDIDtcTopologyModel{}
+	}
+	uddiModel.Flatten(ctx, resp.UDDI, diags)
+	if resp.UDDI != nil {
+		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIDtcTopologyAttrTypes, diags)
+	} else {
+		m.UDDI = types.ObjectNull(UDDIDtcTopologyAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing NIOS model.
@@ -171,4 +264,20 @@ func (m *NIOSDtcTopologyModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Rules = flex.FlattenFrameworkListNestedBlock(ctx, from.Rules, TopologyRulesInnerAttrTypes, diags, FlattenTopologyRulesInner)
+}
+
+// Flatten merges API response onto existing UDDI model.
+func (m *UDDIDtcTopologyModel) Flatten(ctx context.Context, from *coremodel.UDDIDtcTopologyExt, diags *diag.Diagnostics) {
+	if from == nil || m == nil {
+		return
+	}
+	m.Comment = flex.FlattenStringPointer(from.Comment)
+	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
+	m.Name = flex.FlattenString(from.Name)
+	m.Rules = flex.FlattenFrameworkListNestedBlock(ctx, from.Rules, TopologyRulePresetAttrTypes, diags, FlattenTopologyRulePreset)
+	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
+	if m.Tags.IsNull() || m.Tags.IsUnknown() {
+		m.Tags = tagsAll
+	}
+	m.TagsAll = tagsAll
 }

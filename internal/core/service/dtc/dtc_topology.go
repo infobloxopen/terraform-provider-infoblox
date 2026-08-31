@@ -3,6 +3,7 @@ package dtc
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/http"
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
@@ -12,6 +13,7 @@ import (
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
+	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dtc"
 )
 
 type DtcTopologyService interface {
@@ -25,12 +27,14 @@ type DtcTopologyService interface {
 type dtcTopologyService struct {
 	backend    core.BackendType
 	niosClient *niosclient.APIClient
+	uddiClient *uddiclient.APIClient
 }
 
 func NewDtcTopologyService(backend core.BackendType, nios *niosclient.APIClient, uddi *uddiclient.APIClient) DtcTopologyService {
 	return &dtcTopologyService{
 		backend:    backend,
 		niosClient: nios,
+		uddiClient: uddi,
 	}
 }
 
@@ -39,6 +43,8 @@ func (s *dtcTopologyService) Create(ctx context.Context, obj *dtc.DtcTopology, o
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.createNIOS(ctx, obj, opts)
+	case core.BackendUDDI:
+		return s.createUDDI(ctx, obj, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -74,11 +80,33 @@ func (s *dtcTopologyService) createNIOS(ctx context.Context, obj *dtc.DtcTopolog
 	return mapNIOSDtcTopologyToResponse(&result), httpResp, nil
 }
 
+func (s *dtcTopologyService) createUDDI(ctx context.Context, obj *dtc.DtcTopology, opts *core.Options) (*dtc.DtcTopology, *http.Response, error) {
+	payload, err := common.MapTo[uddidtc.Topology](obj, mapper.DtcTopologyUDDIFieldMap)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req := s.uddiClient.DNSTrafficControlAPI.TopologyAPI.
+		Create(ctx).
+		Body(payload)
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIDtcTopologyToResponse(&result), httpResp, nil
+}
+
 // Read retrieves a DtcTopology by ID
 func (s *dtcTopologyService) Read(ctx context.Context, id string, opts *core.Options) (*dtc.DtcTopology, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.readNIOS(ctx, id, opts)
+	case core.BackendUDDI:
+		return s.readUDDI(ctx, id, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -103,11 +131,27 @@ func (s *dtcTopologyService) readNIOS(ctx context.Context, id string, opts *core
 	return mapNIOSDtcTopologyToResponse(&result), httpResp, nil
 }
 
+func (s *dtcTopologyService) readUDDI(ctx context.Context, id string, opts *core.Options) (*dtc.DtcTopology, *http.Response, error) {
+	req := s.uddiClient.DNSTrafficControlAPI.TopologyAPI.
+		Read(ctx, id)
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIDtcTopologyToResponse(&result), httpResp, nil
+}
+
 // Update modifies an existing DtcTopology and returns the updated object
 func (s *dtcTopologyService) Update(ctx context.Context, id string, obj *dtc.DtcTopology, opts *core.Options) (*dtc.DtcTopology, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.updateNIOS(ctx, id, obj, opts)
+	case core.BackendUDDI:
+		return s.updateUDDI(ctx, id, obj, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -143,11 +187,33 @@ func (s *dtcTopologyService) updateNIOS(ctx context.Context, id string, obj *dtc
 	return mapNIOSDtcTopologyToResponse(&result), httpResp, nil
 }
 
+func (s *dtcTopologyService) updateUDDI(ctx context.Context, id string, obj *dtc.DtcTopology, opts *core.Options) (*dtc.DtcTopology, *http.Response, error) {
+	payload, err := common.MapTo[uddidtc.Topology](obj, mapper.DtcTopologyUDDIFieldMap)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req := s.uddiClient.DNSTrafficControlAPI.TopologyAPI.
+		Update(ctx, id).
+		Body(payload)
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, err
+	}
+
+	result := resp.GetResult()
+
+	return mapUDDIDtcTopologyToResponse(&result), httpResp, nil
+}
+
 // Delete removes a DtcTopology by ID
 func (s *dtcTopologyService) Delete(ctx context.Context, id string) (*http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.deleteNIOS(ctx, id)
+	case core.BackendUDDI:
+		return s.deleteUDDI(ctx, id)
 	default:
 		return nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -160,11 +226,20 @@ func (s *dtcTopologyService) deleteNIOS(ctx context.Context, id string) (*http.R
 	return httpResp, err
 }
 
+func (s *dtcTopologyService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
+	httpResp, err := s.uddiClient.DNSTrafficControlAPI.TopologyAPI.
+		Delete(ctx, id).
+		Execute()
+	return httpResp, err
+}
+
 // List retrieves DtcTopology objects based on filter options
 func (s *dtcTopologyService) List(ctx context.Context, opts *core.ListOptions) ([]*dtc.DtcTopology, *http.Response, string, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.listNIOS(ctx, opts)
+	case core.BackendUDDI:
+		return s.listUDDI(ctx, opts)
 	default:
 		return nil, nil, "", fmt.Errorf("unsupported backend: %s", s.backend)
 	}
@@ -228,6 +303,54 @@ func (s *dtcTopologyService) listNIOS(ctx context.Context, opts *core.ListOption
 	return items, httpResp, nextPageID, nil
 }
 
+func (s *dtcTopologyService) listUDDI(ctx context.Context, opts *core.ListOptions) ([]*dtc.DtcTopology, *http.Response, string, error) {
+	req := s.uddiClient.DNSTrafficControlAPI.TopologyAPI.List(ctx)
+	req = req.Limit(core.DefaultListLimit)
+
+	if opts != nil {
+		var filters []string
+		for k, v := range opts.InternalFilters {
+			filters = append(filters, core.FilterExpr(k, v))
+		}
+		translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.DtcTopologyFilterFieldMap[core.BackendUDDI])
+		for k, v := range translatedFilters {
+			filters = append(filters, core.FilterExpr(k, v))
+		}
+		if len(filters) > 0 {
+			req = req.Filter(core.JoinFilters(filters))
+		}
+
+		if len(opts.TagFilter) > 0 {
+			var tfilters []string
+			for k, v := range opts.TagFilter {
+				tfilters = append(tfilters, "'"+k+"'=='"+v+"'")
+			}
+			req = req.Tfilter(core.JoinFilters(tfilters))
+		}
+
+		if opts.Offset > 0 {
+			req = req.Offset(opts.Offset)
+		}
+
+		if opts.Limit > 0 {
+			req = req.Limit(opts.Limit)
+		}
+	}
+
+	resp, httpResp, err := req.Execute()
+	if err != nil {
+		return nil, httpResp, "", err
+	}
+
+	results := resp.GetResults()
+	items := make([]*dtc.DtcTopology, 0, len(results))
+	for i := range results {
+		items = append(items, mapUDDIDtcTopologyToResponse(&results[i]))
+	}
+
+	return items, httpResp, "", nil
+}
+
 func mapNIOSDtcTopologyToResponse(r *niosdtc.DtcTopology) *dtc.DtcTopology {
 	resp := &dtc.DtcTopology{
 		Id: r.Ref,
@@ -243,6 +366,25 @@ func mapNIOSDtcTopologyToResponse(r *niosdtc.DtcTopology) *dtc.DtcTopology {
 			attrs[k] = core.StringifyEAValue(v.Value)
 		}
 		resp.NIOS.ExtAttrs = attrs
+	}
+	return resp
+}
+
+func mapUDDIDtcTopologyToResponse(r *uddidtc.Topology) *dtc.DtcTopology {
+	resp := &dtc.DtcTopology{
+		Id: r.Id,
+	}
+	resp.UDDI = &dtc.UDDIDtcTopologyExt{
+		Comment:  r.Comment,
+		Disabled: r.Disabled,
+		Metadata: r.Metadata,
+		Name:     r.Name,
+		Rules:    r.Rules,
+	}
+	if r.Tags != nil {
+		tags := make(map[string]any, len(r.Tags))
+		maps.Copy(tags, r.Tags)
+		resp.UDDI.Tags = tags
 	}
 	return resp
 }

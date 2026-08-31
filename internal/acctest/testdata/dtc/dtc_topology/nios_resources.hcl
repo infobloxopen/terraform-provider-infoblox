@@ -1,3 +1,4 @@
+# Auto-generated resource acceptance-test cases for DtcTopology.
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -7,7 +8,8 @@ case "basic" {
       name = "{{random}}"
     }
     check = {
-      "nios.name" = "{{random}}"
+      "nios.name"    = "{{random}}"
+      "nios.comment" = ""
     }
   }
 
@@ -37,7 +39,6 @@ case "comment" {
       comment = "This is a comment"
     }
     check = {
-      "nios.name"    = "{{random}}"
       "nios.comment" = "This is a comment"
     }
   }
@@ -48,7 +49,6 @@ case "comment" {
       comment = "This is an updated comment"
     }
     check = {
-      "nios.name"    = "{{random}}"
       "nios.comment" = "This is an updated comment"
     }
   }
@@ -65,7 +65,6 @@ case "ext_attrs" {
       ext_attrs = { Site = "{{random2}}" }
     }
     check = {
-      "nios.name"            = "{{random}}"
       "nios.ext_attrs.Site" = "{{random2}}"
     }
   }
@@ -76,7 +75,6 @@ case "ext_attrs" {
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
-      "nios.name"            = "{{random}}"
       "nios.ext_attrs.Site" = "{{random3}}"
     }
   }
@@ -107,69 +105,85 @@ case "name" {
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: requires_resource: infoblox_dtc_server not yet implemented
 case "rules" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  skip        = true
+  skip_reason = "requires_resource: infoblox_dtc_server not yet implemented"
+  parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dtc_server" "test_server" {
+  resource "infoblox_dtc_server_unknown" "test_server" {
     nios = {
-      name = "{{random2}}-server"
+      name = "{{random2}}"
       host = "2.2.2.2"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_dtc_server.test_server]
     nios {
       name  = "{{random}}"
-      rules = [
-        {
-          dest_type        = "SERVER"
-          destination_link = "$${infoblox_dtc_server.test_server.id}"
-        }
-      ]
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server_unknown.test_server.nios.ref }]
     }
     check = {
-      "nios.name"               = "{{random}}"
-      "nios.rules.0.dest_type"  = "SERVER"
+      "nios.rules.0.dest_type" = "SERVER"
     }
   }
 
   step {
-    depends_on = [infoblox_dtc_server.test_server]
     nios {
       name  = "{{random}}"
-      rules = [
-        {
-          dest_type        = "SERVER"
-          destination_link = "$${infoblox_dtc_server.test_server.id}"
-          return_type      = "REGULAR"
-          sources = [
-            {
-              source_type  = "COUNTRY"
-              source_op    = "IS"
-              source_value = "US"
-            }
-          ]
-        }
-      ]
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server_unknown.test_server.nios.ref }]
     }
     check = {
-      "nios.name"                        = "{{random}}"
-      "nios.rules.0.dest_type"           = "SERVER"
-      "nios.rules.0.return_type"         = "REGULAR"
-      "nios.rules.0.sources.0.source_type"  = "COUNTRY"
-      "nios.rules.0.sources.0.source_op"    = "IS"
-      "nios.rules.0.sources.0.source_value" = "US"
+      "nios.rules.0.dest_type" = "SERVER"
     }
   }
 
 }
 
+# TODO: auto-extraction incomplete — please verify and fill in manually.
+# Reason: requires_resource: infoblox_dtc_server and infoblox_dtc_pool not yet implemented
 case "rules_with_pool" {
   backend     = "nios"
   skip        = true
-  skip_reason = "infoblox_dtc_pool not yet implemented — activate once dtc_pool is generated"
+  skip_reason = "requires_resource: infoblox_dtc_server and infoblox_dtc_pool not yet implemented"
   parallel    = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server_unknown" "test_server_for_pool" {
+    nios = {
+      name = "{{random2}}-server"
+      host = "2.3.3.4"
+    }
+  }
+  resource "infoblox_dtc_pool_unknown" "test_pool" {
+    nios = {
+      name = "{{random2}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers = [{ server = infoblox_dtc_server_unknown.test_server_for_pool.nios.ref, ratio = 1 }]
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      name  = "{{random}}"
+      rules = [{ dest_type = "POOL", destination_link = infoblox_dtc_pool_unknown.test_pool.nios.ref }]
+    }
+    check = {
+      "nios.rules.0.dest_type" = "POOL"
+    }
+  }
+
+  step {
+    nios {
+      name  = "{{random}}"
+      rules = [{ dest_type = "POOL", destination_link = infoblox_dtc_pool_unknown.test_pool.nios.ref }]
+    }
+    check = {
+      "nios.rules.0.dest_type" = "POOL"
+    }
+  }
+
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
@@ -56,7 +55,7 @@ func (r *DtcTopologyResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *DtcTopologyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox DtcTopology in the NIOS backend.",
+		MarkdownDescription: "Manages an Infoblox DtcTopology in both NIOS and UDDI backends.",
 		Attributes:          DtcTopologyResourceSchemaAttributes,
 	}
 }
@@ -97,7 +96,7 @@ func (r *DtcTopologyResource) ValidateConfig(ctx context.Context, req resource.V
 	}
 
 	// Common backend block validations
-	validator.ValidateBackendBlocks(r.backend, data.NIOS, types.ObjectNull(map[string]attr.Type{}), &resp.Diagnostics)
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, data.UDDI, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

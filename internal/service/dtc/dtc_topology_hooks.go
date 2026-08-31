@@ -12,7 +12,13 @@ func ValidateDtcTopology(ctx context.Context, data DtcTopologyModel, resp *resou
 	if nios := flex.ExpandNestedObject[NIOSDtcTopologyModel](ctx, data.NIOS, &resp.Diagnostics); nios != nil {
 		validateDtcTopologyNIOSConfig(ctx, nios, resp)
 	}
+	if uddi := flex.ExpandNestedObject[UDDIDtcTopologyModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
+		validateDtcTopologyUDDIConfig(ctx, uddi, resp)
+	}
 }
 
 func validateDtcTopologyNIOSConfig(ctx context.Context, m *NIOSDtcTopologyModel, resp *resource.ValidateConfigResponse) {
+}
+
+func validateDtcTopologyUDDIConfig(ctx context.Context, m *UDDIDtcTopologyModel, resp *resource.ValidateConfigResponse) {
 }

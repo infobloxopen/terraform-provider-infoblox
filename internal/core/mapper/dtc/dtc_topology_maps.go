@@ -10,6 +10,15 @@ var DtcTopologyNIOSFieldMap = map[string]string{
 	"NIOS.Rules":   "Rules",
 }
 
+// DtcTopologyUDDIFieldMap maps infoblox model fields to UDDI struct fields
+var DtcTopologyUDDIFieldMap = map[string]string{
+	"UDDI.Comment":  "Comment",
+	"UDDI.Disabled": "Disabled",
+	"UDDI.Name":     "Name",
+	"UDDI.Rules":    "Rules",
+	"UDDI.Tags":     "Tags",
+}
+
 // TODO: only searchable fields should be included here
 // DtcTopologyFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
 var DtcTopologyFilterFieldMap = map[core.BackendType]map[string]string{
@@ -19,5 +28,12 @@ var DtcTopologyFilterFieldMap = map[core.BackendType]map[string]string{
 		"nios.ext_attrs": "extattrs",
 		"nios.name":      "name",
 		"nios.rules":     "rules",
+	},
+	core.BackendUDDI: {
+		"uddi.comment":  "comment",
+		"uddi.disabled": "disabled",
+		"uddi.name":     "name",
+		"uddi.rules":    "rules",
+		"uddi.tags":     "tags",
 	},
 }
