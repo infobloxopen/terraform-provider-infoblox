@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dtc"
@@ -32,8 +33,9 @@ func NewDtcTopologyResource() resource.Resource {
 }
 
 type DtcTopologyResource struct {
-	backend core.BackendType
-	service coresvc.DtcTopologyService
+	backend    core.BackendType
+	service    coresvc.DtcTopologyService
+	niosClient *niosclient.APIClient
 }
 
 func (r *DtcTopologyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -76,6 +78,7 @@ func (r *DtcTopologyResource) Configure(_ context.Context, req resource.Configur
 
 	if client.NIOS != nil {
 		r.backend = core.BackendNIOS
+		r.niosClient = client.NIOS
 	} else {
 		r.backend = core.BackendUDDI
 	}
@@ -147,6 +150,11 @@ func (r *DtcTopologyResource) Create(ctx context.Context, req resource.CreateReq
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create DtcTopology: %s", err))
+		return
+	}
+
+	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -240,6 +248,11 @@ func (r *DtcTopologyResource) Read(ctx context.Context, req resource.ReadRequest
 		}
 	}
 
+	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	data.Flatten(ctx, apiResp, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
@@ -297,6 +310,11 @@ func (r *DtcTopologyResource) ReadByExtAttrs(ctx context.Context, data *DtcTopol
 	// If not found, remove from state
 	if len(records) == 0 {
 		resp.State.RemoveResource(ctx)
+		return true
+	}
+
+	r.populateDtcTopologyNIOSRules(ctx, records[0], &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		return true
 	}
 
@@ -401,6 +419,11 @@ func (r *DtcTopologyResource) Update(ctx context.Context, req resource.UpdateReq
 				return
 			}
 		}
+	}
+
+	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	data.Flatten(ctx, apiResp, &resp.Diagnostics)
