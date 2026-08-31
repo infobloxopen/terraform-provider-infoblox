@@ -323,6 +323,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewRecordSvcbResource,
 		dns.NewZoneForwardResource,
 		dns.NewDnsServerResource,
 		dhcp.NewHaGroupResource,
@@ -368,6 +369,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewRecordSvcbDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewDnsServerDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -416,6 +418,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewRecordSvcbList,
 		dns.NewZoneForwardList,
 		dns.NewDnsServerList,
 		dhcp.NewHaGroupList,
