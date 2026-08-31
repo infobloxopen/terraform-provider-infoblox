@@ -1,4 +1,4 @@
-// Manage SVCB Records with basic fields
+// Create an Auth Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
     fqdn         = "example.com."
@@ -6,7 +6,7 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
-// Manage SVCB Records with optional fields
+// Manage an SVCB Record
 resource "infoblox_record_svcb" "example" {
   uddi = {
     rdata = {
