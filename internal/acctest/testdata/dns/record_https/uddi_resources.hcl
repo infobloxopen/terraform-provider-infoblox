@@ -1,4 +1,4 @@
-# Auto-generated resource acceptance-test cases for RecordA.
+# Auto-generated resource acceptance-test cases for RecordHttps.
 # TODO - Add Zone Auth as a PREREQ for the records
 # As of 31st Aug , adding Zone Auth as PREREQ gives 500 Internal Server Error for Record HTTPS
 # Refer B1DDISPT-2207 for the same

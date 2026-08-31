@@ -1,4 +1,3 @@
-# Auto-generated list acceptance-test cases for RecordHttps.
 case "basic" {
   backend           = "uddi"
   parallel          = true
