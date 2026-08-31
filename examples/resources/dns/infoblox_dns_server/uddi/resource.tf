@@ -1,7 +1,7 @@
 # Manage a UDDI DNS Server
 resource "infoblox_dns_server" "example" {
   uddi = {
-    name = "example_dns_server"
+    name = "example_server"
 
     // Other Optional fields
     comment = "An example server"
