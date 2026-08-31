@@ -265,8 +265,8 @@ func Random32Hexadecimal() string {
 	return fmt.Sprintf("%016x%016x", rand.Uint64(), rand.Uint64())
 }
 
-// TfvarsExists checks if a tfvars file exists.
-func TfvarsExists(relativePath string) bool {
+// CaseFileExists checks if a case file exists.
+func CaseFileExists(relativePath string) bool {
 	if packageDir == "" {
 		return false
 	}
