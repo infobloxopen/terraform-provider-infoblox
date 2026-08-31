@@ -324,6 +324,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dns.NewZoneForwardResource,
+		dhcp.NewHaGroupResource,
 		rpz.NewRecordRpzNaptrResource,
 		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
@@ -339,9 +340,11 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewFilteroptionResource,
 		dns.NewForwardNsgResource,
 		dns.NewRecordSrvResource,
+		dns.NewRecordAliasResource,
 		grid.NewExtensibleattributedefResource,
 		ipam.NewNetworkviewResource,
 		dtc.NewDtcServerResource,
+		dtc.NewDtcPoolResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordCnameResource,
@@ -365,6 +368,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dns.NewZoneForwardDataSource,
+		dhcp.NewHaGroupDataSource,
+		rpz.NewRecordRpzNaptrDataSource,
+		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
@@ -380,8 +386,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewExtensibleattributedefDataSource,
 		ipam.NewNetworkviewDataSource,
 		dtc.NewDtcServerDataSource,
+		dtc.NewDtcPoolDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordMxDataSource,
+		dns.NewRecordAliasDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordTxtDataSource,
@@ -406,6 +414,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dns.NewZoneForwardList,
+		dhcp.NewHaGroupList,
 		rpz.NewRecordRpzNaptrList,
 		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
@@ -421,9 +430,11 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewFilteroptionList,
 		dns.NewForwardNsgList,
 		dns.NewRecordSrvList,
+		dns.NewRecordAliasList,
 		grid.NewExtensibleattributedefList,
 		ipam.NewNetworkviewList,
 		dtc.NewDtcServerList,
+		dtc.NewDtcPoolList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordMxList,
 		dns.NewRecordCnameList,
