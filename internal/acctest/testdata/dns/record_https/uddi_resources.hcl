@@ -1,7 +1,9 @@
 # Auto-generated resource acceptance-test cases for RecordA.
 # TODO - Add Zone Auth as a PREREQ for the records
-# As of 31st Aug , adding Zone Auth as PREREQ gives 500 Internal Server Error
-#
+# As of 31st Aug , adding Zone Auth as PREREQ gives 500 Internal Server Error for Record HTTPS
+# Refer B1DDISPT-2207 for the same
+
+
 case "inheritance_sources" {
   backend           = "uddi"
   parallel          = true
@@ -77,11 +79,11 @@ case "rdata" {
 
   step {
     uddi {
-      rdata = { address = "{{random_ip2}}" , priority = 2 }
+      rdata = { target_name = "{{random}}_updated.com" , priority = 2 }
       zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
     }
     check = {
-      "uddi.rdata.target_name" = "{{random_ip2}}"
+      "uddi.rdata.target_name" = "{{random}}_updated.com"
       "uddi.rdata.priority" = 2
     }
   }

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 // ValidateRecordHttps validates the RecordHttps configuration.
@@ -21,6 +22,14 @@ func ValidateRecordHttps(ctx context.Context, data RecordHttpsModel, resp *resou
 }
 
 func validateRecordHttpsUDDIConfig(ctx context.Context, m *UDDIRecordHttpsModel, resp *resource.ValidateConfigResponse) {
+}
+
+func PostFlattenRecordHttpsUDDI(ctx context.Context, planned, flattened *UDDIRecordHttpsModel, diags *diag.Diagnostics) {
+	if !planned.Rdata.IsNull() {
+		if result, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Rdata, flattened.Rdata, "priority"); !d.HasError() {
+			flattened.Rdata = result.(basetypes.ObjectValue)
+		}
+	}
 }
 
 type UDDIRecordHttpsRdataModel struct {
