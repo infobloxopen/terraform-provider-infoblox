@@ -1,9 +1,11 @@
+// Create a DNS View (Required as Parent)
 resource "infoblox_view" "example" {
   uddi = {
     name = "example-view"
   }
 }
 
+// Create a Primary Authoritative Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
     fqdn         = "domain.com."
@@ -12,6 +14,7 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
+// Create a DNS Zone Delegated
 resource "infoblox_zone_delegated" "example" {
   uddi = {
     fqdn = "del.domain.com."

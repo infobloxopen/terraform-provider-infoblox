@@ -1,16 +1,73 @@
 # Auto-generated datasource acceptance-test cases for ZoneDelegated.
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: data source config declares a prerequisite/extra resource block; the data source extraction path does not rewrite prerequisites (only resource cases support them)
 case "filters" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "data source config declares a prerequisite/extra resource block; the data source extraction path does not rewrite prerequisites (only resource cases support them)"
+  backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
+  PREREQ
+
+  filter {
+    type   = "filters"
+    values = {
+      fqdn = "uddi.fqdn"
+    }
+  }
+
+  pair_checks = ["uddi.comment", "uddi.compartment_id", "uddi.disabled", "uddi.fqdn", "uddi.parent", "uddi.view"]
+
+  step {
+    uddi {
+      fqdn = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
+      view = infoblox_view.test.id
+    }
+  }
+
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: data source config declares a prerequisite/extra resource block; the data source extraction path does not rewrite prerequisites (only resource cases support them)
 case "tag_filters" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "data source config declares a prerequisite/extra resource block; the data source extraction path does not rewrite prerequisites (only resource cases support them)"
+  backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn         = "{{random2}}.com."
+      primary_type = "cloud"
+      view         = infoblox_view.test.id
+    }
+  }
+  PREREQ
+
+  filter {
+    type   = "tag_filters"
+    values = {
+      tag1 = "uddi.tags.tag1"
+    }
+  }
+
+  pair_checks = ["uddi.comment", "uddi.compartment_id", "uddi.disabled", "uddi.forward_only", "uddi.fqdn", "uddi.parent", "uddi.view"]
+
+  step {
+    uddi {
+      fqdn = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
+      tags = { tag1 = "{{random}}" }
+      view = infoblox_view.test.id
+    }
+  }
+
 }

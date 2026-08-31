@@ -250,11 +250,14 @@ var ZoneDelegatedResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var ZoneDelegatedResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Comment for zone delegation.",
 	},
 	"compartment_id": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The access view associated with the object. If no access view is associated with the object, the value defaults to empty.",
 	},
 	"delegation_servers": schema.ListNestedAttribute{
@@ -282,6 +285,7 @@ var ZoneDelegatedResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"parent": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
@@ -301,6 +305,7 @@ var ZoneDelegatedResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"view": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -325,7 +330,7 @@ func (m *ZoneDelegatedModel) Expand(ctx context.Context, diags *diag.Diagnostics
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIZoneDelegatedModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -365,17 +370,20 @@ func ApplyZoneDelegatedNIOSUseFlags(ctx context.Context, config tfsdk.Config, ob
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIZoneDelegatedModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIZoneDelegatedExt {
-	return &coremodel.UDDIZoneDelegatedExt{
+func (m *UDDIZoneDelegatedModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIZoneDelegatedExt {
+	ext := &coremodel.UDDIZoneDelegatedExt{
 		Comment:           flex.ExpandStringPointer(m.Comment),
 		CompartmentId:     flex.ExpandStringPointer(m.CompartmentId),
 		DelegationServers: flex.ExpandFrameworkListNestedBlock(ctx, m.DelegationServers, diags, ExpandDelegationServer),
 		Disabled:          flex.ExpandBoolPointer(m.Disabled),
-		Fqdn:              flex.ExpandStringPointer(m.Fqdn),
 		Parent:            flex.ExpandStringPointer(m.Parent),
 		Tags:              flex.ExpandMapStringAny(ctx, m.Tags, diags),
-		View:              flex.ExpandStringPointer(m.View),
 	}
+	if isCreate {
+		ext.Fqdn = flex.ExpandStringPointer(m.Fqdn)
+		ext.View = flex.ExpandStringPointer(m.View)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.

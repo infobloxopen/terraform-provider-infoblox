@@ -1,6 +1,4 @@
 # Auto-generated resource acceptance-test cases for ZoneDelegated.
-// Every case creates two prerequisites: a DNS view, and an authoritative zone in that
-// view. The delegated zone under test is always a child of that authoritative zone.
 
 case "basic" {
   backend  = "uddi"
@@ -22,13 +20,13 @@ case "basic" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn"                         = "delegated.{{random3}}.com."
+      "uddi.fqdn"                         = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       "uddi.delegation_servers.#"         = "1"
       "uddi.delegation_servers.0.address" = "12.0.0.0"
       "uddi.delegation_servers.0.fqdn"    = "ns1.com."
@@ -62,7 +60,7 @@ case "disappears" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
@@ -91,7 +89,7 @@ case "compartment_id" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       compartment_id     = "c4695."
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -104,7 +102,7 @@ case "compartment_id" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       compartment_id     = ""
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -137,7 +135,7 @@ case "comment" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       comment            = "Delegation zone is created by Terraform"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -150,7 +148,7 @@ case "comment" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random3}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       comment            = "Delegation zone was created by Terraform"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -174,7 +172,7 @@ case "delegation_servers" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn         = "{{random}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
       view         = infoblox_view.test.id
     }
@@ -183,7 +181,7 @@ case "delegation_servers" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
@@ -197,7 +195,7 @@ case "delegation_servers" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.1", fqdn = "ns2.com." }]
       view               = infoblox_view.test.id
     }
@@ -211,7 +209,7 @@ case "delegation_servers" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "", fqdn = "ns3.com." }]
       view               = infoblox_view.test.id
     }
@@ -236,7 +234,7 @@ case "disabled" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn         = "{{random}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
       view         = infoblox_view.test.id
     }
@@ -245,7 +243,7 @@ case "disabled" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       disabled           = false
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -258,7 +256,7 @@ case "disabled" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       disabled           = true
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -282,7 +280,7 @@ case "fqdn" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn         = "{{random}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
       view         = infoblox_view.test.id
     }
@@ -291,25 +289,25 @@ case "fqdn" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn" = "delegated.{{random}}.com."
+      "uddi.fqdn" = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
     }
   }
 
   step {
     uddi {
-      fqdn               = "delegated1.{{random}}.com."
+      fqdn               = "{{random4}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }
     depends_on = [infoblox_view.test, infoblox_zone_auth.test]
     check = {
-      "uddi.fqdn" = "delegated1.{{random}}.com."
+      "uddi.fqdn" = "{{random4}}.${infoblox_zone_auth.test.uddi.fqdn}"
     }
   }
 
@@ -326,7 +324,7 @@ case "tags" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn         = "{{random}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
       view         = infoblox_view.test.id
     }
@@ -335,7 +333,7 @@ case "tags" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       tags               = { tag1 = "value1", tag2 = "value2" }
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -349,7 +347,7 @@ case "tags" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random4}}.${infoblox_zone_auth.test.uddi.fqdn}"
       tags               = { tag2 = "value2changed", tag3 = "value3" }
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
@@ -374,7 +372,7 @@ case "view" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn         = "{{random}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
       view         = infoblox_view.test.id
     }
@@ -383,7 +381,7 @@ case "view" {
 
   step {
     uddi {
-      fqdn               = "delegated.{{random}}.com."
+      fqdn               = "{{random3}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
       view               = infoblox_view.test.id
     }

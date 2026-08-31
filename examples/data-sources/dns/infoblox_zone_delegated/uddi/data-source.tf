@@ -1,7 +1,7 @@
 // Get delegation zone filtered by an attribute
 data "infoblox_zone_delegated" "example_by_attribute" {
   filters = {
-    fqdn = "domain.com."
+    fqdn = "del.domain.com."
   }
 }
 

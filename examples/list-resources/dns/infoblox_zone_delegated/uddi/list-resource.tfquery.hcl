@@ -3,7 +3,7 @@ list "infoblox_zone_delegated" "list_zone_delegated_using_filters" {
   provider = infoblox
   config {
     filters = {
-      fqdn = "domain.com."
+      fqdn = "del.domain.com."
     }
   }
   limit = 10

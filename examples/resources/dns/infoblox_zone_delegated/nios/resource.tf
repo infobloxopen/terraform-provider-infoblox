@@ -1,3 +1,11 @@
+// Create a Zone Auth (Required as parent)
+resource "infoblox_zone_auth" "example_auth" {
+  nios = {
+    fqdn = "example_auth.com"
+    view = "default"
+  }
+}
+
 // Create a DNS zone delegated with Basic Fields
 resource "infoblox_zone_delegated" "zone_delegated_basic_fields" {
   nios = {
@@ -8,6 +16,17 @@ resource "infoblox_zone_delegated" "zone_delegated_basic_fields" {
         address = "10.10.10.10"
       }
     ]
+  }
+
+  depends_on = [infoblox_zone_auth.example_auth]
+}
+
+// Create a Zone Auth with IPv4 mapping (Required as parent)
+resource "infoblox_zone_auth" "example_auth_reverse" {
+  nios = {
+    fqdn        = "111.0.0.0/24"
+    view        = "default"
+    zone_format = "IPV4"
   }
 }
 
@@ -23,6 +42,8 @@ resource "infoblox_zone_delegated" "zone_delegated_ip4_mapping" {
     ]
     zone_format = "IPV4"
   }
+
+  depends_on = [infoblox_zone_auth.example_auth_reverse]
 }
 
 // Create a DNS zone delegated with Additional Fields
@@ -50,4 +71,6 @@ resource "infoblox_zone_delegated" "zone_delegated_additional_fields" {
       Site = "location-1"
     }
   }
+
+  depends_on = [infoblox_zone_auth.example_auth]
 }
