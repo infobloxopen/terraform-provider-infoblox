@@ -146,10 +146,11 @@ func (d *RecordHttpsDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields: RecordHttpsReturnFields,
-		Paging:       1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"type": RecordHttpsType},
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    RecordHttpsReturnFields,
+		Paging:          1,
 	}
 
 	if !data.Paging.IsNull() {
