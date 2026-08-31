@@ -3,7 +3,7 @@ list "infoblox_record_https" "list_record_https_using_filters" {
   provider = infoblox
   config {
     filters = {
-      absolute_name_spec = "abc.example.com"
+      absolute_name_spec = "record.example.com."
     }
   }
   limit = 10

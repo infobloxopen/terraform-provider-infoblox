@@ -10,12 +10,12 @@ resource "infoblox_zone_auth" "example" {
 resource "infoblox_record_https" "example" {
   uddi = {
     rdata = {
-      target_name = "example.com"
+      target_name = "record"
     }
     zone = infoblox_zone_auth.example.id
 
     // Other optional fields
-    name_in_zone = "https"
+    name_in_zone = "record_https"
     comment      = "Example comment"
     disabled     = false
     ttl          = 3600
