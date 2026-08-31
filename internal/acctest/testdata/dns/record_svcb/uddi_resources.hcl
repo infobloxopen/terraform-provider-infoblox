@@ -30,7 +30,6 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata               = { target_name = "{{random}}.com" }
-      #zone               = infoblox_zone_auth.test.id
       zone                = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
       inheritance_sources = { ttl = { action = "override" } }
       ttl                 = 57600
@@ -43,7 +42,6 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata               = { target_name = "{{random}}.com" }
-      #zone               = infoblox_zone_auth.test.id
       zone                = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
       inheritance_sources = { ttl = { action = "inherit" } }
       ttl                 = 57600
