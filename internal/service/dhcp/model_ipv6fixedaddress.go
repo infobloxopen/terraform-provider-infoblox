@@ -116,43 +116,37 @@ var NIOSIpv6fixedaddressAttrTypes = map[string]attr.Type{
 }
 
 type UDDIIpv6fixedaddressModel struct {
-	Address                   types.String `tfsdk:"address"`
-	Comment                   types.String `tfsdk:"comment"`
-	DhcpOptions               types.List   `tfsdk:"dhcp_options"`
-	DisableDhcp               types.Bool   `tfsdk:"disable_dhcp"`
-	HeaderOptionFilename      types.String `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress types.String `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName    types.String `tfsdk:"header_option_server_name"`
-	Hostname                  types.String `tfsdk:"hostname"`
-	InheritanceParent         types.String `tfsdk:"inheritance_parent"`
-	InheritanceSources        types.Object `tfsdk:"inheritance_sources"`
-	IpSpace                   types.String `tfsdk:"ip_space"`
-	MatchType                 types.String `tfsdk:"match_type"`
-	MatchValue                types.String `tfsdk:"match_value"`
-	Name                      types.String `tfsdk:"name"`
-	Parent                    types.String `tfsdk:"parent"`
-	Tags                      types.Map    `tfsdk:"tags"`
-	TagsAll                   types.Map    `tfsdk:"tags_all"`
+	Address            types.String `tfsdk:"address"`
+	Comment            types.String `tfsdk:"comment"`
+	DhcpOptions        types.List   `tfsdk:"dhcp_options"`
+	DisableDhcp        types.Bool   `tfsdk:"disable_dhcp"`
+	Hostname           types.String `tfsdk:"hostname"`
+	InheritanceParent  types.String `tfsdk:"inheritance_parent"`
+	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
+	IpSpace            types.String `tfsdk:"ip_space"`
+	MatchType          types.String `tfsdk:"match_type"`
+	MatchValue         types.String `tfsdk:"match_value"`
+	Name               types.String `tfsdk:"name"`
+	Parent             types.String `tfsdk:"parent"`
+	Tags               types.Map    `tfsdk:"tags"`
+	TagsAll            types.Map    `tfsdk:"tags_all"`
 }
 
 var UDDIIpv6fixedaddressAttrTypes = map[string]attr.Type{
-	"address":                      types.StringType,
-	"comment":                      types.StringType,
-	"dhcp_options":                 types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
-	"disable_dhcp":                 types.BoolType,
-	"header_option_filename":       types.StringType,
-	"header_option_server_address": types.StringType,
-	"header_option_server_name":    types.StringType,
-	"hostname":                     types.StringType,
-	"inheritance_parent":           types.StringType,
-	"inheritance_sources":          types.ObjectType{AttrTypes: FixedAddressInheritanceAttrTypes},
-	"ip_space":                     types.StringType,
-	"match_type":                   types.StringType,
-	"match_value":                  types.StringType,
-	"name":                         types.StringType,
-	"parent":                       types.StringType,
-	"tags":                         types.MapType{ElemType: types.StringType},
-	"tags_all":                     types.MapType{ElemType: types.StringType},
+	"address":             types.StringType,
+	"comment":             types.StringType,
+	"dhcp_options":        types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
+	"disable_dhcp":        types.BoolType,
+	"hostname":            types.StringType,
+	"inheritance_parent":  types.StringType,
+	"inheritance_sources": types.ObjectType{AttrTypes: FixedAddressInheritanceAttrTypes},
+	"ip_space":            types.StringType,
+	"match_type":          types.StringType,
+	"match_value":         types.StringType,
+	"name":                types.StringType,
+	"parent":              types.StringType,
+	"tags":                types.MapType{ElemType: types.StringType},
+	"tags_all":            types.MapType{ElemType: types.StringType},
 }
 
 const (
@@ -466,24 +460,6 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. _true_ to disable object. The fixed address is converted to an exclusion when generating configuration.  Defaults to _false_.",
 	},
-	"header_option_filename": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option filename field.",
-	},
-	"header_option_server_address": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option server address field.",
-	},
-	"header_option_server_name": schema.StringAttribute{
-		Default:             stringdefault.StaticString(""),
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The configuration for header option server name field.",
-	},
 	"hostname": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
@@ -512,6 +488,9 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"match_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("mac", "duid"),
+		},
 		Required:            true,
 		MarkdownDescription: "Indicates how to match the client:  * _mac_: match the client MAC address for both IPv4 and IPv6,  * _client_text_ or _client_hex_: match the client identifier for IPv4 only,  * _relay_text_ or _relay_hex_: match the circuit ID or remote ID in the DHCP relay agent option (82) for IPv4 only,  * _duid_: match the DHCP unique identifier, currently match only for IPv6 protocol.",
 	},
@@ -629,22 +608,19 @@ func ApplyIpv6fixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config,
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIIpv6fixedaddressExt {
 	return &coremodel.UDDIIpv6fixedaddressExt{
-		Address:                   flex.ExpandString(m.Address),
-		Comment:                   flex.ExpandStringPointer(m.Comment),
-		DhcpOptions:               flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
-		DisableDhcp:               flex.ExpandBoolPointer(m.DisableDhcp),
-		HeaderOptionFilename:      flex.ExpandStringPointer(m.HeaderOptionFilename),
-		HeaderOptionServerAddress: flex.ExpandStringPointer(m.HeaderOptionServerAddress),
-		HeaderOptionServerName:    flex.ExpandStringPointer(m.HeaderOptionServerName),
-		Hostname:                  flex.ExpandStringPointer(m.Hostname),
-		InheritanceParent:         flex.ExpandStringPointer(m.InheritanceParent),
-		InheritanceSources:        ExpandFixedAddressInheritance(ctx, m.InheritanceSources, diags),
-		IpSpace:                   flex.ExpandStringPointer(m.IpSpace),
-		MatchType:                 flex.ExpandString(m.MatchType),
-		MatchValue:                flex.ExpandString(m.MatchValue),
-		Name:                      flex.ExpandStringPointer(m.Name),
-		Parent:                    flex.ExpandStringPointer(m.Parent),
-		Tags:                      flex.ExpandMapStringAny(ctx, m.Tags, diags),
+		Address:            flex.ExpandString(m.Address),
+		Comment:            flex.ExpandStringPointer(m.Comment),
+		DhcpOptions:        flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
+		DisableDhcp:        flex.ExpandBoolPointer(m.DisableDhcp),
+		Hostname:           flex.ExpandStringPointer(m.Hostname),
+		InheritanceParent:  flex.ExpandStringPointer(m.InheritanceParent),
+		InheritanceSources: ExpandFixedAddressInheritance(ctx, m.InheritanceSources, diags),
+		IpSpace:            flex.ExpandStringPointer(m.IpSpace),
+		MatchType:          flex.ExpandString(m.MatchType),
+		MatchValue:         flex.ExpandString(m.MatchValue),
+		Name:               flex.ExpandStringPointer(m.Name),
+		Parent:             flex.ExpandStringPointer(m.Parent),
+		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 }
 
@@ -734,9 +710,6 @@ func (m *UDDIIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
-	m.HeaderOptionFilename = flex.FlattenStringPointer(from.HeaderOptionFilename)
-	m.HeaderOptionServerAddress = flex.FlattenStringPointer(from.HeaderOptionServerAddress)
-	m.HeaderOptionServerName = flex.FlattenStringPointer(from.HeaderOptionServerName)
 	m.Hostname = flex.FlattenStringPointer(from.Hostname)
 	m.InheritanceParent = flex.FlattenStringPointer(from.InheritanceParent)
 	m.InheritanceSources = FlattenFixedAddressInheritance(ctx, from.InheritanceSources, diags)
