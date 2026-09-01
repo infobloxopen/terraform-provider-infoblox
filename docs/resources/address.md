@@ -48,7 +48,7 @@ resource "infoblox_address" "example" {
     space   = infoblox_network_view.example.id
 
     // Other optional fields
-    comment   = "reservation for Site A"
+    comment   = "Reservation for Site A"
     hwaddr    = "00:11:22:33:44:55"
     interface = "eth0"
     names = [{
@@ -98,7 +98,7 @@ resource "infoblox_address" "example_na_range" {
   uddi = {
     space = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
     dynamic_allocation = {
-      next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572"
+      next_available_id = "ipam/ip_space/<>"
     }
   }
 }
