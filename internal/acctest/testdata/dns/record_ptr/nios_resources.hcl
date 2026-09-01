@@ -664,3 +664,91 @@ case "func_call_ipv6" {
   }
 
 }
+
+case "name_arpa_ipv4" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "192.168.13.0/24"
+      zone_format = "IPV4"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      name     = "50.13.168.192.in-addr.arpa"
+      ptrdname = "{{random3}}.com"
+      view     = "default"
+    }
+    check = {
+      "nios.name"     = "50.13.168.192.in-addr.arpa"
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      name     = "50.13.168.192.in-addr.arpa"
+      ptrdname = "{{random4}}.com"
+      view     = "default"
+    }
+    check = {
+      "nios.name"     = "50.13.168.192.in-addr.arpa"
+      "nios.ptrdname" = "{{random4}}.com"
+    }
+  }
+
+}
+
+case "name_arpa_ipv6" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "2002:5597::/64"
+      zone_format = "IPV6"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      name     = "0.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.7.9.5.5.2.0.0.2.ip6.arpa"
+      ptrdname = "{{random3}}.com"
+      view     = "default"
+    }
+    check = {
+      "nios.name"     = "0.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.7.9.5.5.2.0.0.2.ip6.arpa"
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+  step {
+    depends_on = [infoblox_zone_auth.reverse]
+    nios {
+      name     = "0.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.7.9.5.5.2.0.0.2.ip6.arpa"
+      ptrdname = "{{random4}}.com"
+      view     = "default"
+    }
+    check = {
+      "nios.name"     = "0.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.7.9.5.5.2.0.0.2.ip6.arpa"
+      "nios.ptrdname" = "{{random4}}.com"
+    }
+  }
+
+}
