@@ -55,6 +55,7 @@ var TopologyRulesInnerResourceSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.OneOf("NOERR", "NXDOMAIN", "REGULAR"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The type of the return value for this source.",
 	},
 	"valid": schema.BoolAttribute{
