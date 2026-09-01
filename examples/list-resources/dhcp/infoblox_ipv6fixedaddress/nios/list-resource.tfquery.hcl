@@ -3,17 +3,17 @@ list "infoblox_ipv6fixedaddress" "list_ipv6fixedaddress_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_fixed_address"
+      ipv6addr = "2001:db8:abcd:1231::2"
     }
   }
   limit = 10
 }
 
-// List specific IPv6 Fixed Addresses using Tags
-list "infoblox_ipv6fixedaddress" "list_ipv6fixedaddress_using_tags" {
+// List specific IPv6 Fixed Addresses using Extensible Attributes
+list "infoblox_ipv6fixedaddress" "list_ipv6fixedaddress_using_extensible_attributes" {
   provider = infoblox
   config {
-    tag_filters = {
+    ext_attr_filters = {
       Site = "location-1"
     }
   }
