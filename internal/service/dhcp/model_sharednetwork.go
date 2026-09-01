@@ -223,6 +223,8 @@ var SharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ignore_client_identifier": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "If set to true, the client identifier will be ignored.",
 	},
 	"ignore_dhcp_option_list_request": schema.BoolAttribute{
@@ -234,7 +236,7 @@ var SharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ignore_id": schema.StringAttribute{
 		Default: stringdefault.StaticString("NONE"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("NONE", "MAC_ADDRESS", "CLIENT_ID"),
+			stringvalidator.OneOf("NONE", "MACADDR", "CLIENT"),
 		},
 		Optional:            true,
 		Computed:            true,
@@ -339,15 +341,15 @@ func (m *SharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSSharednetworkModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSSharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSSharednetworkExt {
-	return &coremodel.NIOSSharednetworkExt{
+func (m *NIOSSharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSSharednetworkExt {
+	ext := &coremodel.NIOSSharednetworkExt{
 		Authority:                   flex.ExpandBoolPointer(m.Authority),
 		Bootfile:                    flex.ExpandStringPointerNullAsEmpty(m.Bootfile),
 		Bootserver:                  flex.ExpandStringPointerNullAsEmpty(m.Bootserver),
@@ -369,13 +371,16 @@ func (m *NIOSSharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnos
 		LeaseScavengeTime:           flex.ExpandInt64Pointer(m.LeaseScavengeTime),
 		LogicFilterRules:            flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandSharednetworkLogicFilterRules),
 		Name:                        flex.ExpandStringPointerNullAsEmpty(m.Name),
-		NetworkView:                 flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Networks:                    flex.ExpandFrameworkListNestedBlock(ctx, m.Networks, diags, ExpandSharednetworkNetworks),
 		Nextserver:                  flex.ExpandStringPointerNullAsEmpty(m.Nextserver),
 		Options:                     flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandSharednetworkOptions),
 		PxeLeaseTime:                flex.ExpandInt64Pointer(m.PxeLeaseTime),
 		UpdateDnsOnLeaseRenewal:     flex.ExpandBoolPointer(m.UpdateDnsOnLeaseRenewal),
 	}
+	if isCreate {
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+	}
+	return ext
 }
 
 // ApplySharednetworkNIOSUseFlags derives NIOS use flags from the raw config
@@ -418,8 +423,10 @@ func (m *SharednetworkModel) Flatten(ctx context.Context, resp *coremodel.Shared
 	if niosModel == nil {
 		niosModel = &NIOSSharednetworkModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSSharednetworkModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenSharednetworkNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSSharednetworkAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSSharednetworkAttrTypes)

@@ -1,4 +1,5 @@
 # Auto-generated resource acceptance-test cases for Sharednetwork.
+
 case "basic" {
   backend           = "nios"
   parallel          = true
@@ -808,6 +809,7 @@ case "ignore_client_identifier" {
       networks                 = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view             = infoblox_network_view.test_view.nios.name
       ignore_client_identifier = true
+      ignore_id                = "CLIENT"
     }
     check = {
       "nios.ignore_client_identifier" = "true"
@@ -820,6 +822,7 @@ case "ignore_client_identifier" {
       networks                 = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view             = infoblox_network_view.test_view.nios.name
       ignore_client_identifier = false
+      ignore_id                = "NONE"
     }
     check = {
       "nios.ignore_client_identifier" = "false"
@@ -906,10 +909,11 @@ case "ignore_id" {
 
   step {
     nios {
-      name         = "{{random}}"
-      networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
-      network_view = infoblox_network_view.test_view.nios.name
-      ignore_id    = "CLIENT"
+      name                     = "{{random}}"
+      networks                 = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
+      network_view             = infoblox_network_view.test_view.nios.name
+      ignore_id                = "CLIENT"
+      ignore_client_identifier = true
     }
     check = {
       "nios.ignore_id" = "CLIENT"
