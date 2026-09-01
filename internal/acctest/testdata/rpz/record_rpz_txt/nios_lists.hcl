@@ -1,16 +1,21 @@
-# RecordRpzTxt — nios list cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : test-rpz.com  (view: default)
-
+# Auto-generated list acceptance-test cases for RecordRpzTxt.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name    = "{{random2}}.test-rpz.com"
+      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "List test text"
-      rp_zone = "test-rpz.com"
+      rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -22,14 +27,22 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name    = "{{random2}}.test-rpz.com"
+      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Filter test text"
-      rp_zone = "test-rpz.com"
+      rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -47,14 +60,22 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random2}}.test-rpz.com"
+      name      = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Ext attr filter text"
-      rp_zone   = "test-rpz.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }
   }
