@@ -221,13 +221,27 @@ case "view" {
   parallel = true
 
   step {
+    prerequisites_hcl = <<-PREREQ
+    resource "infoblox_view" "test" {
+      nios = {
+        name = "{{random3}}"
+      }
+    }
+    resource "infoblox_zone_rp" "test" {
+      nios = {
+        fqdn = "{{random}}.com"
+        view = infoblox_view.test.nios.name
+      }
+    }
+    PREREQ
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
+      view     = infoblox_view.test.nios.name
     }
     check = {
-      "nios.view" = "default"
+      "nios.view" = "{{random3}}"
     }
   }
 
