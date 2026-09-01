@@ -56,6 +56,7 @@ type NIOSIpv6fixedaddressExt struct {
 	UseSnmpCredential        *bool
 	UseValidLifetime         *bool
 	ValidLifetime            *int64
+	FuncCall                 *niosdhcp.FuncCall
 }
 
 // UDDIIpv6fixedaddressExt - UDDI specific fields for Ipv6fixedaddress

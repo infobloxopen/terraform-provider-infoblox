@@ -55,6 +55,9 @@ func (s *ipv6fixedaddressService) createNIOS(ctx context.Context, obj *dhcp.Ipv6
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil && payload.Ipv6addr == nil {
+		payload.Ipv6addr = &niosdhcp.Ipv6fixedaddressIpv6addr{}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err

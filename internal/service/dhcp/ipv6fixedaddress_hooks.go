@@ -7,7 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	niosdhcp "github.com/infobloxopen/infoblox-nios-go-client/dhcp"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
@@ -25,6 +28,16 @@ func ValidateIpv6fixedaddress(ctx context.Context, data Ipv6fixedaddressModel, r
 func validateIpv6fixedaddressNIOSConfig(ctx context.Context, m *NIOSIpv6fixedaddressModel, resp *resource.ValidateConfigResponse) {
 	niosPath := path.Root("nios")
 
+	allocSet := !m.DynamicAllocation.IsNull() && !m.DynamicAllocation.IsUnknown()
+
+	if allocSet && !m.Ipv6addr.IsUnknown() && !m.Ipv6addr.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			niosPath.AtName("ipv6addr"),
+			"Invalid Attribute Combination",
+			"Only one of 'ipv6addr' or 'dynamic_allocation' can be specified.",
+		)
+	}
+
 	if !m.AddressType.IsUnknown() {
 		addressType := "ADDRESS"
 		if !m.AddressType.IsNull() {
@@ -32,11 +45,14 @@ func validateIpv6fixedaddressNIOSConfig(ctx context.Context, m *NIOSIpv6fixedadd
 		}
 
 		requireAddr := func() {
+			if allocSet {
+				return
+			}
 			if !m.Ipv6addr.IsUnknown() && m.Ipv6addr.IsNull() {
 				resp.Diagnostics.AddAttributeError(
 					niosPath.AtName("ipv6addr"),
 					"Missing Required Attribute",
-					"When address_type is set to '"+addressType+"', the 'ipv6addr' attribute must be specified.",
+					"When address_type is set to '"+addressType+"', either the 'ipv6addr' attribute or the 'dynamic_allocation' block must be specified.",
 				)
 			}
 		}
@@ -62,6 +78,13 @@ func validateIpv6fixedaddressNIOSConfig(ctx context.Context, m *NIOSIpv6fixedadd
 			requireAddr()
 		case "PREFIX":
 			requirePrefix()
+			if allocSet {
+				resp.Diagnostics.AddAttributeError(
+					niosPath.AtName("dynamic_allocation"),
+					"Invalid Attribute Combination",
+					"The 'dynamic_allocation' block cannot be used when address_type is set to 'PREFIX'.",
+				)
+			}
 		case "BOTH":
 			requireAddr()
 			requirePrefix()
@@ -217,6 +240,20 @@ func validateIpv6fixedaddressNIOSConfig(ctx context.Context, m *NIOSIpv6fixedadd
 }
 
 func validateIpv6fixedaddressUDDIConfig(ctx context.Context, m *UDDIIpv6fixedaddressModel, resp *resource.ValidateConfigResponse) {
+}
+
+func BuildIpv6fixedaddressFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosdhcp.FuncCall {
+	if data.IsNull() || data.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableIpModel
+	diags.Append(data.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return m.FuncCallDHCP(ctx, "Ipv6addr", "ipv6network", diags)
 }
 
 func PostFlattenIpv6fixedaddressNIOS(ctx context.Context, planned, flattened *NIOSIpv6fixedaddressModel, diags *diag.Diagnostics) {

@@ -45,6 +45,7 @@ var Ipv6fixedaddressNIOSFieldMap = map[string]string{
 	"NIOS.UseSnmpCredential":        "UseSnmpCredential",
 	"NIOS.UseValidLifetime":         "UseValidLifetime",
 	"NIOS.ValidLifetime":            "ValidLifetime",
+	"NIOS.FuncCall":                 "FuncCall",
 }
 
 // Ipv6fixedaddressUDDIFieldMap maps infoblox model fields to UDDI struct fields

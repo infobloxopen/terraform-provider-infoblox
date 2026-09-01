@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	niosdhcp "github.com/infobloxopen/infoblox-nios-go-client/dhcp"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 )
 
@@ -73,14 +74,10 @@ var NextAvailableIpResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-func (m NextAvailableIpModel) FuncCall(ctx context.Context, attributeName string, object string, diags *diag.Diagnostics) *niosdns.FuncCall {
-	fc := &niosdns.FuncCall{}
-	fc.SetAttributeName(attributeName)
-	fc.SetObject(object)
-	fc.SetObjectFunction("next_available_ip")
-	fc.SetResultField("ips")
-
-	objectParams := map[string]any{}
+// params builds the object parameters and function parameters shared by the
+// per-SDK next_available_ip func call constructors below.
+func (m NextAvailableIpModel) params(ctx context.Context, diags *diag.Diagnostics) (objectParams map[string]any, parameters map[string]any) {
+	objectParams = map[string]any{}
 	if !m.Network.IsNull() && !m.Network.IsUnknown() {
 		objectParams["network"] = m.Network.ValueString()
 	}
@@ -94,7 +91,6 @@ func (m NextAvailableIpModel) FuncCall(ctx context.Context, attributeName string
 			objectParams[k] = v
 		}
 	}
-	fc.SetObjectParameters(objectParams)
 
 	if !m.Exclude.IsNull() && !m.Exclude.IsUnknown() {
 		var exclude []string
@@ -104,8 +100,42 @@ func (m NextAvailableIpModel) FuncCall(ctx context.Context, attributeName string
 			for i, v := range exclude {
 				excludeAny[i] = v
 			}
-			fc.SetParameters(map[string]any{"exclude": excludeAny})
+			parameters = map[string]any{"exclude": excludeAny}
 		}
+	}
+
+	return objectParams, parameters
+}
+
+func (m NextAvailableIpModel) FuncCall(ctx context.Context, attributeName string, object string, diags *diag.Diagnostics) *niosdns.FuncCall {
+	fc := &niosdns.FuncCall{}
+	fc.SetAttributeName(attributeName)
+	fc.SetObject(object)
+	fc.SetObjectFunction("next_available_ip")
+	fc.SetResultField("ips")
+
+	objectParams, parameters := m.params(ctx, diags)
+	fc.SetObjectParameters(objectParams)
+	if parameters != nil {
+		fc.SetParameters(parameters)
+	}
+
+	return fc
+}
+
+// FuncCallDHCP is the dhcp-SDK counterpart of FuncCall, for objects such as
+// ipv6fixedaddress whose generated model expects a *niosdhcp.FuncCall.
+func (m NextAvailableIpModel) FuncCallDHCP(ctx context.Context, attributeName string, object string, diags *diag.Diagnostics) *niosdhcp.FuncCall {
+	fc := &niosdhcp.FuncCall{}
+	fc.SetAttributeName(attributeName)
+	fc.SetObject(object)
+	fc.SetObjectFunction("next_available_ip")
+	fc.SetResultField("ips")
+
+	objectParams, parameters := m.params(ctx, diags)
+	fc.SetObjectParameters(objectParams)
+	if parameters != nil {
+		fc.SetParameters(parameters)
 	}
 
 	return fc

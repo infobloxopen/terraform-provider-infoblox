@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -77,6 +78,7 @@ type NIOSIpv6fixedaddressModel struct {
 	SnmpCredential           types.Object                        `tfsdk:"snmp_credential"`
 	Template                 types.String                        `tfsdk:"template"`
 	ValidLifetime            types.Int64                         `tfsdk:"valid_lifetime"`
+	DynamicAllocation        types.Object                        `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSIpv6fixedaddressAttrTypes = map[string]attr.Type{
@@ -113,6 +115,7 @@ var NIOSIpv6fixedaddressAttrTypes = map[string]attr.Type{
 	"snmp_credential":            types.ObjectType{AttrTypes: Ipv6fixedaddressSnmpCredentialAttrTypes},
 	"template":                   types.StringType,
 	"valid_lifetime":             types.Int64Type,
+	"dynamic_allocation":         types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
 
 type UDDIIpv6fixedaddressModel struct {
@@ -356,6 +359,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"network": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: cidrtypes.IPv6PrefixType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -426,6 +430,11 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The valid lifetime value for this DHCP IPv6 Fixed Address object.",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -537,7 +546,7 @@ func (m *Ipv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnost
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSIpv6fixedaddressModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -550,8 +559,8 @@ func (m *Ipv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnost
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6fixedaddressExt {
-	return &coremodel.NIOSIpv6fixedaddressExt{
+func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6fixedaddressExt {
+	ext := &coremodel.NIOSIpv6fixedaddressExt{
 		AddressType:              flex.ExpandStringPointerNullAsEmpty(m.AddressType),
 		AllowTelnet:              flex.ExpandBoolPointer(m.AllowTelnet),
 		CliCredentials:           flex.ExpandFrameworkListNestedBlock(ctx, m.CliCredentials, diags, ExpandIpv6fixedaddressCliCredentials),
@@ -585,6 +594,10 @@ func (m *NIOSIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diag
 		Template:                 flex.ExpandStringPointer(m.Template),
 		ValidLifetime:            flex.ExpandInt64Pointer(m.ValidLifetime),
 	}
+	if isCreate {
+		ext.FuncCall = BuildIpv6fixedaddressFuncCall(ctx, m.DynamicAllocation, diags)
+	}
+	return ext
 }
 
 // ApplyIpv6fixedaddressNIOSUseFlags derives NIOS use flags from the raw config
@@ -699,6 +712,9 @@ func (m *NIOSIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.SnmpCredential = FlattenIpv6fixedaddressSnmpCredential(ctx, from.SnmpCredential, diags)
 	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
 	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableIpAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

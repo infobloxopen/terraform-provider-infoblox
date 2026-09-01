@@ -1594,3 +1594,38 @@ case "valid_lifetime" {
   }
 
 }
+
+case "dynamic_allocation" {
+  backend  = "nios"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
+    nios = {
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
+      network_view = infoblox_network_view.parent_network_view.nios.name
+    }
+  }
+  resource "infoblox_network_view" "parent_network_view" {
+    nios = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      dynamic_allocation = {
+        network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+        network_view = infoblox_network_view.parent_network_view.nios.name
+      }
+      comment = "Created by Dynamic Allocation"
+    }
+    check = {
+      "nios.comment"      = "Created by Dynamic Allocation"
+      "nios.address_type" = "ADDRESS"
+    }
+  }
+
+}
