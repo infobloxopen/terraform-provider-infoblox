@@ -315,34 +315,42 @@ case "forbid_reclamation" {
 
 case "ipv4addr" {
   backend  = "nios"
-  parallel = true
+  parallel = false
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "test" {
+  resource "infoblox_zone_auth" "reverse" {
     nios = {
-      fqdn = "{{random}}.com"
+      fqdn        = "192.168.11.0/24"
+      zone_format = "IPV4"
+      view        = "default"
     }
   }
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addr = "192.168.11.10"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "{{random2}}.{{random}}.com"
+      "nios.ipv4addr" = "192.168.11.10"
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
     }
   }
 
   step {
+    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      name     = "{{random4}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addr = "192.168.11.20"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name" = "{{random4}}.{{random}}.com"
+      "nios.ipv4addr" = "192.168.11.20"
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
     }
   }
 
@@ -350,36 +358,40 @@ case "ipv4addr" {
 
 case "ipv6addr" {
   backend  = "nios"
-  parallel = true
+  parallel = false
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "test" {
+  resource "infoblox_zone_auth" "reverse" {
     nios = {
-      fqdn = "{{random}}.com"
+      fqdn        = "2002:5598::/64"
+      zone_format = "IPV6"
+      view        = "default"
     }
   }
   PREREQ
 
   step {
+    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "2002:5598::10"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name"     = "{{random2}}.{{random}}.com"
+      "nios.ipv6addr" = "2002:5598::10"
       "nios.ptrdname" = "{{random3}}.com"
       "nios.view"     = "default"
     }
   }
 
   step {
+    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      name     = "{{random4}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv6addr = "2002:5598::20"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }
     check = {
-      "nios.name"     = "{{random4}}.{{random}}.com"
+      "nios.ipv6addr" = "2002:5598::20"
       "nios.ptrdname" = "{{random3}}.com"
       "nios.view"     = "default"
     }

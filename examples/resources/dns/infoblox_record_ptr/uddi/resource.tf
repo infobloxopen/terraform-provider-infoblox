@@ -14,7 +14,7 @@ resource "infoblox_record_ptr" "example" {
 
     // Other optional fields
     name_in_zone = "1.0.168"
-    comment      = "Example comment"
+    comment      = "Created by Terraform"
     disabled     = false
     ttl          = 3600
     tags = {

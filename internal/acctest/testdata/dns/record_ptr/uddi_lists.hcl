@@ -20,7 +20,6 @@ case "basic" {
     }
   }
 
-//verify this 
   step {
     query            = true
     provider         = infoblox
