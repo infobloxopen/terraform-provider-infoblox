@@ -34,3 +34,28 @@ resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_additional" {
     }
   }
 }
+
+// Create a Substitute (NAPTR Record) Rule in a Custom View
+resource "infoblox_view" "custom" {
+  nios = {
+    name = "custom-view"
+  }
+}
+
+resource "infoblox_zone_rp" "custom_view" {
+  nios = {
+    fqdn = "rpz-custom.example.com"
+    view = infoblox_view.custom.nios.name
+  }
+}
+
+resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_custom_view" {
+  nios = {
+    name        = "naptr-record.${infoblox_zone_rp.custom_view.nios.fqdn}"
+    rp_zone     = infoblox_zone_rp.custom_view.nios.fqdn
+    order       = 10
+    preference  = 10
+    replacement = "."
+    view        = infoblox_view.custom.nios.name
+  }
+}
