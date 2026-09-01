@@ -328,6 +328,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewZoneDelegatedResource,
 		grid.NewUpgradegroupResource,
 		dns.NewSharedrecordAaaaResource,
 		keys.NewTsigKeyResource,
@@ -379,6 +380,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewZoneDelegatedDataSource,
 		grid.NewUpgradegroupDataSource,
 		dns.NewSharedrecordAaaaDataSource,
 		keys.NewTsigKeyDataSource,
@@ -433,6 +435,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewZoneDelegatedList,
 		grid.NewUpgradegroupList,
 		dns.NewSharedrecordAaaaList,
 		keys.NewTsigKeyList,
