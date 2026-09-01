@@ -36,7 +36,7 @@ type NetworkcontainerDataSource struct {
 }
 
 func (d *NetworkcontainerDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkcontainer"
+	resp.TypeName = req.ProviderTypeName + "_network_container"
 }
 
 // NetworkcontainerDataSourceModel is the filter model for the datasource
@@ -157,11 +157,12 @@ func (d *NetworkcontainerDataSource) Read(ctx context.Context, req datasource.Re
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields:  NetworkcontainerReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    NetworkcontainerReturnFields,
+		Paging:          1,
 	}
 
 	if !data.MaxResults.IsNull() {

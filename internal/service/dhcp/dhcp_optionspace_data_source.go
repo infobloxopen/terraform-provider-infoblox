@@ -151,10 +151,11 @@ func (d *DhcpOptionspaceDataSource) Read(ctx context.Context, req datasource.Rea
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields: DhcpOptionspaceReturnFields,
-		Paging:       1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    DhcpOptionspaceReturnFields,
+		Paging:          1,
 	}
 
 	if !data.MaxResults.IsNull() {

@@ -41,7 +41,7 @@ type NetworkviewListModel struct {
 }
 
 func (l *NetworkviewList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_networkview"
+	resp.TypeName = req.ProviderTypeName + "_network_view"
 }
 
 func (l *NetworkviewList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -111,7 +111,7 @@ func (l *NetworkviewList) List(ctx context.Context, req list.ListRequest, stream
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_networkview list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_network_view list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

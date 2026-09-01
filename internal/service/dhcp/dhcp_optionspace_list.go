@@ -109,10 +109,11 @@ func (l *DhcpOptionspaceList) List(ctx context.Context, req list.ListRequest, st
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields: DhcpOptionspaceReturnFields,
-		Paging:       1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:    DhcpOptionspaceReturnFields,
+		Paging:          1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
