@@ -565,6 +565,7 @@ case "view" {
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
+      view = infoblox_view.test_dns_view.nios.name
     }
   }
   PREREQ

@@ -124,6 +124,7 @@ var ZoneDelegatedResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.LengthBetween(0, 256),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the zone; maximum 256 characters.",

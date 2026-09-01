@@ -18,6 +18,18 @@ func ValidateZoneDelegated(ctx context.Context, data ZoneDelegatedModel, resp *r
 }
 
 func validateZoneDelegatedNIOSConfig(ctx context.Context, m *NIOSZoneDelegatedModel, resp *resource.ValidateConfigResponse) {
+
+	if m.DelegateTo.IsUnknown() || m.NsGroup.IsUnknown() {
+		return
+	}
+
+	if m.DelegateTo.IsNull() && m.NsGroup.IsNull() {
+		resp.Diagnostics.AddError(
+			"Missing Required Configuration",
+			"Either 'delegate_to' or 'ns_group' must be specified.",
+		)
+	}
+
 }
 
 func validateZoneDelegatedUDDIConfig(ctx context.Context, m *UDDIZoneDelegatedModel, resp *resource.ValidateConfigResponse) {

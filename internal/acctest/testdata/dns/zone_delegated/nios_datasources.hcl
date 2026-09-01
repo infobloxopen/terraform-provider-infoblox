@@ -21,6 +21,7 @@ case "filters" {
   step {
     nios {
       fqdn = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      delegate_to = [{ name = "{{random}}.com", address = "10.0.0.1" }]
     }
   }
 
@@ -48,6 +49,7 @@ case "ext_attr_filters" {
   step {
     nios {
       fqdn      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      delegate_to = [{ name = "{{random}}.com", address = "10.0.0.1" }]
       ext_attrs = { Site = "{{random3}}" }
     }
   }

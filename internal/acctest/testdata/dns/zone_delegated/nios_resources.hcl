@@ -1,3 +1,6 @@
+// Objects to be present on the grid for testing
+// delegation_group, delegation_group_1 - nsgroup:delegation
+
 # Auto-generated resource acceptance-test cases for ZoneDelegated.
 case "basic" {
   backend  = "nios"
@@ -386,16 +389,6 @@ case "ns_group" {
       fqdn = "{{random}}.com"
     }
   }
-  # resource "infoblox_ns_group_delegation_unknown" "test_example_nsg1" {
-  #   nios = {
-  #     name = "example_nsg1"
-  #   }
-  # }
-  # resource "infoblox_ns_group_delegation_unknown" "test_example_nsg2" {
-  #   nios = {
-  #     name = "example_nsg2"
-  #   }
-  # }
   PREREQ
 
   step {
@@ -404,7 +397,6 @@ case "ns_group" {
       delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
       ns_group    = "delegation_group"
     }
-    # depends_on = [infoblox_ns_group_delegation_unknown.test_example_nsg1, infoblox_ns_group_delegation_unknown.test_example_nsg2]
     check = {
       "nios.ns_group" = "delegation_group"
     }
@@ -416,7 +408,6 @@ case "ns_group" {
       delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
       ns_group    = "delegation_group_1"
     }
-    # depends_on = [infoblox_ns_group_delegation_unknown.test_example_nsg1, infoblox_ns_group_delegation_unknown.test_example_nsg2]
     check = {
       "nios.ns_group" = "delegation_group_1"
     }
@@ -513,12 +504,34 @@ PREREQ
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: helper declares prerequisite resource 'nios_dns_view' which has no buildable infoblox equivalent (not in prereq_type_map.json)
 case "view" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "helper declares prerequisite resource 'nios_dns_view' which has no buildable infoblox equivalent (not in prereq_type_map.json)"
+  backend  = "nios"
+  parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_dns_view" {
+    nios = {
+      name = "{{random}}"
+    }
+  }
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+      view = infoblox_view.test_dns_view.nios.name
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      fqdn        = "{{random3}}.${infoblox_zone_auth.test.nios.fqdn}"
+      delegate_to = [{ name = "{{random4}}.com", address = "10.0.0.1" }]
+      view        = infoblox_view.test_dns_view.nios.name
+    }
+    check = {
+      "nios.view" = "{{random}}"
+    }
+  }
+
 }
 
 # TODO: auto-extraction incomplete — please verify and fill in manually.
