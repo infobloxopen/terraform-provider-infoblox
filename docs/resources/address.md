@@ -18,7 +18,7 @@ Manages an Infoblox Address in the UDDI backend.
 // Create a Network View (Required as Parent)
 resource "infoblox_network_view" "example" {
   uddi = {
-    name = "example_ip_space"
+    name = "example_nw_view"
   }
 }
 
