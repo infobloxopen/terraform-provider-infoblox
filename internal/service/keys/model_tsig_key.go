@@ -15,6 +15,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type TsigKeyModel struct {
@@ -81,7 +82,10 @@ var TsigKeyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The description for the TSIG key. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "The TSIG key name in the absolute domain name format.",
 	},
 	"secret": schema.StringAttribute{

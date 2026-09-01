@@ -1,8 +1,5 @@
 # TsigKey — uddi resource test cases
-# Cases mirror the legacy BloxOne provider's TSIG coverage
-# (internal/service/keys/api_tsig_resource_test.go).
-# `secret` is Required: the live API rejects a create without it
-# ("The 'Secret' field is required."). Secrets below are Base64-encoded.
+# NOTE: mirrors the legacy BloxOne TSIG coverage; `secret` is Required because the API rejects a create without it (values are Base64-encoded).
 case "basic" {
   backend  = "uddi"
   parallel = true
