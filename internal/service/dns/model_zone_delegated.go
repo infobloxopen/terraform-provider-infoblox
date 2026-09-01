@@ -282,6 +282,9 @@ var ZoneDelegatedResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "Delegation FQDN. The FQDN supplied at creation will be converted to canonical form.  Read-only after creation.",
 	},
 	"parent": schema.StringAttribute{

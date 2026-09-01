@@ -6,10 +6,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidns "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
@@ -34,7 +36,10 @@ var DelegationServerResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. IP Address of nameserver.  Only required when fqdn of a delegation server falls under delegation fqdn",
 	},
 	"fqdn": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidUDDIDomainName(),
+		},
 		MarkdownDescription: "Required. FQDN of nameserver.",
 	},
 	"protocol_fqdn": schema.StringAttribute{
