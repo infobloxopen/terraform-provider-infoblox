@@ -15,41 +15,20 @@ import (
 
 // InheritedDHCPOptionModel is the Terraform model for InheritedDHCPOption
 type InheritedDHCPOptionModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.Object `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritedDHCPOptionAttrTypes contains the attribute types for InheritedDHCPOptionModel
 var InheritedDHCPOptionAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.ObjectType{AttrTypes: InheritedDHCPOptionItemAttrTypes},
+	"action": types.StringType,
 }
 
 // InheritedDHCPOptionResourceSchemaAttributes contains the schema attributes for InheritedDHCPOptionModel
 var InheritedDHCPOptionResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.SingleNestedAttribute{
-		Attributes:          InheritedDHCPOptionItemResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The inherited value for the DHCP option.",
 	},
 }
 
@@ -72,10 +51,7 @@ func (m *InheritedDHCPOptionModel) Expand(ctx context.Context, diags *diag.Diagn
 		return nil
 	}
 	to := &uddidhcp.InheritedDHCPOption{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       ExpandInheritedDHCPOptionItem(ctx, m.Value, diags),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -98,7 +74,4 @@ func (m *InheritedDHCPOptionModel) Flatten(ctx context.Context, from *uddidhcp.I
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = FlattenInheritedDHCPOptionItem(ctx, from.Value, diags)
 }

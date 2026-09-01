@@ -31,6 +31,7 @@ var InheritedDHCPOptionListAttrTypes = map[string]attr.Type{
 var InheritedDHCPOptionListResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.",
 	},
 	"value": schema.ListNestedAttribute{
@@ -38,6 +39,7 @@ var InheritedDHCPOptionListResourceSchemaAttributes = map[string]schema.Attribut
 			Attributes: InheritedDHCPOptionResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

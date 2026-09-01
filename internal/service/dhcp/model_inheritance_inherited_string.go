@@ -15,40 +15,20 @@ import (
 
 // InheritanceInheritedStringModel is the Terraform model for InheritanceInheritedString
 type InheritanceInheritedStringModel struct {
-	Action      types.String `tfsdk:"action"`
-	DisplayName types.String `tfsdk:"display_name"`
-	Source      types.String `tfsdk:"source"`
-	Value       types.String `tfsdk:"value"`
+	Action types.String `tfsdk:"action"`
 }
 
 // InheritanceInheritedStringAttrTypes contains the attribute types for InheritanceInheritedStringModel
 var InheritanceInheritedStringAttrTypes = map[string]attr.Type{
-	"action":       types.StringType,
-	"display_name": types.StringType,
-	"source":       types.StringType,
-	"value":        types.StringType,
+	"action": types.StringType,
 }
 
 // InheritanceInheritedStringResourceSchemaAttributes contains the schema attributes for InheritanceInheritedStringModel
 var InheritanceInheritedStringResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance setting for a field.  Valid values are: * _inherit_: Use the inherited value. * _override_: Use the value set in the object.  Defaults to _inherit_.",
-	},
-	"display_name": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The human-readable display name for the object referred to by _source_.",
-	},
-	"source": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
-	"value": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "The inherited value.",
 	},
 }
 
@@ -71,10 +51,7 @@ func (m *InheritanceInheritedStringModel) Expand(ctx context.Context, diags *dia
 		return nil
 	}
 	to := &uddidhcp.InheritanceInheritedString{
-		Action:      flex.ExpandStringPointer(m.Action),
-		DisplayName: flex.ExpandStringPointer(m.DisplayName),
-		Source:      flex.ExpandStringPointer(m.Source),
-		Value:       flex.ExpandStringPointer(m.Value),
+		Action: flex.ExpandStringPointer(m.Action),
 	}
 	return to
 }
@@ -97,7 +74,4 @@ func (m *InheritanceInheritedStringModel) Flatten(ctx context.Context, from *udd
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
-	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
-	m.Source = flex.FlattenStringPointer(from.Source)
-	m.Value = flex.FlattenStringPointer(from.Value)
 }

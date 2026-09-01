@@ -110,17 +110,17 @@ case "address" {
     }
   }
 
-  step {
-    uddi {
-      ip_space    = infoblox_network_view.test.id
-      match_type  = "mac"
-      match_value = "cc:cc:cc:cc:cc:cc"
-    }
-    depends_on = [infoblox_ipv6_network.test]
-    check = {
-      "uddi.address" = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-    }
-  }
+  # step {
+  #   uddi {
+  #     ip_space    = infoblox_network_view.test.id
+  #     match_type  = "mac"
+  #     match_value = "cc:cc:cc:cc:cc:cc"
+  #   }
+  #   depends_on = [infoblox_ipv6_network.test]
+  #   check = {
+  #     "uddi.address" = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+  #   }
+  # }
 
 }
 

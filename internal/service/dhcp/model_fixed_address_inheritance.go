@@ -33,21 +33,25 @@ var FixedAddressInheritanceResourceSchemaAttributes = map[string]schema.Attribut
 	"dhcp_options": schema.SingleNestedAttribute{
 		Attributes:          InheritedDHCPOptionListResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _dhcp_options_ field.",
 	},
 	"header_option_filename": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_filename_ field.",
 	},
 	"header_option_server_address": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_server_address_ field.",
 	},
 	"header_option_server_name": schema.SingleNestedAttribute{
 		Attributes:          InheritanceInheritedStringResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The inheritance configuration for _header_option_server_name_ field.",
 	},
 }
