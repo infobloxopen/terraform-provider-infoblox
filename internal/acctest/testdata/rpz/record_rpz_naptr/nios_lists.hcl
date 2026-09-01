@@ -1,18 +1,20 @@
-# RecordRpzNaptr — nios list cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : tf-acc-rpz-naptr.example.com         (view: default)
-#   - RPZ zone : tf-acc-rpz-naptr-custom.example.com  (view: tf-acc-rpz-naptr-view)
-#   - DNS view : tf-acc-rpz-naptr-view
-
+# Auto-generated list acceptance-test cases for RecordRpzNaptr.
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -24,18 +26,24 @@ case "basic" {
     provider = infoblox
     limit    = 5
   }
-
 }
 
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -47,24 +55,30 @@ case "filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name = "nios.name"
       }
     }
   }
-
 }
 
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.tf-acc-rpz-naptr.example.com"
-      rp_zone     = "tf-acc-rpz-naptr.example.com"
+      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
@@ -77,11 +91,10 @@ case "ext_attr_filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "ext_attr_filters"
+      type = "ext_attr_filters"
       values = {
         Site = "nios.ext_attrs.Site"
       }
     }
   }
-
 }
