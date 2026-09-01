@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
@@ -54,6 +55,7 @@ type NIOSRecordPtrModel struct {
 	Ptrdname          types.String        `tfsdk:"ptrdname"`
 	Ttl               types.Int64         `tfsdk:"ttl"`
 	View              types.String        `tfsdk:"view"`
+	DynamicAllocation types.Object        `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSRecordPtrAttrTypes = map[string]attr.Type{
@@ -71,6 +73,7 @@ var NIOSRecordPtrAttrTypes = map[string]attr.Type{
 	"ptrdname":           types.StringType,
 	"ttl":                types.Int64Type,
 	"view":               types.StringType,
+	"dynamic_allocation": types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
 
 type UDDIRecordPtrModel struct {
@@ -200,6 +203,7 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("ipv4addr"),
 				path.MatchRelative().AtParent().AtName("ipv6addr"),
 				path.MatchRelative().AtParent().AtName("name"),
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
 			),
 		},
 		MarkdownDescription: "The IPv4 Address of the record.",
@@ -247,6 +251,11 @@ var RecordPtrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Name of the DNS View in which the record resides, for example \"external\".",
+	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
 	},
 }
 
@@ -405,6 +414,7 @@ func (m *NIOSRecordPtrModel) Expand(ctx context.Context, diags *diag.Diagnostics
 	}
 	if isCreate {
 		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
+		ext.FuncCall = BuildRecordPtrFuncCall(ctx, m.DynamicAllocation, diags)
 	}
 	return ext
 }
@@ -495,6 +505,9 @@ func (m *NIOSRecordPtrModel) Flatten(ctx context.Context, from *coremodel.NIOSRe
 	m.Ptrdname = flex.FlattenStringPointerEmptyAsNull(from.Ptrdname)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableIpAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

@@ -29,6 +29,7 @@ type NIOSRecordPtrExt struct {
 	Ttl               *int64
 	UseTtl            *bool
 	View              *string
+	FuncCall          *niosdns.FuncCall
 }
 
 // UDDIRecordPtrExt - UDDI specific fields for RecordPtr

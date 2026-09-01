@@ -2,6 +2,7 @@ package dns
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -13,7 +14,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
+
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
@@ -147,21 +151,42 @@ func ValidateRecordPtr(ctx context.Context, data RecordPtrModel, resp *resource.
 }
 
 func validateRecordPtrNIOSConfig(ctx context.Context, m *NIOSRecordPtrModel, resp *resource.ValidateConfigResponse) {
-	if m.Ipv4addr.IsUnknown() || m.Ipv6addr.IsUnknown() || m.Name.IsUnknown() {
+	if m.Ipv4addr.IsUnknown() || m.Ipv6addr.IsUnknown() || m.Name.IsUnknown() || m.DynamicAllocation.IsUnknown() {
 		return
 	}
 
 	ipv4Set := !m.Ipv4addr.IsNull() && m.Ipv4addr.ValueString() != ""
 	ipv6Set := !m.Ipv6addr.IsNull() && m.Ipv6addr.ValueString() != ""
 	nameSet := !m.Name.IsNull() && m.Name.ValueString() != ""
+	dynAllocSet := !m.DynamicAllocation.IsNull()
 
-	if !ipv4Set && !ipv6Set && !nameSet {
+	if !ipv4Set && !ipv6Set && !nameSet && !dynAllocSet {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("nios"),
 			"Missing required field",
-			"At least one of `ipv4addr`, `ipv6addr`, or `name` must be specified in the `nios` block for a PTR record.",
+			"At least one of `ipv4addr`, `ipv6addr`, `name`, or `dynamic_allocation` must be specified in the `nios` block for a PTR record.",
 		)
 	}
+}
+
+// BuildRecordPtrFuncCall builds the NIOS next_available_ip FuncCall for a PTR record.
+// It detects IPv4 vs IPv6 from the network CIDR (colons indicate IPv6) and routes
+// the allocation to the appropriate WAPI attribute name and object type.
+func BuildRecordPtrFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *niosdns.FuncCall {
+	if data.IsNull() || data.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableIpModel
+	diags.Append(data.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	if strings.Contains(m.Network.ValueString(), ":") {
+		return m.FuncCall(ctx, "Ipv6addr", "ipv6network", diags)
+	}
+	return m.FuncCall(ctx, "Ipv4addr", "network", diags)
 }
 
 func validateRecordPtrUDDIConfig(ctx context.Context, m *UDDIRecordPtrModel, resp *resource.ValidateConfigResponse) {

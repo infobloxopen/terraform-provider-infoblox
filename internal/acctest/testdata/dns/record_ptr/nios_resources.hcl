@@ -567,3 +567,100 @@ case "reverse_mapping_ipv6" {
   }
 
 }
+
+case "func_call" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network" "test" {
+    nios = {
+      network      = "192.168.12.0/24"
+      network_view = "default"
+    }
+  }
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "192.168.12.0/24"
+      zone_format = "IPV4"
+      view        = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_network.test, infoblox_zone_auth.reverse]
+    nios {
+      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      ptrdname           = "{{random3}}.com"
+      view               = "default"
+      comment            = "Original Function Call"
+    }
+    check = {
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
+      "nios.comment"  = "Original Function Call"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+  step {
+    depends_on = [infoblox_network.test, infoblox_zone_auth.reverse]
+    nios {
+      dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
+      ptrdname           = "updated-{{random3}}.com"
+      view               = "default"
+      comment            = "Function Call with Update"
+    }
+    check = {
+      "nios.ptrdname" = "updated-{{random3}}.com"
+      "nios.comment"  = "Function Call with Update"
+    }
+  }
+
+}
+
+case "func_call_ipv6" {
+  backend  = "nios"
+  parallel = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_network" "test" {
+    nios = {
+      network      = "2001:db8:abcd:12::/64"
+      network_view = "default"
+    }
+  }
+  PREREQ
+
+  step {
+    depends_on = [infoblox_ipv6_network.test]
+    nios {
+      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      ptrdname           = "{{random3}}.com"
+      view               = "default"
+      comment            = "IPv6 Function Call"
+    }
+    check = {
+      "nios.ptrdname" = "{{random3}}.com"
+      "nios.view"     = "default"
+      "nios.comment"  = "IPv6 Function Call"
+      "nios.creator"  = "STATIC"
+      "nios.disable"  = "false"
+    }
+  }
+
+  step {
+    depends_on = [infoblox_ipv6_network.test]
+    nios {
+      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      ptrdname           = "updated-{{random3}}.com"
+      view               = "default"
+      comment            = "IPv6 Function Call with Update"
+    }
+    check = {
+      "nios.ptrdname" = "updated-{{random3}}.com"
+      "nios.comment"  = "IPv6 Function Call with Update"
+    }
+  }
+
+}

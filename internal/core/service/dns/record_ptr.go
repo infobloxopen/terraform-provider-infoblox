@@ -55,6 +55,17 @@ func (s *recordPtrService) createNIOS(ctx context.Context, obj *dns.RecordPtr, o
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil {
+		if payload.FuncCall.AttributeName == "Ipv6addr" {
+			if payload.Ipv6addr == nil {
+				payload.Ipv6addr = &niosdns.RecordPtrIpv6addr{}
+			}
+		} else {
+			if payload.Ipv4addr == nil {
+				payload.Ipv4addr = &niosdns.RecordPtrIpv4addr{}
+			}
+		}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err

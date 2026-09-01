@@ -18,6 +18,7 @@ var RecordPtrNIOSFieldMap = map[string]string{
 	"NIOS.Ttl":               "Ttl",
 	"NIOS.UseTtl":            "UseTtl",
 	"NIOS.View":              "View",
+	"NIOS.FuncCall":          "FuncCall",
 }
 
 // RecordPtrUDDIFieldMap maps infoblox model fields to UDDI struct fields
