@@ -179,6 +179,7 @@ Optional:
 - `ddns_principal` (String) The GSS-TSIG principal that owns this record.
 - `ddns_protected` (Boolean) Determines if the DDNS updates for this record are allowed or not.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
+- `dynamic_allocation` (Attributes) Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.
 - `ipv4addr` (String) The IPv4 Address of the record.
@@ -190,6 +191,17 @@ Optional:
 Read-Only:
 
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+
+<a id="nestedatt--nios--dynamic_allocation"></a>
+### Nested Schema for `nios.dynamic_allocation`
+
+Optional:
+
+- `exclude` (List of String) A list of IP addresses or ranges to exclude from allocation.
+- `filter_params` (Map of String) Extensible-attribute filters used to select the network to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "network".
+- `network` (String) The network to allocate the next available address from, in CIDR notation (e.g. "10.0.0.0/24"). Mutually exclusive with "filter_params".
+- `network_view` (String) The network view of the network. Defaults to the default network view when omitted.
+
 
 
 <a id="nestedatt--uddi"></a>
