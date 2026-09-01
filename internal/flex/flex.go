@@ -16,6 +16,7 @@ import (
 
 	"github.com/infobloxopen/infoblox-nios-go-client/grid"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 type FrameworkElementFlExFunc[T any, U any] func(context.Context, T, *diag.Diagnostics) U
@@ -241,6 +242,25 @@ func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 		return nil
 	}
 	return ExpandStringPointer(mac.StringValue)
+}
+
+// ExpandTimeToUnix converts a naive datetime string (utils.NaiveDatetimeLayout,
+// interpreted as UTC) into a Unix epoch seconds pointer for SDKs that only
+// accept the wire value as an integer timestamp.
+func ExpandTimeToUnix(v types.String, diags *diag.Diagnostics) *int64 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	t, err := time.Parse(utils.NaiveDatetimeLayout, v.ValueString())
+	if err != nil {
+		diags.AddError(
+			"Invalid time value",
+			fmt.Sprintf("Expected format: %s, got: %s (%s)", utils.NaiveDatetimeLayout, v.ValueString(), err),
+		)
+		return nil
+	}
+	unix := t.UTC().Unix()
+	return &unix
 }
 
 func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
@@ -481,6 +501,15 @@ func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	return internaltypes.MACAddress{
 		StringValue: FlattenStringPointer(mac),
 	}
+}
+
+// FlattenUnixTime converts a Unix epoch seconds pointer back into a naive
+// datetime string (utils.NaiveDatetimeLayout, UTC), the inverse of ExpandTimeToUnix.
+func FlattenUnixTime(v *int64, diags *diag.Diagnostics) types.String {
+	if v == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(time.Unix(*v, 0).UTC().Format(utils.NaiveDatetimeLayout))
 }
 
 func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {

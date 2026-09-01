@@ -20,11 +20,13 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -327,12 +329,18 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dhcp.NewSharednetworkResource,
+		dns.NewZoneDelegatedResource,
+		grid.NewUpgradegroupResource,
+		dns.NewSharedrecordAaaaResource,
+		keys.NewTsigKeyResource,
+		dns.NewZoneRpResource,
 		dns.NewZoneForwardResource,
 		dns.NewDnsServerResource,
 		dhcp.NewHaGroupResource,
 		rpz.NewRecordRpzNaptrResource,
 		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
+		acl.NewNamedaclResource,
 		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
 		misc.NewBfdtemplateResource,
@@ -367,18 +375,22 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkcontainerResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
+		rpz.NewRecordRpzCnameClientipaddressdnResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dhcp.NewSharednetworkDataSource,
+		grid.NewUpgradegroupDataSource,
+		keys.NewTsigKeyDataSource,
+		dns.NewZoneRpDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewDnsServerDataSource,
-		dhcp.NewHaGroupDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		acl.NewNamedaclDataSource,
 		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
@@ -416,18 +428,25 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNetworkcontainerDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
+		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dhcp.NewSharednetworkList,
+		dns.NewZoneDelegatedList,
+		grid.NewUpgradegroupList,
+		dns.NewSharedrecordAaaaList,
+		keys.NewTsigKeyList,
+		dns.NewZoneRpList,
 		dns.NewZoneForwardList,
 		dns.NewDnsServerList,
 		dhcp.NewHaGroupList,
 		rpz.NewRecordRpzNaptrList,
 		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
+		acl.NewNamedaclList,
 		dns.NewNsgroupList,
 		grid.NewNatgroupList,
 		misc.NewBfdtemplateList,
@@ -462,6 +481,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkcontainerList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
+		rpz.NewRecordRpzCnameClientipaddressdnList,
 	}
 }
 
