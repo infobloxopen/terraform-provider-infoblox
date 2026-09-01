@@ -72,8 +72,12 @@ var TsigKeyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The TSIG key algorithm.  Valid values are: * _hmac_sha1_ * _hmac_sha224_ * _hmac_sha256_ * _hmac_sha384_ * _hmac_sha512_  Defaults to _hmac_sha256_.",
 	},
 	"comment": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
+		Default:  stringdefault.StaticString(""),
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 1024),
+		},
 		MarkdownDescription: "The description for the TSIG key. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"name": schema.StringAttribute{
