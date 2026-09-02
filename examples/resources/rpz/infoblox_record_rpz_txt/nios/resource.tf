@@ -1,4 +1,4 @@
-// Create an RPZ Zone (Required as Parent)
+// Create an RP Zone (Required as Parent)
 resource "infoblox_zone_rp" "example" {
   nios = {
     fqdn = "rpz.example.com"
@@ -29,24 +29,24 @@ resource "infoblox_record_rpz_txt" "create_record_rpz_txt_additional" {
 }
 
 // Create Record RPZ TXT in a Custom View
-resource "infoblox_view" "custom" {
+resource "infoblox_view" "parent_view" {
   nios = {
     name = "custom-view"
   }
 }
 
-resource "infoblox_zone_rp" "custom_view" {
+resource "infoblox_zone_rp" "parent_zone" {
   nios = {
     fqdn = "rpz-custom.example.com"
-    view = infoblox_view.custom.nios.name
+    view = infoblox_view.parent_view.nios.name
   }
 }
 
 resource "infoblox_record_rpz_txt" "create_record_rpz_txt_custom_view" {
   nios = {
-    name    = "blocked.${infoblox_zone_rp.custom_view.nios.fqdn}"
+    name    = "blocked.${infoblox_zone_rp.parent_zone.nios.fqdn}"
     text    = "Example text in custom view"
-    rp_zone = infoblox_zone_rp.custom_view.nios.fqdn
-    view    = infoblox_view.custom.nios.name
+    rp_zone = infoblox_zone_rp.parent_zone.nios.fqdn
+    view    = infoblox_view.parent_view.nios.name
   }
 }

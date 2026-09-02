@@ -13,7 +13,7 @@ case "basic" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "List test text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -40,7 +40,7 @@ case "filters" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Filter test text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -73,7 +73,7 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Ext attr filter text"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }

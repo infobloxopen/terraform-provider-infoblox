@@ -12,14 +12,14 @@ case "basic" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
     }
     check = {
-      "nios.name"        = "naptr-record.{{random}}.com"
+      "nios.name"        = "{{random2}}.{{random}}.com"
       "nios.rp_zone"     = "{{random}}.com"
       "nios.order"       = "10"
       "nios.preference"  = "10"
@@ -48,7 +48,7 @@ case "disappears" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -71,7 +71,7 @@ case "comment" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -85,7 +85,7 @@ case "comment" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -112,7 +112,7 @@ case "disable" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -126,7 +126,7 @@ case "disable" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -153,7 +153,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -167,7 +167,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -194,7 +194,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -208,7 +208,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -222,7 +222,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -236,7 +236,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -302,7 +302,7 @@ case "order" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -315,7 +315,7 @@ case "order" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 20
       preference  = 10
@@ -341,7 +341,7 @@ case "preference" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -354,7 +354,7 @@ case "preference" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 20
@@ -380,7 +380,7 @@ case "regexp" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -393,7 +393,7 @@ case "regexp" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -420,7 +420,7 @@ case "replacement" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -433,7 +433,7 @@ case "replacement" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -459,7 +459,7 @@ case "rp_zone" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -485,7 +485,7 @@ case "services" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -499,7 +499,7 @@ case "services" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -526,7 +526,7 @@ case "ttl" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -540,7 +540,7 @@ case "ttl" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -573,7 +573,7 @@ case "view" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10

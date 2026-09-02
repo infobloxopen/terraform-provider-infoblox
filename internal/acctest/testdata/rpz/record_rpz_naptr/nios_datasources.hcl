@@ -20,7 +20,7 @@ case "filters" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -51,12 +51,12 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name        = "naptr-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
-      ext_attrs   = { Site = "{{random}}" }
+      ext_attrs   = { Site = "{{random3}}" }
     }
   }
 

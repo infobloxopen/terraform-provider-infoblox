@@ -20,7 +20,7 @@ case "filters" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -49,10 +49,10 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Record Text"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
-      ext_attrs = { Site = "{{random}}" }
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

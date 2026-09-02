@@ -12,13 +12,13 @@ case "basic" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.text"    = "Record Text"
-      "nios.name"    = "txt-record.{{random}}.com"
+      "nios.name"    = "{{random2}}.{{random}}.com"
       "nios.rp_zone" = "{{random}}.com"
       "nios.view"    = "default"
       "nios.disable" = "false"
@@ -42,7 +42,7 @@ case "disappears" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -63,7 +63,7 @@ case "comment" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       comment = "This is a new rpz txt record"
@@ -75,7 +75,7 @@ case "comment" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       comment = "This is an updated rpz txt record"
@@ -100,7 +100,7 @@ case "disable" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       disable = false
@@ -112,7 +112,7 @@ case "disable" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       disable = true
@@ -137,7 +137,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Record Text"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
@@ -149,7 +149,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Record Text"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random4}}" }
@@ -209,7 +209,7 @@ case "rp_zone" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -233,7 +233,7 @@ case "text" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -244,7 +244,7 @@ case "text" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Updated Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
@@ -268,7 +268,7 @@ case "ttl" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       ttl     = 10
@@ -280,7 +280,7 @@ case "ttl" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       ttl     = 0
@@ -311,7 +311,7 @@ case "view" {
 
   step {
     nios {
-      name    = "txt-record.${infoblox_zone_rp.test.nios.fqdn}"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
       rp_zone = infoblox_zone_rp.test.nios.fqdn
       view    = infoblox_view.custom_view.nios.name
