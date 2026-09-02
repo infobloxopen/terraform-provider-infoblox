@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -146,22 +145,6 @@ func ValidateRecordPtr(ctx context.Context, data RecordPtrModel, resp *resource.
 }
 
 func validateRecordPtrNIOSConfig(ctx context.Context, m *NIOSRecordPtrModel, resp *resource.ValidateConfigResponse) {
-	if m.Ipv4addr.IsUnknown() || m.Ipv6addr.IsUnknown() || m.Name.IsUnknown() || m.DynamicAllocation.IsUnknown() {
-		return
-	}
-
-	ipv4Set := !m.Ipv4addr.IsNull() && m.Ipv4addr.ValueString() != ""
-	ipv6Set := !m.Ipv6addr.IsNull() && m.Ipv6addr.ValueString() != ""
-	nameSet := !m.Name.IsNull() && m.Name.ValueString() != ""
-	dynAllocSet := !m.DynamicAllocation.IsNull()
-
-	if !ipv4Set && !ipv6Set && !nameSet && !dynAllocSet {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("nios"),
-			"Missing required field",
-			"At least one of `ipv4addr`, `ipv6addr`, `name`, or `dynamic_allocation` must be specified in the `nios` block for a PTR record.",
-		)
-	}
 }
 
 // BuildRecordPtrFuncCall builds the NIOS next_available_ip FuncCall for a PTR record.
