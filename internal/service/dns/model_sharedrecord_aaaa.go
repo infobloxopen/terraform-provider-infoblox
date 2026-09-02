@@ -20,7 +20,6 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
-	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -101,10 +100,7 @@ var SharedrecordAaaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,
 		ElementType:         types.StringType,
-		MarkdownDescription: "All ext_attrs including Terraform Internal ID and inherited attributes.",
-		PlanModifiers: []planmodifier.Map{
-			importmod.AssociateInternalId(),
-		},
+		MarkdownDescription: "All ext_attrs including inherited values.",
 	},
 	"ipv6addr": schema.StringAttribute{
 		Required:   true,
