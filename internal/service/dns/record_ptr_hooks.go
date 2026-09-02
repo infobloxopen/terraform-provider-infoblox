@@ -2,7 +2,7 @@ package dns
 
 import (
 	"context"
-	"strings"
+	"net"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -178,7 +178,8 @@ func BuildRecordPtrFuncCall(ctx context.Context, data types.Object, diags *diag.
 		return nil
 	}
 
-	if strings.Contains(m.Network.ValueString(), ":") {
+	ip, _, _ := net.ParseCIDR(m.Network.ValueString())
+	if ip != nil && ip.To4() == nil {
 		return m.FuncCall(ctx, "Ipv6addr", "ipv6network", diags)
 	}
 	return m.FuncCall(ctx, "Ipv4addr", "network", diags)
