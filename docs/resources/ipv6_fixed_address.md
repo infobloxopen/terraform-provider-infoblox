@@ -34,7 +34,7 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_basic" {
 }
 
 // Create an IPv6 Fixed Address with Additional Fields with PREFIX address type
-resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_additional1" {
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_prefix_type" {
   nios = {
     // Basic Fields
     address_type    = "PREFIX"
@@ -69,6 +69,26 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_additional1" {
   depends_on = [infoblox_ipv6_network.parent_network]
 }
 
+// Create an IPv6 Fixed Address with BOTH address type
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_both_type" {
+  nios = {
+    // Basic Fields
+    address_type    = "BOTH"
+    ipv6addr        = "2001:db8:abcd:1231::2"
+    ipv6prefix      = "2001:db8:abcd:1231::"
+    ipv6prefix_bits = 64
+    match_client    = "MAC_ADDRESS"
+    mac_address     = "01:6a:7b:8c:9d:5e"
+    network_view    = "default"
+
+    // Extensible Attributes
+    ext_attrs = {
+      Site = "location-1"
+    }
+  }
+  depends_on = [infoblox_ipv6_network.parent_network]
+}
+
 // Create an IPv6 Fixed Address with a dynamically allocated ipv6addr
 resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_with_dynamic_allocation" {
   nios = {
@@ -86,19 +106,19 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_with_dynamic_a
 
 ```terraform
 // Create a Network View (Required as Parent)
-resource "infoblox_network_view" "example_ip_space" {
+resource "infoblox_network_view" "parent_network_view" {
   uddi = {
-    name = "example_ip_space"
+    name = "example_network_view"
   }
 }
 
 // Create an IPv6 Network (Required as Parent)
-resource "infoblox_ipv6_network" "parent_subnet" {
+resource "infoblox_ipv6_network" "parent_network" {
   uddi = {
     address = "2001:db8:abcd:1231::"
     cidr    = 64
-    space   = infoblox_network_view.example_ip_space.id
-    comment = "Parent subnet for the fixed addresses below"
+    space   = infoblox_network_view.parent_network_view.id
+    comment = "Parent Network for the fixed addresses below"
   }
 }
 
@@ -106,12 +126,12 @@ resource "infoblox_ipv6_network" "parent_subnet" {
 resource "infoblox_ipv6_fixed_address" "example_fixed_address" {
   uddi = {
     name        = "example_fixed_address"
-    ip_space    = infoblox_network_view.example_ip_space.id
+    ip_space    = infoblox_network_view.parent_network_view.id
     address     = "2001:db8:abcd:1231::10"
     match_type  = "mac"
     match_value = "00:00:00:00:00:00"
   }
-  depends_on = [infoblox_ipv6_network.parent_subnet]
+  depends_on = [infoblox_ipv6_network.parent_network]
 }
 
 // Create an IPv6 Fixed Address with Additional Fields
@@ -119,7 +139,7 @@ resource "infoblox_ipv6_fixed_address" "example_fixed_address_additional" {
   uddi = {
     // Basic Fields
     name        = "example_fixed_address_additional"
-    ip_space    = infoblox_network_view.example_ip_space.id
+    ip_space    = infoblox_network_view.parent_network_view.id
     address     = "2001:db8:abcd:1231::11"
     match_type  = "duid"
     match_value = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
@@ -134,7 +154,7 @@ resource "infoblox_ipv6_fixed_address" "example_fixed_address_additional" {
       Site = "location-1"
     }
   }
-  depends_on = [infoblox_ipv6_network.parent_subnet]
+  depends_on = [infoblox_ipv6_network.parent_network]
 }
 ```
 

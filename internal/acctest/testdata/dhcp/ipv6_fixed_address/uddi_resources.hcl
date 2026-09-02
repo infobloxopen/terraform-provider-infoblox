@@ -1,4 +1,5 @@
 # Auto-generated resource acceptance-test cases for Ipv6fixedaddress.
+// Objects to be present for testing - Option Group
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -433,11 +434,6 @@ case "ip_space" {
 
 }
 
-
-# NOTE: bloxone exercises client_hex / client_text / relay_hex / relay_text here,
-# but those are IPv4-only: the API rejects them with "IPv6 FixedAddress accepts
-# only DUID or MAC Address as match type." Only mac and duid are valid for IPv6,
-# and both were verified against the API.
 case "match_type_and_match_value" {
   backend  = "uddi"
   parallel = true

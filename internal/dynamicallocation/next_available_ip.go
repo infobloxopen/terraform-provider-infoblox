@@ -74,8 +74,6 @@ var NextAvailableIpResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
-// params builds the object parameters and function parameters shared by the
-// per-SDK next_available_ip func call constructors below.
 func (m NextAvailableIpModel) params(ctx context.Context, diags *diag.Diagnostics) (objectParams map[string]any, parameters map[string]any) {
 	objectParams = map[string]any{}
 	if !m.Network.IsNull() && !m.Network.IsUnknown() {
@@ -123,8 +121,6 @@ func (m NextAvailableIpModel) FuncCall(ctx context.Context, attributeName string
 	return fc
 }
 
-// FuncCallDHCP is the dhcp-SDK counterpart of FuncCall, for objects such as
-// ipv6fixedaddress whose generated model expects a *niosdhcp.FuncCall.
 func (m NextAvailableIpModel) FuncCallDHCP(ctx context.Context, attributeName string, object string, diags *diag.Diagnostics) *niosdhcp.FuncCall {
 	fc := &niosdhcp.FuncCall{}
 	fc.SetAttributeName(attributeName)

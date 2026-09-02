@@ -1,9 +1,4 @@
 # Ipv6fixedaddress — uddi list cases
-# The fixed address derives its address from the prerequisite network so that
-# Terraform orders the network first; the list DSL has no `depends_on` for the
-# resource step, and without that edge the API rejects the create with
-# "No parent subnet found".
-
 case "basic" {
   backend        = "uddi"
   min_tf_version = "1.14.0"

@@ -1462,7 +1462,6 @@ case "snmp3_credential" {
     }
   }
 
-  # Rotate the write-only passwords; the readable fields must stay unchanged.
   step {
     nios {
       ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::2"
@@ -1480,7 +1479,6 @@ case "snmp3_credential" {
     }
   }
 
-  # Update a non write-only field (user).
   step {
     nios {
       ipv6addr         = "2001:db8:{{random_hextet}}:{{random_int}}::2"

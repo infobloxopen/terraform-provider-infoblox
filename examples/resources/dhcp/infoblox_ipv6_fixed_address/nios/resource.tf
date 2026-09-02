@@ -17,7 +17,7 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_basic" {
 }
 
 // Create an IPv6 Fixed Address with Additional Fields with PREFIX address type
-resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_additional1" {
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_prefix_type" {
   nios = {
     // Basic Fields
     address_type    = "PREFIX"
@@ -44,6 +44,26 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_additional1" {
         vendor_class = "DHCPv6"
       }
     ]
+    // Extensible Attributes
+    ext_attrs = {
+      Site = "location-1"
+    }
+  }
+  depends_on = [infoblox_ipv6_network.parent_network]
+}
+
+// Create an IPv6 Fixed Address with BOTH address type
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_both_type" {
+  nios = {
+    // Basic Fields
+    address_type    = "BOTH"
+    ipv6addr        = "2001:db8:abcd:1231::2"
+    ipv6prefix      = "2001:db8:abcd:1231::"
+    ipv6prefix_bits = 64
+    match_client    = "MAC_ADDRESS"
+    mac_address     = "01:6a:7b:8c:9d:5e"
+    network_view    = "default"
+
     // Extensible Attributes
     ext_attrs = {
       Site = "location-1"
