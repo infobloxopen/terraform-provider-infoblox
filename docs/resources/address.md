@@ -89,14 +89,14 @@ resource "infoblox_address" "example_na_network_container" {
       next_available_id = infoblox_network_container.example.id
     }
   }
-  depends_on = [infoblox_network.example]
+  depends_on = [infoblox_network.example, infoblox_address.example_na_network]
 }
 
 // Next available address in a range
 // TODO: drop this once infoblox_range is onboarded.
 resource "infoblox_address" "example_na_range" {
   uddi = {
-    space = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
+    space = "ipam/ip_space/<>"
     dynamic_allocation = {
       next_available_id = "ipam/ip_space/<>"
     }
