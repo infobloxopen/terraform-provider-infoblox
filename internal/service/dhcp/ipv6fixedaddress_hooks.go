@@ -261,8 +261,6 @@ func PostFlattenIpv6fixedaddressNIOS(ctx context.Context, planned, flattened *NI
 		return
 	}
 
-	// NIOS returns cli_credentials and options in its own order; restore the
-	// configured order so Terraform does not report ordering-only diffs.
 	if !planned.CliCredentials.IsUnknown() {
 		if reordered, d := utils.ReorderAndFilterNestedListResponse(ctx, planned.CliCredentials, flattened.CliCredentials, "credential_type"); !d.HasError() {
 			if reorderedList, ok := reordered.(basetypes.ListValue); ok {
