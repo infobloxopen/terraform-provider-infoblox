@@ -897,6 +897,9 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"primary_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("external", "cloud"),
+		},
 		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
