@@ -1,3 +1,6 @@
+// Objects to be present on the grid for testing
+// example-option-filter-1, example-option-filter-2- Logic Filter Rules
+
 # Auto-generated resource acceptance-test cases for Sharednetwork.
 
 case "basic" {
@@ -1065,6 +1068,7 @@ case "logic_filter_rules" {
       name         = "{{random}}"
       networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view = infoblox_network_view.test_view.nios.name
+      logic_filter_rules = [{ filter = "example-option-filter-1", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -1078,6 +1082,7 @@ case "logic_filter_rules" {
       name         = "{{random}}"
       networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view = infoblox_network_view.test_view.nios.name
+      logic_filter_rules = [{ filter = "example-option-filter-2", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -1271,6 +1276,7 @@ case "options" {
       name         = "{{random}}"
       networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view = infoblox_network_view.test_view.nios.name
+      options      = [{ name = "domain-name", value = "aa.bb.com" }, { name = "dhcp-lease-time", value = "72000" }]
     }
     check = {
       "nios.options.#"       = "2"
@@ -1286,6 +1292,7 @@ case "options" {
       name         = "{{random}}"
       networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
       network_view = infoblox_network_view.test_view.nios.name
+      options      = [{ name = "time-offset", value = "50" }, { name = "dhcp-lease-time", value = "82000" }]
     }
     check = {
       "nios.options.#"       = "2"

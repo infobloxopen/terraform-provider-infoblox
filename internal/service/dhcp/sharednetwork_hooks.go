@@ -25,7 +25,10 @@ func validateSharednetworkNIOSConfig(ctx context.Context, m *NIOSSharednetworkMo
 }
 
 func PostFlattenSharednetworkNIOS(ctx context.Context, planned, flattened *NIOSSharednetworkModel, diags *diag.Diagnostics) {
-	if planned != nil && !planned.Options.IsUnknown() {
+	if planned == nil {
+		return
+	}
+	if !planned.Options.IsUnknown() {
 		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
 		diags.Append(*d...)
 		if d.HasError() {
@@ -34,5 +37,10 @@ func PostFlattenSharednetworkNIOS(ctx context.Context, planned, flattened *NIOSS
 		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
 			flattened.Options = reorderedList
 		}
+	}
+	reOrderedNetworks, d := utils.ReorderAndFilterNestedListResponse(ctx, planned.Networks, flattened.Networks, "ref")
+	diags.Append(*d...)
+	if !diags.HasError() {
+		flattened.Networks = reOrderedNetworks.(basetypes.ListValue)
 	}
 }
