@@ -36,21 +36,21 @@ data "infoblox_ipv6fixedaddress" "get_all_ipv6_fixed_address" {}
 ### UDDI Backend
 
 ```terraform
-// Get DHCP fixed address filtered by an attribute
+// Retrieve a specific IPv6 Fixed Address by filters
 data "infoblox_ipv6fixedaddress" "example_by_attribute" {
   filters = {
     name = "example_fixed_address"
   }
 }
 
-// Get DHCP fixed address by tag
+// Retrieve specific IPv6 Fixed Address using Tags
 data "infoblox_ipv6fixedaddress" "example_by_tag" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Get all fixed address
+// Retrieve all IPv6 Fixed Addresses
 data "infoblox_ipv6fixedaddress" "example_all" {}
 ```
 
