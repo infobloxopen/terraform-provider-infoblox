@@ -119,24 +119,24 @@ var NIOSIpv6fixedaddressAttrTypes = map[string]attr.Type{
 }
 
 type UDDIIpv6fixedaddressModel struct {
-	Address            types.String `tfsdk:"address"`
-	Comment            types.String `tfsdk:"comment"`
-	DhcpOptions        types.List   `tfsdk:"dhcp_options"`
-	DisableDhcp        types.Bool   `tfsdk:"disable_dhcp"`
-	Hostname           types.String `tfsdk:"hostname"`
-	InheritanceParent  types.String `tfsdk:"inheritance_parent"`
-	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
-	IpSpace            types.String `tfsdk:"ip_space"`
-	MatchType          types.String `tfsdk:"match_type"`
-	MatchValue         types.String `tfsdk:"match_value"`
-	Name               types.String `tfsdk:"name"`
-	Parent             types.String `tfsdk:"parent"`
-	Tags               types.Map    `tfsdk:"tags"`
-	TagsAll            types.Map    `tfsdk:"tags_all"`
+	Address            iptypes.IPv6Address `tfsdk:"address"`
+	Comment            types.String        `tfsdk:"comment"`
+	DhcpOptions        types.List          `tfsdk:"dhcp_options"`
+	DisableDhcp        types.Bool          `tfsdk:"disable_dhcp"`
+	Hostname           types.String        `tfsdk:"hostname"`
+	InheritanceParent  types.String        `tfsdk:"inheritance_parent"`
+	InheritanceSources types.Object        `tfsdk:"inheritance_sources"`
+	IpSpace            types.String        `tfsdk:"ip_space"`
+	MatchType          types.String        `tfsdk:"match_type"`
+	MatchValue         types.String        `tfsdk:"match_value"`
+	Name               types.String        `tfsdk:"name"`
+	Parent             types.String        `tfsdk:"parent"`
+	Tags               types.Map           `tfsdk:"tags"`
+	TagsAll            types.Map           `tfsdk:"tags_all"`
 }
 
 var UDDIIpv6fixedaddressAttrTypes = map[string]attr.Type{
-	"address":             types.StringType,
+	"address":             iptypes.IPv6AddressType{},
 	"comment":             types.StringType,
 	"dhcp_options":        types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"disable_dhcp":        types.BoolType,
@@ -440,7 +440,8 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Required: true,
+		Required:   true,
+		CustomType: iptypes.IPv6AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 			stringplanmodifier.UseStateForUnknown(),
@@ -621,7 +622,7 @@ func ApplyIpv6fixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config,
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIIpv6fixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIIpv6fixedaddressExt {
 	return &coremodel.UDDIIpv6fixedaddressExt{
-		Address:            flex.ExpandString(m.Address),
+		Address:            flex.ExpandIPv6AddressValue(m.Address),
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		DhcpOptions:        flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		DisableDhcp:        flex.ExpandBoolPointer(m.DisableDhcp),
@@ -722,7 +723,7 @@ func (m *UDDIIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenString(from.Address)
+	m.Address = flex.FlattenIPv6AddressValue(from.Address)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
