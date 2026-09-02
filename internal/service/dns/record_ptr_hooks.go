@@ -84,11 +84,6 @@ func FlattenUDDIRecordPtrRdata(ctx context.Context, from map[string]any, diags *
 }
 
 // ---- UDDI Options custom schema (address) ----
-
-// UDDIRecordPtrOptionsModel holds the PTR record options sub-fields.
-// For GET operations the address contains the IP address represented by the PTR record.
-// For POST/PATCH operations it can be used together with view to create/update a PTR
-// record based on the IP address it represents.
 type UDDIRecordPtrOptionsModel struct {
 	Address types.String `tfsdk:"address"`
 }
