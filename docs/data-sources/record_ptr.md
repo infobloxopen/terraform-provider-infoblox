@@ -39,7 +39,7 @@ data "infoblox_record_ptr" "get_all_ptr_records" {}
 // Retrieve a specific PTR record using filters
 data "infoblox_record_ptr" "get_ptr_record_using_filters" {
   filters = {
-    "name_in_zone" = "1.0.168"
+    name_in_zone = "1.0.168"
   }
 }
 

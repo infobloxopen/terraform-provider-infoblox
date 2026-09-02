@@ -99,7 +99,7 @@ case "ipv4addr_filters" {
 
 }
 
-# Same as ipv4addr_filters, for an IPV6 reverse zone.
+# The case Ipv6addr_filters also provisions IPv6 reverse zone as a pre-req
 case "ipv6addr_filters" {
   backend = "nios"
 

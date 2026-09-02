@@ -626,16 +626,23 @@ case "func_call_ipv6" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test" {
     nios = {
-      network      = "2001:db8:abcd:12::/64"
+      network      = "2001:db8:abcd:15::/64"
       network_view = "default"
+    }
+  }
+  resource "infoblox_zone_auth" "reverse" {
+    nios = {
+      fqdn        = "2001:db8:abcd:15::/64"
+      zone_format = "IPV6"
+      view        = "default"
     }
   }
   PREREQ
 
   step {
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_ipv6_network.test, infoblox_zone_auth.reverse]
     nios {
-      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      dynamic_allocation = { network = "2001:db8:abcd:15::/64", network_view = "default" }
       ptrdname           = "{{random3}}.com"
       view               = "default"
       comment            = "IPv6 Function Call"
@@ -650,9 +657,9 @@ case "func_call_ipv6" {
   }
 
   step {
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_ipv6_network.test, infoblox_zone_auth.reverse]
     nios {
-      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      dynamic_allocation = { network = "2001:db8:abcd:15::/64", network_view = "default" }
       ptrdname           = "updated-{{random3}}.com"
       view               = "default"
       comment            = "IPv6 Function Call with Update"
