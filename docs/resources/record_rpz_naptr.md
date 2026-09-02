@@ -15,7 +15,7 @@ Manages an Infoblox RecordRpzNaptr in the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// Create an RPZ Zone (Required as Parent)
+// Create an RP Zone (Required as Parent)
 resource "infoblox_zone_rp" "example" {
   nios = {
     fqdn = "rpz.example.com"
@@ -53,27 +53,27 @@ resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_additional" {
 }
 
 // Create a Substitute (NAPTR Record) Rule in a Custom View
-resource "infoblox_view" "custom" {
+resource "infoblox_view" "parent_view" {
   nios = {
     name = "custom-view"
   }
 }
 
-resource "infoblox_zone_rp" "custom_view" {
+resource "infoblox_zone_rp" "parent_zone" {
   nios = {
     fqdn = "rpz-custom.example.com"
-    view = infoblox_view.custom.nios.name
+    view = infoblox_view.parent_view.nios.name
   }
 }
 
 resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_custom_view" {
   nios = {
-    name        = "naptr-record.${infoblox_zone_rp.custom_view.nios.fqdn}"
-    rp_zone     = infoblox_zone_rp.custom_view.nios.fqdn
+    name        = "naptr-record.${infoblox_zone_rp.parent_zone.nios.fqdn}"
+    rp_zone     = infoblox_zone_rp.parent_zone.nios.fqdn
     order       = 10
     preference  = 10
     replacement = "."
-    view        = infoblox_view.custom.nios.name
+    view        = infoblox_view.parent_view.nios.name
   }
 }
 ```
