@@ -1,5 +1,5 @@
 // List specific IPv6 Fixed Addresses using filters
-list "infoblox_ipv6_fixed_address" "list_ipv6fixedaddress_using_filters" {
+list "infoblox_ipv6_fixed_address" "list_ipv6_fixed_address_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_ipv6_fixed_address" "list_ipv6fixedaddress_using_filters" {
 }
 
 // List specific IPv6 Fixed Addresses using Tags
-list "infoblox_ipv6_fixed_address" "list_ipv6fixedaddress_using_tags" {
+list "infoblox_ipv6_fixed_address" "list_ipv6_fixed_address_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
@@ -20,7 +20,7 @@ list "infoblox_ipv6_fixed_address" "list_ipv6fixedaddress_using_tags" {
 }
 
 // List IPv6 Fixed Addresses with resource details included
-list "infoblox_ipv6_fixed_address" "list_ipv6fixedaddress_with_resource" {
+list "infoblox_ipv6_fixed_address" "list_ipv6_fixed_address_with_resource" {
   provider         = infoblox
   include_resource = true
 }
