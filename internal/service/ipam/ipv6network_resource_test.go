@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccIpv6networkResource(t *testing.T) {
-	resourceType := "infoblox_ipv6network"
+	resourceType := "infoblox_ipv6_network"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -31,7 +31,7 @@ func TestAccIpv6networkResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "ipam/ipv6network/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "ipam/ipv6_network/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

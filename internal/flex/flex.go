@@ -14,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/infobloxopen/infoblox-nios-go-client/grid"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 type FrameworkElementFlExFunc[T any, U any] func(context.Context, T, *diag.Diagnostics) U
@@ -52,18 +54,6 @@ func ExpandStringPointerNullAsEmpty(s types.String) *string {
 		return &v
 	}
 	return s.ValueStringPointer()
-}
-
-// ExpandStringOneOf expands a types.String to a oneOf wrapper type pointer.
-// Returns nil if the string is null/unknown, otherwise converts using expandFn and returns a pointer.
-// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
-func ExpandStringOneOf[T any](s types.String, expandFn func(*string) T) *T {
-	if s.IsNull() || s.IsUnknown() {
-		return nil
-	}
-	v := s.ValueString()
-	result := expandFn(&v)
-	return &result
 }
 
 func ExpandBool(b types.Bool) bool {
@@ -254,6 +244,25 @@ func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 	return ExpandStringPointer(mac.StringValue)
 }
 
+// ExpandTimeToUnix converts a naive datetime string (utils.NaiveDatetimeLayout,
+// interpreted as UTC) into a Unix epoch seconds pointer for SDKs that only
+// accept the wire value as an integer timestamp.
+func ExpandTimeToUnix(v types.String, diags *diag.Diagnostics) *int64 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	t, err := time.Parse(utils.NaiveDatetimeLayout, v.ValueString())
+	if err != nil {
+		diags.AddError(
+			"Invalid time value",
+			fmt.Sprintf("Expected format: %s, got: %s (%s)", utils.NaiveDatetimeLayout, v.ValueString(), err),
+		)
+		return nil
+	}
+	unix := t.UTC().Unix()
+	return &unix
+}
+
 func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
 	if dt.IsNull() || dt.IsUnknown() {
 		return nil
@@ -305,16 +314,6 @@ func FlattenStringPointerEmptyAsNull(s *string) types.String {
 		return types.StringNull()
 	}
 	return types.StringValue(*s)
-}
-
-// FlattenOneOfString flattens a oneOf wrapper pointer to types.String.
-// Returns types.StringNull() if ptr is nil, otherwise extracts the string using flattenFn.
-// This is used for SDK oneOf types that can be either string or object (e.g., NIOS ipv4addr field).
-func FlattenOneOfString[T any](ptr *T, flattenFn func(*T) *string) types.String {
-	if ptr == nil {
-		return types.StringNull()
-	}
-	return FlattenStringPointer(flattenFn(ptr))
 }
 
 func FlattenBool(b bool) types.Bool {
@@ -504,6 +503,15 @@ func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	}
 }
 
+// FlattenUnixTime converts a Unix epoch seconds pointer back into a naive
+// datetime string (utils.NaiveDatetimeLayout, UTC), the inverse of ExpandTimeToUnix.
+func FlattenUnixTime(v *int64, diags *diag.Diagnostics) types.String {
+	if v == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(time.Unix(*v, 0).UTC().Format(utils.NaiveDatetimeLayout))
+}
+
 func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {
 	if t == nil || t.IsZero() {
 		return timetypes.NewRFC3339Null()
@@ -584,4 +592,55 @@ func RDataInt64Ptr(v any) *int64 {
 		}
 	}
 	return nil
+}
+func ExpandExtensibleAttributeDefDefaultValue(ctx context.Context, defaultValue types.String, eaType types.String, diags *diag.Diagnostics) *grid.ExtensibleattributedefDefaultValue {
+	if defaultValue.IsNull() || defaultValue.IsUnknown() {
+		return nil
+	}
+
+	value := defaultValue.ValueString()
+	if value == "" {
+		return nil
+	}
+
+	// Check the type to determine if we should send as integer or string
+	if !eaType.IsNull() && !eaType.IsUnknown() && eaType.ValueString() == "INTEGER" {
+		// Convert string to integer for INTEGER type
+		if intVal, err := strconv.ParseInt(value, 10, 32); err == nil {
+			int32Val := int32(intVal)
+			return &grid.ExtensibleattributedefDefaultValue{
+				Int32: &int32Val,
+			}
+		} else {
+			diags.AddError(
+				"Invalid Integer Default Value",
+				fmt.Sprintf("Cannot convert default_value '%s' to integer: %v", value, err),
+			)
+			return nil
+		}
+	}
+
+	// For all other types (STRING, EMAIL, URL, DATE, ENUM), send as string
+	return &grid.ExtensibleattributedefDefaultValue{
+		String: &value,
+	}
+}
+
+func FlattenExtensibleAttributeDefDefaultValue(ctx context.Context, from *grid.ExtensibleattributedefDefaultValue, diags *diag.Diagnostics) types.String {
+	if from == nil {
+		return types.StringNull()
+	}
+
+	if from.Int32 != nil {
+		// Convert int32 to string for Terraform
+		return types.StringValue(strconv.FormatInt(int64(*from.Int32), 10))
+	}
+
+	// Check if string value is set
+	if from.String != nil {
+		return types.StringValue(*from.String)
+	}
+
+	// No value set
+	return types.StringNull()
 }
