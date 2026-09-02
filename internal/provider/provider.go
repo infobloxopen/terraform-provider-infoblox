@@ -382,11 +382,14 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dhcp.NewSharednetworkDataSource,
+		dns.NewZoneDelegatedDataSource,
 		grid.NewUpgradegroupDataSource,
+		dns.NewSharedrecordAaaaDataSource,
 		keys.NewTsigKeyDataSource,
 		dns.NewZoneRpDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewDnsServerDataSource,
+		dhcp.NewHaGroupDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
