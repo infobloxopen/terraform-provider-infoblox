@@ -1,27 +1,49 @@
 case "filters" {
   backend = "nios"
-
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name = "nios.name"
     }
   }
 
-  pair_checks = ["nios.comment", "nios.name"]
+  pair_checks = ["nios.comment", "nios.name", "nios.delegate_to"]
 
   step {
     nios {
       name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
   }
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: data source config helper 'testAccNsgroupDelegationDataSourceConfigExtAttrFilters' could not be parsed (no resource/data block found)
 case "ext_attr_filters" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "data source config helper 'testAccNsgroupDelegationDataSourceConfigExtAttrFilters' could not be parsed (no resource/data block found)"
+  backend = "nios"
+  filter {
+    type = "ext_attr_filters"
+    values = {
+      name = "nios.Site"
+    }
+  }
+
+  pair_checks = ["nios.comment", "nios.name", "nios.delegate_to"]
+
+  step {
+    nios {
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
+    }
+    ext_attrs = { Site = "{{random2}}" }
+  }
 }

@@ -147,7 +147,7 @@ func (m *NsgroupDelegationDelegateToModel) Flatten(ctx context.Context, from *ni
 	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
 	m.TsigKey = flex.FlattenStringPointerEmptyAsNull(from.TsigKey)
-	m.TsigKeyAlg = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyAlg)
+	m.TsigKeyAlg = flex.FlattenStringPointer(from.TsigKeyAlg)
 	m.TsigKeyName = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyName)
 	m.UseTsigKeyName = flex.FlattenBoolPointer(from.UseTsigKeyName)
 }

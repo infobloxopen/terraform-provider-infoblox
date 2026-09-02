@@ -4,14 +4,18 @@ case "basic" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
     check = {
       "nios.name"                  = "{{random}}"
       "nios.delegate_to.0.address" = "2.3.4.5"
       "nios.delegate_to.0.name"    = "delegate_to_ns_group"
-      "nios.comment"               = ""
     }
   }
 
@@ -25,8 +29,13 @@ case "disappears" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
   }
 
@@ -38,9 +47,14 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
-      comment     = "comment ns group"
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
+      comment = "comment ns group"
     }
     check = {
       "nios.comment" = "comment ns group"
@@ -49,9 +63,14 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
-      comment     = "comment ns group updated"
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
+      comment = "comment ns group updated"
     }
     check = {
       "nios.comment" = "comment ns group updated"
@@ -66,8 +85,13 @@ case "delegate_to" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
     check = {
       "nios.delegate_to.0.address" = "2.3.4.5"
@@ -77,8 +101,13 @@ case "delegate_to" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
     check = {
       "nios.delegate_to.0.address" = "2.3.4.6"
@@ -94,9 +123,14 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
-      ext_attrs   = { Site = "{{random2}}" }
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
+      ext_attrs = { Site = "{{random2}}" }
     }
     check = {
       "nios.ext_attrs.Site" = "{{random2}}"
@@ -105,9 +139,14 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
-      ext_attrs   = { Site = "{{random3}}" }
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
+      ext_attrs = { Site = "{{random3}}" }
     }
     check = {
       "nios.ext_attrs.Site" = "{{random3}}"
@@ -122,8 +161,13 @@ case "name" {
 
   step {
     nios {
-      name        = "{{random}}"
-      delegate_to = []
+      name = "{{random}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
     check = {
       "nios.name" = "{{random}}"
@@ -132,8 +176,13 @@ case "name" {
 
   step {
     nios {
-      name        = "{{random2}}"
-      delegate_to = []
+      name = "{{random2}}"
+      delegate_to = [
+        {
+          address = "2.3.3.4"
+          name    = "delegate_to_ns_group"
+        }
+      ]
     }
     check = {
       "nios.name" = "{{random2}}"
