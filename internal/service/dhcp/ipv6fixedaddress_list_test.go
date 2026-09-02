@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccIpv6fixedaddressList(t *testing.T) {
-	resourceType := "infoblox_ipv6fixedaddress"
+	resourceType := "infoblox_ipv6_fixed_address"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -22,7 +22,7 @@ func TestAccIpv6fixedaddressList(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "dhcp/ipv6fixedaddress/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "dhcp/ipv6_fixed_address/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

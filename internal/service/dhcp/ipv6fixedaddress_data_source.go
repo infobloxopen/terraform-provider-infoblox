@@ -36,7 +36,7 @@ type Ipv6fixedaddressDataSource struct {
 }
 
 func (d *Ipv6fixedaddressDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6fixedaddress"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_fixed_address"
 }
 
 // Ipv6fixedaddressDataSourceModel is the filter model for the datasource

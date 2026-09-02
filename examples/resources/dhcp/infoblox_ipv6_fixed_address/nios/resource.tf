@@ -8,7 +8,7 @@ resource "infoblox_ipv6_network" "parent_network" {
 }
 
 // Create an IPv6 Fixed Address with Basic Fields
-resource "infoblox_ipv6fixedaddress" "create_ipv6_fixed_address_basic" {
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_basic" {
   nios = {
     ipv6addr = "2001:db8:abcd:1231::2"
     duid     = "01:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
@@ -17,7 +17,7 @@ resource "infoblox_ipv6fixedaddress" "create_ipv6_fixed_address_basic" {
 }
 
 // Create an IPv6 Fixed Address with Additional Fields with PREFIX address type
-resource "infoblox_ipv6fixedaddress" "create_ipv6_fixed_address_additional1" {
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_additional1" {
   nios = {
     // Basic Fields
     address_type    = "PREFIX"
@@ -53,7 +53,7 @@ resource "infoblox_ipv6fixedaddress" "create_ipv6_fixed_address_additional1" {
 }
 
 // Create an IPv6 Fixed Address with a dynamically allocated ipv6addr
-resource "infoblox_ipv6fixedaddress" "create_ipv6_fixed_address_with_dynamic_allocation" {
+resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_with_dynamic_allocation" {
   nios = {
     duid = "00:01:01:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
     dynamic_allocation = {

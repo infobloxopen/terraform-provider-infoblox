@@ -41,7 +41,7 @@ type Ipv6fixedaddressListModel struct {
 }
 
 func (l *Ipv6fixedaddressList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6fixedaddress"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_fixed_address"
 }
 
 func (l *Ipv6fixedaddressList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -111,7 +111,7 @@ func (l *Ipv6fixedaddressList) List(ctx context.Context, req list.ListRequest, s
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6fixedaddress list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_ipv6_fixed_address list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

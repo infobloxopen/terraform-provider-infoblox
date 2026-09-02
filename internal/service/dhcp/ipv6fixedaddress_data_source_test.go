@@ -7,8 +7,8 @@ import (
 )
 
 func TestAccIpv6fixedaddressDataSource(t *testing.T) {
-	dsType := "infoblox_ipv6fixedaddress"
-	resourceType := "infoblox_ipv6fixedaddress"
+	dsType := "infoblox_ipv6_fixed_address"
+	resourceType := "infoblox_ipv6_fixed_address"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -23,7 +23,7 @@ func TestAccIpv6fixedaddressDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "dhcp/ipv6fixedaddress/"+backend+"_datasources.hcl", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "dhcp/ipv6_fixed_address/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }

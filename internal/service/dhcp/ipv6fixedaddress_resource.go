@@ -37,7 +37,7 @@ type Ipv6fixedaddressResource struct {
 }
 
 func (r *Ipv6fixedaddressResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6fixedaddress"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_fixed_address"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

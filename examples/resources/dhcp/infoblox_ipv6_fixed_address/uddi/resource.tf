@@ -16,7 +16,7 @@ resource "infoblox_ipv6_network" "parent_subnet" {
 }
 
 // Create an IPv6 Fixed Address with Basic Fields
-resource "infoblox_ipv6fixedaddress" "example_fixed_address" {
+resource "infoblox_ipv6_fixed_address" "example_fixed_address" {
   uddi = {
     name        = "example_fixed_address"
     ip_space    = infoblox_network_view.example_ip_space.id
@@ -28,7 +28,7 @@ resource "infoblox_ipv6fixedaddress" "example_fixed_address" {
 }
 
 // Create an IPv6 Fixed Address with Additional Fields
-resource "infoblox_ipv6fixedaddress" "example_fixed_address_additional" {
+resource "infoblox_ipv6_fixed_address" "example_fixed_address_additional" {
   uddi = {
     // Basic Fields
     name        = "example_fixed_address_additional"
