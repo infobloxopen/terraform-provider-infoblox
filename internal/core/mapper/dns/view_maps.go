@@ -132,7 +132,7 @@ var ViewUDDIFieldMap = map[string]string{
 	"UDDI.UpdateAcl":                         "UpdateAcl",
 	"UDDI.UseForwardersForSubzones":          "UseForwardersForSubzones",
 	"UDDI.UseRootForwardersForLocalResolutionWithB1td": "UseRootForwardersForLocalResolutionWithB1td",
-	"UDDI.ZoneAuthority":                               "ZoneAuthority",
+	"UDDI.ZoneAuthority": "ZoneAuthority",
 }
 
 // TODO: only searchable fields should be included here

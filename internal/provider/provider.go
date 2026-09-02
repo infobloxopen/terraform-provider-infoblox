@@ -328,6 +328,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewSharedrecordTxtResource,
+		dns.NewSharedrecordAResource,
 		dns.NewZoneDelegatedResource,
 		grid.NewUpgradegroupResource,
 		dns.NewSharedrecordAaaaResource,
@@ -337,7 +339,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewDnsServerResource,
 		dhcp.NewHaGroupResource,
 		rpz.NewRecordRpzNaptrResource,
-		dns.NewSharedrecordAResource,
 		rpz.NewRecordRpzTxtResource,
 		acl.NewNamedaclResource,
 		dns.NewNsgroupResource,
@@ -380,6 +381,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewSharedrecordTxtDataSource,
+		dns.NewSharedrecordADataSource,
 		dns.NewZoneDelegatedDataSource,
 		grid.NewUpgradegroupDataSource,
 		dns.NewSharedrecordAaaaDataSource,
@@ -389,7 +392,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewDnsServerDataSource,
 		dhcp.NewHaGroupDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
-		dns.NewSharedrecordADataSource,
 		rpz.NewRecordRpzTxtDataSource,
 		acl.NewNamedaclDataSource,
 		dns.NewNsgroupDataSource,
@@ -435,6 +437,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewSharedrecordTxtList,
+		dns.NewSharedrecordAList,
 		dns.NewZoneDelegatedList,
 		grid.NewUpgradegroupList,
 		dns.NewSharedrecordAaaaList,
@@ -444,7 +448,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewDnsServerList,
 		dhcp.NewHaGroupList,
 		rpz.NewRecordRpzNaptrList,
-		dns.NewSharedrecordAList,
 		rpz.NewRecordRpzTxtList,
 		acl.NewNamedaclList,
 		dns.NewNsgroupList,
