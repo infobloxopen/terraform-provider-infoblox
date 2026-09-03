@@ -1,7 +1,7 @@
 // Retrieve a NS Group Stub Member by filters
 data "infoblox_nsgroup_stubmember" "get_ns_group_stubmember_using_filters" {
   filters = {
-    name = "example_ns_group"
+    name = "example_stubmember"
   }
 }
 
