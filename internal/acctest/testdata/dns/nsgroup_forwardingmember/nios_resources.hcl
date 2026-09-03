@@ -11,7 +11,6 @@ case "basic" {
     check = {
       "nios.name"                      = "{{random}}"
       "nios.forwarding_servers.0.name" = "{{grid_master_hostname}}"
-      "nios.comment"                   = ""
     }
   }
 

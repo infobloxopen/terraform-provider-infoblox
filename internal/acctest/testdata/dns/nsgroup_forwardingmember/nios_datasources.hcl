@@ -14,6 +14,7 @@ case "filters" {
   step {
     nios {
       name = "{{random}}"
+      forwarding_servers = [{ name = "{{grid_master_hostname}}" }]
     }
   }
 
@@ -34,6 +35,7 @@ case "ext_attr_filters" {
   step {
     nios {
       name      = "{{random}}"
+      forwarding_servers = [{ name = "{{grid_master_hostname}}" }]
       ext_attrs = { Site = "{{random2}}" }
     }
   }
