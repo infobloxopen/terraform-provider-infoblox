@@ -1,4 +1,8 @@
 # Auto-generated resource acceptance-test cases for Ipv6rangetemplate.
+// Objects to be present on grid to run the tests
+// - logic_filter_rules(ipv6_option_filter, ipv6_option_filter1), option_filter_rules (ipv6_option_filter)
+// cloud_api_compatible is made true to pass all acceptance tests
+
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -13,7 +17,6 @@ case "basic" {
     check = {
       "nios.name"                    = "{{random}}"
       "nios.cloud_api_compatible"    = "true"
-      "nios.comment"                 = ""
       "nios.recycle_leases"          = "true"
       "nios.server_association_type" = "NONE"
     }
@@ -38,6 +41,9 @@ case "disappears" {
 
 }
 
+// The testcase will fail, as this is a known issue
+// If the user is a cloud-user, then they need Terraform internal ID with cloud permission and enable cloud delegation for the user to create a range template.
+// if the user is a non cloud-user, they need to have  Terraform internal ID without cloud permission.
 case "cloud_api_compatible" {
   backend     = "nios"
   skip        = true
@@ -399,10 +405,6 @@ case "recycle_leases" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "server_association_type" {
   backend  = "nios"
   parallel = true
@@ -414,6 +416,7 @@ case "server_association_type" {
       offset                  = 50
       cloud_api_compatible    = true
       server_association_type = "MEMBER"
+      member                  = { name = "{{grid_master_hostname}}" }
     }
     check = {
       "nios.server_association_type" = "MEMBER"

@@ -34,6 +34,7 @@ var Ipv6rangetemplateMemberAttrTypes = map[string]attr.Type{
 var Ipv6rangetemplateMemberResourceSchemaAttributes = map[string]schema.Attribute{
 	"ipv4addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv4AddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -42,6 +43,7 @@ var Ipv6rangetemplateMemberResourceSchemaAttributes = map[string]schema.Attribut
 	},
 	"ipv6addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -50,6 +52,7 @@ var Ipv6rangetemplateMemberResourceSchemaAttributes = map[string]schema.Attribut
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},

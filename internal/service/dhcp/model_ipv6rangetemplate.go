@@ -93,6 +93,7 @@ var Ipv6rangetemplateResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"delegated_member": schema.SingleNestedAttribute{
 		Attributes:          Ipv6rangetemplateDelegatedMemberResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"exclude": schema.ListNestedAttribute{
@@ -118,6 +119,7 @@ var Ipv6rangetemplateResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"member": schema.SingleNestedAttribute{
 		Attributes:          Ipv6rangetemplateMemberResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"name": schema.StringAttribute{
