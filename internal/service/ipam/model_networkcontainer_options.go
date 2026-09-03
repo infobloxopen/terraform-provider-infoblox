@@ -93,7 +93,7 @@ func (m *NetworkcontainerOptionsModel) Expand(ctx context.Context, diags *diag.D
 		return nil
 	}
 	to := &niosipam.NetworkcontainerOptions{
-		Name:        flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Name:        flex.ExpandStringPointer(m.Name),
 		Num:         flex.ExpandInt64Pointer(m.Num),
 		VendorClass: flex.ExpandStringPointer(m.VendorClass),
 		Value:       flex.ExpandStringPointerNullAsEmpty(m.Value),

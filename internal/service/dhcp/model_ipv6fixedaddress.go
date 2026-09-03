@@ -255,6 +255,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"domain_name": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: internaltypes.CaseInsensitiveStringType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),

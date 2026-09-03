@@ -37,6 +37,7 @@ var Ipv6fixedaddresstemplateOptionsAttrTypes = map[string]attr.Type{
 var Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -45,10 +46,12 @@ var Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes = map[string]schema.
 	},
 	"num": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The code of the DHCP option.",
 	},
 	"vendor_class": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -57,6 +60,7 @@ var Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes = map[string]schema.
 	},
 	"value": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -65,6 +69,7 @@ var Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes = map[string]schema.
 	},
 	"use_option": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Only applies to special options that are displayed separately from other options and have a use flag. These options are: * routers * router-templates * domain-name-servers * domain-name * broadcast-address * broadcast-address-offset * dhcp-lease-time * dhcp6.name-servers",
 	},
 }
@@ -88,9 +93,9 @@ func (m *Ipv6fixedaddresstemplateOptionsModel) Expand(ctx context.Context, diags
 		return nil
 	}
 	to := &niosdhcp.Ipv6fixedaddresstemplateOptions{
-		Name:        flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Name:        flex.ExpandStringPointer(m.Name),
 		Num:         flex.ExpandInt64Pointer(m.Num),
-		VendorClass: flex.ExpandStringPointerNullAsEmpty(m.VendorClass),
+		VendorClass: flex.ExpandStringPointer(m.VendorClass),
 		Value:       flex.ExpandStringPointerNullAsEmpty(m.Value),
 		UseOption:   flex.ExpandBoolPointer(m.UseOption),
 	}

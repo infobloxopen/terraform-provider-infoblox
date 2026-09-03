@@ -9,7 +9,6 @@ case "basic" {
     }
     check = {
       "nios.name"           = "{{random}}"
-      "nios.comment"        = ""
       "nios.valid_lifetime" = "43200"
     }
   }

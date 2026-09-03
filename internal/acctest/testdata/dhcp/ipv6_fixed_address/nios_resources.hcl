@@ -1229,16 +1229,19 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
-      options = [
-        { name = "dhcp6.domain-search", num = 24, value = "\"aa.bb.com\"", vendor_class = "DHCPv6" },
-        { name = "dhcp6.sntp-servers", num = 31, value = "2001:4860:4860::8888", vendor_class = "DHCPv6" },
-      ]
+      options = [{ name = "domain-name", num = "15", value = "example.com" }, { num = "37", value = "remote-id", vendor_class = "DHCPv6" }, { name = "dhcp6.subscriber-id", value = "subscriber-id", vendor_class = "DHCPv6" }]
     }
     check = {
-      "nios.options.0.name"  = "dhcp6.domain-search"
-      "nios.options.0.value" = "\"aa.bb.com\""
-      "nios.options.1.name"  = "dhcp6.sntp-servers"
-      "nios.options.1.value" = "2001:4860:4860::8888"
+      "nios.options.#"              = "3"
+      "nios.options.0.name"         = "domain-name"
+      "nios.options.0.num"          = "15"
+      "nios.options.0.value"        = "example.com"
+      "nios.options.1.num"          = "37"
+      "nios.options.1.value"        = "remote-id"
+      "nios.options.1.vendor_class" = "DHCPv6"
+      "nios.options.2.name"         = "dhcp6.subscriber-id"
+      "nios.options.2.value"        = "subscriber-id"
+      "nios.options.2.vendor_class" = "DHCPv6"
     }
   }
 
@@ -1248,19 +1251,18 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
-      options = [
-        { name = "dhcp6.domain-search", num = 24, value = "\"bb.cc.com\"", vendor_class = "DHCPv6" },
-        { name = "dhcp6.sntp-servers", num = 31, value = "2001:4860:4860::8008", vendor_class = "DHCPv6" },
-      ]
+      options = [{ name = "domain-name", num = "15", value = "example.org" }, { num = "37", value = "remote-id-updated", vendor_class = "DHCPv6" }]
     }
     check = {
-      "nios.options.0.name"  = "dhcp6.domain-search"
-      "nios.options.0.value" = "\"bb.cc.com\""
-      "nios.options.1.name"  = "dhcp6.sntp-servers"
-      "nios.options.1.value" = "2001:4860:4860::8008"
+      "nios.options.#"              = "2"
+      "nios.options.0.name"         = "domain-name"
+      "nios.options.0.num"          = "15"
+      "nios.options.0.value"        = "example.org"
+      "nios.options.1.num"          = "37"
+      "nios.options.1.value"        = "remote-id-updated"
+      "nios.options.1.vendor_class" = "DHCPv6"
     }
   }
-
 }
 
 case "preferred_lifetime" {

@@ -91,6 +91,7 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	},
 	"domain_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidNIOSDomainName(),
@@ -170,10 +171,12 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The preferred lifetime value for this DHCP IPv6 fixed address template object.",
 	},
 	"valid_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The valid lifetime value for this DHCP IPv6 fixed address template object.",
 	},
 }
@@ -240,8 +243,10 @@ func (m *Ipv6fixedaddresstemplateModel) Flatten(ctx context.Context, resp *corem
 	if niosModel == nil {
 		niosModel = &NIOSIpv6fixedaddresstemplateModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSIpv6fixedaddresstemplateModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenIpv6fixedaddresstemplateNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6fixedaddresstemplateAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSIpv6fixedaddresstemplateAttrTypes)
