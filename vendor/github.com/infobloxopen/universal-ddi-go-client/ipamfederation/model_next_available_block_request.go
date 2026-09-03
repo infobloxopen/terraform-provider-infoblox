@@ -26,6 +26,8 @@ type NextAvailableBlockRequest struct {
 	// The count of __Block__ required. If not provided, it will default to 1.
 	Count *int64 `json:"count,omitempty"`
 	// The resource identifier.
+	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
+	// The resource identifier.
 	Id *string `json:"id,omitempty"`
 	// The name to be provided.
 	Name *string `json:"name,omitempty"`
@@ -149,6 +151,38 @@ func (o *NextAvailableBlockRequest) SetCount(v int64) {
 	o.Count = &v
 }
 
+// GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
+func (o *NextAvailableBlockRequest) GetFederatedPoolId() string {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		var ret string
+		return ret
+	}
+	return *o.FederatedPoolId
+}
+
+// GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *NextAvailableBlockRequest) GetFederatedPoolIdOk() (*string, bool) {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		return nil, false
+	}
+	return o.FederatedPoolId, true
+}
+
+// HasFederatedPoolId returns a boolean if a field has been set.
+func (o *NextAvailableBlockRequest) HasFederatedPoolId() bool {
+	if o != nil && !IsNil(o.FederatedPoolId) {
+		return true
+	}
+
+	return false
+}
+
+// SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
+func (o *NextAvailableBlockRequest) SetFederatedPoolId(v string) {
+	o.FederatedPoolId = &v
+}
+
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *NextAvailableBlockRequest) GetId() string {
 	if o == nil || IsNil(o.Id) {
@@ -264,6 +298,9 @@ func (o NextAvailableBlockRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Count) {
 		toSerialize["count"] = o.Count
 	}
+	if !IsNil(o.FederatedPoolId) {
+		toSerialize["federated_pool_id"] = o.FederatedPoolId
+	}
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
@@ -298,6 +335,7 @@ func (o *NextAvailableBlockRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "cidr")
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "count")
+		delete(additionalProperties, "federated_pool_id")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "tags")

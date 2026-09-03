@@ -14,39 +14,39 @@ import (
 	"encoding/json"
 )
 
-// checks if the ListFederatedRealmResponse type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ListFederatedRealmResponse{}
+// checks if the ListFederatedPoolResponse type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ListFederatedPoolResponse{}
 
-// ListFederatedRealmResponse The response format to retrieve __FederatedRealm__ objects.
-type ListFederatedRealmResponse struct {
+// ListFederatedPoolResponse The response format to retrieve __FederatedPool__ objects.
+type ListFederatedPoolResponse struct {
 	// Page information including total_size when is_total_size_needed is requested.
 	Page *ApiPageInfo `json:"page,omitempty"`
-	// The list of FederatedRealm objects.
-	Results              []FederatedRealm `json:"results,omitempty"`
+	// A list of FederatedPool objects.
+	Results              []FederatedPool `json:"results,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _ListFederatedRealmResponse ListFederatedRealmResponse
+type _ListFederatedPoolResponse ListFederatedPoolResponse
 
-// NewListFederatedRealmResponse instantiates a new ListFederatedRealmResponse object
+// NewListFederatedPoolResponse instantiates a new ListFederatedPoolResponse object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewListFederatedRealmResponse() *ListFederatedRealmResponse {
-	this := ListFederatedRealmResponse{}
+func NewListFederatedPoolResponse() *ListFederatedPoolResponse {
+	this := ListFederatedPoolResponse{}
 	return &this
 }
 
-// NewListFederatedRealmResponseWithDefaults instantiates a new ListFederatedRealmResponse object
+// NewListFederatedPoolResponseWithDefaults instantiates a new ListFederatedPoolResponse object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewListFederatedRealmResponseWithDefaults() *ListFederatedRealmResponse {
-	this := ListFederatedRealmResponse{}
+func NewListFederatedPoolResponseWithDefaults() *ListFederatedPoolResponse {
+	this := ListFederatedPoolResponse{}
 	return &this
 }
 
 // GetPage returns the Page field value if set, zero value otherwise.
-func (o *ListFederatedRealmResponse) GetPage() ApiPageInfo {
+func (o *ListFederatedPoolResponse) GetPage() ApiPageInfo {
 	if o == nil || IsNil(o.Page) {
 		var ret ApiPageInfo
 		return ret
@@ -56,7 +56,7 @@ func (o *ListFederatedRealmResponse) GetPage() ApiPageInfo {
 
 // GetPageOk returns a tuple with the Page field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ListFederatedRealmResponse) GetPageOk() (*ApiPageInfo, bool) {
+func (o *ListFederatedPoolResponse) GetPageOk() (*ApiPageInfo, bool) {
 	if o == nil || IsNil(o.Page) {
 		return nil, false
 	}
@@ -64,7 +64,7 @@ func (o *ListFederatedRealmResponse) GetPageOk() (*ApiPageInfo, bool) {
 }
 
 // HasPage returns a boolean if a field has been set.
-func (o *ListFederatedRealmResponse) HasPage() bool {
+func (o *ListFederatedPoolResponse) HasPage() bool {
 	if o != nil && !IsNil(o.Page) {
 		return true
 	}
@@ -73,14 +73,14 @@ func (o *ListFederatedRealmResponse) HasPage() bool {
 }
 
 // SetPage gets a reference to the given ApiPageInfo and assigns it to the Page field.
-func (o *ListFederatedRealmResponse) SetPage(v ApiPageInfo) {
+func (o *ListFederatedPoolResponse) SetPage(v ApiPageInfo) {
 	o.Page = &v
 }
 
 // GetResults returns the Results field value if set, zero value otherwise.
-func (o *ListFederatedRealmResponse) GetResults() []FederatedRealm {
+func (o *ListFederatedPoolResponse) GetResults() []FederatedPool {
 	if o == nil || IsNil(o.Results) {
-		var ret []FederatedRealm
+		var ret []FederatedPool
 		return ret
 	}
 	return o.Results
@@ -88,7 +88,7 @@ func (o *ListFederatedRealmResponse) GetResults() []FederatedRealm {
 
 // GetResultsOk returns a tuple with the Results field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ListFederatedRealmResponse) GetResultsOk() ([]FederatedRealm, bool) {
+func (o *ListFederatedPoolResponse) GetResultsOk() ([]FederatedPool, bool) {
 	if o == nil || IsNil(o.Results) {
 		return nil, false
 	}
@@ -96,7 +96,7 @@ func (o *ListFederatedRealmResponse) GetResultsOk() ([]FederatedRealm, bool) {
 }
 
 // HasResults returns a boolean if a field has been set.
-func (o *ListFederatedRealmResponse) HasResults() bool {
+func (o *ListFederatedPoolResponse) HasResults() bool {
 	if o != nil && !IsNil(o.Results) {
 		return true
 	}
@@ -104,12 +104,12 @@ func (o *ListFederatedRealmResponse) HasResults() bool {
 	return false
 }
 
-// SetResults gets a reference to the given []FederatedRealm and assigns it to the Results field.
-func (o *ListFederatedRealmResponse) SetResults(v []FederatedRealm) {
+// SetResults gets a reference to the given []FederatedPool and assigns it to the Results field.
+func (o *ListFederatedPoolResponse) SetResults(v []FederatedPool) {
 	o.Results = v
 }
 
-func (o ListFederatedRealmResponse) MarshalJSON() ([]byte, error) {
+func (o ListFederatedPoolResponse) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -117,7 +117,7 @@ func (o ListFederatedRealmResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o ListFederatedRealmResponse) ToMap() (map[string]interface{}, error) {
+func (o ListFederatedPoolResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Page) {
 		toSerialize["page"] = o.Page
@@ -133,16 +133,16 @@ func (o ListFederatedRealmResponse) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *ListFederatedRealmResponse) UnmarshalJSON(data []byte) (err error) {
-	varListFederatedRealmResponse := _ListFederatedRealmResponse{}
+func (o *ListFederatedPoolResponse) UnmarshalJSON(data []byte) (err error) {
+	varListFederatedPoolResponse := _ListFederatedPoolResponse{}
 
-	err = json.Unmarshal(data, &varListFederatedRealmResponse)
+	err = json.Unmarshal(data, &varListFederatedPoolResponse)
 
 	if err != nil {
 		return err
 	}
 
-	*o = ListFederatedRealmResponse(varListFederatedRealmResponse)
+	*o = ListFederatedPoolResponse(varListFederatedPoolResponse)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -155,38 +155,38 @@ func (o *ListFederatedRealmResponse) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableListFederatedRealmResponse struct {
-	value *ListFederatedRealmResponse
+type NullableListFederatedPoolResponse struct {
+	value *ListFederatedPoolResponse
 	isSet bool
 }
 
-func (v NullableListFederatedRealmResponse) Get() *ListFederatedRealmResponse {
+func (v NullableListFederatedPoolResponse) Get() *ListFederatedPoolResponse {
 	return v.value
 }
 
-func (v *NullableListFederatedRealmResponse) Set(val *ListFederatedRealmResponse) {
+func (v *NullableListFederatedPoolResponse) Set(val *ListFederatedPoolResponse) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableListFederatedRealmResponse) IsSet() bool {
+func (v NullableListFederatedPoolResponse) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableListFederatedRealmResponse) Unset() {
+func (v *NullableListFederatedPoolResponse) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableListFederatedRealmResponse(val *ListFederatedRealmResponse) *NullableListFederatedRealmResponse {
-	return &NullableListFederatedRealmResponse{value: val, isSet: true}
+func NewNullableListFederatedPoolResponse(val *ListFederatedPoolResponse) *NullableListFederatedPoolResponse {
+	return &NullableListFederatedPoolResponse{value: val, isSet: true}
 }
 
-func (v NullableListFederatedRealmResponse) MarshalJSON() ([]byte, error) {
+func (v NullableListFederatedPoolResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableListFederatedRealmResponse) UnmarshalJSON(src []byte) error {
+func (v *NullableListFederatedPoolResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

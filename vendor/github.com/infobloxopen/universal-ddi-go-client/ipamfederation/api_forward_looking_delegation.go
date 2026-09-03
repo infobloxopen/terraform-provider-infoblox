@@ -21,110 +21,110 @@ import (
 	"github.com/infobloxopen/universal-ddi-go-client/internal"
 )
 
-type ReservedBlockAPI interface {
+type ForwardLookingDelegationAPI interface {
 	/*
-			Create Create the reserved block.
+			Create Create the __ForwardLookingDelegation__ object.
 
-			Use this method to create a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to create __ForwardLookingDelegation__ object with the parameter passed.
+		A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPICreateRequest
+			@return ForwardLookingDelegationAPICreateRequest
 	*/
-	Create(ctx context.Context) ReservedBlockAPICreateRequest
+	Create(ctx context.Context) ForwardLookingDelegationAPICreateRequest
 
 	// CreateExecute executes the request
-	//  @return CreateReservedBlockResponse
-	CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error)
+	//  @return CreateForwardLookingDelegationResponse
+	CreateExecute(r ForwardLookingDelegationAPICreateRequest) (*CreateForwardLookingDelegationResponse, *http.Response, error)
 	/*
-			Delete Delete the reserved block.
+			Delete Delete a specific __ForwardLookingDelegation__ object.
 
-			Use this method to delete a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to delete a __ForwardLookingDelegation__ object.
+		A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIDeleteRequest
+			@return ForwardLookingDelegationAPIDeleteRequest
 	*/
-	Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest
+	Delete(ctx context.Context, id string) ForwardLookingDelegationAPIDeleteRequest
 
 	// DeleteExecute executes the request
-	DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error)
+	DeleteExecute(r ForwardLookingDelegationAPIDeleteRequest) (*http.Response, error)
 	/*
-			List Retrieve the reserved block.
+			List Retrieve the __ForwardLookingDelegation__ objects.
 
-			Use this method to retrieve __ReservedBlock__ objects.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to retrieve __ForwardLookingDelegation__ objects.
+		A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPIListRequest
+			@return ForwardLookingDelegationAPIListRequest
 	*/
-	List(ctx context.Context) ReservedBlockAPIListRequest
+	List(ctx context.Context) ForwardLookingDelegationAPIListRequest
 
 	// ListExecute executes the request
-	//  @return ListReservedBlockResponse
-	ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error)
+	//  @return ListForwardLookingDelegationResponse
+	ListExecute(r ForwardLookingDelegationAPIListRequest) (*ListForwardLookingDelegationResponse, *http.Response, error)
 	/*
-			Read Retrieve the reserved block.
+			Read Retrieve the __ForwardLookingDelegation__ object.
 
-			Use this method to retrieve a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to retrieve a __ForwardLookingDelegation__ object.
+		A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIReadRequest
+			@return ForwardLookingDelegationAPIReadRequest
 	*/
-	Read(ctx context.Context, id string) ReservedBlockAPIReadRequest
+	Read(ctx context.Context, id string) ForwardLookingDelegationAPIReadRequest
 
 	// ReadExecute executes the request
-	//  @return ReadReservedBlockResponse
-	ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error)
+	//  @return ReadForwardLookingDelegationResponse
+	ReadExecute(r ForwardLookingDelegationAPIReadRequest) (*ReadForwardLookingDelegationResponse, *http.Response, error)
 	/*
-			Update Update the reserved block.
+			Update Update the __ForwardLookingDelegation__ object.
 
-			Use this method to update a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to update __ForwardLookingDelegation__ object with the parameter passed.
+		A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIUpdateRequest
+			@return ForwardLookingDelegationAPIUpdateRequest
 	*/
-	Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest
+	Update(ctx context.Context, id string) ForwardLookingDelegationAPIUpdateRequest
 
 	// UpdateExecute executes the request
-	//  @return UpdateReservedBlockResponse
-	UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error)
+	//  @return UpdateForwardLookingDelegationResponse
+	UpdateExecute(r ForwardLookingDelegationAPIUpdateRequest) (*UpdateForwardLookingDelegationResponse, *http.Response, error)
 }
 
-// ReservedBlockAPIService ReservedBlockAPI service
-type ReservedBlockAPIService internal.Service
+// ForwardLookingDelegationAPIService ForwardLookingDelegationAPI service
+type ForwardLookingDelegationAPIService internal.Service
 
-type ReservedBlockAPICreateRequest struct {
+type ForwardLookingDelegationAPICreateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
-	body       *ReservedBlock
+	ApiService ForwardLookingDelegationAPI
+	body       *ForwardLookingDelegation
 }
 
-func (r ReservedBlockAPICreateRequest) Body(body ReservedBlock) ReservedBlockAPICreateRequest {
+func (r ForwardLookingDelegationAPICreateRequest) Body(body ForwardLookingDelegation) ForwardLookingDelegationAPICreateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPICreateRequest) Execute() (*CreateReservedBlockResponse, *http.Response, error) {
+func (r ForwardLookingDelegationAPICreateRequest) Execute() (*CreateForwardLookingDelegationResponse, *http.Response, error) {
 	return r.ApiService.CreateExecute(r)
 }
 
 /*
-Create Create the reserved block.
+Create Create the __ForwardLookingDelegation__ object.
 
-Use this method to create a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to create __ForwardLookingDelegation__ object with the parameter passed.
+A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPICreateRequest
+	@return ForwardLookingDelegationAPICreateRequest
 */
-func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICreateRequest {
-	return ReservedBlockAPICreateRequest{
+func (a *ForwardLookingDelegationAPIService) Create(ctx context.Context) ForwardLookingDelegationAPICreateRequest {
+	return ForwardLookingDelegationAPICreateRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -132,21 +132,21 @@ func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICr
 
 // Execute executes the request
 //
-//	@return CreateReservedBlockResponse
-func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error) {
+//	@return CreateForwardLookingDelegationResponse
+func (a *ForwardLookingDelegationAPIService) CreateExecute(r ForwardLookingDelegationAPICreateRequest) (*CreateForwardLookingDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *CreateReservedBlockResponse
+		localVarReturnValue *CreateForwardLookingDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Create")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ForwardLookingDelegationAPIService.Create")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/forward_looking_delegation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -171,16 +171,6 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
 	}
 	// body params
 	localVarPostBody = r.body
@@ -214,28 +204,28 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIDeleteRequest struct {
+type ForwardLookingDelegationAPIDeleteRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService ForwardLookingDelegationAPI
 	id         string
 }
 
-func (r ReservedBlockAPIDeleteRequest) Execute() (*http.Response, error) {
+func (r ForwardLookingDelegationAPIDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteExecute(r)
 }
 
 /*
-Delete Delete the reserved block.
+Delete Delete a specific __ForwardLookingDelegation__ object.
 
-Use this method to delete a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to delete a __ForwardLookingDelegation__ object.
+A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIDeleteRequest
+	@return ForwardLookingDelegationAPIDeleteRequest
 */
-func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest {
-	return ReservedBlockAPIDeleteRequest{
+func (a *ForwardLookingDelegationAPIService) Delete(ctx context.Context, id string) ForwardLookingDelegationAPIDeleteRequest {
+	return ForwardLookingDelegationAPIDeleteRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -243,19 +233,19 @@ func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) Reserve
 }
 
 // Execute executes the request
-func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error) {
+func (a *ForwardLookingDelegationAPIService) DeleteExecute(r ForwardLookingDelegationAPIDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []internal.FormFile
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Delete")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ForwardLookingDelegationAPIService.Delete")
 	if err != nil {
 		return nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/forward_looking_delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -304,9 +294,9 @@ func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest)
 	return localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIListRequest struct {
+type ForwardLookingDelegationAPIListRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService ForwardLookingDelegationAPI
 	fields     *string
 	filter     *string
 	offset     *int32
@@ -318,68 +308,68 @@ type ReservedBlockAPIListRequest struct {
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIListRequest) Fields(fields string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) Fields(fields string) ForwardLookingDelegationAPIListRequest {
 	r.fields = &fields
 	return r
 }
 
 // A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;. The following operators are commonly used in filter expressions:  |  Op   |  Description               |  |  --   |  -----------               |  |  &#x3D;&#x3D;   |  Equal                     |  |  !&#x3D;   |  Not Equal                 |  |  &gt;    |  Greater Than              |  |   &gt;&#x3D;  |  Greater Than or Equal To  |  |  &lt;    |  Less Than                 |  |  &lt;&#x3D;   |  Less Than or Equal To     |  |  and  |  Logical AND               |  |  ~    |  Matches Regex             |  |  !~   |  Does Not Match Regex      |  |  or   |  Logical OR                |  |  not  |  Logical NOT               |  |  ()   |  Grouping Operators       |
-func (r ReservedBlockAPIListRequest) Filter(filter string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) Filter(filter string) ForwardLookingDelegationAPIListRequest {
 	r.filter = &filter
 	return r
 }
 
 // The integer index (zero-origin) of the offset into a collection of resources. If omitted or null the value is assumed to be &#39;0&#39;.
-func (r ReservedBlockAPIListRequest) Offset(offset int32) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) Offset(offset int32) ForwardLookingDelegationAPIListRequest {
 	r.offset = &offset
 	return r
 }
 
 // The integer number of resources to be returned in the response. The service may impose maximum value. If omitted the service may impose a default value.
-func (r ReservedBlockAPIListRequest) Limit(limit int32) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) Limit(limit int32) ForwardLookingDelegationAPIListRequest {
 	r.limit = &limit
 	return r
 }
 
 // The service-defined string used to identify a page of resources. A null value indicates the first page.
-func (r ReservedBlockAPIListRequest) PageToken(pageToken string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) PageToken(pageToken string) ForwardLookingDelegationAPIListRequest {
 	r.pageToken = &pageToken
 	return r
 }
 
 // A collection of response resources can be sorted by their JSON tags. For a &#39;flat&#39; resource, the tag name is straightforward. If sorting is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, its value is assumed to be null.)  Specify this parameter as a comma-separated list of JSON tag names. The sort direction can be specified by a suffix separated by whitespace before the tag name. The suffix &#39;asc&#39; sorts the data in ascending order. The suffix &#39;desc&#39; sorts the data in descending order. If no suffix is specified the data is sorted in ascending order.
-func (r ReservedBlockAPIListRequest) OrderBy(orderBy string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) OrderBy(orderBy string) ForwardLookingDelegationAPIListRequest {
 	r.orderBy = &orderBy
 	return r
 }
 
 // This parameter is used for sorting by tags.
-func (r ReservedBlockAPIListRequest) TorderBy(torderBy string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) TorderBy(torderBy string) ForwardLookingDelegationAPIListRequest {
 	r.torderBy = &torderBy
 	return r
 }
 
 // This parameter is used for filtering by tags.
-func (r ReservedBlockAPIListRequest) Tfilter(tfilter string) ReservedBlockAPIListRequest {
+func (r ForwardLookingDelegationAPIListRequest) Tfilter(tfilter string) ForwardLookingDelegationAPIListRequest {
 	r.tfilter = &tfilter
 	return r
 }
 
-func (r ReservedBlockAPIListRequest) Execute() (*ListReservedBlockResponse, *http.Response, error) {
+func (r ForwardLookingDelegationAPIListRequest) Execute() (*ListForwardLookingDelegationResponse, *http.Response, error) {
 	return r.ApiService.ListExecute(r)
 }
 
 /*
-List Retrieve the reserved block.
+List Retrieve the __ForwardLookingDelegation__ objects.
 
-Use this method to retrieve __ReservedBlock__ objects.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve __ForwardLookingDelegation__ objects.
+A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPIListRequest
+	@return ForwardLookingDelegationAPIListRequest
 */
-func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIListRequest {
-	return ReservedBlockAPIListRequest{
+func (a *ForwardLookingDelegationAPIService) List(ctx context.Context) ForwardLookingDelegationAPIListRequest {
+	return ForwardLookingDelegationAPIListRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -387,21 +377,21 @@ func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIList
 
 // Execute executes the request
 //
-//	@return ListReservedBlockResponse
-func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error) {
+//	@return ListForwardLookingDelegationResponse
+func (a *ForwardLookingDelegationAPIService) ListExecute(r ForwardLookingDelegationAPIListRequest) (*ListForwardLookingDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ListReservedBlockResponse
+		localVarReturnValue *ListForwardLookingDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.List")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ForwardLookingDelegationAPIService.List")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/forward_looking_delegation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -478,35 +468,35 @@ func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*L
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIReadRequest struct {
+type ForwardLookingDelegationAPIReadRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService ForwardLookingDelegationAPI
 	id         string
 	fields     *string
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIReadRequest) Fields(fields string) ReservedBlockAPIReadRequest {
+func (r ForwardLookingDelegationAPIReadRequest) Fields(fields string) ForwardLookingDelegationAPIReadRequest {
 	r.fields = &fields
 	return r
 }
 
-func (r ReservedBlockAPIReadRequest) Execute() (*ReadReservedBlockResponse, *http.Response, error) {
+func (r ForwardLookingDelegationAPIReadRequest) Execute() (*ReadForwardLookingDelegationResponse, *http.Response, error) {
 	return r.ApiService.ReadExecute(r)
 }
 
 /*
-Read Retrieve the reserved block.
+Read Retrieve the __ForwardLookingDelegation__ object.
 
-Use this method to retrieve a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve a __ForwardLookingDelegation__ object.
+A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIReadRequest
+	@return ForwardLookingDelegationAPIReadRequest
 */
-func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedBlockAPIReadRequest {
-	return ReservedBlockAPIReadRequest{
+func (a *ForwardLookingDelegationAPIService) Read(ctx context.Context, id string) ForwardLookingDelegationAPIReadRequest {
+	return ForwardLookingDelegationAPIReadRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -515,21 +505,21 @@ func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedB
 
 // Execute executes the request
 //
-//	@return ReadReservedBlockResponse
-func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error) {
+//	@return ReadForwardLookingDelegationResponse
+func (a *ForwardLookingDelegationAPIService) ReadExecute(r ForwardLookingDelegationAPIReadRequest) (*ReadForwardLookingDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ReadReservedBlockResponse
+		localVarReturnValue *ReadForwardLookingDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Read")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ForwardLookingDelegationAPIService.Read")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/forward_looking_delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -586,34 +576,34 @@ func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*R
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIUpdateRequest struct {
+type ForwardLookingDelegationAPIUpdateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService ForwardLookingDelegationAPI
 	id         string
-	body       *ReservedBlock
+	body       *ForwardLookingDelegation
 }
 
-func (r ReservedBlockAPIUpdateRequest) Body(body ReservedBlock) ReservedBlockAPIUpdateRequest {
+func (r ForwardLookingDelegationAPIUpdateRequest) Body(body ForwardLookingDelegation) ForwardLookingDelegationAPIUpdateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPIUpdateRequest) Execute() (*UpdateReservedBlockResponse, *http.Response, error) {
+func (r ForwardLookingDelegationAPIUpdateRequest) Execute() (*UpdateForwardLookingDelegationResponse, *http.Response, error) {
 	return r.ApiService.UpdateExecute(r)
 }
 
 /*
-Update Update the reserved block.
+Update Update the __ForwardLookingDelegation__ object.
 
-Use this method to update a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to update __ForwardLookingDelegation__ object with the parameter passed.
+A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Forward Looking Delegations may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIUpdateRequest
+	@return ForwardLookingDelegationAPIUpdateRequest
 */
-func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest {
-	return ReservedBlockAPIUpdateRequest{
+func (a *ForwardLookingDelegationAPIService) Update(ctx context.Context, id string) ForwardLookingDelegationAPIUpdateRequest {
+	return ForwardLookingDelegationAPIUpdateRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -622,21 +612,21 @@ func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) Reserve
 
 // Execute executes the request
 //
-//	@return UpdateReservedBlockResponse
-func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error) {
+//	@return UpdateForwardLookingDelegationResponse
+func (a *ForwardLookingDelegationAPIService) UpdateExecute(r ForwardLookingDelegationAPIUpdateRequest) (*UpdateForwardLookingDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *UpdateReservedBlockResponse
+		localVarReturnValue *UpdateForwardLookingDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Update")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ForwardLookingDelegationAPIService.Update")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/forward_looking_delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -662,16 +652,6 @@ func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest)
 	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
 	}
 	// body params
 	localVarPostBody = r.body
