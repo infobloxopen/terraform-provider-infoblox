@@ -1,9 +1,9 @@
-// List specific Bulk Hostname Templates using filters
+// List specific Bulk Hostname Template using filters
 list "infoblox_bulk_hostname_template" "list_bulk_hostname_templates_using_filters" {
   provider = infoblox
   config {
     filters = {
-      template_name = "example_template"
+      template_name = "one_octet"
     }
   }
   limit = 10

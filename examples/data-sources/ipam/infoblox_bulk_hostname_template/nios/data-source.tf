@@ -1,4 +1,4 @@
-// Retrieve a specific IPAM Bulk Hostname Templates by filters
+// Retrieve a specific IPAM Bulk Hostname Template by filters
 data "infoblox_bulk_hostname_template" "bulk_hostname_template" {
   filters = {
     template_name = "one-octet"
