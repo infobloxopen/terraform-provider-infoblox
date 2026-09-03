@@ -200,6 +200,34 @@ func ExpandFrameworkListString(ctx context.Context, tfList interface {
 	return data
 }
 
+// ExpandFrameworkListInt32 expands types.List to []int32
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt32(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int32 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int32
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
+// ExpandFrameworkListInt64 expands types.List to []int64
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt64(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int64 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int64
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
 func ExpandIPv4Address(ipv4addr iptypes.IPv4Address) *string {
 	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
 		return nil
@@ -214,6 +242,20 @@ func ExpandIPv6Address(ipv6addr iptypes.IPv6Address) *string {
 	}
 	v := ipv6addr.ValueString()
 	return &v
+}
+
+func ExpandIPv4AddressValue(ipv4addr iptypes.IPv4Address) string {
+	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
+		return ""
+	}
+	return ipv4addr.ValueString()
+}
+
+func ExpandIPv6AddressValue(ipv6addr iptypes.IPv6Address) string {
+	if ipv6addr.IsNull() || ipv6addr.IsUnknown() {
+		return ""
+	}
+	return ipv6addr.ValueString()
 }
 
 func ExpandIPAddress(ipaddr iptypes.IPAddress) *string {
@@ -453,6 +495,28 @@ func FlattenFrameworkListString(ctx context.Context, l []string, diags *diag.Dia
 	return tfList
 }
 
+// FlattenFrameworkListInt32 flattens []int32 to types.List
+// Returns null list if input is nil or empty.
+func FlattenFrameworkListInt32(ctx context.Context, l []int32, diags *diag.Diagnostics) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.Int32Type)
+	}
+	tfList, d := types.ListValueFrom(ctx, types.Int32Type, l)
+	diags.Append(d...)
+	return tfList
+}
+
+// FlattenFrameworkListInt64 flattens []int64 to types.List
+// Returns null list if input is nil or empty.
+func FlattenFrameworkListInt64(ctx context.Context, l []int64, diags *diag.Diagnostics) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.Int64Type)
+	}
+	tfList, d := types.ListValueFrom(ctx, types.Int64Type, l)
+	diags.Append(d...)
+	return tfList
+}
+
 func FlattenIPv4Address(ipv4addr *string) iptypes.IPv4Address {
 	if ipv4addr == nil || *ipv4addr == "" {
 		return iptypes.NewIPv4AddressNull()
@@ -465,6 +529,20 @@ func FlattenIPv6Address(ipv6addr *string) iptypes.IPv6Address {
 		return iptypes.NewIPv6AddressNull()
 	}
 	return iptypes.NewIPv6AddressValue(*ipv6addr)
+}
+
+func FlattenIPv4AddressValue(ipv4addr string) iptypes.IPv4Address {
+	if ipv4addr == "" {
+		return iptypes.NewIPv4AddressNull()
+	}
+	return iptypes.NewIPv4AddressValue(ipv4addr)
+}
+
+func FlattenIPv6AddressValue(ipv6addr string) iptypes.IPv6Address {
+	if ipv6addr == "" {
+		return iptypes.NewIPv6AddressNull()
+	}
+	return iptypes.NewIPv6AddressValue(ipv6addr)
 }
 
 func FlattenIPAddress(ipaddr *string) iptypes.IPAddress {
