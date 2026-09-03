@@ -132,10 +132,20 @@ var shortGroupOverrides = map[string]string{
 }
 
 // lookupGroup returns the internal/service/<group> that owns this object.
+// Objects renamed via 'tfName' keep an unseparated Go file name
+// (network_container -> networkcontainer_*.go), so retry without underscores.
 func lookupGroup(short string) string {
 	if g, ok := shortGroupOverrides[short]; ok {
 		return g
 	}
+	if g := findGroup(short); g != "" {
+		return g
+	}
+	return findGroup(strings.ReplaceAll(short, "_", ""))
+}
+
+// findGroup returns the group holding a <base><suffix>.go file, or "".
+func findGroup(base string) string {
 	serviceRoot := filepath.Join("internal", "service")
 	groups, err := os.ReadDir(serviceRoot)
 	if err != nil {
@@ -147,7 +157,7 @@ func lookupGroup(short string) string {
 			continue
 		}
 		for _, sfx := range suffixes {
-			if _, err := os.Stat(filepath.Join(serviceRoot, g.Name(), short+sfx)); err == nil {
+			if _, err := os.Stat(filepath.Join(serviceRoot, g.Name(), base+sfx)); err == nil {
 				return g.Name()
 			}
 		}
