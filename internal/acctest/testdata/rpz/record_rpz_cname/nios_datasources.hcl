@@ -16,7 +16,7 @@ case "filters" {
   step {
     nios {
       name      = "{{random2}}.test-rpz.com"
-      canonical = "*"
+      canonical = ""
       rp_zone   = "test-rpz.com"
     }
   }
@@ -38,7 +38,7 @@ case "ext_attr_filters" {
   step {
     nios {
       name      = "{{random2}}.test-rpz.com"
-      canonical = "*"
+      canonical = ""
       rp_zone   = "test-rpz.com"
       ext_attrs = { Site = "{{random}}" }
     }

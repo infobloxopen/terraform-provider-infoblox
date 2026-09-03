@@ -10,12 +10,12 @@ case "basic" {
   step {
     nios {
       name      = "{{random2}}.test-rpz.com"
-      canonical = "*"
+      canonical = ""
       rp_zone   = "test-rpz.com"
     }
     check = {
       "nios.name"      = "{{random2}}.test-rpz.com"
-      "nios.canonical" = "*"
+      "nios.canonical" = ""
       "nios.rp_zone"   = "test-rpz.com"
       "nios.view"      = "default"
       "nios.disable"   = "false"
@@ -33,7 +33,7 @@ case "disappears" {
   step {
     nios {
       name      = "{{random2}}.test-rpz.com"
-      canonical = "*"
+      canonical = ""
       rp_zone   = "test-rpz.com"
     }
   }
@@ -44,7 +44,19 @@ case "canonical" {
   backend  = "nios"
   parallel = true
 
-  # "*" is the RPZ NODATA rule; a FQDN is a substitution rule.
+  # "" = Block Domain (NXDOMAIN); "*" = Block Domain (No Data);
+  # leading-label = Passthru; FQDN = Substitution; "infoblox-passthru" (wildcard name) = Wildcard Passthru.
+  step {
+    nios {
+      name      = "{{random2}}.test-rpz.com"
+      canonical = ""
+      rp_zone   = "test-rpz.com"
+    }
+    check = {
+      "nios.canonical" = ""
+    }
+  }
+
   step {
     nios {
       name      = "{{random2}}.test-rpz.com"

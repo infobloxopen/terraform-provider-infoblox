@@ -1,16 +1,24 @@
-// Create Record RPZ CNAME with Basic Fields
-// A canonical name of "*" is the RPZ NODATA rule.
-resource "infoblox_record_rpz_cname" "create_record_rpz_cname_basic" {
+// Create Record RPZ CNAME - Block Domain (No Such Domain / NXDOMAIN rule)
+// canonical = "" is the most common RPZ CNAME configuration.
+resource "infoblox_record_rpz_cname" "create_record_rpz_cname_nxdomain" {
   nios = {
     name      = "blocked.rpz.example.com"
+    canonical = ""
+    rp_zone   = "rpz.example.com"
+  }
+}
+
+// Create Record RPZ CNAME - Block Domain (No Data rule)
+resource "infoblox_record_rpz_cname" "create_record_rpz_cname_nodata" {
+  nios = {
+    name      = "nodata.rpz.example.com"
     canonical = "*"
     rp_zone   = "rpz.example.com"
   }
 }
 
-// Create Record RPZ CNAME with Additional Fields
-// A fully qualified canonical name is a substitution rule.
-resource "infoblox_record_rpz_cname" "create_record_rpz_cname_additional" {
+// Create Record RPZ CNAME - Substitution rule with additional fields
+resource "infoblox_record_rpz_cname" "create_record_rpz_cname_substitution" {
   nios = {
     name      = "substituted.rpz.example.com"
     canonical = "walled-garden.example.com"

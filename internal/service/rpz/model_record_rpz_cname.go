@@ -79,7 +79,6 @@ var RecordRpzCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"canonical": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
 			customvalidator.IsValidNIOSDomainName(customvalidator.WithAllowNullOrEmpty()),
 		},
 		MarkdownDescription: "The canonical name in FQDN format. This value can be in unicode format.",
@@ -229,7 +228,7 @@ func (m *NIOSRecordRpzCnameModel) Flatten(ctx context.Context, from *coremodel.N
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.Canonical = flex.FlattenStringPointerEmptyAsNull(from.Canonical)
+	m.Canonical = flex.FlattenStringPointer(from.Canonical)
 	m.Comment = flex.FlattenStringPointerEmptyAsNull(from.Comment)
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
