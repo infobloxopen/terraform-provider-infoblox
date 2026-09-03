@@ -357,34 +357,29 @@ case "func_call" {
       fqdn = "{{random}}.com"
     }
   }
-  # resource "infoblox_ipv6network" "test_func_call" {
-  #   nios = {
-  #     network = "{{random_ipv6_network}}"
-  #     network_view = "default"
-  #   }
-  # }
+  resource "infoblox_ipv6_network" "test_func_call" {
+    nios = {
+      network = "{{random_ipv6_network}}"
+    }
+  }
   PREREQ
 
   step {
     nios {
       name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       view               = infoblox_zone_auth.test.nios.view
-      # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      dynamic_allocation = { network = infoblox_ipv6_network.test_func_call.nios.network, network_view = "default" }
       comment            = "Original Function Call"
     }
-    # depends_on = [infoblox_ipv6network.test_func_call]
   }
 
   step {
     nios {
       name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       view               = infoblox_zone_auth.test.nios.view
-      # dynamic_allocation = { network = infoblox_ipv6network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "2001:db8:abcd:12::/64", network_view = "default" }
+      dynamic_allocation = { network = infoblox_ipv6_network.test_func_call.nios.network, network_view = "default" }
       comment            = "Updated Function Call"
     }
-    # depends_on = [infoblox_ipv6network.test_func_call]
   }
 
 }
