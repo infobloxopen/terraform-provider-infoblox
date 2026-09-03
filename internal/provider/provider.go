@@ -346,6 +346,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordAaaaResource,
 		dns.NewRecordAliasResource,
 		dns.NewRecordCaaResource,
+		dns.NewRecordPtrResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordDnameResource,
 		dns.NewRecordMxResource,
@@ -384,6 +385,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAaaaIpaddressResource,
 	}
 }
 
@@ -407,6 +409,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordAliasDataSource,
 		dns.NewRecordCaaDataSource,
+		dns.NewRecordPtrDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordDnameDataSource,
 		dns.NewRecordMxDataSource,
@@ -448,6 +451,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAaaaIpaddressDataSource,
 	}
 }
 
@@ -471,6 +475,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordAaaaList,
 		dns.NewRecordAliasList,
 		dns.NewRecordCaaList,
+		dns.NewRecordPtrList,
 		dns.NewRecordCnameList,
 		dns.NewRecordDnameList,
 		dns.NewRecordMxList,
@@ -509,6 +514,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAaaaIpaddressList,
 	}
 }
 
