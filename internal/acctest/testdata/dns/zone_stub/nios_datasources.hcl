@@ -14,7 +14,7 @@ case "filters" {
   step {
     nios {
       fqdn      = "{{random}}.com"
-      stub_from = { address = "1.1.1.1", name = "{{random2}}" }
+      stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
     }
   }
 
@@ -35,6 +35,8 @@ case "ext_attr_filters" {
   step {
     nios {
       fqdn = "{{random}}.com"
+      stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

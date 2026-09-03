@@ -120,9 +120,9 @@ func (m *ZoneStubStubFromModel) Expand(ctx context.Context, diags *diag.Diagnost
 		Name:                         flex.ExpandStringPointer(m.Name.StringValue),
 		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
 		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		TsigKey:                      flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:                   flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
-		TsigKeyName:                  flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
+		TsigKey:                      flex.ExpandStringPointer(m.TsigKey),
+		TsigKeyAlg:                   flex.ExpandStringPointer(m.TsigKeyAlg),
+		TsigKeyName:                  flex.ExpandStringPointer(m.TsigKeyName),
 		UseTsigKeyName:               flex.ExpandBoolPointer(m.UseTsigKeyName),
 	}
 	return to

@@ -1,4 +1,8 @@
 # Auto-generated resource acceptance-test cases for ZoneStub.
+// Objects to be present on the GRID for the tests to run 
+// NS Group Forward Stub Server - nsgroup_forwardstubserver_1 , nsgroup_forwardstubserver_2
+// NS Group Stub Member - ns_group_stub_member_1 , ns_group_stub_member_2
+
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -159,10 +163,10 @@ case "external_ns_group" {
     nios {
       fqdn              = "{{random}}.com"
       stub_from         = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      external_ns_group = "ensg1"
+      external_ns_group = "nsgroup_forwardstubserver_1"
     }
     check = {
-      "nios.external_ns_group" = "ensg1"
+      "nios.external_ns_group" = "nsgroup_forwardstubserver_1"
     }
   }
 
@@ -170,10 +174,10 @@ case "external_ns_group" {
     nios {
       fqdn              = "{{random}}.com"
       stub_from         = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      external_ns_group = "ensg2"
+      external_ns_group = "nsgroup_forwardstubserver_2"
     }
     check = {
-      "nios.external_ns_group" = "ensg2"
+      "nios.external_ns_group" = "nsgroup_forwardstubserver_2"
     }
   }
 
@@ -271,10 +275,10 @@ case "ns_group" {
     nios {
       fqdn      = "{{random}}.com"
       stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      ns_group  = "stub_ns_group1"
+      ns_group  = "ns_group_stub_member_1"
     }
     check = {
-      "nios.ns_group" = "stub_ns_group1"
+      "nios.ns_group" = "ns_group_stub_member_1"
     }
   }
 
@@ -282,10 +286,10 @@ case "ns_group" {
     nios {
       fqdn      = "{{random}}.com"
       stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      ns_group  = "stub_ns_group2"
+      ns_group  = "ns_group_stub_member_2"
     }
     check = {
-      "nios.ns_group" = "stub_ns_group2"
+      "nios.ns_group" = "ns_group_stub_member_2"
     }
   }
 
@@ -377,18 +381,16 @@ case "stub_members" {
 
 case "stub_msservers" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Skipping test for stub members as it requires a MS Servers setup in the NIOS grid"
   parallel    = true
 
   step {
     nios {
       fqdn           = "{{random}}.com"
       stub_from      = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      stub_msservers = [{ address = "3.3.3.3", is_master = false, ns_ip = "1.1.1.1", ns_name = "ns_server" }]
+      stub_msservers = [{ address = "10.10.10.10", is_master = false, ns_ip = "1.1.1.1", ns_name = "ns_server" }]
     }
     check = {
-      "nios.stub_msservers.0.address"   = "3.3.3.3"
+      "nios.stub_msservers.0.address"   = "10.10.10.10"
       "nios.stub_msservers.0.is_master" = "false"
       "nios.stub_msservers.0.ns_ip"     = "1.1.1.1"
       "nios.stub_msservers.0.ns_name"   = "ns_server"
@@ -399,10 +401,10 @@ case "stub_msservers" {
     nios {
       fqdn           = "{{random}}.com"
       stub_from      = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      stub_msservers = [{ address = "4.4.4.4", is_master = false, ns_ip = "2.1.1.1", ns_name = "ns_server2" }]
+      stub_msservers = [{ address = "10.0.0.0", is_master = false, ns_ip = "2.1.1.1", ns_name = "ns_server2" }]
     }
     check = {
-      "nios.stub_msservers.0.address"   = "4.4.4.4"
+      "nios.stub_msservers.0.address"   = "10.0.0.0"
       "nios.stub_msservers.0.is_master" = "false"
       "nios.stub_msservers.0.ns_ip"     = "2.1.1.1"
       "nios.stub_msservers.0.ns_name"   = "ns_server2"

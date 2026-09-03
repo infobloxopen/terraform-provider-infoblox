@@ -19,22 +19,20 @@ import (
 
 // ZoneStubStubMsserversModel is the Terraform model for ZoneStubStubMsservers
 type ZoneStubStubMsserversModel struct {
-	Address                      iptypes.IPAddress `tfsdk:"address"`
-	IsMaster                     types.Bool        `tfsdk:"is_master"`
-	NsIp                         types.String      `tfsdk:"ns_ip"`
-	NsName                       types.String      `tfsdk:"ns_name"`
-	Stealth                      types.Bool        `tfsdk:"stealth"`
-	SharedWithMsParentDelegation types.Bool        `tfsdk:"shared_with_ms_parent_delegation"`
+	Address  iptypes.IPAddress `tfsdk:"address"`
+	IsMaster types.Bool        `tfsdk:"is_master"`
+	NsIp     types.String      `tfsdk:"ns_ip"`
+	NsName   types.String      `tfsdk:"ns_name"`
+	Stealth  types.Bool        `tfsdk:"stealth"`
 }
 
 // ZoneStubStubMsserversAttrTypes contains the attribute types for ZoneStubStubMsserversModel
 var ZoneStubStubMsserversAttrTypes = map[string]attr.Type{
-	"address":                          iptypes.IPAddressType{},
-	"is_master":                        types.BoolType,
-	"ns_ip":                            types.StringType,
-	"ns_name":                          types.StringType,
-	"stealth":                          types.BoolType,
-	"shared_with_ms_parent_delegation": types.BoolType,
+	"address":   iptypes.IPAddressType{},
+	"is_master": types.BoolType,
+	"ns_ip":     types.StringType,
+	"ns_name":   types.StringType,
+	"stealth":   types.BoolType,
 }
 
 // ZoneStubStubMsserversResourceSchemaAttributes contains the schema attributes for ZoneStubStubMsserversModel
@@ -74,11 +72,6 @@ var ZoneStubStubMsserversResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Set this flag to hide the NS record for the primary name server from DNS queries.",
 	},
-	"shared_with_ms_parent_delegation": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.",
-	},
 }
 
 // ExpandZoneStubStubMsservers converts a Terraform Object to SDK type
@@ -100,12 +93,11 @@ func (m *ZoneStubStubMsserversModel) Expand(ctx context.Context, diags *diag.Dia
 		return nil
 	}
 	to := &niosdns.ZoneStubStubMsservers{
-		Address:                      flex.ExpandIPAddress(m.Address),
-		IsMaster:                     flex.ExpandBoolPointer(m.IsMaster),
-		NsIp:                         flex.ExpandStringPointerNullAsEmpty(m.NsIp),
-		NsName:                       flex.ExpandStringPointerNullAsEmpty(m.NsName),
-		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
+		Address:  flex.ExpandIPAddress(m.Address),
+		IsMaster: flex.ExpandBoolPointer(m.IsMaster),
+		NsIp:     flex.ExpandStringPointerNullAsEmpty(m.NsIp),
+		NsName:   flex.ExpandStringPointerNullAsEmpty(m.NsName),
+		Stealth:  flex.ExpandBoolPointer(m.Stealth),
 	}
 	return to
 }
@@ -132,5 +124,4 @@ func (m *ZoneStubStubMsserversModel) Flatten(ctx context.Context, from *niosdns.
 	m.NsIp = flex.FlattenStringPointerEmptyAsNull(from.NsIp)
 	m.NsName = flex.FlattenStringPointerEmptyAsNull(from.NsName)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 }

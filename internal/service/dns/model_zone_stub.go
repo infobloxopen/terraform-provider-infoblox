@@ -256,32 +256,35 @@ func (m *ZoneStubModel) Expand(ctx context.Context, diags *diag.Diagnostics, isC
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSZoneStubModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSZoneStubModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSZoneStubExt {
-	return &coremodel.NIOSZoneStubExt{
+func (m *NIOSZoneStubModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSZoneStubExt {
+	ext := &coremodel.NIOSZoneStubExt{
 		Comment:           flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Disable:           flex.ExpandBoolPointer(m.Disable),
 		DisableForwarding: flex.ExpandBoolPointer(m.DisableForwarding),
 		ExtAttrs:          flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		ExternalNsGroup:   flex.ExpandStringPointerNullAsEmpty(m.ExternalNsGroup),
-		Fqdn:              flex.ExpandStringPointerNullAsEmpty(m.Fqdn),
+		ExternalNsGroup:   flex.ExpandStringPointer(m.ExternalNsGroup),
 		Locked:            flex.ExpandBoolPointer(m.Locked),
 		MsAdIntegrated:    flex.ExpandBoolPointer(m.MsAdIntegrated),
 		MsDdnsMode:        flex.ExpandStringPointerNullAsEmpty(m.MsDdnsMode),
-		NsGroup:           flex.ExpandStringPointerNullAsEmpty(m.NsGroup),
+		NsGroup:           flex.ExpandStringPointer(m.NsGroup),
 		Prefix:            flex.ExpandStringPointer(m.Prefix.StringValue),
 		StubFrom:          flex.ExpandFrameworkListNestedBlock(ctx, m.StubFrom, diags, ExpandZoneStubStubFrom),
 		StubMembers:       flex.ExpandFrameworkListNestedBlock(ctx, m.StubMembers, diags, ExpandZoneStubStubMembers),
 		StubMsservers:     flex.ExpandFrameworkListNestedBlock(ctx, m.StubMsservers, diags, ExpandZoneStubStubMsservers),
-		View:              flex.ExpandStringPointerNullAsEmpty(m.View),
-		ZoneFormat:        flex.ExpandStringPointerNullAsEmpty(m.ZoneFormat),
 	}
+	if isCreate {
+		ext.Fqdn = flex.ExpandStringPointerNullAsEmpty(m.Fqdn)
+		ext.View = flex.ExpandStringPointerNullAsEmpty(m.View)
+		ext.ZoneFormat = flex.ExpandStringPointerNullAsEmpty(m.ZoneFormat)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -297,8 +300,10 @@ func (m *ZoneStubModel) Flatten(ctx context.Context, resp *coremodel.ZoneStub, d
 	if niosModel == nil {
 		niosModel = &NIOSZoneStubModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSZoneStubModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenZoneStubNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSZoneStubAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSZoneStubAttrTypes)
@@ -319,12 +324,12 @@ func (m *NIOSZoneStubModel) Flatten(ctx context.Context, from *coremodel.NIOSZon
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.DisableForwarding = flex.FlattenBoolPointer(from.DisableForwarding)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
-	m.ExternalNsGroup = flex.FlattenStringPointerEmptyAsNull(from.ExternalNsGroup)
+	m.ExternalNsGroup = flex.FlattenStringPointer(from.ExternalNsGroup)
 	m.Fqdn = flex.FlattenStringPointerEmptyAsNull(from.Fqdn)
 	m.Locked = flex.FlattenBoolPointer(from.Locked)
 	m.MsAdIntegrated = flex.FlattenBoolPointer(from.MsAdIntegrated)
 	m.MsDdnsMode = flex.FlattenStringPointerEmptyAsNull(from.MsDdnsMode)
-	m.NsGroup = flex.FlattenStringPointerEmptyAsNull(from.NsGroup)
+	m.NsGroup = flex.FlattenStringPointer(from.NsGroup)
 	m.Prefix.StringValue = flex.FlattenStringPointer(from.Prefix)
 	m.StubFrom = flex.FlattenFrameworkListNestedBlock(ctx, from.StubFrom, ZoneStubStubFromAttrTypes, diags, FlattenZoneStubStubFrom)
 	m.StubMembers = flex.FlattenFrameworkListNestedBlock(ctx, from.StubMembers, ZoneStubStubMembersAttrTypes, diags, FlattenZoneStubStubMembers)
