@@ -328,7 +328,6 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		dns.NewZoneStubResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -362,6 +361,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewZoneDelegatedResource,
 		dns.NewZoneForwardResource,
 		dns.NewZoneRpResource,
+		dns.NewZoneStubResource,
 
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
@@ -391,7 +391,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		dns.NewZoneStubDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -425,6 +424,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneDelegatedDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewZoneRpDataSource,
+		dns.NewZoneStubDataSource,
 
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
@@ -457,7 +457,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		dns.NewZoneStubList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
@@ -491,6 +490,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewZoneDelegatedList,
 		dns.NewZoneForwardList,
 		dns.NewZoneRpList,
+		dns.NewZoneStubList,
 
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
