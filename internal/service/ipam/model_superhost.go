@@ -149,6 +149,7 @@ func (m *SuperhostModel) Expand(ctx context.Context, diags *diag.Diagnostics, is
 	niosModel := flex.ExpandNestedObject[NIOSSuperhostModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = PostExpandSuperhostNIOS(ctx, obj.NIOS, diags)
 	}
 
 	return obj
