@@ -328,18 +328,6 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		dhcp.NewSharednetworkResource,
-		dns.NewZoneDelegatedResource,
-		grid.NewUpgradegroupResource,
-		dns.NewSharedrecordAaaaResource,
-		keys.NewTsigKeyResource,
-		dns.NewZoneRpResource,
-		dns.NewZoneForwardResource,
-		dns.NewDnsServerResource,
-		dhcp.NewHaGroupResource,
-		rpz.NewRecordRpzNaptrResource,
-		dns.NewSharedrecordAResource,
-		rpz.NewRecordRpzTxtResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -349,6 +337,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewIpv6fixedaddressResource,
+		dhcp.NewSharednetworkResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -402,18 +391,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		dhcp.NewSharednetworkDataSource,
-		dns.NewZoneDelegatedDataSource,
-		grid.NewUpgradegroupDataSource,
-		dns.NewSharedrecordAaaaDataSource,
-		keys.NewTsigKeyDataSource,
-		dns.NewZoneRpDataSource,
-		dns.NewZoneForwardDataSource,
-		dns.NewDnsServerDataSource,
-		dhcp.NewHaGroupDataSource,
-		rpz.NewRecordRpzNaptrDataSource,
-		dns.NewSharedrecordADataSource,
-		rpz.NewRecordRpzTxtDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -423,6 +400,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewIpv6fixedaddressDataSource,
+		dhcp.NewSharednetworkDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -479,18 +457,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		dhcp.NewSharednetworkList,
-		dns.NewZoneDelegatedList,
-		grid.NewUpgradegroupList,
-		dns.NewSharedrecordAaaaList,
-		keys.NewTsigKeyList,
-		dns.NewZoneRpList,
-		dns.NewZoneForwardList,
-		dns.NewDnsServerList,
-		dhcp.NewHaGroupList,
-		rpz.NewRecordRpzNaptrList,
-		dns.NewSharedrecordAList,
-		rpz.NewRecordRpzTxtList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
@@ -500,6 +466,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6DhcpOptiondefinitionList,
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewIpv6fixedaddressList,
+		dhcp.NewSharednetworkList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
