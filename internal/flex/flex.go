@@ -198,6 +198,30 @@ func ExpandFrameworkListString(ctx context.Context, tfList interface {
 	return data
 }
 
+func ExpandFrameworkListInt32(l types.List) []int32 {
+	if l.IsNull() || l.IsUnknown() {
+		return nil
+	}
+	elements := l.Elements()
+	data := make([]int32, len(elements))
+	for i, v := range elements {
+		data[i] = int32(v.(types.Int32).ValueInt32())
+	}
+	return data
+}
+
+func FlattenFrameworkListInt32(l []int32) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.Int32Type)
+	}
+	elements := make([]attr.Value, len(l))
+	for i, v := range l {
+		elements[i] = types.Int32Value(v)
+	}
+	list, _ := types.ListValue(types.Int32Type, elements)
+	return list
+}
+
 func ExpandIPv4Address(ipv4addr iptypes.IPv4Address) *string {
 	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
 		return nil

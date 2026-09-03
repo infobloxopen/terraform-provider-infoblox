@@ -23,6 +23,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
@@ -322,6 +323,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		fw.NewAccessCodeResource,
 		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
 		misc.NewBfdtemplateResource,
@@ -356,6 +358,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		fw.NewAccessCodeDataSource,
 		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
@@ -393,6 +396,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		fw.NewAccessCodeList,
 		dns.NewNsgroupList,
 		grid.NewNatgroupList,
 		misc.NewBfdtemplateList,
