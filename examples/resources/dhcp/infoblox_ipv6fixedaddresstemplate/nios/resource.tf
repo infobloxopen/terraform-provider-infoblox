@@ -1,12 +1,12 @@
 // Create a DHCP IPv6 Fixed Address Template with Basic Fields
-resource "infoblox_ipv6fixedaddresstemplate" "basic" {
+resource "infoblox_ipv6fixedaddresstemplate" "ipv6_fixed_address_template_basic_fields" {
   nios = {
-    name = "example_ipv6_fixed_address_template_1"
+    name = "example_ipv6_fixed_address_template"
   }
 }
 
 // Create a DHCP IPv6 Fixed Address Template with Additional Fields
-resource "infoblox_ipv6fixedaddresstemplate" "additional_fields" {
+resource "infoblox_ipv6fixedaddresstemplate" "ipv6_fixed_address_template_additional_fields" {
   nios = {
     name = "example_ipv6_fixed_address_template_2"
     // Additional Fields
