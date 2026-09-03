@@ -248,6 +248,21 @@ case "dns_associated_objects" {
       view = "default"
     }
   }
+  resource "infoblox_zone_auth" "parent_reverse_zone" {
+    nios = {
+      fqdn = "192.168.252.0/24"
+      view = "default"
+      zone_format = "IPV4"
+    }
+  }
+  resource "infoblox_record_ptr" "record_ptr" {
+    nios = {
+      name = "23.252.168.192.in-addr.arpa"
+      ptrdname = "test.example.com"
+      view = "default"
+    }
+    depends_on = [infoblox_zone_auth.parent_reverse_zone]
+  }
   PREREQ
 
   step {
@@ -264,10 +279,12 @@ case "dns_associated_objects" {
   step {
     nios {
       name                   = "{{random}}"
-      dns_associated_objects = ["record:ptr/ZG5zLmJpbmRfcHRyJC5fZGVmYXVsdC5hcnBhLmluLWFkZHIuMTkyLjE2OC4yNTIuMjMudGVzdC5leGFtcGxlLmNvbQ:23.252.168.192.in-addr.arpa/default", "record:host/ZG5zLmhvc3QkLl9kZWZhdWx0LmNvbS5zdXBlcmhvc3QtYWNjdGVzdC5wYXJlbnQtcmVjb3JkLWhvc3Q:parent-record-host.superhost-acctest.com/default"]
+      dns_associated_objects = ["${infoblox_record_ptr.record_ptr.id}", "record:host/ZG5zLmhvc3QkLl9kZWZhdWx0LmNvbS5zdXBlcmhvc3QtYWNjdGVzdC5wYXJlbnQtcmVjb3JkLWhvc3Q:parent-record-host.superhost-acctest.com/default"]
+    }
+    check_pair = {
+      "nios.dns_associated_objects.0" = infoblox_record_ptr.record_ptr.id
     }
     check = {
-      "nios.dns_associated_objects.0" = "record:ptr/ZG5zLmJpbmRfcHRyJC5fZGVmYXVsdC5hcnBhLmluLWFkZHIuMTkyLjE2OC4yNTIuMjMudGVzdC5leGFtcGxlLmNvbQ:23.252.168.192.in-addr.arpa/default"
       "nios.dns_associated_objects.1" = "record:host/ZG5zLmhvc3QkLl9kZWZhdWx0LmNvbS5zdXBlcmhvc3QtYWNjdGVzdC5wYXJlbnQtcmVjb3JkLWhvc3Q:parent-record-host.superhost-acctest.com/default"
     }
   }
