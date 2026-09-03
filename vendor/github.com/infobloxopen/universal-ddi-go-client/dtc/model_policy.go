@@ -36,12 +36,10 @@ type Policy struct {
 	Name string `json:"name"`
 	// Optional. List of __Pool__ objects assigned to __Policy__.  Defaults to _empty_.
 	Pools []PolicyPool `json:"pools,omitempty"`
-	// Optional. List of inline __TopologyRule__ objects defining the resolving strategy for __Policy__.  Mutually exclusive with _topology_: if _topology_ is set, _rules_ must be empty. Defaults to a list of single, default __TopologyRule__.
+	// Optional. List of inline __TopologyRule__ objects defining the resolving strategy for __Policy__.  Defaults to a list of single, default __TopologyRule__.
 	Rules []TopologyRule `json:"rules,omitempty"`
 	// Optional. The tags for __Policy__ in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
-	// Optional. __Topology__ binding for this __Policy__.  When set, resolution uses the referenced __Topology__'s __TopologyRulePreset__ entries together with the destinations configured in __PolicyTopology.RuleBinding__.  Mutually exclusive with _rules_: if _rules_ is non-empty, _topology_ must be unset.
-	Topology *PolicyTopology `json:"topology,omitempty"`
 	// Optional. Time to live value (in seconds) to be used for records in DTC response. Unsigned integer, min: 0, max 2147483647 (31-bits per RFC-2181).
 	Ttl                  *int64 `json:"ttl,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -372,38 +370,6 @@ func (o *Policy) SetTags(v map[string]interface{}) {
 	o.Tags = v
 }
 
-// GetTopology returns the Topology field value if set, zero value otherwise.
-func (o *Policy) GetTopology() PolicyTopology {
-	if o == nil || IsNil(o.Topology) {
-		var ret PolicyTopology
-		return ret
-	}
-	return *o.Topology
-}
-
-// GetTopologyOk returns a tuple with the Topology field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *Policy) GetTopologyOk() (*PolicyTopology, bool) {
-	if o == nil || IsNil(o.Topology) {
-		return nil, false
-	}
-	return o.Topology, true
-}
-
-// HasTopology returns a boolean if a field has been set.
-func (o *Policy) HasTopology() bool {
-	if o != nil && !IsNil(o.Topology) {
-		return true
-	}
-
-	return false
-}
-
-// SetTopology gets a reference to the given PolicyTopology and assigns it to the Topology field.
-func (o *Policy) SetTopology(v PolicyTopology) {
-	o.Topology = &v
-}
-
 // GetTtl returns the Ttl field value if set, zero value otherwise.
 func (o *Policy) GetTtl() int64 {
 	if o == nil || IsNil(o.Ttl) {
@@ -472,9 +438,6 @@ func (o Policy) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
 	}
-	if !IsNil(o.Topology) {
-		toSerialize["topology"] = o.Topology
-	}
 	if !IsNil(o.Ttl) {
 		toSerialize["ttl"] = o.Ttl
 	}
@@ -532,7 +495,6 @@ func (o *Policy) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "pools")
 		delete(additionalProperties, "rules")
 		delete(additionalProperties, "tags")
-		delete(additionalProperties, "topology")
 		delete(additionalProperties, "ttl")
 		o.AdditionalProperties = additionalProperties
 	}

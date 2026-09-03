@@ -30,11 +30,15 @@ type OverlappingBlock struct {
 	// Time when the object has been created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// The resource identifier.
+	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
+	// The resource identifier.
 	FederatedRealm string `json:"federated_realm"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
 	// The name of the overlapping block. May contain 1 to 256 characters. Can include UTF-8.
 	Name *string `json:"name,omitempty"`
+	// The compliance status of the overlapping block, as determined by the federation service.
+	NetworkCompliant *bool `json:"network_compliant,omitempty"`
 	// The resource identifier.
 	Parent *string `json:"parent,omitempty"`
 	// The type of protocol of overlapping block (_ip4_ or _ip6_).
@@ -187,6 +191,38 @@ func (o *OverlappingBlock) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
+// GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
+func (o *OverlappingBlock) GetFederatedPoolId() string {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		var ret string
+		return ret
+	}
+	return *o.FederatedPoolId
+}
+
+// GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *OverlappingBlock) GetFederatedPoolIdOk() (*string, bool) {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		return nil, false
+	}
+	return o.FederatedPoolId, true
+}
+
+// HasFederatedPoolId returns a boolean if a field has been set.
+func (o *OverlappingBlock) HasFederatedPoolId() bool {
+	if o != nil && !IsNil(o.FederatedPoolId) {
+		return true
+	}
+
+	return false
+}
+
+// SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
+func (o *OverlappingBlock) SetFederatedPoolId(v string) {
+	o.FederatedPoolId = &v
+}
+
 // GetFederatedRealm returns the FederatedRealm field value
 func (o *OverlappingBlock) GetFederatedRealm() string {
 	if o == nil {
@@ -273,6 +309,38 @@ func (o *OverlappingBlock) HasName() bool {
 // SetName gets a reference to the given string and assigns it to the Name field.
 func (o *OverlappingBlock) SetName(v string) {
 	o.Name = &v
+}
+
+// GetNetworkCompliant returns the NetworkCompliant field value if set, zero value otherwise.
+func (o *OverlappingBlock) GetNetworkCompliant() bool {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		var ret bool
+		return ret
+	}
+	return *o.NetworkCompliant
+}
+
+// GetNetworkCompliantOk returns a tuple with the NetworkCompliant field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *OverlappingBlock) GetNetworkCompliantOk() (*bool, bool) {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		return nil, false
+	}
+	return o.NetworkCompliant, true
+}
+
+// HasNetworkCompliant returns a boolean if a field has been set.
+func (o *OverlappingBlock) HasNetworkCompliant() bool {
+	if o != nil && !IsNil(o.NetworkCompliant) {
+		return true
+	}
+
+	return false
+}
+
+// SetNetworkCompliant gets a reference to the given bool and assigns it to the NetworkCompliant field.
+func (o *OverlappingBlock) SetNetworkCompliant(v bool) {
+	o.NetworkCompliant = &v
 }
 
 // GetParent returns the Parent field value if set, zero value otherwise.
@@ -423,12 +491,18 @@ func (o OverlappingBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
+	if !IsNil(o.FederatedPoolId) {
+		toSerialize["federated_pool_id"] = o.FederatedPoolId
+	}
 	toSerialize["federated_realm"] = o.FederatedRealm
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
 	if !IsNil(o.Name) {
 		toSerialize["name"] = o.Name
+	}
+	if !IsNil(o.NetworkCompliant) {
+		toSerialize["network_compliant"] = o.NetworkCompliant
 	}
 	if !IsNil(o.Parent) {
 		toSerialize["parent"] = o.Parent
@@ -490,9 +564,11 @@ func (o *OverlappingBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "cidr")
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "federated_pool_id")
 		delete(additionalProperties, "federated_realm")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "network_compliant")
 		delete(additionalProperties, "parent")
 		delete(additionalProperties, "protocol")
 		delete(additionalProperties, "tags")

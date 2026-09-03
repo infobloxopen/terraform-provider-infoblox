@@ -1,12 +1,19 @@
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.rpz-test.infoblox.com"
-      canonical = "test-cname.example.com"
-      rp_zone   = "rpz-test.infoblox.com"
+      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -21,12 +28,19 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.rpz-test.infoblox.com"
-      canonical = "test-cname.example.com"
-      rp_zone   = "rpz-test.infoblox.com"
+      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -47,13 +61,20 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.rpz-test.infoblox.com"
-      canonical = "test-cname.example.com"
-      rp_zone   = "rpz-test.infoblox.com"
-      ext_attrs = { Site = "{{random}}" }
+      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

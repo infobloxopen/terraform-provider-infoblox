@@ -30,15 +30,23 @@ type ReservedBlock struct {
 	// Time when the object has been created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// The resource identifier.
+	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
+	// The resource identifier.
 	FederatedRealm string `json:"federated_realm"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
+	// The metadata for the reserved block in JSON format.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// The name of the reserved block. May contain 1 to 256 characters. Can include UTF-8.
 	Name *string `json:"name,omitempty"`
+	// The compliance status of the reserved block, as determined by the federation service.
+	NetworkCompliant *bool `json:"network_compliant,omitempty"`
 	// The resource identifier.
 	Parent *string `json:"parent,omitempty"`
 	// The type of protocol of reserved block (_ip4_ or _ip6_).
 	Protocol *string `json:"protocol,omitempty"`
+	// The region where the reserved block is located.
+	Region *string `json:"region,omitempty"`
 	// The tags for the reserved block in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
 	// Time when the object has been updated. Equals to _created_at_ if not updated after creation.
@@ -187,6 +195,38 @@ func (o *ReservedBlock) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
+// GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
+func (o *ReservedBlock) GetFederatedPoolId() string {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		var ret string
+		return ret
+	}
+	return *o.FederatedPoolId
+}
+
+// GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReservedBlock) GetFederatedPoolIdOk() (*string, bool) {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		return nil, false
+	}
+	return o.FederatedPoolId, true
+}
+
+// HasFederatedPoolId returns a boolean if a field has been set.
+func (o *ReservedBlock) HasFederatedPoolId() bool {
+	if o != nil && !IsNil(o.FederatedPoolId) {
+		return true
+	}
+
+	return false
+}
+
+// SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
+func (o *ReservedBlock) SetFederatedPoolId(v string) {
+	o.FederatedPoolId = &v
+}
+
 // GetFederatedRealm returns the FederatedRealm field value
 func (o *ReservedBlock) GetFederatedRealm() string {
 	if o == nil {
@@ -243,6 +283,38 @@ func (o *ReservedBlock) SetId(v string) {
 	o.Id = &v
 }
 
+// GetMetadata returns the Metadata field value if set, zero value otherwise.
+func (o *ReservedBlock) GetMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.Metadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.Metadata
+}
+
+// GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReservedBlock) GetMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.Metadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.Metadata, true
+}
+
+// HasMetadata returns a boolean if a field has been set.
+func (o *ReservedBlock) HasMetadata() bool {
+	if o != nil && !IsNil(o.Metadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
+func (o *ReservedBlock) SetMetadata(v map[string]interface{}) {
+	o.Metadata = v
+}
+
 // GetName returns the Name field value if set, zero value otherwise.
 func (o *ReservedBlock) GetName() string {
 	if o == nil || IsNil(o.Name) {
@@ -273,6 +345,38 @@ func (o *ReservedBlock) HasName() bool {
 // SetName gets a reference to the given string and assigns it to the Name field.
 func (o *ReservedBlock) SetName(v string) {
 	o.Name = &v
+}
+
+// GetNetworkCompliant returns the NetworkCompliant field value if set, zero value otherwise.
+func (o *ReservedBlock) GetNetworkCompliant() bool {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		var ret bool
+		return ret
+	}
+	return *o.NetworkCompliant
+}
+
+// GetNetworkCompliantOk returns a tuple with the NetworkCompliant field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReservedBlock) GetNetworkCompliantOk() (*bool, bool) {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		return nil, false
+	}
+	return o.NetworkCompliant, true
+}
+
+// HasNetworkCompliant returns a boolean if a field has been set.
+func (o *ReservedBlock) HasNetworkCompliant() bool {
+	if o != nil && !IsNil(o.NetworkCompliant) {
+		return true
+	}
+
+	return false
+}
+
+// SetNetworkCompliant gets a reference to the given bool and assigns it to the NetworkCompliant field.
+func (o *ReservedBlock) SetNetworkCompliant(v bool) {
+	o.NetworkCompliant = &v
 }
 
 // GetParent returns the Parent field value if set, zero value otherwise.
@@ -337,6 +441,38 @@ func (o *ReservedBlock) HasProtocol() bool {
 // SetProtocol gets a reference to the given string and assigns it to the Protocol field.
 func (o *ReservedBlock) SetProtocol(v string) {
 	o.Protocol = &v
+}
+
+// GetRegion returns the Region field value if set, zero value otherwise.
+func (o *ReservedBlock) GetRegion() string {
+	if o == nil || IsNil(o.Region) {
+		var ret string
+		return ret
+	}
+	return *o.Region
+}
+
+// GetRegionOk returns a tuple with the Region field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReservedBlock) GetRegionOk() (*string, bool) {
+	if o == nil || IsNil(o.Region) {
+		return nil, false
+	}
+	return o.Region, true
+}
+
+// HasRegion returns a boolean if a field has been set.
+func (o *ReservedBlock) HasRegion() bool {
+	if o != nil && !IsNil(o.Region) {
+		return true
+	}
+
+	return false
+}
+
+// SetRegion gets a reference to the given string and assigns it to the Region field.
+func (o *ReservedBlock) SetRegion(v string) {
+	o.Region = &v
 }
 
 // GetTags returns the Tags field value if set, zero value otherwise.
@@ -423,18 +559,30 @@ func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
+	if !IsNil(o.FederatedPoolId) {
+		toSerialize["federated_pool_id"] = o.FederatedPoolId
+	}
 	toSerialize["federated_realm"] = o.FederatedRealm
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
+	if !IsNil(o.Metadata) {
+		toSerialize["metadata"] = o.Metadata
+	}
 	if !IsNil(o.Name) {
 		toSerialize["name"] = o.Name
+	}
+	if !IsNil(o.NetworkCompliant) {
+		toSerialize["network_compliant"] = o.NetworkCompliant
 	}
 	if !IsNil(o.Parent) {
 		toSerialize["parent"] = o.Parent
 	}
 	if !IsNil(o.Protocol) {
 		toSerialize["protocol"] = o.Protocol
+	}
+	if !IsNil(o.Region) {
+		toSerialize["region"] = o.Region
 	}
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
@@ -490,11 +638,15 @@ func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "cidr")
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "federated_pool_id")
 		delete(additionalProperties, "federated_realm")
 		delete(additionalProperties, "id")
+		delete(additionalProperties, "metadata")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "network_compliant")
 		delete(additionalProperties, "parent")
 		delete(additionalProperties, "protocol")
+		delete(additionalProperties, "region")
 		delete(additionalProperties, "tags")
 		delete(additionalProperties, "updated_at")
 		o.AdditionalProperties = additionalProperties

@@ -12,13 +12,13 @@ case "basic" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
     }
     check = {
       "nios.ipv4addr"           = "{{random_ip}}"
-      "nios.name"               = "a-record.{{random}}.com"
+      "nios.name"               = "{{random2}}.{{random}}.com"
       "nios.creator"            = "STATIC"
       "nios.ddns_protected"     = "false"
       "nios.disable"            = "false"
@@ -43,7 +43,7 @@ case "disappears" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
     }
@@ -64,7 +64,7 @@ case "comment" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       comment  = "This is a new record"
@@ -76,7 +76,7 @@ case "comment" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       comment  = "This is an updated record"
@@ -101,7 +101,7 @@ case "creator" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       creator  = "STATIC"
@@ -113,7 +113,7 @@ case "creator" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       creator  = "DYNAMIC"
@@ -138,7 +138,7 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr       = "{{random_ip}}"
       view           = infoblox_zone_auth.test.nios.view
       creator        = "DYNAMIC"
@@ -151,7 +151,7 @@ case "ddns_principal" {
 
   step {
     nios {
-      name           = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr       = "{{random_ip}}"
       view           = infoblox_zone_auth.test.nios.view
       creator        = "DYNAMIC"
@@ -177,7 +177,7 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr       = "{{random_ip}}"
       view           = infoblox_zone_auth.test.nios.view
       ddns_protected = false
@@ -189,7 +189,7 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name           = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr       = "{{random_ip}}"
       view           = infoblox_zone_auth.test.nios.view
       ddns_protected = true
@@ -214,7 +214,7 @@ case "disable" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       disable  = false
@@ -226,7 +226,7 @@ case "disable" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       disable  = true
@@ -251,25 +251,25 @@ case "extattrs" {
 
   step {
     nios {
-      name      = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
-      ipv4addr  = "{{random_ip}}"
-      view      = infoblox_zone_auth.test.nios.view
-      ext_attrs = { Site = "{{random2}}" }
-    }
-    check = {
-      "nios.ext_attrs.Site" = "{{random2}}"
-    }
-  }
-
-  step {
-    nios {
-      name      = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr  = "{{random_ip}}"
       view      = infoblox_zone_auth.test.nios.view
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
       "nios.ext_attrs.Site" = "{{random3}}"
+    }
+  }
+
+  step {
+    nios {
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addr  = "{{random_ip}}"
+      view      = infoblox_zone_auth.test.nios.view
+      ext_attrs = { Site = "{{random4}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
@@ -288,7 +288,7 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr           = "{{random_ip}}"
       view               = infoblox_zone_auth.test.nios.view
       forbid_reclamation = true
@@ -300,7 +300,7 @@ case "forbid_reclamation" {
 
   step {
     nios {
-      name               = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr           = "{{random_ip}}"
       view               = infoblox_zone_auth.test.nios.view
       forbid_reclamation = false
@@ -321,34 +321,29 @@ case "func_call" {
       fqdn = "{{random}}.com"
     }
   }
-  # resource "infoblox_network" "test_func_call" {
-  #   nios = {
-  #     network = "85.85.0.0/16"
-  #     network_view = "default"
-  #   }
-  # }
+  resource "infoblox_network" "test_func_call" {
+    nios = {
+      network = "{{random_cidr_network}}"
+    }
+  }
   PREREQ
 
   step {
     nios {
-      name = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
-      view = infoblox_zone_auth.test.nios.view
-      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
+      dynamic_allocation = { network = infoblox_network.test_func_call.nios.network, network_view = "default" }
       comment            = "Original Function Call"
     }
-    # depends_on = [infoblox_network.test_func_call]
   }
 
   step {
     nios {
-      name = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
-      view = infoblox_zone_auth.test.nios.view
-      # dynamic_allocation = { network = infoblox_network.test.nios.network, network_view = "default" }
-      dynamic_allocation = { network = "12.0.0.0/24", network_view = "default" }
+      name               = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
+      dynamic_allocation = { network = infoblox_network.test_func_call.nios.network, network_view = "default" }
       comment            = "Function Call with Update"
     }
-    # depends_on = [infoblox_network.test_func_call]
   }
 
 }
@@ -366,7 +361,7 @@ case "ipv4addr" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
     }
@@ -377,7 +372,7 @@ case "ipv4addr" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip2}}"
       view     = infoblox_zone_auth.test.nios.view
     }
@@ -436,7 +431,7 @@ case "ttl" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       ttl      = 10
@@ -448,7 +443,7 @@ case "ttl" {
 
   step {
     nios {
-      name     = "a-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addr = "{{random_ip}}"
       view     = infoblox_zone_auth.test.nios.view
       ttl      = 0
