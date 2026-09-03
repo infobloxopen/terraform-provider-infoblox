@@ -3,7 +3,7 @@ list "infoblox_record_rpz_naptr" "list_record_rpz_naptr_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "naptr.rpz-zone.example.com"
+      name = "naptr-record.rpz.example.com"
     }
   }
 }
