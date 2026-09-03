@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -18,32 +20,31 @@ import (
 
 // NsgroupDelegationDelegateToModel is the Terraform model for NsgroupDelegationDelegateTo
 type NsgroupDelegationDelegateToModel struct {
-	Address                      types.String `tfsdk:"address"`
-	Name                         types.String `tfsdk:"name"`
-	SharedWithMsParentDelegation types.Bool   `tfsdk:"shared_with_ms_parent_delegation"`
-	Stealth                      types.Bool   `tfsdk:"stealth"`
-	TsigKey                      types.String `tfsdk:"tsig_key"`
-	TsigKeyAlg                   types.String `tfsdk:"tsig_key_alg"`
-	TsigKeyName                  types.String `tfsdk:"tsig_key_name"`
-	UseTsigKeyName               types.Bool   `tfsdk:"use_tsig_key_name"`
+	Address        iptypes.IPAddress `tfsdk:"address"`
+	Name           types.String      `tfsdk:"name"`
+	Stealth        types.Bool        `tfsdk:"stealth"`
+	TsigKey        types.String      `tfsdk:"tsig_key"`
+	TsigKeyAlg     types.String      `tfsdk:"tsig_key_alg"`
+	TsigKeyName    types.String      `tfsdk:"tsig_key_name"`
+	UseTsigKeyName types.Bool        `tfsdk:"use_tsig_key_name"`
 }
 
 // NsgroupDelegationDelegateToAttrTypes contains the attribute types for NsgroupDelegationDelegateToModel
 var NsgroupDelegationDelegateToAttrTypes = map[string]attr.Type{
-	"address":                          types.StringType,
-	"name":                             types.StringType,
-	"shared_with_ms_parent_delegation": types.BoolType,
-	"stealth":                          types.BoolType,
-	"tsig_key":                         types.StringType,
-	"tsig_key_alg":                     types.StringType,
-	"tsig_key_name":                    types.StringType,
-	"use_tsig_key_name":                types.BoolType,
+	"address":           iptypes.IPAddressType{},
+	"name":              types.StringType,
+	"stealth":           types.BoolType,
+	"tsig_key":          types.StringType,
+	"tsig_key_alg":      types.StringType,
+	"tsig_key_name":     types.StringType,
+	"use_tsig_key_name": types.BoolType,
 }
 
 // NsgroupDelegationDelegateToResourceSchemaAttributes contains the schema attributes for NsgroupDelegationDelegateToModel
 var NsgroupDelegationDelegateToResourceSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Required: true,
+		Required:   true,
+		CustomType: iptypes.IPAddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -58,19 +59,17 @@ var NsgroupDelegationDelegateToResourceSchemaAttributes = map[string]schema.Attr
 		},
 		MarkdownDescription: "A resolvable domain name for the external DNS server.",
 	},
-	"shared_with_ms_parent_delegation": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "This flag represents whether the name server is shared with the parent Microsoft primary zone's delegation server.",
-	},
 	"stealth": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Set this flag to hide the NS record for the primary name server from DNS queries.",
 	},
 	"tsig_key": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "A generated TSIG key.",
 	},
@@ -79,17 +78,22 @@ var NsgroupDelegationDelegateToResourceSchemaAttributes = map[string]schema.Attr
 			stringvalidator.OneOf("HMAC-MD5", "HMAC-SHA256"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The TSIG key algorithm.",
 	},
 	"tsig_key_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_tsig_key_name")),
 		},
 		MarkdownDescription: "The TSIG key name.",
 	},
 	"use_tsig_key_name": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use flag for: tsig_key_name",
 	},
 }
@@ -113,14 +117,13 @@ func (m *NsgroupDelegationDelegateToModel) Expand(ctx context.Context, diags *di
 		return nil
 	}
 	to := &niosdns.NsgroupDelegationDelegateTo{
-		Address:                      flex.ExpandStringPointerNullAsEmpty(m.Address),
-		Name:                         flex.ExpandStringPointerNullAsEmpty(m.Name),
-		SharedWithMsParentDelegation: flex.ExpandBoolPointer(m.SharedWithMsParentDelegation),
-		Stealth:                      flex.ExpandBoolPointer(m.Stealth),
-		TsigKey:                      flex.ExpandStringPointerNullAsEmpty(m.TsigKey),
-		TsigKeyAlg:                   flex.ExpandStringPointerNullAsEmpty(m.TsigKeyAlg),
-		TsigKeyName:                  flex.ExpandStringPointerNullAsEmpty(m.TsigKeyName),
-		UseTsigKeyName:               flex.ExpandBoolPointer(m.UseTsigKeyName),
+		Address:        flex.ExpandIPAddress(m.Address),
+		Name:           flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Stealth:        flex.ExpandBoolPointer(m.Stealth),
+		TsigKey:        flex.ExpandStringPointer(m.TsigKey),
+		TsigKeyAlg:     flex.ExpandStringPointer(m.TsigKeyAlg),
+		TsigKeyName:    flex.ExpandStringPointer(m.TsigKeyName),
+		UseTsigKeyName: flex.ExpandBoolPointer(m.UseTsigKeyName),
 	}
 	return to
 }
@@ -142,12 +145,11 @@ func (m *NsgroupDelegationDelegateToModel) Flatten(ctx context.Context, from *ni
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenStringPointerEmptyAsNull(from.Address)
+	m.Address = flex.FlattenIPAddress(from.Address)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.SharedWithMsParentDelegation = flex.FlattenBoolPointer(from.SharedWithMsParentDelegation)
 	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
 	m.TsigKey = flex.FlattenStringPointerEmptyAsNull(from.TsigKey)
-	m.TsigKeyAlg = flex.FlattenStringPointer(from.TsigKeyAlg)
+	m.TsigKeyAlg = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyAlg)
 	m.TsigKeyName = flex.FlattenStringPointerEmptyAsNull(from.TsigKeyName)
 	m.UseTsigKeyName = flex.FlattenBoolPointer(from.UseTsigKeyName)
 }

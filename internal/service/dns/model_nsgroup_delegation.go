@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -62,10 +64,13 @@ var NsgroupDelegationResourceSchemaAttributes = map[string]schema.Attribute{
 
 var NsgroupDelegationResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:  stringdefault.StaticString(""),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
+			stringvalidator.LengthBetween(0, 256),
 		},
 		MarkdownDescription: "The comment for the delegated NS group.",
 	},
@@ -146,8 +151,10 @@ func (m *NsgroupDelegationModel) Flatten(ctx context.Context, resp *coremodel.Ns
 	if niosModel == nil {
 		niosModel = &NIOSNsgroupDelegationModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSNsgroupDelegationModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenNsgroupDelegationNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSNsgroupDelegationAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSNsgroupDelegationAttrTypes)

@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -15,4 +16,7 @@ func ValidateNsgroupDelegation(ctx context.Context, data NsgroupDelegationModel,
 }
 
 func validateNsgroupDelegationNIOSConfig(ctx context.Context, m *NIOSNsgroupDelegationModel, resp *resource.ValidateConfigResponse) {
+}
+
+func PostFlattenNsgroupDelegationNIOS(ctx context.Context, planned, flattened *NIOSNsgroupDelegationModel, diags *diag.Diagnostics) {
 }
