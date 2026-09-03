@@ -12,7 +12,6 @@ case "basic" {
       "nios.name"                = "{{random}}"
       "nios.stub_members.#"      = "1"
       "nios.stub_members.0.name" = "{{grid_member_hostname}}"
-      "nios.comment"             = ""
     }
   }
 
