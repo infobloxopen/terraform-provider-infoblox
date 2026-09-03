@@ -16,67 +16,69 @@ import (
 	"time"
 )
 
-// checks if the ReservedBlock type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ReservedBlock{}
+// checks if the Delegation type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &Delegation{}
 
-// ReservedBlock A __ReservedBlock__ object (_federation/reserved_block_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. It is explicitly associated with a Federated Realm. A __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
-type ReservedBlock struct {
+// Delegation A __Delegation__ object (_federation/delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. A Delegation is explicitly associated with Federated Realms, and implicitly with Federated Block Parents. A Delegation in a given realm is said to be the child of the closest enclosing parent.
+type Delegation struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
 	Address string `json:"address"`
-	// The CIDR of the reserved block. This is required field, if _address_ does not specify it in its input.
+	// The CIDR of the delegation. This is required, if _address_ does not specify it in its input.
 	Cidr *int64 `json:"cidr,omitempty"`
-	// The description for the reserved block. May contain 0 to 1024 characters. Can include UTF-8.
+	// The description for the delegation. May contain 0 to 1024 characters. Can include UTF-8.
 	Comment *string `json:"comment,omitempty"`
 	// Time when the object has been created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
+	// The specific IPAM service the delegation was delegated to. In case federated realms are not provided, this field would be used to determine the __Federated_Realm__ the __Delegation__ should be part of.
+	DelegatedTo string `json:"delegated_to"`
 	// The resource identifier.
 	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
 	// The resource identifier.
-	FederatedRealm string `json:"federated_realm"`
+	FederatedRealms []string `json:"federated_realms,omitempty"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
-	// The metadata for the reserved block in JSON format.
+	// The metadata for the delegation in JSON format.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// The name of the reserved block. May contain 1 to 256 characters. Can include UTF-8.
+	// The name of the delegation. May contain 1 to 256 characters. Can include UTF-8.
 	Name *string `json:"name,omitempty"`
-	// The compliance status of the reserved block, as determined by the federation service.
-	NetworkCompliant *bool `json:"network_compliant,omitempty"`
 	// The resource identifier.
-	Parent *string `json:"parent,omitempty"`
-	// The type of protocol of reserved block (_ip4_ or _ip6_).
+	Parents []string `json:"parents,omitempty"`
+	// The type of protocol of delegation (_ip4_ or _ip6_).
 	Protocol *string `json:"protocol,omitempty"`
-	// The region where the reserved block is located.
+	// The region where the delegation is located.
 	Region *string `json:"region,omitempty"`
-	// The tags for the reserved block in JSON format.
+	// The tags for the delegation in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
 	// Time when the object has been updated. Equals to _created_at_ if not updated after creation.
-	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	// The IP address utilization percentage of the object _federation/delegation_.
+	Utilization          *int64 `json:"utilization,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _ReservedBlock ReservedBlock
+type _Delegation Delegation
 
-// NewReservedBlock instantiates a new ReservedBlock object
+// NewDelegation instantiates a new Delegation object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewReservedBlock(address string, federatedRealm string) *ReservedBlock {
-	this := ReservedBlock{}
+func NewDelegation(address string, delegatedTo string) *Delegation {
+	this := Delegation{}
 	this.Address = address
-	this.FederatedRealm = federatedRealm
+	this.DelegatedTo = delegatedTo
 	return &this
 }
 
-// NewReservedBlockWithDefaults instantiates a new ReservedBlock object
+// NewDelegationWithDefaults instantiates a new Delegation object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewReservedBlockWithDefaults() *ReservedBlock {
-	this := ReservedBlock{}
+func NewDelegationWithDefaults() *Delegation {
+	this := Delegation{}
 	return &this
 }
 
 // GetAddress returns the Address field value
-func (o *ReservedBlock) GetAddress() string {
+func (o *Delegation) GetAddress() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -87,7 +89,7 @@ func (o *ReservedBlock) GetAddress() string {
 
 // GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetAddressOk() (*string, bool) {
+func (o *Delegation) GetAddressOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -95,12 +97,12 @@ func (o *ReservedBlock) GetAddressOk() (*string, bool) {
 }
 
 // SetAddress sets field value
-func (o *ReservedBlock) SetAddress(v string) {
+func (o *Delegation) SetAddress(v string) {
 	o.Address = v
 }
 
 // GetCidr returns the Cidr field value if set, zero value otherwise.
-func (o *ReservedBlock) GetCidr() int64 {
+func (o *Delegation) GetCidr() int64 {
 	if o == nil || IsNil(o.Cidr) {
 		var ret int64
 		return ret
@@ -110,7 +112,7 @@ func (o *ReservedBlock) GetCidr() int64 {
 
 // GetCidrOk returns a tuple with the Cidr field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetCidrOk() (*int64, bool) {
+func (o *Delegation) GetCidrOk() (*int64, bool) {
 	if o == nil || IsNil(o.Cidr) {
 		return nil, false
 	}
@@ -118,7 +120,7 @@ func (o *ReservedBlock) GetCidrOk() (*int64, bool) {
 }
 
 // HasCidr returns a boolean if a field has been set.
-func (o *ReservedBlock) HasCidr() bool {
+func (o *Delegation) HasCidr() bool {
 	if o != nil && !IsNil(o.Cidr) {
 		return true
 	}
@@ -127,12 +129,12 @@ func (o *ReservedBlock) HasCidr() bool {
 }
 
 // SetCidr gets a reference to the given int64 and assigns it to the Cidr field.
-func (o *ReservedBlock) SetCidr(v int64) {
+func (o *Delegation) SetCidr(v int64) {
 	o.Cidr = &v
 }
 
 // GetComment returns the Comment field value if set, zero value otherwise.
-func (o *ReservedBlock) GetComment() string {
+func (o *Delegation) GetComment() string {
 	if o == nil || IsNil(o.Comment) {
 		var ret string
 		return ret
@@ -142,7 +144,7 @@ func (o *ReservedBlock) GetComment() string {
 
 // GetCommentOk returns a tuple with the Comment field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetCommentOk() (*string, bool) {
+func (o *Delegation) GetCommentOk() (*string, bool) {
 	if o == nil || IsNil(o.Comment) {
 		return nil, false
 	}
@@ -150,7 +152,7 @@ func (o *ReservedBlock) GetCommentOk() (*string, bool) {
 }
 
 // HasComment returns a boolean if a field has been set.
-func (o *ReservedBlock) HasComment() bool {
+func (o *Delegation) HasComment() bool {
 	if o != nil && !IsNil(o.Comment) {
 		return true
 	}
@@ -159,12 +161,12 @@ func (o *ReservedBlock) HasComment() bool {
 }
 
 // SetComment gets a reference to the given string and assigns it to the Comment field.
-func (o *ReservedBlock) SetComment(v string) {
+func (o *Delegation) SetComment(v string) {
 	o.Comment = &v
 }
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
-func (o *ReservedBlock) GetCreatedAt() time.Time {
+func (o *Delegation) GetCreatedAt() time.Time {
 	if o == nil || IsNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
@@ -174,7 +176,7 @@ func (o *ReservedBlock) GetCreatedAt() time.Time {
 
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetCreatedAtOk() (*time.Time, bool) {
+func (o *Delegation) GetCreatedAtOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.CreatedAt) {
 		return nil, false
 	}
@@ -182,7 +184,7 @@ func (o *ReservedBlock) GetCreatedAtOk() (*time.Time, bool) {
 }
 
 // HasCreatedAt returns a boolean if a field has been set.
-func (o *ReservedBlock) HasCreatedAt() bool {
+func (o *Delegation) HasCreatedAt() bool {
 	if o != nil && !IsNil(o.CreatedAt) {
 		return true
 	}
@@ -191,12 +193,36 @@ func (o *ReservedBlock) HasCreatedAt() bool {
 }
 
 // SetCreatedAt gets a reference to the given time.Time and assigns it to the CreatedAt field.
-func (o *ReservedBlock) SetCreatedAt(v time.Time) {
+func (o *Delegation) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
+// GetDelegatedTo returns the DelegatedTo field value
+func (o *Delegation) GetDelegatedTo() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.DelegatedTo
+}
+
+// GetDelegatedToOk returns a tuple with the DelegatedTo field value
+// and a boolean to check if the value has been set.
+func (o *Delegation) GetDelegatedToOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.DelegatedTo, true
+}
+
+// SetDelegatedTo sets field value
+func (o *Delegation) SetDelegatedTo(v string) {
+	o.DelegatedTo = v
+}
+
 // GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
-func (o *ReservedBlock) GetFederatedPoolId() string {
+func (o *Delegation) GetFederatedPoolId() string {
 	if o == nil || IsNil(o.FederatedPoolId) {
 		var ret string
 		return ret
@@ -206,7 +232,7 @@ func (o *ReservedBlock) GetFederatedPoolId() string {
 
 // GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetFederatedPoolIdOk() (*string, bool) {
+func (o *Delegation) GetFederatedPoolIdOk() (*string, bool) {
 	if o == nil || IsNil(o.FederatedPoolId) {
 		return nil, false
 	}
@@ -214,7 +240,7 @@ func (o *ReservedBlock) GetFederatedPoolIdOk() (*string, bool) {
 }
 
 // HasFederatedPoolId returns a boolean if a field has been set.
-func (o *ReservedBlock) HasFederatedPoolId() bool {
+func (o *Delegation) HasFederatedPoolId() bool {
 	if o != nil && !IsNil(o.FederatedPoolId) {
 		return true
 	}
@@ -223,36 +249,44 @@ func (o *ReservedBlock) HasFederatedPoolId() bool {
 }
 
 // SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
-func (o *ReservedBlock) SetFederatedPoolId(v string) {
+func (o *Delegation) SetFederatedPoolId(v string) {
 	o.FederatedPoolId = &v
 }
 
-// GetFederatedRealm returns the FederatedRealm field value
-func (o *ReservedBlock) GetFederatedRealm() string {
-	if o == nil {
-		var ret string
+// GetFederatedRealms returns the FederatedRealms field value if set, zero value otherwise.
+func (o *Delegation) GetFederatedRealms() []string {
+	if o == nil || IsNil(o.FederatedRealms) {
+		var ret []string
 		return ret
 	}
-
-	return o.FederatedRealm
+	return o.FederatedRealms
 }
 
-// GetFederatedRealmOk returns a tuple with the FederatedRealm field value
+// GetFederatedRealmsOk returns a tuple with the FederatedRealms field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetFederatedRealmOk() (*string, bool) {
-	if o == nil {
+func (o *Delegation) GetFederatedRealmsOk() ([]string, bool) {
+	if o == nil || IsNil(o.FederatedRealms) {
 		return nil, false
 	}
-	return &o.FederatedRealm, true
+	return o.FederatedRealms, true
 }
 
-// SetFederatedRealm sets field value
-func (o *ReservedBlock) SetFederatedRealm(v string) {
-	o.FederatedRealm = v
+// HasFederatedRealms returns a boolean if a field has been set.
+func (o *Delegation) HasFederatedRealms() bool {
+	if o != nil && !IsNil(o.FederatedRealms) {
+		return true
+	}
+
+	return false
+}
+
+// SetFederatedRealms gets a reference to the given []string and assigns it to the FederatedRealms field.
+func (o *Delegation) SetFederatedRealms(v []string) {
+	o.FederatedRealms = v
 }
 
 // GetId returns the Id field value if set, zero value otherwise.
-func (o *ReservedBlock) GetId() string {
+func (o *Delegation) GetId() string {
 	if o == nil || IsNil(o.Id) {
 		var ret string
 		return ret
@@ -262,7 +296,7 @@ func (o *ReservedBlock) GetId() string {
 
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetIdOk() (*string, bool) {
+func (o *Delegation) GetIdOk() (*string, bool) {
 	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
@@ -270,7 +304,7 @@ func (o *ReservedBlock) GetIdOk() (*string, bool) {
 }
 
 // HasId returns a boolean if a field has been set.
-func (o *ReservedBlock) HasId() bool {
+func (o *Delegation) HasId() bool {
 	if o != nil && !IsNil(o.Id) {
 		return true
 	}
@@ -279,12 +313,12 @@ func (o *ReservedBlock) HasId() bool {
 }
 
 // SetId gets a reference to the given string and assigns it to the Id field.
-func (o *ReservedBlock) SetId(v string) {
+func (o *Delegation) SetId(v string) {
 	o.Id = &v
 }
 
 // GetMetadata returns the Metadata field value if set, zero value otherwise.
-func (o *ReservedBlock) GetMetadata() map[string]interface{} {
+func (o *Delegation) GetMetadata() map[string]interface{} {
 	if o == nil || IsNil(o.Metadata) {
 		var ret map[string]interface{}
 		return ret
@@ -294,7 +328,7 @@ func (o *ReservedBlock) GetMetadata() map[string]interface{} {
 
 // GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetMetadataOk() (map[string]interface{}, bool) {
+func (o *Delegation) GetMetadataOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Metadata) {
 		return map[string]interface{}{}, false
 	}
@@ -302,7 +336,7 @@ func (o *ReservedBlock) GetMetadataOk() (map[string]interface{}, bool) {
 }
 
 // HasMetadata returns a boolean if a field has been set.
-func (o *ReservedBlock) HasMetadata() bool {
+func (o *Delegation) HasMetadata() bool {
 	if o != nil && !IsNil(o.Metadata) {
 		return true
 	}
@@ -311,12 +345,12 @@ func (o *ReservedBlock) HasMetadata() bool {
 }
 
 // SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
-func (o *ReservedBlock) SetMetadata(v map[string]interface{}) {
+func (o *Delegation) SetMetadata(v map[string]interface{}) {
 	o.Metadata = v
 }
 
 // GetName returns the Name field value if set, zero value otherwise.
-func (o *ReservedBlock) GetName() string {
+func (o *Delegation) GetName() string {
 	if o == nil || IsNil(o.Name) {
 		var ret string
 		return ret
@@ -326,7 +360,7 @@ func (o *ReservedBlock) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetNameOk() (*string, bool) {
+func (o *Delegation) GetNameOk() (*string, bool) {
 	if o == nil || IsNil(o.Name) {
 		return nil, false
 	}
@@ -334,7 +368,7 @@ func (o *ReservedBlock) GetNameOk() (*string, bool) {
 }
 
 // HasName returns a boolean if a field has been set.
-func (o *ReservedBlock) HasName() bool {
+func (o *Delegation) HasName() bool {
 	if o != nil && !IsNil(o.Name) {
 		return true
 	}
@@ -343,76 +377,44 @@ func (o *ReservedBlock) HasName() bool {
 }
 
 // SetName gets a reference to the given string and assigns it to the Name field.
-func (o *ReservedBlock) SetName(v string) {
+func (o *Delegation) SetName(v string) {
 	o.Name = &v
 }
 
-// GetNetworkCompliant returns the NetworkCompliant field value if set, zero value otherwise.
-func (o *ReservedBlock) GetNetworkCompliant() bool {
-	if o == nil || IsNil(o.NetworkCompliant) {
-		var ret bool
+// GetParents returns the Parents field value if set, zero value otherwise.
+func (o *Delegation) GetParents() []string {
+	if o == nil || IsNil(o.Parents) {
+		var ret []string
 		return ret
 	}
-	return *o.NetworkCompliant
+	return o.Parents
 }
 
-// GetNetworkCompliantOk returns a tuple with the NetworkCompliant field value if set, nil otherwise
+// GetParentsOk returns a tuple with the Parents field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetNetworkCompliantOk() (*bool, bool) {
-	if o == nil || IsNil(o.NetworkCompliant) {
+func (o *Delegation) GetParentsOk() ([]string, bool) {
+	if o == nil || IsNil(o.Parents) {
 		return nil, false
 	}
-	return o.NetworkCompliant, true
+	return o.Parents, true
 }
 
-// HasNetworkCompliant returns a boolean if a field has been set.
-func (o *ReservedBlock) HasNetworkCompliant() bool {
-	if o != nil && !IsNil(o.NetworkCompliant) {
+// HasParents returns a boolean if a field has been set.
+func (o *Delegation) HasParents() bool {
+	if o != nil && !IsNil(o.Parents) {
 		return true
 	}
 
 	return false
 }
 
-// SetNetworkCompliant gets a reference to the given bool and assigns it to the NetworkCompliant field.
-func (o *ReservedBlock) SetNetworkCompliant(v bool) {
-	o.NetworkCompliant = &v
-}
-
-// GetParent returns the Parent field value if set, zero value otherwise.
-func (o *ReservedBlock) GetParent() string {
-	if o == nil || IsNil(o.Parent) {
-		var ret string
-		return ret
-	}
-	return *o.Parent
-}
-
-// GetParentOk returns a tuple with the Parent field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetParentOk() (*string, bool) {
-	if o == nil || IsNil(o.Parent) {
-		return nil, false
-	}
-	return o.Parent, true
-}
-
-// HasParent returns a boolean if a field has been set.
-func (o *ReservedBlock) HasParent() bool {
-	if o != nil && !IsNil(o.Parent) {
-		return true
-	}
-
-	return false
-}
-
-// SetParent gets a reference to the given string and assigns it to the Parent field.
-func (o *ReservedBlock) SetParent(v string) {
-	o.Parent = &v
+// SetParents gets a reference to the given []string and assigns it to the Parents field.
+func (o *Delegation) SetParents(v []string) {
+	o.Parents = v
 }
 
 // GetProtocol returns the Protocol field value if set, zero value otherwise.
-func (o *ReservedBlock) GetProtocol() string {
+func (o *Delegation) GetProtocol() string {
 	if o == nil || IsNil(o.Protocol) {
 		var ret string
 		return ret
@@ -422,7 +424,7 @@ func (o *ReservedBlock) GetProtocol() string {
 
 // GetProtocolOk returns a tuple with the Protocol field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetProtocolOk() (*string, bool) {
+func (o *Delegation) GetProtocolOk() (*string, bool) {
 	if o == nil || IsNil(o.Protocol) {
 		return nil, false
 	}
@@ -430,7 +432,7 @@ func (o *ReservedBlock) GetProtocolOk() (*string, bool) {
 }
 
 // HasProtocol returns a boolean if a field has been set.
-func (o *ReservedBlock) HasProtocol() bool {
+func (o *Delegation) HasProtocol() bool {
 	if o != nil && !IsNil(o.Protocol) {
 		return true
 	}
@@ -439,12 +441,12 @@ func (o *ReservedBlock) HasProtocol() bool {
 }
 
 // SetProtocol gets a reference to the given string and assigns it to the Protocol field.
-func (o *ReservedBlock) SetProtocol(v string) {
+func (o *Delegation) SetProtocol(v string) {
 	o.Protocol = &v
 }
 
 // GetRegion returns the Region field value if set, zero value otherwise.
-func (o *ReservedBlock) GetRegion() string {
+func (o *Delegation) GetRegion() string {
 	if o == nil || IsNil(o.Region) {
 		var ret string
 		return ret
@@ -454,7 +456,7 @@ func (o *ReservedBlock) GetRegion() string {
 
 // GetRegionOk returns a tuple with the Region field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetRegionOk() (*string, bool) {
+func (o *Delegation) GetRegionOk() (*string, bool) {
 	if o == nil || IsNil(o.Region) {
 		return nil, false
 	}
@@ -462,7 +464,7 @@ func (o *ReservedBlock) GetRegionOk() (*string, bool) {
 }
 
 // HasRegion returns a boolean if a field has been set.
-func (o *ReservedBlock) HasRegion() bool {
+func (o *Delegation) HasRegion() bool {
 	if o != nil && !IsNil(o.Region) {
 		return true
 	}
@@ -471,12 +473,12 @@ func (o *ReservedBlock) HasRegion() bool {
 }
 
 // SetRegion gets a reference to the given string and assigns it to the Region field.
-func (o *ReservedBlock) SetRegion(v string) {
+func (o *Delegation) SetRegion(v string) {
 	o.Region = &v
 }
 
 // GetTags returns the Tags field value if set, zero value otherwise.
-func (o *ReservedBlock) GetTags() map[string]interface{} {
+func (o *Delegation) GetTags() map[string]interface{} {
 	if o == nil || IsNil(o.Tags) {
 		var ret map[string]interface{}
 		return ret
@@ -486,7 +488,7 @@ func (o *ReservedBlock) GetTags() map[string]interface{} {
 
 // GetTagsOk returns a tuple with the Tags field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetTagsOk() (map[string]interface{}, bool) {
+func (o *Delegation) GetTagsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Tags) {
 		return map[string]interface{}{}, false
 	}
@@ -494,7 +496,7 @@ func (o *ReservedBlock) GetTagsOk() (map[string]interface{}, bool) {
 }
 
 // HasTags returns a boolean if a field has been set.
-func (o *ReservedBlock) HasTags() bool {
+func (o *Delegation) HasTags() bool {
 	if o != nil && !IsNil(o.Tags) {
 		return true
 	}
@@ -503,12 +505,12 @@ func (o *ReservedBlock) HasTags() bool {
 }
 
 // SetTags gets a reference to the given map[string]interface{} and assigns it to the Tags field.
-func (o *ReservedBlock) SetTags(v map[string]interface{}) {
+func (o *Delegation) SetTags(v map[string]interface{}) {
 	o.Tags = v
 }
 
 // GetUpdatedAt returns the UpdatedAt field value if set, zero value otherwise.
-func (o *ReservedBlock) GetUpdatedAt() time.Time {
+func (o *Delegation) GetUpdatedAt() time.Time {
 	if o == nil || IsNil(o.UpdatedAt) {
 		var ret time.Time
 		return ret
@@ -518,7 +520,7 @@ func (o *ReservedBlock) GetUpdatedAt() time.Time {
 
 // GetUpdatedAtOk returns a tuple with the UpdatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ReservedBlock) GetUpdatedAtOk() (*time.Time, bool) {
+func (o *Delegation) GetUpdatedAtOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.UpdatedAt) {
 		return nil, false
 	}
@@ -526,7 +528,7 @@ func (o *ReservedBlock) GetUpdatedAtOk() (*time.Time, bool) {
 }
 
 // HasUpdatedAt returns a boolean if a field has been set.
-func (o *ReservedBlock) HasUpdatedAt() bool {
+func (o *Delegation) HasUpdatedAt() bool {
 	if o != nil && !IsNil(o.UpdatedAt) {
 		return true
 	}
@@ -535,11 +537,43 @@ func (o *ReservedBlock) HasUpdatedAt() bool {
 }
 
 // SetUpdatedAt gets a reference to the given time.Time and assigns it to the UpdatedAt field.
-func (o *ReservedBlock) SetUpdatedAt(v time.Time) {
+func (o *Delegation) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = &v
 }
 
-func (o ReservedBlock) MarshalJSON() ([]byte, error) {
+// GetUtilization returns the Utilization field value if set, zero value otherwise.
+func (o *Delegation) GetUtilization() int64 {
+	if o == nil || IsNil(o.Utilization) {
+		var ret int64
+		return ret
+	}
+	return *o.Utilization
+}
+
+// GetUtilizationOk returns a tuple with the Utilization field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Delegation) GetUtilizationOk() (*int64, bool) {
+	if o == nil || IsNil(o.Utilization) {
+		return nil, false
+	}
+	return o.Utilization, true
+}
+
+// HasUtilization returns a boolean if a field has been set.
+func (o *Delegation) HasUtilization() bool {
+	if o != nil && !IsNil(o.Utilization) {
+		return true
+	}
+
+	return false
+}
+
+// SetUtilization gets a reference to the given int64 and assigns it to the Utilization field.
+func (o *Delegation) SetUtilization(v int64) {
+	o.Utilization = &v
+}
+
+func (o Delegation) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -547,7 +581,7 @@ func (o ReservedBlock) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
+func (o Delegation) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["address"] = o.Address
 	if !IsNil(o.Cidr) {
@@ -559,10 +593,13 @@ func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
+	toSerialize["delegated_to"] = o.DelegatedTo
 	if !IsNil(o.FederatedPoolId) {
 		toSerialize["federated_pool_id"] = o.FederatedPoolId
 	}
-	toSerialize["federated_realm"] = o.FederatedRealm
+	if !IsNil(o.FederatedRealms) {
+		toSerialize["federated_realms"] = o.FederatedRealms
+	}
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
@@ -572,11 +609,8 @@ func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Name) {
 		toSerialize["name"] = o.Name
 	}
-	if !IsNil(o.NetworkCompliant) {
-		toSerialize["network_compliant"] = o.NetworkCompliant
-	}
-	if !IsNil(o.Parent) {
-		toSerialize["parent"] = o.Parent
+	if !IsNil(o.Parents) {
+		toSerialize["parents"] = o.Parents
 	}
 	if !IsNil(o.Protocol) {
 		toSerialize["protocol"] = o.Protocol
@@ -590,6 +624,9 @@ func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.UpdatedAt) {
 		toSerialize["updated_at"] = o.UpdatedAt
 	}
+	if !IsNil(o.Utilization) {
+		toSerialize["utilization"] = o.Utilization
+	}
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -598,13 +635,13 @@ func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
+func (o *Delegation) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"address",
-		"federated_realm",
+		"delegated_to",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -621,15 +658,15 @@ func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varReservedBlock := _ReservedBlock{}
+	varDelegation := _Delegation{}
 
-	err = json.Unmarshal(data, &varReservedBlock)
+	err = json.Unmarshal(data, &varDelegation)
 
 	if err != nil {
 		return err
 	}
 
-	*o = ReservedBlock(varReservedBlock)
+	*o = Delegation(varDelegation)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -638,55 +675,56 @@ func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "cidr")
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "delegated_to")
 		delete(additionalProperties, "federated_pool_id")
-		delete(additionalProperties, "federated_realm")
+		delete(additionalProperties, "federated_realms")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "metadata")
 		delete(additionalProperties, "name")
-		delete(additionalProperties, "network_compliant")
-		delete(additionalProperties, "parent")
+		delete(additionalProperties, "parents")
 		delete(additionalProperties, "protocol")
 		delete(additionalProperties, "region")
 		delete(additionalProperties, "tags")
 		delete(additionalProperties, "updated_at")
+		delete(additionalProperties, "utilization")
 		o.AdditionalProperties = additionalProperties
 	}
 
 	return err
 }
 
-type NullableReservedBlock struct {
-	value *ReservedBlock
+type NullableDelegation struct {
+	value *Delegation
 	isSet bool
 }
 
-func (v NullableReservedBlock) Get() *ReservedBlock {
+func (v NullableDelegation) Get() *Delegation {
 	return v.value
 }
 
-func (v *NullableReservedBlock) Set(val *ReservedBlock) {
+func (v *NullableDelegation) Set(val *Delegation) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableReservedBlock) IsSet() bool {
+func (v NullableDelegation) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableReservedBlock) Unset() {
+func (v *NullableDelegation) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableReservedBlock(val *ReservedBlock) *NullableReservedBlock {
-	return &NullableReservedBlock{value: val, isSet: true}
+func NewNullableDelegation(val *Delegation) *NullableDelegation {
+	return &NullableDelegation{value: val, isSet: true}
 }
 
-func (v NullableReservedBlock) MarshalJSON() ([]byte, error) {
+func (v NullableDelegation) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableReservedBlock) UnmarshalJSON(src []byte) error {
+func (v *NullableDelegation) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

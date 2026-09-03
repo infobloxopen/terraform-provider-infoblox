@@ -21,110 +21,122 @@ import (
 	"github.com/infobloxopen/universal-ddi-go-client/internal"
 )
 
-type ReservedBlockAPI interface {
+type DelegationAPI interface {
 	/*
-			Create Create the reserved block.
+			Create Create the delegation.
 
-			Use this method to create a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to create a __Delegation__ object.
+		The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPICreateRequest
+			@return DelegationAPICreateRequest
 	*/
-	Create(ctx context.Context) ReservedBlockAPICreateRequest
+	Create(ctx context.Context) DelegationAPICreateRequest
 
 	// CreateExecute executes the request
-	//  @return CreateReservedBlockResponse
-	CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error)
+	//  @return CreateDelegationResponse
+	CreateExecute(r DelegationAPICreateRequest) (*CreateDelegationResponse, *http.Response, error)
 	/*
-			Delete Delete the reserved block.
+			Delete Delete the delegation.
 
-			Use this method to delete a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to delete a __Delegation__ object.
+		The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIDeleteRequest
+			@return DelegationAPIDeleteRequest
 	*/
-	Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest
+	Delete(ctx context.Context, id string) DelegationAPIDeleteRequest
 
 	// DeleteExecute executes the request
-	DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error)
+	DeleteExecute(r DelegationAPIDeleteRequest) (*http.Response, error)
 	/*
-			List Retrieve the reserved block.
+		DeleteWithoutId No-op DELETE Delegation operation.
 
-			Use this method to retrieve __ReservedBlock__ objects.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+		This method has no-operation, but is provided for client IPAM services performing a DELETE of zero Delegations that did not detect the empty request.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return DelegationAPIDeleteWithoutIdRequest
+	*/
+	DeleteWithoutId(ctx context.Context) DelegationAPIDeleteWithoutIdRequest
+
+	// DeleteWithoutIdExecute executes the request
+	DeleteWithoutIdExecute(r DelegationAPIDeleteWithoutIdRequest) (*http.Response, error)
+	/*
+			List Retrieve the delegation.
+
+			Use this method to retrieve __Delegation__ objects.
+		The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPIListRequest
+			@return DelegationAPIListRequest
 	*/
-	List(ctx context.Context) ReservedBlockAPIListRequest
+	List(ctx context.Context) DelegationAPIListRequest
 
 	// ListExecute executes the request
-	//  @return ListReservedBlockResponse
-	ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error)
+	//  @return ListDelegationResponse
+	ListExecute(r DelegationAPIListRequest) (*ListDelegationResponse, *http.Response, error)
 	/*
-			Read Retrieve the reserved block.
+			Read Retrieve the delegation.
 
-			Use this method to retrieve a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to retrieve a __Delegation__ object.
+		The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIReadRequest
+			@return DelegationAPIReadRequest
 	*/
-	Read(ctx context.Context, id string) ReservedBlockAPIReadRequest
+	Read(ctx context.Context, id string) DelegationAPIReadRequest
 
 	// ReadExecute executes the request
-	//  @return ReadReservedBlockResponse
-	ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error)
+	//  @return ReadDelegationResponse
+	ReadExecute(r DelegationAPIReadRequest) (*ReadDelegationResponse, *http.Response, error)
 	/*
-			Update Update the reserved block.
+			Update Update the delegation.
 
-			Use this method to update a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to update a __Delegation__ object.
+		The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIUpdateRequest
+			@return DelegationAPIUpdateRequest
 	*/
-	Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest
+	Update(ctx context.Context, id string) DelegationAPIUpdateRequest
 
 	// UpdateExecute executes the request
-	//  @return UpdateReservedBlockResponse
-	UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error)
+	//  @return UpdateDelegationResponse
+	UpdateExecute(r DelegationAPIUpdateRequest) (*UpdateDelegationResponse, *http.Response, error)
 }
 
-// ReservedBlockAPIService ReservedBlockAPI service
-type ReservedBlockAPIService internal.Service
+// DelegationAPIService DelegationAPI service
+type DelegationAPIService internal.Service
 
-type ReservedBlockAPICreateRequest struct {
+type DelegationAPICreateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
-	body       *ReservedBlock
+	ApiService DelegationAPI
+	body       *Delegation
 }
 
-func (r ReservedBlockAPICreateRequest) Body(body ReservedBlock) ReservedBlockAPICreateRequest {
+func (r DelegationAPICreateRequest) Body(body Delegation) DelegationAPICreateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPICreateRequest) Execute() (*CreateReservedBlockResponse, *http.Response, error) {
+func (r DelegationAPICreateRequest) Execute() (*CreateDelegationResponse, *http.Response, error) {
 	return r.ApiService.CreateExecute(r)
 }
 
 /*
-Create Create the reserved block.
+Create Create the delegation.
 
-Use this method to create a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to create a __Delegation__ object.
+The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPICreateRequest
+	@return DelegationAPICreateRequest
 */
-func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICreateRequest {
-	return ReservedBlockAPICreateRequest{
+func (a *DelegationAPIService) Create(ctx context.Context) DelegationAPICreateRequest {
+	return DelegationAPICreateRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -132,21 +144,21 @@ func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICr
 
 // Execute executes the request
 //
-//	@return CreateReservedBlockResponse
-func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error) {
+//	@return CreateDelegationResponse
+func (a *DelegationAPIService) CreateExecute(r DelegationAPICreateRequest) (*CreateDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *CreateReservedBlockResponse
+		localVarReturnValue *CreateDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Create")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.Create")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/delegation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -172,16 +184,6 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
-	}
 	// body params
 	localVarPostBody = r.body
 	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
@@ -203,6 +205,65 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 
 	if localVarHTTPResponse.StatusCode >= 300 {
 		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 404 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 409 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v map[string]interface{}
+			err = a.Client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr = internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr = internal.NewGenericOpenAPIErrorWithBodyAndModel(localVarHTTPResponse.Status, localVarBody, v)
+		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -214,28 +275,28 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIDeleteRequest struct {
+type DelegationAPIDeleteRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService DelegationAPI
 	id         string
 }
 
-func (r ReservedBlockAPIDeleteRequest) Execute() (*http.Response, error) {
+func (r DelegationAPIDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteExecute(r)
 }
 
 /*
-Delete Delete the reserved block.
+Delete Delete the delegation.
 
-Use this method to delete a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to delete a __Delegation__ object.
+The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIDeleteRequest
+	@return DelegationAPIDeleteRequest
 */
-func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest {
-	return ReservedBlockAPIDeleteRequest{
+func (a *DelegationAPIService) Delete(ctx context.Context, id string) DelegationAPIDeleteRequest {
+	return DelegationAPIDeleteRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -243,19 +304,19 @@ func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) Reserve
 }
 
 // Execute executes the request
-func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error) {
+func (a *DelegationAPIService) DeleteExecute(r DelegationAPIDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []internal.FormFile
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Delete")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.Delete")
 	if err != nil {
 		return nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -304,9 +365,94 @@ func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest)
 	return localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIListRequest struct {
+type DelegationAPIDeleteWithoutIdRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService DelegationAPI
+}
+
+func (r DelegationAPIDeleteWithoutIdRequest) Execute() (*http.Response, error) {
+	return r.ApiService.DeleteWithoutIdExecute(r)
+}
+
+/*
+DeleteWithoutId No-op DELETE Delegation operation.
+
+This method has no-operation, but is provided for client IPAM services performing a DELETE of zero Delegations that did not detect the empty request.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return DelegationAPIDeleteWithoutIdRequest
+*/
+func (a *DelegationAPIService) DeleteWithoutId(ctx context.Context) DelegationAPIDeleteWithoutIdRequest {
+	return DelegationAPIDeleteWithoutIdRequest{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+func (a *DelegationAPIService) DeleteWithoutIdExecute(r DelegationAPIDeleteWithoutIdRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []internal.FormFile
+	)
+
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.DeleteWithoutId")
+	if err != nil {
+		return nil, internal.NewGenericOpenAPIError(err.Error())
+	}
+
+	localVarPath := localBasePath + "/federation/delegation"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := internal.SelectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.Client.CallAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type DelegationAPIListRequest struct {
+	ctx        context.Context
+	ApiService DelegationAPI
 	fields     *string
 	filter     *string
 	offset     *int32
@@ -318,68 +464,68 @@ type ReservedBlockAPIListRequest struct {
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIListRequest) Fields(fields string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) Fields(fields string) DelegationAPIListRequest {
 	r.fields = &fields
 	return r
 }
 
 // A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;. The following operators are commonly used in filter expressions:  |  Op   |  Description               |  |  --   |  -----------               |  |  &#x3D;&#x3D;   |  Equal                     |  |  !&#x3D;   |  Not Equal                 |  |  &gt;    |  Greater Than              |  |   &gt;&#x3D;  |  Greater Than or Equal To  |  |  &lt;    |  Less Than                 |  |  &lt;&#x3D;   |  Less Than or Equal To     |  |  and  |  Logical AND               |  |  ~    |  Matches Regex             |  |  !~   |  Does Not Match Regex      |  |  or   |  Logical OR                |  |  not  |  Logical NOT               |  |  ()   |  Grouping Operators       |
-func (r ReservedBlockAPIListRequest) Filter(filter string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) Filter(filter string) DelegationAPIListRequest {
 	r.filter = &filter
 	return r
 }
 
 // The integer index (zero-origin) of the offset into a collection of resources. If omitted or null the value is assumed to be &#39;0&#39;.
-func (r ReservedBlockAPIListRequest) Offset(offset int32) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) Offset(offset int32) DelegationAPIListRequest {
 	r.offset = &offset
 	return r
 }
 
 // The integer number of resources to be returned in the response. The service may impose maximum value. If omitted the service may impose a default value.
-func (r ReservedBlockAPIListRequest) Limit(limit int32) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) Limit(limit int32) DelegationAPIListRequest {
 	r.limit = &limit
 	return r
 }
 
 // The service-defined string used to identify a page of resources. A null value indicates the first page.
-func (r ReservedBlockAPIListRequest) PageToken(pageToken string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) PageToken(pageToken string) DelegationAPIListRequest {
 	r.pageToken = &pageToken
 	return r
 }
 
 // A collection of response resources can be sorted by their JSON tags. For a &#39;flat&#39; resource, the tag name is straightforward. If sorting is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, its value is assumed to be null.)  Specify this parameter as a comma-separated list of JSON tag names. The sort direction can be specified by a suffix separated by whitespace before the tag name. The suffix &#39;asc&#39; sorts the data in ascending order. The suffix &#39;desc&#39; sorts the data in descending order. If no suffix is specified the data is sorted in ascending order.
-func (r ReservedBlockAPIListRequest) OrderBy(orderBy string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) OrderBy(orderBy string) DelegationAPIListRequest {
 	r.orderBy = &orderBy
 	return r
 }
 
 // This parameter is used for sorting by tags.
-func (r ReservedBlockAPIListRequest) TorderBy(torderBy string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) TorderBy(torderBy string) DelegationAPIListRequest {
 	r.torderBy = &torderBy
 	return r
 }
 
 // This parameter is used for filtering by tags.
-func (r ReservedBlockAPIListRequest) Tfilter(tfilter string) ReservedBlockAPIListRequest {
+func (r DelegationAPIListRequest) Tfilter(tfilter string) DelegationAPIListRequest {
 	r.tfilter = &tfilter
 	return r
 }
 
-func (r ReservedBlockAPIListRequest) Execute() (*ListReservedBlockResponse, *http.Response, error) {
+func (r DelegationAPIListRequest) Execute() (*ListDelegationResponse, *http.Response, error) {
 	return r.ApiService.ListExecute(r)
 }
 
 /*
-List Retrieve the reserved block.
+List Retrieve the delegation.
 
-Use this method to retrieve __ReservedBlock__ objects.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve __Delegation__ objects.
+The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPIListRequest
+	@return DelegationAPIListRequest
 */
-func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIListRequest {
-	return ReservedBlockAPIListRequest{
+func (a *DelegationAPIService) List(ctx context.Context) DelegationAPIListRequest {
+	return DelegationAPIListRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -387,21 +533,21 @@ func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIList
 
 // Execute executes the request
 //
-//	@return ListReservedBlockResponse
-func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error) {
+//	@return ListDelegationResponse
+func (a *DelegationAPIService) ListExecute(r DelegationAPIListRequest) (*ListDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ListReservedBlockResponse
+		localVarReturnValue *ListDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.List")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.List")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/delegation"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -478,35 +624,35 @@ func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*L
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIReadRequest struct {
+type DelegationAPIReadRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService DelegationAPI
 	id         string
 	fields     *string
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIReadRequest) Fields(fields string) ReservedBlockAPIReadRequest {
+func (r DelegationAPIReadRequest) Fields(fields string) DelegationAPIReadRequest {
 	r.fields = &fields
 	return r
 }
 
-func (r ReservedBlockAPIReadRequest) Execute() (*ReadReservedBlockResponse, *http.Response, error) {
+func (r DelegationAPIReadRequest) Execute() (*ReadDelegationResponse, *http.Response, error) {
 	return r.ApiService.ReadExecute(r)
 }
 
 /*
-Read Retrieve the reserved block.
+Read Retrieve the delegation.
 
-Use this method to retrieve a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve a __Delegation__ object.
+The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIReadRequest
+	@return DelegationAPIReadRequest
 */
-func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedBlockAPIReadRequest {
-	return ReservedBlockAPIReadRequest{
+func (a *DelegationAPIService) Read(ctx context.Context, id string) DelegationAPIReadRequest {
+	return DelegationAPIReadRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -515,21 +661,21 @@ func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedB
 
 // Execute executes the request
 //
-//	@return ReadReservedBlockResponse
-func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error) {
+//	@return ReadDelegationResponse
+func (a *DelegationAPIService) ReadExecute(r DelegationAPIReadRequest) (*ReadDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ReadReservedBlockResponse
+		localVarReturnValue *ReadDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Read")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.Read")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -586,34 +732,34 @@ func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*R
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIUpdateRequest struct {
+type DelegationAPIUpdateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService DelegationAPI
 	id         string
-	body       *ReservedBlock
+	body       *Delegation
 }
 
-func (r ReservedBlockAPIUpdateRequest) Body(body ReservedBlock) ReservedBlockAPIUpdateRequest {
+func (r DelegationAPIUpdateRequest) Body(body Delegation) DelegationAPIUpdateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPIUpdateRequest) Execute() (*UpdateReservedBlockResponse, *http.Response, error) {
+func (r DelegationAPIUpdateRequest) Execute() (*UpdateDelegationResponse, *http.Response, error) {
 	return r.ApiService.UpdateExecute(r)
 }
 
 /*
-Update Update the reserved block.
+Update Update the delegation.
 
-Use this method to update a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to update a __Delegation__ object.
+The __Delegation__ explicitly marks authority for an address range assigned to another IPAM service.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIUpdateRequest
+	@return DelegationAPIUpdateRequest
 */
-func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest {
-	return ReservedBlockAPIUpdateRequest{
+func (a *DelegationAPIService) Update(ctx context.Context, id string) DelegationAPIUpdateRequest {
+	return DelegationAPIUpdateRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -622,21 +768,21 @@ func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) Reserve
 
 // Execute executes the request
 //
-//	@return UpdateReservedBlockResponse
-func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error) {
+//	@return UpdateDelegationResponse
+func (a *DelegationAPIService) UpdateExecute(r DelegationAPIUpdateRequest) (*UpdateDelegationResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *UpdateReservedBlockResponse
+		localVarReturnValue *UpdateDelegationResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Update")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "DelegationAPIService.Update")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/delegation/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -662,16 +808,6 @@ func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest)
 	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
 	}
 	// body params
 	localVarPostBody = r.body

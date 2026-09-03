@@ -16,63 +16,61 @@ import (
 	"time"
 )
 
-// checks if the OverlappingBlock type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &OverlappingBlock{}
+// checks if the ForwardLookingDelegation type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ForwardLookingDelegation{}
 
-// OverlappingBlock An __OverlappingBlock__ object (_federation/overlapping_block_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. It is explicitly associated with a Federated Realm, and implicitly with a Federated Block Parent. An __OverlappingBlock__ in a given realm is said to be the child of the closest enclosing parent. An __OverlappingBlock__ indicates an address range that may be managed independently by all participating IPAM services.
-type OverlappingBlock struct {
+// ForwardLookingDelegation A __ForwardLookingDelegation__ object (_federation/forward_looking_delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. It may be used to allocate unique space for future resources which will ultimately hold a Delegation for the same CIDR block.
+type ForwardLookingDelegation struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
 	Address string `json:"address"`
-	// The CIDR of the overlapping block. This is required, if _address_ does not specify it in its input.
+	// The CIDR of the delegation. This is required, if _address_ does not specify it in its input.
 	Cidr *int64 `json:"cidr,omitempty"`
-	// The description for the overlapping block. May contain 0 to 1024 characters. Can include UTF-8.
+	// The description for the delegation. May contain 0 to 1024 characters. Can include UTF-8.
 	Comment *string `json:"comment,omitempty"`
 	// Time when the object has been created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// The resource identifier.
 	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
 	// The resource identifier.
-	FederatedRealm string `json:"federated_realm"`
+	FederatedRealms []string `json:"federated_realms"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
-	// The name of the overlapping block. May contain 1 to 256 characters. Can include UTF-8.
+	// The name of the delegation. May contain 1 to 256 characters. Can include UTF-8.
 	Name *string `json:"name,omitempty"`
-	// The compliance status of the overlapping block, as determined by the federation service.
+	// The compliance status of the forward looking delegation, as determined by the federation service.
 	NetworkCompliant *bool `json:"network_compliant,omitempty"`
-	// The resource identifier.
-	Parent *string `json:"parent,omitempty"`
-	// The type of protocol of overlapping block (_ip4_ or _ip6_).
+	// The type of protocol of delegation (_ip4_ or _ip6_).
 	Protocol *string `json:"protocol,omitempty"`
-	// The tags for the overlapping block in JSON format.
+	// The tags for the delegation in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
 	// Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
-type _OverlappingBlock OverlappingBlock
+type _ForwardLookingDelegation ForwardLookingDelegation
 
-// NewOverlappingBlock instantiates a new OverlappingBlock object
+// NewForwardLookingDelegation instantiates a new ForwardLookingDelegation object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewOverlappingBlock(address string, federatedRealm string) *OverlappingBlock {
-	this := OverlappingBlock{}
+func NewForwardLookingDelegation(address string, federatedRealms []string) *ForwardLookingDelegation {
+	this := ForwardLookingDelegation{}
 	this.Address = address
-	this.FederatedRealm = federatedRealm
+	this.FederatedRealms = federatedRealms
 	return &this
 }
 
-// NewOverlappingBlockWithDefaults instantiates a new OverlappingBlock object
+// NewForwardLookingDelegationWithDefaults instantiates a new ForwardLookingDelegation object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewOverlappingBlockWithDefaults() *OverlappingBlock {
-	this := OverlappingBlock{}
+func NewForwardLookingDelegationWithDefaults() *ForwardLookingDelegation {
+	this := ForwardLookingDelegation{}
 	return &this
 }
 
 // GetAddress returns the Address field value
-func (o *OverlappingBlock) GetAddress() string {
+func (o *ForwardLookingDelegation) GetAddress() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -83,7 +81,7 @@ func (o *OverlappingBlock) GetAddress() string {
 
 // GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetAddressOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetAddressOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -91,12 +89,12 @@ func (o *OverlappingBlock) GetAddressOk() (*string, bool) {
 }
 
 // SetAddress sets field value
-func (o *OverlappingBlock) SetAddress(v string) {
+func (o *ForwardLookingDelegation) SetAddress(v string) {
 	o.Address = v
 }
 
 // GetCidr returns the Cidr field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetCidr() int64 {
+func (o *ForwardLookingDelegation) GetCidr() int64 {
 	if o == nil || IsNil(o.Cidr) {
 		var ret int64
 		return ret
@@ -106,7 +104,7 @@ func (o *OverlappingBlock) GetCidr() int64 {
 
 // GetCidrOk returns a tuple with the Cidr field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetCidrOk() (*int64, bool) {
+func (o *ForwardLookingDelegation) GetCidrOk() (*int64, bool) {
 	if o == nil || IsNil(o.Cidr) {
 		return nil, false
 	}
@@ -114,7 +112,7 @@ func (o *OverlappingBlock) GetCidrOk() (*int64, bool) {
 }
 
 // HasCidr returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasCidr() bool {
+func (o *ForwardLookingDelegation) HasCidr() bool {
 	if o != nil && !IsNil(o.Cidr) {
 		return true
 	}
@@ -123,12 +121,12 @@ func (o *OverlappingBlock) HasCidr() bool {
 }
 
 // SetCidr gets a reference to the given int64 and assigns it to the Cidr field.
-func (o *OverlappingBlock) SetCidr(v int64) {
+func (o *ForwardLookingDelegation) SetCidr(v int64) {
 	o.Cidr = &v
 }
 
 // GetComment returns the Comment field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetComment() string {
+func (o *ForwardLookingDelegation) GetComment() string {
 	if o == nil || IsNil(o.Comment) {
 		var ret string
 		return ret
@@ -138,7 +136,7 @@ func (o *OverlappingBlock) GetComment() string {
 
 // GetCommentOk returns a tuple with the Comment field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetCommentOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetCommentOk() (*string, bool) {
 	if o == nil || IsNil(o.Comment) {
 		return nil, false
 	}
@@ -146,7 +144,7 @@ func (o *OverlappingBlock) GetCommentOk() (*string, bool) {
 }
 
 // HasComment returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasComment() bool {
+func (o *ForwardLookingDelegation) HasComment() bool {
 	if o != nil && !IsNil(o.Comment) {
 		return true
 	}
@@ -155,12 +153,12 @@ func (o *OverlappingBlock) HasComment() bool {
 }
 
 // SetComment gets a reference to the given string and assigns it to the Comment field.
-func (o *OverlappingBlock) SetComment(v string) {
+func (o *ForwardLookingDelegation) SetComment(v string) {
 	o.Comment = &v
 }
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetCreatedAt() time.Time {
+func (o *ForwardLookingDelegation) GetCreatedAt() time.Time {
 	if o == nil || IsNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
@@ -170,7 +168,7 @@ func (o *OverlappingBlock) GetCreatedAt() time.Time {
 
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetCreatedAtOk() (*time.Time, bool) {
+func (o *ForwardLookingDelegation) GetCreatedAtOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.CreatedAt) {
 		return nil, false
 	}
@@ -178,7 +176,7 @@ func (o *OverlappingBlock) GetCreatedAtOk() (*time.Time, bool) {
 }
 
 // HasCreatedAt returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasCreatedAt() bool {
+func (o *ForwardLookingDelegation) HasCreatedAt() bool {
 	if o != nil && !IsNil(o.CreatedAt) {
 		return true
 	}
@@ -187,12 +185,12 @@ func (o *OverlappingBlock) HasCreatedAt() bool {
 }
 
 // SetCreatedAt gets a reference to the given time.Time and assigns it to the CreatedAt field.
-func (o *OverlappingBlock) SetCreatedAt(v time.Time) {
+func (o *ForwardLookingDelegation) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
 // GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetFederatedPoolId() string {
+func (o *ForwardLookingDelegation) GetFederatedPoolId() string {
 	if o == nil || IsNil(o.FederatedPoolId) {
 		var ret string
 		return ret
@@ -202,7 +200,7 @@ func (o *OverlappingBlock) GetFederatedPoolId() string {
 
 // GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetFederatedPoolIdOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetFederatedPoolIdOk() (*string, bool) {
 	if o == nil || IsNil(o.FederatedPoolId) {
 		return nil, false
 	}
@@ -210,7 +208,7 @@ func (o *OverlappingBlock) GetFederatedPoolIdOk() (*string, bool) {
 }
 
 // HasFederatedPoolId returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasFederatedPoolId() bool {
+func (o *ForwardLookingDelegation) HasFederatedPoolId() bool {
 	if o != nil && !IsNil(o.FederatedPoolId) {
 		return true
 	}
@@ -219,36 +217,36 @@ func (o *OverlappingBlock) HasFederatedPoolId() bool {
 }
 
 // SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
-func (o *OverlappingBlock) SetFederatedPoolId(v string) {
+func (o *ForwardLookingDelegation) SetFederatedPoolId(v string) {
 	o.FederatedPoolId = &v
 }
 
-// GetFederatedRealm returns the FederatedRealm field value
-func (o *OverlappingBlock) GetFederatedRealm() string {
+// GetFederatedRealms returns the FederatedRealms field value
+func (o *ForwardLookingDelegation) GetFederatedRealms() []string {
 	if o == nil {
-		var ret string
+		var ret []string
 		return ret
 	}
 
-	return o.FederatedRealm
+	return o.FederatedRealms
 }
 
-// GetFederatedRealmOk returns a tuple with the FederatedRealm field value
+// GetFederatedRealmsOk returns a tuple with the FederatedRealms field value
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetFederatedRealmOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetFederatedRealmsOk() ([]string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.FederatedRealm, true
+	return o.FederatedRealms, true
 }
 
-// SetFederatedRealm sets field value
-func (o *OverlappingBlock) SetFederatedRealm(v string) {
-	o.FederatedRealm = v
+// SetFederatedRealms sets field value
+func (o *ForwardLookingDelegation) SetFederatedRealms(v []string) {
+	o.FederatedRealms = v
 }
 
 // GetId returns the Id field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetId() string {
+func (o *ForwardLookingDelegation) GetId() string {
 	if o == nil || IsNil(o.Id) {
 		var ret string
 		return ret
@@ -258,7 +256,7 @@ func (o *OverlappingBlock) GetId() string {
 
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetIdOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetIdOk() (*string, bool) {
 	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
@@ -266,7 +264,7 @@ func (o *OverlappingBlock) GetIdOk() (*string, bool) {
 }
 
 // HasId returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasId() bool {
+func (o *ForwardLookingDelegation) HasId() bool {
 	if o != nil && !IsNil(o.Id) {
 		return true
 	}
@@ -275,12 +273,12 @@ func (o *OverlappingBlock) HasId() bool {
 }
 
 // SetId gets a reference to the given string and assigns it to the Id field.
-func (o *OverlappingBlock) SetId(v string) {
+func (o *ForwardLookingDelegation) SetId(v string) {
 	o.Id = &v
 }
 
 // GetName returns the Name field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetName() string {
+func (o *ForwardLookingDelegation) GetName() string {
 	if o == nil || IsNil(o.Name) {
 		var ret string
 		return ret
@@ -290,7 +288,7 @@ func (o *OverlappingBlock) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetNameOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetNameOk() (*string, bool) {
 	if o == nil || IsNil(o.Name) {
 		return nil, false
 	}
@@ -298,7 +296,7 @@ func (o *OverlappingBlock) GetNameOk() (*string, bool) {
 }
 
 // HasName returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasName() bool {
+func (o *ForwardLookingDelegation) HasName() bool {
 	if o != nil && !IsNil(o.Name) {
 		return true
 	}
@@ -307,12 +305,12 @@ func (o *OverlappingBlock) HasName() bool {
 }
 
 // SetName gets a reference to the given string and assigns it to the Name field.
-func (o *OverlappingBlock) SetName(v string) {
+func (o *ForwardLookingDelegation) SetName(v string) {
 	o.Name = &v
 }
 
 // GetNetworkCompliant returns the NetworkCompliant field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetNetworkCompliant() bool {
+func (o *ForwardLookingDelegation) GetNetworkCompliant() bool {
 	if o == nil || IsNil(o.NetworkCompliant) {
 		var ret bool
 		return ret
@@ -322,7 +320,7 @@ func (o *OverlappingBlock) GetNetworkCompliant() bool {
 
 // GetNetworkCompliantOk returns a tuple with the NetworkCompliant field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetNetworkCompliantOk() (*bool, bool) {
+func (o *ForwardLookingDelegation) GetNetworkCompliantOk() (*bool, bool) {
 	if o == nil || IsNil(o.NetworkCompliant) {
 		return nil, false
 	}
@@ -330,7 +328,7 @@ func (o *OverlappingBlock) GetNetworkCompliantOk() (*bool, bool) {
 }
 
 // HasNetworkCompliant returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasNetworkCompliant() bool {
+func (o *ForwardLookingDelegation) HasNetworkCompliant() bool {
 	if o != nil && !IsNil(o.NetworkCompliant) {
 		return true
 	}
@@ -339,44 +337,12 @@ func (o *OverlappingBlock) HasNetworkCompliant() bool {
 }
 
 // SetNetworkCompliant gets a reference to the given bool and assigns it to the NetworkCompliant field.
-func (o *OverlappingBlock) SetNetworkCompliant(v bool) {
+func (o *ForwardLookingDelegation) SetNetworkCompliant(v bool) {
 	o.NetworkCompliant = &v
 }
 
-// GetParent returns the Parent field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetParent() string {
-	if o == nil || IsNil(o.Parent) {
-		var ret string
-		return ret
-	}
-	return *o.Parent
-}
-
-// GetParentOk returns a tuple with the Parent field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetParentOk() (*string, bool) {
-	if o == nil || IsNil(o.Parent) {
-		return nil, false
-	}
-	return o.Parent, true
-}
-
-// HasParent returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasParent() bool {
-	if o != nil && !IsNil(o.Parent) {
-		return true
-	}
-
-	return false
-}
-
-// SetParent gets a reference to the given string and assigns it to the Parent field.
-func (o *OverlappingBlock) SetParent(v string) {
-	o.Parent = &v
-}
-
 // GetProtocol returns the Protocol field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetProtocol() string {
+func (o *ForwardLookingDelegation) GetProtocol() string {
 	if o == nil || IsNil(o.Protocol) {
 		var ret string
 		return ret
@@ -386,7 +352,7 @@ func (o *OverlappingBlock) GetProtocol() string {
 
 // GetProtocolOk returns a tuple with the Protocol field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetProtocolOk() (*string, bool) {
+func (o *ForwardLookingDelegation) GetProtocolOk() (*string, bool) {
 	if o == nil || IsNil(o.Protocol) {
 		return nil, false
 	}
@@ -394,7 +360,7 @@ func (o *OverlappingBlock) GetProtocolOk() (*string, bool) {
 }
 
 // HasProtocol returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasProtocol() bool {
+func (o *ForwardLookingDelegation) HasProtocol() bool {
 	if o != nil && !IsNil(o.Protocol) {
 		return true
 	}
@@ -403,12 +369,12 @@ func (o *OverlappingBlock) HasProtocol() bool {
 }
 
 // SetProtocol gets a reference to the given string and assigns it to the Protocol field.
-func (o *OverlappingBlock) SetProtocol(v string) {
+func (o *ForwardLookingDelegation) SetProtocol(v string) {
 	o.Protocol = &v
 }
 
 // GetTags returns the Tags field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetTags() map[string]interface{} {
+func (o *ForwardLookingDelegation) GetTags() map[string]interface{} {
 	if o == nil || IsNil(o.Tags) {
 		var ret map[string]interface{}
 		return ret
@@ -418,7 +384,7 @@ func (o *OverlappingBlock) GetTags() map[string]interface{} {
 
 // GetTagsOk returns a tuple with the Tags field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetTagsOk() (map[string]interface{}, bool) {
+func (o *ForwardLookingDelegation) GetTagsOk() (map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Tags) {
 		return map[string]interface{}{}, false
 	}
@@ -426,7 +392,7 @@ func (o *OverlappingBlock) GetTagsOk() (map[string]interface{}, bool) {
 }
 
 // HasTags returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasTags() bool {
+func (o *ForwardLookingDelegation) HasTags() bool {
 	if o != nil && !IsNil(o.Tags) {
 		return true
 	}
@@ -435,12 +401,12 @@ func (o *OverlappingBlock) HasTags() bool {
 }
 
 // SetTags gets a reference to the given map[string]interface{} and assigns it to the Tags field.
-func (o *OverlappingBlock) SetTags(v map[string]interface{}) {
+func (o *ForwardLookingDelegation) SetTags(v map[string]interface{}) {
 	o.Tags = v
 }
 
 // GetUpdatedAt returns the UpdatedAt field value if set, zero value otherwise.
-func (o *OverlappingBlock) GetUpdatedAt() time.Time {
+func (o *ForwardLookingDelegation) GetUpdatedAt() time.Time {
 	if o == nil || IsNil(o.UpdatedAt) {
 		var ret time.Time
 		return ret
@@ -450,7 +416,7 @@ func (o *OverlappingBlock) GetUpdatedAt() time.Time {
 
 // GetUpdatedAtOk returns a tuple with the UpdatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OverlappingBlock) GetUpdatedAtOk() (*time.Time, bool) {
+func (o *ForwardLookingDelegation) GetUpdatedAtOk() (*time.Time, bool) {
 	if o == nil || IsNil(o.UpdatedAt) {
 		return nil, false
 	}
@@ -458,7 +424,7 @@ func (o *OverlappingBlock) GetUpdatedAtOk() (*time.Time, bool) {
 }
 
 // HasUpdatedAt returns a boolean if a field has been set.
-func (o *OverlappingBlock) HasUpdatedAt() bool {
+func (o *ForwardLookingDelegation) HasUpdatedAt() bool {
 	if o != nil && !IsNil(o.UpdatedAt) {
 		return true
 	}
@@ -467,11 +433,11 @@ func (o *OverlappingBlock) HasUpdatedAt() bool {
 }
 
 // SetUpdatedAt gets a reference to the given time.Time and assigns it to the UpdatedAt field.
-func (o *OverlappingBlock) SetUpdatedAt(v time.Time) {
+func (o *ForwardLookingDelegation) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = &v
 }
 
-func (o OverlappingBlock) MarshalJSON() ([]byte, error) {
+func (o ForwardLookingDelegation) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -479,7 +445,7 @@ func (o OverlappingBlock) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o OverlappingBlock) ToMap() (map[string]interface{}, error) {
+func (o ForwardLookingDelegation) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["address"] = o.Address
 	if !IsNil(o.Cidr) {
@@ -494,7 +460,7 @@ func (o OverlappingBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.FederatedPoolId) {
 		toSerialize["federated_pool_id"] = o.FederatedPoolId
 	}
-	toSerialize["federated_realm"] = o.FederatedRealm
+	toSerialize["federated_realms"] = o.FederatedRealms
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
@@ -503,9 +469,6 @@ func (o OverlappingBlock) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.NetworkCompliant) {
 		toSerialize["network_compliant"] = o.NetworkCompliant
-	}
-	if !IsNil(o.Parent) {
-		toSerialize["parent"] = o.Parent
 	}
 	if !IsNil(o.Protocol) {
 		toSerialize["protocol"] = o.Protocol
@@ -524,13 +487,13 @@ func (o OverlappingBlock) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *OverlappingBlock) UnmarshalJSON(data []byte) (err error) {
+func (o *ForwardLookingDelegation) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"address",
-		"federated_realm",
+		"federated_realms",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -547,15 +510,15 @@ func (o *OverlappingBlock) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varOverlappingBlock := _OverlappingBlock{}
+	varForwardLookingDelegation := _ForwardLookingDelegation{}
 
-	err = json.Unmarshal(data, &varOverlappingBlock)
+	err = json.Unmarshal(data, &varForwardLookingDelegation)
 
 	if err != nil {
 		return err
 	}
 
-	*o = OverlappingBlock(varOverlappingBlock)
+	*o = ForwardLookingDelegation(varForwardLookingDelegation)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -565,11 +528,10 @@ func (o *OverlappingBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "federated_pool_id")
-		delete(additionalProperties, "federated_realm")
+		delete(additionalProperties, "federated_realms")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "network_compliant")
-		delete(additionalProperties, "parent")
 		delete(additionalProperties, "protocol")
 		delete(additionalProperties, "tags")
 		delete(additionalProperties, "updated_at")
@@ -579,38 +541,38 @@ func (o *OverlappingBlock) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableOverlappingBlock struct {
-	value *OverlappingBlock
+type NullableForwardLookingDelegation struct {
+	value *ForwardLookingDelegation
 	isSet bool
 }
 
-func (v NullableOverlappingBlock) Get() *OverlappingBlock {
+func (v NullableForwardLookingDelegation) Get() *ForwardLookingDelegation {
 	return v.value
 }
 
-func (v *NullableOverlappingBlock) Set(val *OverlappingBlock) {
+func (v *NullableForwardLookingDelegation) Set(val *ForwardLookingDelegation) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableOverlappingBlock) IsSet() bool {
+func (v NullableForwardLookingDelegation) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableOverlappingBlock) Unset() {
+func (v *NullableForwardLookingDelegation) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableOverlappingBlock(val *OverlappingBlock) *NullableOverlappingBlock {
-	return &NullableOverlappingBlock{value: val, isSet: true}
+func NewNullableForwardLookingDelegation(val *ForwardLookingDelegation) *NullableForwardLookingDelegation {
+	return &NullableForwardLookingDelegation{value: val, isSet: true}
 }
 
-func (v NullableOverlappingBlock) MarshalJSON() ([]byte, error) {
+func (v NullableForwardLookingDelegation) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableOverlappingBlock) UnmarshalJSON(src []byte) error {
+func (v *NullableForwardLookingDelegation) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

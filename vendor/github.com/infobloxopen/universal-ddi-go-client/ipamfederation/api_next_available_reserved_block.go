@@ -23,10 +23,25 @@ import (
 
 type NextAvailableReservedBlockAPI interface {
 	/*
+			CreateNextAvailableReservedBlocks Retrieve the next available reserved block.
+
+			Use this method to allocate the next available __ReservedBlock__ objects.
+		This allocates one or more __ReservedBlock__ objects from the specified parent __FederatedBlock__ block.
+
+			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+			@param id An application specific resource identity of a resource
+			@return NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest
+	*/
+	CreateNextAvailableReservedBlocks(ctx context.Context, id string) NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest
+
+	// CreateNextAvailableReservedBlocksExecute executes the request
+	//  @return CreateNextAvailableReservedBlockResponse
+	CreateNextAvailableReservedBlocksExecute(r NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest) (*CreateNextAvailableReservedBlockResponse, *http.Response, error)
+	/*
 			ListNextAvailableReservedBlocks List the next available reserved block.
 
-			Use this method to list the next "n" available __ReservedBlock__ object with user specified predicates.
-		The response will be "n" __ReservedBlock__ objects.
+			Use this method to retrieve the next available __ReservedBlock__ objects.
+		This returns one or more __ReservedBlock__ objects from the specified parent __FederatedBlock__ block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
@@ -41,6 +56,125 @@ type NextAvailableReservedBlockAPI interface {
 
 // NextAvailableReservedBlockAPIService NextAvailableReservedBlockAPI service
 type NextAvailableReservedBlockAPIService internal.Service
+
+type NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest struct {
+	ctx        context.Context
+	ApiService NextAvailableReservedBlockAPI
+	id         string
+	body       *NextAvailableBlockRequest
+}
+
+func (r NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest) Body(body NextAvailableBlockRequest) NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest {
+	r.body = &body
+	return r
+}
+
+func (r NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest) Execute() (*CreateNextAvailableReservedBlockResponse, *http.Response, error) {
+	return r.ApiService.CreateNextAvailableReservedBlocksExecute(r)
+}
+
+/*
+CreateNextAvailableReservedBlocks Retrieve the next available reserved block.
+
+Use this method to allocate the next available __ReservedBlock__ objects.
+This allocates one or more __ReservedBlock__ objects from the specified parent __FederatedBlock__ block.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id An application specific resource identity of a resource
+	@return NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest
+*/
+func (a *NextAvailableReservedBlockAPIService) CreateNextAvailableReservedBlocks(ctx context.Context, id string) NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest {
+	return NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest{
+		ApiService: a,
+		ctx:        ctx,
+		id:         id,
+	}
+}
+
+// Execute executes the request
+//
+//	@return CreateNextAvailableReservedBlockResponse
+func (a *NextAvailableReservedBlockAPIService) CreateNextAvailableReservedBlocksExecute(r NextAvailableReservedBlockAPICreateNextAvailableReservedBlocksRequest) (*CreateNextAvailableReservedBlockResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []internal.FormFile
+		localVarReturnValue *CreateNextAvailableReservedBlockResponse
+	)
+
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "NextAvailableReservedBlockAPIService.CreateNextAvailableReservedBlocks")
+	if err != nil {
+		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
+	}
+
+	localVarPath := localBasePath + "/federation/federated_block/{id}/next_available_reserved_block"
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.body == nil {
+		return localVarReturnValue, nil, internal.ReportError("body is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := internal.SelectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
+		if r.body.Tags == nil {
+			r.body.Tags = make(map[string]interface{})
+		}
+		for k, v := range a.Client.Cfg.DefaultTags {
+			if _, ok := r.body.Tags[k]; !ok {
+				r.body.Tags[k] = v
+			}
+		}
+	}
+	// body params
+	localVarPostBody = r.body
+	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.Client.CallAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.Client.Decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(err.Error(), localVarBody)
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
 
 type NextAvailableReservedBlockAPIListNextAvailableReservedBlocksRequest struct {
 	ctx        context.Context
@@ -83,8 +217,8 @@ func (r NextAvailableReservedBlockAPIListNextAvailableReservedBlocksRequest) Exe
 /*
 ListNextAvailableReservedBlocks List the next available reserved block.
 
-Use this method to list the next "n" available __ReservedBlock__ object with user specified predicates.
-The response will be "n" __ReservedBlock__ objects.
+Use this method to retrieve the next available __ReservedBlock__ objects.
+This returns one or more __ReservedBlock__ objects from the specified parent __FederatedBlock__ block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource

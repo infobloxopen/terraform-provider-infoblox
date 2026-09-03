@@ -21,110 +21,110 @@ import (
 	"github.com/infobloxopen/universal-ddi-go-client/internal"
 )
 
-type ReservedBlockAPI interface {
+type FederatedPoolAPI interface {
 	/*
-			Create Create the reserved block.
+			Create Create the federated pool.
 
-			Use this method to create a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to create a __FederatedPool__ object.
+		The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions..
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPICreateRequest
+			@return FederatedPoolAPICreateRequest
 	*/
-	Create(ctx context.Context) ReservedBlockAPICreateRequest
+	Create(ctx context.Context) FederatedPoolAPICreateRequest
 
 	// CreateExecute executes the request
-	//  @return CreateReservedBlockResponse
-	CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error)
+	//  @return CreateFederatedPoolResponse
+	CreateExecute(r FederatedPoolAPICreateRequest) (*CreateFederatedPoolResponse, *http.Response, error)
 	/*
-			Delete Delete the reserved block.
+			Delete Delete the federated pool.
 
-			Use this method to delete a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to delete a __FederatedPool__ object.
+		The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIDeleteRequest
+			@return FederatedPoolAPIDeleteRequest
 	*/
-	Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest
+	Delete(ctx context.Context, id string) FederatedPoolAPIDeleteRequest
 
 	// DeleteExecute executes the request
-	DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error)
+	DeleteExecute(r FederatedPoolAPIDeleteRequest) (*http.Response, error)
 	/*
-			List Retrieve the reserved block.
+			List Retrieve federated pools.
 
-			Use this method to retrieve __ReservedBlock__ objects.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to retrieve __FederatedPool__ objects.
+		The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return ReservedBlockAPIListRequest
+			@return FederatedPoolAPIListRequest
 	*/
-	List(ctx context.Context) ReservedBlockAPIListRequest
+	List(ctx context.Context) FederatedPoolAPIListRequest
 
 	// ListExecute executes the request
-	//  @return ListReservedBlockResponse
-	ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error)
+	//  @return ListFederatedPoolResponse
+	ListExecute(r FederatedPoolAPIListRequest) (*ListFederatedPoolResponse, *http.Response, error)
 	/*
-			Read Retrieve the reserved block.
+			Read Retrieve the federated pool.
 
-			Use this method to retrieve a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to retrieve a __FederatedPool__ object.
+		The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIReadRequest
+			@return FederatedPoolAPIReadRequest
 	*/
-	Read(ctx context.Context, id string) ReservedBlockAPIReadRequest
+	Read(ctx context.Context, id string) FederatedPoolAPIReadRequest
 
 	// ReadExecute executes the request
-	//  @return ReadReservedBlockResponse
-	ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error)
+	//  @return ReadFederatedPoolResponse
+	ReadExecute(r FederatedPoolAPIReadRequest) (*ReadFederatedPoolResponse, *http.Response, error)
 	/*
-			Update Update the reserved block.
+			Update Update the federated pool.
 
-			Use this method to update a __ReservedBlock__ object.
-		The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+			Use this method to update a __FederatedPool__ object.
+		The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
-			@return ReservedBlockAPIUpdateRequest
+			@return FederatedPoolAPIUpdateRequest
 	*/
-	Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest
+	Update(ctx context.Context, id string) FederatedPoolAPIUpdateRequest
 
 	// UpdateExecute executes the request
-	//  @return UpdateReservedBlockResponse
-	UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error)
+	//  @return UpdateFederatedPoolResponse
+	UpdateExecute(r FederatedPoolAPIUpdateRequest) (*UpdateFederatedPoolResponse, *http.Response, error)
 }
 
-// ReservedBlockAPIService ReservedBlockAPI service
-type ReservedBlockAPIService internal.Service
+// FederatedPoolAPIService FederatedPoolAPI service
+type FederatedPoolAPIService internal.Service
 
-type ReservedBlockAPICreateRequest struct {
+type FederatedPoolAPICreateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
-	body       *ReservedBlock
+	ApiService FederatedPoolAPI
+	body       *FederatedPool
 }
 
-func (r ReservedBlockAPICreateRequest) Body(body ReservedBlock) ReservedBlockAPICreateRequest {
+func (r FederatedPoolAPICreateRequest) Body(body FederatedPool) FederatedPoolAPICreateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPICreateRequest) Execute() (*CreateReservedBlockResponse, *http.Response, error) {
+func (r FederatedPoolAPICreateRequest) Execute() (*CreateFederatedPoolResponse, *http.Response, error) {
 	return r.ApiService.CreateExecute(r)
 }
 
 /*
-Create Create the reserved block.
+Create Create the federated pool.
 
-Use this method to create a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to create a __FederatedPool__ object.
+The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions..
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPICreateRequest
+	@return FederatedPoolAPICreateRequest
 */
-func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICreateRequest {
-	return ReservedBlockAPICreateRequest{
+func (a *FederatedPoolAPIService) Create(ctx context.Context) FederatedPoolAPICreateRequest {
+	return FederatedPoolAPICreateRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -132,21 +132,21 @@ func (a *ReservedBlockAPIService) Create(ctx context.Context) ReservedBlockAPICr
 
 // Execute executes the request
 //
-//	@return CreateReservedBlockResponse
-func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest) (*CreateReservedBlockResponse, *http.Response, error) {
+//	@return CreateFederatedPoolResponse
+func (a *FederatedPoolAPIService) CreateExecute(r FederatedPoolAPICreateRequest) (*CreateFederatedPoolResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *CreateReservedBlockResponse
+		localVarReturnValue *CreateFederatedPoolResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Create")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "FederatedPoolAPIService.Create")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/federated_pool"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -171,16 +171,6 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
 	}
 	// body params
 	localVarPostBody = r.body
@@ -214,28 +204,28 @@ func (a *ReservedBlockAPIService) CreateExecute(r ReservedBlockAPICreateRequest)
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIDeleteRequest struct {
+type FederatedPoolAPIDeleteRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService FederatedPoolAPI
 	id         string
 }
 
-func (r ReservedBlockAPIDeleteRequest) Execute() (*http.Response, error) {
+func (r FederatedPoolAPIDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteExecute(r)
 }
 
 /*
-Delete Delete the reserved block.
+Delete Delete the federated pool.
 
-Use this method to delete a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to delete a __FederatedPool__ object.
+The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIDeleteRequest
+	@return FederatedPoolAPIDeleteRequest
 */
-func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) ReservedBlockAPIDeleteRequest {
-	return ReservedBlockAPIDeleteRequest{
+func (a *FederatedPoolAPIService) Delete(ctx context.Context, id string) FederatedPoolAPIDeleteRequest {
+	return FederatedPoolAPIDeleteRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -243,19 +233,19 @@ func (a *ReservedBlockAPIService) Delete(ctx context.Context, id string) Reserve
 }
 
 // Execute executes the request
-func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest) (*http.Response, error) {
+func (a *FederatedPoolAPIService) DeleteExecute(r FederatedPoolAPIDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []internal.FormFile
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Delete")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "FederatedPoolAPIService.Delete")
 	if err != nil {
 		return nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/federated_pool/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -304,9 +294,9 @@ func (a *ReservedBlockAPIService) DeleteExecute(r ReservedBlockAPIDeleteRequest)
 	return localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIListRequest struct {
+type FederatedPoolAPIListRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService FederatedPoolAPI
 	fields     *string
 	filter     *string
 	offset     *int32
@@ -318,68 +308,68 @@ type ReservedBlockAPIListRequest struct {
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIListRequest) Fields(fields string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) Fields(fields string) FederatedPoolAPIListRequest {
 	r.fields = &fields
 	return r
 }
 
 // A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;. The following operators are commonly used in filter expressions:  |  Op   |  Description               |  |  --   |  -----------               |  |  &#x3D;&#x3D;   |  Equal                     |  |  !&#x3D;   |  Not Equal                 |  |  &gt;    |  Greater Than              |  |   &gt;&#x3D;  |  Greater Than or Equal To  |  |  &lt;    |  Less Than                 |  |  &lt;&#x3D;   |  Less Than or Equal To     |  |  and  |  Logical AND               |  |  ~    |  Matches Regex             |  |  !~   |  Does Not Match Regex      |  |  or   |  Logical OR                |  |  not  |  Logical NOT               |  |  ()   |  Grouping Operators       |
-func (r ReservedBlockAPIListRequest) Filter(filter string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) Filter(filter string) FederatedPoolAPIListRequest {
 	r.filter = &filter
 	return r
 }
 
 // The integer index (zero-origin) of the offset into a collection of resources. If omitted or null the value is assumed to be &#39;0&#39;.
-func (r ReservedBlockAPIListRequest) Offset(offset int32) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) Offset(offset int32) FederatedPoolAPIListRequest {
 	r.offset = &offset
 	return r
 }
 
 // The integer number of resources to be returned in the response. The service may impose maximum value. If omitted the service may impose a default value.
-func (r ReservedBlockAPIListRequest) Limit(limit int32) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) Limit(limit int32) FederatedPoolAPIListRequest {
 	r.limit = &limit
 	return r
 }
 
 // The service-defined string used to identify a page of resources. A null value indicates the first page.
-func (r ReservedBlockAPIListRequest) PageToken(pageToken string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) PageToken(pageToken string) FederatedPoolAPIListRequest {
 	r.pageToken = &pageToken
 	return r
 }
 
 // A collection of response resources can be sorted by their JSON tags. For a &#39;flat&#39; resource, the tag name is straightforward. If sorting is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, its value is assumed to be null.)  Specify this parameter as a comma-separated list of JSON tag names. The sort direction can be specified by a suffix separated by whitespace before the tag name. The suffix &#39;asc&#39; sorts the data in ascending order. The suffix &#39;desc&#39; sorts the data in descending order. If no suffix is specified the data is sorted in ascending order.
-func (r ReservedBlockAPIListRequest) OrderBy(orderBy string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) OrderBy(orderBy string) FederatedPoolAPIListRequest {
 	r.orderBy = &orderBy
 	return r
 }
 
 // This parameter is used for sorting by tags.
-func (r ReservedBlockAPIListRequest) TorderBy(torderBy string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) TorderBy(torderBy string) FederatedPoolAPIListRequest {
 	r.torderBy = &torderBy
 	return r
 }
 
 // This parameter is used for filtering by tags.
-func (r ReservedBlockAPIListRequest) Tfilter(tfilter string) ReservedBlockAPIListRequest {
+func (r FederatedPoolAPIListRequest) Tfilter(tfilter string) FederatedPoolAPIListRequest {
 	r.tfilter = &tfilter
 	return r
 }
 
-func (r ReservedBlockAPIListRequest) Execute() (*ListReservedBlockResponse, *http.Response, error) {
+func (r FederatedPoolAPIListRequest) Execute() (*ListFederatedPoolResponse, *http.Response, error) {
 	return r.ApiService.ListExecute(r)
 }
 
 /*
-List Retrieve the reserved block.
+List Retrieve federated pools.
 
-Use this method to retrieve __ReservedBlock__ objects.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve __FederatedPool__ objects.
+The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ReservedBlockAPIListRequest
+	@return FederatedPoolAPIListRequest
 */
-func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIListRequest {
-	return ReservedBlockAPIListRequest{
+func (a *FederatedPoolAPIService) List(ctx context.Context) FederatedPoolAPIListRequest {
+	return FederatedPoolAPIListRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -387,21 +377,21 @@ func (a *ReservedBlockAPIService) List(ctx context.Context) ReservedBlockAPIList
 
 // Execute executes the request
 //
-//	@return ListReservedBlockResponse
-func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*ListReservedBlockResponse, *http.Response, error) {
+//	@return ListFederatedPoolResponse
+func (a *FederatedPoolAPIService) ListExecute(r FederatedPoolAPIListRequest) (*ListFederatedPoolResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ListReservedBlockResponse
+		localVarReturnValue *ListFederatedPoolResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.List")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "FederatedPoolAPIService.List")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block"
+	localVarPath := localBasePath + "/federation/federated_pool"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -478,35 +468,35 @@ func (a *ReservedBlockAPIService) ListExecute(r ReservedBlockAPIListRequest) (*L
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIReadRequest struct {
+type FederatedPoolAPIReadRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService FederatedPoolAPI
 	id         string
 	fields     *string
 }
 
 // A collection of response resources can be transformed by specifying a set of JSON tags to be returned. For a “flat” resource, the tag name is straightforward. If field selection is allowed on non-flat hierarchical resources, the service should implement a qualified naming scheme such as dot-qualification to reference data down the hierarchy. If a resource does not have the specified tag, the tag does not appear in the output resource.  Specify this parameter as a comma-separated list of JSON tag names.
-func (r ReservedBlockAPIReadRequest) Fields(fields string) ReservedBlockAPIReadRequest {
+func (r FederatedPoolAPIReadRequest) Fields(fields string) FederatedPoolAPIReadRequest {
 	r.fields = &fields
 	return r
 }
 
-func (r ReservedBlockAPIReadRequest) Execute() (*ReadReservedBlockResponse, *http.Response, error) {
+func (r FederatedPoolAPIReadRequest) Execute() (*ReadFederatedPoolResponse, *http.Response, error) {
 	return r.ApiService.ReadExecute(r)
 }
 
 /*
-Read Retrieve the reserved block.
+Read Retrieve the federated pool.
 
-Use this method to retrieve a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to retrieve a __FederatedPool__ object.
+The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIReadRequest
+	@return FederatedPoolAPIReadRequest
 */
-func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedBlockAPIReadRequest {
-	return ReservedBlockAPIReadRequest{
+func (a *FederatedPoolAPIService) Read(ctx context.Context, id string) FederatedPoolAPIReadRequest {
+	return FederatedPoolAPIReadRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -515,21 +505,21 @@ func (a *ReservedBlockAPIService) Read(ctx context.Context, id string) ReservedB
 
 // Execute executes the request
 //
-//	@return ReadReservedBlockResponse
-func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*ReadReservedBlockResponse, *http.Response, error) {
+//	@return ReadFederatedPoolResponse
+func (a *FederatedPoolAPIService) ReadExecute(r FederatedPoolAPIReadRequest) (*ReadFederatedPoolResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *ReadReservedBlockResponse
+		localVarReturnValue *ReadFederatedPoolResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Read")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "FederatedPoolAPIService.Read")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/federated_pool/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -586,34 +576,34 @@ func (a *ReservedBlockAPIService) ReadExecute(r ReservedBlockAPIReadRequest) (*R
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ReservedBlockAPIUpdateRequest struct {
+type FederatedPoolAPIUpdateRequest struct {
 	ctx        context.Context
-	ApiService ReservedBlockAPI
+	ApiService FederatedPoolAPI
 	id         string
-	body       *ReservedBlock
+	body       *FederatedPool
 }
 
-func (r ReservedBlockAPIUpdateRequest) Body(body ReservedBlock) ReservedBlockAPIUpdateRequest {
+func (r FederatedPoolAPIUpdateRequest) Body(body FederatedPool) FederatedPoolAPIUpdateRequest {
 	r.body = &body
 	return r
 }
 
-func (r ReservedBlockAPIUpdateRequest) Execute() (*UpdateReservedBlockResponse, *http.Response, error) {
+func (r FederatedPoolAPIUpdateRequest) Execute() (*UpdateFederatedPoolResponse, *http.Response, error) {
 	return r.ApiService.UpdateExecute(r)
 }
 
 /*
-Update Update the reserved block.
+Update Update the federated pool.
 
-Use this method to update a __ReservedBlock__ object.
-The __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
+Use this method to update a __FederatedPool__ object.
+The __FederatedPool__ object represents a group of federated blocks that can be allocated for specific providers and regions.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource
-	@return ReservedBlockAPIUpdateRequest
+	@return FederatedPoolAPIUpdateRequest
 */
-func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) ReservedBlockAPIUpdateRequest {
-	return ReservedBlockAPIUpdateRequest{
+func (a *FederatedPoolAPIService) Update(ctx context.Context, id string) FederatedPoolAPIUpdateRequest {
+	return FederatedPoolAPIUpdateRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -622,21 +612,21 @@ func (a *ReservedBlockAPIService) Update(ctx context.Context, id string) Reserve
 
 // Execute executes the request
 //
-//	@return UpdateReservedBlockResponse
-func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest) (*UpdateReservedBlockResponse, *http.Response, error) {
+//	@return UpdateFederatedPoolResponse
+func (a *FederatedPoolAPIService) UpdateExecute(r FederatedPoolAPIUpdateRequest) (*UpdateFederatedPoolResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue *UpdateReservedBlockResponse
+		localVarReturnValue *UpdateFederatedPoolResponse
 	)
 
-	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "ReservedBlockAPIService.Update")
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "FederatedPoolAPIService.Update")
 	if err != nil {
 		return localVarReturnValue, nil, internal.NewGenericOpenAPIError(err.Error())
 	}
 
-	localVarPath := localBasePath + "/federation/reserved_block/{id}"
+	localVarPath := localBasePath + "/federation/federated_pool/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(internal.ParameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -662,16 +652,6 @@ func (a *ReservedBlockAPIService) UpdateExecute(r ReservedBlockAPIUpdateRequest)
 	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	if len(a.Client.Cfg.DefaultTags) > 0 && r.body != nil {
-		if r.body.Tags == nil {
-			r.body.Tags = make(map[string]interface{})
-		}
-		for k, v := range a.Client.Cfg.DefaultTags {
-			if _, ok := r.body.Tags[k]; !ok {
-				r.body.Tags[k] = v
-			}
-		}
 	}
 	// body params
 	localVarPostBody = r.body
