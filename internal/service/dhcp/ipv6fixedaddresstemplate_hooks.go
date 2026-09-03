@@ -36,19 +36,15 @@ func validateIpv6fixedaddresstemplateNIOSConfig(ctx context.Context, m *NIOSIpv6
 		}
 
 		for _, option := range options {
-			if option.Name.IsNull() || option.Name.IsUnknown() ||
-				option.Value.IsNull() || option.Value.IsUnknown() {
-				continue
-			}
-
-			switch option.Name.ValueString() {
-			case "dhcp-lease-time":
+			if option.Name.ValueString() == "dhcp-lease-time" && !option.Value.IsNull() && !option.Value.IsUnknown() {
 				hasDhcpLeaseTime = true
 				dhcpLeaseTimeValue = option.Value.ValueString()
+			}
 
-			case "domain-name":
-				// domain_name attribute must match the value of option 'domain-name'
+			// domain_name attribute must match the value of option 'domain-name'
+			if option.Name.ValueString() == "domain-name" {
 				if !m.DomainName.IsNull() && !m.DomainName.IsUnknown() &&
+					!option.Value.IsNull() && !option.Value.IsUnknown() &&
 					option.Value.ValueString() != m.DomainName.ValueString() {
 					resp.Diagnostics.AddAttributeError(
 						niosPath.AtName("domain_name"),
@@ -73,8 +69,13 @@ func validateIpv6fixedaddresstemplateNIOSConfig(ctx context.Context, m *NIOSIpv6
 
 	// Preferred lifetime must be less than or equal to valid lifetime
 	if !m.PreferredLifetime.IsNull() && !m.PreferredLifetime.IsUnknown() {
-		switch {
-		case !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown():
+		if m.ValidLifetime.IsNull() && !hasDhcpLeaseTime && !m.Options.IsUnknown() {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("preferred_lifetime"),
+				"Invalid configuration",
+				"Either 'valid_lifetime' attribute or 'dhcp-lease-time' option must be set when 'preferred_lifetime' is specified.",
+			)
+		} else if !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown() {
 			if m.PreferredLifetime.ValueInt64() > m.ValidLifetime.ValueInt64() {
 				resp.Diagnostics.AddAttributeError(
 					niosPath.AtName("preferred_lifetime"),
@@ -82,49 +83,16 @@ func validateIpv6fixedaddresstemplateNIOSConfig(ctx context.Context, m *NIOSIpv6
 					"The 'preferred_lifetime' must be less than or equal to 'valid_lifetime'.",
 				)
 			}
-
-		case hasDhcpLeaseTime:
+		} else if hasDhcpLeaseTime {
 			// if valid_lifetime is not set, compare with DHCP lease time
-			if leaseTime, err := strconv.ParseInt(dhcpLeaseTimeValue, 10, 64); err == nil {
-				if m.PreferredLifetime.ValueInt64() > leaseTime {
+			if dhcpLeaseTimeInt, err := strconv.ParseInt(dhcpLeaseTimeValue, 10, 64); err == nil {
+				if m.PreferredLifetime.ValueInt64() > dhcpLeaseTimeInt {
 					resp.Diagnostics.AddAttributeError(
 						niosPath.AtName("preferred_lifetime"),
 						"Invalid configuration",
 						"The 'preferred_lifetime' must be less than or equal to 'dhcp-lease-time' (valid_lifetime) option value.",
 					)
 				}
-			}
-
-		case !m.ValidLifetime.IsUnknown() && !m.Options.IsUnknown():
-			resp.Diagnostics.AddAttributeError(
-				niosPath.AtName("preferred_lifetime"),
-				"Invalid configuration",
-				"Either 'valid_lifetime' attribute or 'dhcp-lease-time' option must be set when 'preferred_lifetime' is specified.",
-			)
-		}
-	}
-
-	// Check for valid lifetime or dhcp-lease-time when preferred_lifetime is NOT set
-	if m.PreferredLifetime.IsNull() {
-		// validate that valid_lifetime is >= 27000
-		if !m.ValidLifetime.IsNull() && !m.ValidLifetime.IsUnknown() && m.ValidLifetime.ValueInt64() < 27000 {
-			resp.Diagnostics.AddAttributeError(
-				niosPath.AtName("valid_lifetime"),
-				"Invalid configuration",
-				"When 'preferred_lifetime' is not set ,"+
-					"'valid_lifetime' must be greater than or equal to 27000.",
-			)
-		}
-
-		// validate that dhcp-lease-time is >= 27000
-		if hasDhcpLeaseTime {
-			if leaseTime, err := strconv.ParseInt(dhcpLeaseTimeValue, 10, 64); err == nil && leaseTime < 27000 {
-				resp.Diagnostics.AddAttributeError(
-					niosPath.AtName("options"),
-					"Invalid configuration",
-					"When 'preferred_lifetime' is not set, the DHCP option "+
-						"'dhcp-lease-time' must be greater than or equal to 27000.",
-				)
 			}
 		}
 	}
