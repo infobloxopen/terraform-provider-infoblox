@@ -216,6 +216,20 @@ func ExpandIPv6Address(ipv6addr iptypes.IPv6Address) *string {
 	return &v
 }
 
+func ExpandIPv4AddressValue(ipv4addr iptypes.IPv4Address) string {
+	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
+		return ""
+	}
+	return ipv4addr.ValueString()
+}
+
+func ExpandIPv6AddressValue(ipv6addr iptypes.IPv6Address) string {
+	if ipv6addr.IsNull() || ipv6addr.IsUnknown() {
+		return ""
+	}
+	return ipv6addr.ValueString()
+}
+
 func ExpandIPAddress(ipaddr iptypes.IPAddress) *string {
 	if ipaddr.IsNull() || ipaddr.IsUnknown() {
 		return nil
@@ -465,6 +479,20 @@ func FlattenIPv6Address(ipv6addr *string) iptypes.IPv6Address {
 		return iptypes.NewIPv6AddressNull()
 	}
 	return iptypes.NewIPv6AddressValue(*ipv6addr)
+}
+
+func FlattenIPv4AddressValue(ipv4addr string) iptypes.IPv4Address {
+	if ipv4addr == "" {
+		return iptypes.NewIPv4AddressNull()
+	}
+	return iptypes.NewIPv4AddressValue(ipv4addr)
+}
+
+func FlattenIPv6AddressValue(ipv6addr string) iptypes.IPv6Address {
+	if ipv6addr == "" {
+		return iptypes.NewIPv6AddressNull()
+	}
+	return iptypes.NewIPv6AddressValue(ipv6addr)
 }
 
 func FlattenIPAddress(ipaddr *string) iptypes.IPAddress {
