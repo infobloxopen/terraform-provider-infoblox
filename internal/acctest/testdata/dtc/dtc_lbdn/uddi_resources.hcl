@@ -1,18 +1,23 @@
 # Auto-generated resource acceptance-test cases for DtcLbdn (UDDI backend).
-# view: default DNS view on env-5 (dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376)
 # dtc_policy refs: example-policy-1, example-policy-topology (stable on env-5)
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
     }
     check = {
       "uddi.name" = "dtc-lbdn-{{random}}."
-      "uddi.view" = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
     }
   }
 
@@ -23,24 +28,38 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
     }
   }
 
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name    = "dtc-lbdn-{{random}}."
-      view    = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view    = "$${infoblox_view.test_view.id}"
       comment = "resource-comment"
     }
     check = {
@@ -51,7 +70,7 @@ case "comment" {
   step {
     uddi {
       name    = "dtc-lbdn-{{random}}."
-      view    = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view    = "$${infoblox_view.test_view.id}"
       comment = "resource-comment-update"
     }
     check = {
@@ -62,13 +81,20 @@ case "comment" {
 }
 
 case "disabled" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name     = "dtc-lbdn-{{random}}."
-      view     = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view     = "$${infoblox_view.test_view.id}"
       disabled = true
     }
     check = {
@@ -79,7 +105,7 @@ case "disabled" {
   step {
     uddi {
       name     = "dtc-lbdn-{{random}}."
-      view     = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view     = "$${infoblox_view.test_view.id}"
       disabled = false
     }
     check = {
@@ -90,13 +116,20 @@ case "disabled" {
 }
 
 case "ttl" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
       ttl  = 300
     }
     check = {
@@ -107,7 +140,7 @@ case "ttl" {
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
       ttl  = 600
     }
     check = {
@@ -118,13 +151,20 @@ case "ttl" {
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
       tags = { Site = "{{random2}}" }
     }
     check = {
@@ -135,7 +175,7 @@ case "tags" {
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
       tags = { Site = "{{random3}}" }
     }
     check = {
@@ -146,13 +186,21 @@ case "tags" {
 }
 
 case "dtc_policy" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  skip              = false
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name       = "dtc-lbdn-{{random}}."
-      view       = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view       = "$${infoblox_view.test_view.id}"
       dtc_policy = { policy_id = "dtc/policy/dafaf7a5-307b-4e5c-895e-fd0d922c46fd" }
     }
     check = {
@@ -163,7 +211,7 @@ case "dtc_policy" {
   step {
     uddi {
       name       = "dtc-lbdn-{{random}}."
-      view       = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view       = "$${infoblox_view.test_view.id}"
       dtc_policy = { policy_id = "dtc/policy/f088b848-67cb-4b3f-a8fd-86283d8e228d" }
     }
     check = {
@@ -174,13 +222,20 @@ case "dtc_policy" {
 }
 
 case "name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
     }
     check = {
       "uddi.name" = "dtc-lbdn-{{random}}."
@@ -190,7 +245,7 @@ case "name" {
   step {
     uddi {
       name = "dtc-lbdn-{{random2}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
     }
     check = {
       "uddi.name" = "dtc-lbdn-{{random2}}."
@@ -200,13 +255,20 @@ case "name" {
 }
 
 case "precedence" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name       = "dtc-lbdn-{{random}}."
-      view       = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view       = "$${infoblox_view.test_view.id}"
       precedence = 7
     }
     check = {
@@ -217,7 +279,7 @@ case "precedence" {
   step {
     uddi {
       name       = "dtc-lbdn-{{random}}."
-      view       = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view       = "$${infoblox_view.test_view.id}"
       precedence = 12
     }
     check = {
@@ -228,13 +290,20 @@ case "precedence" {
 }
 
 case "inheritance_sources" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name                = "dtc-lbdn-{{random}}."
-      view                = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view                = "$${infoblox_view.test_view.id}"
       ttl                 = 300
       inheritance_sources = { ttl = { action = "override" } }
     }
@@ -247,7 +316,7 @@ case "inheritance_sources" {
   step {
     uddi {
       name                = "dtc-lbdn-{{random}}."
-      view                = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view                = "$${infoblox_view.test_view.id}"
       inheritance_sources = { ttl = { action = "inherit" } }
     }
     check = {

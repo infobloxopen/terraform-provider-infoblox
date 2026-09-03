@@ -39,6 +39,12 @@ case "auth_zones" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "test_server1" {
+    nios = {
+      name = "server-{{random}}"
+      host = "{{random_ip}}"
+    }
+  }
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
       fqdn         = "{{random}}.test.com"
@@ -60,6 +66,13 @@ case "auth_zones" {
       grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
+  resource "infoblox_dtc_pool" "test_pool1" {
+    nios = {
+      name                = "pool-{{random}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = infoblox_dtc_server.test_server1.id, ratio = 1 }]
+    }
+  }
   PREREQ
 
   step {
@@ -67,7 +80,7 @@ case "auth_zones" {
       name       = "dtc-lbdn-{{random}}"
       lb_method  = "SOURCE_IP_HASH"
       auth_zones = ["$${infoblox_zone_auth.test_zone1.id}", "$${infoblox_zone_auth.test_zone2.id}"]
-      pools      = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+      pools      = [{ pool = "$${infoblox_dtc_pool.test_pool1.id}", ratio = 2 }]
       patterns   = ["*.test.com", "*.record_test.com"]
       disable    = true
     }
@@ -81,7 +94,7 @@ case "auth_zones" {
       name       = "dtc-lbdn-{{random}}"
       lb_method  = "SOURCE_IP_HASH"
       auth_zones = ["$${infoblox_zone_auth.test_zone3.id}"]
-      pools      = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+      pools      = [{ pool = "$${infoblox_dtc_pool.test_pool1.id}", ratio = 2 }]
       patterns   = ["*.test.com", "*.record_test.com"]
       disable    = true
     }
@@ -351,16 +364,37 @@ case "persistence" {
 case "pools" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "test_server1" {
+    nios = {
+      name = "server-{{random}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_pool" "test_pool1" {
+    nios = {
+      name                = "pool1-{{random}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = infoblox_dtc_server.test_server1.id, ratio = 1 }]
+    }
+  }
+  resource "infoblox_dtc_pool" "test_pool2" {
+    nios = {
+      name                = "pool2-{{random}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = infoblox_dtc_server.test_server1.id, ratio = 1 }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "ROUND_ROBIN"
-      pools     = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1", ratio = 2 }]
+      pools     = [{ pool = "$${infoblox_dtc_pool.test_pool1.id}", ratio = 2 }]
     }
     check = {
       "nios.pools.#"       = "1"
-      "nios.pools.0.pool"  = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDE:TestPool1"
       "nios.pools.0.ratio" = "2"
     }
   }
@@ -369,11 +403,10 @@ case "pools" {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "ROUND_ROBIN"
-      pools     = [{ pool = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDI:TestPool2", ratio = 2 }]
+      pools     = [{ pool = "$${infoblox_dtc_pool.test_pool2.id}", ratio = 2 }]
     }
     check = {
       "nios.pools.#"       = "1"
-      "nios.pools.0.pool"  = "dtc:pool/ZG5zLmlkbnNfcG9vbCRUZXN0UG9vbDI:TestPool2"
       "nios.pools.0.ratio" = "2"
     }
   }
