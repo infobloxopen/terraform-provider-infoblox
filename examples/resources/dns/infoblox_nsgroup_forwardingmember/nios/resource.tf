@@ -7,16 +7,13 @@ resource "infoblox_nsgroup_forwardingmember" "nsgroup_forwarding_member_basic_fi
         name = "infoblox.localdomain"
       }
     ]
-    ext_attrs = {
-      Site = "location-1"
-    }
   }
 }
 
 // Create an NS Group Forwarding Member with Additional Fields
 resource "infoblox_nsgroup_forwardingmember" "nsgroup_forwarding_member_additional_fields" {
   nios = {
-    name    = "example_nsgroup_forwarding_member1"
+    name    = "example_nsgroup_forwarding_member_additional_fields"
     comment = "nsgroup forwarding member with additional fields"
     forwarding_servers = [
       {
