@@ -375,6 +375,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkResource,
 		ipam.NewNetworkcontainerResource,
 		ipam.NewNetworkviewResource,
+		ipam.NewBulkhostnametemplateResource,
 
 		keys.NewTsigKeyResource,
 
@@ -440,6 +441,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableAddressBlockDataSource,
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
+		ipam.NewBulkhostnametemplateDataSource,
 
 		keys.NewTsigKeyDataSource,
 
@@ -502,6 +504,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkList,
 		ipam.NewNetworkcontainerList,
 		ipam.NewNetworkviewList,
+		ipam.NewBulkhostnametemplateList,
 
 		keys.NewTsigKeyList,
 
