@@ -13,7 +13,6 @@ case "basic" {
       "nios.external_servers.#"         = "1"
       "nios.external_servers.0.name"    = "example.com"
       "nios.external_servers.0.address" = "2.3.3.4"
-      "nios.comment"                    = ""
     }
   }
 

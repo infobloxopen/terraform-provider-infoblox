@@ -14,6 +14,7 @@ case "filters" {
   step {
     nios {
       name = "{{random}}"
+      external_servers = [{ name = "example.com", address = "2.3.3.4" }]
     }
   }
 
@@ -34,6 +35,7 @@ case "ext_attr_filters" {
   step {
     nios {
       name      = "{{random}}"
+      external_servers = [{ name = "example.com", address = "2.3.3.4" }]
       ext_attrs = { Site = "{{random}}" }
     }
   }
