@@ -14,7 +14,7 @@ resource "infoblox_nsgroup_forwardstubserver" "nsgroup_forward_stub_server_with_
 // Create NS Group Forward Stub Server with Additional Fields
 resource "infoblox_nsgroup_forwardstubserver" "nsgroup_forward_stub_server_with_additional_fields" {
   nios = {
-    name = "example_ns_group_forward_stub_server1"
+    name = "example_ns_group_forward_stub_server_additional_fields"
     external_servers = [
       {
         name    = "example.com"
