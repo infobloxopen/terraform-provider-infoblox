@@ -91,7 +91,7 @@ var UDDIDtcLbdnAttrTypes = map[string]attr.Type{
 	"comment":             types.StringType,
 	"disabled":            types.BoolType,
 	"dtc_policy":          types.ObjectType{AttrTypes: DTCPolicyAttrTypes},
-	"inheritance_sources": types.ObjectType{AttrTypes: TTLInheritanceAttrTypes},
+	"inheritance_sources": types.ObjectType{AttrTypes: TTLInheritanceDnsconfigAttrTypes},
 	"name":                types.StringType,
 	"precedence":          types.Int64Type,
 	"tags":                types.MapType{ElemType: types.StringType},
@@ -264,7 +264,7 @@ var DtcLbdnResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The __DTC Policy__ object.",
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
-		Attributes:          TTLInheritanceResourceSchemaAttributes,
+		Attributes:          TTLInheritanceDnsconfigResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The inheritance configuration specifies how the object inherits the _ttl_ field.",
@@ -366,7 +366,7 @@ func (m *UDDIDtcLbdnModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		DtcPolicy:          ExpandDTCPolicy(ctx, m.DtcPolicy, diags),
-		InheritanceSources: ExpandTTLInheritance(ctx, m.InheritanceSources, diags),
+		InheritanceSources: ExpandTTLInheritanceDnsconfig(ctx, m.InheritanceSources, diags),
 		Name:               flex.ExpandString(m.Name),
 		Precedence:         flex.ExpandInt64Pointer(m.Precedence),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
@@ -441,7 +441,7 @@ func (m *UDDIDtcLbdnModel) Flatten(ctx context.Context, from *coremodel.UDDIDtcL
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.DtcPolicy = FlattenDTCPolicy(ctx, from.DtcPolicy, diags)
-	m.InheritanceSources = FlattenTTLInheritance(ctx, from.InheritanceSources, diags)
+	m.InheritanceSources = FlattenTTLInheritanceDnsconfig(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenString(from.Name)
 	m.Precedence = flex.FlattenInt64Pointer(from.Precedence)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)

@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
+	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dtc"
 )
 
 // TTLInheritanceModel is the Terraform model for TTLInheritance

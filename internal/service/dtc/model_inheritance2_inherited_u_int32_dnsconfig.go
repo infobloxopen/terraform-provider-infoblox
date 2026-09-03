@@ -10,27 +10,27 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dtc"
+	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
 )
 
-// Inheritance2InheritedUInt32Model is the Terraform model for Inheritance2InheritedUInt32
-type Inheritance2InheritedUInt32Model struct {
+// Inheritance2InheritedUInt32DnsconfigModel is the Terraform model for Inheritance2InheritedUInt32
+type Inheritance2InheritedUInt32DnsconfigModel struct {
 	Action      types.String `tfsdk:"action"`
 	DisplayName types.String `tfsdk:"display_name"`
 	Source      types.String `tfsdk:"source"`
 	Value       types.Int64  `tfsdk:"value"`
 }
 
-// Inheritance2InheritedUInt32AttrTypes contains the attribute types for Inheritance2InheritedUInt32Model
-var Inheritance2InheritedUInt32AttrTypes = map[string]attr.Type{
+// Inheritance2InheritedUInt32DnsconfigAttrTypes contains the attribute types for Inheritance2InheritedUInt32DnsconfigModel
+var Inheritance2InheritedUInt32DnsconfigAttrTypes = map[string]attr.Type{
 	"action":       types.StringType,
 	"display_name": types.StringType,
 	"source":       types.StringType,
 	"value":        types.Int64Type,
 }
 
-// Inheritance2InheritedUInt32ResourceSchemaAttributes contains the schema attributes for Inheritance2InheritedUInt32Model
-var Inheritance2InheritedUInt32ResourceSchemaAttributes = map[string]schema.Attribute{
+// Inheritance2InheritedUInt32DnsconfigResourceSchemaAttributes contains the schema attributes for Inheritance2InheritedUInt32DnsconfigModel
+var Inheritance2InheritedUInt32DnsconfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -53,12 +53,12 @@ var Inheritance2InheritedUInt32ResourceSchemaAttributes = map[string]schema.Attr
 	},
 }
 
-// ExpandInheritance2InheritedUInt32 converts a Terraform Object to SDK type
-func ExpandInheritance2InheritedUInt32(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddidtc.Inheritance2InheritedUInt32 {
+// ExpandInheritance2InheritedUInt32Dnsconfig converts a Terraform Object to SDK type
+func ExpandInheritance2InheritedUInt32Dnsconfig(ctx context.Context, o types.Object, diags *diag.Diagnostics) *uddidtc.Inheritance2InheritedUInt32 {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m Inheritance2InheritedUInt32Model
+	var m Inheritance2InheritedUInt32DnsconfigModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -67,7 +67,7 @@ func ExpandInheritance2InheritedUInt32(ctx context.Context, o types.Object, diag
 }
 
 // Expand converts the Terraform model to SDK type
-func (m *Inheritance2InheritedUInt32Model) Expand(ctx context.Context, diags *diag.Diagnostics) *uddidtc.Inheritance2InheritedUInt32 {
+func (m *Inheritance2InheritedUInt32DnsconfigModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddidtc.Inheritance2InheritedUInt32 {
 	if m == nil {
 		return nil
 	}
@@ -80,20 +80,20 @@ func (m *Inheritance2InheritedUInt32Model) Expand(ctx context.Context, diags *di
 	return to
 }
 
-// FlattenInheritance2InheritedUInt32 converts an SDK type to Terraform Object
-func FlattenInheritance2InheritedUInt32(ctx context.Context, from *uddidtc.Inheritance2InheritedUInt32, diags *diag.Diagnostics) types.Object {
+// FlattenInheritance2InheritedUInt32Dnsconfig converts an SDK type to Terraform Object
+func FlattenInheritance2InheritedUInt32Dnsconfig(ctx context.Context, from *uddidtc.Inheritance2InheritedUInt32, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(Inheritance2InheritedUInt32AttrTypes)
+		return types.ObjectNull(Inheritance2InheritedUInt32DnsconfigAttrTypes)
 	}
-	m := &Inheritance2InheritedUInt32Model{}
+	m := &Inheritance2InheritedUInt32DnsconfigModel{}
 	m.Flatten(ctx, from, diags)
-	t, d := types.ObjectValueFrom(ctx, Inheritance2InheritedUInt32AttrTypes, m)
+	t, d := types.ObjectValueFrom(ctx, Inheritance2InheritedUInt32DnsconfigAttrTypes, m)
 	diags.Append(d...)
 	return t
 }
 
 // Flatten populates the Terraform model from SDK type
-func (m *Inheritance2InheritedUInt32Model) Flatten(ctx context.Context, from *uddidtc.Inheritance2InheritedUInt32, diags *diag.Diagnostics) {
+func (m *Inheritance2InheritedUInt32DnsconfigModel) Flatten(ctx context.Context, from *uddidtc.Inheritance2InheritedUInt32, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}
