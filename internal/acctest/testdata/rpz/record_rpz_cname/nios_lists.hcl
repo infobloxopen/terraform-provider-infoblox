@@ -1,16 +1,22 @@
-# RecordRpzCname — nios list cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : test-rpz.com  (view: default)
+# Auto-generated list acceptance-test cases for RecordRpzCname.
 
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random2}}.test-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = ""
-      rp_zone   = "test-rpz.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -19,17 +25,26 @@ case "basic" {
     provider = infoblox
     limit    = 5
   }
+
 }
 
 case "filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random2}}.test-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = ""
-      rp_zone   = "test-rpz.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -44,17 +59,26 @@ case "filters" {
       }
     }
   }
+
 }
 
 case "ext_attr_filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random2}}.test-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = ""
-      rp_zone   = "test-rpz.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }
   }
@@ -70,4 +94,5 @@ case "ext_attr_filters" {
       }
     }
   }
+
 }
