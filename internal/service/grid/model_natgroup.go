@@ -55,13 +55,15 @@ var NatgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The NAT group descriptive comment.",
 	},
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The name of a NAT group object.",
 	},

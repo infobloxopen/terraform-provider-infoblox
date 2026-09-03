@@ -15,6 +15,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type ForwardNsgModel struct {
@@ -78,8 +79,11 @@ var ForwardNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ForwarderResourceSchemaAttributes(true),
 		},
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. External DNS servers to forward to. Order is not significant.",
 	},
 	"forwarders_only": schema.BoolAttribute{
@@ -89,13 +93,19 @@ var ForwardNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. _true_ to only forward.",
 	},
 	"hosts": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"internal_forwarders": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"name": schema.StringAttribute{
@@ -103,8 +113,11 @@ var ForwardNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Name of the object.",
 	},
 	"nsgs": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
