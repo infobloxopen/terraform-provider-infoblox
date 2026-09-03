@@ -17,22 +17,12 @@ import (
 
 // NsgroupStubmemberStubMembersModel is the Terraform model for NsgroupStubmemberStubMembers
 type NsgroupStubmemberStubMembersModel struct {
-	Name                     types.String `tfsdk:"name"`
-	Stealth                  types.Bool   `tfsdk:"stealth"`
-	GridReplicate            types.Bool   `tfsdk:"grid_replicate"`
-	Lead                     types.Bool   `tfsdk:"lead"`
-	PreferredPrimaries       types.List   `tfsdk:"preferred_primaries"`
-	EnablePreferredPrimaries types.Bool   `tfsdk:"enable_preferred_primaries"`
+	Name types.String `tfsdk:"name"`
 }
 
 // NsgroupStubmemberStubMembersAttrTypes contains the attribute types for NsgroupStubmemberStubMembersModel
 var NsgroupStubmemberStubMembersAttrTypes = map[string]attr.Type{
-	"name":                       types.StringType,
-	"stealth":                    types.BoolType,
-	"grid_replicate":             types.BoolType,
-	"lead":                       types.BoolType,
-	"preferred_primaries":        types.ListType{ElemType: types.ObjectType{AttrTypes: NsgroupstubmemberstubmembersPreferredPrimariesAttrTypes}},
-	"enable_preferred_primaries": types.BoolType,
+	"name": types.StringType,
 }
 
 // NsgroupStubmemberStubMembersResourceSchemaAttributes contains the schema attributes for NsgroupStubmemberStubMembersModel
@@ -43,32 +33,6 @@ var NsgroupStubmemberStubMembersResourceSchemaAttributes = map[string]schema.Att
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "The grid member name.",
-	},
-	"stealth": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
-	},
-	"grid_replicate": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "The flag represents DNS zone transfers if set to False, and ID Grid Replication if set to True. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
-	},
-	"lead": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
-	},
-	"preferred_primaries": schema.ListNestedAttribute{
-		NestedObject: schema.NestedAttributeObject{
-			Attributes: NsgroupstubmemberstubmembersPreferredPrimariesResourceSchemaAttributes,
-		},
-		Optional: true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
-		MarkdownDescription: "The primary preference list with Grid member names and\\or External Server extserver structs for this member.",
-	},
-	"enable_preferred_primaries": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "This flag represents whether the preferred_primaries field values of this member are used.",
 	},
 }
 
@@ -91,12 +55,7 @@ func (m *NsgroupStubmemberStubMembersModel) Expand(ctx context.Context, diags *d
 		return nil
 	}
 	to := &niosdns.NsgroupStubmemberStubMembers{
-		Name:                     flex.ExpandStringPointerNullAsEmpty(m.Name),
-		Stealth:                  flex.ExpandBoolPointer(m.Stealth),
-		GridReplicate:            flex.ExpandBoolPointer(m.GridReplicate),
-		Lead:                     flex.ExpandBoolPointer(m.Lead),
-		PreferredPrimaries:       flex.ExpandFrameworkListNestedBlock(ctx, m.PreferredPrimaries, diags, ExpandNsgroupstubmemberstubmembersPreferredPrimaries),
-		EnablePreferredPrimaries: flex.ExpandBoolPointer(m.EnablePreferredPrimaries),
+		Name: flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 	return to
 }
@@ -119,9 +78,4 @@ func (m *NsgroupStubmemberStubMembersModel) Flatten(ctx context.Context, from *n
 		return
 	}
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.Stealth = flex.FlattenBoolPointer(from.Stealth)
-	m.GridReplicate = flex.FlattenBoolPointer(from.GridReplicate)
-	m.Lead = flex.FlattenBoolPointer(from.Lead)
-	m.PreferredPrimaries = flex.FlattenFrameworkListNestedBlock(ctx, from.PreferredPrimaries, NsgroupstubmemberstubmembersPreferredPrimariesAttrTypes, diags, FlattenNsgroupstubmemberstubmembersPreferredPrimaries)
-	m.EnablePreferredPrimaries = flex.FlattenBoolPointer(from.EnablePreferredPrimaries)
 }
