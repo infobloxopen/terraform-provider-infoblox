@@ -26,6 +26,6 @@ type UDDIDtcTopologyExt struct {
 	Disabled *bool
 	Metadata *uddidtc.Metadata
 	Name     string
-	Rules    []uddidtc.TopologyRulePreset
+	Sources  []uddidtc.TopologySource
 	Tags     map[string]any
 }

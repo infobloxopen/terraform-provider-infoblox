@@ -40,7 +40,7 @@ var TagRuleResourceSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.OneOf("EQUALS", "NOT_EQUALS"),
 		},
 		Optional:            true,
-		MarkdownDescription: "Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value. A missing key does not satisfy either operator.  Defaults to _EQUALS_.",
+		MarkdownDescription: "Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value.  A missing key does not satisfy either operator.  Defaults to _EQUALS_.",
 	},
 	"value": schema.StringAttribute{
 		Required:            true,

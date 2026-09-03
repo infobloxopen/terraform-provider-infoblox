@@ -379,7 +379,7 @@ func mapUDDIDtcTopologyToResponse(r *uddidtc.Topology) *dtc.DtcTopology {
 		Disabled: r.Disabled,
 		Metadata: r.Metadata,
 		Name:     r.Name,
-		Rules:    r.Rules,
+		Sources:  r.Sources,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))

@@ -15,7 +15,7 @@ var DtcTopologyUDDIFieldMap = map[string]string{
 	"UDDI.Comment":  "Comment",
 	"UDDI.Disabled": "Disabled",
 	"UDDI.Name":     "Name",
-	"UDDI.Rules":    "Rules",
+	"UDDI.Sources":  "Sources",
 	"UDDI.Tags":     "Tags",
 }
 
@@ -33,7 +33,7 @@ var DtcTopologyFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.comment":  "comment",
 		"uddi.disabled": "disabled",
 		"uddi.name":     "name",
-		"uddi.rules":    "rules",
+		"uddi.sources":  "sources",
 		"uddi.tags":     "tags",
 	},
 }

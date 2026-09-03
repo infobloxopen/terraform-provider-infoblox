@@ -53,7 +53,7 @@ type UDDIDtcTopologyModel struct {
 	Comment  types.String `tfsdk:"comment"`
 	Disabled types.Bool   `tfsdk:"disabled"`
 	Name     types.String `tfsdk:"name"`
-	Rules    types.List   `tfsdk:"rules"`
+	Sources  types.List   `tfsdk:"sources"`
 	Tags     types.Map    `tfsdk:"tags"`
 	TagsAll  types.Map    `tfsdk:"tags_all"`
 }
@@ -62,7 +62,7 @@ var UDDIDtcTopologyAttrTypes = map[string]attr.Type{
 	"comment":  types.StringType,
 	"disabled": types.BoolType,
 	"name":     types.StringType,
-	"rules":    types.ListType{ElemType: types.ObjectType{AttrTypes: TopologyRulePresetAttrTypes}},
+	"sources":  types.ListType{ElemType: types.ObjectType{AttrTypes: TopologySourceAttrTypes}},
 	"tags":     types.MapType{ElemType: types.StringType},
 	"tags_all": types.MapType{ElemType: types.StringType},
 }
@@ -153,15 +153,15 @@ var DtcTopologyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Required:            true,
 		MarkdownDescription: "Display name of __Topology__.",
 	},
-	"rules": schema.ListNestedAttribute{
+	"sources": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
-			Attributes: TopologyRulePresetResourceSchemaAttributes,
+			Attributes: TopologySourceResourceSchemaAttributes,
 		},
 		Optional: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "List of __TopologyRulePreset__ objects defining the resolving strategy for __Policy__. Preset names must be unique within __Topology__.  Defaults to a list with a single, default __TopologyRulePreset__.",
+		MarkdownDescription: "Required. List of __TopologySource__ objects with unique names.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -219,7 +219,7 @@ func (m *UDDIDtcTopologyModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		Comment:  flex.ExpandStringPointer(m.Comment),
 		Disabled: flex.ExpandBoolPointer(m.Disabled),
 		Name:     flex.ExpandString(m.Name),
-		Rules:    flex.ExpandFrameworkListNestedBlock(ctx, m.Rules, diags, ExpandTopologyRulePreset),
+		Sources:  flex.ExpandFrameworkListNestedBlock(ctx, m.Sources, diags, ExpandTopologySource),
 		Tags:     flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 }
@@ -280,7 +280,7 @@ func (m *UDDIDtcTopologyModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.Name = flex.FlattenString(from.Name)
-	m.Rules = flex.FlattenFrameworkListNestedBlock(ctx, from.Rules, TopologyRulePresetAttrTypes, diags, FlattenTopologyRulePreset)
+	m.Sources = flex.FlattenFrameworkListNestedBlock(ctx, from.Sources, TopologySourceAttrTypes, diags, FlattenTopologySource)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
