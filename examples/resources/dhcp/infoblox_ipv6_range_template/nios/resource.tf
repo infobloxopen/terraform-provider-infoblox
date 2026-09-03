@@ -1,5 +1,5 @@
-// Create an IPV6 DHCP Range Template with required Fields
-resource "infoblox_ipv6_range_template" "ipv6_range_template_required_fields" {
+// Create an IPV6 DHCP Range Template with Basic Fields
+resource "infoblox_ipv6_range_template" "ipv6_range_template_basic_fields" {
   nios = {
     name                = "example_range_template"
     number_of_addresses = 10
@@ -16,9 +16,8 @@ resource "infoblox_ipv6_range_template" "ipv6_range_template_additional_fields" 
     number_of_addresses = 100
     offset              = 200
     // add cloud_api_compatible = true if Terraform Internal ID extensible attribute has cloud access
-    cloud_api_compatible    = true
-    comment                 = "Example comment for ipv6 range template"
-    server_association_type = "MEMBER"
+    cloud_api_compatible = true
+    comment              = "Example comment for ipv6 range template"
     exclude = [
       {
         number_of_addresses = 10
@@ -26,14 +25,6 @@ resource "infoblox_ipv6_range_template" "ipv6_range_template_additional_fields" 
         comment             = "Example comment for range template exclude"
       }
     ]
-    member = {
-      ipv4addr = "10.0.0.0"
-      name     = "infoblox.member"
-    }
-    delegated_member = {
-      ipv4addr = "10.0.0.0"
-      name     = "infoblox.member"
-    }
     logic_filter_rules = [
       {
         filter = "ipv6_option_filter"
