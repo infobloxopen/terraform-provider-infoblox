@@ -18,7 +18,7 @@ Retrieves information about existing Infoblox DtcLbdn from both the NIOS and UDD
 // Retrieve a specific DTC LBDN by name filter
 data "infoblox_dtc_lbdn" "by_name" {
   filters = {
-    name = "example-lbdn"
+    name = "example-lbdn-1"
   }
 }
 

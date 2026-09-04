@@ -20,7 +20,7 @@ list "infoblox_dtc_lbdn" "list_dtc_lbdn_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example-lbdn"
+      name = "example-lbdn-1"
     }
   }
   limit = 10
