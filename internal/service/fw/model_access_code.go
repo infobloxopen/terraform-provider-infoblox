@@ -148,7 +148,7 @@ func (m *UDDIAccessCodeModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Description: flex.ExpandStringPointer(m.Description),
 		Expiration:  flex.ExpandRFC3339(m.Expiration, diags),
 		Name:        flex.ExpandStringPointer(m.Name),
-		PolicyIds:   flex.ExpandFrameworkListInt32(m.PolicyIds),
+		PolicyIds:   flex.ExpandFrameworkListInt32(ctx, m.PolicyIds, diags),
 		Rules:       flex.ExpandFrameworkListNestedBlock(ctx, m.Rules, diags, ExpandAccessCodeRule),
 	}
 }
@@ -185,7 +185,7 @@ func (m *UDDIAccessCodeModel) Flatten(ctx context.Context, from *coremodel.UDDIA
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.Expiration = flex.FlattenRFC3339(from.Expiration)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.PolicyIds = flex.FlattenFrameworkListInt32(from.PolicyIds)
+	m.PolicyIds = flex.FlattenFrameworkListInt32(ctx, from.PolicyIds, diags)
 	m.Rules = flex.FlattenFrameworkListNestedBlock(ctx, from.Rules, AccessCodeRuleAttrTypes, diags, FlattenAccessCodeRule)
 	m.UpdatedTime = flex.FlattenRFC3339(from.UpdatedTime)
 }
