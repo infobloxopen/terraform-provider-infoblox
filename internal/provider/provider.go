@@ -24,6 +24,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
@@ -329,7 +330,6 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		acl.NewNamedaclResource,
-
 		dhcp.NewDhcpOptiondefinitionResource,
 		ipam.NewSuperhostResource,
 		dhcp.NewDhcpOptionspaceResource,
@@ -366,6 +366,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 
+		fw.NewAccessCodeResource,
+
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
 		grid.NewUpgradegroupResource,
@@ -392,7 +394,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		acl.NewNamedaclDataSource,
-
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		ipam.NewSuperhostDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
@@ -429,6 +430,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 
+		fw.NewAccessCodeDataSource,
+
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
 		grid.NewUpgradegroupDataSource,
@@ -458,7 +461,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		acl.NewNamedaclList,
-
 		dhcp.NewDhcpOptiondefinitionList,
 		ipam.NewSuperhostList,
 		dhcp.NewDhcpOptionspaceList,
@@ -494,6 +496,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
+
+		fw.NewAccessCodeList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,

@@ -200,34 +200,6 @@ func ExpandFrameworkListString(ctx context.Context, tfList interface {
 	return data
 }
 
-// ExpandFrameworkListInt32 expands types.List to []int32
-// Returns nil for null or unknown lists.
-func ExpandFrameworkListInt32(ctx context.Context, tfList interface {
-	basetypes.ListValuable
-	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
-}, diags *diag.Diagnostics) []int32 {
-	if tfList.IsNull() || tfList.IsUnknown() {
-		return nil
-	}
-	var data []int32
-	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
-	return data
-}
-
-// ExpandFrameworkListInt64 expands types.List to []int64
-// Returns nil for null or unknown lists.
-func ExpandFrameworkListInt64(ctx context.Context, tfList interface {
-	basetypes.ListValuable
-	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
-}, diags *diag.Diagnostics) []int64 {
-	if tfList.IsNull() || tfList.IsUnknown() {
-		return nil
-	}
-	var data []int64
-	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
-	return data
-}
-
 func ExpandIPv4Address(ipv4addr iptypes.IPv4Address) *string {
 	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
 		return nil
@@ -495,6 +467,20 @@ func FlattenFrameworkListString(ctx context.Context, l []string, diags *diag.Dia
 	return tfList
 }
 
+// ExpandFrameworkListInt32 expands types.List to []int32
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt32(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int32 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int32
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
 // FlattenFrameworkListInt32 flattens []int32 to types.List
 // Returns null list if input is nil or empty.
 func FlattenFrameworkListInt32(ctx context.Context, l []int32, diags *diag.Diagnostics) types.List {
@@ -504,6 +490,20 @@ func FlattenFrameworkListInt32(ctx context.Context, l []int32, diags *diag.Diagn
 	tfList, d := types.ListValueFrom(ctx, types.Int32Type, l)
 	diags.Append(d...)
 	return tfList
+}
+
+// ExpandFrameworkListInt64 expands types.List to []int64
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt64(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int64 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int64
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
 }
 
 // FlattenFrameworkListInt64 flattens []int64 to types.List
