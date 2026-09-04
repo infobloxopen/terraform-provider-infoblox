@@ -3,18 +3,33 @@
 page_title: "infoblox_dtc_topology Resource - terraform-provider-infoblox"
 subcategory: "DTC"
 description: |-
-  Manages an Infoblox DtcTopology in the NIOS backend.
+  Manages an Infoblox DtcTopology in both NIOS and UDDI backends.
 ---
 
 # infoblox_dtc_topology (Resource)
 
-Manages an Infoblox DtcTopology in the NIOS backend.
+Manages an Infoblox DtcTopology in both NIOS and UDDI backends.
 
 ## Example Usage
 
 ### NIOS Backend
 
 ```terraform
+// Create DTC Servers (required as rule destinations)
+resource "infoblox_dtc_server" "example_server_us" {
+  nios = {
+    name = "example-server-us"
+    host = "2.2.2.2"
+  }
+}
+
+resource "infoblox_dtc_server" "example_server_default" {
+  nios = {
+    name = "example-server-default"
+    host = "3.3.3.3"
+  }
+}
+
 // Create a DTC Topology with required fields only
 resource "infoblox_dtc_topology" "example_basic" {
   nios = {
@@ -22,42 +37,89 @@ resource "infoblox_dtc_topology" "example_basic" {
   }
 }
 
-// Create a DTC Topology with a comment
-resource "infoblox_dtc_topology" "example_with_comment" {
-  nios = {
-    name    = "example-topology-comment"
-    comment = "DTC topology for geo-based routing"
-  }
-}
-
 // Create a DTC Topology with routing rules (server destination)
 resource "infoblox_dtc_topology" "example_with_rules" {
   nios = {
-    name    = "example-topology-rules"
+    name    = "example-topology-rules5"
     comment = "Topology with geographic rules"
-    rules = [
-      {
-        dest_type        = "SERVER"
-        destination_link = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHNlcnZlcjE:server1"
-        return_type      = "REGULAR"
-        sources = [
-          {
-            source_type  = "COUNTRY"
-            source_op    = "IS"
-            source_value = "US"
-          }
-        ]
-      },
-      {
-        # Default rule (no sources = catch-all)
-        dest_type        = "SERVER"
-        destination_link = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHNlcnZlcjI:server2"
-        return_type      = "REGULAR"
+    rules = [{
+      # Default rule (no sources = catch-all)
+      dest_type        = "SERVER"
+      destination_link = infoblox_dtc_server.example_server_default.id
+      return_type      = "REGULAR"
       }
     ]
     ext_attrs = {
       Site = "us-east-1"
     }
+  }
+  depends_on = [infoblox_dtc_server.example_server_default]
+}
+```
+
+### UDDI Backend
+
+```terraform
+// Create a DTC Topology with a subnet source
+resource "infoblox_dtc_topology" "example_basic" {
+  uddi = {
+    name = "example-topology-basic"
+    sources = [
+      {
+        name    = "subnet-source"
+        source  = "subnet"
+        subnets = ["10.0.0.0/8"]
+      }
+    ]
+  }
+}
+
+// Create a DTC Topology with multiple sources and optional fields
+resource "infoblox_dtc_topology" "example_advanced" {
+  uddi = {
+    name     = "example-topology-advanced"
+    comment  = "Topology with geographic routing"
+    disabled = false
+    sources = [
+      {
+        name    = "us-east"
+        source  = "subnet"
+        subnets = ["10.0.0.0/8", "192.168.0.0/16"]
+      },
+      {
+        name    = "us-west"
+        source  = "subnet"
+        subnets = ["172.16.0.0/12"]
+      }
+    ]
+    tags = {
+      Site = "us-east-1"
+    }
+  }
+}
+
+// Create a DTC Topology with tag-rule-based sources
+resource "infoblox_dtc_topology" "example_tag_rules" {
+  uddi = {
+    name = "example-topology-tag-rules"
+    sources = [
+      {
+        name   = "production-source"
+        source = "tag_rule"
+        tag_rules = [
+          {
+            key   = "env"
+            op    = "EQUALS"
+            value = "production"
+          },
+          {
+            key   = "region"
+            op    = "NOT_EQUALS"
+            value = "us-east-1"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -69,6 +131,7 @@ resource "infoblox_dtc_topology" "example_with_rules" {
 ### Optional
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
+- `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
 
 ### Read-Only
 
@@ -106,7 +169,6 @@ Optional:
 
 Read-Only:
 
-- `topology` (String) The topology for this rule.
 - `valid` (Boolean) Indicates whether the rule is valid.
 
 <a id="nestedatt--nios--rules--sources"></a>
@@ -120,3 +182,46 @@ Required:
 Optional:
 
 - `source_op` (String) Operation for matching the source.
+
+
+
+
+<a id="nestedatt--uddi"></a>
+### Nested Schema for `uddi`
+
+Required:
+
+- `name` (String) Display name of __Topology__.
+
+Optional:
+
+- `comment` (String) Optional. Comment for __Topology__.
+- `disabled` (Boolean) Optional. Flag which enables/disables __Topology__.  Defaults to _false_.
+- `sources` (Attributes List) Required. List of __TopologySource__ objects with unique names. (see [below for nested schema](#nestedatt--uddi--sources))
+- `tags` (Map of String) Optional. The tags for __Topology__ in JSON format.
+
+Read-Only:
+
+- `tags_all` (Map of String) All tags including inherited values.
+
+<a id="nestedatt--uddi--sources"></a>
+### Nested Schema for `uddi.sources`
+
+Optional:
+
+- `name` (String) Required. Display name of __TopologySource__.
+- `source` (String) Type of source.  Allowed values: - subnet - tag_rule  Required.
+- `subnets` (List of String) Optional. List of subnets in CIDR format.  Must be set if _source_ is set to _subnet_, otherwise must be empty.
+- `tag_rules` (Attributes List) Optional. List of tag rules to match against infrastructure source objects effective tags.  Must be set if _source_ is set to _tag_rule_, otherwise must be empty. (see [below for nested schema](#nestedatt--uddi--sources--tag_rules))
+
+<a id="nestedatt--uddi--sources--tag_rules"></a>
+### Nested Schema for `uddi.sources.tag_rules`
+
+Required:
+
+- `key` (String) Required. Tag key to match against a source object's effective tags.
+- `value` (String) Required. Tag value to match against a source object's effective tags.
+
+Optional:
+
+- `op` (String) Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value.  A missing key does not satisfy either operator.  Defaults to _EQUALS_.
