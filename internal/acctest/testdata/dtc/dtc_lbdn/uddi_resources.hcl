@@ -1,5 +1,5 @@
 # Auto-generated resource acceptance-test cases for DtcLbdn (UDDI backend).
-# dtc_policy refs: example-policy-1, example-policy-topology (stable on env-5)
+# dtc_policy refs: example-policy-1, example-policy-topology 
 case "basic" {
   backend           = "uddi"
   parallel          = true

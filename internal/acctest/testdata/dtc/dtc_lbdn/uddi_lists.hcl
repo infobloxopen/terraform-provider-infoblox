@@ -1,5 +1,4 @@
 # DtcLbdn — uddi list cases
-# view: default DNS view on env-5
 case "basic" {
   backend        = "uddi"
   parallel       = true
