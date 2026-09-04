@@ -332,6 +332,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
+		dtc.NewDtcLbdnResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
@@ -394,6 +395,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
+		dtc.NewDtcLbdnDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
@@ -459,6 +461,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
+		dtc.NewDtcLbdnList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
 		dhcp.NewIpv6DhcpOptiondefinitionList,
