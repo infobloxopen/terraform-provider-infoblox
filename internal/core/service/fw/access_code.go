@@ -192,11 +192,13 @@ func mapUDDIAccessCodeToResponse(r *uddifw.AccessCode) *fw.AccessCode {
 	resp.UDDI = &fw.UDDIAccessCodeExt{
 		AccessKey:   r.AccessKey,
 		Activation:  r.Activation,
+		CreatedTime: r.CreatedTime,
 		Description: r.Description,
 		Expiration:  r.Expiration,
 		Name:        r.Name,
 		PolicyIds:   r.PolicyIds,
 		Rules:       r.Rules,
+		UpdatedTime: r.UpdatedTime,
 	}
 	return resp
 }

@@ -16,9 +16,11 @@ type AccessCode struct {
 type UDDIAccessCodeExt struct {
 	AccessKey   *string
 	Activation  *time.Time
+	CreatedTime *time.Time
 	Description *string
 	Expiration  *time.Time
 	Name        *string
 	PolicyIds   []int32
 	Rules       []uddifw.AccessCodeRule
+	UpdatedTime *time.Time
 }

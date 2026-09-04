@@ -3,20 +3,15 @@ list "infoblox_access_code" "list_access_code_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      name = "example-access-code"
     }
   }
   limit = 10
 }
 
-// List specific Access Codes using Tags
-list "infoblox_access_code" "list_access_code_using_tags" {
+// List all Access Codes
+list "infoblox_access_code" "list_all_access_codes" {
   provider = infoblox
-  config {
-    tag_filters = {
-      Site = "location-1"
-    }
-  }
 }
 
 // List Access Codes with resource details included
