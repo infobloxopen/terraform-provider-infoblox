@@ -1,4 +1,4 @@
-package ipam
+package dhcp
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	niosdhcp "github.com/infobloxopen/infoblox-nios-go-client/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
-// NetworkcontainerOptionsModel is the Terraform model for NetworkcontainerOptions
-type NetworkcontainerOptionsModel struct {
+// Ipv6fixedaddresstemplateOptionsModel is the Terraform model for Ipv6fixedaddresstemplateOptions
+type Ipv6fixedaddresstemplateOptionsModel struct {
 	Name        types.String `tfsdk:"name"`
 	Num         types.Int64  `tfsdk:"num"`
 	VendorClass types.String `tfsdk:"vendor_class"`
@@ -24,8 +24,8 @@ type NetworkcontainerOptionsModel struct {
 	UseOption   types.Bool   `tfsdk:"use_option"`
 }
 
-// NetworkcontainerOptionsAttrTypes contains the attribute types for NetworkcontainerOptionsModel
-var NetworkcontainerOptionsAttrTypes = map[string]attr.Type{
+// Ipv6fixedaddresstemplateOptionsAttrTypes contains the attribute types for Ipv6fixedaddresstemplateOptionsModel
+var Ipv6fixedaddresstemplateOptionsAttrTypes = map[string]attr.Type{
 	"name":         types.StringType,
 	"num":          types.Int64Type,
 	"vendor_class": types.StringType,
@@ -33,8 +33,8 @@ var NetworkcontainerOptionsAttrTypes = map[string]attr.Type{
 	"use_option":   types.BoolType,
 }
 
-// NetworkcontainerOptionsResourceSchemaAttributes contains the schema attributes for NetworkcontainerOptionsModel
-var NetworkcontainerOptionsResourceSchemaAttributes = map[string]schema.Attribute{
+// Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes contains the schema attributes for Ipv6fixedaddresstemplateOptionsModel
+var Ipv6fixedaddresstemplateOptionsResourceSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Optional: true,
 		Computed: true,
@@ -74,12 +74,12 @@ var NetworkcontainerOptionsResourceSchemaAttributes = map[string]schema.Attribut
 	},
 }
 
-// ExpandNetworkcontainerOptions converts a Terraform Object to SDK type
-func ExpandNetworkcontainerOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) *niosipam.NetworkcontainerOptions {
+// ExpandIpv6fixedaddresstemplateOptions converts a Terraform Object to SDK type
+func ExpandIpv6fixedaddresstemplateOptions(ctx context.Context, o types.Object, diags *diag.Diagnostics) *niosdhcp.Ipv6fixedaddresstemplateOptions {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m NetworkcontainerOptionsModel
+	var m Ipv6fixedaddresstemplateOptionsModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -88,11 +88,11 @@ func ExpandNetworkcontainerOptions(ctx context.Context, o types.Object, diags *d
 }
 
 // Expand converts the Terraform model to SDK type
-func (m *NetworkcontainerOptionsModel) Expand(ctx context.Context, diags *diag.Diagnostics) *niosipam.NetworkcontainerOptions {
+func (m *Ipv6fixedaddresstemplateOptionsModel) Expand(ctx context.Context, diags *diag.Diagnostics) *niosdhcp.Ipv6fixedaddresstemplateOptions {
 	if m == nil {
 		return nil
 	}
-	to := &niosipam.NetworkcontainerOptions{
+	to := &niosdhcp.Ipv6fixedaddresstemplateOptions{
 		Name:        flex.ExpandStringPointer(m.Name),
 		Num:         flex.ExpandInt64Pointer(m.Num),
 		VendorClass: flex.ExpandStringPointer(m.VendorClass),
@@ -102,20 +102,20 @@ func (m *NetworkcontainerOptionsModel) Expand(ctx context.Context, diags *diag.D
 	return to
 }
 
-// FlattenNetworkcontainerOptions converts an SDK type to Terraform Object
-func FlattenNetworkcontainerOptions(ctx context.Context, from *niosipam.NetworkcontainerOptions, diags *diag.Diagnostics) types.Object {
+// FlattenIpv6fixedaddresstemplateOptions converts an SDK type to Terraform Object
+func FlattenIpv6fixedaddresstemplateOptions(ctx context.Context, from *niosdhcp.Ipv6fixedaddresstemplateOptions, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(NetworkcontainerOptionsAttrTypes)
+		return types.ObjectNull(Ipv6fixedaddresstemplateOptionsAttrTypes)
 	}
-	m := &NetworkcontainerOptionsModel{}
+	m := &Ipv6fixedaddresstemplateOptionsModel{}
 	m.Flatten(ctx, from, diags)
-	t, d := types.ObjectValueFrom(ctx, NetworkcontainerOptionsAttrTypes, m)
+	t, d := types.ObjectValueFrom(ctx, Ipv6fixedaddresstemplateOptionsAttrTypes, m)
 	diags.Append(d...)
 	return t
 }
 
 // Flatten populates the Terraform model from SDK type
-func (m *NetworkcontainerOptionsModel) Flatten(ctx context.Context, from *niosipam.NetworkcontainerOptions, diags *diag.Diagnostics) {
+func (m *Ipv6fixedaddresstemplateOptionsModel) Flatten(ctx context.Context, from *niosdhcp.Ipv6fixedaddresstemplateOptions, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}

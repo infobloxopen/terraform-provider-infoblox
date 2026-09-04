@@ -49,18 +49,17 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_prefix_type" {
 
     options = [
       {
-        name         = "dhcp6.domain-search"
-        num          = 24
-        value        = "\"example.com\""
-        vendor_class = "DHCPv6"
+        name : "domain-name",
+        num : 15,
+        value : "example.com"
       },
       {
-        name         = "dhcp6.sntp-servers"
-        num          = 31
-        value        = "2001:4860:4860::8888"
-        vendor_class = "DHCPv6"
-      }
+        num : 37,
+        value : "remote-id",
+        vendor_class : "DHCPv6"
+      },
     ]
+
     // Extensible Attributes
     ext_attrs = {
       Site = "location-1"

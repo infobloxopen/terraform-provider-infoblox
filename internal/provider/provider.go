@@ -338,6 +338,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewIpv6fixedaddressResource,
+		dhcp.NewIpv6fixedaddresstemplateResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -401,6 +402,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewIpv6fixedaddressDataSource,
+		dhcp.NewIpv6fixedaddresstemplateDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -467,6 +469,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6DhcpOptiondefinitionList,
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewIpv6fixedaddressList,
+		dhcp.NewIpv6fixedaddresstemplateList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
