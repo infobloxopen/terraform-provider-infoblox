@@ -1,9 +1,15 @@
+// Create a DNS View to associate with the LBDN
+resource "infoblox_view" "example_view" {
+  uddi = {
+    name = "example_dns_view"
+  }
+}
+
 // Create DTC LBDN with Basic Fields
-// The view field is the resource identifier for the DNS view (e.g. dns/view/<uuid>)
 resource "infoblox_dtc_lbdn" "lbdn_basic" {
   uddi = {
     name = "example-lbdn."
-    view = "dns/view/<view-id>"
+    view = infoblox_view.example_view.id
   }
 }
 
@@ -11,7 +17,7 @@ resource "infoblox_dtc_lbdn" "lbdn_basic" {
 resource "infoblox_dtc_lbdn" "lbdn_with_options" {
   uddi = {
     name       = "example-lbdn-advanced."
-    view       = "dns/view/<view-id>"
+    view       = infoblox_view.example_view.id
     comment    = "Created by Terraform"
     disabled   = false
     ttl        = 300
@@ -26,7 +32,7 @@ resource "infoblox_dtc_lbdn" "lbdn_with_options" {
 resource "infoblox_dtc_lbdn" "lbdn_with_policy" {
   uddi = {
     name = "example-lbdn-policy."
-    view = "dns/view/<view-id>"
+    view = infoblox_view.example_view.id
     dtc_policy = {
       policy_id = "dtc/policy/<policy-id>"
     }
