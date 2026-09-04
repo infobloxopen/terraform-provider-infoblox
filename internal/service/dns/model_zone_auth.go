@@ -821,7 +821,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "Optional. DNS primaries external to BloxOne DDI. Order is not significant.",
+		MarkdownDescription: "Optional. DNS primaries external to Universal DDI. Order is not significant.",
 	},
 	"external_secondaries": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -831,7 +831,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "DNS secondaries external to BloxOne DDI. Order is not significant.",
+		MarkdownDescription: "DNS secondaries external to Universal DDI. Order is not significant.",
 	},
 	"fqdn": schema.StringAttribute{
 		Required: true,
@@ -875,7 +875,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "Optional. BloxOne DDI hosts acting as internal secondaries. Order is not significant.",
+		MarkdownDescription: "Optional. Universal DDI hosts acting as internal secondaries. Order is not significant.",
 	},
 	"notify": schema.BoolAttribute{
 		Optional:            true,
@@ -897,11 +897,14 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"primary_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("external", "cloud"),
+		},
 		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a BloxOne DDI host.",
+		MarkdownDescription: "Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a Universal DDI host.",
 	},
 	"query_acl": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{

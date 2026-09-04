@@ -23,6 +23,8 @@ type Allocation struct {
 	Allocated *int64 `json:"allocated,omitempty"`
 	// Percent of total space delegated.
 	Delegated *int64 `json:"delegated,omitempty"`
+	// Percent of total space in forward looking delegation blocks.
+	ForwardLookingDelegation *int64 `json:"forward_looking_delegation,omitempty"`
 	// Percent of total space in overlapping blocks.
 	Overlapping *int64 `json:"overlapping,omitempty"`
 	// Percent of total space reserved.
@@ -113,6 +115,38 @@ func (o *Allocation) SetDelegated(v int64) {
 	o.Delegated = &v
 }
 
+// GetForwardLookingDelegation returns the ForwardLookingDelegation field value if set, zero value otherwise.
+func (o *Allocation) GetForwardLookingDelegation() int64 {
+	if o == nil || IsNil(o.ForwardLookingDelegation) {
+		var ret int64
+		return ret
+	}
+	return *o.ForwardLookingDelegation
+}
+
+// GetForwardLookingDelegationOk returns a tuple with the ForwardLookingDelegation field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Allocation) GetForwardLookingDelegationOk() (*int64, bool) {
+	if o == nil || IsNil(o.ForwardLookingDelegation) {
+		return nil, false
+	}
+	return o.ForwardLookingDelegation, true
+}
+
+// HasForwardLookingDelegation returns a boolean if a field has been set.
+func (o *Allocation) HasForwardLookingDelegation() bool {
+	if o != nil && !IsNil(o.ForwardLookingDelegation) {
+		return true
+	}
+
+	return false
+}
+
+// SetForwardLookingDelegation gets a reference to the given int64 and assigns it to the ForwardLookingDelegation field.
+func (o *Allocation) SetForwardLookingDelegation(v int64) {
+	o.ForwardLookingDelegation = &v
+}
+
 // GetOverlapping returns the Overlapping field value if set, zero value otherwise.
 func (o *Allocation) GetOverlapping() int64 {
 	if o == nil || IsNil(o.Overlapping) {
@@ -193,6 +227,9 @@ func (o Allocation) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Delegated) {
 		toSerialize["delegated"] = o.Delegated
 	}
+	if !IsNil(o.ForwardLookingDelegation) {
+		toSerialize["forward_looking_delegation"] = o.ForwardLookingDelegation
+	}
 	if !IsNil(o.Overlapping) {
 		toSerialize["overlapping"] = o.Overlapping
 	}
@@ -223,6 +260,7 @@ func (o *Allocation) UnmarshalJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "allocated")
 		delete(additionalProperties, "delegated")
+		delete(additionalProperties, "forward_looking_delegation")
 		delete(additionalProperties, "overlapping")
 		delete(additionalProperties, "reserved")
 		o.AdditionalProperties = additionalProperties

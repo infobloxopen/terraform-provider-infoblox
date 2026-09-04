@@ -597,19 +597,19 @@ Optional:
 Required:
 
 - `fqdn` (String) Zone FQDN. The FQDN supplied at creation will be converted to canonical form.  Read-only after creation.
-- `primary_type` (String) Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a BloxOne DDI host.
+- `primary_type` (String) Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a Universal DDI host.
 
 Optional:
 
 - `comment` (String) Optional. Comment for zone configuration.
 - `compartment_id` (String) The access view associated with the object. If no access view is associated with the object, the value defaults to empty.
 - `disabled` (Boolean) Optional. _true_ to disable object. A disabled object is effectively non-existent when generating configuration.
-- `external_primaries` (Attributes List) Optional. DNS primaries external to BloxOne DDI. Order is not significant. (see [below for nested schema](#nestedatt--uddi--external_primaries))
-- `external_secondaries` (Attributes List) DNS secondaries external to BloxOne DDI. Order is not significant. (see [below for nested schema](#nestedatt--uddi--external_secondaries))
+- `external_primaries` (Attributes List) Optional. DNS primaries external to Universal DDI. Order is not significant. (see [below for nested schema](#nestedatt--uddi--external_primaries))
+- `external_secondaries` (Attributes List) DNS secondaries external to Universal DDI. Order is not significant. (see [below for nested schema](#nestedatt--uddi--external_secondaries))
 - `gss_tsig_enabled` (Boolean) _gss_tsig_enabled_ enables/disables GSS-TSIG signed dynamic updates.  Defaults to _false_.
 - `inheritance_sources` (Attributes) Optional. Inheritance configuration. (see [below for nested schema](#nestedatt--uddi--inheritance_sources))
 - `initial_soa_serial` (Number) On-create-only. SOA serial is allowed to be set when the authoritative zone is created.
-- `internal_secondaries` (Attributes List) Optional. BloxOne DDI hosts acting as internal secondaries. Order is not significant. (see [below for nested schema](#nestedatt--uddi--internal_secondaries))
+- `internal_secondaries` (Attributes List) Optional. Universal DDI hosts acting as internal secondaries. Order is not significant. (see [below for nested schema](#nestedatt--uddi--internal_secondaries))
 - `notify` (Boolean) Also notify all external secondary DNS servers if enabled.  Defaults to _false_.
 - `nsgs` (List of String) The resource identifier.
 - `parent` (String) The resource identifier.
@@ -636,9 +636,12 @@ Optional:
 - `address` (String) Optional. Required only if _type_ is _server_. IP Address of nameserver.
 - `fqdn` (String) Optional. Required only if _type_ is _server_. FQDN of nameserver.
 - `nsg` (String) The resource identifier.
-- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 - `tsig_enabled` (Boolean) Optional. If enabled, secondaries will use the configured TSIG key when requesting a zone transfer from this primary.
 - `tsig_key` (Attributes) Optional. TSIG key.  Error if empty while _tsig_enabled_ is _true_. (see [below for nested schema](#nestedatt--uddi--external_primaries--tsig_key))
+
+Read-Only:
+
+- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 
 <a id="nestedatt--uddi--external_primaries--tsig_key"></a>
 ### Nested Schema for `uddi.external_primaries.tsig_key`
@@ -659,10 +662,13 @@ Required:
 
 Optional:
 
-- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 - `stealth` (Boolean) If enabled, the NS record and glue record will NOT be automatically generated according to secondaries nameserver assignment.  Default: _false_
 - `tsig_enabled` (Boolean) If enabled, secondaries will use the configured TSIG key when requesting a zone transfer.  Default: _false_
 - `tsig_key` (Attributes) TSIG key.  Error if empty while _tsig_enabled_ is _true_. (see [below for nested schema](#nestedatt--uddi--external_secondaries--tsig_key))
+
+Read-Only:
+
+- `protocol_fqdn` (String) FQDN of nameserver in punycode.
 
 <a id="nestedatt--uddi--external_secondaries--tsig_key"></a>
 ### Nested Schema for `uddi.external_secondaries.tsig_key`
