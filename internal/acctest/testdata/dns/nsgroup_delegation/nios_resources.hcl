@@ -14,7 +14,7 @@ case "basic" {
     }
     check = {
       "nios.name"                  = "{{random}}"
-      "nios.delegate_to.0.address" = "2.3.4.5"
+      "nios.delegate_to.0.address" = "2.3.3.4"
       "nios.delegate_to.0.name"    = "delegate_to_ns_group"
     }
   }
@@ -94,7 +94,7 @@ case "delegate_to" {
       ]
     }
     check = {
-      "nios.delegate_to.0.address" = "2.3.4.5"
+      "nios.delegate_to.0.address" = "2.3.3.4"
       "nios.delegate_to.0.name"    = "delegate_to_ns_group"
     }
   }
@@ -104,8 +104,8 @@ case "delegate_to" {
       name = "{{random}}"
       delegate_to = [
         {
-          address = "2.3.3.4"
-          name    = "delegate_to_ns_group"
+          address = "2.3.4.6"
+          name    = "delegate_to_ns_group_update"
         }
       ]
     }

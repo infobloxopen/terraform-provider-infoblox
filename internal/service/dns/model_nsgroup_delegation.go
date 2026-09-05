@@ -10,7 +10,6 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -64,9 +63,7 @@ var NsgroupDelegationResourceSchemaAttributes = map[string]schema.Attribute{
 
 var NsgroupDelegationResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
-		Default:  stringdefault.StaticString(""),
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
