@@ -148,10 +148,8 @@ func (m *NsgroupDelegationModel) Flatten(ctx context.Context, resp *coremodel.Ns
 	if niosModel == nil {
 		niosModel = &NIOSNsgroupDelegationModel{}
 	}
-	plannedNIOS := flex.ExpandNestedObject[NIOSNsgroupDelegationModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		PostFlattenNsgroupDelegationNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSNsgroupDelegationAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSNsgroupDelegationAttrTypes)
