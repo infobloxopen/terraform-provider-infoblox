@@ -43,7 +43,7 @@ case "ext_attr_filters" {
           name    = "delegate_to_ns_group"
         }
       ]
+     ext_attrs = { Site = "{{random2}}" }
     }
-    ext_attrs = { Site = "{{random2}}" }
   }
 }
