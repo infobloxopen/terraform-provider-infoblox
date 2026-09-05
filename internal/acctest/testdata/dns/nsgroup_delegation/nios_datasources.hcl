@@ -28,7 +28,7 @@ case "ext_attr_filters" {
   filter {
     type = "ext_attr_filters"
     values = {
-      name = "nios.Site"
+      Site = "nios.ext_attrs.Site"
     }
   }
 
