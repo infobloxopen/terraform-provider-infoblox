@@ -260,6 +260,16 @@ func RandomMACAddress() string {
 		rand.Intn(256))
 }
 
+// RandomDUID returns a colon-separated 12-octet DUID, the DUID-LL shape NIOS
+// accepts (type 0x0003, hardware type 0x0001, then a random 8-octet identifier).
+func RandomDUID() string {
+	octets := []string{"00", "03", "00", "01"}
+	for range 8 {
+		octets = append(octets, fmt.Sprintf("%02x", rand.Intn(256)))
+	}
+	return strings.Join(octets, ":")
+}
+
 // Random32Hexadecimal generates a random 32-character hexadecimal string.
 func Random32Hexadecimal() string {
 	return fmt.Sprintf("%016x%016x", rand.Uint64(), rand.Uint64())
@@ -316,6 +326,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomCIDRNetwork()
 	case strings.HasPrefix(name, "random_mac"):
 		return RandomMACAddress()
+	case strings.HasPrefix(name, "random_duid"):
+		return RandomDUID()
 	case strings.HasPrefix(name, "random_hex32"):
 		return Random32Hexadecimal()
 	case strings.HasPrefix(name, "random_ip"):

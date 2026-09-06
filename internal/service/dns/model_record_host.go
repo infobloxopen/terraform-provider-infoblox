@@ -6,15 +6,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -29,42 +36,38 @@ var RecordHostAttrTypes = map[string]attr.Type{
 }
 
 type NIOSRecordHostModel struct {
-	Aliases                  types.List   `tfsdk:"aliases"`
-	AllowTelnet              types.Bool   `tfsdk:"allow_telnet"`
-	CliCredentials           types.List   `tfsdk:"cli_credentials"`
-	CloudInfo                types.Object `tfsdk:"cloud_info"`
-	Comment                  types.String `tfsdk:"comment"`
-	ConfigureForDns          types.Bool   `tfsdk:"configure_for_dns"`
-	DdnsProtected            types.Bool   `tfsdk:"ddns_protected"`
-	DeviceDescription        types.String `tfsdk:"device_description"`
-	DeviceLocation           types.String `tfsdk:"device_location"`
-	DeviceType               types.String `tfsdk:"device_type"`
-	DeviceVendor             types.String `tfsdk:"device_vendor"`
-	Disable                  types.Bool   `tfsdk:"disable"`
-	DisableDiscovery         types.Bool   `tfsdk:"disable_discovery"`
-	DnsAliases               types.List   `tfsdk:"dns_aliases"`
-	EnableImmediateDiscovery types.Bool   `tfsdk:"enable_immediate_discovery"`
-	ExtAttrs                 types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll              types.Map    `tfsdk:"ext_attrs_all"`
-	Ipv4addrs                types.List   `tfsdk:"ipv4addrs"`
-	Ipv6addrs                types.List   `tfsdk:"ipv6addrs"`
-	Name                     types.String `tfsdk:"name"`
-	NetworkView              types.String `tfsdk:"network_view"`
-	RestartIfNeeded          types.Bool   `tfsdk:"restart_if_needed"`
-	RrsetOrder               types.String `tfsdk:"rrset_order"`
-	Snmp3Credential          types.Object `tfsdk:"snmp3_credential"`
-	SnmpCredential           types.Object `tfsdk:"snmp_credential"`
-	Ttl                      types.Int64  `tfsdk:"ttl"`
-	UseCliCredentials        types.Bool   `tfsdk:"use_cli_credentials"`
-	UseDnsEaInheritance      types.Bool   `tfsdk:"use_dns_ea_inheritance"`
-	UseSnmp3Credential       types.Bool   `tfsdk:"use_snmp3_credential"`
-	UseSnmpCredential        types.Bool   `tfsdk:"use_snmp_credential"`
-	UseTtl                   types.Bool   `tfsdk:"use_ttl"`
-	View                     types.String `tfsdk:"view"`
+	Aliases                  internaltypes.UnorderedListValue `tfsdk:"aliases"`
+	AllowTelnet              types.Bool                       `tfsdk:"allow_telnet"`
+	CliCredentials           types.List                       `tfsdk:"cli_credentials"`
+	CloudInfo                types.Object                     `tfsdk:"cloud_info"`
+	Comment                  types.String                     `tfsdk:"comment"`
+	ConfigureForDns          types.Bool                       `tfsdk:"configure_for_dns"`
+	DdnsProtected            types.Bool                       `tfsdk:"ddns_protected"`
+	DeviceDescription        types.String                     `tfsdk:"device_description"`
+	DeviceLocation           types.String                     `tfsdk:"device_location"`
+	DeviceType               types.String                     `tfsdk:"device_type"`
+	DeviceVendor             types.String                     `tfsdk:"device_vendor"`
+	Disable                  types.Bool                       `tfsdk:"disable"`
+	DisableDiscovery         types.Bool                       `tfsdk:"disable_discovery"`
+	DnsAliases               types.List                       `tfsdk:"dns_aliases"`
+	EnableImmediateDiscovery types.Bool                       `tfsdk:"enable_immediate_discovery"`
+	ExtAttrs                 types.Map                        `tfsdk:"ext_attrs"`
+	ExtAttrsAll              types.Map                        `tfsdk:"ext_attrs_all"`
+	Ipv4addrs                types.List                       `tfsdk:"ipv4addrs"`
+	Ipv6addrs                types.List                       `tfsdk:"ipv6addrs"`
+	Name                     types.String                     `tfsdk:"name"`
+	NetworkView              types.String                     `tfsdk:"network_view"`
+	RestartIfNeeded          types.Bool                       `tfsdk:"restart_if_needed"`
+	RrsetOrder               types.String                     `tfsdk:"rrset_order"`
+	Snmp3Credential          types.Object                     `tfsdk:"snmp3_credential"`
+	SnmpCredential           types.Object                     `tfsdk:"snmp_credential"`
+	Ttl                      types.Int64                      `tfsdk:"ttl"`
+	UseDnsEaInheritance      types.Bool                       `tfsdk:"use_dns_ea_inheritance"`
+	View                     types.String                     `tfsdk:"view"`
 }
 
 var NIOSRecordHostAttrTypes = map[string]attr.Type{
-	"aliases":                    types.ListType{ElemType: types.StringType},
+	"aliases":                    internaltypes.UnorderedListOfStringType,
 	"allow_telnet":               types.BoolType,
 	"cli_credentials":            types.ListType{ElemType: types.ObjectType{AttrTypes: RecordHostCliCredentialsAttrTypes}},
 	"cloud_info":                 types.ObjectType{AttrTypes: RecordHostCloudInfoAttrTypes},
@@ -90,11 +93,7 @@ var NIOSRecordHostAttrTypes = map[string]attr.Type{
 	"snmp3_credential":           types.ObjectType{AttrTypes: RecordHostSnmp3CredentialAttrTypes},
 	"snmp_credential":            types.ObjectType{AttrTypes: RecordHostSnmpCredentialAttrTypes},
 	"ttl":                        types.Int64Type,
-	"use_cli_credentials":        types.BoolType,
 	"use_dns_ea_inheritance":     types.BoolType,
-	"use_snmp3_credential":       types.BoolType,
-	"use_snmp_credential":        types.BoolType,
-	"use_ttl":                    types.BoolType,
 	"view":                       types.StringType,
 }
 
@@ -118,13 +117,16 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"aliases": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
+		Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "This is a list of aliases for the host. The aliases must be in FQDN format. This value can be in unicode format.",
 	},
 	"allow_telnet": schema.BoolAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "This field controls whether the credential is used for both the Telnet and SSH credentials. If set to False, the credential is used only for SSH.",
 	},
 	"cli_credentials": schema.ListNestedAttribute{
@@ -139,28 +141,34 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"cloud_info": schema.SingleNestedAttribute{
 		Attributes:          RecordHostCloudInfoResourceSchemaAttributes,
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for the record; maximum 256 characters.",
 	},
 	"configure_for_dns": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(true),
 		MarkdownDescription: "When configure_for_dns is false, the host does not have parent zone information.",
 	},
 	"ddns_protected": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if the DDNS updates for this record are allowed or not.",
 	},
 	"device_description": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The description of the device.",
 	},
@@ -168,6 +176,7 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The location of the device.",
 	},
@@ -175,6 +184,7 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The type of the device.",
 	},
@@ -182,23 +192,25 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The vendor of the device.",
 	},
 	"disable": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if the record is disabled or not. False means that the record is enabled.",
 	},
 	"disable_discovery": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines if the discovery for the record is disabled or not. False means that the discovery is enabled.",
 	},
 	"dns_aliases": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
+		ElementType:         types.StringType,
+		Computed:            true,
 		MarkdownDescription: "The list of aliases for the host in punycode format.",
 	},
 	"enable_immediate_discovery": schema.BoolAttribute{
@@ -244,14 +256,20 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This is a list of IPv6 Addresses for the host.",
 	},
 	"name": schema.StringAttribute{
-		Optional: true,
+		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.IsValidNIOSDomainName(),
 		},
 		MarkdownDescription: "The host name in FQDN format This value can be in unicode format. Regular expression search is not supported for unicode values.",
 	},
 	"network_view": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableString(),
+		},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -262,7 +280,9 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Restarts the member service.",
 	},
 	"rrset_order": schema.StringAttribute{
+		Default:  stringdefault.StaticString("cyclic"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -280,30 +300,19 @@ var RecordHostResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
-	},
-	"use_cli_credentials": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "If set to true, the CLI credential will override member-level settings.",
 	},
 	"use_dns_ea_inheritance": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "When use_dns_ea_inheritance is True, the EA is inherited from associated zone.",
 	},
-	"use_snmp3_credential": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Determines if the SNMPv3 credential should be used for the record.",
-	},
-	"use_snmp_credential": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "If set to true, the SNMP credential will override member-level settings.",
-	},
-	"use_ttl": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Use flag for: ttl",
-	},
 	"view": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -322,15 +331,15 @@ func (m *RecordHostModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSRecordHostModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSRecordHostModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSRecordHostExt {
-	return &coremodel.NIOSRecordHostExt{
+func (m *NIOSRecordHostModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSRecordHostExt {
+	ext := &coremodel.NIOSRecordHostExt{
 		Aliases:                  flex.ExpandFrameworkListString(ctx, m.Aliases, diags),
 		AllowTelnet:              flex.ExpandBoolPointer(m.AllowTelnet),
 		CliCredentials:           flex.ExpandFrameworkListNestedBlock(ctx, m.CliCredentials, diags, ExpandRecordHostCliCredentials),
@@ -350,19 +359,31 @@ func (m *NIOSRecordHostModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Ipv4addrs:                flex.ExpandFrameworkListNestedBlock(ctx, m.Ipv4addrs, diags, ExpandRecordHostIpv4addr),
 		Ipv6addrs:                flex.ExpandFrameworkListNestedBlock(ctx, m.Ipv6addrs, diags, ExpandRecordHostIpv6addr),
 		Name:                     flex.ExpandStringPointerNullAsEmpty(m.Name),
-		NetworkView:              flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		RestartIfNeeded:          flex.ExpandBoolPointer(m.RestartIfNeeded),
 		RrsetOrder:               flex.ExpandStringPointerNullAsEmpty(m.RrsetOrder),
 		Snmp3Credential:          ExpandRecordHostSnmp3Credential(ctx, m.Snmp3Credential, diags),
 		SnmpCredential:           ExpandRecordHostSnmpCredential(ctx, m.SnmpCredential, diags),
 		Ttl:                      flex.ExpandInt64Pointer(m.Ttl),
-		UseCliCredentials:        flex.ExpandBoolPointer(m.UseCliCredentials),
 		UseDnsEaInheritance:      flex.ExpandBoolPointer(m.UseDnsEaInheritance),
-		UseSnmp3Credential:       flex.ExpandBoolPointer(m.UseSnmp3Credential),
-		UseSnmpCredential:        flex.ExpandBoolPointer(m.UseSnmpCredential),
-		UseTtl:                   flex.ExpandBoolPointer(m.UseTtl),
 		View:                     flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
+	if isCreate {
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+	}
+	return ext
+}
+
+// ApplyRecordHostNIOSUseFlags derives NIOS use flags from the raw config
+// value(s) and writes them onto the core model. A flag is true when the user
+// set any of its governed value fields in config.
+func ApplyRecordHostNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *coremodel.RecordHost, diags *diag.Diagnostics) {
+	if obj == nil || obj.NIOS == nil {
+		return
+	}
+	obj.NIOS.UseCliCredentials = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("cli_credentials"))
+	obj.NIOS.UseSnmp3Credential = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("snmp3_credential"))
+	obj.NIOS.UseSnmpCredential = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("snmp_credential"))
+	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
 }
 
 // Flatten populates the TF model from a core response.
@@ -378,8 +399,10 @@ func (m *RecordHostModel) Flatten(ctx context.Context, resp *coremodel.RecordHos
 	if niosModel == nil {
 		niosModel = &NIOSRecordHostModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSRecordHostModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenRecordHostNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSRecordHostAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSRecordHostAttrTypes)
@@ -396,7 +419,7 @@ func (m *NIOSRecordHostModel) Flatten(ctx context.Context, from *coremodel.NIOSR
 	if planExtAttrs.IsUnknown() {
 		planExtAttrs = types.MapNull(types.StringType)
 	}
-	m.Aliases = flex.FlattenFrameworkListString(ctx, from.Aliases, diags)
+	m.Aliases = flex.FlattenFrameworkUnorderedListString(ctx, from.Aliases, diags)
 	m.AllowTelnet = flex.FlattenBoolPointer(from.AllowTelnet)
 	m.CliCredentials = flex.FlattenFrameworkListNestedBlock(ctx, from.CliCredentials, RecordHostCliCredentialsAttrTypes, diags, FlattenRecordHostCliCredentials)
 	m.CloudInfo = FlattenRecordHostCloudInfo(ctx, from.CloudInfo, diags)
@@ -410,21 +433,15 @@ func (m *NIOSRecordHostModel) Flatten(ctx context.Context, from *coremodel.NIOSR
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.DisableDiscovery = flex.FlattenBoolPointer(from.DisableDiscovery)
 	m.DnsAliases = flex.FlattenFrameworkListString(ctx, from.DnsAliases, diags)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Ipv4addrs = flex.FlattenFrameworkListNestedBlock(ctx, from.Ipv4addrs, RecordHostIpv4addrAttrTypes, diags, FlattenRecordHostIpv4addr)
 	m.Ipv6addrs = flex.FlattenFrameworkListNestedBlock(ctx, from.Ipv6addrs, RecordHostIpv6addrAttrTypes, diags, FlattenRecordHostIpv6addr)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
 	m.RrsetOrder = flex.FlattenStringPointerEmptyAsNull(from.RrsetOrder)
 	m.Snmp3Credential = FlattenRecordHostSnmp3Credential(ctx, from.Snmp3Credential, diags)
 	m.SnmpCredential = FlattenRecordHostSnmpCredential(ctx, from.SnmpCredential, diags)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
-	m.UseCliCredentials = flex.FlattenBoolPointer(from.UseCliCredentials)
 	m.UseDnsEaInheritance = flex.FlattenBoolPointer(from.UseDnsEaInheritance)
-	m.UseSnmp3Credential = flex.FlattenBoolPointer(from.UseSnmp3Credential)
-	m.UseSnmpCredential = flex.FlattenBoolPointer(from.UseSnmpCredential)
-	m.UseTtl = flex.FlattenBoolPointer(from.UseTtl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 }

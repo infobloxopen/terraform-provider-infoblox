@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -13,10 +14,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -33,7 +33,6 @@ type RecordHostIpv6addrModel struct {
 	Duid                 types.String        `tfsdk:"duid"`
 	Host                 types.String        `tfsdk:"host"`
 	Ipv6addr             iptypes.IPv6Address `tfsdk:"ipv6addr"`
-	FuncCall             types.Object        `tfsdk:"func_call"`
 	Ipv6prefix           types.String        `tfsdk:"ipv6prefix"`
 	Ipv6prefixBits       types.Int64         `tfsdk:"ipv6prefix_bits"`
 	LastQueried          types.Int64         `tfsdk:"last_queried"`
@@ -54,6 +53,7 @@ type RecordHostIpv6addrModel struct {
 	UsePreferredLifetime types.Bool          `tfsdk:"use_preferred_lifetime"`
 	UseValidLifetime     types.Bool          `tfsdk:"use_valid_lifetime"`
 	ValidLifetime        types.Int64         `tfsdk:"valid_lifetime"`
+	DynamicAllocation    types.Object        `tfsdk:"dynamic_allocation"`
 }
 
 // RecordHostIpv6addrAttrTypes contains the attribute types for RecordHostIpv6addrModel
@@ -68,7 +68,6 @@ var RecordHostIpv6addrAttrTypes = map[string]attr.Type{
 	"duid":                    types.StringType,
 	"host":                    types.StringType,
 	"ipv6addr":                iptypes.IPv6AddressType{},
-	"func_call":               types.ObjectType{AttrTypes: FuncCallAttrTypes},
 	"ipv6prefix":              types.StringType,
 	"ipv6prefix_bits":         types.Int64Type,
 	"last_queried":            types.Int64Type,
@@ -89,12 +88,12 @@ var RecordHostIpv6addrAttrTypes = map[string]attr.Type{
 	"use_preferred_lifetime":  types.BoolType,
 	"use_valid_lifetime":      types.BoolType,
 	"valid_lifetime":          types.Int64Type,
+	"dynamic_allocation":      types.ObjectType{AttrTypes: dynamicallocation.NextAvailableIpAttrTypes},
 }
 
 // RecordHostIpv6addrResourceSchemaAttributes contains the schema attributes for RecordHostIpv6addrModel
 var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 	"ref": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -109,20 +108,19 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Type of the DHCP IPv6 Host Address object.",
 	},
 	"configure_for_dhcp": schema.BoolAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Set this to True to enable the DHCP configuration for this IPv6 host address.",
 	},
 	"discover_now_status": schema.StringAttribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("NONE", "PENDING", "RUNNING", "COMPLETE", "FAILED"),
 		},
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The discovery status of this IPv6 Host Address.",
 	},
 	"discovered_data": schema.SingleNestedAttribute{
 		Attributes:          RecordHostIpv6addrDiscoveredDataResourceSchemaAttributes,
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"domain_name": schema.StringAttribute{
@@ -145,14 +143,13 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The IPv6 addresses of DNS recursive name servers to which the DHCP client can send name resolution requests. The DHCP server includes this information in the DNS Recursive Name Server option in Advertise, Rebind, Information-Request, and Reply messages.",
 	},
 	"duid": schema.StringAttribute{
-		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "DHCPv6 Unique Identifier (DUID) of the address object.",
 	},
 	"host": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -163,15 +160,10 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
+			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
 			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "",
-	},
-	"func_call": schema.SingleNestedAttribute{
-		Attributes: FuncCallResourceSchemaAttributes,
-		Optional:   true,
-		Validators: []validator.Object{
-			objectvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ipv6addr")),
 		},
 		MarkdownDescription: "",
 	},
@@ -187,7 +179,6 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Prefix bits of the DHCP IPv6 Host Address object.",
 	},
 	"last_queried": schema.Int64Attribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The time of the last DNS query in Epoch seconds format.",
 	},
@@ -202,7 +193,7 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This field contains the logic filters to be applied on the this host address. This list corresponds to the match rules that are written to the dhcpd configuration file.",
 	},
 	"mac": schema.StringAttribute{
-		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -212,7 +203,7 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("DUID", "MAC_ADDRESS"),
 		},
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The match_client value for this fixed address. Valid values are: \"DUID\": The host IP address is leased to the matching DUID. \"MAC_ADDRESS\": The host IP address is leased to the matching MAC address.",
 	},
 	"ms_ad_user_data": schema.SingleNestedAttribute{
@@ -221,7 +212,6 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "",
 	},
 	"network": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -229,7 +219,6 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The network of the host address, in FQDN/CIDR format.",
 	},
 	"network_view": schema.StringAttribute{
-		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -289,6 +278,11 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "Use this method to set or retrieve the valid lifetime value of the DHCP IPv6 Host Address object.",
 	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableIpResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field.",
+	},
 }
 
 // ExpandRecordHostIpv6addr converts a Terraform Object to SDK type
@@ -319,8 +313,7 @@ func (m *RecordHostIpv6addrModel) Expand(ctx context.Context, diags *diag.Diagno
 		DomainNameServers:    flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		Duid:                 flex.ExpandStringPointerNullAsEmpty(m.Duid),
 		Host:                 flex.ExpandStringPointerNullAsEmpty(m.Host),
-		Ipv6addr:             flex.ExpandIPv6Address(m.Ipv6addr),
-		FuncCall:             ExpandFuncCall(ctx, m.FuncCall, diags),
+		Ipv6addr:             ExpandRecordHostIpv6addrIpv6addr(m.Ipv6addr),
 		Ipv6prefix:           flex.ExpandStringPointerNullAsEmpty(m.Ipv6prefix),
 		Ipv6prefixBits:       flex.ExpandInt64Pointer(m.Ipv6prefixBits),
 		LastQueried:          flex.ExpandInt64Pointer(m.LastQueried),
@@ -341,6 +334,7 @@ func (m *RecordHostIpv6addrModel) Expand(ctx context.Context, diags *diag.Diagno
 		UsePreferredLifetime: flex.ExpandBoolPointer(m.UsePreferredLifetime),
 		UseValidLifetime:     flex.ExpandBoolPointer(m.UseValidLifetime),
 		ValidLifetime:        flex.ExpandInt64Pointer(m.ValidLifetime),
+		FuncCall:             BuildRecordHostIpv6addrFuncCall(ctx, m.DynamicAllocation, diags),
 	}
 	return to
 }
@@ -371,8 +365,7 @@ func (m *RecordHostIpv6addrModel) Flatten(ctx context.Context, from *niosdns.Rec
 	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
 	m.Duid = flex.FlattenStringPointerEmptyAsNull(from.Duid)
 	m.Host = flex.FlattenStringPointerEmptyAsNull(from.Host)
-	m.Ipv6addr = flex.FlattenIPv6Address(from.Ipv6addr)
-	m.FuncCall = FlattenFuncCall(ctx, from.FuncCall, diags)
+	m.Ipv6addr = FlattenRecordHostIpv6addrIpv6addr(from.Ipv6addr)
 	m.Ipv6prefix = flex.FlattenStringPointerEmptyAsNull(from.Ipv6prefix)
 	m.Ipv6prefixBits = flex.FlattenInt64Pointer(from.Ipv6prefixBits)
 	m.LastQueried = flex.FlattenInt64Pointer(from.LastQueried)
@@ -393,4 +386,19 @@ func (m *RecordHostIpv6addrModel) Flatten(ctx context.Context, from *niosdns.Rec
 	m.UsePreferredLifetime = flex.FlattenBoolPointer(from.UsePreferredLifetime)
 	m.UseValidLifetime = flex.FlattenBoolPointer(from.UseValidLifetime)
 	m.ValidLifetime = flex.FlattenInt64Pointer(from.ValidLifetime)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableIpAttrTypes)
+	}
+}
+
+func ExpandRecordHostIpv6addrIpv6addr(v iptypes.IPv6Address) *niosdns.RecordHostIpv6addrIpv6addr {
+	return &niosdns.RecordHostIpv6addrIpv6addr{String: flex.ExpandIPv6Address(v)}
+}
+
+func FlattenRecordHostIpv6addrIpv6addr(v *niosdns.RecordHostIpv6addrIpv6addr) iptypes.IPv6Address {
+	var value *string
+	if v != nil {
+		value = v.String
+	}
+	return flex.FlattenIPv6Address(value)
 }

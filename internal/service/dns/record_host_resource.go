@@ -131,6 +131,13 @@ func (r *RecordHostResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
+	if r.backend == core.BackendNIOS {
+		ApplyRecordHostNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
 	var (
 		apiResp  *coremodel.RecordHost
 		httpResp *http.Response
@@ -325,6 +332,17 @@ func (r *RecordHostResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
+	var stateData RecordHostModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &stateData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.refreshRecordHostId(ctx, resp, &data, &stateData)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Check if we need to associate internal ID (import flow)
 	associateInternalId, diags := req.Private.GetKey(ctx, flex.AssociateInternalIDKey)
 	resp.Diagnostics.Append(diags...)
@@ -370,6 +388,13 @@ func (r *RecordHostResource) Update(ctx context.Context, req resource.UpdateRequ
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if r.backend == core.BackendNIOS {
+		ApplyRecordHostNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	var (
@@ -437,6 +462,7 @@ func (r *RecordHostResource) Delete(ctx context.Context, req resource.DeleteRequ
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			r.deleteRecordHostByInternalID(ctx, resp, &data)
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordHost: %s", err))
