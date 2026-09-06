@@ -34,15 +34,15 @@ func validateDtcTopologyUDDIConfig(ctx context.Context, m *UDDIDtcTopologyModel,
 // populateDtcTopologyNIOSRules resolves each rule ref in the topology response to its full details.
 // The topology API returns rules as bare refs; this fetches each rule individually so Flatten
 // has dest_type, destination_link, return_type, sources, and valid to work with.
-func (r *DtcTopologyResource) populateDtcTopologyNIOSRules(ctx context.Context, resp *coremodel.DtcTopology, diags *diag.Diagnostics) {
-	if r.niosClient == nil || resp == nil || resp.NIOS == nil {
+func populateDtcTopologyNIOSRules(ctx context.Context, client *niosclient.APIClient, resp *coremodel.DtcTopology, diags *diag.Diagnostics) {
+	if client == nil || resp == nil || resp.NIOS == nil {
 		return
 	}
 	for i, rule := range resp.NIOS.Rules {
 		if rule.DtcTopologyRulesInnerOneOf == nil || rule.DtcTopologyRulesInnerOneOf.Ref == nil {
 			continue
 		}
-		resp.NIOS.Rules[i].DtcTopologyRulesInnerOneOf1 = fetchDtcTopologyNIOSRuleDetails(ctx, r.niosClient, *rule.DtcTopologyRulesInnerOneOf.Ref, diags)
+		resp.NIOS.Rules[i].DtcTopologyRulesInnerOneOf1 = fetchDtcTopologyNIOSRuleDetails(ctx, client, *rule.DtcTopologyRulesInnerOneOf.Ref, diags)
 		if diags.HasError() {
 			return
 		}

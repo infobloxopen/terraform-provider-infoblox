@@ -153,7 +153,7 @@ func (r *DtcTopologyResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	populateDtcTopologyNIOSRules(ctx, r.niosClient, apiResp, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -248,7 +248,7 @@ func (r *DtcTopologyResource) Read(ctx context.Context, req resource.ReadRequest
 		}
 	}
 
-	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	populateDtcTopologyNIOSRules(ctx, r.niosClient, apiResp, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -313,7 +313,7 @@ func (r *DtcTopologyResource) ReadByExtAttrs(ctx context.Context, data *DtcTopol
 		return true
 	}
 
-	r.populateDtcTopologyNIOSRules(ctx, records[0], &resp.Diagnostics)
+	populateDtcTopologyNIOSRules(ctx, r.niosClient, records[0], &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return true
 	}
@@ -421,7 +421,7 @@ func (r *DtcTopologyResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
-	r.populateDtcTopologyNIOSRules(ctx, apiResp, &resp.Diagnostics)
+	populateDtcTopologyNIOSRules(ctx, r.niosClient, apiResp, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

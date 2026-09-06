@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
+	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dtc"
@@ -31,8 +32,9 @@ func NewDtcTopologyDataSource() datasource.DataSource {
 }
 
 type DtcTopologyDataSource struct {
-	backend core.BackendType
-	service coresvc.DtcTopologyService
+	backend    core.BackendType
+	service    coresvc.DtcTopologyService
+	niosClient *niosclient.APIClient
 }
 
 func (d *DtcTopologyDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -129,6 +131,7 @@ func (d *DtcTopologyDataSource) Configure(_ context.Context, req datasource.Conf
 
 	if client.NIOS != nil {
 		d.backend = core.BackendNIOS
+		d.niosClient = client.NIOS
 	} else {
 		d.backend = core.BackendUDDI
 	}
@@ -203,6 +206,16 @@ func (d *DtcTopologyDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	tflog.Info(ctx, fmt.Sprintf("Retrieved %d results", len(allResults)))
+
+	// Populate NIOS rule details (rules are returned as bare refs from the List API)
+	if d.backend == core.BackendNIOS {
+		for _, result := range allResults {
+			populateDtcTopologyNIOSRules(ctx, d.niosClient, result, &resp.Diagnostics)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+	}
 
 	// Flatten results
 	data.FlattenResults(ctx, allResults, &resp.Diagnostics)
