@@ -18,9 +18,9 @@ resource "infoblox_network" "example_network" {
 // Create a Host Record with a static IPv4 address
 resource "infoblox_record_host" "example_static" {
   nios = {
-    name      = "host-1.${infoblox_zone_auth.example.nios.fqdn}"
-    view      = "default"
-    comment   = "This is a test host record"
+    name    = "host-1.${infoblox_zone_auth.example.nios.fqdn}"
+    view    = "default"
+    comment = "This is a test host record"
     ipv4addrs = [
       {
         ipv4addr = "10.0.0.18"
@@ -38,12 +38,12 @@ resource "infoblox_record_host" "example_dual_stack" {
     name              = "host-2.${infoblox_zone_auth.example.nios.fqdn}"
     view              = "default"
     configure_for_dns = true
-    ipv4addrs         = [
+    ipv4addrs = [
       {
         ipv4addr = "10.0.0.19"
       }
     ]
-    ipv6addrs         = [
+    ipv6addrs = [
       {
         ipv6addr = "2002:1f93::12:2"
       }
