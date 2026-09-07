@@ -23,25 +23,16 @@ import (
 
 // RecordHostIpv4addrModel is the Terraform model for RecordHostIpv4addr
 type RecordHostIpv4addrModel struct {
-	Ref                             types.String        `tfsdk:"ref"`
 	Bootfile                        types.String        `tfsdk:"bootfile"`
 	Bootserver                      types.String        `tfsdk:"bootserver"`
 	ConfigureForDhcp                types.Bool          `tfsdk:"configure_for_dhcp"`
 	DenyBootp                       types.Bool          `tfsdk:"deny_bootp"`
-	DiscoverNowStatus               types.String        `tfsdk:"discover_now_status"`
-	DiscoveredData                  types.Object        `tfsdk:"discovered_data"`
 	EnablePxeLeaseTime              types.Bool          `tfsdk:"enable_pxe_lease_time"`
-	Host                            types.String        `tfsdk:"host"`
 	IgnoreClientRequestedOptions    types.Bool          `tfsdk:"ignore_client_requested_options"`
 	Ipv4addr                        iptypes.IPv4Address `tfsdk:"ipv4addr"`
-	IsInvalidMac                    types.Bool          `tfsdk:"is_invalid_mac"`
-	LastQueried                     types.Int64         `tfsdk:"last_queried"`
 	LogicFilterRules                types.List          `tfsdk:"logic_filter_rules"`
 	Mac                             types.String        `tfsdk:"mac"`
 	MatchClient                     types.String        `tfsdk:"match_client"`
-	MsAdUserData                    types.Object        `tfsdk:"ms_ad_user_data"`
-	Network                         types.String        `tfsdk:"network"`
-	NetworkView                     types.String        `tfsdk:"network_view"`
 	Nextserver                      types.String        `tfsdk:"nextserver"`
 	Options                         types.List          `tfsdk:"options"`
 	PxeLeaseTime                    types.Int64         `tfsdk:"pxe_lease_time"`
@@ -60,25 +51,16 @@ type RecordHostIpv4addrModel struct {
 
 // RecordHostIpv4addrAttrTypes contains the attribute types for RecordHostIpv4addrModel
 var RecordHostIpv4addrAttrTypes = map[string]attr.Type{
-	"ref":                                 types.StringType,
 	"bootfile":                            types.StringType,
 	"bootserver":                          types.StringType,
 	"configure_for_dhcp":                  types.BoolType,
 	"deny_bootp":                          types.BoolType,
-	"discover_now_status":                 types.StringType,
-	"discovered_data":                     types.ObjectType{AttrTypes: RecordHostIpv4addrDiscoveredDataAttrTypes},
 	"enable_pxe_lease_time":               types.BoolType,
-	"host":                                types.StringType,
 	"ignore_client_requested_options":     types.BoolType,
 	"ipv4addr":                            iptypes.IPv4AddressType{},
-	"is_invalid_mac":                      types.BoolType,
-	"last_queried":                        types.Int64Type,
 	"logic_filter_rules":                  types.ListType{ElemType: types.ObjectType{AttrTypes: RecordHostIpv4addrLogicFilterRulesAttrTypes}},
 	"mac":                                 types.StringType,
 	"match_client":                        types.StringType,
-	"ms_ad_user_data":                     types.ObjectType{AttrTypes: RecordHostIpv4addrMsAdUserDataAttrTypes},
-	"network":                             types.StringType,
-	"network_view":                        types.StringType,
 	"nextserver":                          types.StringType,
 	"options":                             types.ListType{ElemType: types.ObjectType{AttrTypes: RecordHostIpv4addrOptionsAttrTypes}},
 	"pxe_lease_time":                      types.Int64Type,
@@ -97,15 +79,9 @@ var RecordHostIpv4addrAttrTypes = map[string]attr.Type{
 
 // RecordHostIpv4addrResourceSchemaAttributes contains the schema attributes for RecordHostIpv4addrModel
 var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
-	"ref": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The reference to the object.",
-	},
 	"bootfile": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_bootfile")),
@@ -114,6 +90,7 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"bootserver": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_bootserver")),
@@ -127,33 +104,15 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"deny_bootp": schema.BoolAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.Bool{
 			boolvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_deny_bootp")),
 		},
 		MarkdownDescription: "Set this to True to disable the BOOTP settings and deny BOOTP boot requests.",
 	},
-	"discover_now_status": schema.StringAttribute{
-		Validators: []validator.String{
-			stringvalidator.OneOf("NONE", "PENDING", "RUNNING", "COMPLETE", "FAILED"),
-		},
-		Computed:            true,
-		MarkdownDescription: "The discovery status of this Host Address.",
-	},
-	"discovered_data": schema.SingleNestedAttribute{
-		Attributes:          RecordHostIpv4addrDiscoveredDataResourceSchemaAttributes,
-		Computed:            true,
-		MarkdownDescription: "",
-	},
 	"enable_pxe_lease_time": schema.BoolAttribute{
 		Optional:            true,
 		MarkdownDescription: "Set this to True if you want the DHCP server to use a different lease time for PXE clients. You can specify the duration of time it takes a host to connect to a boot server, such as a TFTP server, and download the file it needs to boot. For example, set a longer lease time if the client downloads an OS (operating system) or configuration file, or set a shorter lease time if the client downloads only configuration changes. Enter the lease time for the preboot execution environment for hosts to boot remotely from a server.",
-	},
-	"host": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The host to which the host address belongs, in FQDN format. It is only present when the host address object is not returned as part of a host.",
 	},
 	"ignore_client_requested_options": schema.BoolAttribute{
 		Optional:            true,
@@ -161,6 +120,7 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ipv4addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv4AddressType{},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
@@ -168,15 +128,7 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 			),
 			customvalidator.StringNotEmpty(),
 		},
-		MarkdownDescription: "",
-	},
-	"is_invalid_mac": schema.BoolAttribute{
-		Computed:            true,
-		MarkdownDescription: "This flag reflects whether the MAC address for this host address is invalid.",
-	},
-	"last_queried": schema.Int64Attribute{
-		Computed:            true,
-		MarkdownDescription: "The time of the last DNS query in Epoch seconds format.",
+		MarkdownDescription: "The IPv4 Address of the record.",
 	},
 	"logic_filter_rules": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -197,33 +149,15 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The MAC address for this host address.",
 	},
 	"match_client": schema.StringAttribute{
-		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
 		MarkdownDescription: "Set this to 'MAC_ADDRESS' to assign the IP address to the selected host, provided that the MAC address of the requesting host matches the MAC address that you specify in the field. Set this to 'RESERVED' to reserve this particular IP address for future use, or if the IP address is statically configured on a system (the Infoblox server does not assign the address from a DHCP request).",
 	},
-	"ms_ad_user_data": schema.SingleNestedAttribute{
-		Attributes:          RecordHostIpv4addrMsAdUserDataResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
-	},
-	"network": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The network of the host address, in FQDN/CIDR format.",
-	},
-	"network_view": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The name of the network view in which the host address resides.",
-	},
 	"nextserver": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("use_nextserver")),
@@ -247,6 +181,7 @@ var RecordHostIpv4addrResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"reserved_interface": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -314,25 +249,16 @@ func (m *RecordHostIpv4addrModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosdns.RecordHostIpv4addr{
-		Ref:                             flex.ExpandStringPointerNullAsEmpty(m.Ref),
 		Bootfile:                        flex.ExpandStringPointerNullAsEmpty(m.Bootfile),
 		Bootserver:                      flex.ExpandStringPointerNullAsEmpty(m.Bootserver),
 		ConfigureForDhcp:                flex.ExpandBoolPointer(m.ConfigureForDhcp),
 		DenyBootp:                       flex.ExpandBoolPointer(m.DenyBootp),
-		DiscoverNowStatus:               flex.ExpandStringPointerNullAsEmpty(m.DiscoverNowStatus),
-		DiscoveredData:                  ExpandRecordHostIpv4addrDiscoveredData(ctx, m.DiscoveredData, diags),
 		EnablePxeLeaseTime:              flex.ExpandBoolPointer(m.EnablePxeLeaseTime),
-		Host:                            flex.ExpandStringPointerNullAsEmpty(m.Host),
 		IgnoreClientRequestedOptions:    flex.ExpandBoolPointer(m.IgnoreClientRequestedOptions),
 		Ipv4addr:                        ExpandRecordHostIpv4addrIpv4addr(m.Ipv4addr),
-		IsInvalidMac:                    flex.ExpandBoolPointer(m.IsInvalidMac),
-		LastQueried:                     flex.ExpandInt64Pointer(m.LastQueried),
 		LogicFilterRules:                flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandRecordHostIpv4addrLogicFilterRules),
 		Mac:                             flex.ExpandStringPointerNullAsEmpty(m.Mac),
 		MatchClient:                     flex.ExpandStringPointerNullAsEmpty(m.MatchClient),
-		MsAdUserData:                    ExpandRecordHostIpv4addrMsAdUserData(ctx, m.MsAdUserData, diags),
-		Network:                         flex.ExpandStringPointerNullAsEmpty(m.Network),
-		NetworkView:                     flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Nextserver:                      flex.ExpandStringPointerNullAsEmpty(m.Nextserver),
 		Options:                         flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandRecordHostIpv4addrOptions),
 		PxeLeaseTime:                    flex.ExpandInt64Pointer(m.PxeLeaseTime),
@@ -368,25 +294,16 @@ func (m *RecordHostIpv4addrModel) Flatten(ctx context.Context, from *niosdns.Rec
 	if from == nil || m == nil {
 		return
 	}
-	m.Ref = flex.FlattenStringPointerEmptyAsNull(from.Ref)
 	m.Bootfile = flex.FlattenStringPointerEmptyAsNull(from.Bootfile)
 	m.Bootserver = flex.FlattenStringPointerEmptyAsNull(from.Bootserver)
 	m.ConfigureForDhcp = flex.FlattenBoolPointer(from.ConfigureForDhcp)
 	m.DenyBootp = flex.FlattenBoolPointer(from.DenyBootp)
-	m.DiscoverNowStatus = flex.FlattenStringPointerEmptyAsNull(from.DiscoverNowStatus)
-	m.DiscoveredData = FlattenRecordHostIpv4addrDiscoveredData(ctx, from.DiscoveredData, diags)
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
-	m.Host = flex.FlattenStringPointerEmptyAsNull(from.Host)
 	m.IgnoreClientRequestedOptions = flex.FlattenBoolPointer(from.IgnoreClientRequestedOptions)
 	m.Ipv4addr = FlattenRecordHostIpv4addrIpv4addr(from.Ipv4addr)
-	m.IsInvalidMac = flex.FlattenBoolPointer(from.IsInvalidMac)
-	m.LastQueried = flex.FlattenInt64Pointer(from.LastQueried)
 	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, RecordHostIpv4addrLogicFilterRulesAttrTypes, diags, FlattenRecordHostIpv4addrLogicFilterRules)
 	m.Mac = flex.FlattenStringPointerEmptyAsNull(from.Mac)
 	m.MatchClient = flex.FlattenStringPointerEmptyAsNull(from.MatchClient)
-	m.MsAdUserData = FlattenRecordHostIpv4addrMsAdUserData(ctx, from.MsAdUserData, diags)
-	m.Network = flex.FlattenStringPointerEmptyAsNull(from.Network)
-	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
 	m.Nextserver = flex.FlattenStringPointerEmptyAsNull(from.Nextserver)
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, RecordHostIpv4addrOptionsAttrTypes, diags, FlattenRecordHostIpv4addrOptions)
 	m.PxeLeaseTime = flex.FlattenInt64Pointer(from.PxeLeaseTime)

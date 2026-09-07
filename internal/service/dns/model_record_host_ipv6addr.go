@@ -23,25 +23,17 @@ import (
 
 // RecordHostIpv6addrModel is the Terraform model for RecordHostIpv6addr
 type RecordHostIpv6addrModel struct {
-	Ref                  types.String        `tfsdk:"ref"`
 	AddressType          types.String        `tfsdk:"address_type"`
 	ConfigureForDhcp     types.Bool          `tfsdk:"configure_for_dhcp"`
-	DiscoverNowStatus    types.String        `tfsdk:"discover_now_status"`
-	DiscoveredData       types.Object        `tfsdk:"discovered_data"`
 	DomainName           types.String        `tfsdk:"domain_name"`
 	DomainNameServers    types.List          `tfsdk:"domain_name_servers"`
 	Duid                 types.String        `tfsdk:"duid"`
-	Host                 types.String        `tfsdk:"host"`
 	Ipv6addr             iptypes.IPv6Address `tfsdk:"ipv6addr"`
 	Ipv6prefix           types.String        `tfsdk:"ipv6prefix"`
 	Ipv6prefixBits       types.Int64         `tfsdk:"ipv6prefix_bits"`
-	LastQueried          types.Int64         `tfsdk:"last_queried"`
 	LogicFilterRules     types.List          `tfsdk:"logic_filter_rules"`
 	Mac                  types.String        `tfsdk:"mac"`
 	MatchClient          types.String        `tfsdk:"match_client"`
-	MsAdUserData         types.Object        `tfsdk:"ms_ad_user_data"`
-	Network              types.String        `tfsdk:"network"`
-	NetworkView          types.String        `tfsdk:"network_view"`
 	Options              types.List          `tfsdk:"options"`
 	PreferredLifetime    types.Int64         `tfsdk:"preferred_lifetime"`
 	ReservedInterface    types.String        `tfsdk:"reserved_interface"`
@@ -58,25 +50,17 @@ type RecordHostIpv6addrModel struct {
 
 // RecordHostIpv6addrAttrTypes contains the attribute types for RecordHostIpv6addrModel
 var RecordHostIpv6addrAttrTypes = map[string]attr.Type{
-	"ref":                     types.StringType,
 	"address_type":            types.StringType,
 	"configure_for_dhcp":      types.BoolType,
-	"discover_now_status":     types.StringType,
-	"discovered_data":         types.ObjectType{AttrTypes: RecordHostIpv6addrDiscoveredDataAttrTypes},
 	"domain_name":             types.StringType,
 	"domain_name_servers":     types.ListType{ElemType: types.StringType},
 	"duid":                    types.StringType,
-	"host":                    types.StringType,
 	"ipv6addr":                iptypes.IPv6AddressType{},
 	"ipv6prefix":              types.StringType,
 	"ipv6prefix_bits":         types.Int64Type,
-	"last_queried":            types.Int64Type,
 	"logic_filter_rules":      types.ListType{ElemType: types.ObjectType{AttrTypes: RecordHostIpv6addrLogicFilterRulesAttrTypes}},
 	"mac":                     types.StringType,
 	"match_client":            types.StringType,
-	"ms_ad_user_data":         types.ObjectType{AttrTypes: RecordHostIpv6addrMsAdUserDataAttrTypes},
-	"network":                 types.StringType,
-	"network_view":            types.StringType,
 	"options":                 types.ListType{ElemType: types.ObjectType{AttrTypes: RecordHostIpv6addrOptionsAttrTypes}},
 	"preferred_lifetime":      types.Int64Type,
 	"reserved_interface":      types.StringType,
@@ -93,38 +77,21 @@ var RecordHostIpv6addrAttrTypes = map[string]attr.Type{
 
 // RecordHostIpv6addrResourceSchemaAttributes contains the schema attributes for RecordHostIpv6addrModel
 var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
-	"ref": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The reference to the object.",
-	},
 	"address_type": schema.StringAttribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("ADDRESS", "PREFIX", "BOTH"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Type of the DHCP IPv6 Host Address object.",
 	},
 	"configure_for_dhcp": schema.BoolAttribute{
 		Computed:            true,
 		MarkdownDescription: "Set this to True to enable the DHCP configuration for this IPv6 host address.",
 	},
-	"discover_now_status": schema.StringAttribute{
-		Validators: []validator.String{
-			stringvalidator.OneOf("NONE", "PENDING", "RUNNING", "COMPLETE", "FAILED"),
-		},
-		Computed:            true,
-		MarkdownDescription: "The discovery status of this IPv6 Host Address.",
-	},
-	"discovered_data": schema.SingleNestedAttribute{
-		Attributes:          RecordHostIpv6addrDiscoveredDataResourceSchemaAttributes,
-		Computed:            true,
-		MarkdownDescription: "",
-	},
 	"domain_name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -149,15 +116,9 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "DHCPv6 Unique Identifier (DUID) of the address object.",
 	},
-	"host": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The host to which the IPv6 host address belongs, in FQDN format. It is only present when the host address object is not returned as part of a host.",
-	},
 	"ipv6addr": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: iptypes.IPv6AddressType{},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
@@ -165,10 +126,11 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 			),
 			customvalidator.StringNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "The IPv6 Address of the record.",
 	},
 	"ipv6prefix": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -177,10 +139,6 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 	"ipv6prefix_bits": schema.Int64Attribute{
 		Optional:            true,
 		MarkdownDescription: "Prefix bits of the DHCP IPv6 Host Address object.",
-	},
-	"last_queried": schema.Int64Attribute{
-		Computed:            true,
-		MarkdownDescription: "The time of the last DNS query in Epoch seconds format.",
 	},
 	"logic_filter_rules": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -206,25 +164,6 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The match_client value for this fixed address. Valid values are: \"DUID\": The host IP address is leased to the matching DUID. \"MAC_ADDRESS\": The host IP address is leased to the matching MAC address.",
 	},
-	"ms_ad_user_data": schema.SingleNestedAttribute{
-		Attributes:          RecordHostIpv6addrMsAdUserDataResourceSchemaAttributes,
-		Optional:            true,
-		MarkdownDescription: "",
-	},
-	"network": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The network of the host address, in FQDN/CIDR format.",
-	},
-	"network_view": schema.StringAttribute{
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "The name of the network view in which the host address resides.",
-	},
 	"options": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: RecordHostIpv6addrOptionsResourceSchemaAttributes,
@@ -241,6 +180,7 @@ var RecordHostIpv6addrResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"reserved_interface": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -304,25 +244,17 @@ func (m *RecordHostIpv6addrModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosdns.RecordHostIpv6addr{
-		Ref:                  flex.ExpandStringPointerNullAsEmpty(m.Ref),
 		AddressType:          flex.ExpandStringPointerNullAsEmpty(m.AddressType),
 		ConfigureForDhcp:     flex.ExpandBoolPointer(m.ConfigureForDhcp),
-		DiscoverNowStatus:    flex.ExpandStringPointerNullAsEmpty(m.DiscoverNowStatus),
-		DiscoveredData:       ExpandRecordHostIpv6addrDiscoveredData(ctx, m.DiscoveredData, diags),
 		DomainName:           flex.ExpandStringPointerNullAsEmpty(m.DomainName),
 		DomainNameServers:    flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		Duid:                 flex.ExpandStringPointerNullAsEmpty(m.Duid),
-		Host:                 flex.ExpandStringPointerNullAsEmpty(m.Host),
 		Ipv6addr:             ExpandRecordHostIpv6addrIpv6addr(m.Ipv6addr),
 		Ipv6prefix:           flex.ExpandStringPointerNullAsEmpty(m.Ipv6prefix),
 		Ipv6prefixBits:       flex.ExpandInt64Pointer(m.Ipv6prefixBits),
-		LastQueried:          flex.ExpandInt64Pointer(m.LastQueried),
 		LogicFilterRules:     flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandRecordHostIpv6addrLogicFilterRules),
 		Mac:                  flex.ExpandStringPointerNullAsEmpty(m.Mac),
 		MatchClient:          flex.ExpandStringPointerNullAsEmpty(m.MatchClient),
-		MsAdUserData:         ExpandRecordHostIpv6addrMsAdUserData(ctx, m.MsAdUserData, diags),
-		Network:              flex.ExpandStringPointerNullAsEmpty(m.Network),
-		NetworkView:          flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
 		Options:              flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandRecordHostIpv6addrOptions),
 		PreferredLifetime:    flex.ExpandInt64Pointer(m.PreferredLifetime),
 		ReservedInterface:    flex.ExpandStringPointerNullAsEmpty(m.ReservedInterface),
@@ -356,25 +288,17 @@ func (m *RecordHostIpv6addrModel) Flatten(ctx context.Context, from *niosdns.Rec
 	if from == nil || m == nil {
 		return
 	}
-	m.Ref = flex.FlattenStringPointerEmptyAsNull(from.Ref)
 	m.AddressType = flex.FlattenStringPointerEmptyAsNull(from.AddressType)
 	m.ConfigureForDhcp = flex.FlattenBoolPointer(from.ConfigureForDhcp)
-	m.DiscoverNowStatus = flex.FlattenStringPointerEmptyAsNull(from.DiscoverNowStatus)
-	m.DiscoveredData = FlattenRecordHostIpv6addrDiscoveredData(ctx, from.DiscoveredData, diags)
 	m.DomainName = flex.FlattenStringPointerEmptyAsNull(from.DomainName)
 	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
 	m.Duid = flex.FlattenStringPointerEmptyAsNull(from.Duid)
-	m.Host = flex.FlattenStringPointerEmptyAsNull(from.Host)
 	m.Ipv6addr = FlattenRecordHostIpv6addrIpv6addr(from.Ipv6addr)
 	m.Ipv6prefix = flex.FlattenStringPointerEmptyAsNull(from.Ipv6prefix)
 	m.Ipv6prefixBits = flex.FlattenInt64Pointer(from.Ipv6prefixBits)
-	m.LastQueried = flex.FlattenInt64Pointer(from.LastQueried)
 	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, RecordHostIpv6addrLogicFilterRulesAttrTypes, diags, FlattenRecordHostIpv6addrLogicFilterRules)
 	m.Mac = flex.FlattenStringPointerEmptyAsNull(from.Mac)
 	m.MatchClient = flex.FlattenStringPointerEmptyAsNull(from.MatchClient)
-	m.MsAdUserData = FlattenRecordHostIpv6addrMsAdUserData(ctx, from.MsAdUserData, diags)
-	m.Network = flex.FlattenStringPointerEmptyAsNull(from.Network)
-	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, RecordHostIpv6addrOptionsAttrTypes, diags, FlattenRecordHostIpv6addrOptions)
 	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
 	m.ReservedInterface = flex.FlattenStringPointerEmptyAsNull(from.ReservedInterface)
