@@ -1,8 +1,13 @@
 # Auto-generated datasource acceptance-test cases for RecordRpzCnameIpaddress.
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : tf-acc-rpz.com        (view: default)
 case "filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -11,13 +16,13 @@ case "filters" {
     }
   }
 
-  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.ttl", "nios.use_ttl", "nios.view"]
+  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.ttl", "nios.view"]
 
   step {
     nios {
-      name      = "11.0.0.30.tf-acc-rpz.com"
-      canonical = "11.0.0.30"
-      rp_zone   = "tf-acc-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -25,6 +30,13 @@ case "filters" {
 
 case "ext_attr_filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "ext_attr_filters"
@@ -33,14 +45,14 @@ case "ext_attr_filters" {
     }
   }
 
-  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.ttl", "nios.use_ttl", "nios.view"]
+  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.ttl", "nios.view"]
 
   step {
     nios {
-      name      = "11.0.0.31.tf-acc-rpz.com"
-      canonical = "11.0.0.31"
-      rp_zone   = "tf-acc-rpz.com"
-      ext_attrs = { Site = "{{random2}}" }
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

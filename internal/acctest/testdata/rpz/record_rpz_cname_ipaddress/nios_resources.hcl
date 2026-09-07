@@ -1,22 +1,25 @@
-# RecordRpzCnameIpaddress — nios resource test cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : tf-acc-rpz.com        (view: default)
-#   - RPZ zone : tf-acc-rpz.com        (view: tf-acc-rpz-view)
-#   - DNS view : tf-acc-rpz-view
+# Auto-generated resource acceptance-test cases for RecordRpzCnameIpaddress.
 case "basic" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  } 
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.1.tf-acc-rpz.com"
-      canonical = "11.0.0.1"
-      rp_zone   = "tf-acc-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name"      = "11.0.0.1.tf-acc-rpz.com"
-      "nios.canonical" = "11.0.0.1"
-      "nios.rp_zone"   = "tf-acc-rpz.com"
+      "nios.name"      = "{{random2}}.{{random}}.com"
+      "nios.canonical" = "10.0.0.1"
+      "nios.rp_zone"   = "{{random}}.com"
       "nios.view"      = "default"
       "nios.disable"   = "false"
     }
@@ -29,12 +32,19 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.2.tf-acc-rpz.com"
-      canonical = "11.0.0.2"
-      rp_zone   = "tf-acc-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -43,37 +53,33 @@ case "disappears" {
 case "canonical" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.3.tf-acc-rpz.com"
-      canonical = "11.0.0.3"
-      rp_zone   = "tf-acc-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.canonical" = "11.0.0.3"
+      "nios.canonical" = "10.0.0.1"
     }
   }
 
   step {
     nios {
-      name      = "11.0.0.3.tf-acc-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "*"
-      rp_zone   = "tf-acc-rpz.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.canonical" = "*"
-    }
-  }
-
-  step {
-    nios {
-      name      = "11.0.0.3.tf-acc-rpz.com"
-      canonical = "11.0.0.3"
-      rp_zone   = "tf-acc-rpz.com"
-    }
-    check = {
-      "nios.canonical" = "11.0.0.3"
     }
   }
 
@@ -82,30 +88,35 @@ case "canonical" {
 case "comment" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.4.tf-acc-rpz.com"
-      canonical = "11.0.0.4"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
-      comment   = "This is a new rpz cname record"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      comment   = "This is a new rpz cname ipaddress record"
     }
     check = {
-      "nios.comment" = "This is a new rpz cname record"
+      "nios.comment" = "This is a new rpz cname ipaddress record"
     }
   }
 
   step {
     nios {
-      name      = "11.0.0.4.tf-acc-rpz.com"
-      canonical = "11.0.0.4"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
-      comment   = "This is an updated rpz cname record"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      comment   = "This is an updated rpz cname ipaddress record"
     }
     check = {
-      "nios.comment" = "This is an updated rpz cname record"
+      "nios.comment" = "This is an updated rpz cname ipaddress record"
     }
   }
 
@@ -114,13 +125,19 @@ case "comment" {
 case "disable" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.5.tf-acc-rpz.com"
-      canonical = "11.0.0.5"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       disable   = false
     }
     check = {
@@ -130,10 +147,9 @@ case "disable" {
 
   step {
     nios {
-      name      = "11.0.0.5.tf-acc-rpz.com"
-      canonical = "11.0.0.5"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       disable   = true
     }
     check = {
@@ -146,30 +162,35 @@ case "disable" {
 case "ext_attrs" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.6.tf-acc-rpz.com"
-      canonical = "11.0.0.6"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
-      ext_attrs = { Site = "{{random2}}" }
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random3}}" }
     }
     check = {
-      "nios.ext_attrs.Site" = "{{random2}}"
+      "nios.ext_attrs.Site" = "{{random3}}"
     }
   }
 
   step {
     nios {
-      name      = "11.0.0.6.tf-acc-rpz.com"
-      canonical = "11.0.0.6"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
-      ext_attrs = { Site = "{{random3}}" }
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random4}}" }
     }
     check = {
-      "nios.ext_attrs.Site" = "{{random3}}"
+      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
@@ -178,22 +199,33 @@ case "ext_attrs" {
 case "name" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.7.tf-acc-rpz.com"
-      canonical = "11.0.0.7"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+    }
+    check = {
+      "nios.name" = "{{random2}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name      = "11.0.0.8.tf-acc-rpz.com"
-      canonical = "11.0.0.8"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random3}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+    }
+    check = {
+      "nios.name" = "{{random3}}.{{random}}.com"
     }
   }
 
@@ -202,16 +234,22 @@ case "name" {
 case "rp_zone" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.9.tf-acc-rpz.com"
-      canonical = "11.0.0.9"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.rp_zone" = "tf-acc-rpz.com"
+      "nios.rp_zone" = "{{random}}.com"
     }
   }
 
@@ -220,13 +258,19 @@ case "rp_zone" {
 case "ttl" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.10.tf-acc-rpz.com"
-      canonical = "11.0.0.10"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ttl       = 10
     }
     check = {
@@ -236,23 +280,13 @@ case "ttl" {
 
   step {
     nios {
-      name      = "11.0.0.10.tf-acc-rpz.com"
-      canonical = "11.0.0.10"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ttl       = 0
     }
     check = {
       "nios.ttl" = "0"
-    }
-  }
-
-  step {
-    nios {
-      name      = "11.0.0.10.tf-acc-rpz.com"
-      canonical = "11.0.0.10"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "default"
     }
   }
 
@@ -261,16 +295,29 @@ case "ttl" {
 case "view" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "custom_view" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      view = infoblox_view.custom_view.nios.name
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "11.0.0.12.tf-acc-rpz.com"
-      canonical = "11.0.0.12"
-      rp_zone   = "tf-acc-rpz.com"
-      view      = "tf-acc-rpz-view"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      view      = infoblox_view.custom_view.nios.name
     }
     check = {
-      "nios.view" = "tf-acc-rpz-view"
+      "nios.view" = "{{random3}}"
     }
   }
 

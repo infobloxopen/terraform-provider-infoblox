@@ -1,22 +1,27 @@
+// Create an RP Zone (Required as Parent)
+resource "infoblox_zone_rp" "example" {
+  nios = {
+    fqdn = "rpzip.example.com"
+  }
+}
+
 // Create Record RPZ CNAME IP Address with Basic Fields
 resource "infoblox_record_rpz_cname_ipaddress" "basic" {
   nios = {
-    name      = "11.0.0.0.rpzip.example.com"
-    canonical = "11.0.0.0"
-    rp_zone   = "rpzip.example.com"
+    name      = "blocked.${infoblox_zone_rp.example.nios.fqdn}"
+    canonical = "11.0.0.1"
+    rp_zone   = infoblox_zone_rp.example.nios.fqdn
   }
 }
 
 // Create Record RPZ CNAME IP Address with Additional Fields
-resource "infoblox_record_rpz_cname_ipaddress" "additional_fields" {
+resource "infoblox_record_rpz_cname_ipaddress" "additional" {
   nios = {
-    name      = "11.0.0.1.rpzip.example.com"
-    canonical = "11.0.0.1"
-    rp_zone   = "rpzip.example.com"
-    view      = "default"
+    name      = "blocked-with-ttl.${infoblox_zone_rp.example.nios.fqdn}"
+    canonical = "11.0.0.2"
+    rp_zone   = infoblox_zone_rp.example.nios.fqdn
     ttl       = 10
     comment   = "Example RPZ CNAME IP address record"
-    disable   = false
     ext_attrs = {
       Site = "location-1"
     }
@@ -26,8 +31,31 @@ resource "infoblox_record_rpz_cname_ipaddress" "additional_fields" {
 // Block IP Address (No Data) Rule
 resource "infoblox_record_rpz_cname_ipaddress" "block_no_data" {
   nios = {
-    name      = "11.0.0.3.rpzip.example.com"
+    name      = "blocked-wildcard.${infoblox_zone_rp.example.nios.fqdn}"
     canonical = "*"
-    rp_zone   = "rpzip.example.com"
+    rp_zone   = infoblox_zone_rp.example.nios.fqdn
+  }
+}
+
+// Create Record RPZ CNAME IP Address in a Custom View
+resource "infoblox_view" "parent_view" {
+  nios = {
+    name = "custom-view"
+  }
+}
+
+resource "infoblox_zone_rp" "parent_zone" {
+  nios = {
+    fqdn = "rpzip-custom.example.com"
+    view = infoblox_view.parent_view.nios.name
+  }
+}
+
+resource "infoblox_record_rpz_cname_ipaddress" "custom_view" {
+  nios = {
+    name      = "blocked.${infoblox_zone_rp.parent_zone.nios.fqdn}"
+    canonical = "11.0.0.3"
+    rp_zone   = infoblox_zone_rp.parent_zone.nios.fqdn
+    view      = infoblox_view.parent_view.nios.name
   }
 }
