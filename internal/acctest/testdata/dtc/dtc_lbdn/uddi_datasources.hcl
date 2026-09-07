@@ -1,6 +1,13 @@
 # Auto-generated datasource acceptance-test cases for DtcLbdn (UDDI backend).
 case "filters" {
   backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -12,7 +19,7 @@ case "filters" {
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
     }
   }
 
@@ -20,6 +27,13 @@ case "filters" {
 
 case "tag_filters" {
   backend = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "tag_filters"
@@ -31,7 +45,7 @@ case "tag_filters" {
   step {
     uddi {
       name = "dtc-lbdn-{{random}}."
-      view = "dns/view/206a2b2e-44d7-4e36-a376-28b79c5dc376"
+      view = "$${infoblox_view.test_view.id}"
       tags = { Site = "{{random2}}" }
     }
   }

@@ -1,4 +1,5 @@
 # Auto-generated resource acceptance-test cases for DtcLbdn.
+# Prerequisites: DTC Topologies "tc01_single_rule" and "tc02_dest_pool" must exist on the NIOS appliance.
 case "basic" {
   backend  = "nios"
   parallel = true
