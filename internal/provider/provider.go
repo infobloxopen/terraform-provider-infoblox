@@ -20,11 +20,13 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -225,7 +227,10 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
-					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true. Set 'enable_nios_passthru = true' to manage NIOS through the Infoblox Portal, or remove the license UID to manage UDDI objects.",
+					"'uddi.nios_license_uid' is set but 'uddi.enable_nios_passthru' is not true.\n\n"+
+						"For NIOS via the Infoblox Portal: set 'enable_nios_passthru = true' and 'portal_url' to the Portal's WAPI passthrough endpoint.\n"+
+						"For UDDI objects: remove 'uddi.nios_license_uid' and set 'portal_url' to the Portal's CSP endpoint.\n\n"+
+						"These are different URLs, so 'portal_url' must match the mode.",
 				)
 				return
 			}
@@ -323,142 +328,193 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		dns.NewRecordHttpsResource,
-		dns.NewZoneForwardResource,
-		dns.NewDnsServerResource,
+		acl.NewNamedaclResource,
+
+		dhcp.NewDhcpOptiondefinitionResource,
+		ipam.NewSuperhostResource,
+		dhcp.NewDhcpOptionspaceResource,
+		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
-		rpz.NewRecordRpzNaptrResource,
-		dns.NewSharedrecordAResource,
-		rpz.NewRecordRpzTxtResource,
-		dns.NewNsgroupResource,
-		grid.NewNatgroupResource,
-		misc.NewBfdtemplateResource,
-		misc.NewRulesetResource,
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
 		dhcp.NewIpv6DhcpOptionspaceResource,
-		dhcp.NewDhcpOptiondefinitionResource,
-		dhcp.NewDhcpOptionspaceResource,
+		dhcp.NewIpv6fixedaddressResource,
+
 		dns.NewAuthNsgResource,
-		dhcp.NewFilteroptionResource,
+		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
-		dns.NewRecordSrvResource,
-		dns.NewRecordAliasResource,
-		grid.NewExtensibleattributedefResource,
-		ipam.NewNetworkviewResource,
-		dtc.NewDtcServerResource,
-		dtc.NewDtcPoolResource,
-		dns.NewRecordNaptrResource,
-		dns.NewRecordMxResource,
-		dns.NewRecordCnameResource,
-		dns.NewRecordAaaaResource,
-		dns.NewRecordTxtResource,
-		dns.NewRecordCaaResource,
-		dns.NewRecordDnameResource,
-		dns.NewRecordNsResource,
-		dns.NewZoneAuthResource,
-		dns.NewViewResource,
+		dns.NewNsgroupResource,
 		dns.NewRecordAResource,
+		dns.NewRecordAaaaResource,
+		dns.NewRecordAliasResource,
+		dns.NewRecordCaaResource,
+		dns.NewRecordPtrResource,
+		dns.NewRecordCnameResource,
+		dns.NewRecordDnameResource,
+		dns.NewRecordMxResource,
+		dns.NewRecordNaptrResource,
+		dns.NewRecordNsResource,
+		dns.NewRecordSrvResource,
+		dns.NewRecordTxtResource,
+		dns.NewSharedrecordAResource,
+		dns.NewSharedrecordAaaaResource,
+		dns.NewViewResource,
+		dns.NewZoneAuthResource,
+		dns.NewZoneDelegatedResource,
+		dns.NewZoneForwardResource,
+		dns.NewZoneRpResource,
+
+		dtc.NewDtcPoolResource,
+		dtc.NewDtcServerResource,
+
+		grid.NewExtensibleattributedefResource,
+		grid.NewNatgroupResource,
+		grid.NewUpgradegroupResource,
 
 		ipam.NewAddressResource,
-		ipam.NewNetworkResource,
-		ipam.NewNetworkcontainerResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
+		ipam.NewNetworkResource,
+		ipam.NewNetworkcontainerResource,
+		ipam.NewNetworkviewResource,
+
+		keys.NewTsigKeyResource,
+
+		misc.NewBfdtemplateResource,
+		misc.NewRulesetResource,
+
+		rpz.NewRecordRpzCnameClientipaddressdnResource,
+		rpz.NewRecordRpzNaptrResource,
+		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAaaaIpaddressResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		dns.NewRecordHttpsDataSource,
-		dns.NewZoneForwardDataSource,
-		dns.NewDnsServerDataSource,
+		acl.NewNamedaclDataSource,
+
+		dhcp.NewDhcpOptiondefinitionDataSource,
+		ipam.NewSuperhostDataSource,
+		dhcp.NewDhcpOptionspaceDataSource,
+		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
-		rpz.NewRecordRpzNaptrDataSource,
-		dns.NewSharedrecordADataSource,
-		rpz.NewRecordRpzTxtDataSource,
-		dns.NewNsgroupDataSource,
-		grid.NewNatgroupDataSource,
-		misc.NewBfdtemplateDataSource,
-		misc.NewRulesetDataSource,
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
-		dhcp.NewDhcpOptiondefinitionDataSource,
-		dhcp.NewDhcpOptionspaceDataSource,
-		dns.NewAuthNsgDataSource,
-		dhcp.NewFilteroptionDataSource,
-		dns.NewForwardNsgDataSource,
-		dns.NewRecordSrvDataSource,
-		grid.NewExtensibleattributedefDataSource,
-		ipam.NewNetworkviewDataSource,
-		dtc.NewDtcServerDataSource,
-		dtc.NewDtcPoolDataSource,
-		dns.NewRecordNaptrDataSource,
-		dns.NewRecordMxDataSource,
-		dns.NewRecordAliasDataSource,
-		dns.NewRecordCnameDataSource,
-		dns.NewRecordAaaaDataSource,
-		dns.NewRecordTxtDataSource,
-		dns.NewRecordCaaDataSource,
-		dns.NewRecordDnameDataSource,
-		dns.NewRecordNsDataSource,
-		dns.NewZoneAuthDataSource,
-		dns.NewViewDataSource,
-		dns.NewRecordADataSource,
+		dhcp.NewIpv6fixedaddressDataSource,
 
-		ipam.NewNextAvailableIPDataSource,
-		ipam.NewNextAvailableSubnetDataSource,
-		ipam.NewNextAvailableAddressBlockDataSource,
+		dns.NewAuthNsgDataSource,
+		dns.NewDnsServerDataSource,
+		dns.NewForwardNsgDataSource,
+		dns.NewNsgroupDataSource,
+		dns.NewRecordADataSource,
+		dns.NewRecordAaaaDataSource,
+		dns.NewRecordAliasDataSource,
+		dns.NewRecordCaaDataSource,
+		dns.NewRecordPtrDataSource,
+		dns.NewRecordCnameDataSource,
+		dns.NewRecordDnameDataSource,
+		dns.NewRecordMxDataSource,
+		dns.NewRecordNaptrDataSource,
+		dns.NewRecordNsDataSource,
+		dns.NewRecordSrvDataSource,
+		dns.NewRecordTxtDataSource,
+		dns.NewSharedrecordADataSource,
+		dns.NewSharedrecordAaaaDataSource,
+		dns.NewViewDataSource,
+		dns.NewZoneAuthDataSource,
+		dns.NewZoneDelegatedDataSource,
+		dns.NewZoneForwardDataSource,
+		dns.NewZoneRpDataSource,
+
+		dtc.NewDtcPoolDataSource,
+		dtc.NewDtcServerDataSource,
+
+		grid.NewExtensibleattributedefDataSource,
+		grid.NewNatgroupDataSource,
+		grid.NewUpgradegroupDataSource,
+
 		ipam.NewAddressDataSource,
-		ipam.NewNetworkDataSource,
-		ipam.NewNetworkcontainerDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
+		ipam.NewNetworkDataSource,
+		ipam.NewNetworkcontainerDataSource,
+		ipam.NewNetworkviewDataSource,
+		ipam.NewNextAvailableAddressBlockDataSource,
+		ipam.NewNextAvailableIPDataSource,
+		ipam.NewNextAvailableSubnetDataSource,
+
+		keys.NewTsigKeyDataSource,
+
+		misc.NewBfdtemplateDataSource,
+		misc.NewRulesetDataSource,
+
+		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
+		rpz.NewRecordRpzNaptrDataSource,
+		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAaaaIpaddressDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		dns.NewRecordHttpsList,
-		dns.NewZoneForwardList,
-		dns.NewDnsServerList,
+		acl.NewNamedaclList,
+
+		dhcp.NewDhcpOptiondefinitionList,
+		ipam.NewSuperhostList,
+		dhcp.NewDhcpOptionspaceList,
+		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
-		rpz.NewRecordRpzNaptrList,
-		dns.NewSharedrecordAList,
-		rpz.NewRecordRpzTxtList,
-		dns.NewNsgroupList,
-		grid.NewNatgroupList,
-		misc.NewBfdtemplateList,
-		misc.NewRulesetList,
 		dhcp.NewIpv6DhcpOptiondefinitionList,
 		dhcp.NewIpv6DhcpOptionspaceList,
-		dhcp.NewDhcpOptiondefinitionList,
-		dhcp.NewDhcpOptionspaceList,
+		dhcp.NewIpv6fixedaddressList,
+
 		dns.NewAuthNsgList,
-		dhcp.NewFilteroptionList,
+		dns.NewDnsServerList,
 		dns.NewForwardNsgList,
-		dns.NewRecordSrvList,
-		dns.NewRecordAliasList,
-		grid.NewExtensibleattributedefList,
-		ipam.NewNetworkviewList,
-		dtc.NewDtcServerList,
-		dtc.NewDtcPoolList,
-		dns.NewRecordNaptrList,
-		dns.NewRecordMxList,
-		dns.NewRecordCnameList,
-		dns.NewRecordAaaaList,
-		dns.NewRecordTxtList,
-		dns.NewRecordCaaList,
-		dns.NewRecordDnameList,
-		dns.NewRecordNsList,
-		dns.NewZoneAuthList,
-		dns.NewViewList,
+		dns.NewNsgroupList,
 		dns.NewRecordAList,
+		dns.NewRecordAaaaList,
+		dns.NewRecordAliasList,
+		dns.NewRecordCaaList,
+		dns.NewRecordPtrList,
+		dns.NewRecordCnameList,
+		dns.NewRecordDnameList,
+		dns.NewRecordMxList,
+		dns.NewRecordNaptrList,
+		dns.NewRecordNsList,
+		dns.NewRecordSrvList,
+		dns.NewRecordTxtList,
+		dns.NewSharedrecordAList,
+		dns.NewSharedrecordAaaaList,
+		dns.NewViewList,
+		dns.NewZoneAuthList,
+		dns.NewZoneDelegatedList,
+		dns.NewZoneForwardList,
+		dns.NewZoneRpList,
+
+		dtc.NewDtcPoolList,
+		dtc.NewDtcServerList,
+
+		grid.NewExtensibleattributedefList,
+		grid.NewNatgroupList,
+		grid.NewUpgradegroupList,
 
 		ipam.NewAddressList,
-		ipam.NewNetworkList,
-		ipam.NewNetworkcontainerList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
+		ipam.NewNetworkList,
+		ipam.NewNetworkcontainerList,
+		ipam.NewNetworkviewList,
+
+		keys.NewTsigKeyList,
+
+		misc.NewBfdtemplateList,
+		misc.NewRulesetList,
+
+		rpz.NewRecordRpzCnameClientipaddressdnList,
+		rpz.NewRecordRpzNaptrList,
+		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAaaaIpaddressList,
 	}
 }
 

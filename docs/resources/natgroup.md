@@ -46,7 +46,10 @@ resource "infoblox_natgroup" "natgroup_with_additional_config" {
 <a id="nestedatt--nios"></a>
 ### Nested Schema for `nios`
 
+Required:
+
+- `name` (String) The name of a NAT group object.
+
 Optional:
 
 - `comment` (String) The NAT group descriptive comment.
-- `name` (String) The name of a NAT group object.

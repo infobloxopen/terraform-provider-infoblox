@@ -28,12 +28,14 @@ type TopologyRule struct {
 	Name string `json:"name"`
 	// The resource identifier.
 	PoolId *string `json:"pool_id,omitempty"`
-	// Type of source.  Allowed values: - subnet - tags - default  Defaults to _default_.
+	// Type of source.  Allowed values: - subnet - tag_rule - topology - default  Defaults to _default_.
 	Source *string `json:"source,omitempty"`
 	// Optional. List of subnets in CIDR format.  Must be set if _source_ is _subnet_, otherwise must be empty.
 	Subnets []string `json:"subnets,omitempty"`
-	// Optional. List of tag rules to match against a source object's effective tags. Effective tags = direct tags plus tags inherited from the IPAM parent chain (IPSpace → Address Block → Subnet); the closer level wins on key conflicts. All rules use AND semantics: an object must satisfy every __TagRule__ to match.  Must be set if _source_ is _tags_, otherwise must be empty.
-	Tags                 []TagRule `json:"tags,omitempty"`
+	// Optional. List of tag rules to match against infrastructure source objects effective tags.  Must be set if _source_ is set to _tag_rule_, otherwise must be empty.
+	TagRules []TagRule `json:"tag_rules,omitempty"`
+	// The resource identifier.
+	TopologyId           *string `json:"topology_id,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -241,36 +243,68 @@ func (o *TopologyRule) SetSubnets(v []string) {
 	o.Subnets = v
 }
 
-// GetTags returns the Tags field value if set, zero value otherwise.
-func (o *TopologyRule) GetTags() []TagRule {
-	if o == nil || IsNil(o.Tags) {
+// GetTagRules returns the TagRules field value if set, zero value otherwise.
+func (o *TopologyRule) GetTagRules() []TagRule {
+	if o == nil || IsNil(o.TagRules) {
 		var ret []TagRule
 		return ret
 	}
-	return o.Tags
+	return o.TagRules
 }
 
-// GetTagsOk returns a tuple with the Tags field value if set, nil otherwise
+// GetTagRulesOk returns a tuple with the TagRules field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *TopologyRule) GetTagsOk() ([]TagRule, bool) {
-	if o == nil || IsNil(o.Tags) {
+func (o *TopologyRule) GetTagRulesOk() ([]TagRule, bool) {
+	if o == nil || IsNil(o.TagRules) {
 		return nil, false
 	}
-	return o.Tags, true
+	return o.TagRules, true
 }
 
-// HasTags returns a boolean if a field has been set.
-func (o *TopologyRule) HasTags() bool {
-	if o != nil && !IsNil(o.Tags) {
+// HasTagRules returns a boolean if a field has been set.
+func (o *TopologyRule) HasTagRules() bool {
+	if o != nil && !IsNil(o.TagRules) {
 		return true
 	}
 
 	return false
 }
 
-// SetTags gets a reference to the given []TagRule and assigns it to the Tags field.
-func (o *TopologyRule) SetTags(v []TagRule) {
-	o.Tags = v
+// SetTagRules gets a reference to the given []TagRule and assigns it to the TagRules field.
+func (o *TopologyRule) SetTagRules(v []TagRule) {
+	o.TagRules = v
+}
+
+// GetTopologyId returns the TopologyId field value if set, zero value otherwise.
+func (o *TopologyRule) GetTopologyId() string {
+	if o == nil || IsNil(o.TopologyId) {
+		var ret string
+		return ret
+	}
+	return *o.TopologyId
+}
+
+// GetTopologyIdOk returns a tuple with the TopologyId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *TopologyRule) GetTopologyIdOk() (*string, bool) {
+	if o == nil || IsNil(o.TopologyId) {
+		return nil, false
+	}
+	return o.TopologyId, true
+}
+
+// HasTopologyId returns a boolean if a field has been set.
+func (o *TopologyRule) HasTopologyId() bool {
+	if o != nil && !IsNil(o.TopologyId) {
+		return true
+	}
+
+	return false
+}
+
+// SetTopologyId gets a reference to the given string and assigns it to the TopologyId field.
+func (o *TopologyRule) SetTopologyId(v string) {
+	o.TopologyId = &v
 }
 
 func (o TopologyRule) MarshalJSON() ([]byte, error) {
@@ -299,8 +333,11 @@ func (o TopologyRule) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Subnets) {
 		toSerialize["subnets"] = o.Subnets
 	}
-	if !IsNil(o.Tags) {
-		toSerialize["tags"] = o.Tags
+	if !IsNil(o.TagRules) {
+		toSerialize["tag_rules"] = o.TagRules
+	}
+	if !IsNil(o.TopologyId) {
+		toSerialize["topology_id"] = o.TopologyId
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -351,7 +388,8 @@ func (o *TopologyRule) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "pool_id")
 		delete(additionalProperties, "source")
 		delete(additionalProperties, "subnets")
-		delete(additionalProperties, "tags")
+		delete(additionalProperties, "tag_rules")
+		delete(additionalProperties, "topology_id")
 		o.AdditionalProperties = additionalProperties
 	}
 

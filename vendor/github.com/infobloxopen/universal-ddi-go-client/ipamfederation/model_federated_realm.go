@@ -29,12 +29,22 @@ type FederatedRealm struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
+	// The metadata for the federated realm in JSON format.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// The name of the federated realm. May contain 1 to 256 characters; can include UTF-8.
 	Name string `json:"name"`
+	// The provider type this realm is associated with.
+	Provider *ProviderType `json:"provider,omitempty"`
+	// The region where the realm is located.
+	Region *string `json:"region,omitempty"`
 	// The tags for the federated realm in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
 	// Time when the object has been updated. Equals to _created_at_ if not updated after creation.
-	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	// The percentage of Federated Realm utilization.
+	Utilization *int64 `json:"utilization,omitempty"`
+	// The IPv6 utilization metrics for the federated realm.
+	UtilizationV6        *UtilizationV6 `json:"utilization_v6,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -47,6 +57,8 @@ type _FederatedRealm FederatedRealm
 func NewFederatedRealm(name string) *FederatedRealm {
 	this := FederatedRealm{}
 	this.Name = name
+	var provider ProviderType = PROVIDERTYPE_NIOS_X
+	this.Provider = &provider
 	return &this
 }
 
@@ -55,6 +67,8 @@ func NewFederatedRealm(name string) *FederatedRealm {
 // but it doesn't guarantee that properties required by API are set
 func NewFederatedRealmWithDefaults() *FederatedRealm {
 	this := FederatedRealm{}
+	var provider ProviderType = PROVIDERTYPE_NIOS_X
+	this.Provider = &provider
 	return &this
 }
 
@@ -186,6 +200,38 @@ func (o *FederatedRealm) SetId(v string) {
 	o.Id = &v
 }
 
+// GetMetadata returns the Metadata field value if set, zero value otherwise.
+func (o *FederatedRealm) GetMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.Metadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.Metadata
+}
+
+// GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedRealm) GetMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.Metadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.Metadata, true
+}
+
+// HasMetadata returns a boolean if a field has been set.
+func (o *FederatedRealm) HasMetadata() bool {
+	if o != nil && !IsNil(o.Metadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
+func (o *FederatedRealm) SetMetadata(v map[string]interface{}) {
+	o.Metadata = v
+}
+
 // GetName returns the Name field value
 func (o *FederatedRealm) GetName() string {
 	if o == nil {
@@ -208,6 +254,70 @@ func (o *FederatedRealm) GetNameOk() (*string, bool) {
 // SetName sets field value
 func (o *FederatedRealm) SetName(v string) {
 	o.Name = v
+}
+
+// GetProvider returns the Provider field value if set, zero value otherwise.
+func (o *FederatedRealm) GetProvider() ProviderType {
+	if o == nil || IsNil(o.Provider) {
+		var ret ProviderType
+		return ret
+	}
+	return *o.Provider
+}
+
+// GetProviderOk returns a tuple with the Provider field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedRealm) GetProviderOk() (*ProviderType, bool) {
+	if o == nil || IsNil(o.Provider) {
+		return nil, false
+	}
+	return o.Provider, true
+}
+
+// HasProvider returns a boolean if a field has been set.
+func (o *FederatedRealm) HasProvider() bool {
+	if o != nil && !IsNil(o.Provider) {
+		return true
+	}
+
+	return false
+}
+
+// SetProvider gets a reference to the given ProviderType and assigns it to the Provider field.
+func (o *FederatedRealm) SetProvider(v ProviderType) {
+	o.Provider = &v
+}
+
+// GetRegion returns the Region field value if set, zero value otherwise.
+func (o *FederatedRealm) GetRegion() string {
+	if o == nil || IsNil(o.Region) {
+		var ret string
+		return ret
+	}
+	return *o.Region
+}
+
+// GetRegionOk returns a tuple with the Region field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedRealm) GetRegionOk() (*string, bool) {
+	if o == nil || IsNil(o.Region) {
+		return nil, false
+	}
+	return o.Region, true
+}
+
+// HasRegion returns a boolean if a field has been set.
+func (o *FederatedRealm) HasRegion() bool {
+	if o != nil && !IsNil(o.Region) {
+		return true
+	}
+
+	return false
+}
+
+// SetRegion gets a reference to the given string and assigns it to the Region field.
+func (o *FederatedRealm) SetRegion(v string) {
+	o.Region = &v
 }
 
 // GetTags returns the Tags field value if set, zero value otherwise.
@@ -274,6 +384,70 @@ func (o *FederatedRealm) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = &v
 }
 
+// GetUtilization returns the Utilization field value if set, zero value otherwise.
+func (o *FederatedRealm) GetUtilization() int64 {
+	if o == nil || IsNil(o.Utilization) {
+		var ret int64
+		return ret
+	}
+	return *o.Utilization
+}
+
+// GetUtilizationOk returns a tuple with the Utilization field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedRealm) GetUtilizationOk() (*int64, bool) {
+	if o == nil || IsNil(o.Utilization) {
+		return nil, false
+	}
+	return o.Utilization, true
+}
+
+// HasUtilization returns a boolean if a field has been set.
+func (o *FederatedRealm) HasUtilization() bool {
+	if o != nil && !IsNil(o.Utilization) {
+		return true
+	}
+
+	return false
+}
+
+// SetUtilization gets a reference to the given int64 and assigns it to the Utilization field.
+func (o *FederatedRealm) SetUtilization(v int64) {
+	o.Utilization = &v
+}
+
+// GetUtilizationV6 returns the UtilizationV6 field value if set, zero value otherwise.
+func (o *FederatedRealm) GetUtilizationV6() UtilizationV6 {
+	if o == nil || IsNil(o.UtilizationV6) {
+		var ret UtilizationV6
+		return ret
+	}
+	return *o.UtilizationV6
+}
+
+// GetUtilizationV6Ok returns a tuple with the UtilizationV6 field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedRealm) GetUtilizationV6Ok() (*UtilizationV6, bool) {
+	if o == nil || IsNil(o.UtilizationV6) {
+		return nil, false
+	}
+	return o.UtilizationV6, true
+}
+
+// HasUtilizationV6 returns a boolean if a field has been set.
+func (o *FederatedRealm) HasUtilizationV6() bool {
+	if o != nil && !IsNil(o.UtilizationV6) {
+		return true
+	}
+
+	return false
+}
+
+// SetUtilizationV6 gets a reference to the given UtilizationV6 and assigns it to the UtilizationV6 field.
+func (o *FederatedRealm) SetUtilizationV6(v UtilizationV6) {
+	o.UtilizationV6 = &v
+}
+
 func (o FederatedRealm) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -296,12 +470,27 @@ func (o FederatedRealm) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
+	if !IsNil(o.Metadata) {
+		toSerialize["metadata"] = o.Metadata
+	}
 	toSerialize["name"] = o.Name
+	if !IsNil(o.Provider) {
+		toSerialize["provider"] = o.Provider
+	}
+	if !IsNil(o.Region) {
+		toSerialize["region"] = o.Region
+	}
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
 	}
 	if !IsNil(o.UpdatedAt) {
 		toSerialize["updated_at"] = o.UpdatedAt
+	}
+	if !IsNil(o.Utilization) {
+		toSerialize["utilization"] = o.Utilization
+	}
+	if !IsNil(o.UtilizationV6) {
+		toSerialize["utilization_v6"] = o.UtilizationV6
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -350,9 +539,14 @@ func (o *FederatedRealm) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "id")
+		delete(additionalProperties, "metadata")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "provider")
+		delete(additionalProperties, "region")
 		delete(additionalProperties, "tags")
 		delete(additionalProperties, "updated_at")
+		delete(additionalProperties, "utilization")
+		delete(additionalProperties, "utilization_v6")
 		o.AdditionalProperties = additionalProperties
 	}
 
