@@ -13,4 +13,4 @@ data "infoblox_sharedrecordgroup" "get_sharedrecordgroups_using_extensible_attri
 }
 
 // Retrieve all Shared Record Groups
-data "infoblox_sharedrecordgroup" "get_all_sharedrecordgroup" {}
+data "infoblox_sharedrecordgroup" "get_all_sharedrecordgroups" {}

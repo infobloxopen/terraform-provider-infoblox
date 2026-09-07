@@ -328,7 +328,6 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		dns.NewSharedrecordgroupResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -357,6 +356,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
+		dns.NewSharedrecordgroupResource,
 		dns.NewViewResource,
 		dns.NewZoneAuthResource,
 		dns.NewZoneDelegatedResource,
@@ -391,7 +391,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		dns.NewSharedrecordgroupDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -420,6 +419,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
+		dns.NewSharedrecordgroupDataSource,
 		dns.NewViewDataSource,
 		dns.NewZoneAuthDataSource,
 		dns.NewZoneDelegatedDataSource,
@@ -457,7 +457,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		dns.NewSharedrecordgroupList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
@@ -486,6 +485,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
+		dns.NewSharedrecordgroupList,
 		dns.NewViewList,
 		dns.NewZoneAuthList,
 		dns.NewZoneDelegatedList,

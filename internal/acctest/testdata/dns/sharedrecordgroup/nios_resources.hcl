@@ -133,7 +133,38 @@ case "record_name_policy" {
 case "zone_associations" {
   backend  = "nios"
   parallel = true
+  // Associating a shared record group mutates the parent zone in NIOS, so the
+  // zone_auth prerequisite legitimately drifts after each apply.
+  expect_non_empty_plan = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "srg_zone_1" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  resource "infoblox_zone_auth" "srg_zone_2" {
+    nios = {
+      fqdn = "{{random3}}.com"
+    }
+  }
+  PREREQ
 
+  step {
+    nios {
+      name = "{{random}}"
+      zone_associations = [{
+        fqdn = infoblox_zone_auth.srg_zone_1.nios.fqdn
+        view = infoblox_zone_auth.srg_zone_1.nios.view
+      }]
+    }
+    check = {
+      "nios.zone_associations.#"      = "1"
+      "nios.zone_associations.0.fqdn" = "{{random2}}.com"
+      "nios.zone_associations.0.view" = "default"
+    }
+  }
+
+  // Unset the association so the group can be re-associated and, finally, destroyed.
   step {
     nios {
       name = "{{random}}"
@@ -143,12 +174,15 @@ case "zone_associations" {
   step {
     nios {
       name = "{{random}}"
+      zone_associations = [{
+        fqdn = infoblox_zone_auth.srg_zone_2.nios.fqdn
+        view = infoblox_zone_auth.srg_zone_2.nios.view
+      }]
     }
-  }
-
-  step {
-    nios {
-      name = "{{random}}"
+    check = {
+      "nios.zone_associations.#"      = "1"
+      "nios.zone_associations.0.fqdn" = "{{random3}}.com"
+      "nios.zone_associations.0.view" = "default"
     }
   }
 
