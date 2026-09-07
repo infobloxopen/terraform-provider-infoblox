@@ -131,6 +131,7 @@ func buildUDDIAttribute() schema.Attribute {
 			"nios_license_uid": schema.StringAttribute{
 				MarkdownDescription: "License UID of the NIOS Grid to manage, required when `enable_nios_passthru` is true.",
 				Optional:            true,
+				Sensitive:           true,
 			},
 			"enable_nios_passthru": schema.BoolAttribute{
 				MarkdownDescription: "Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false",
