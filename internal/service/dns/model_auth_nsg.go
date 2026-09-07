@@ -16,6 +16,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type AuthNsgModel struct {
@@ -77,21 +78,30 @@ var AuthNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ExternalPrimaryResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. DNS primaries external to Universal DDI. Order is not significant.",
 	},
 	"external_secondaries": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ExternalSecondaryResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "DNS secondaries external to Universal DDI. Order is not significant.",
 	},
 	"internal_secondaries": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: InternalSecondaryResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "Optional. Universal DDI hosts acting as internal secondaries. Order is not significant.",
 	},
 	"name": schema.StringAttribute{
@@ -102,8 +112,11 @@ var AuthNsgResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Name of the object.",
 	},
 	"nsgs": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{

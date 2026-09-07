@@ -1,7 +1,7 @@
 // Retrieve a specific Substitute (NAPTR Record) Rule by filters
 data "infoblox_record_rpz_naptr" "get_record_using_filters" {
   filters = {
-    name = "naptr.rpz.example.com"
+    name = "naptr-record.rpz.example.com"
   }
 }
 
