@@ -3,7 +3,7 @@ list "infoblox_dtc_monitor_tcp" "list_dtc_monitor_tcp_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      comment = "DTC TCP monitor creation"
     }
   }
   limit = 10
