@@ -51,7 +51,7 @@ list "infoblox_dtc_monitor_icmp" "list_dtc_monitor_icmp_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      comment = "DTC ICMP monitor for health checks"
     }
   }
   limit = 10
