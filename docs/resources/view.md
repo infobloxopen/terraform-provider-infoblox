@@ -437,7 +437,7 @@ Optional:
 - `transfer_acl` (Attributes List) Optional. Clients must match this ACL to receive zone transfers.  Defaults to empty. (see [below for nested schema](#nestedatt--uddi--transfer_acl))
 - `update_acl` (Attributes List) Optional. Specifies which hosts are allowed to issue Dynamic DNS updates for authoritative zones of _primary_type_ _cloud_.  Defaults to empty. (see [below for nested schema](#nestedatt--uddi--update_acl))
 - `use_forwarders_for_subzones` (Boolean) Optional. Use default forwarders to resolve queries for subzones.  Defaults to _true_.
-- `use_root_forwarders_for_local_resolution_with_b1td` (Boolean) _use_root_forwarders_for_local_resolution_with_b1td_ allows DNS recursive queries sent to root forwarders for local resolution when deployed alongside BloxOne Thread Defense. Defaults to _false_.
+- `use_root_forwarders_for_local_resolution_with_b1td` (Boolean) _use_root_forwarders_for_local_resolution_with_b1td_ allows DNS recursive queries sent to root forwarders for local resolution when deployed alongside Universal Thread Defense. Defaults to _false_.
 - `zone_authority` (Attributes) Construct for fields: _refresh_, _retry_, _expire_, _default_ttl_, _negative_ttl_, _rname_, _protocol_rname_, _mname_, _protocol_mname_, _use_default_mname_. (see [below for nested schema](#nestedatt--uddi--zone_authority))
 
 Read-Only:
