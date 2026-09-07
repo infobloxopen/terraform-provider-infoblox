@@ -2,6 +2,7 @@
 // Objects to be present on the GRID for the tests to run 
 // NS Group Forward Stub Server - nsgroup_forwardstubserver_1 , nsgroup_forwardstubserver_2
 // NS Group Stub Member - ns_group_stub_member_1 , ns_group_stub_member_2
+// MS Server - 10.10.10.10 , 10.0.0.0
 
 case "basic" {
   backend  = "nios"
