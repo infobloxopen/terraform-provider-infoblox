@@ -2,10 +2,17 @@
 case "basic" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -31,10 +38,17 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -47,10 +61,17 @@ case "disappears" {
 case "comment" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -64,7 +85,7 @@ case "comment" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -81,10 +102,17 @@ case "comment" {
 case "disable" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -98,7 +126,7 @@ case "disable" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -115,10 +143,17 @@ case "disable" {
 case "ext_attrs" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -132,7 +167,7 @@ case "ext_attrs" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -149,10 +184,17 @@ case "ext_attrs" {
 case "flags" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -166,7 +208,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -180,7 +222,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -194,7 +236,7 @@ case "flags" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -211,10 +253,17 @@ case "flags" {
 case "name" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -227,7 +276,7 @@ case "name" {
 
   step {
     nios {
-      name        = "{{random3}}.{{random}}.com"
+      name        = "{{random3}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -243,10 +292,17 @@ case "name" {
 case "order" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -259,7 +315,7 @@ case "order" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 20
       preference  = 10
@@ -275,10 +331,17 @@ case "order" {
 case "preference" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -291,7 +354,7 @@ case "preference" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 20
@@ -307,15 +370,21 @@ case "preference" {
 case "regexp" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
       replacement = "."
-      regexp      = ""
     }
     check = {
       "nios.regexp" = ""
@@ -324,7 +393,7 @@ case "regexp" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -341,10 +410,17 @@ case "regexp" {
 case "replacement" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -357,7 +433,7 @@ case "replacement" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -373,10 +449,17 @@ case "replacement" {
 case "rp_zone" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -392,10 +475,17 @@ case "rp_zone" {
 case "services" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -409,7 +499,7 @@ case "services" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -426,10 +516,17 @@ case "services" {
 case "ttl" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -443,7 +540,7 @@ case "ttl" {
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10
@@ -466,11 +563,17 @@ case "view" {
       name = "{{random3}}"
     }
   }
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+      view = infoblox_view.custom_view.nios.name
+    }
+  }
   PREREQ
 
   step {
     nios {
-      name        = "{{random2}}.{{random}}.com"
+      name        = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone     = infoblox_zone_rp.test.nios.fqdn
       order       = 10
       preference  = 10

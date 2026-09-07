@@ -22,7 +22,7 @@ var _ MappedNullable = &FederatedBlock{}
 // FederatedBlock A __FederatedBlock__ object (_federation/federated_block_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Federated blocks are hierarchical and may be parented to other federated blocks as long as the parent block fully contains the child and no sibling overlaps. Top level federated blocks are parented to a federated realm.
 type FederatedBlock struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
-	Address *string `json:"address,omitempty"`
+	Address string `json:"address"`
 	// The percentage of the Federated Block’s total address space that is consumed by Leaf Terminals.
 	AllocationV4 *Allocation `json:"allocation_v4,omitempty"`
 	// The CIDR of the federated block. This is required, if _address_ does not specify it in its input.
@@ -32,19 +32,34 @@ type FederatedBlock struct {
 	// Time when the object has been created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// The resource identifier.
+	FederatedPoolId *string `json:"federated_pool_id,omitempty"`
+	// The resource identifier.
 	FederatedRealm string `json:"federated_realm"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
+	// The metadata for the federated block in JSON format.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// The name of the federated block. May contain 1 to 256 characters. Can include UTF-8.
 	Name *string `json:"name,omitempty"`
+	// The network compliance policy for child objects. This defines the minimum, default, and maximum netmask lengths that can be used when creating child blocks.
+	NetworkCompliance *NetworkCompliance `json:"network_compliance,omitempty"`
+	// Indicates if this block is compliant with its parent's network compliance policy. When false, a trouble dot should be displayed in the UI to indicate non-compliance.
+	NetworkCompliant *bool `json:"network_compliant,omitempty"`
 	// The resource identifier.
 	Parent *string `json:"parent,omitempty"`
 	// The type of protocol of federated block (_ip4_ or _ip6_).
 	Protocol *string `json:"protocol,omitempty"`
+	// The region where the federated block is located.
+	Region *string `json:"region,omitempty"`
+	State  *string `json:"state,omitempty"`
 	// The tags for the federated block in JSON format.
 	Tags map[string]interface{} `json:"tags,omitempty"`
 	// Time when the object has been updated. Equals to _created_at_ if not updated after creation.
-	UpdatedAt            *time.Time `json:"updated_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	// The percentage of Federated Block utilization.
+	Utilization *int64 `json:"utilization,omitempty"`
+	// The IPv6 utilization metrics for the federated block.
+	UtilizationV6        *UtilizationV6 `json:"utilization_v6,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -54,8 +69,9 @@ type _FederatedBlock FederatedBlock
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewFederatedBlock(federatedRealm string) *FederatedBlock {
+func NewFederatedBlock(address string, federatedRealm string) *FederatedBlock {
 	this := FederatedBlock{}
+	this.Address = address
 	this.FederatedRealm = federatedRealm
 	return &this
 }
@@ -68,36 +84,28 @@ func NewFederatedBlockWithDefaults() *FederatedBlock {
 	return &this
 }
 
-// GetAddress returns the Address field value if set, zero value otherwise.
+// GetAddress returns the Address field value
 func (o *FederatedBlock) GetAddress() string {
-	if o == nil || IsNil(o.Address) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Address
+
+	return o.Address
 }
 
-// GetAddressOk returns a tuple with the Address field value if set, nil otherwise
+// GetAddressOk returns a tuple with the Address field value
 // and a boolean to check if the value has been set.
 func (o *FederatedBlock) GetAddressOk() (*string, bool) {
-	if o == nil || IsNil(o.Address) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Address, true
+	return &o.Address, true
 }
 
-// HasAddress returns a boolean if a field has been set.
-func (o *FederatedBlock) HasAddress() bool {
-	if o != nil && !IsNil(o.Address) {
-		return true
-	}
-
-	return false
-}
-
-// SetAddress gets a reference to the given string and assigns it to the Address field.
+// SetAddress sets field value
 func (o *FederatedBlock) SetAddress(v string) {
-	o.Address = &v
+	o.Address = v
 }
 
 // GetAllocationV4 returns the AllocationV4 field value if set, zero value otherwise.
@@ -228,6 +236,38 @@ func (o *FederatedBlock) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
+// GetFederatedPoolId returns the FederatedPoolId field value if set, zero value otherwise.
+func (o *FederatedBlock) GetFederatedPoolId() string {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		var ret string
+		return ret
+	}
+	return *o.FederatedPoolId
+}
+
+// GetFederatedPoolIdOk returns a tuple with the FederatedPoolId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetFederatedPoolIdOk() (*string, bool) {
+	if o == nil || IsNil(o.FederatedPoolId) {
+		return nil, false
+	}
+	return o.FederatedPoolId, true
+}
+
+// HasFederatedPoolId returns a boolean if a field has been set.
+func (o *FederatedBlock) HasFederatedPoolId() bool {
+	if o != nil && !IsNil(o.FederatedPoolId) {
+		return true
+	}
+
+	return false
+}
+
+// SetFederatedPoolId gets a reference to the given string and assigns it to the FederatedPoolId field.
+func (o *FederatedBlock) SetFederatedPoolId(v string) {
+	o.FederatedPoolId = &v
+}
+
 // GetFederatedRealm returns the FederatedRealm field value
 func (o *FederatedBlock) GetFederatedRealm() string {
 	if o == nil {
@@ -284,6 +324,38 @@ func (o *FederatedBlock) SetId(v string) {
 	o.Id = &v
 }
 
+// GetMetadata returns the Metadata field value if set, zero value otherwise.
+func (o *FederatedBlock) GetMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.Metadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.Metadata
+}
+
+// GetMetadataOk returns a tuple with the Metadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.Metadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.Metadata, true
+}
+
+// HasMetadata returns a boolean if a field has been set.
+func (o *FederatedBlock) HasMetadata() bool {
+	if o != nil && !IsNil(o.Metadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetMetadata gets a reference to the given map[string]interface{} and assigns it to the Metadata field.
+func (o *FederatedBlock) SetMetadata(v map[string]interface{}) {
+	o.Metadata = v
+}
+
 // GetName returns the Name field value if set, zero value otherwise.
 func (o *FederatedBlock) GetName() string {
 	if o == nil || IsNil(o.Name) {
@@ -314,6 +386,70 @@ func (o *FederatedBlock) HasName() bool {
 // SetName gets a reference to the given string and assigns it to the Name field.
 func (o *FederatedBlock) SetName(v string) {
 	o.Name = &v
+}
+
+// GetNetworkCompliance returns the NetworkCompliance field value if set, zero value otherwise.
+func (o *FederatedBlock) GetNetworkCompliance() NetworkCompliance {
+	if o == nil || IsNil(o.NetworkCompliance) {
+		var ret NetworkCompliance
+		return ret
+	}
+	return *o.NetworkCompliance
+}
+
+// GetNetworkComplianceOk returns a tuple with the NetworkCompliance field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetNetworkComplianceOk() (*NetworkCompliance, bool) {
+	if o == nil || IsNil(o.NetworkCompliance) {
+		return nil, false
+	}
+	return o.NetworkCompliance, true
+}
+
+// HasNetworkCompliance returns a boolean if a field has been set.
+func (o *FederatedBlock) HasNetworkCompliance() bool {
+	if o != nil && !IsNil(o.NetworkCompliance) {
+		return true
+	}
+
+	return false
+}
+
+// SetNetworkCompliance gets a reference to the given NetworkCompliance and assigns it to the NetworkCompliance field.
+func (o *FederatedBlock) SetNetworkCompliance(v NetworkCompliance) {
+	o.NetworkCompliance = &v
+}
+
+// GetNetworkCompliant returns the NetworkCompliant field value if set, zero value otherwise.
+func (o *FederatedBlock) GetNetworkCompliant() bool {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		var ret bool
+		return ret
+	}
+	return *o.NetworkCompliant
+}
+
+// GetNetworkCompliantOk returns a tuple with the NetworkCompliant field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetNetworkCompliantOk() (*bool, bool) {
+	if o == nil || IsNil(o.NetworkCompliant) {
+		return nil, false
+	}
+	return o.NetworkCompliant, true
+}
+
+// HasNetworkCompliant returns a boolean if a field has been set.
+func (o *FederatedBlock) HasNetworkCompliant() bool {
+	if o != nil && !IsNil(o.NetworkCompliant) {
+		return true
+	}
+
+	return false
+}
+
+// SetNetworkCompliant gets a reference to the given bool and assigns it to the NetworkCompliant field.
+func (o *FederatedBlock) SetNetworkCompliant(v bool) {
+	o.NetworkCompliant = &v
 }
 
 // GetParent returns the Parent field value if set, zero value otherwise.
@@ -380,6 +516,70 @@ func (o *FederatedBlock) SetProtocol(v string) {
 	o.Protocol = &v
 }
 
+// GetRegion returns the Region field value if set, zero value otherwise.
+func (o *FederatedBlock) GetRegion() string {
+	if o == nil || IsNil(o.Region) {
+		var ret string
+		return ret
+	}
+	return *o.Region
+}
+
+// GetRegionOk returns a tuple with the Region field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetRegionOk() (*string, bool) {
+	if o == nil || IsNil(o.Region) {
+		return nil, false
+	}
+	return o.Region, true
+}
+
+// HasRegion returns a boolean if a field has been set.
+func (o *FederatedBlock) HasRegion() bool {
+	if o != nil && !IsNil(o.Region) {
+		return true
+	}
+
+	return false
+}
+
+// SetRegion gets a reference to the given string and assigns it to the Region field.
+func (o *FederatedBlock) SetRegion(v string) {
+	o.Region = &v
+}
+
+// GetState returns the State field value if set, zero value otherwise.
+func (o *FederatedBlock) GetState() string {
+	if o == nil || IsNil(o.State) {
+		var ret string
+		return ret
+	}
+	return *o.State
+}
+
+// GetStateOk returns a tuple with the State field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetStateOk() (*string, bool) {
+	if o == nil || IsNil(o.State) {
+		return nil, false
+	}
+	return o.State, true
+}
+
+// HasState returns a boolean if a field has been set.
+func (o *FederatedBlock) HasState() bool {
+	if o != nil && !IsNil(o.State) {
+		return true
+	}
+
+	return false
+}
+
+// SetState gets a reference to the given string and assigns it to the State field.
+func (o *FederatedBlock) SetState(v string) {
+	o.State = &v
+}
+
 // GetTags returns the Tags field value if set, zero value otherwise.
 func (o *FederatedBlock) GetTags() map[string]interface{} {
 	if o == nil || IsNil(o.Tags) {
@@ -444,6 +644,70 @@ func (o *FederatedBlock) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = &v
 }
 
+// GetUtilization returns the Utilization field value if set, zero value otherwise.
+func (o *FederatedBlock) GetUtilization() int64 {
+	if o == nil || IsNil(o.Utilization) {
+		var ret int64
+		return ret
+	}
+	return *o.Utilization
+}
+
+// GetUtilizationOk returns a tuple with the Utilization field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetUtilizationOk() (*int64, bool) {
+	if o == nil || IsNil(o.Utilization) {
+		return nil, false
+	}
+	return o.Utilization, true
+}
+
+// HasUtilization returns a boolean if a field has been set.
+func (o *FederatedBlock) HasUtilization() bool {
+	if o != nil && !IsNil(o.Utilization) {
+		return true
+	}
+
+	return false
+}
+
+// SetUtilization gets a reference to the given int64 and assigns it to the Utilization field.
+func (o *FederatedBlock) SetUtilization(v int64) {
+	o.Utilization = &v
+}
+
+// GetUtilizationV6 returns the UtilizationV6 field value if set, zero value otherwise.
+func (o *FederatedBlock) GetUtilizationV6() UtilizationV6 {
+	if o == nil || IsNil(o.UtilizationV6) {
+		var ret UtilizationV6
+		return ret
+	}
+	return *o.UtilizationV6
+}
+
+// GetUtilizationV6Ok returns a tuple with the UtilizationV6 field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *FederatedBlock) GetUtilizationV6Ok() (*UtilizationV6, bool) {
+	if o == nil || IsNil(o.UtilizationV6) {
+		return nil, false
+	}
+	return o.UtilizationV6, true
+}
+
+// HasUtilizationV6 returns a boolean if a field has been set.
+func (o *FederatedBlock) HasUtilizationV6() bool {
+	if o != nil && !IsNil(o.UtilizationV6) {
+		return true
+	}
+
+	return false
+}
+
+// SetUtilizationV6 gets a reference to the given UtilizationV6 and assigns it to the UtilizationV6 field.
+func (o *FederatedBlock) SetUtilizationV6(v UtilizationV6) {
+	o.UtilizationV6 = &v
+}
+
 func (o FederatedBlock) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -454,9 +718,7 @@ func (o FederatedBlock) MarshalJSON() ([]byte, error) {
 
 func (o FederatedBlock) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Address) {
-		toSerialize["address"] = o.Address
-	}
+	toSerialize["address"] = o.Address
 	if !IsNil(o.AllocationV4) {
 		toSerialize["allocation_v4"] = o.AllocationV4
 	}
@@ -469,12 +731,24 @@ func (o FederatedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
+	if !IsNil(o.FederatedPoolId) {
+		toSerialize["federated_pool_id"] = o.FederatedPoolId
+	}
 	toSerialize["federated_realm"] = o.FederatedRealm
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
+	if !IsNil(o.Metadata) {
+		toSerialize["metadata"] = o.Metadata
+	}
 	if !IsNil(o.Name) {
 		toSerialize["name"] = o.Name
+	}
+	if !IsNil(o.NetworkCompliance) {
+		toSerialize["network_compliance"] = o.NetworkCompliance
+	}
+	if !IsNil(o.NetworkCompliant) {
+		toSerialize["network_compliant"] = o.NetworkCompliant
 	}
 	if !IsNil(o.Parent) {
 		toSerialize["parent"] = o.Parent
@@ -482,11 +756,23 @@ func (o FederatedBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Protocol) {
 		toSerialize["protocol"] = o.Protocol
 	}
+	if !IsNil(o.Region) {
+		toSerialize["region"] = o.Region
+	}
+	if !IsNil(o.State) {
+		toSerialize["state"] = o.State
+	}
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
 	}
 	if !IsNil(o.UpdatedAt) {
 		toSerialize["updated_at"] = o.UpdatedAt
+	}
+	if !IsNil(o.Utilization) {
+		toSerialize["utilization"] = o.Utilization
+	}
+	if !IsNil(o.UtilizationV6) {
+		toSerialize["utilization_v6"] = o.UtilizationV6
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -501,6 +787,7 @@ func (o *FederatedBlock) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"address",
 		"federated_realm",
 	}
 
@@ -536,13 +823,21 @@ func (o *FederatedBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "cidr")
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "federated_pool_id")
 		delete(additionalProperties, "federated_realm")
 		delete(additionalProperties, "id")
+		delete(additionalProperties, "metadata")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "network_compliance")
+		delete(additionalProperties, "network_compliant")
 		delete(additionalProperties, "parent")
 		delete(additionalProperties, "protocol")
+		delete(additionalProperties, "region")
+		delete(additionalProperties, "state")
 		delete(additionalProperties, "tags")
 		delete(additionalProperties, "updated_at")
+		delete(additionalProperties, "utilization")
+		delete(additionalProperties, "utilization_v6")
 		o.AdditionalProperties = additionalProperties
 	}
 

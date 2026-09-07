@@ -87,21 +87,45 @@ All URIs are relative to *http://csp.infoblox.com/api/ddi/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AwsScopeManagementAPI* | [**ScopeManagement**](docs/AwsScopeManagementAPI.md#scopemanagement) | **Post** /federation/aws/scope/management | Configure management settings for AWS IPAM scopes
+*AwsScopeTokenAPI* | [**GenerateToken**](docs/AwsScopeTokenAPI.md#generatetoken) | **Post** /federation/aws/scope/token | Generate AWS IPAM scope authentication token
+*DelegationAPI* | [**Create**](docs/DelegationAPI.md#create) | **Post** /federation/delegation | Create the delegation.
+*DelegationAPI* | [**Delete**](docs/DelegationAPI.md#delete) | **Delete** /federation/delegation/{id} | Delete the delegation.
+*DelegationAPI* | [**DeleteWithoutId**](docs/DelegationAPI.md#deletewithoutid) | **Delete** /federation/delegation | No-op DELETE Delegation operation.
+*DelegationAPI* | [**List**](docs/DelegationAPI.md#list) | **Get** /federation/delegation | Retrieve the delegation.
+*DelegationAPI* | [**Read**](docs/DelegationAPI.md#read) | **Get** /federation/delegation/{id} | Retrieve the delegation.
+*DelegationAPI* | [**Update**](docs/DelegationAPI.md#update) | **Patch** /federation/delegation/{id} | Update the delegation.
 *FederatedBlockAPI* | [**Create**](docs/FederatedBlockAPI.md#create) | **Post** /federation/federated_block | Create the federated block.
 *FederatedBlockAPI* | [**Delete**](docs/FederatedBlockAPI.md#delete) | **Delete** /federation/federated_block/{id} | Delete the federated block.
 *FederatedBlockAPI* | [**List**](docs/FederatedBlockAPI.md#list) | **Get** /federation/federated_block | Retrieve the federated blocks.
 *FederatedBlockAPI* | [**Read**](docs/FederatedBlockAPI.md#read) | **Get** /federation/federated_block/{id} | Retrieve the federated block.
 *FederatedBlockAPI* | [**Update**](docs/FederatedBlockAPI.md#update) | **Patch** /federation/federated_block/{id} | Update the federated block.
+*FederatedPoolAPI* | [**Create**](docs/FederatedPoolAPI.md#create) | **Post** /federation/federated_pool | Create the federated pool.
+*FederatedPoolAPI* | [**Delete**](docs/FederatedPoolAPI.md#delete) | **Delete** /federation/federated_pool/{id} | Delete the federated pool.
+*FederatedPoolAPI* | [**List**](docs/FederatedPoolAPI.md#list) | **Get** /federation/federated_pool | Retrieve federated pools.
+*FederatedPoolAPI* | [**Read**](docs/FederatedPoolAPI.md#read) | **Get** /federation/federated_pool/{id} | Retrieve the federated pool.
+*FederatedPoolAPI* | [**Update**](docs/FederatedPoolAPI.md#update) | **Patch** /federation/federated_pool/{id} | Update the federated pool.
 *FederatedRealmAPI* | [**Create**](docs/FederatedRealmAPI.md#create) | **Post** /federation/federated_realm | Create the federated realm.
 *FederatedRealmAPI* | [**Delete**](docs/FederatedRealmAPI.md#delete) | **Delete** /federation/federated_realm/{id} | Delete federated realm.
 *FederatedRealmAPI* | [**List**](docs/FederatedRealmAPI.md#list) | **Get** /federation/federated_realm | Retrieve federated realms.
 *FederatedRealmAPI* | [**Read**](docs/FederatedRealmAPI.md#read) | **Get** /federation/federated_realm/{id} | Retrieve the federated realm.
 *FederatedRealmAPI* | [**Update**](docs/FederatedRealmAPI.md#update) | **Patch** /federation/federated_realm/{id} | Update the federated realm.
+*ForwardLookingDelegationAPI* | [**Create**](docs/ForwardLookingDelegationAPI.md#create) | **Post** /federation/forward_looking_delegation | Create the __ForwardLookingDelegation__ object.
+*ForwardLookingDelegationAPI* | [**Delete**](docs/ForwardLookingDelegationAPI.md#delete) | **Delete** /federation/forward_looking_delegation/{id} | Delete a specific __ForwardLookingDelegation__ object.
+*ForwardLookingDelegationAPI* | [**List**](docs/ForwardLookingDelegationAPI.md#list) | **Get** /federation/forward_looking_delegation | Retrieve the __ForwardLookingDelegation__ objects.
+*ForwardLookingDelegationAPI* | [**Read**](docs/ForwardLookingDelegationAPI.md#read) | **Get** /federation/forward_looking_delegation/{id} | Retrieve the __ForwardLookingDelegation__ object.
+*ForwardLookingDelegationAPI* | [**Update**](docs/ForwardLookingDelegationAPI.md#update) | **Patch** /federation/forward_looking_delegation/{id} | Update the __ForwardLookingDelegation__ object.
+*NextAppropriateDelegationAPI* | [**CreateNextAppropriateDelegation**](docs/NextAppropriateDelegationAPI.md#createnextappropriatedelegation) | **Post** /federation/next_appropriate_delegation | Create Next Appropriate Delegation
 *NextAvailableFederatedBlockAPI* | [**CreateNextAvailableFederatedBlocks**](docs/NextAvailableFederatedBlockAPI.md#createnextavailablefederatedblocks) | **Post** /federation/federated_block/{id}/next_available_federated_block | Retrieve the next available federated block.
 *NextAvailableFederatedBlockAPI* | [**CreateNextAvailableOverlappingBlocks**](docs/NextAvailableFederatedBlockAPI.md#createnextavailableoverlappingblocks) | **Post** /federation/federated_block/{id}/next_available_overlapping_block | Retrieve the next available overlapping block.
-*NextAvailableFederatedBlockAPI* | [**CreateNextAvailableReservedBlocks**](docs/NextAvailableFederatedBlockAPI.md#createnextavailablereservedblocks) | **Post** /federation/federated_block/{id}/next_available_reserved_block | Retrieve the next available reserved block.
 *NextAvailableFederatedBlockAPI* | [**ListNextAvailableFederatedBlocks**](docs/NextAvailableFederatedBlockAPI.md#listnextavailablefederatedblocks) | **Get** /federation/federated_block/{id}/next_available_federated_block | List the next available federated block.
+*NextAvailableFldAPI* | [**CreateNextAvailableFLD**](docs/NextAvailableFldAPI.md#createnextavailablefld) | **Post** /federation/federated_block/{id}/create_next_available_fld | Create the next available __ForwardLookingDelegation__ objects within a specific __FederatedBlock__. Use this method to create the next available __ForwardLookingDelegation__ objects under the specified parent __FederatedBlock__.
+*NextAvailableFldAPI* | [**CreateNextAvailableFLDBlocks**](docs/NextAvailableFldAPI.md#createnextavailablefldblocks) | **Post** /federation/create_next_available_fld | Create the next available __ForwardLookingDelegation__ objects.
+*NextAvailableFldAPI* | [**CreateNextAvailableFLDForPool**](docs/NextAvailableFldAPI.md#createnextavailablefldforpool) | **Post** /federation/federated_pool/{id}/create_next_available_fld | Create the next available __ForwardLookingDelegation__ objects within a pool.
+*NextAvailableFldBlockAPI* | [**ListNextAvailableFLDBlocks**](docs/NextAvailableFldBlockAPI.md#listnextavailablefldblocks) | **Get** /federation/list_next_available_fld | List the next available __ForwardLookingDelegation__ objects.
 *NextAvailableOverlappingBlockAPI* | [**ListNextAvailableOverlappingBlocks**](docs/NextAvailableOverlappingBlockAPI.md#listnextavailableoverlappingblocks) | **Get** /federation/federated_block/{id}/next_available_overlapping_block | List the next available overlapping block.
+*NextAvailablePoolBlockAPI* | [**CreateNextAvailableBlocks**](docs/NextAvailablePoolBlockAPI.md#createnextavailableblocks) | **Post** /federation/federated_pool/{id}/next_available_federated_block | Create the next available federated blocks within a pool.
+*NextAvailableReservedBlockAPI* | [**CreateNextAvailableReservedBlocks**](docs/NextAvailableReservedBlockAPI.md#createnextavailablereservedblocks) | **Post** /federation/federated_block/{id}/next_available_reserved_block | Retrieve the next available reserved block.
 *NextAvailableReservedBlockAPI* | [**ListNextAvailableReservedBlocks**](docs/NextAvailableReservedBlockAPI.md#listnextavailablereservedblocks) | **Get** /federation/federated_block/{id}/next_available_reserved_block | List the next available reserved block.
 *OverlappingBlockAPI* | [**Create**](docs/OverlappingBlockAPI.md#create) | **Post** /federation/overlapping_block | Create the overlapping block.
 *OverlappingBlockAPI* | [**Delete**](docs/OverlappingBlockAPI.md#delete) | **Delete** /federation/overlapping_block/{id} | Delete the overlapping block.
@@ -118,33 +142,63 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [Allocation](docs/Allocation.md)
+ - [ApiPageInfo](docs/ApiPageInfo.md)
+ - [CreateDelegationResponse](docs/CreateDelegationResponse.md)
  - [CreateFederatedBlockResponse](docs/CreateFederatedBlockResponse.md)
+ - [CreateFederatedPoolResponse](docs/CreateFederatedPoolResponse.md)
  - [CreateFederatedRealmResponse](docs/CreateFederatedRealmResponse.md)
+ - [CreateForwardLookingDelegationResponse](docs/CreateForwardLookingDelegationResponse.md)
+ - [CreateNextAvailableFLDRequestForBlock](docs/CreateNextAvailableFLDRequestForBlock.md)
  - [CreateNextAvailableFederatedBlockResponse](docs/CreateNextAvailableFederatedBlockResponse.md)
  - [CreateNextAvailableOverlappingBlockResponse](docs/CreateNextAvailableOverlappingBlockResponse.md)
  - [CreateNextAvailableReservedBlockResponse](docs/CreateNextAvailableReservedBlockResponse.md)
  - [CreateOverlappingBlockResponse](docs/CreateOverlappingBlockResponse.md)
  - [CreateReservedBlockResponse](docs/CreateReservedBlockResponse.md)
+ - [Delegation](docs/Delegation.md)
  - [FederatedBlock](docs/FederatedBlock.md)
+ - [FederatedPool](docs/FederatedPool.md)
  - [FederatedRealm](docs/FederatedRealm.md)
+ - [ForwardLookingDelegation](docs/ForwardLookingDelegation.md)
+ - [Integer128](docs/Integer128.md)
+ - [ListDelegationResponse](docs/ListDelegationResponse.md)
  - [ListFederatedBlockResponse](docs/ListFederatedBlockResponse.md)
+ - [ListFederatedPoolResponse](docs/ListFederatedPoolResponse.md)
  - [ListFederatedRealmResponse](docs/ListFederatedRealmResponse.md)
+ - [ListForwardLookingDelegationResponse](docs/ListForwardLookingDelegationResponse.md)
  - [ListNextAvailableFederatedBlockResponse](docs/ListNextAvailableFederatedBlockResponse.md)
  - [ListNextAvailableOverlappingBlockResponse](docs/ListNextAvailableOverlappingBlockResponse.md)
  - [ListNextAvailableReservedBlockResponse](docs/ListNextAvailableReservedBlockResponse.md)
  - [ListOverlappingBlockResponse](docs/ListOverlappingBlockResponse.md)
  - [ListReservedBlockResponse](docs/ListReservedBlockResponse.md)
+ - [ManageScopeTokenRequest](docs/ManageScopeTokenRequest.md)
+ - [ManageScopeTokenResponse](docs/ManageScopeTokenResponse.md)
+ - [NetworkCompliance](docs/NetworkCompliance.md)
+ - [NextAppropriateDelegation](docs/NextAppropriateDelegation.md)
+ - [NextAppropriateDelegationResponse](docs/NextAppropriateDelegationResponse.md)
  - [NextAvailableBlockRequest](docs/NextAvailableBlockRequest.md)
+ - [NextAvailableFLDPoolRequest](docs/NextAvailableFLDPoolRequest.md)
+ - [NextAvailableFLDRequest](docs/NextAvailableFLDRequest.md)
+ - [NextAvailableFLDResponse](docs/NextAvailableFLDResponse.md)
  - [OverlappingBlock](docs/OverlappingBlock.md)
+ - [ProviderType](docs/ProviderType.md)
+ - [ReadDelegationResponse](docs/ReadDelegationResponse.md)
  - [ReadFederatedBlockResponse](docs/ReadFederatedBlockResponse.md)
+ - [ReadFederatedPoolResponse](docs/ReadFederatedPoolResponse.md)
  - [ReadFederatedRealmResponse](docs/ReadFederatedRealmResponse.md)
+ - [ReadForwardLookingDelegationResponse](docs/ReadForwardLookingDelegationResponse.md)
  - [ReadOverlappingBlockResponse](docs/ReadOverlappingBlockResponse.md)
  - [ReadReservedBlockResponse](docs/ReadReservedBlockResponse.md)
  - [ReservedBlock](docs/ReservedBlock.md)
+ - [ScopeManagementObject](docs/ScopeManagementObject.md)
+ - [ScopeManagementResponse](docs/ScopeManagementResponse.md)
+ - [UpdateDelegationResponse](docs/UpdateDelegationResponse.md)
  - [UpdateFederatedBlockResponse](docs/UpdateFederatedBlockResponse.md)
+ - [UpdateFederatedPoolResponse](docs/UpdateFederatedPoolResponse.md)
  - [UpdateFederatedRealmResponse](docs/UpdateFederatedRealmResponse.md)
+ - [UpdateForwardLookingDelegationResponse](docs/UpdateForwardLookingDelegationResponse.md)
  - [UpdateOverlappingBlockResponse](docs/UpdateOverlappingBlockResponse.md)
  - [UpdateReservedBlockResponse](docs/UpdateReservedBlockResponse.md)
+ - [UtilizationV6](docs/UtilizationV6.md)
 
 
 ## Documentation for Utility Methods
