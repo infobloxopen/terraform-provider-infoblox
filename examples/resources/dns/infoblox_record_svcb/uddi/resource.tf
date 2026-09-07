@@ -1,12 +1,12 @@
 // Create an Auth Zone (Required as Parent)
-resource "infoblox_zone_auth" "example" {
+resource "infoblox_zone_auth" "parent_zone" {
   uddi = {
     fqdn         = "example.com."
     primary_type = "cloud"
   }
 }
 
-// Manage an SVCB Record
+// Create an SVCB Record
 resource "infoblox_record_svcb" "example" {
   uddi = {
     rdata = {
