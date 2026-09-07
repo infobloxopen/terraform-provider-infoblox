@@ -20,6 +20,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type RecordSvcbModel struct {
@@ -38,7 +39,6 @@ type UDDIRecordSvcbModel struct {
 	Disabled           types.Bool   `tfsdk:"disabled"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	NameInZone         types.String `tfsdk:"name_in_zone"`
-	Options            types.Map    `tfsdk:"options"`
 	Rdata              types.Object `tfsdk:"rdata"`
 	Tags               types.Map    `tfsdk:"tags"`
 	TagsAll            types.Map    `tfsdk:"tags_all"`
@@ -54,7 +54,6 @@ var UDDIRecordSvcbAttrTypes = map[string]attr.Type{
 	"disabled":            types.BoolType,
 	"inheritance_sources": types.ObjectType{AttrTypes: RecordInheritanceAttrTypes},
 	"name_in_zone":        types.StringType,
-	"options":             types.MapType{ElemType: types.StringType},
 	"rdata":               types.ObjectType{AttrTypes: UDDIRecordSvcbRdataAttrTypes},
 	"tags":                types.MapType{ElemType: types.StringType},
 	"tags_all":            types.MapType{ElemType: types.StringType},
@@ -125,13 +124,9 @@ var RecordSvcbResourceUddiSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("absolute_name_spec"),
 				path.MatchRelative().AtParent().AtName("view"),
 			),
+			customvalidator.IsValidUDDIDomainName(),
 		},
 		MarkdownDescription: "The relative owner name to the zone origin. Must be specified for creating the DNS resource record and is read only for other operations.",
-	},
-	"options": schema.MapAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
-		MarkdownDescription: "The DNS resource record type-specific non-protocol options.  Valid value for _A_ (Address) and _AAAA_ (IPv6 Address) records:  Option     | Description -----------|----------------------------------------- create_ptr | A boolean flag which can be set to _true_ for POST operation to automatically create the corresponding PTR record. check_rmz  | A boolean flag which can be set to _true_ for POST operation to check the existence of reverse zone for creating the corresponding PTR record. Only applicable if the _create_ptr_ option is set to _true_.   Valid value for _PTR_ (Pointer) records:  Option     | Description -----------|---------------------------------------- address    | For GET operation it contains the IPv4 or IPv6 address represented by the PTR record.<br><br>For POST and PATCH operations it can be used to create/update a PTR record based on the IP address it represents. In this case, in addition to the _address_ in the options field, need to specify the _view_ field. |",
 	},
 	"rdata": schema.SingleNestedAttribute{
 		Attributes:          UDDIRecordSvcbRdataResourceSchemaAttributes,
@@ -180,6 +175,7 @@ var RecordSvcbResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"zone": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -218,7 +214,6 @@ func (m *UDDIRecordSvcbModel) Expand(ctx context.Context, diags *diag.Diagnostic
 		Disabled:           flex.ExpandBoolPointer(m.Disabled),
 		InheritanceSources: ExpandRecordInheritance(ctx, m.InheritanceSources, diags),
 		NameInZone:         flex.ExpandStringPointer(m.NameInZone),
-		Options:            flex.ExpandMapStringAny(ctx, m.Options, diags),
 		Rdata:              ExpandUDDIRecordSvcbRdata(ctx, m.Rdata, diags),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Ttl:                flex.ExpandInt64Pointer(m.Ttl),
@@ -264,7 +259,6 @@ func (m *UDDIRecordSvcbModel) Flatten(ctx context.Context, from *coremodel.UDDIR
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.InheritanceSources = FlattenRecordInheritance(ctx, from.InheritanceSources, diags)
 	m.NameInZone = flex.FlattenStringPointer(from.NameInZone)
-	m.Options = flex.FlattenMapStringAny(ctx, from.Options, diags)
 	m.Rdata = FlattenUDDIRecordSvcbRdata(ctx, from.Rdata, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
