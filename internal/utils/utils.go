@@ -279,6 +279,71 @@ func CopyFieldFromPlanToRespList(ctx context.Context, planValue, respValue attr.
 	return newList, &diags
 }
 
+// CopyFieldFromPlanToRespObject copies a specific field from the plan object to the response object.
+func CopyFieldFromPlanToRespObject(ctx context.Context, planValue, respValue attr.Value, fieldName string) (attr.Value, *diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if planValue.IsNull() || planValue.IsUnknown() {
+		return respValue, &diags
+	}
+
+	if respValue.IsNull() || respValue.IsUnknown() {
+		return respValue, &diags
+	}
+
+	planObject, ok := planValue.(types.Object)
+	if !ok {
+		diags.AddError(
+			"Invalid Plan Value Type",
+			fmt.Sprintf("Expected types.Object, got %T", planValue),
+		)
+		return respValue, &diags
+	}
+
+	respObject, ok := respValue.(types.Object)
+	if !ok {
+		diags.AddError(
+			"Invalid Response Value Type",
+			fmt.Sprintf("Expected types.Object, got %T", respValue),
+		)
+		return respValue, &diags
+	}
+
+	planAttrs := planObject.Attributes()
+	respAttrs := respObject.Attributes()
+
+	planFieldValue, exists := planAttrs[fieldName]
+	if !exists {
+		diags.AddError(
+			"Field Not Found in Plan",
+			fmt.Sprintf("Field '%s' not found in plan object", fieldName),
+		)
+		return respValue, &diags
+	}
+
+	if planFieldValue.IsUnknown() {
+		return respValue, &diags
+	}
+
+	if _, exists := respAttrs[fieldName]; !exists {
+		diags.AddError(
+			"Field Not Found in Response",
+			fmt.Sprintf("Field '%s' not found in response object", fieldName),
+		)
+		return respValue, &diags
+	}
+
+	respAttrs[fieldName] = planFieldValue
+
+	newObj, objDiags := types.ObjectValue(respObject.AttributeTypes(ctx), respAttrs)
+	diags.Append(objDiags...)
+	if objDiags.HasError() {
+		return respValue, &diags
+	}
+
+	return newObj, &diags
+}
+
 func ReorderAndFilterDHCPOptions(
 	ctx context.Context,
 	planValue attr.Value,

@@ -25,8 +25,8 @@ type NextAvailableOverlappingBlockAPI interface {
 	/*
 			ListNextAvailableOverlappingBlocks List the next available overlapping block.
 
-			Use this method to list the next "n" available __OverlappingBlock__ object with user specified predicates.
-		The response will be "n" __OverlappingBlock__ objects.
+			Use this method to retrieve the next available __OverlappingBlock__ objects.
+		This returns one or more __OverlappingBlock__ objects from the specified parent __FederatedBlock__ block.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@param id An application specific resource identity of a resource
@@ -83,8 +83,8 @@ func (r NextAvailableOverlappingBlockAPIListNextAvailableOverlappingBlocksReques
 /*
 ListNextAvailableOverlappingBlocks List the next available overlapping block.
 
-Use this method to list the next "n" available __OverlappingBlock__ object with user specified predicates.
-The response will be "n" __OverlappingBlock__ objects.
+Use this method to retrieve the next available __OverlappingBlock__ objects.
+This returns one or more __OverlappingBlock__ objects from the specified parent __FederatedBlock__ block.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id An application specific resource identity of a resource

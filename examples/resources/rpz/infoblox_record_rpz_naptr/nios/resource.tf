@@ -1,61 +1,61 @@
-// Note: RPZ zones must be pre-created in NIOS (infoblox_zone_rp is not managed by this provider).
-// Create a Substitute (NAPTR Record) Rule with Basic Fields
-resource "infoblox_record_rpz_naptr" "create_record_basic" {
+// Create an RP Zone (Required as Parent)
+resource "infoblox_zone_rp" "example" {
   nios = {
-    name        = "naptr.rpz.example.com"
-    rp_zone     = "rpz.example.com"
+    fqdn = "rpz.example.com"
+  }
+}
+
+// Create Record RPZ NAPTR with Basic Fields
+resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_basic" {
+  nios = {
+    name        = "naptr-record.${infoblox_zone_rp.example.nios.fqdn}"
+    rp_zone     = infoblox_zone_rp.example.nios.fqdn
     order       = 10
     preference  = 10
     replacement = "."
+  }
+}
 
-    // Extensible Attributes
+// Create Record RPZ NAPTR with Additional Fields
+resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_additional" {
+  nios = {
+    name        = "naptr-record-2.${infoblox_zone_rp.example.nios.fqdn}"
+    rp_zone     = infoblox_zone_rp.example.nios.fqdn
+    order       = 20
+    preference  = 20
+    replacement = "."
+    flags       = "U"
+    services    = "SIP+D2U"
+    regexp      = "!^.*$!sip:jdoe@corpxyz.com!"
+    ttl         = 3600
+    comment     = "NAPTR RPZ record created by Terraform"
     ext_attrs = {
       Site = "location-1"
     }
   }
 }
 
-// Create a Substitute (NAPTR Record) Rule with Additional Fields
-resource "infoblox_record_rpz_naptr" "create_record_additional_fields" {
-  nios = {
-    // Basic Fields
-    name        = "naptr1.rpz.example.com"
-    rp_zone     = "rpz.example.com"
-    order       = 10
-    preference  = 10
-    replacement = "."
-
-    // Additional Fields
-    flags    = "U"
-    services = "SIP+D2U"
-    regexp   = "!^.*$!sip:jdoe@corpxyz.com!"
-    ttl      = 3600
-    disable  = false
-    comment  = "NAPTR RPZ record created by Terraform"
-
-    // Extensible Attributes
-    ext_attrs = {
-      Site = "location-1"
-    }
-  }
-}
-
-// Create DNS View (Required as Parent)
-// Note: RPZ zone "custom-rpz.example.com" must be pre-created in NIOS in this view.
-resource "infoblox_view" "custom_view" {
+// Create a Substitute (NAPTR Record) Rule in a Custom View
+resource "infoblox_view" "parent_view" {
   nios = {
     name = "custom-view"
   }
 }
 
-// Create a Substitute (NAPTR Record) Rule in a Custom View
-resource "infoblox_record_rpz_naptr" "create_record_custom_view" {
+resource "infoblox_zone_rp" "parent_zone" {
   nios = {
-    name        = "naptr.custom-rpz.example.com"
-    rp_zone     = "custom-rpz.example.com"
-    order       = 20
-    preference  = 20
+    fqdn = "rpz-custom.example.com"
+    view = infoblox_view.parent_view.nios.name
+  }
+}
+
+resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_custom_view" {
+  nios = {
+    name        = "naptr-record.${infoblox_zone_rp.parent_zone.nios.fqdn}"
+    rp_zone     = infoblox_zone_rp.parent_zone.nios.fqdn
+    order       = 10
+    preference  = 10
     replacement = "."
-    view        = infoblox_view.custom_view.nios.name
+    view        = infoblox_view.parent_view.nios.name
   }
 }

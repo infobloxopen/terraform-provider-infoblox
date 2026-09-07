@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/misc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
@@ -88,6 +91,12 @@ func (r *RulesetResource) ValidateConfig(ctx context.Context, req resource.Valid
 	var data RulesetModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Common backend block validations
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, types.ObjectNull(map[string]attr.Type{}), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
