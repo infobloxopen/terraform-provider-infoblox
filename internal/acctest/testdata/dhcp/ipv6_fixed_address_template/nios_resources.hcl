@@ -1,4 +1,6 @@
 # Auto-generated resource acceptance-test cases for Ipv6fixedaddresstemplate.
+// Objects to be present on the grid for tests 
+// IPv6FilterOption - ipv6_option_filter, ipv6_option_filter1
 case "basic" {
   backend  = "nios"
   parallel = true

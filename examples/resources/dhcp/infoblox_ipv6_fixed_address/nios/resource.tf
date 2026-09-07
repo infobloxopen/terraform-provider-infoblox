@@ -32,14 +32,14 @@ resource "infoblox_ipv6_fixed_address" "create_ipv6_fixed_address_prefix_type" {
 
     options = [
       {
-        name : "domain-name",
-        num : 15,
-        value : "example.com"
+        name  = "domain-name",
+        num   = 15,
+        value = "example.com"
       },
       {
-        num : 37,
-        value : "remote-id",
-        vendor_class : "DHCPv6"
+        num          = 37,
+        value        = "remote-id",
+        vendor_class = "DHCPv6"
       },
     ]
 
