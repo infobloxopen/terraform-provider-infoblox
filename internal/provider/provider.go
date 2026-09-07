@@ -330,6 +330,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dtc.NewDtcMonitorTcpResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -411,6 +412,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dtc.NewDtcMonitorTcpDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -495,6 +497,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dtc.NewDtcMonitorTcpList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
