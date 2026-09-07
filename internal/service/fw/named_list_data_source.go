@@ -146,11 +146,10 @@ func (d *NamedListDataSource) Read(ctx context.Context, req datasource.ReadReque
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		InternalFilters: map[string]string{"type": NamedListType},
-		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields:    NamedListReturnFields,
-		Paging:          1,
+		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields: NamedListReturnFields,
+		Paging:       1,
 	}
 
 	if !data.Paging.IsNull() {

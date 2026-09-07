@@ -109,11 +109,10 @@ func (l *NamedListList) List(ctx context.Context, req list.ListRequest, stream *
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
-		InternalFilters: map[string]string{"type": NamedListType},
-		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:    NamedListReturnFields,
-		Paging:          1,
+		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
+		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields: NamedListReturnFields,
+		Paging:       1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)

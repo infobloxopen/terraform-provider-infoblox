@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -26,7 +27,7 @@ func TestAccNamedListResource(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "fw/named_list/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "fw/named_list/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
@@ -40,11 +41,15 @@ func testAccCheckNamedListExistsUDDI(resourceName string) resource.TestCheckFunc
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("ID is not set")
 		}
-		apiRes, _, err := acctest.UDDIClient.FWAPI.NamedListAPI.Read(context.Background(), rs.Primary.ID).Execute()
+		uddiID, err := strconv.ParseInt(rs.Primary.ID, 10, 32)
+		if err != nil {
+			return fmt.Errorf("invalid NamedList ID %q: %w", rs.Primary.ID, err)
+		}
+		apiRes, _, err := acctest.UDDIClient.FWAPI.NamedListsAPI.ReadNamedList(context.Background(), int32(uddiID)).Execute()
 		if err != nil {
 			return fmt.Errorf("failed to read NamedList: %w", err)
 		}
-		if !apiRes.HasResult() {
+		if !apiRes.HasResults() {
 			return fmt.Errorf("NamedList not found: %s", rs.Primary.ID)
 		}
 		return nil
@@ -58,7 +63,11 @@ func testAccCheckNamedListDestroyUDDI(resourceType string) resource.TestCheckFun
 			if rs.Type != resourceType || strings.HasPrefix(name, "data.") {
 				continue
 			}
-			_, httpRes, err := acctest.UDDIClient.FWAPI.NamedListAPI.Read(context.Background(), rs.Primary.ID).Execute()
+			uddiID, err := strconv.ParseInt(rs.Primary.ID, 10, 32)
+			if err != nil {
+				return fmt.Errorf("invalid NamedList ID %q: %w", rs.Primary.ID, err)
+			}
+			_, httpRes, err := acctest.UDDIClient.FWAPI.NamedListsAPI.ReadNamedList(context.Background(), int32(uddiID)).Execute()
 			if err != nil {
 				if httpRes != nil && httpRes.StatusCode == http.StatusNotFound {
 					return nil
@@ -77,7 +86,11 @@ func testAccCheckNamedListDisappearsUDDI(resourceName string) resource.TestCheck
 		if !ok {
 			return fmt.Errorf("not found: %s", resourceName)
 		}
-		_, err := acctest.UDDIClient.FWAPI.NamedListAPI.Delete(context.Background(), rs.Primary.ID).Execute()
+		uddiID, err := strconv.ParseInt(rs.Primary.ID, 10, 32)
+		if err != nil {
+			return fmt.Errorf("invalid NamedList ID %q: %w", rs.Primary.ID, err)
+		}
+		_, err = acctest.UDDIClient.FWAPI.NamedListsAPI.DeleteSingleNamedLists(context.Background(), int32(uddiID)).Execute()
 		if err != nil {
 			return fmt.Errorf("failed to delete NamedList: %w", err)
 		}

@@ -18,7 +18,7 @@ func TestAccNamedListList(t *testing.T) {
 
 	for _, backend := range []string{"uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "fw/named_list/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "fw/named_list/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

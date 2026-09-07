@@ -17,9 +17,9 @@ import (
 
 type NamedListService interface {
 	Create(ctx context.Context, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error)
-	Read(ctx context.Context, id string, opts *core.Options) (*fw.NamedList, *http.Response, error)
-	Update(ctx context.Context, id string, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error)
-	Delete(ctx context.Context, id string) (*http.Response, error)
+	Read(ctx context.Context, id int32, opts *core.Options) (*fw.NamedList, *http.Response, error)
+	Update(ctx context.Context, id int32, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error)
+	Delete(ctx context.Context, id int32) (*http.Response, error)
 	List(ctx context.Context, opts *core.ListOptions) ([]*fw.NamedList, *http.Response, string, error)
 }
 
@@ -52,7 +52,7 @@ func (s *namedListService) createUDDI(ctx context.Context, obj *fw.NamedList, op
 	}
 
 	req := s.uddiClient.FWAPI.NamedListsAPI.
-		Create(ctx).
+		CreateNamedList(ctx).
 		Body(payload)
 
 	resp, httpResp, err := req.Execute()
@@ -60,13 +60,13 @@ func (s *namedListService) createUDDI(ctx context.Context, obj *fw.NamedList, op
 		return nil, httpResp, err
 	}
 
-	result := resp.GetResult()
+	result := resp.GetResults()
 
 	return mapUDDINamedListToResponse(&result), httpResp, nil
 }
 
 // Read retrieves a NamedList by ID
-func (s *namedListService) Read(ctx context.Context, id string, opts *core.Options) (*fw.NamedList, *http.Response, error) {
+func (s *namedListService) Read(ctx context.Context, id int32, opts *core.Options) (*fw.NamedList, *http.Response, error) {
 	switch s.backend {
 	case core.BackendUDDI:
 		return s.readUDDI(ctx, id, opts)
@@ -75,22 +75,22 @@ func (s *namedListService) Read(ctx context.Context, id string, opts *core.Optio
 	}
 }
 
-func (s *namedListService) readUDDI(ctx context.Context, id string, opts *core.Options) (*fw.NamedList, *http.Response, error) {
+func (s *namedListService) readUDDI(ctx context.Context, id int32, opts *core.Options) (*fw.NamedList, *http.Response, error) {
 	req := s.uddiClient.FWAPI.NamedListsAPI.
-		Read(ctx, id)
+		ReadNamedList(ctx, id)
 
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
 	}
 
-	result := resp.GetResult()
+	result := resp.GetResults()
 
 	return mapUDDINamedListToResponse(&result), httpResp, nil
 }
 
 // Update modifies an existing NamedList and returns the updated object
-func (s *namedListService) Update(ctx context.Context, id string, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error) {
+func (s *namedListService) Update(ctx context.Context, id int32, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error) {
 	switch s.backend {
 	case core.BackendUDDI:
 		return s.updateUDDI(ctx, id, obj, opts)
@@ -99,14 +99,14 @@ func (s *namedListService) Update(ctx context.Context, id string, obj *fw.NamedL
 	}
 }
 
-func (s *namedListService) updateUDDI(ctx context.Context, id string, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error) {
+func (s *namedListService) updateUDDI(ctx context.Context, id int32, obj *fw.NamedList, opts *core.Options) (*fw.NamedList, *http.Response, error) {
 	payload, err := common.MapTo[uddifw.NamedList](obj, mapper.NamedListUDDIFieldMap)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req := s.uddiClient.FWAPI.NamedListAPI.
-		Update(ctx, id).
+	req := s.uddiClient.FWAPI.NamedListsAPI.
+		UpdateNamedList(ctx, id).
 		Body(payload)
 
 	resp, httpResp, err := req.Execute()
@@ -114,13 +114,13 @@ func (s *namedListService) updateUDDI(ctx context.Context, id string, obj *fw.Na
 		return nil, httpResp, err
 	}
 
-	result := resp.GetResult()
+	result := resp.GetResults()
 
 	return mapUDDINamedListToResponse(&result), httpResp, nil
 }
 
 // Delete removes a NamedList by ID
-func (s *namedListService) Delete(ctx context.Context, id string) (*http.Response, error) {
+func (s *namedListService) Delete(ctx context.Context, id int32) (*http.Response, error) {
 	switch s.backend {
 	case core.BackendUDDI:
 		return s.deleteUDDI(ctx, id)
@@ -129,9 +129,9 @@ func (s *namedListService) Delete(ctx context.Context, id string) (*http.Respons
 	}
 }
 
-func (s *namedListService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
+func (s *namedListService) deleteUDDI(ctx context.Context, id int32) (*http.Response, error) {
 	httpResp, err := s.uddiClient.FWAPI.NamedListsAPI.
-		Delete(ctx, id).
+		DeleteSingleNamedLists(ctx, id).
 		Execute()
 	return httpResp, err
 }
@@ -147,7 +147,7 @@ func (s *namedListService) List(ctx context.Context, opts *core.ListOptions) ([]
 }
 
 func (s *namedListService) listUDDI(ctx context.Context, opts *core.ListOptions) ([]*fw.NamedList, *http.Response, string, error) {
-	req := s.uddiClient.FWAPI.NamedListsAPI.List(ctx)
+	req := s.uddiClient.FWAPI.NamedListsAPI.ListNamedLists(ctx)
 	req = req.Limit(core.DefaultListLimit)
 
 	if opts != nil {
@@ -188,7 +188,7 @@ func (s *namedListService) listUDDI(ctx context.Context, opts *core.ListOptions)
 	results := resp.GetResults()
 	items := make([]*fw.NamedList, 0, len(results))
 	for i := range results {
-		items = append(items, mapUDDINamedListToResponse(&results[i]))
+		items = append(items, mapUDDINamedListListItemToResponse(&results[i]))
 	}
 
 	return items, httpResp, "", nil
@@ -203,6 +203,26 @@ func mapUDDINamedListToResponse(r *uddifw.NamedList) *fw.NamedList {
 		Description:     r.Description,
 		Items:           r.Items,
 		ItemsDescribed:  r.ItemsDescribed,
+		Name:            r.Name,
+		Policies:        r.Policies,
+		ThreatLevel:     r.ThreatLevel,
+		Type:            r.Type,
+	}
+	if r.Tags != nil {
+		tags := make(map[string]any, len(r.Tags))
+		maps.Copy(tags, r.Tags)
+		resp.UDDI.Tags = tags
+	}
+	return resp
+}
+
+func mapUDDINamedListListItemToResponse(r *uddifw.NamedListRead) *fw.NamedList {
+	resp := &fw.NamedList{
+		Id: r.Id,
+	}
+	resp.UDDI = &fw.UDDINamedListExt{
+		ConfidenceLevel: r.ConfidenceLevel,
+		Description:     r.Description,
 		Name:            r.Name,
 		Policies:        r.Policies,
 		ThreatLevel:     r.ThreatLevel,

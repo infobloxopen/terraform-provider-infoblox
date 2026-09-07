@@ -16,6 +16,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 type NamedListModel struct {
@@ -55,7 +56,6 @@ var UDDINamedListAttrTypes = map[string]attr.Type{
 }
 
 const (
-	NamedListType         = "NamedList"
 	NamedListReturnFields = ""
 )
 
@@ -74,22 +74,31 @@ var NamedListResourceSchemaAttributes = map[string]schema.Attribute{
 var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"confidence_level": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The confidence level for a custom list. The possible values are [\"LOW\", \"MEDIUM\", \"HIGH\"]",
 	},
 	"description": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The brief description for the named list.",
 	},
 	"items": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of the FQDN or IPv4/IPv6 CIDRs to define whitelists and blacklists for additional protection.",
 	},
 	"items_described": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ItemStructsResourceSchemaAttributes,
 		},
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The List of ItemStructs structure which contains the item and its description",
 	},
 	"name": schema.StringAttribute{
@@ -97,8 +106,11 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the named list.",
 	},
 	"policies": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Optional:            true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Validators: []validator.List{
+			customvalidator.ListNotEmpty(),
+		},
 		MarkdownDescription: "The list of the security policy names with which the named list is associated.",
 	},
 	"tags": schema.MapAttribute{
@@ -118,17 +130,18 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"threat_level": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The threat level for a custom list. The possible values are [\"INFO\", \"LOW\", \"MEDIUM\", \"HIGH\"]",
 	},
 	"type": schema.StringAttribute{
 		Validators: []validator.String{
-			stringvalidator.OneOf("custom_list", "threat_insight", "fast_flux", "dga", "dnsm", "threat_insight_nde", "default_allow", "default_block"),
+			stringvalidator.OneOf("custom_list", "threat_insight", "fast_flux", "dga", "dnsm", "threat_insight_nde", "default_allow", "default_block", "zero_day_dns"),
 		},
 		Optional: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "The type of the named list, that can be \"custom_list\", \"threat_insight\", \"fast_flux\", \"dga\", \"dnsm\", \"threat_insight_nde\", \"default_allow\", \"default_block\" or \"threat_insight_nde\".",
+		MarkdownDescription: "The type of the named list, that can be \"custom_list\", \"threat_insight\", \"fast_flux\", \"dga\", \"dnsm\", \"threat_insight_nde\", \"default_allow\", \"default_block\" or \"zero_day_dns\".",
 	},
 }
 
@@ -177,8 +190,10 @@ func (m *NamedListModel) Flatten(ctx context.Context, resp *coremodel.NamedList,
 	if uddiModel == nil {
 		uddiModel = &UDDINamedListModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDINamedListModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenNamedListUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDINamedListAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDINamedListAttrTypes)

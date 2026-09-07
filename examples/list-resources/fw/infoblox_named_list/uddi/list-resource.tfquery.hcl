@@ -3,7 +3,7 @@ list "infoblox_named_list" "list_named_list_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      type = "custom_list"
     }
   }
   limit = 10

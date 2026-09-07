@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -46,7 +47,7 @@ func (r *NamedListResource) Metadata(_ context.Context, req resource.MetadataReq
 func (r *NamedListResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
 	resp.IdentitySchema = identityschema.Schema{
 		Attributes: map[string]identityschema.Attribute{
-			"id": identityschema.StringAttribute{
+			"id": identityschema.Int32Attribute{
 				RequiredForImport: true,
 			},
 		},
@@ -161,7 +162,7 @@ func (r *NamedListResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
-		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueInt32(), &core.Options{
 			ReturnFields: NamedListReturnFields,
 		})
 		if httpResp != nil {
@@ -213,7 +214,7 @@ func (r *NamedListResource) Update(ctx context.Context, req resource.UpdateReque
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
-		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueInt32(), obj, &core.Options{
 			ReturnFields: NamedListReturnFields,
 		})
 		if httpResp != nil {
@@ -247,7 +248,7 @@ func (r *NamedListResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpDelete), func(ctx context.Context) (int, error) {
 		var apiErr error
-		httpResp, apiErr = r.service.Delete(ctx, data.Id.ValueString())
+		httpResp, apiErr = r.service.Delete(ctx, data.Id.ValueInt32())
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
 		}
@@ -263,13 +264,24 @@ func (r *NamedListResource) Delete(ctx context.Context, req resource.DeleteReque
 
 func (r *NamedListResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
-		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
+		var identityID types.Int32
+		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &identityID)
 		if diags.HasError() {
 			resp.Diagnostics.Append(diags...)
 			return
 		}
+		req.ID = strconv.FormatInt(int64(identityID.ValueInt32()), 10)
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
-	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), req.ID)...)
+	parsedID, err := strconv.ParseInt(req.ID, 10, 32)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected a numeric NamedList ID, got %q: %s", req.ID, err),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), int32(parsedID))...)
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), int32(parsedID))...)
 }
