@@ -131,6 +131,7 @@ func buildUDDIAttribute() schema.Attribute {
 			"nios_license_uid": schema.StringAttribute{
 				MarkdownDescription: "License UID of the NIOS Grid to manage, required when `enable_nios_passthru` is true.",
 				Optional:            true,
+				Sensitive:           true,
 			},
 			"enable_nios_passthru": schema.BoolAttribute{
 				MarkdownDescription: "Enable NIOS WAPI passthrough to manage objects on a NIOS Grid through the Infoblox Portal. Requires the NIOS Grid to be connected to the Portal. Default value: false",
@@ -328,10 +329,10 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		dns.NewNsgroupStubmemberResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
+		ipam.NewSuperhostResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -362,6 +363,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewZoneDelegatedResource,
 		dns.NewZoneForwardResource,
 		dns.NewZoneRpResource,
+		dns.NewNsgroupForwardingmemberResource,
+		dns.NewNsgroupForwardstubserverResource,
+		dns.NewNsgroupStubmemberResource,
 
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
@@ -391,10 +395,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		dns.NewNsgroupStubmemberDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
+		ipam.NewSuperhostDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -425,6 +429,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneDelegatedDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewZoneRpDataSource,
+		dns.NewNsgroupForwardingmemberDataSource,
+		dns.NewNsgroupForwardstubserverDataSource,
+		dns.NewNsgroupStubmemberDataSource,
 
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
@@ -457,10 +464,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		dns.NewNsgroupStubmemberList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
+		ipam.NewSuperhostList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
@@ -491,6 +498,9 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewZoneDelegatedList,
 		dns.NewZoneForwardList,
 		dns.NewZoneRpList,
+		dns.NewNsgroupForwardingmemberList,
+		dns.NewNsgroupForwardstubserverList,
+		dns.NewNsgroupStubmemberList,
 
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
