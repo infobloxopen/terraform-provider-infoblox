@@ -15,9 +15,13 @@ func TestAccDtcMonitorPdpDataSource(t *testing.T) {
 			Exists:  testAccCheckDtcMonitorPdpExistsNIOS,
 			Destroy: testAccCheckDtcMonitorPdpDestroyNIOS,
 		},
+		"uddi": {
+			Exists:  testAccCheckDtcMonitorPdpExistsUDDI,
+			Destroy: testAccCheckDtcMonitorPdpDestroyUDDI,
+		},
 	}
 
-	for _, backend := range []string{"nios"} {
+	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
 			acctest.RunDataSourceCases(t, dsType, resourceType, "dtc/dtc_monitor_pdp/"+backend+"_datasources.hcl", checksByBackend)
 		})

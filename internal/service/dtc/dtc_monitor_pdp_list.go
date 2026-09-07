@@ -37,6 +37,7 @@ type DtcMonitorPdpList struct {
 type DtcMonitorPdpListModel struct {
 	Filters        types.Map `tfsdk:"filters"`
 	ExtAttrFilters types.Map `tfsdk:"ext_attr_filters"`
+	TagFilters     types.Map `tfsdk:"tag_filters"`
 }
 
 func (l *DtcMonitorPdpList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -68,7 +69,7 @@ func (l *DtcMonitorPdpList) Configure(_ context.Context, req resource.ConfigureR
 
 func (l *DtcMonitorPdpList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox DtcMonitorPdp from the NIOS backend.",
+		MarkdownDescription: "Retrieves a list of Infoblox DtcMonitorPdp from both the NIOS and UDDI backends.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
@@ -77,6 +78,11 @@ func (l *DtcMonitorPdpList) ListResourceConfigSchema(_ context.Context, _ list.L
 			},
 			"ext_attr_filters": listschema.MapAttribute{
 				MarkdownDescription: "Extensible Attribute Filters are used to filter results by NIOS extensible attributes. Only applicable for the NIOS backend.",
+				ElementType:         types.StringType,
+				Optional:            true,
+			},
+			"tag_filters": listschema.MapAttribute{
+				MarkdownDescription: "Tag Filters are used to filter results by UDDI tags. Only applicable for the UDDI backend.",
 				ElementType:         types.StringType,
 				Optional:            true,
 			},
@@ -92,7 +98,7 @@ func (l *DtcMonitorPdpList) ValidateListResourceConfig(ctx context.Context, req 
 		return
 	}
 
-	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, types.MapNull(types.StringType), &resp.Diagnostics)
+	validator.ValidateListFilters(l.backend, data.ExtAttrFilters, data.TagFilters, &resp.Diagnostics)
 }
 
 func (l *DtcMonitorPdpList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
@@ -111,6 +117,7 @@ func (l *DtcMonitorPdpList) List(ctx context.Context, req list.ListRequest, stre
 	opts := &core.ListOptions{
 		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
 		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
+		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields:  DtcMonitorPdpReturnFields,
 		Paging:        1,
 	}

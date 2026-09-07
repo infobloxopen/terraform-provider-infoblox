@@ -24,11 +24,13 @@ import (
 type DtcMonitorPdpModel struct {
 	Id   types.String `tfsdk:"id"`
 	NIOS types.Object `tfsdk:"nios"`
+	UDDI types.Object `tfsdk:"uddi"`
 }
 
 var DtcMonitorPdpAttrTypes = map[string]attr.Type{
 	"id":   types.StringType,
 	"nios": types.ObjectType{AttrTypes: NIOSDtcMonitorPdpAttrTypes},
+	"uddi": types.ObjectType{AttrTypes: UDDIDtcMonitorPdpAttrTypes},
 }
 
 type NIOSDtcMonitorPdpModel struct {
@@ -55,6 +57,32 @@ var NIOSDtcMonitorPdpAttrTypes = map[string]attr.Type{
 	"timeout":       types.Int64Type,
 }
 
+type UDDIDtcMonitorPdpModel struct {
+	Comment   types.String `tfsdk:"comment"`
+	Disabled  types.Bool   `tfsdk:"disabled"`
+	Interval  types.Int64  `tfsdk:"interval"`
+	Name      types.String `tfsdk:"name"`
+	Port      types.Int64  `tfsdk:"port"`
+	RetryDown types.Int64  `tfsdk:"retry_down"`
+	RetryUp   types.Int64  `tfsdk:"retry_up"`
+	Tags      types.Map    `tfsdk:"tags"`
+	TagsAll   types.Map    `tfsdk:"tags_all"`
+	Timeout   types.Int64  `tfsdk:"timeout"`
+}
+
+var UDDIDtcMonitorPdpAttrTypes = map[string]attr.Type{
+	"comment":    types.StringType,
+	"disabled":   types.BoolType,
+	"interval":   types.Int64Type,
+	"name":       types.StringType,
+	"port":       types.Int64Type,
+	"retry_down": types.Int64Type,
+	"retry_up":   types.Int64Type,
+	"tags":       types.MapType{ElemType: types.StringType},
+	"tags_all":   types.MapType{ElemType: types.StringType},
+	"timeout":    types.Int64Type,
+}
+
 const (
 	DtcMonitorPdpReturnFields = "comment,extattrs,interval,name,port,retry_down,retry_up,timeout"
 )
@@ -68,6 +96,11 @@ var DtcMonitorPdpResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
 		Attributes:          DtcMonitorPdpResourceNiosSchemaAttributes,
+	},
+	"uddi": schema.SingleNestedAttribute{
+		Optional:            true,
+		MarkdownDescription: "UDDI backend-specific fields.",
+		Attributes:          DtcMonitorPdpResourceUddiSchemaAttributes,
 	},
 }
 
@@ -142,6 +175,63 @@ var DtcMonitorPdpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 }
 
+var DtcMonitorPdpResourceUddiSchemaAttributes = map[string]schema.Attribute{
+	"comment": schema.StringAttribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Comment for __PDPHealthCheck__.",
+	},
+	"disabled": schema.BoolAttribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Flag which enables/disables __PDPHealthCheck__. Defaults to _false_.",
+	},
+	"interval": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Interval value in seconds. The health check runs only for the specified interval and it is measured from the beginning of the previous check cycle. Defaults to _15_.",
+	},
+	"name": schema.StringAttribute{
+		Required:            true,
+		MarkdownDescription: "Display name of __PDPHealthCheck__.",
+	},
+	"port": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Destination UDP port of __PDPHealthCheck__ for the GTP Echo Request. Defaults to _2123_.",
+	},
+	"retry_down": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Retry down count. The value determines how many bad health checks in a row must be received by the onprem host from the DTC Server for treating the health check as failed. Defaults to _1_.",
+	},
+	"retry_up": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Retry up count. The value determines how many good health checks in a row must be received by the onprem host from the DTC Server for treating the health check as successful. Defaults to _1_.",
+	},
+	"tags": schema.MapAttribute{
+		Optional:    true,
+		Computed:    true,
+		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+		},
+		MarkdownDescription: "Optional. The tags for __PDPHealthCheck__ in JSON format.",
+	},
+	"tags_all": schema.MapAttribute{
+		Computed:            true,
+		ElementType:         types.StringType,
+		MarkdownDescription: "All tags including inherited values.",
+	},
+	"timeout": schema.Int64Attribute{
+		Optional:            true,
+		Computed:            true,
+		MarkdownDescription: "Optional. Timeout value in seconds. The health check waits for the specified number of seconds after sending a request. If it does not receive a response within the number of seconds, then the health check is considered as failed. Defaults to _10_.",
+	},
+}
+
 // Expand converts the TF model to the infoblox core model
 func (m *DtcMonitorPdpModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.DtcMonitorPdp {
 	if m == nil {
@@ -154,6 +244,12 @@ func (m *DtcMonitorPdpModel) Expand(ctx context.Context, diags *diag.Diagnostics
 	niosModel := flex.ExpandNestedObject[NIOSDtcMonitorPdpModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags)
+	}
+
+	// Expand UDDI nested attribute (returns nil if not present)
+	uddiModel := flex.ExpandNestedObject[UDDIDtcMonitorPdpModel](ctx, m.UDDI, diags)
+	if uddiModel != nil {
+		obj.UDDI = uddiModel.Expand(ctx, diags)
 	}
 
 	return obj
@@ -169,6 +265,21 @@ func (m *NIOSDtcMonitorPdpModel) Expand(ctx context.Context, diags *diag.Diagnos
 		Port:      flex.ExpandInt64Pointer(m.Port),
 		RetryDown: flex.ExpandInt64Pointer(m.RetryDown),
 		RetryUp:   flex.ExpandInt64Pointer(m.RetryUp),
+		Timeout:   flex.ExpandInt64Pointer(m.Timeout),
+	}
+}
+
+// Expand converts the UDDI TF model to the core model.
+func (m *UDDIDtcMonitorPdpModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIDtcMonitorPdpExt {
+	return &coremodel.UDDIDtcMonitorPdpExt{
+		Comment:   flex.ExpandStringPointer(m.Comment),
+		Disabled:  flex.ExpandBoolPointer(m.Disabled),
+		Interval:  flex.ExpandInt64Pointer(m.Interval),
+		Name:      flex.ExpandString(m.Name),
+		Port:      flex.ExpandInt64Pointer(m.Port),
+		RetryDown: flex.ExpandInt64Pointer(m.RetryDown),
+		RetryUp:   flex.ExpandInt64Pointer(m.RetryUp),
+		Tags:      flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Timeout:   flex.ExpandInt64Pointer(m.Timeout),
 	}
 }
@@ -193,6 +304,17 @@ func (m *DtcMonitorPdpModel) Flatten(ctx context.Context, resp *coremodel.DtcMon
 		m.NIOS = types.ObjectNull(NIOSDtcMonitorPdpAttrTypes)
 	}
 
+	// Extract existing UDDI model, flatten API response onto it, convert back
+	uddiModel := flex.ExpandNestedObject[UDDIDtcMonitorPdpModel](ctx, m.UDDI, diags)
+	if uddiModel == nil {
+		uddiModel = &UDDIDtcMonitorPdpModel{}
+	}
+	uddiModel.Flatten(ctx, resp.UDDI, diags)
+	if resp.UDDI != nil {
+		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIDtcMonitorPdpAttrTypes, diags)
+	} else {
+		m.UDDI = types.ObjectNull(UDDIDtcMonitorPdpAttrTypes)
+	}
 }
 
 // Flatten merges API response onto existing NIOS model.
@@ -211,5 +333,25 @@ func (m *NIOSDtcMonitorPdpModel) Flatten(ctx context.Context, from *coremodel.NI
 	m.Port = flex.FlattenInt64Pointer(from.Port)
 	m.RetryDown = flex.FlattenInt64Pointer(from.RetryDown)
 	m.RetryUp = flex.FlattenInt64Pointer(from.RetryUp)
+	m.Timeout = flex.FlattenInt64Pointer(from.Timeout)
+}
+
+// Flatten merges API response onto existing UDDI model.
+func (m *UDDIDtcMonitorPdpModel) Flatten(ctx context.Context, from *coremodel.UDDIDtcMonitorPdpExt, diags *diag.Diagnostics) {
+	if from == nil || m == nil {
+		return
+	}
+	m.Comment = flex.FlattenStringPointer(from.Comment)
+	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
+	m.Interval = flex.FlattenInt64Pointer(from.Interval)
+	m.Name = flex.FlattenString(from.Name)
+	m.Port = flex.FlattenInt64Pointer(from.Port)
+	m.RetryDown = flex.FlattenInt64Pointer(from.RetryDown)
+	m.RetryUp = flex.FlattenInt64Pointer(from.RetryUp)
+	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
+	if m.Tags.IsNull() || m.Tags.IsUnknown() {
+		m.Tags = tagsAll
+	}
+	m.TagsAll = tagsAll
 	m.Timeout = flex.FlattenInt64Pointer(from.Timeout)
 }

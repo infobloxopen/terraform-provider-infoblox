@@ -43,9 +43,11 @@ func (d *DtcMonitorPdpDataSource) Metadata(_ context.Context, req datasource.Met
 type DtcMonitorPdpDataSourceModel struct {
 	Filters        types.Map   `tfsdk:"filters"`
 	ExtAttrFilters types.Map   `tfsdk:"ext_attr_filters"`
+	TagFilters     types.Map   `tfsdk:"tag_filters"`
 	Results        types.List  `tfsdk:"results"`
 	MaxResults     types.Int32 `tfsdk:"max_results"`
 	Paging         types.Int32 `tfsdk:"paging"`
+	Limit          types.Int32 `tfsdk:"limit"`
 }
 
 // FlattenResults flattens core records to the Results list using existing Flatten method.
@@ -69,7 +71,7 @@ func (m *DtcMonitorPdpDataSourceModel) FlattenResults(ctx context.Context, from 
 
 func (d *DtcMonitorPdpDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about existing Infoblox DtcMonitorPdp from the NIOS backend.",
+		MarkdownDescription: "Retrieves information about existing Infoblox DtcMonitorPdp from both the NIOS and UDDI backends.",
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",
@@ -78,6 +80,11 @@ func (d *DtcMonitorPdpDataSource) Schema(_ context.Context, _ datasource.SchemaR
 			},
 			"ext_attr_filters": schema.MapAttribute{
 				Description: "Extensible Attribute Filters are used to return a more specific list of results by filtering on extensible attributes. Only applicable for NIOS backend.",
+				ElementType: types.StringType,
+				Optional:    true,
+			},
+			"tag_filters": schema.MapAttribute{
+				Description: "Tag Filters are used to return a more specific list of results filtered by tags. Only applicable for UDDI backend.",
 				ElementType: types.StringType,
 				Optional:    true,
 			},
@@ -97,6 +104,10 @@ func (d *DtcMonitorPdpDataSource) Schema(_ context.Context, _ datasource.SchemaR
 			"max_results": schema.Int32Attribute{
 				Optional:    true,
 				Description: "Number of results to return per page. Defaults to 1000. Only applicable for NIOS backend.",
+			},
+			"limit": schema.Int32Attribute{
+				Optional:    true,
+				Description: "Number of results to return per page. Defaults to 1000. Only applicable for UDDI backend.",
 			},
 		},
 	}
@@ -133,7 +144,7 @@ func (d *DtcMonitorPdpDataSource) ValidateConfig(ctx context.Context, req dataso
 		return
 	}
 
-	customvalidator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, types.MapNull(types.StringType), data.MaxResults, types.Int32Null(), &resp.Diagnostics)
+	customvalidator.ValidateDataSourceFilters(d.backend, data.ExtAttrFilters, data.TagFilters, data.MaxResults, data.Limit, &resp.Diagnostics)
 }
 
 func (d *DtcMonitorPdpDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -148,6 +159,7 @@ func (d *DtcMonitorPdpDataSource) Read(ctx context.Context, req datasource.ReadR
 	opts := &core.ListOptions{
 		Filters:       flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
 		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
+		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
 		ReturnFields:  DtcMonitorPdpReturnFields,
 		Paging:        1,
 	}
@@ -157,6 +169,9 @@ func (d *DtcMonitorPdpDataSource) Read(ctx context.Context, req datasource.ReadR
 	}
 	if !data.Paging.IsNull() {
 		opts.Paging = data.Paging.ValueInt32()
+	}
+	if !data.Limit.IsNull() {
+		opts.Limit = data.Limit.ValueInt32()
 	}
 
 	if resp.Diagnostics.HasError() {
