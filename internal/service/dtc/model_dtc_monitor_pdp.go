@@ -9,9 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -179,16 +181,19 @@ var DtcMonitorPdpResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             stringdefault.StaticString(""),
 		MarkdownDescription: "Optional. Comment for __PDPHealthCheck__.",
 	},
 	"disabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Optional. Flag which enables/disables __PDPHealthCheck__. Defaults to _false_.",
 	},
 	"interval": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             int64default.StaticInt64(15),
 		MarkdownDescription: "Optional. Interval value in seconds. The health check runs only for the specified interval and it is measured from the beginning of the previous check cycle. Defaults to _15_.",
 	},
 	"name": schema.StringAttribute{
@@ -198,16 +203,19 @@ var DtcMonitorPdpResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"port": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             int64default.StaticInt64(2123),
 		MarkdownDescription: "Optional. Destination UDP port of __PDPHealthCheck__ for the GTP Echo Request. Defaults to _2123_.",
 	},
 	"retry_down": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             int64default.StaticInt64(1),
 		MarkdownDescription: "Optional. Retry down count. The value determines how many bad health checks in a row must be received by the onprem host from the DTC Server for treating the health check as failed. Defaults to _1_.",
 	},
 	"retry_up": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             int64default.StaticInt64(1),
 		MarkdownDescription: "Optional. Retry up count. The value determines how many good health checks in a row must be received by the onprem host from the DTC Server for treating the health check as successful. Defaults to _1_.",
 	},
 	"tags": schema.MapAttribute{
@@ -228,6 +236,7 @@ var DtcMonitorPdpResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"timeout": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		Default:             int64default.StaticInt64(10),
 		MarkdownDescription: "Optional. Timeout value in seconds. The health check waits for the specified number of seconds after sending a request. If it does not receive a response within the number of seconds, then the health check is considered as failed. Defaults to _10_.",
 	},
 }
