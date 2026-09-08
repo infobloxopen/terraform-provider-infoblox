@@ -32,4 +32,3 @@ func validateRecordRpzCnameIpaddressNIOSConfig(ctx context.Context, m *NIOSRecor
 		}
 	}
 }
-
