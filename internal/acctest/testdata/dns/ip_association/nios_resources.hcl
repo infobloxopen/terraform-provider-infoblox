@@ -1,6 +1,7 @@
 # Hand-authored resource acceptance-test cases for IPAssociation.
 case "basic" {
   backend           = "nios"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -33,6 +34,7 @@ case "basic" {
 
 case "configure_for_dhcp" {
   backend           = "nios"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -75,6 +77,7 @@ case "configure_for_dhcp" {
 
 case "mac" {
   backend           = "nios"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -117,6 +120,7 @@ case "mac" {
 
 case "duid" {
   backend           = "nios"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -163,6 +167,7 @@ case "duid" {
 
 case "match_client" {
   backend           = "nios"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
