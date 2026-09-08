@@ -75,4 +75,4 @@ Optional:
 
 Read-Only:
 
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
