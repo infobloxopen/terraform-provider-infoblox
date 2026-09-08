@@ -58,8 +58,11 @@ Required:
 Optional:
 
 - `comment` (String) The description of the federated realm. May contain 0 to 1024 characters. Can include UTF-8.
+- `metadata` (Map of String) The metadata for the federated realm in JSON format.
 - `tags` (Map of String) The tags for the federated realm in JSON format.
 
 Read-Only:
 
+- `region` (String) The region where the realm is located.
 - `tags_all` (Map of String) All tags including inherited values.
+- `utilization` (Number) The percentage of Federated Realm utilization.

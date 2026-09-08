@@ -86,7 +86,7 @@ var FederatedRealmResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the federated realm. May contain 1 to 256 characters; can include UTF-8.",
 	},
 	"region": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The region where the realm is located.",
 	},
 	"tags": schema.MapAttribute{
@@ -105,7 +105,7 @@ var FederatedRealmResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "All tags including inherited values.",
 	},
 	"utilization": schema.Int64Attribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The percentage of Federated Realm utilization.",
 	},
 }
@@ -130,12 +130,10 @@ func (m *FederatedRealmModel) Expand(ctx context.Context, diags *diag.Diagnostic
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIFederatedRealmModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIFederatedRealmExt {
 	return &coremodel.UDDIFederatedRealmExt{
-		Comment:     flex.ExpandStringPointer(m.Comment),
-		Metadata:    flex.ExpandMapStringAny(ctx, m.Metadata, diags),
-		Name:        flex.ExpandString(m.Name),
-		Region:      flex.ExpandStringPointer(m.Region),
-		Tags:        flex.ExpandMapStringAny(ctx, m.Tags, diags),
-		Utilization: flex.ExpandInt64Pointer(m.Utilization),
+		Comment:  flex.ExpandStringPointer(m.Comment),
+		Metadata: flex.ExpandMapStringAny(ctx, m.Metadata, diags),
+		Name:     flex.ExpandString(m.Name),
+		Tags:     flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 }
 
