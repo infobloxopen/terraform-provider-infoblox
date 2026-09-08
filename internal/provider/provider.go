@@ -330,6 +330,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		rpz.NewRecordRpzCnameIpaddressdnResource,
 		cloud.NewAwsuserResource,
 		acl.NewNamedaclResource,
 
@@ -401,6 +402,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		rpz.NewRecordRpzCnameIpaddressdnDataSource,
 		cloud.NewAwsuserDataSource,
 		acl.NewNamedaclDataSource,
 
@@ -475,6 +477,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		rpz.NewRecordRpzCnameIpaddressdnList,
 		cloud.NewAwsuserList,
 		acl.NewNamedaclList,
 
