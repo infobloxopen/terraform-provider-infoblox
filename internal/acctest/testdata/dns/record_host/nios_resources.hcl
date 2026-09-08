@@ -242,11 +242,20 @@ case "configure_for_dns" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network" "test" {
+    nios = {
+      network      = "17.0.0.0/24"
+      network_view = "default"
+    }
+  }
+  PREREQ
+
   step {
     nios {
       name              = "{{random}}.example.com"
       view              = "default"
-      ipv4addrs         = [{ ipv4addr = "10.0.0.249" }]
+      ipv4addrs         = [{ ipv4addr = "17.0.0.249" }]
       configure_for_dns = true
     }
     check = {
@@ -258,7 +267,7 @@ case "configure_for_dns" {
     nios {
       name              = "{{random}}.example.com"
       view              = "default"
-      ipv4addrs         = [{ ipv4addr = "10.0.0.249" }]
+      ipv4addrs         = [{ ipv4addr = "17.0.0.249" }]
       configure_for_dns = false
     }
     check = {

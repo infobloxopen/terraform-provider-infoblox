@@ -313,6 +313,7 @@ func (m *RecordHostModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 	niosModel := flex.ExpandNestedObject[NIOSRecordHostModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
+		obj.NIOS = PostExpandRecordHostNIOS(ctx, obj.NIOS, diags)
 	}
 
 	return obj

@@ -176,12 +176,28 @@ func (r *RecordHostResource) deleteRecordHostByInternalID(ctx context.Context, r
 	}
 }
 
+// PostExpandRecordHostNIOS strips name and view from the WAPI payload when configure_for_dns is false
+func PostExpandRecordHostNIOS(_ context.Context, obj *coremodel.NIOSRecordHostExt, _ *diag.Diagnostics) *coremodel.NIOSRecordHostExt {
+	if obj == nil || obj.ConfigureForDns == nil || *obj.ConfigureForDns {
+		return obj
+	}
+	obj.Name = nil
+	obj.View = nil
+	return obj
+}
+
 // PostFlattenRecordHostNIOS restores the values the backend never returns, which
 // are lost during flattening because they sit inside a nested block - a top-level
 // field would keep its planned value, but a nested one is rebuilt from scratch.
 func PostFlattenRecordHostNIOS(ctx context.Context, planned, flattened *NIOSRecordHostModel, diags *diag.Diagnostics) {
 	if planned == nil || flattened == nil {
 		return
+	}
+
+	// When configure_for_dns is false NIOS doesn't return name and view.
+	if !flattened.ConfigureForDns.IsNull() && !flattened.ConfigureForDns.IsUnknown() && !flattened.ConfigureForDns.ValueBool() {
+		flattened.Name = planned.Name
+		flattened.View = planned.View
 	}
 
 	for _, addrs := range []struct{ planned, flattened *types.List }{

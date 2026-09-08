@@ -15,6 +15,7 @@ case "filters" {
     nios {
       name = "{{random}}.example.com"
       view = "default"
+      ipv4addrs = [{ ipv4addr = "{{random_ip}}" }]
     }
   }
 
@@ -37,6 +38,7 @@ case "ext_attr_filters" {
       name      = "{{random}}.example.com"
       view      = "default"
       ext_attrs = { Site = "{{random2}}" }
+      ipv4addrs = [{ ipv4addr = "{{random_ip}}" }]
     }
   }
 
