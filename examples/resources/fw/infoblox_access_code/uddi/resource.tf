@@ -1,4 +1,5 @@
 // Create a basic Access Code with a single rule
+// Note: the Named List referenced in 'data' must already exist in Infoblox.
 resource "infoblox_access_code" "example_basic" {
   uddi = {
     name       = "example-access-code"
@@ -12,6 +13,7 @@ resource "infoblox_access_code" "example_basic" {
 }
 
 // Create an Access Code with a description and multiple rules
+// Note: the Named Lists referenced in 'data' must already exist in Infoblox.
 resource "infoblox_access_code" "example_full" {
   uddi = {
     name        = "example-access-code-full"

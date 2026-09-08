@@ -1,5 +1,6 @@
 # TODO: The following prerequisites MUST exist on the CSP tenant before running these tests:
-#   - named list : "tf-provider-test-access-code"  (type: custom_list)
+#   - named list : "tf-provider-test-access-code"   (type: custom_list)
+#   - named list : "tf-provider-test-access-code-2" (type: custom_list)
 
 case "basic" {
   backend  = "uddi"
@@ -10,14 +11,14 @@ case "basic" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.name"         = "{{random}}"
       "uddi.activation"   = "2030-01-01T00:00:00Z"
       "uddi.expiration"   = "2031-01-01T00:00:00Z"
       "uddi.rules.0.type" = "custom_list"
-      "uddi.rules.0.data" = "tf-provider-test-access-code" # TODO: hardcoded named list prerequisite (see file header)
+      "uddi.rules.0.data" = "tf-provider-test-access-code"
     }
   }
 }
@@ -34,7 +35,7 @@ case "disappears" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
   }
 }
@@ -48,7 +49,7 @@ case "name" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.name" = "{{random}}"
@@ -60,7 +61,7 @@ case "name" {
       name       = "{{random2}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.name" = "{{random2}}"
@@ -108,7 +109,7 @@ case "activation" {
       name       = "{{random}}"
       activation = "2030-06-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.activation" = "2030-06-01T00:00:00Z"
@@ -120,7 +121,7 @@ case "activation" {
       name       = "{{random}}"
       activation = "2030-09-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.activation" = "2030-09-01T00:00:00Z"
@@ -137,7 +138,7 @@ case "expiration" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-06-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.expiration" = "2031-06-01T00:00:00Z"
@@ -149,7 +150,7 @@ case "expiration" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2032-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.expiration" = "2032-01-01T00:00:00Z"
@@ -166,11 +167,71 @@ case "rules" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
     check = {
       "uddi.rules.0.type" = "custom_list"
-      "uddi.rules.0.data" = "tf-provider-test-access-code" # TODO: hardcoded named list prerequisite (see file header)
+      "uddi.rules.0.data" = "tf-provider-test-access-code"
+    }
+  }
+}
+
+case "multiple_rules" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      activation = "2030-01-01T00:00:00Z"
+      expiration = "2031-01-01T00:00:00Z"
+      rules = [
+        { type = "custom_list", data = "tf-provider-test-access-code" },
+        { type = "custom_list", data = "tf-provider-test-access-code-2" },
+      ]
+    }
+    check = {
+      "uddi.rules.0.type" = "custom_list"
+      "uddi.rules.0.data" = "tf-provider-test-access-code"
+      "uddi.rules.1.type" = "custom_list"
+      "uddi.rules.1.data" = "tf-provider-test-access-code-2"
+    }
+  }
+}
+
+case "rules_order" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      activation = "2030-01-01T00:00:00Z"
+      expiration = "2031-01-01T00:00:00Z"
+      rules = [
+        { type = "custom_list", data = "tf-provider-test-access-code" },
+        { type = "custom_list", data = "tf-provider-test-access-code-2" },
+      ]
+    }
+    check = {
+      "uddi.rules.0.data" = "tf-provider-test-access-code"
+      "uddi.rules.1.data" = "tf-provider-test-access-code-2"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      activation = "2030-01-01T00:00:00Z"
+      expiration = "2031-01-01T00:00:00Z"
+      rules = [
+        { type = "custom_list", data = "tf-provider-test-access-code-2" },
+        { type = "custom_list", data = "tf-provider-test-access-code" },
+      ]
+    }
+    check = {
+      "uddi.rules.0.data" = "tf-provider-test-access-code-2"
+      "uddi.rules.1.data" = "tf-provider-test-access-code"
     }
   }
 }

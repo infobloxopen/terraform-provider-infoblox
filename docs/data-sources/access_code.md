@@ -68,8 +68,8 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String)
-- `data` (String)
-- `description` (String)
-- `redirect_name` (String)
-- `type` (String)
+- `action` (String) The action to be used in the rule.
+- `data` (String) The data to be used in the rule.
+- `description` (String) The brief description of the rule.
+- `redirect_name` (String) The name of the redirect to be used in the rule.
+- `type` (String) The type of the rule.

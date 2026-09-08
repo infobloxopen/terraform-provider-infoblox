@@ -16,6 +16,7 @@ Manages an Infoblox AccessCode in the UDDI backend.
 
 ```terraform
 // Create a basic Access Code with a single rule
+// Note: the Named List referenced in 'data' must already exist in Infoblox.
 resource "infoblox_access_code" "example_basic" {
   uddi = {
     name       = "example-access-code"
@@ -29,6 +30,7 @@ resource "infoblox_access_code" "example_basic" {
 }
 
 // Create an Access Code with a description and multiple rules
+// Note: the Named Lists referenced in 'data' must already exist in Infoblox.
 resource "infoblox_access_code" "example_full" {
   uddi = {
     name        = "example-access-code-full"
@@ -88,8 +90,8 @@ Read-Only:
 
 Optional:
 
-- `action` (String)
-- `data` (String)
-- `description` (String)
-- `redirect_name` (String)
-- `type` (String)
+- `action` (String) The action to be used in the rule.
+- `data` (String) The data to be used in the rule.
+- `description` (String) The brief description of the rule.
+- `redirect_name` (String) The name of the redirect to be used in the rule.
+- `type` (String) The type of the rule.

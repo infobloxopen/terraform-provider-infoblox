@@ -19,7 +19,7 @@ case "filters" {
       name       = "{{random}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }] # TODO: hardcoded named list prerequisite (see file header)
+      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
     }
   }
 }
