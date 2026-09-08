@@ -9,8 +9,13 @@ case "basic" {
       name = "dtc-monitor-pdp-{{random}}"
     }
     check = {
-      "uddi.name"     = "dtc-monitor-pdp-{{random}}"
-      "uddi.disabled" = "false"
+      "uddi.name"       = "dtc-monitor-pdp-{{random}}"
+      "uddi.disabled"   = "false"
+      "uddi.interval"   = "15"
+      "uddi.port"       = "2123"
+      "uddi.retry_down" = "1"
+      "uddi.retry_up"   = "1"
+      "uddi.timeout"    = "10"
     }
   }
 

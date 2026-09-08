@@ -41,14 +41,14 @@ resource "infoblox_dtc_monitor_pdp" "monitor_pdp_additional" {
 
 ```terraform
 // Create a DTC PDP Health Check with Basic Fields
-resource "infoblox_dtc_monitor_pdp" "monitor_pdp_basic" {
+resource "infoblox_dtc_monitor_pdp" "health_check_pdp_basic" {
   uddi = {
     name = "example-dtc-monitor-pdp"
   }
 }
 
 // Create a DTC PDP Health Check with Additional Fields
-resource "infoblox_dtc_monitor_pdp" "monitor_pdp_additional" {
+resource "infoblox_dtc_monitor_pdp" "health_check_pdp_additional" {
   uddi = {
     name       = "example-dtc-monitor-pdp-additional"
     comment    = "This is a DTC PDP Health Check"
