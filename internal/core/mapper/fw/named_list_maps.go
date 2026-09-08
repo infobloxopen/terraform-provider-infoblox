@@ -6,7 +6,6 @@ import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 var NamedListUDDIFieldMap = map[string]string{
 	"UDDI.ConfidenceLevel": "ConfidenceLevel",
 	"UDDI.Description":     "Description",
-	"UDDI.Items":           "Items",
 	"UDDI.ItemsDescribed":  "ItemsDescribed",
 	"UDDI.Name":            "Name",
 	"UDDI.Policies":        "Policies",
@@ -21,7 +20,6 @@ var NamedListFilterFieldMap = map[core.BackendType]map[string]string{
 	core.BackendUDDI: {
 		"uddi.confidence_level": "confidence_level",
 		"uddi.description":      "description",
-		"uddi.items":            "items",
 		"uddi.items_described":  "items_described",
 		"uddi.name":             "name",
 		"uddi.policies":         "policies",

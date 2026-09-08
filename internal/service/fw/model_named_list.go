@@ -32,7 +32,6 @@ var NamedListAttrTypes = map[string]attr.Type{
 type UDDINamedListModel struct {
 	ConfidenceLevel types.String `tfsdk:"confidence_level"`
 	Description     types.String `tfsdk:"description"`
-	Items           types.List   `tfsdk:"items"`
 	ItemsDescribed  types.List   `tfsdk:"items_described"`
 	Name            types.String `tfsdk:"name"`
 	Policies        types.List   `tfsdk:"policies"`
@@ -45,7 +44,6 @@ type UDDINamedListModel struct {
 var UDDINamedListAttrTypes = map[string]attr.Type{
 	"confidence_level": types.StringType,
 	"description":      types.StringType,
-	"items":            types.ListType{ElemType: types.StringType},
 	"items_described":  types.ListType{ElemType: types.ObjectType{AttrTypes: ItemStructsAttrTypes}},
 	"name":             types.StringType,
 	"policies":         types.ListType{ElemType: types.StringType},
@@ -75,21 +73,12 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"confidence_level": schema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The confidence level for a custom list. The possible values are [\"LOW\", \"MEDIUM\", \"HIGH\"]",
+		MarkdownDescription: "The confidence level for a custom list. The possible values are \"LOW\", \"MEDIUM\", and \"HIGH\".",
 	},
 	"description": schema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The brief description for the named list.",
-	},
-	"items": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Computed:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
-		MarkdownDescription: "The list of the FQDN or IPv4/IPv6 CIDRs to define whitelists and blacklists for additional protection.",
 	},
 	"items_described": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -99,7 +88,7 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "The List of ItemStructs structure which contains the item and its description",
+		MarkdownDescription: "The list of ItemStructs structures that contains items, descriptions, status and status details. Use of the plain 'items' field is discouraged by the API in favor of this field, since it allows adding a description or comment to each item; this provider does not expose 'items' for that reason.",
 	},
 	"name": schema.StringAttribute{
 		Required:            true,
@@ -121,7 +110,7 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.Map{
 			mapvalidator.SizeAtLeast(1),
 		},
-		MarkdownDescription: "Enables tag support for resource where tags attribute contains user-defined key value pairs",
+		MarkdownDescription: "Enables tag support for a resource where the tags attribute contains user-defined key-value pairs.",
 	},
 	"tags_all": schema.MapAttribute{
 		Computed:            true,
@@ -131,17 +120,18 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"threat_level": schema.StringAttribute{
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The threat level for a custom list. The possible values are [\"INFO\", \"LOW\", \"MEDIUM\", \"HIGH\"]",
+		MarkdownDescription: "The threat level for a custom list. The possible values are \"INFO\", \"LOW\", \"MEDIUM\", and \"HIGH\".",
 	},
 	"type": schema.StringAttribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("custom_list", "threat_insight", "fast_flux", "dga", "dnsm", "threat_insight_nde", "default_allow", "default_block", "zero_day_dns"),
 		},
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "The type of the named list, that can be \"custom_list\", \"threat_insight\", \"fast_flux\", \"dga\", \"dnsm\", \"threat_insight_nde\", \"default_allow\", \"default_block\" or \"zero_day_dns\".",
+		MarkdownDescription: "The type of the named list: \"custom_list\", \"threat_insight\", \"dga\", \"dnsm\", \"default_allow\", \"default_block\", \"threat_insight_nde\", or \"zero_day_dns\".",
 	},
 }
 
@@ -167,7 +157,6 @@ func (m *UDDINamedListModel) Expand(ctx context.Context, diags *diag.Diagnostics
 	return &coremodel.UDDINamedListExt{
 		ConfidenceLevel: flex.ExpandStringPointer(m.ConfidenceLevel),
 		Description:     flex.ExpandStringPointer(m.Description),
-		Items:           flex.ExpandFrameworkListString(ctx, m.Items, diags),
 		ItemsDescribed:  flex.ExpandFrameworkListNestedBlock(ctx, m.ItemsDescribed, diags, ExpandItemStructs),
 		Name:            flex.ExpandStringPointer(m.Name),
 		Policies:        flex.ExpandFrameworkListString(ctx, m.Policies, diags),
@@ -207,7 +196,6 @@ func (m *UDDINamedListModel) Flatten(ctx context.Context, from *coremodel.UDDINa
 	}
 	m.ConfidenceLevel = flex.FlattenStringPointer(from.ConfidenceLevel)
 	m.Description = flex.FlattenStringPointer(from.Description)
-	m.Items = flex.FlattenFrameworkListString(ctx, from.Items, diags)
 	m.ItemsDescribed = flex.FlattenFrameworkListNestedBlock(ctx, from.ItemsDescribed, ItemStructsAttrTypes, diags, FlattenItemStructs)
 	m.Name = flex.FlattenStringPointer(from.Name)
 	m.Policies = flex.FlattenFrameworkListString(ctx, from.Policies, diags)
