@@ -8,7 +8,7 @@ resource "infoblox_zone_rp" "example" {
 // Create Record RPZ CNAME IP Address with Basic Fields
 resource "infoblox_record_rpz_cname_ipaddress" "basic" {
   nios = {
-    name      = "blocked.${infoblox_zone_rp.example.nios.fqdn}"
+    name      = "11.0.0.1.${infoblox_zone_rp.example.nios.fqdn}"
     canonical = "11.0.0.1"
     rp_zone   = infoblox_zone_rp.example.nios.fqdn
   }
@@ -17,7 +17,7 @@ resource "infoblox_record_rpz_cname_ipaddress" "basic" {
 // Create Record RPZ CNAME IP Address with Additional Fields
 resource "infoblox_record_rpz_cname_ipaddress" "additional" {
   nios = {
-    name      = "blocked-with-ttl.${infoblox_zone_rp.example.nios.fqdn}"
+    name      = "11.0.0.2.${infoblox_zone_rp.example.nios.fqdn}"
     canonical = "11.0.0.2"
     rp_zone   = infoblox_zone_rp.example.nios.fqdn
     ttl       = 10
@@ -31,7 +31,7 @@ resource "infoblox_record_rpz_cname_ipaddress" "additional" {
 // Block IP Address (No Data) Rule
 resource "infoblox_record_rpz_cname_ipaddress" "block_no_data" {
   nios = {
-    name      = "blocked-wildcard.${infoblox_zone_rp.example.nios.fqdn}"
+    name      = "11.0.0.3.${infoblox_zone_rp.example.nios.fqdn}"
     canonical = "*"
     rp_zone   = infoblox_zone_rp.example.nios.fqdn
   }
@@ -53,8 +53,8 @@ resource "infoblox_zone_rp" "parent_zone" {
 
 resource "infoblox_record_rpz_cname_ipaddress" "custom_view" {
   nios = {
-    name      = "blocked.${infoblox_zone_rp.parent_zone.nios.fqdn}"
-    canonical = "11.0.0.3"
+    name      = "11.0.0.4.${infoblox_zone_rp.parent_zone.nios.fqdn}"
+    canonical = "11.0.0.4"
     rp_zone   = infoblox_zone_rp.parent_zone.nios.fqdn
     view      = infoblox_view.parent_view.nios.name
   }

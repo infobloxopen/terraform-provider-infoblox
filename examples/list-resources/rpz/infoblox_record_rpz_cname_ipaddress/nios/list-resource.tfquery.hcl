@@ -3,7 +3,7 @@ list "infoblox_record_rpz_cname_ipaddress" "by_name" {
   provider = infoblox
   config {
     filters = {
-      name = "blocked.rpzip.example.com"
+      name = "11.0.0.1.rpzip.example.com"
     }
   }
 }

@@ -13,7 +13,7 @@ case "basic" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
@@ -40,7 +40,7 @@ case "filters" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
@@ -73,10 +73,10 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
-      ext_attrs = { Site = "{{random3}}" }
+      ext_attrs = { Site = "{{random2}}" }
     }
   }
 

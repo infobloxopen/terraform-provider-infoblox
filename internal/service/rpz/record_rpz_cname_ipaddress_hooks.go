@@ -22,11 +22,12 @@ func validateRecordRpzCnameIpaddressNIOSConfig(ctx context.Context, m *NIOSRecor
 	}
 
 	canonical := m.Canonical.ValueString()
-	if canonical != "*" {
+	// Empty string is a valid passthru rule in NIOS RPZ
+	if canonical != "*" && canonical != "" {
 		if _, err := netip.ParseAddr(canonical); err != nil {
 			resp.Diagnostics.AddError(
 				"Invalid Canonical Value",
-				fmt.Sprintf("The canonical value must be '*' or a valid IP address. Got: %s", canonical),
+				fmt.Sprintf("The canonical value must be '*', '' (passthru), or a valid IP address. Got: %s", canonical),
 			)
 		}
 	}

@@ -7,17 +7,17 @@ case "basic" {
     nios = {
       fqdn = "{{random}}.com"
     }
-  } 
+  }
   PREREQ
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name"      = "{{random2}}.{{random}}.com"
+      "nios.name"      = "10.0.0.1.{{random}}.com"
       "nios.canonical" = "10.0.0.1"
       "nios.rp_zone"   = "{{random}}.com"
       "nios.view"      = "default"
@@ -42,7 +42,7 @@ case "disappears" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
@@ -63,7 +63,7 @@ case "canonical" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
@@ -74,12 +74,23 @@ case "canonical" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "*"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.canonical" = "*"
+    }
+  }
+
+  step {
+    nios {
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = ""
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+    }
+    check = {
+      "nios.canonical" = ""
     }
   }
 
@@ -98,7 +109,7 @@ case "comment" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       comment   = "This is a new rpz cname ipaddress record"
@@ -110,7 +121,7 @@ case "comment" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       comment   = "This is an updated rpz cname ipaddress record"
@@ -135,7 +146,7 @@ case "disable" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       disable   = false
@@ -147,7 +158,7 @@ case "disable" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       disable   = true
@@ -172,25 +183,25 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.1"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random2}}" }
+    }
+    check = {
+      "nios.ext_attrs.Site" = "{{random2}}"
+    }
+  }
+
+  step {
+    nios {
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
       "nios.ext_attrs.Site" = "{{random3}}"
-    }
-  }
-
-  step {
-    nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "10.0.0.1"
-      rp_zone   = infoblox_zone_rp.test.nios.fqdn
-      ext_attrs = { Site = "{{random4}}" }
-    }
-    check = {
-      "nios.ext_attrs.Site" = "{{random4}}"
     }
   }
 
@@ -209,23 +220,23 @@ case "name" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name" = "{{random2}}.{{random}}.com"
+      "nios.name" = "10.0.0.1.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name      = "{{random3}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "10.0.0.1"
+      name      = "10.0.0.2.${infoblox_zone_rp.test.nios.fqdn}"
+      canonical = "10.0.0.2"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name" = "{{random3}}.{{random}}.com"
+      "nios.name" = "10.0.0.2.{{random}}.com"
     }
   }
 
@@ -244,7 +255,7 @@ case "rp_zone" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
@@ -268,7 +279,7 @@ case "ttl" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ttl       = 10
@@ -280,7 +291,7 @@ case "ttl" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ttl       = 0
@@ -298,7 +309,7 @@ case "view" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "custom_view" {
     nios = {
-      name = "{{random3}}"
+      name = "{{random2}}"
     }
   }
   resource "infoblox_zone_rp" "test" {
@@ -311,13 +322,13 @@ case "view" {
 
   step {
     nios {
-      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "10.0.0.1.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "10.0.0.1"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       view      = infoblox_view.custom_view.nios.name
     }
     check = {
-      "nios.view" = "{{random3}}"
+      "nios.view" = "{{random2}}"
     }
   }
 
