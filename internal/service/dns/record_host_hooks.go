@@ -176,8 +176,9 @@ func (r *RecordHostResource) deleteRecordHostByInternalID(ctx context.Context, r
 	}
 }
 
-// PostFlattenRecordHostNIOS restores the dynamic_allocation blocks, which backend never returns and since they are of list type,
-// they are lost during flattening if not restored from the plan.
+// PostFlattenRecordHostNIOS restores the values the backend never returns, which
+// are lost during flattening because they sit inside a nested block - a top-level
+// field would keep its planned value, but a nested one is rebuilt from scratch.
 func PostFlattenRecordHostNIOS(ctx context.Context, planned, flattened *NIOSRecordHostModel, diags *diag.Diagnostics) {
 	if planned == nil || flattened == nil {
 		return
@@ -194,6 +195,28 @@ func PostFlattenRecordHostNIOS(ctx context.Context, planned, flattened *NIOSReco
 		}
 		if list, ok := restored.(types.List); ok {
 			*addrs.flattened = list
+		}
+	}
+
+	// Secrets are write-only - NIOS accepts them but never echoes them back.
+	if restored, d := utils.CopyFieldFromPlanToRespList(ctx, planned.CliCredentials, flattened.CliCredentials, "password"); !d.HasError() {
+		if list, ok := restored.(types.List); ok {
+			flattened.CliCredentials = list
+		}
+	}
+
+	// snmp3_credential - record:host omits the whole block from read responses, so
+	// fall back to the full planned object rather than trying to inject fields.
+	if (flattened.Snmp3Credential.IsNull() || flattened.Snmp3Credential.IsUnknown()) &&
+		!planned.Snmp3Credential.IsNull() && !planned.Snmp3Credential.IsUnknown() {
+		flattened.Snmp3Credential = planned.Snmp3Credential
+	} else {
+		for _, field := range []string{"authentication_password", "privacy_password"} {
+			if restored, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Snmp3Credential, flattened.Snmp3Credential, field); !d.HasError() {
+				if obj, ok := restored.(types.Object); ok {
+					flattened.Snmp3Credential = obj
+				}
+			}
 		}
 	}
 }

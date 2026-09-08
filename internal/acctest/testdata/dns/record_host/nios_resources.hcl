@@ -647,10 +647,18 @@ case "snmp3_credential" {
   backend  = "nios"
   parallel = true
 
+  # Case 1 ({{random}}): create -> update both passwords -> revert both passwords.
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -661,8 +669,15 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass123"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass123"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -673,8 +688,35 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
+    }
+    check = {
+      "nios.snmp3_credential.user"                    = "user1"
+      "nios.snmp3_credential.authentication_protocol" = "SHA"
+      "nios.snmp3_credential.privacy_protocol"        = "AES"
+    }
+  }
+
+  # Case 2 ({{random2}}): create -> update only authentication_password.
+  step {
+    nios {
+      name      = "{{random2}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -685,8 +727,35 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random2}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random2}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass123"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
+    }
+    check = {
+      "nios.snmp3_credential.user"                    = "user1"
+      "nios.snmp3_credential.authentication_protocol" = "SHA"
+      "nios.snmp3_credential.privacy_protocol"        = "AES"
+    }
+  }
+
+  # Case 3 ({{random3}}): create -> update only privacy_password.
+  step {
+    nios {
+      name      = "{{random3}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -697,8 +766,62 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random2}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random3}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass123"
+      }
+    }
+    check = {
+      "nios.snmp3_credential.user"                    = "user1"
+      "nios.snmp3_credential.authentication_protocol" = "SHA"
+      "nios.snmp3_credential.privacy_protocol"        = "AES"
+    }
+  }
+
+  # Case 4 ({{random4}}): create without snmp3_credential -> add it.
+  step {
+    nios {
+      name      = "{{random4}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+    }
+  }
+
+  step {
+    nios {
+      name      = "{{random4}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass123"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass123"
+      }
+    }
+    check = {
+      "nios.snmp3_credential.user"                    = "user1"
+      "nios.snmp3_credential.authentication_protocol" = "SHA"
+      "nios.snmp3_credential.privacy_protocol"        = "AES"
+    }
+  }
+
+  # Case 5 ({{random5}}): create with snmp3_credential -> remove it.
+  step {
+    nios {
+      name      = "{{random5}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass123"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass123"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -709,8 +832,23 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random3}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random5}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+    }
+  }
+
+  # Case 6 ({{random6}}): create -> update non-secret field (user).
+  step {
+    nios {
+      name      = "{{random6}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user1"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user1"
@@ -721,70 +859,15 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name                 = "{{random3}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random4}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random4}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random5}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random5}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random6}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
-    }
-    check = {
-      "nios.snmp3_credential.user"                    = "user1"
-      "nios.snmp3_credential.authentication_protocol" = "SHA"
-      "nios.snmp3_credential.privacy_protocol"        = "AES"
-    }
-  }
-
-  step {
-    nios {
-      name                 = "{{random6}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random6}}.example.com"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
+      snmp3_credential = {
+        user                    = "user2"
+        authentication_protocol = "SHA"
+        authentication_password = "authPass"
+        privacy_protocol        = "AES"
+        privacy_password        = "privPass"
+      }
     }
     check = {
       "nios.snmp3_credential.user"                    = "user2"
