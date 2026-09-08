@@ -93,7 +93,7 @@ func (m *Ipv6networkcontainerOptionsModel) Expand(ctx context.Context, diags *di
 		return nil
 	}
 	to := &niosipam.Ipv6networkcontainerOptions{
-		Name:        flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Name:        flex.ExpandStringPointer(m.Name),
 		Num:         flex.ExpandInt64Pointer(m.Num),
 		VendorClass: flex.ExpandStringPointer(m.VendorClass),
 		Value:       flex.ExpandStringPointerNullAsEmpty(m.Value),
