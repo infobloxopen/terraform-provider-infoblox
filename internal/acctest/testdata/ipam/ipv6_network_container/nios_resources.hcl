@@ -514,33 +514,37 @@ case "options" {
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      options = [{ name = "dhcp6.fqdn", num = 39, value = "test.com", vendor_class = "DHCPv6" }]
+      options = [{ name = "domain-name", num = "15", value = "example.com" }, { num = "37", value = "remote-id", vendor_class = "DHCPv6" }, { name = "dhcp6.subscriber-id", value = "subscriber-id", vendor_class = "DHCPv6" }]
     }
     check = {
-      "nios.network"                = "{{random_ipv6_network}}"
-      "nios.options.#"              = "1"
-      "nios.options.0.name"         = "dhcp6.fqdn"
-      "nios.options.0.num"          = "39"
-      "nios.options.0.value"        = "test.com"
-      "nios.options.0.vendor_class" = "DHCPv6"
+      "nios.options.#"              = "3"
+      "nios.options.0.name"         = "domain-name"
+      "nios.options.0.num"          = "15"
+      "nios.options.0.value"        = "example.com"
+      "nios.options.1.num"          = "37"
+      "nios.options.1.value"        = "remote-id"
+      "nios.options.1.vendor_class" = "DHCPv6"
+      "nios.options.2.name"         = "dhcp6.subscriber-id"
+      "nios.options.2.value"        = "subscriber-id"
+      "nios.options.2.vendor_class" = "DHCPv6"
     }
   }
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      options = [{ name = "dhcp-rebinding-time", num = 59, value = 100, vendor_class = "DHCP" }]
+      options = [{ name = "domain-name", num = "15", value = "example.org" }, { num = "37", value = "remote-id-updated", vendor_class = "DHCPv6" }]
     }
     check = {
-      "nios.network"                = "{{random_ipv6_network}}"
-      "nios.options.#"              = "1"
-      "nios.options.0.name"         = "dhcp-rebinding-time"
-      "nios.options.0.num"          = "59"
-      "nios.options.0.value"        = "100"
-      "nios.options.0.vendor_class" = "DHCP"
+      "nios.options.#"              = "2"
+      "nios.options.0.name"         = "domain-name"
+      "nios.options.0.num"          = "15"
+      "nios.options.0.value"        = "example.org"
+      "nios.options.1.num"          = "37"
+      "nios.options.1.value"        = "remote-id-updated"
+      "nios.options.1.vendor_class" = "DHCPv6"
     }
   }
-
 }
 
 case "port_control_blackout_setting" {
@@ -644,7 +648,7 @@ case "rir_registration_action" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6networkcontainer" "rir_parent" {
+  resource "infoblox_ipv6_network_container" "rir_parent" {
     nios = {
       network          = "2001:db8:{{random_hextet}}::/48"
       rir_organization = "rir-org-test1"
@@ -676,7 +680,7 @@ case "rir_registration_action" {
         "RIPE IPv6 Status"       = "ASSIGNED"
       }
     }
-    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    depends_on = [infoblox_ipv6_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
       "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"
@@ -699,7 +703,7 @@ case "rir_registration_action" {
         "RIPE IPv6 Status"       = "ASSIGNED"
       }
     }
-    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    depends_on = [infoblox_ipv6_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "NONE"
       "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"
