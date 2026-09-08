@@ -246,7 +246,7 @@ func (m *RecordHostIpv6addrModel) Expand(ctx context.Context, diags *diag.Diagno
 	to := &niosdns.RecordHostIpv6addr{
 		AddressType:          flex.ExpandStringPointer(m.AddressType),
 		ConfigureForDhcp:     flex.ExpandBoolPointer(m.ConfigureForDhcp),
-		DomainName:           flex.ExpandStringPointerNullAsEmpty(m.DomainName),
+		DomainName:           flex.ExpandStringPointer(m.DomainName),
 		DomainNameServers:    flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		Duid:                 flex.ExpandStringPointer(m.Duid),
 		Ipv6addr:             ExpandRecordHostIpv6addrIpv6addr(m.Ipv6addr),
