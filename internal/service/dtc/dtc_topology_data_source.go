@@ -207,7 +207,6 @@ func (d *DtcTopologyDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	tflog.Info(ctx, fmt.Sprintf("Retrieved %d results", len(allResults)))
 
-	// Populate NIOS rule details (rules are returned as bare refs from the List API)
 	if d.backend == core.BackendNIOS {
 		for _, result := range allResults {
 			populateDtcTopologyNIOSRules(ctx, d.niosClient, result, &resp.Diagnostics)
