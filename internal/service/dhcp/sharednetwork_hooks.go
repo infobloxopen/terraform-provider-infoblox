@@ -22,6 +22,44 @@ func validateSharednetworkNIOSConfig(ctx context.Context, m *NIOSSharednetworkMo
 	niosPath := path.Root("nios")
 	// DHCP options validation
 	utils.ValidateDHCPOptionsConfig(ctx, m.Options, niosPath.AtName("options"), &resp.Diagnostics)
+
+	if !m.DdnsServerAlwaysUpdates.IsNull() && !m.DdnsServerAlwaysUpdates.IsUnknown() {
+		// Check if ddns_use_option81 is set to false
+		if !m.DdnsUseOption81.IsUnknown() && (m.DdnsUseOption81.IsNull() || !m.DdnsUseOption81.ValueBool()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("ddns_server_always_updates"),
+				"Invalid Configuration",
+				"ddns_use_option81 must be set to true if ddns_server_always_updates is configured.",
+			)
+		}
+	}
+
+	validateSharednetworkIgnoreClientIdentifier(m, niosPath, &resp.Diagnostics)
+}
+
+// ignore_id and ignore_client_identifier validation
+func validateSharednetworkIgnoreClientIdentifier(m *NIOSSharednetworkModel, niosPath path.Path, diags *diag.Diagnostics) {
+	if m.IgnoreClientIdentifier.IsUnknown() || m.IgnoreId.IsUnknown() {
+		return
+	}
+
+	ignoreClientIdentifier := !m.IgnoreClientIdentifier.IsNull() && m.IgnoreClientIdentifier.ValueBool()
+	ignoreIdClient := !m.IgnoreId.IsNull() && m.IgnoreId.ValueString() == "CLIENT"
+
+	switch {
+	case ignoreClientIdentifier && !ignoreIdClient:
+		diags.AddAttributeError(
+			niosPath.AtName("ignore_id"),
+			"Invalid Configuration",
+			"ignore_id must be set to \"CLIENT\" when ignore_client_identifier is set to true.",
+		)
+	case ignoreIdClient && !ignoreClientIdentifier:
+		diags.AddAttributeError(
+			niosPath.AtName("ignore_client_identifier"),
+			"Invalid Configuration",
+			"ignore_client_identifier must be set to true when ignore_id is set to \"CLIENT\".",
+		)
+	}
 }
 
 func PostFlattenSharednetworkNIOS(ctx context.Context, planned, flattened *NIOSSharednetworkModel, diags *diag.Diagnostics) {

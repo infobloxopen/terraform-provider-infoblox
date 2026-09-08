@@ -143,6 +143,7 @@ var SharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
+			stringvalidator.LengthBetween(0, 256),
 		},
 		MarkdownDescription: "Comment for the shared network, maximum 256 characters.",
 	},

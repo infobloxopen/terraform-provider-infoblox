@@ -3,7 +3,7 @@ list "infoblox_sharednetwork" "list_sharednetwork_by_name" {
   provider = infoblox
   config {
     filters = {
-      name = "example_shared_network"
+      name = "example_shared_network1"
     }
   }
   limit = 10
@@ -24,7 +24,7 @@ list "infoblox_sharednetwork" "list_sharednetwork_by_ext_attr" {
   provider = infoblox
   config {
     ext_attr_filters = {
-      Site = "us-east-1"
+      Site = "location-1"
     }
   }
 }
