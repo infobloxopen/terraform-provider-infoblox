@@ -40,6 +40,11 @@ resource "infoblox_access_code" "example_full" {
         type = "custom_list"
         data = "tf-provider-test-access-code"
       },
+      {
+        type        = "custom_list"
+        data        = "tf-provider-test-access-code-2"
+        description = "Secondary rule"
+      },
     ]
   }
 }
