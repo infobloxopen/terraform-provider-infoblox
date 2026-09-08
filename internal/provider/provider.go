@@ -400,6 +400,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		keys.NewKerberosKeyDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
