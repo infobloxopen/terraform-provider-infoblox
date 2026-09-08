@@ -374,7 +374,6 @@ func (r *RecordAResource) Update(ctx context.Context, req resource.UpdateRequest
 		}
 		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordAAttrTypes, &resp.Diagnostics)
 	}
-
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return

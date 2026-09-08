@@ -286,6 +286,8 @@ func GetTestdataPath(relativePath string) string {
 func ResolvePlaceholder(placeholder string) string {
 	name := strings.TrimSuffix(strings.TrimPrefix(placeholder, "{{"), "}}")
 	switch {
+	case name == "testdata_path":
+		return filepath.Join(packageDir, "testdata")
 	case name == "random_octet":
 		return fmt.Sprintf("%d", 1+rand.Intn(254)) // 1-254 valid IP host octet
 	case name == "random_hextet":
