@@ -19,6 +19,8 @@ var _ MappedNullable = &ListFederatedRealmResponse{}
 
 // ListFederatedRealmResponse The response format to retrieve __FederatedRealm__ objects.
 type ListFederatedRealmResponse struct {
+	// Page information including total_size when is_total_size_needed is requested.
+	Page *ApiPageInfo `json:"page,omitempty"`
 	// The list of FederatedRealm objects.
 	Results              []FederatedRealm `json:"results,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -41,6 +43,38 @@ func NewListFederatedRealmResponse() *ListFederatedRealmResponse {
 func NewListFederatedRealmResponseWithDefaults() *ListFederatedRealmResponse {
 	this := ListFederatedRealmResponse{}
 	return &this
+}
+
+// GetPage returns the Page field value if set, zero value otherwise.
+func (o *ListFederatedRealmResponse) GetPage() ApiPageInfo {
+	if o == nil || IsNil(o.Page) {
+		var ret ApiPageInfo
+		return ret
+	}
+	return *o.Page
+}
+
+// GetPageOk returns a tuple with the Page field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ListFederatedRealmResponse) GetPageOk() (*ApiPageInfo, bool) {
+	if o == nil || IsNil(o.Page) {
+		return nil, false
+	}
+	return o.Page, true
+}
+
+// HasPage returns a boolean if a field has been set.
+func (o *ListFederatedRealmResponse) HasPage() bool {
+	if o != nil && !IsNil(o.Page) {
+		return true
+	}
+
+	return false
+}
+
+// SetPage gets a reference to the given ApiPageInfo and assigns it to the Page field.
+func (o *ListFederatedRealmResponse) SetPage(v ApiPageInfo) {
+	o.Page = &v
 }
 
 // GetResults returns the Results field value if set, zero value otherwise.
@@ -85,6 +119,9 @@ func (o ListFederatedRealmResponse) MarshalJSON() ([]byte, error) {
 
 func (o ListFederatedRealmResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.Page) {
+		toSerialize["page"] = o.Page
+	}
 	if !IsNil(o.Results) {
 		toSerialize["results"] = o.Results
 	}
@@ -110,6 +147,7 @@ func (o *ListFederatedRealmResponse) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "page")
 		delete(additionalProperties, "results")
 		o.AdditionalProperties = additionalProperties
 	}

@@ -6,7 +6,7 @@ case "basic" {
 
   step {
     uddi {
-      fqdn = "{{random2}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      fqdn = "{{random2}}.com."
     }
   }
 
@@ -24,7 +24,7 @@ case "filters" {
 
   step {
     uddi {
-      fqdn = "{{random2}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      fqdn = "{{random2}}.com."
     }
   }
 
@@ -48,7 +48,7 @@ case "tag_filters" {
 
   step {
     uddi {
-      fqdn = "{{random2}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      fqdn = "{{random2}}.com."
       tags = { tag1 = "{{random2}}" }
     }
   }
