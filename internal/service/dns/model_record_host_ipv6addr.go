@@ -244,13 +244,13 @@ func (m *RecordHostIpv6addrModel) Expand(ctx context.Context, diags *diag.Diagno
 		return nil
 	}
 	to := &niosdns.RecordHostIpv6addr{
-		AddressType:          flex.ExpandStringPointerNullAsEmpty(m.AddressType),
+		AddressType:          flex.ExpandStringPointer(m.AddressType),
 		ConfigureForDhcp:     flex.ExpandBoolPointer(m.ConfigureForDhcp),
 		DomainName:           flex.ExpandStringPointerNullAsEmpty(m.DomainName),
 		DomainNameServers:    flex.ExpandFrameworkListString(ctx, m.DomainNameServers, diags),
 		Duid:                 flex.ExpandStringPointer(m.Duid),
 		Ipv6addr:             ExpandRecordHostIpv6addrIpv6addr(m.Ipv6addr),
-		Ipv6prefix:           flex.ExpandStringPointerNullAsEmpty(m.Ipv6prefix),
+		Ipv6prefix:           flex.ExpandStringPointer(m.Ipv6prefix),
 		Ipv6prefixBits:       flex.ExpandInt64Pointer(m.Ipv6prefixBits),
 		LogicFilterRules:     flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandRecordHostIpv6addrLogicFilterRules),
 		Mac:                  flex.ExpandStringPointer(m.Mac),

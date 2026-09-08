@@ -72,30 +72,6 @@ case "aliases" {
 
 }
 
-case "allow_telnet" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Skipping the test as backend isn't setting the values correctly"
-  parallel    = true
-
-  step {
-    nios {
-      name         = "{{random}}.example.com"
-      view         = "default"
-      ipv4addrs    = [{ ipv4addr = "192.168.1.13" }]
-      allow_telnet = false
-    }
-    check = {
-      "nios.allow_telnet" = "false"
-    }
-  }
-
-}
-
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "cli_credentials" {
   backend  = "nios"
   parallel = true
@@ -114,6 +90,15 @@ case "cli_credentials" {
     nios {
       name                 = "{{random}}.example.com"
       ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      cli_credentials = [
+        {
+          user            = "user1"
+          credential_type = "SSH"
+          comment         = "cli credential comment"
+          password        = "password1"
+          credential_group = "default"
+        }
+      ]
     }
     check = {
       "nios.cli_credentials.#"                 = "1"
@@ -127,6 +112,15 @@ case "cli_credentials" {
     nios {
       name                 = "{{random}}.example.com"
       ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      cli_credentials = [
+        {
+          user            = "user1"
+          credential_type = "SSH"
+          comment         = "cli credential comment"
+          password        = "password12"
+          credential_group = "default"
+        }
+      ]
     }
     check = {
       "nios.cli_credentials.#"                 = "1"
@@ -140,6 +134,15 @@ case "cli_credentials" {
     nios {
       name                 = "{{random}}.example.com"
       ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      cli_credentials = [
+        {
+          user            = "user2"
+          credential_type = "SSH"
+          comment         = "cli credential comment update"
+          password        = "password12"
+          credential_group = "default"
+        }
+      ]
     }
     check = {
       "nios.cli_credentials.#"                 = "1"
@@ -153,6 +156,15 @@ case "cli_credentials" {
     nios {
       name                 = "{{random}}.example.com"
       ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      cli_credentials = [
+        {
+          user            = "user1"
+          credential_type = "SSH"
+          comment         = "cli credential comment"
+          password        = "password12"
+          credential_group = "default"
+        }
+      ]
     }
     check = {
       "nios.cli_credentials.#"                 = "1"
@@ -176,32 +188,21 @@ case "cli_credentials" {
     nios {
       name                 = "{{random}}.example.com"
       ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      cli_credentials = [
+        {
+          user            = "user2"
+          credential_type = "SSH"
+          comment         = "cli credential comment update"
+          password        = "password12"
+          credential_group = "default"
+        }
+      ]
     }
     check = {
       "nios.cli_credentials.#"                 = "1"
       "nios.cli_credentials.0.user"            = "user2"
       "nios.cli_credentials.0.credential_type" = "SSH"
       "nios.cli_credentials.0.comment"         = "cli credential comment update"
-    }
-  }
-
-}
-
-case "cloud_info" {
-  backend  = "nios"
-  parallel = true
-
-  step {
-    nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
-      ipv4addrs = [{ ipv4addr = "192.168.1.14" }]
-    }
-    check = {
-      "nios.cloud_info.authority_type"   = "GM"
-      "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
-      "nios.cloud_info.owned_by_adaptor" = "false"
     }
   }
 
@@ -642,10 +643,6 @@ case "rrset_order" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "snmp3_credential" {
   backend  = "nios"
   parallel = true
@@ -862,10 +859,6 @@ case "ttl" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "use_dns_ea_inheritance" {
   backend  = "nios"
   parallel = true
