@@ -179,9 +179,9 @@ var DtcMonitorPdpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var DtcMonitorPdpResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		Default:             stringdefault.StaticString(""),
 		MarkdownDescription: "Optional. Comment for __PDPHealthCheck__.",
 	},
 	"disabled": schema.BoolAttribute{
