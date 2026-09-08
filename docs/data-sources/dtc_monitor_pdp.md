@@ -17,12 +17,16 @@ Retrieves information about existing Infoblox DtcMonitorPdp from both the NIOS a
 ```terraform
 // Retrieve a specific DTC PDP Monitor by filters
 data "infoblox_dtc_monitor_pdp" "by_filters" {
-  filters = { name = "example_dtc_monitor_pdp" }
+  filters = {
+    name = "example_dtc_monitor_pdp"
+  }
 }
 
 // Retrieve DTC PDP Monitors using Extensible Attributes
 data "infoblox_dtc_monitor_pdp" "by_ext_attrs" {
-  ext_attr_filters = { Site = "location-1" }
+  ext_attr_filters = {
+    Site = "location-1"
+  }
 }
 
 // Retrieve all DTC PDP Monitors
@@ -34,12 +38,16 @@ data "infoblox_dtc_monitor_pdp" "all" {}
 ```terraform
 // Retrieve a specific DTC PDP Health Check by filters
 data "infoblox_dtc_monitor_pdp" "by_filters" {
-  filters = { name = "example-dtc-monitor-pdp" }
+  filters = {
+    name = "example-dtc-monitor-pdp"
+  }
 }
 
 // Retrieve DTC PDP Health Checks using Tag filters
 data "infoblox_dtc_monitor_pdp" "by_tag_filters" {
-  tag_filters = { Site = "location-1" }
+  tag_filters = {
+    Site = "location-1"
+  }
 }
 
 // Retrieve all DTC PDP Health Checks
