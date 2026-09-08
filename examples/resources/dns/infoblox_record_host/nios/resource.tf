@@ -52,7 +52,7 @@ resource "infoblox_record_host" "example_dual_stack" {
 }
 
 // Create a Host Record using dynamic allocation
-resource "infoblox_record_host" "example_3" {
+resource "infoblox_record_host" "example_dynamic" {
   nios = {
     name = "host-3.${infoblox_zone_auth.example.nios.fqdn}"
     view = "default"

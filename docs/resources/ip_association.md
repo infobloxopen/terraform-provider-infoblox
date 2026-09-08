@@ -15,10 +15,27 @@ Associates DHCP settings with a host record managed by `infoblox_record_host`, i
 ### NIOS Backend
 
 ```terraform
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "example" {
+  nios = {
+    fqdn = "example.com"
+  }
+}
+
+// Create a Network (Required for Dynamic Allocation Example)
+resource "infoblox_network" "example_network" {
+  nios = {
+    network = "13.0.0.0/24"
+    ext_attrs = {
+      Site = "location-1"
+    }
+  }
+}
+
 // Static IPv4 host record with a MAC address, DHCP left off
 resource "infoblox_record_host" "static" {
   nios = {
-    name              = "host1.example.com"
+    name              = "host1.${infoblox_zone_auth.example.nios.fqdn}"
     view              = "default"
     configure_for_dns = true
     ipv4addrs = [
@@ -43,7 +60,7 @@ resource "infoblox_ip_association" "static" {
 // Dual-stack host record with DHCP enabled, leasing the IPv6 address on its DUID
 resource "infoblox_record_host" "dual_stack" {
   nios = {
-    name              = "host2.example.com"
+    name              = "host2.${infoblox_zone_auth.example.nios.fqdn}"
     view              = "default"
     configure_for_dns = true
     ipv4addrs = [
@@ -72,15 +89,15 @@ resource "infoblox_ip_association" "dual_stack" {
 // Host record whose address is allocated from a network, then associated
 resource "infoblox_record_host" "dynamic" {
   nios = {
-    name              = "host3.example.com"
+    name              = "host3.${infoblox_zone_auth.example.nios.fqdn}"
     view              = "default"
     configure_for_dns = true
     ipv4addrs = [
       {
         dynamic_allocation = {
-          network      = "10.10.0.0/16"
+          network      = infoblox_network.example_network.nios.network
           network_view = "default"
-          exclude      = ["10.10.0.1", "10.10.0.2"]
+          exclude      = ["13.10.0.1", "13.10.0.2"]
         }
       }
     ]
