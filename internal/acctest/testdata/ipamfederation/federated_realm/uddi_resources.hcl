@@ -78,6 +78,35 @@ case "name" {
 
 }
 
+case "metadata" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      metadata = { key1 = "value1", key2 = "value2" }
+    }
+    check = {
+      "uddi.metadata.key1" = "value1"
+      "uddi.metadata.key2" = "value2"
+    }
+  }
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      metadata = { key1 = "value1", key2 = "value2changed", key3 = "value3" }
+    }
+    check = {
+      "uddi.metadata.key1" = "value1"
+      "uddi.metadata.key2" = "value2changed"
+      "uddi.metadata.key3" = "value3"
+    }
+  }
+
+}
+
 case "tags" {
   backend  = "uddi"
   parallel = true

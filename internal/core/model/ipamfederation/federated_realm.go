@@ -8,7 +8,11 @@ type FederatedRealm struct {
 
 // UDDIFederatedRealmExt - UDDI specific fields for FederatedRealm
 type UDDIFederatedRealmExt struct {
-	Comment *string
-	Name    string
-	Tags    map[string]any
+	Comment     *string
+	Metadata    map[string]any
+	Name        string
+	Provider    *string
+	Region      *string
+	Tags        map[string]any
+	Utilization *int64
 }

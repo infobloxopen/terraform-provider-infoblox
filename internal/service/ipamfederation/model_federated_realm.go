@@ -28,17 +28,23 @@ var FederatedRealmAttrTypes = map[string]attr.Type{
 }
 
 type UDDIFederatedRealmModel struct {
-	Comment types.String `tfsdk:"comment"`
-	Name    types.String `tfsdk:"name"`
-	Tags    types.Map    `tfsdk:"tags"`
-	TagsAll types.Map    `tfsdk:"tags_all"`
+	Comment     types.String `tfsdk:"comment"`
+	Metadata    types.Map    `tfsdk:"metadata"`
+	Name        types.String `tfsdk:"name"`
+	Region      types.String `tfsdk:"region"`
+	Tags        types.Map    `tfsdk:"tags"`
+	TagsAll     types.Map    `tfsdk:"tags_all"`
+	Utilization types.Int64  `tfsdk:"utilization"`
 }
 
 var UDDIFederatedRealmAttrTypes = map[string]attr.Type{
-	"comment":  types.StringType,
-	"name":     types.StringType,
-	"tags":     types.MapType{ElemType: types.StringType},
-	"tags_all": types.MapType{ElemType: types.StringType},
+	"comment":     types.StringType,
+	"metadata":    types.MapType{ElemType: types.StringType},
+	"name":        types.StringType,
+	"region":      types.StringType,
+	"tags":        types.MapType{ElemType: types.StringType},
+	"tags_all":    types.MapType{ElemType: types.StringType},
+	"utilization": types.Int64Type,
 }
 
 const (
@@ -67,12 +73,21 @@ var FederatedRealmResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The description of the federated realm. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
+	"metadata": schema.MapAttribute{
+		ElementType:         types.StringType,
+		Optional:            true,
+		MarkdownDescription: "The metadata for the federated realm in JSON format.",
+	},
 	"name": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(1, 256),
 		},
 		MarkdownDescription: "The name of the federated realm. May contain 1 to 256 characters; can include UTF-8.",
+	},
+	"region": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "The region where the realm is located.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -88,6 +103,10 @@ var FederatedRealmResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
+	},
+	"utilization": schema.Int64Attribute{
+		Optional:            true,
+		MarkdownDescription: "The percentage of Federated Realm utilization.",
 	},
 }
 
@@ -111,9 +130,12 @@ func (m *FederatedRealmModel) Expand(ctx context.Context, diags *diag.Diagnostic
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIFederatedRealmModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIFederatedRealmExt {
 	return &coremodel.UDDIFederatedRealmExt{
-		Comment: flex.ExpandStringPointer(m.Comment),
-		Name:    flex.ExpandString(m.Name),
-		Tags:    flex.ExpandMapStringAny(ctx, m.Tags, diags),
+		Comment:     flex.ExpandStringPointer(m.Comment),
+		Metadata:    flex.ExpandMapStringAny(ctx, m.Metadata, diags),
+		Name:        flex.ExpandString(m.Name),
+		Region:      flex.ExpandStringPointer(m.Region),
+		Tags:        flex.ExpandMapStringAny(ctx, m.Tags, diags),
+		Utilization: flex.ExpandInt64Pointer(m.Utilization),
 	}
 }
 
@@ -144,10 +166,13 @@ func (m *UDDIFederatedRealmModel) Flatten(ctx context.Context, from *coremodel.U
 		return
 	}
 	m.Comment = flex.FlattenStringPointer(from.Comment)
+	m.Metadata = flex.FlattenMapStringAny(ctx, from.Metadata, diags)
 	m.Name = flex.FlattenString(from.Name)
+	m.Region = flex.FlattenStringPointer(from.Region)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
+	m.Utilization = flex.FlattenInt64Pointer(from.Utilization)
 }
