@@ -191,7 +191,7 @@ var RecordNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"flags": schema.StringAttribute{
 		Validators: []validator.String{
 			customvalidator.ValidateTrimmedString(),
-			stringvalidator.OneOf("U", "S", "P", "A", ""),
+			stringvalidator.OneOf("U", "S", "P", "A"),
 		},
 		Optional:            true,
 		MarkdownDescription: "The flags used to control the interpretation of the fields for an NAPTR record object. Supported values for the flags field are \"U\", \"S\", \"P\" and \"A\".",
