@@ -173,6 +173,7 @@ var DtcMonitorHttpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			stringvalidator.LengthBetween(0, 256),
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "Comment for this DTC monitor; maximum 256 characters.",
