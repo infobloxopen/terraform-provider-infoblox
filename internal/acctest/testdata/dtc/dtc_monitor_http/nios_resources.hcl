@@ -461,9 +461,39 @@ case "port" {
 }
 
 case "request" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "NIOS always appends '\\nConnection: close\\n\\n' to any request value; round-trip testing requires a suppress_diff on this field. Test via the UDDI backend instead."
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name    = "{{random}}"
+      request = "GET /api/health HTTP/1.1\nHost: example.com\nUser-Agent: NIOS-Monitor"
+    }
+    check = {
+      "nios.request" = "GET /api/health HTTP/1.1\nHost: example.com\nUser-Agent: NIOS-Monitor"
+    }
+  }
+
+  step {
+    nios {
+      name    = "{{random}}"
+      request = "HEAD /resource HTTP/1.1\nHost: example.com\nAccept: */*"
+    }
+    check = {
+      "nios.request" = "HEAD /resource HTTP/1.1\nHost: example.com\nAccept: */*"
+    }
+  }
+
+  step {
+    nios {
+      name    = "{{random}}"
+      request = "POST /submit HTTP/1.1\nHost: example.com\nContent-Type: application/json"
+    }
+    check = {
+      "nios.request" = "POST /submit HTTP/1.1\nHost: example.com\nContent-Type: application/json"
+    }
+  }
+
 }
 
 case "result" {

@@ -314,15 +314,13 @@ case "check_response_body" {
 
   step {
     uddi {
-      name                      = "dtc-monitor-http-{{random}}"
-      port                      = 80
-      request                   = "GET / HTTP/1.0\r\n\r\n"
-      check_response_body       = true
-      check_response_body_regex = "OK"
+      name                = "dtc-monitor-http-{{random}}"
+      port                = 80
+      request             = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body = false
     }
     check = {
-      "uddi.check_response_body"       = "true"
-      "uddi.check_response_body_regex" = "OK"
+      "uddi.check_response_body" = "false"
     }
   }
 
@@ -332,11 +330,22 @@ case "check_response_body" {
       port                      = 80
       request                   = "GET / HTTP/1.0\r\n\r\n"
       check_response_body       = true
-      check_response_body_regex = "SUCCESS"
+      check_response_body_regex = "OK"
     }
     check = {
-      "uddi.check_response_body"       = "true"
-      "uddi.check_response_body_regex" = "SUCCESS"
+      "uddi.check_response_body" = "true"
+    }
+  }
+
+  step {
+    uddi {
+      name                = "dtc-monitor-http-{{random}}"
+      port                = 80
+      request             = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body = false
+    }
+    check = {
+      "uddi.check_response_body" = "false"
     }
   }
 
@@ -466,6 +475,74 @@ case "tags" {
     }
     check = {
       "uddi.tags.Site" = "{{random3}}"
+    }
+  }
+
+}
+
+case "check_response_body_negative" {
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "HTTPHealthCheck negative body search is not supported by the NIOS API"
+
+  step {
+    uddi {
+      name                          = "dtc-monitor-http-{{random}}"
+      port                          = 80
+      request                       = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body           = true
+      check_response_body_regex     = "error"
+      check_response_body_negative  = true
+    }
+    check = {
+      "uddi.check_response_body_negative" = "true"
+    }
+  }
+
+  step {
+    uddi {
+      name                          = "dtc-monitor-http-{{random}}"
+      port                          = 80
+      request                       = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body           = true
+      check_response_body_regex     = "error"
+      check_response_body_negative  = false
+    }
+    check = {
+      "uddi.check_response_body_negative" = "false"
+    }
+  }
+
+}
+
+case "check_response_body_regex" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name                      = "dtc-monitor-http-{{random}}"
+      port                      = 80
+      request                   = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body       = true
+      check_response_body_regex = "healthy"
+    }
+    check = {
+      "uddi.check_response_body_regex" = "healthy"
+    }
+  }
+
+  step {
+    uddi {
+      name                      = "dtc-monitor-http-{{random}}"
+      port                      = 80
+      request                   = "GET / HTTP/1.0\r\n\r\n"
+      check_response_body       = true
+      check_response_body_regex = "status.*ok"
+    }
+    check = {
+      "uddi.check_response_body_regex" = "status.*ok"
     }
   }
 
