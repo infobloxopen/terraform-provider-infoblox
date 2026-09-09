@@ -420,6 +420,25 @@ func (r *DtcTopologyResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
+	// Always re-read after Update: NIOS recreates rule child objects on every update, so the
+	// update response refs are immediately stale. A fresh Read guarantees current refs.
+	if r.backend == core.BackendNIOS {
+		var freshResp *coremodel.DtcTopology
+		var freshHTTP *http.Response
+		freshErr := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+			var readErr error
+			freshResp, freshHTTP, readErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+				ReturnFields: DtcTopologyReturnFields,
+			})
+			if freshHTTP != nil {
+				return freshHTTP.StatusCode, readErr
+			}
+			return 0, readErr
+		})
+		if freshErr == nil && freshResp != nil {
+			apiResp = freshResp
+		}
+	}
 	populateDtcTopologyNIOSRules(ctx, r.niosClient, apiResp, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return

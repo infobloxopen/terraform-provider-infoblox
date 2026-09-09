@@ -210,12 +210,29 @@ func (l *DtcTopologyList) List(ctx context.Context, req list.ListRequest, stream
 			// the full resource is flattened and set on result.Resource.
 			if req.IncludeResource {
 				if l.backend == core.BackendNIOS {
+					origRuleCount := 0
+					if item.NIOS != nil {
+						origRuleCount = len(item.NIOS.Rules)
+					}
 					populateDtcTopologyNIOSRules(ctx, l.niosClient, item, &result.Diagnostics)
 					if result.Diagnostics.HasError() {
 						if !push(result) {
 							return
 						}
 						continue
+					}
+					// All rule refs were stale (e.g. concurrent update invalidated them); re-read to get fresh refs.
+					if origRuleCount > 0 && item.NIOS != nil && len(item.NIOS.Rules) == 0 && item.Id != nil {
+						if freshItem, _, err := l.service.Read(ctx, *item.Id, &core.Options{ReturnFields: DtcTopologyReturnFields}); err == nil && freshItem != nil {
+							item = freshItem
+							populateDtcTopologyNIOSRules(ctx, l.niosClient, item, &result.Diagnostics)
+							if result.Diagnostics.HasError() {
+								if !push(result) {
+									return
+								}
+								continue
+							}
+						}
 					}
 				}
 				model := &DtcTopologyModel{}

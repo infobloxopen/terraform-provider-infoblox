@@ -3,6 +3,7 @@ package dtc
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -38,25 +39,37 @@ func populateDtcTopologyNIOSRules(ctx context.Context, client *niosclient.APICli
 	if client == nil || resp == nil || resp.NIOS == nil {
 		return
 	}
-	for i, rule := range resp.NIOS.Rules {
+	filtered := make([]niosdtc.DtcTopologyRulesInner, 0, len(resp.NIOS.Rules))
+	for _, rule := range resp.NIOS.Rules {
 		if rule.DtcTopologyRulesInnerOneOf == nil || rule.DtcTopologyRulesInnerOneOf.Ref == nil {
+			filtered = append(filtered, rule)
 			continue
 		}
-		resp.NIOS.Rules[i].DtcTopologyRulesInnerOneOf1 = fetchDtcTopologyNIOSRuleDetails(ctx, client, *rule.DtcTopologyRulesInnerOneOf.Ref, diags)
+		details := fetchDtcTopologyNIOSRuleDetails(ctx, client, *rule.DtcTopologyRulesInnerOneOf.Ref, diags)
 		if diags.HasError() {
 			return
 		}
+		if details == nil {
+			// 404 — rule child object is stale; omit from results
+			continue
+		}
+		rule.DtcTopologyRulesInnerOneOf1 = details
+		filtered = append(filtered, rule)
 	}
+	resp.NIOS.Rules = filtered
 }
 
 func fetchDtcTopologyNIOSRuleDetails(ctx context.Context, client *niosclient.APIClient, ruleRef string, diags *diag.Diagnostics) *niosdtc.DtcTopologyRulesInnerOneOf1 {
-	apiRes, _, err := client.DTCAPI.
+	apiRes, httpResp, err := client.DTCAPI.
 		DtcTopologyRuleAPI.
 		Read(ctx, core.ExtractNIOSRef(ruleRef)).
 		ReturnFieldsPlus(dtcTopologyRuleReturnFields).
 		ReturnAsObject(1).
 		Execute()
 	if err != nil {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			return nil
+		}
 		diags.AddError("Client Error", fmt.Sprintf("Unable to read DTC Topology Rule %s: %s", ruleRef, err))
 		return nil
 	}

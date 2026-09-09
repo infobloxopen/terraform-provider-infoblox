@@ -100,7 +100,6 @@ Read-Only:
 - `destination_link` (String) The reference to the destination object.
 - `return_type` (String) The type of the return value for this source.
 - `sources` (Attributes List) Conditions for matching sources. (see [below for nested schema](#nestedatt--results--nios--rules--sources))
-- `valid` (Boolean) Indicates whether the rule is valid.
 
 <a id="nestedatt--results--nios--rules--sources"></a>
 ### Nested Schema for `results.nios.rules.sources`

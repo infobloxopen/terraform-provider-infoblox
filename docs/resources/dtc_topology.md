@@ -167,10 +167,6 @@ Optional:
 - `return_type` (String) The type of the return value for this source.
 - `sources` (Attributes List) Conditions for matching sources. (see [below for nested schema](#nestedatt--nios--rules--sources))
 
-Read-Only:
-
-- `valid` (Boolean) Indicates whether the rule is valid.
-
 <a id="nestedatt--nios--rules--sources"></a>
 ### Nested Schema for `nios.rules.sources`
 
