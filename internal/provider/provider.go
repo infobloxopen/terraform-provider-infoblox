@@ -344,6 +344,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
+		dhcp.NewIpv6rangetemplateResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewRecordSvcbResource,
@@ -394,6 +395,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		rpz.NewRecordRpzCnameIpaddressResource,
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
@@ -419,6 +421,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
+		dhcp.NewIpv6rangetemplateDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewRecordSvcbDataSource,
@@ -472,6 +475,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		rpz.NewRecordRpzCnameIpaddressDataSource,
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
@@ -497,6 +501,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
+		dhcp.NewIpv6rangetemplateList,
 
 		dns.NewAuthNsgList,
 		dns.NewRecordSvcbList,
@@ -547,6 +552,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
 
+		rpz.NewRecordRpzCnameIpaddressList,
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,

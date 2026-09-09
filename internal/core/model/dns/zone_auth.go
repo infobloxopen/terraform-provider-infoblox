@@ -69,7 +69,6 @@ type NIOSZoneAuthExt struct {
 	NsGroup                             *string
 	Prefix                              *string
 	RecordNamePolicy                    *string
-	RemoveSubzones                      *bool
 	RestartIfNeeded                     *bool
 	ScavengingSettings                  *niosdns.ZoneAuthScavengingSettings
 	SetSoaSerialNumber                  *bool
