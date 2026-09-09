@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
+	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dtc"
@@ -30,8 +31,9 @@ func NewDtcTopologyList() list.ListResource {
 }
 
 type DtcTopologyList struct {
-	backend core.BackendType
-	service coresvc.DtcTopologyService
+	backend    core.BackendType
+	service    coresvc.DtcTopologyService
+	niosClient *niosclient.APIClient
 }
 
 type DtcTopologyListModel struct {
@@ -60,6 +62,7 @@ func (l *DtcTopologyList) Configure(_ context.Context, req resource.ConfigureReq
 
 	if client.NIOS != nil {
 		l.backend = core.BackendNIOS
+		l.niosClient = client.NIOS
 	} else {
 		l.backend = core.BackendUDDI
 	}
@@ -206,6 +209,15 @@ func (l *DtcTopologyList) List(ctx context.Context, req list.ListRequest, stream
 			// By default, list only returns the identity. If IncludeResource is true,
 			// the full resource is flattened and set on result.Resource.
 			if req.IncludeResource {
+				if l.backend == core.BackendNIOS {
+					populateDtcTopologyNIOSRules(ctx, l.niosClient, item, &result.Diagnostics)
+					if result.Diagnostics.HasError() {
+						if !push(result) {
+							return
+						}
+						continue
+					}
+				}
 				model := &DtcTopologyModel{}
 				model.Flatten(ctx, item, &result.Diagnostics)
 				if !result.Diagnostics.HasError() {

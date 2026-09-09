@@ -21,7 +21,6 @@ type TopologyRulesInnerModel struct {
 	DestType        types.String `tfsdk:"dest_type"`
 	DestinationLink types.String `tfsdk:"destination_link"`
 	ReturnType      types.String `tfsdk:"return_type"`
-	Valid           types.Bool   `tfsdk:"valid"`
 	Sources         types.List   `tfsdk:"sources"`
 }
 
@@ -30,7 +29,6 @@ var TopologyRulesInnerAttrTypes = map[string]attr.Type{
 	"dest_type":        types.StringType,
 	"destination_link": types.StringType,
 	"return_type":      types.StringType,
-	"valid":            types.BoolType,
 	"sources":          types.ListType{ElemType: types.ObjectType{AttrTypes: TopologyRulesInnerOneOf1SourcesInnerAttrTypes}},
 }
 
@@ -57,10 +55,6 @@ var TopologyRulesInnerResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The type of the return value for this source.",
-	},
-	"valid": schema.BoolAttribute{
-		Computed:            true,
-		MarkdownDescription: "Indicates whether the rule is valid.",
 	},
 	"sources": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -97,7 +91,6 @@ func (m *TopologyRulesInnerModel) Expand(ctx context.Context, diags *diag.Diagno
 			DestType:        flex.ExpandStringPointerNullAsEmpty(m.DestType),
 			DestinationLink: flex.ExpandStringPointer(m.DestinationLink),
 			ReturnType:      flex.ExpandStringPointer(m.ReturnType),
-			Valid:           flex.ExpandBoolPointer(m.Valid),
 			Sources:         flex.ExpandFrameworkListNestedBlock(ctx, m.Sources, diags, ExpandTopologyRulesInnerOneOf1SourcesInner),
 		},
 	}
@@ -130,6 +123,5 @@ func (m *TopologyRulesInnerModel) Flatten(ctx context.Context, src *niosdtc.DtcT
 	m.DestType = flex.FlattenStringPointerEmptyAsNull(from.DestType)
 	m.DestinationLink = flex.FlattenStringPointerEmptyAsNull(from.DestinationLink)
 	m.ReturnType = flex.FlattenStringPointerEmptyAsNull(from.ReturnType)
-	m.Valid = flex.FlattenBoolPointer(from.Valid)
 	m.Sources = flex.FlattenFrameworkListNestedBlock(ctx, from.Sources, TopologyRulesInnerOneOf1SourcesInnerAttrTypes, diags, FlattenTopologyRulesInnerOneOf1SourcesInner)
 }
