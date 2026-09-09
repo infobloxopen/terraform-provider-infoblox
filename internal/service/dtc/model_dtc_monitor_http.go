@@ -545,8 +545,10 @@ func (m *DtcMonitorHttpModel) Flatten(ctx context.Context, resp *coremodel.DtcMo
 	if niosModel == nil {
 		niosModel = &NIOSDtcMonitorHttpModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSDtcMonitorHttpModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenDtcMonitorHttpNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSDtcMonitorHttpAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSDtcMonitorHttpAttrTypes)
