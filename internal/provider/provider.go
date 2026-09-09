@@ -330,11 +330,14 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		rpz.NewRecordRpzAaaaResource,
+		grid.NewServicerestartGroupResource,
+		dtc.NewDtcMonitorPdpResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
 		ipam.NewSuperhostResource,
 		dhcp.NewDhcpOptionspaceResource,
+		dtc.NewDtcLbdnResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
 		dhcp.NewIpv6DhcpOptiondefinitionResource,
@@ -343,6 +346,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6fixedaddresstemplateResource,
 
 		dns.NewAuthNsgResource,
+		dns.NewRecordSvcbResource,
 		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
 		dns.NewNsgroupResource,
@@ -401,11 +405,14 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		rpz.NewRecordRpzAaaaDataSource,
+		grid.NewServicerestartGroupDataSource,
+		dtc.NewDtcMonitorPdpDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		ipam.NewSuperhostDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
+		dtc.NewDtcLbdnDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
@@ -414,6 +421,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
 
 		dns.NewAuthNsgDataSource,
+		dns.NewRecordSvcbDataSource,
 		dns.NewDnsServerDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewNsgroupDataSource,
@@ -475,11 +483,14 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		rpz.NewRecordRpzAaaaList,
+		grid.NewServicerestartGroupList,
+		dtc.NewDtcMonitorPdpList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
 		ipam.NewSuperhostList,
 		dhcp.NewDhcpOptionspaceList,
+		dtc.NewDtcLbdnList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
 		dhcp.NewIpv6DhcpOptiondefinitionList,
@@ -488,6 +499,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6fixedaddresstemplateList,
 
 		dns.NewAuthNsgList,
+		dns.NewRecordSvcbList,
 		dns.NewDnsServerList,
 		dns.NewForwardNsgList,
 		dns.NewNsgroupList,
