@@ -8,7 +8,7 @@ data "infoblox_federated_realm" "get_federated_realm_using_filters" {
 // Retrieve Federated Realms filtered by tag
 data "infoblox_federated_realm" "get_federated_realm_using_tag_filters" {
   tag_filters = {
-    site = "Site A"
+    Site = "location-1"
   }
 }
 

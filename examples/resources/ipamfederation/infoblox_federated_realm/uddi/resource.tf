@@ -1,4 +1,4 @@
-// Create a Federated Realm with the minimum set of fields
+// Create a Federated Realm with basic fields
 resource "infoblox_federated_realm" "example" {
   uddi = {
     name = "example_federated_realm"
@@ -13,7 +13,7 @@ resource "infoblox_federated_realm" "example_with_additional_fields" {
     # Other optional fields
     comment = "Example Federated Realm created through Terraform"
     tags = {
-      site = "Site A"
+      Site = "location-1"
     }
   }
 }

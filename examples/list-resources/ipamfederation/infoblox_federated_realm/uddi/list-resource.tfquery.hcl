@@ -14,7 +14,7 @@ list "infoblox_federated_realm" "list_federated_realm_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
-      site = "Site A"
+      Site = "location-1"
     }
   }
 }
