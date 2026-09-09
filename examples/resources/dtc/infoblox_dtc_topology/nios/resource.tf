@@ -25,16 +25,16 @@ resource "infoblox_dtc_topology" "example_with_rules" {
   nios = {
     name    = "example-topology-rules5"
     comment = "Topology with geographic rules"
-    rules = [      {
-        # Default rule (no sources = catch-all)
-        dest_type        = "SERVER"
-        destination_link = infoblox_dtc_server.example_server_default.id
-        return_type      = "REGULAR"
+    rules = [{
+      # Default rule (no sources = catch-all)
+      dest_type        = "SERVER"
+      destination_link = infoblox_dtc_server.example_server_default.id
+      return_type      = "REGULAR"
       }
     ]
     ext_attrs = {
       Site = "us-east-1"
     }
   }
-  depends_on = [ infoblox_dtc_server.example_server_default ]
+  depends_on = [infoblox_dtc_server.example_server_default]
 }
