@@ -1,3 +1,4 @@
+# TODO: grid prereqs — two dtc:certificate objects must exist on the test appliance
 # Auto-generated resource acceptance-test cases for DtcMonitorHttp.
 case "basic" {
   backend  = "nios"
@@ -69,9 +70,30 @@ case "ciphers" {
 }
 
 case "client_cert" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "client_cert requires a valid DTC certificate ref on the test appliance; resolve via WAPI dtc:certificate and update this case"
+  # TODO: grid prereqs — dtc:certificate refs 0504e596...abad058a and 4b0bcb4d...55ad5c must exist on the test appliance
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name        = "{{random}}"
+      client_cert = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkYjIzMDM0NDhhODlhMjRmMGNlNWE3OTRiMWRiYWI2NjkwM2IyNmYwNGY0MzNhODA4YmExZDNiNjY3NzU2NTY5NTA5MmJjYTAzZTA0MjIxN2ZkOWFlOWI4YzE1N2I0MmQyNWEzYWJjNzA4MGZiYWRiYWRmY2I3NjkwYzgxN2NlODY:0504e596e496491145f9946315092522abad058a"
+    }
+    check = {
+      "nios.client_cert" = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkYjIzMDM0NDhhODlhMjRmMGNlNWE3OTRiMWRiYWI2NjkwM2IyNmYwNGY0MzNhODA4YmExZDNiNjY3NzU2NTY5NTA5MmJjYTAzZTA0MjIxN2ZkOWFlOWI4YzE1N2I0MmQyNWEzYWJjNzA4MGZiYWRiYWRmY2I3NjkwYzgxN2NlODY:0504e596e496491145f9946315092522abad058a"
+    }
+  }
+
+  step {
+    nios {
+      name        = "{{random}}"
+      client_cert = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkNmQxN2YzODc5MjYxZDhkM2U2NGM3MTEwYmU4ZTU3Nzk2ZjY5Y2EzYTc1ZmYxYzM0MWI3NTZkNGEyZWFkYWFmNWI4NzVhNjdlZmU4ZjU5ZjczZmRjODMyY2U5MTlhMzQzYmI1OGMyNTQxOGFkN2RmMWEyYTY3NzA5YWRlNWIxMGM:4b0bcb4d0f766414393f1d649bab3e6cb255ad5c"
+    }
+    check = {
+      "nios.client_cert" = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkNmQxN2YzODc5MjYxZDhkM2U2NGM3MTEwYmU4ZTU3Nzk2ZjY5Y2EzYTc1ZmYxYzM0MWI3NTZkNGEyZWFkYWFmNWI4NzVhNjdlZmU4ZjU5ZjczZmRjODMyY2U5MTlhMzQzYmI1OGMyNTQxOGFkN2RmMWEyYTY3NzA5YWRlNWIxMGM:4b0bcb4d0f766414393f1d649bab3e6cb255ad5c"
+    }
+  }
+
 }
 
 case "comment" {
@@ -442,24 +464,6 @@ case "request" {
   backend     = "nios"
   skip        = true
   skip_reason = "NIOS always appends '\\nConnection: close\\n\\n' to any request value; round-trip testing requires a suppress_diff on this field. Test via the UDDI backend instead."
-}}"
-      request = "GET /api/health HTTP/1.1\\nHost: example.com\\nUser-Agent: NIOS-Monitor"
-    }
-    check = {
-      "nios.request" = "GET /api/health HTTP/1.1\\nHost: example.com\\nUser-Agent: NIOS-Monitor"
-    }
-  }
-
-  step {
-    nios {
-      name    = "{{random}}"
-      request = "HEAD /resource HTTP/1.1\\nHost: example.com\\nAccept: */*"
-    }
-    check = {
-      "nios.request" = "HEAD /resource HTTP/1.1\\nHost: example.com\\nAccept: */*"
-    }
-  }
-
 }
 
 case "result" {
