@@ -1,4 +1,4 @@
-// Create an IPAM Bulk Hostname Template with Basic Feilds
+// Create a Bulk Hostname Template with Basic Feilds
 resource "infoblox_bulk_hostname_template" "bulk_hostname_template_one_octet" {
   nios = {
     template_name   = "one-octet"

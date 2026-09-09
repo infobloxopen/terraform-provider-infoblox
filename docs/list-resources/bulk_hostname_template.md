@@ -15,7 +15,7 @@ Retrieves a list of Infoblox Bulkhostnametemplate from the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// List specific Bulk Hostname Template using filters
+// List a specific Bulk Hostname Template using filters
 list "infoblox_bulk_hostname_template" "list_bulk_hostname_templates_using_filters" {
   provider = infoblox
   config {
