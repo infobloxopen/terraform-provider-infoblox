@@ -1,7 +1,6 @@
 # Auto-generated resource acceptance-test cases for Ipv6rangetemplate.
 // Objects to be present on grid to run the tests
 // - logic_filter_rules(ipv6_option_filter, ipv6_option_filter1), option_filter_rules (ipv6_option_filter)
-// cloud_api_compatible is made true to pass all acceptance tests
 
 case "basic" {
   backend  = "nios"
@@ -12,11 +11,9 @@ case "basic" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
     }
     check = {
       "nios.name"                    = "{{random}}"
-      "nios.cloud_api_compatible"    = "true"
       "nios.recycle_leases"          = "true"
       "nios.server_association_type" = "NONE"
     }
@@ -35,19 +32,13 @@ case "disappears" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
     }
   }
 
 }
 
-// The testcase will fail, as this is a known issue
-// If the user is a cloud-user, then they need Terraform internal ID with cloud permission and enable cloud delegation for the user to create a range template.
-// if the user is a non cloud-user, they need to have  Terraform internal ID without cloud permission.
 case "cloud_api_compatible" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Skipping this test as it is a known issue."
   parallel    = true
 
   step {
@@ -85,7 +76,6 @@ case "comment" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       comment              = "example comment"
     }
     check = {
@@ -98,7 +88,6 @@ case "comment" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       comment              = "example comment updated"
     }
     check = {
@@ -117,7 +106,6 @@ case "delegated_member" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       delegated_member     = { name = "{{grid_master_hostname}}" }
     }
     check = {
@@ -130,7 +118,6 @@ case "delegated_member" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       delegated_member     = { name = "{{grid_member_hostname}}" }
     }
     check = {
@@ -149,7 +136,6 @@ case "exclude" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       exclude              = [{ number_of_addresses = 10, offset = 20 }]
     }
     check = {
@@ -164,7 +150,6 @@ case "exclude" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       exclude              = [{ number_of_addresses = 15, offset = 25, comment = "exclude for range template" }]
     }
     check = {
@@ -186,7 +171,6 @@ case "logic_filter_rules" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       logic_filter_rules   = [{ filter = "ipv6_option_filter", type = "Option" }]
     }
     check = {
@@ -201,7 +185,6 @@ case "logic_filter_rules" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       logic_filter_rules   = [{ filter = "ipv6_option_filter1", type = "Option" }]
     }
     check = {
@@ -222,7 +205,6 @@ case "member" {
       name                    = "{{random}}"
       number_of_addresses     = 100
       offset                  = 50
-      cloud_api_compatible    = true
       member                  = { name = "{{grid_master_hostname}}" }
       server_association_type = "MEMBER"
     }
@@ -236,7 +218,6 @@ case "member" {
       name                    = "{{random}}"
       number_of_addresses     = 100
       offset                  = 50
-      cloud_api_compatible    = true
       member                  = { name = "{{grid_member_hostname}}" }
       server_association_type = "MEMBER"
     }
@@ -256,7 +237,6 @@ case "name" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
     }
     check = {
       "nios.name" = "{{random}}"
@@ -268,7 +248,6 @@ case "name" {
       name                 = "{{random2}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
     }
     check = {
       "nios.name" = "{{random2}}"
@@ -286,7 +265,6 @@ case "number_of_addresses" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
     }
     check = {
       "nios.number_of_addresses" = "100"
@@ -298,7 +276,6 @@ case "number_of_addresses" {
       name                 = "{{random}}"
       number_of_addresses  = 150
       offset               = 50
-      cloud_api_compatible = true
     }
     check = {
       "nios.number_of_addresses" = "150"
@@ -316,7 +293,6 @@ case "offset" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 200
-      cloud_api_compatible = true
     }
     check = {
       "nios.offset" = "200"
@@ -328,7 +304,6 @@ case "offset" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 250
-      cloud_api_compatible = true
     }
     check = {
       "nios.offset" = "250"
@@ -346,7 +321,6 @@ case "option_filter_rules" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       option_filter_rules  = [{ filter = "ipv6_option_filter", permission = "Allow" }]
     }
     check = {
@@ -361,7 +335,6 @@ case "option_filter_rules" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       option_filter_rules  = [{ filter = "ipv6_option_filter", permission = "Deny" }]
     }
     check = {
@@ -382,7 +355,6 @@ case "recycle_leases" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       recycle_leases       = false
     }
     check = {
@@ -395,7 +367,6 @@ case "recycle_leases" {
       name                 = "{{random}}"
       number_of_addresses  = 100
       offset               = 50
-      cloud_api_compatible = true
       recycle_leases       = true
     }
     check = {
@@ -414,7 +385,6 @@ case "server_association_type" {
       name                    = "{{random}}"
       number_of_addresses     = 100
       offset                  = 50
-      cloud_api_compatible    = true
       server_association_type = "MEMBER"
       member                  = { name = "{{grid_master_hostname}}" }
     }
@@ -428,7 +398,6 @@ case "server_association_type" {
       name                    = "{{random}}"
       number_of_addresses     = 100
       offset                  = 50
-      cloud_api_compatible    = true
       server_association_type = "NONE"
     }
     check = {

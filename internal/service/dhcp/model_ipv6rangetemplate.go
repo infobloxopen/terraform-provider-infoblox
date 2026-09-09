@@ -79,7 +79,7 @@ var Ipv6rangetemplateResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"cloud_api_compatible": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             booldefault.StaticBool(true),
+		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Determines whether the IPv6 DHCP range template can be used to create network objects in a cloud-computing deployment.",
 	},
 	"comment": schema.StringAttribute{
