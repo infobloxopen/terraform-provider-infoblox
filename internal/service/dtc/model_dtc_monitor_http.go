@@ -559,8 +559,10 @@ func (m *DtcMonitorHttpModel) Flatten(ctx context.Context, resp *coremodel.DtcMo
 	if uddiModel == nil {
 		uddiModel = &UDDIDtcMonitorHttpModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDIDtcMonitorHttpModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenDtcMonitorHttpUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIDtcMonitorHttpAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIDtcMonitorHttpAttrTypes)

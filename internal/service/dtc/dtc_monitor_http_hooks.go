@@ -53,6 +53,26 @@ func validateDtcMonitorHttpNIOSConfig(ctx context.Context, m *NIOSDtcMonitorHttp
 func validateDtcMonitorHttpUDDIConfig(ctx context.Context, m *UDDIDtcMonitorHttpModel, resp *resource.ValidateConfigResponse) {
 }
 
+// PostFlattenDtcMonitorHttpUDDI strips the trailing "\r\n" that the UDDI API
+// automatically appends to request values on read-back.
+func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDIDtcMonitorHttpModel, diags *diag.Diagnostics) {
+	if planned == nil || flattened == nil {
+		return
+	}
+	if flattened.Request.IsNull() || flattened.Request.IsUnknown() {
+		return
+	}
+
+	requestValue := flattened.Request.ValueString()
+	planValue := planned.Request.ValueString()
+
+	if strings.HasSuffix(requestValue, "\r\n\r\n") && !strings.HasSuffix(planValue, "\r\n\r\n") {
+		requestValue = strings.TrimSuffix(requestValue, "\r\n")
+	}
+
+	flattened.Request = types.StringValue(requestValue)
+}
+
 // PostFlattenDtcMonitorHttpNIOS strips the trailing "\nConnection: close\n\n" that
 // NIOS automatically appends to any request value on read-back, so the stored state
 // matches what the user configured and no spurious diff is produced.
