@@ -51,7 +51,7 @@ resource "infoblox_zone_rp" "parent_zone" {
   }
 }
 
-resource "infoblox_record_rpz_cname_ipaddress" "custom_view" {
+resource "infoblox_record_rpz_cname_ipaddress" "create_record_rpz_cname_ipaddress_custom_view" {
   nios = {
     name      = "11.0.0.4.${infoblox_zone_rp.parent_zone.nios.fqdn}"
     canonical = "11.0.0.4"
