@@ -1,4 +1,4 @@
-// Create an RPZ Zone (Required as Parent)
+// Create an RP Zone (Required as Parent)
 resource "infoblox_zone_rp" "example" {
   nios = {
     fqdn = "rpz.example.com"

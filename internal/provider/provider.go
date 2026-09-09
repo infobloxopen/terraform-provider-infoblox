@@ -329,7 +329,6 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		rpz.NewRecordRpzAaaaResource,
 		grid.NewServicerestartGroupResource,
 		dtc.NewDtcMonitorPdpResource,
 		acl.NewNamedaclResource,
@@ -399,6 +398,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
 		rpz.NewRecordRpzCnameResource,
 	}
@@ -406,7 +406,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		rpz.NewRecordRpzAaaaDataSource,
 		grid.NewServicerestartGroupDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
 		acl.NewNamedaclDataSource,
@@ -479,6 +478,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
 		rpz.NewRecordRpzCnameDataSource,
 	}
@@ -486,7 +486,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		rpz.NewRecordRpzAaaaList,
 		grid.NewServicerestartGroupList,
 		dtc.NewDtcMonitorPdpList,
 		acl.NewNamedaclList,
@@ -556,6 +555,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAaaaList,
 		rpz.NewRecordRpzAaaaIpaddressList,
 		rpz.NewRecordRpzCnameList,
 	}

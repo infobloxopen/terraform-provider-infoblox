@@ -290,8 +290,6 @@ case "ttl" {
     }
   }
 
-  # ttl removed from config after being set: Optional+Computed must absorb
-  # whatever the API reports instead of raising a "was null, but now N" diff.
   step {
     nios {
       name     = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
