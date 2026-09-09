@@ -15,9 +15,6 @@ Retrieves information about existing Infoblox DtcMonitorHttp from both the NIOS 
 ### NIOS Backend
 
 ```terraform
-// List all DTC Monitor HTTP resources
-data "infoblox_dtc_monitor_http" "all" {}
-
 // Filter by name
 data "infoblox_dtc_monitor_http" "by_name" {
   filters = {
@@ -31,15 +28,14 @@ data "infoblox_dtc_monitor_http" "by_ext_attrs" {
     Site = "us-east-1"
   }
 }
+
+// List all DTC Monitor HTTP resources
+data "infoblox_dtc_monitor_http" "all" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
-// List all DTC HTTP Health Check resources
-data "infoblox_dtc_monitor_http" "all" {}
-
-// Filter by name
 data "infoblox_dtc_monitor_http" "by_name" {
   filters = {
     name = "example-http-monitor"
@@ -52,6 +48,9 @@ data "infoblox_dtc_monitor_http" "by_tags" {
     Site = "us-east-1"
   }
 }
+
+// List all DTC HTTP Health Check resources
+data "infoblox_dtc_monitor_http" "all" {}
 ```
 
 
