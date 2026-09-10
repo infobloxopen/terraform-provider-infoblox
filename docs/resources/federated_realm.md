@@ -63,6 +63,4 @@ Optional:
 
 Read-Only:
 
-- `region` (String) The region where the realm is located.
 - `tags_all` (Map of String) All tags including inherited values.
-- `utilization` (Number) The percentage of Federated Realm utilization.
