@@ -1,3 +1,5 @@
+# Auto-generated resource acceptance-test cases for RecordRpzCnameIpaddressdn.
+
 case "basic" {
   backend  = "nios"
   parallel = true

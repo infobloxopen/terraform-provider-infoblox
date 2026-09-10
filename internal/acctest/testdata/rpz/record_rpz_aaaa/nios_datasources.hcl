@@ -1,4 +1,4 @@
-# Auto-generated datasource acceptance-test cases for RecordRpzCnameIpaddressdn.
+# Auto-generated datasource acceptance-test cases for RecordRpzAaaa.
 
 case "filters" {
   backend = "nios"
@@ -17,13 +17,13 @@ case "filters" {
     }
   }
 
-  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.view"]
+  pair_checks = ["nios.comment", "nios.disable", "nios.ipv6addr", "nios.name", "nios.rp_zone", "nios.ttl", "nios.view"]
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
-      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      name     = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -46,12 +46,12 @@ case "ext_attr_filters" {
     }
   }
 
-  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.rp_zone", "nios.view"]
+  pair_checks = ["nios.comment", "nios.disable", "nios.ipv6addr", "nios.name", "nios.rp_zone", "nios.ttl", "nios.view"]
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      ipv6addr  = "{{random_ipv6}}"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }

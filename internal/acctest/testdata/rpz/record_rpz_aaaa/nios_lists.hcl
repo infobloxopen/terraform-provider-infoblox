@@ -1,8 +1,9 @@
-# Auto-generated list acceptance-test cases for RecordRpzCnameIpaddressdn.
+# Auto-generated list acceptance-test cases for RecordRpzAaaa.
 
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -13,9 +14,9 @@ case "basic" {
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
-      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      name     = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -30,6 +31,7 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -40,9 +42,9 @@ case "filters" {
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
-      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      name     = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      ipv6addr = "{{random_ipv6}}"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -51,7 +53,7 @@ case "filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name = "nios.name"
       }
@@ -63,6 +65,7 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -73,8 +76,8 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
-      canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
+      ipv6addr  = "{{random_ipv6}}"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }
@@ -85,7 +88,7 @@ case "ext_attr_filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "ext_attr_filters"
+      type = "ext_attr_filters"
       values = {
         Site = "nios.ext_attrs.Site"
       }
