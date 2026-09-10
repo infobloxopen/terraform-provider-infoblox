@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -53,6 +54,7 @@ var MonitorSnmpOidsResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The comment for a DTC SNMP Health Monitor OID object.",
 	},
 	"type": schema.StringAttribute{
+		Default: stringdefault.StaticString("STRING"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("STRING", "INTEGER"),
 		},
