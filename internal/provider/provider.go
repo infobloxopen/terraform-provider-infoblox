@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
@@ -321,6 +322,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dtc.NewDtcMonitorSnmpResource,
 		dns.NewNsgroupResource,
 		grid.NewNatgroupResource,
 		misc.NewBfdtemplateResource,
@@ -353,6 +355,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dtc.NewDtcMonitorSnmpDataSource,
 		dns.NewNsgroupDataSource,
 		grid.NewNatgroupDataSource,
 		misc.NewBfdtemplateDataSource,
@@ -388,6 +391,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dtc.NewDtcMonitorSnmpList,
 		dns.NewNsgroupList,
 		grid.NewNatgroupList,
 		misc.NewBfdtemplateList,
