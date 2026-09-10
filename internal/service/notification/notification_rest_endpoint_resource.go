@@ -1,10 +1,11 @@
-package dns
+package notification
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
@@ -12,38 +13,41 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
-	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
-	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/notification"
+	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/notification"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 var (
-	_ resource.Resource                   = &ZoneAuthResource{}
-	_ resource.ResourceWithValidateConfig = &ZoneAuthResource{}
-	_ resource.ResourceWithConfigure      = &ZoneAuthResource{}
-	_ resource.ResourceWithImportState    = &ZoneAuthResource{}
-	_ resource.ResourceWithIdentity       = &ZoneAuthResource{}
+	_ resource.Resource                   = &NotificationRestEndpointResource{}
+	_ resource.ResourceWithValidateConfig = &NotificationRestEndpointResource{}
+	_ resource.ResourceWithConfigure      = &NotificationRestEndpointResource{}
+	_ resource.ResourceWithImportState    = &NotificationRestEndpointResource{}
+	_ resource.ResourceWithIdentity       = &NotificationRestEndpointResource{}
 )
 
-func NewZoneAuthResource() resource.Resource {
-	return &ZoneAuthResource{}
+func NewNotificationRestEndpointResource() resource.Resource {
+	return &NotificationRestEndpointResource{}
 }
 
-type ZoneAuthResource struct {
-	backend core.BackendType
-	service coresvc.ZoneAuthService
+type NotificationRestEndpointResource struct {
+	backend      core.BackendType
+	service      coresvc.NotificationRestEndpointService
+	niosHostURL  string
+	niosUsername string
+	niosPassword string
 }
 
-func (r *ZoneAuthResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_zone_auth"
+func (r *NotificationRestEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_notification_rest_endpoint"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
 }
 
-func (r *ZoneAuthResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+func (r *NotificationRestEndpointResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
 	resp.IdentitySchema = identityschema.Schema{
 		Attributes: map[string]identityschema.Attribute{
 			"id": identityschema.StringAttribute{
@@ -53,14 +57,14 @@ func (r *ZoneAuthResource) IdentitySchema(_ context.Context, _ resource.Identity
 	}
 }
 
-func (r *ZoneAuthResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *NotificationRestEndpointResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox ZoneAuth in both NIOS and UDDI backends.",
-		Attributes:          ZoneAuthResourceSchemaAttributes,
+		MarkdownDescription: "Manages an Infoblox NotificationRestEndpoint in the NIOS backend.",
+		Attributes:          NotificationRestEndpointResourceSchemaAttributes,
 	}
 }
 
-func (r *ZoneAuthResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *NotificationRestEndpointResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -80,15 +84,20 @@ func (r *ZoneAuthResource) Configure(_ context.Context, req resource.ConfigureRe
 		r.backend = core.BackendUDDI
 	}
 
-	r.service = coresvc.NewZoneAuthService(r.backend, client.NIOS, client.UDDI)
+	r.service = coresvc.NewNotificationRestEndpointService(r.backend, client.NIOS, client.UDDI)
+	if client.NIOS != nil {
+		r.niosHostURL = client.NIOSHostURL
+		r.niosUsername = client.NIOSUsername
+		r.niosPassword = client.NIOSPassword
+	}
 }
 
-func (r *ZoneAuthResource) retryPolicy(op retry.Operation) retry.Policy {
-	return retry.For[coremodel.ZoneAuth](r.backend, op)
+func (r *NotificationRestEndpointResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.NotificationRestEndpoint](r.backend, op)
 }
 
-func (r *ZoneAuthResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data ZoneAuthModel
+func (r *NotificationRestEndpointResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data NotificationRestEndpointModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -96,16 +105,16 @@ func (r *ZoneAuthResource) ValidateConfig(ctx context.Context, req resource.Vali
 	}
 
 	// Common backend block validations
-	validator.ValidateBackendBlocks(r.backend, data.NIOS, data.UDDI, &resp.Diagnostics)
+	validator.ValidateBackendBlocks(r.backend, data.NIOS, types.ObjectNull(map[string]attr.Type{}), &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ValidateZoneAuth(ctx, data, resp)
+	ValidateNotificationRestEndpoint(ctx, data, resp)
 }
 
-func (r *ZoneAuthResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data ZoneAuthModel
+func (r *NotificationRestEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data NotificationRestEndpointModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -114,15 +123,21 @@ func (r *ZoneAuthResource) Create(ctx context.Context, req resource.CreateReques
 
 	// Add Terraform Internal ID to ext_attrs
 	if r.backend == core.BackendNIOS {
-		nios := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, data.NIOS, &resp.Diagnostics)
+		nios := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
-			nios = &NIOSZoneAuthModel{}
+			nios = &NIOSNotificationRestEndpointModel{}
 		}
 		nios.ExtAttrs = flex.SetInternalID(ctx, nios.ExtAttrs, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSZoneAuthAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSNotificationRestEndpointAttrTypes, &resp.Diagnostics)
+	}
+
+	if r.backend == core.BackendNIOS {
+		if !r.ProcessNIOSNotificationRestEndpointFileUpload(ctx, &data, &resp.Diagnostics) {
+			return
+		}
 	}
 
 	obj := data.Expand(ctx, &resp.Diagnostics, true)
@@ -130,23 +145,15 @@ func (r *ZoneAuthResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	if r.backend == core.BackendNIOS {
-		ApplyZoneAuthNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-	}
-
 	var (
-		apiResp  *coremodel.ZoneAuth
+		apiResp  *coremodel.NotificationRestEndpoint
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
-			ReturnFields: ZoneAuthReturnFields,
-			Inherit:      ZoneAuthInheritanceType,
+			ReturnFields: NotificationRestEndpointReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -154,7 +161,7 @@ func (r *ZoneAuthResource) Create(ctx context.Context, req resource.CreateReques
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create ZoneAuth: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create NotificationRestEndpoint: %s", err))
 		return
 	}
 
@@ -167,8 +174,8 @@ func (r *ZoneAuthResource) Create(ctx context.Context, req resource.CreateReques
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *ZoneAuthResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data ZoneAuthModel
+func (r *NotificationRestEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data NotificationRestEndpointModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -183,15 +190,14 @@ func (r *ZoneAuthResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	var (
-		apiResp  *coremodel.ZoneAuth
+		apiResp  *coremodel.NotificationRestEndpoint
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-			ReturnFields: ZoneAuthReturnFields,
-			Inherit:      ZoneAuthInheritanceType,
+			ReturnFields: NotificationRestEndpointReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -209,18 +215,18 @@ func (r *ZoneAuthResource) Read(ctx context.Context, req resource.ReadRequest, r
 				return
 			}
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read ZoneAuth: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read NotificationRestEndpoint: %s", err))
 		return
 	}
 
 	// For NIOS verify internal ID matches (handles case where ref changes but resource still exists)
 	if r.backend == core.BackendNIOS && associateInternalId == nil && apiResp.NIOS != nil {
 		// Get state internal ID
-		stateNIOS := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, data.NIOS, &resp.Diagnostics)
 		if stateNIOS == nil || stateNIOS.ExtAttrsAll.IsNull() || stateNIOS.ExtAttrsAll.IsUnknown() {
 			resp.Diagnostics.AddError(
 				"Missing Internal ID",
-				"Unable to read ZoneAuth because the internal ID (from ext_attrs_all) is missing or invalid.",
+				"Unable to read NotificationRestEndpoint because the internal ID (from ext_attrs_all) is missing or invalid.",
 			)
 			return
 		}
@@ -258,13 +264,13 @@ func (r *ZoneAuthResource) Read(ctx context.Context, req resource.ReadRequest, r
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *ZoneAuthResource) ReadByExtAttrs(ctx context.Context, data *ZoneAuthModel, resp *resource.ReadResponse) bool {
+func (r *NotificationRestEndpointResource) ReadByExtAttrs(ctx context.Context, data *NotificationRestEndpointModel, resp *resource.ReadResponse) bool {
 	// Only applicable for NIOS backend
 	if r.backend != core.BackendNIOS {
 		return false
 	}
 
-	nios := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, data.NIOS, &resp.Diagnostics)
+	nios := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, data.NIOS, &resp.Diagnostics)
 	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
 		return false
 	}
@@ -281,14 +287,14 @@ func (r *ZoneAuthResource) ReadByExtAttrs(ctx context.Context, data *ZoneAuthMod
 
 	// Search for the record using the Terraform Internal ID
 	var (
-		records  []*coremodel.ZoneAuth
+		records  []*coremodel.NotificationRestEndpoint
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: ZoneAuthReturnFields,
+			ReturnFields: NotificationRestEndpointReturnFields,
 			ExtAttrFilter: map[string]string{
 				flex.TerraformInternalID: tfInternalID,
 			},
@@ -299,7 +305,7 @@ func (r *ZoneAuthResource) ReadByExtAttrs(ctx context.Context, data *ZoneAuthMod
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search ZoneAuth by extattrs: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search NotificationRestEndpoint by extattrs: %s", err))
 		return true
 	}
 
@@ -319,8 +325,8 @@ func (r *ZoneAuthResource) ReadByExtAttrs(ctx context.Context, data *ZoneAuthMod
 	return true
 }
 
-func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data ZoneAuthModel
+func (r *NotificationRestEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data NotificationRestEndpointModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -351,10 +357,10 @@ func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 
-		planNIOS := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, data.NIOS, &resp.Diagnostics)
-		stateNIOS := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, stateNIOSObj, &resp.Diagnostics)
+		planNIOS := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, data.NIOS, &resp.Diagnostics)
+		stateNIOS := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, stateNIOSObj, &resp.Diagnostics)
 		if planNIOS == nil {
-			planNIOS = &NIOSZoneAuthModel{}
+			planNIOS = &NIOSNotificationRestEndpointModel{}
 		}
 
 		// Preserve the plan ext_attrs (without inherited EAs) for restore after Update
@@ -372,30 +378,28 @@ func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateReques
 		if stateNIOS != nil {
 			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, stateNIOS.ExtAttrsAll)
 		}
-		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSZoneAuthAttrTypes, &resp.Diagnostics)
+		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSNotificationRestEndpointAttrTypes, &resp.Diagnostics)
 	}
+	if r.backend == core.BackendNIOS {
+		if !r.ProcessNIOSNotificationRestEndpointFileUpload(ctx, &data, &resp.Diagnostics) {
+			return
+		}
+	}
+
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if r.backend == core.BackendNIOS {
-		ApplyZoneAuthNIOSUseFlags(ctx, req.Config, obj, &resp.Diagnostics)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-	}
-
 	var (
-		apiResp  *coremodel.ZoneAuth
+		apiResp  *coremodel.NotificationRestEndpoint
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-			ReturnFields: ZoneAuthReturnFields,
-			Inherit:      ZoneAuthInheritanceType,
+			ReturnFields: NotificationRestEndpointReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -403,16 +407,16 @@ func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateReques
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update ZoneAuth: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update NotificationRestEndpoint: %s", err))
 		return
 	}
 
 	// Restore the plan ext_attrs (without inherited EAs) so Flatten preserves the user's input
 	if r.backend == core.BackendNIOS {
-		niosObj := flex.ExpandNestedObject[NIOSZoneAuthModel](ctx, data.NIOS, &resp.Diagnostics)
+		niosObj := flex.ExpandNestedObject[NIOSNotificationRestEndpointModel](ctx, data.NIOS, &resp.Diagnostics)
 		if niosObj != nil {
 			niosObj.ExtAttrs = planExtAttrs
-			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSZoneAuthAttrTypes, &resp.Diagnostics)
+			data.NIOS = flex.FlattenNestedObject(ctx, niosObj, NIOSNotificationRestEndpointAttrTypes, &resp.Diagnostics)
 			if resp.Diagnostics.HasError() {
 				return
 			}
@@ -432,8 +436,8 @@ func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 }
 
-func (r *ZoneAuthResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data ZoneAuthModel
+func (r *NotificationRestEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data NotificationRestEndpointModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -454,11 +458,11 @@ func (r *ZoneAuthResource) Delete(ctx context.Context, req resource.DeleteReques
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete ZoneAuth: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete NotificationRestEndpoint: %s", err))
 	}
 }
 
-func (r *ZoneAuthResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *NotificationRestEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
 		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
 		if diags.HasError() {

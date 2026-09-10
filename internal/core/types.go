@@ -37,4 +37,8 @@ type ListOptions struct {
 type InfobloxClient struct {
 	NIOS *niosclient.APIClient
 	UDDI *uddiclient.APIClient
+	// NIOS credentials stored separately for features that need direct HTTP access (e.g. file upload).
+	NIOSHostURL  string
+	NIOSUsername string
+	NIOSPassword string
 }
