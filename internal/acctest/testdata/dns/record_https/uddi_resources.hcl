@@ -190,7 +190,7 @@ case "rdata_svc_params" {
           { key = "key13",     value = "69206c6f766520796f75" },
           { key = "key15",     value = "69206c6f766520796f7" },
           { key = "dohpath",   value = "/dns-query{?dns}" },
-          { key = "mandatory", value = "dohpath,key13" },
+          { key = "mandatory", value = "" },
         ]
       }
       zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
