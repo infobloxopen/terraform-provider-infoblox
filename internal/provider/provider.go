@@ -414,7 +414,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		ipam.NewSuperhostDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
-		dtc.NewDtcLbdnDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
 		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
