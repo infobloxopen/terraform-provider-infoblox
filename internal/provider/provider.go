@@ -26,6 +26,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
@@ -333,7 +334,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
-		ipam.NewSuperhostResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -341,40 +341,47 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
+		dhcp.NewIpv6rangetemplateResource,
+		dhcp.NewSharednetworkResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
 		dns.NewNsgroupResource,
+		dns.NewNsgroupForwardingmemberResource,
+		dns.NewNsgroupForwardstubserverResource,
+		dns.NewNsgroupStubmemberResource,
 		dns.NewRecordAResource,
 		dns.NewRecordAaaaResource,
 		dns.NewRecordAliasResource,
 		dns.NewRecordCaaResource,
-		dns.NewRecordPtrResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordDnameResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordNsResource,
+		dns.NewRecordPtrResource,
 		dns.NewRecordSrvResource,
+		dns.NewRecordSvcbResource,
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
+		dns.NewSharedrecordgroupResource,
 		dns.NewViewResource,
 		dns.NewZoneAuthResource,
 		dns.NewZoneDelegatedResource,
 		dns.NewZoneForwardResource,
 		dns.NewZoneRpResource,
 		dns.NewZoneStubResource,
-		dns.NewNsgroupForwardingmemberResource,
-		dns.NewNsgroupForwardstubserverResource,
-		dns.NewNsgroupStubmemberResource,
 
+		dtc.NewDtcLbdnResource,
+		dtc.NewDtcMonitorPdpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
+		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
 
 		ipam.NewAddressResource,
@@ -383,16 +390,22 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkResource,
 		ipam.NewNetworkcontainerResource,
 		ipam.NewNetworkviewResource,
+		ipam.NewSuperhostResource,
+
+		ipamfederation.NewFederatedRealmResource,
 
 		keys.NewTsigKeyResource,
 
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		rpz.NewRecordRpzAaaaResource,
+		rpz.NewRecordRpzAaaaIpaddressResource,
+		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
+		rpz.NewRecordRpzCnameIpaddressResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
-		rpz.NewRecordRpzAaaaIpaddressResource,
 	}
 }
 
@@ -402,7 +415,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
-		ipam.NewSuperhostDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -410,40 +422,47 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
+		dhcp.NewIpv6rangetemplateDataSource,
+		dhcp.NewSharednetworkDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewNsgroupDataSource,
+		dns.NewNsgroupForwardingmemberDataSource,
+		dns.NewNsgroupForwardstubserverDataSource,
+		dns.NewNsgroupStubmemberDataSource,
 		dns.NewRecordADataSource,
 		dns.NewRecordAaaaDataSource,
 		dns.NewRecordAliasDataSource,
 		dns.NewRecordCaaDataSource,
-		dns.NewRecordPtrDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordDnameDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordNsDataSource,
+		dns.NewRecordPtrDataSource,
 		dns.NewRecordSrvDataSource,
+		dns.NewRecordSvcbDataSource,
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
+		dns.NewSharedrecordgroupDataSource,
 		dns.NewViewDataSource,
 		dns.NewZoneAuthDataSource,
 		dns.NewZoneDelegatedDataSource,
 		dns.NewZoneForwardDataSource,
 		dns.NewZoneRpDataSource,
 		dns.NewZoneStubDataSource,
-		dns.NewNsgroupForwardingmemberDataSource,
-		dns.NewNsgroupForwardstubserverDataSource,
-		dns.NewNsgroupStubmemberDataSource,
 
+		dtc.NewDtcLbdnDataSource,
+		dtc.NewDtcMonitorPdpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
+		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
 
 		ipam.NewAddressDataSource,
@@ -455,16 +474,22 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableAddressBlockDataSource,
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
+		ipam.NewSuperhostDataSource,
+
+		ipamfederation.NewFederatedRealmDataSource,
 
 		keys.NewTsigKeyDataSource,
 
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		rpz.NewRecordRpzAaaaDataSource,
+		rpz.NewRecordRpzAaaaIpaddressDataSource,
+		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
+		rpz.NewRecordRpzCnameIpaddressDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
-		rpz.NewRecordRpzAaaaIpaddressDataSource,
 	}
 }
 
@@ -474,7 +499,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
-		ipam.NewSuperhostList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
@@ -482,40 +506,47 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
+		dhcp.NewIpv6rangetemplateList,
+		dhcp.NewSharednetworkList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
 		dns.NewForwardNsgList,
 		dns.NewNsgroupList,
+		dns.NewNsgroupForwardingmemberList,
+		dns.NewNsgroupForwardstubserverList,
+		dns.NewNsgroupStubmemberList,
 		dns.NewRecordAList,
 		dns.NewRecordAaaaList,
 		dns.NewRecordAliasList,
 		dns.NewRecordCaaList,
-		dns.NewRecordPtrList,
 		dns.NewRecordCnameList,
 		dns.NewRecordDnameList,
 		dns.NewRecordMxList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordNsList,
+		dns.NewRecordPtrList,
 		dns.NewRecordSrvList,
+		dns.NewRecordSvcbList,
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
+		dns.NewSharedrecordgroupList,
 		dns.NewViewList,
 		dns.NewZoneAuthList,
 		dns.NewZoneDelegatedList,
 		dns.NewZoneForwardList,
 		dns.NewZoneRpList,
 		dns.NewZoneStubList,
-		dns.NewNsgroupForwardingmemberList,
-		dns.NewNsgroupForwardstubserverList,
-		dns.NewNsgroupStubmemberList,
 
+		dtc.NewDtcLbdnList,
+		dtc.NewDtcMonitorPdpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
+		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
 
 		ipam.NewAddressList,
@@ -524,16 +555,22 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkList,
 		ipam.NewNetworkcontainerList,
 		ipam.NewNetworkviewList,
+		ipam.NewSuperhostList,
+
+		ipamfederation.NewFederatedRealmList,
 
 		keys.NewTsigKeyList,
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
 
+		rpz.NewRecordRpzAaaaList,
+		rpz.NewRecordRpzAaaaIpaddressList,
+		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzCnameClientipaddressdnList,
+		rpz.NewRecordRpzCnameIpaddressList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,
-		rpz.NewRecordRpzAaaaIpaddressList,
 	}
 }
 
