@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	niosdns "github.com/infobloxopen/infoblox-nios-go-client/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
@@ -37,13 +35,11 @@ var ZoneauthdnsseckeyparamsKskAlgorithmsResourceSchemaAttributes = map[string]sc
 		},
 		Optional:            true,
 		Computed:            true,
-		Default:             stringdefault.StaticString("RSASHA256"),
 		MarkdownDescription: "The signing key algorithm.",
 	},
 	"size": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             int64default.StaticInt64(2048),
 		MarkdownDescription: "The signing key size, in bits.",
 	},
 }
