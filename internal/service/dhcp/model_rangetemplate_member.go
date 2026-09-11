@@ -78,7 +78,7 @@ func (m *RangetemplateMemberModel) Expand(ctx context.Context, diags *diag.Diagn
 	to := &niosdhcp.RangetemplateMember{
 		Ipv4addr: flex.ExpandStringPointer(m.Ipv4addr),
 		Ipv6addr: flex.ExpandStringPointer(m.Ipv6addr),
-		Name:     flex.ExpandStringPointerNullAsEmpty(m.Name),
+		Name:     flex.ExpandStringPointer(m.Name),
 	}
 	return to
 }

@@ -38,7 +38,7 @@ type RangetemplateResource struct {
 }
 
 func (r *RangetemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_rangetemplate"
+	resp.TypeName = req.ProviderTypeName + "_range_template"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

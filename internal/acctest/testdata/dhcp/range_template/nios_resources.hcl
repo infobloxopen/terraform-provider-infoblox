@@ -262,10 +262,10 @@ case "delegated_member" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      delegated_member     = { name = "{{grid_master_hostname}}" }
+      delegated_member     = { name = "{{grid_member_hostname}}" }
     }
     check = {
-      "nios.delegated_member.name" = "{{grid_master_hostname}}"
+      "nios.delegated_member.name" = "{{grid_member_hostname}}"
     }
   }
 
@@ -989,10 +989,10 @@ case "member" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      member               = { name = "{{grid_master_hostname}}" }
+      member               = { name = "{{grid_member_hostname}}" }
     }
     check = {
-      "nios.member.name" = "{{grid_master_hostname}}"
+      "nios.member.name" = "{{grid_member_hostname}}"
     }
   }
 
@@ -1411,10 +1411,6 @@ case "relay_agent_filter_rules" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "server_association_type" {
   backend  = "nios"
   parallel = true

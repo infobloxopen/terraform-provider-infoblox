@@ -36,7 +36,7 @@ type RangetemplateDataSource struct {
 }
 
 func (d *RangetemplateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_rangetemplate"
+	resp.TypeName = req.ProviderTypeName + "_range_template"
 }
 
 // RangetemplateDataSourceModel is the filter model for the datasource

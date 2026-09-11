@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccRangetemplateResource(t *testing.T) {
-	resourceType := "infoblox_rangetemplate"
+	resourceType := "infoblox_range_template"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -26,7 +26,7 @@ func TestAccRangetemplateResource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dhcp/rangetemplate/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dhcp/range_template/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

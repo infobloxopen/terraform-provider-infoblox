@@ -1,5 +1,5 @@
 // Create DHCP Range Template with required Fields
-resource "infoblox_rangetemplate" "range_template_required_fields" {
+resource "infoblox_range_template" "range_template_required_fields" {
   nios = {
     name                = "example_range_template"
     number_of_addresses = 10
@@ -10,7 +10,7 @@ resource "infoblox_rangetemplate" "range_template_required_fields" {
 }
 
 // Create DHCP Range Template with Additional Fields
-resource "infoblox_rangetemplate" "range_template_additional_fields" {
+resource "infoblox_range_template" "range_template_additional_fields" {
   nios = {
     name                = "example_range_template_additional_fields"
     number_of_addresses = 10
@@ -52,7 +52,7 @@ resource "infoblox_rangetemplate" "range_template_additional_fields" {
 }
 
 // Create DHCP Range Template with filters and exclude fields
-resource "infoblox_rangetemplate" "range_template_additional_fields2" {
+resource "infoblox_range_template" "range_template_additional_fields2" {
   nios = {
     name                = "example_range_template3"
     number_of_addresses = 60

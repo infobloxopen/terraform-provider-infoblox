@@ -40,7 +40,7 @@ type RangetemplateListModel struct {
 }
 
 func (l *RangetemplateList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_rangetemplate"
+	resp.TypeName = req.ProviderTypeName + "_range_template"
 }
 
 func (l *RangetemplateList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -105,7 +105,7 @@ func (l *RangetemplateList) List(ctx context.Context, req list.ListRequest, stre
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_rangetemplate list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_range_template list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
