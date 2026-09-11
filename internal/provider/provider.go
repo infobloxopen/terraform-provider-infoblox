@@ -405,6 +405,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzCnameIpaddressResource,
+		rpz.NewRecordRpzCnameIpaddressdnResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
 	}
@@ -490,6 +491,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
 		rpz.NewRecordRpzCnameIpaddressDataSource,
+		rpz.NewRecordRpzCnameIpaddressdnDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
 	}
@@ -572,6 +574,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzCnameIpaddressList,
+		rpz.NewRecordRpzCnameIpaddressdnList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,
 	}
