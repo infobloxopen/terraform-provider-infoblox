@@ -363,6 +363,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordPtrResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordSvcbResource,
+		dns.NewRecordHttpsResource,
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
@@ -378,6 +379,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcMonitorPdpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
+		dtc.NewDtcMonitorTcpResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -391,6 +393,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkcontainerResource,
 		ipam.NewNetworkviewResource,
 		ipam.NewSuperhostResource,
+		ipam.NewBulkhostnametemplateResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -399,6 +402,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
 		rpz.NewRecordRpzCnameResource,
@@ -444,6 +448,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordPtrDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordSvcbDataSource,
+		dns.NewRecordHttpsDataSource,
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
@@ -459,6 +464,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcMonitorPdpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
+		dtc.NewDtcMonitorTcpDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -475,6 +481,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableIPDataSource,
 		ipam.NewNextAvailableSubnetDataSource,
 		ipam.NewSuperhostDataSource,
+		ipam.NewBulkhostnametemplateDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -483,6 +490,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
 		rpz.NewRecordRpzCnameDataSource,
@@ -528,6 +536,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordPtrList,
 		dns.NewRecordSrvList,
 		dns.NewRecordSvcbList,
+		dns.NewRecordHttpsList,
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
@@ -543,6 +552,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcMonitorPdpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
+		dtc.NewDtcMonitorTcpList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
@@ -556,6 +566,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkcontainerList,
 		ipam.NewNetworkviewList,
 		ipam.NewSuperhostList,
+		ipam.NewBulkhostnametemplateList,
 
 		ipamfederation.NewFederatedRealmList,
 
@@ -564,6 +575,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
 
+		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
 		rpz.NewRecordRpzAaaaIpaddressList,
 		rpz.NewRecordRpzCnameList,

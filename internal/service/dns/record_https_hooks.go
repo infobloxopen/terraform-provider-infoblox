@@ -17,15 +17,15 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
-// ValidateRecordSvcb validates the RecordSvcb configuration.
-func ValidateRecordSvcb(ctx context.Context, data RecordSvcbModel, resp *resource.ValidateConfigResponse) {
-	if uddi := flex.ExpandNestedObject[UDDIRecordSvcbModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
-		validateRecordSvcbUDDIConfig(ctx, uddi, resp)
+// ValidateRecordHttps validates the RecordHttps configuration.
+func ValidateRecordHttps(ctx context.Context, data RecordHttpsModel, resp *resource.ValidateConfigResponse) {
+	if uddi := flex.ExpandNestedObject[UDDIRecordHttpsModel](ctx, data.UDDI, &resp.Diagnostics); uddi != nil {
+		validateRecordHttpsUDDIConfig(ctx, uddi, resp)
 	}
 }
 
-func validateRecordSvcbUDDIConfig(ctx context.Context, m *UDDIRecordSvcbModel, resp *resource.ValidateConfigResponse) {
-	rdata := flex.ExpandNestedObject[UDDIRecordSvcbRdataModel](ctx, m.Rdata, &resp.Diagnostics)
+func validateRecordHttpsUDDIConfig(ctx context.Context, m *UDDIRecordHttpsModel, resp *resource.ValidateConfigResponse) {
+	rdata := flex.ExpandNestedObject[UDDIRecordHttpsRdataModel](ctx, m.Rdata, &resp.Diagnostics)
 	if rdata == nil {
 		return
 	}
@@ -42,7 +42,7 @@ func validateRecordSvcbUDDIConfig(ctx context.Context, m *UDDIRecordSvcbModel, r
 	}
 
 	if svcParamsProvided {
-		var params []UDDIRecordSvcbSvcParamModel
+		var params []UDDIRecordHttpsSvcParamModel
 		resp.Diagnostics.Append(rdata.SvcParams.ElementsAs(ctx, &params, false)...)
 		for i, p := range params {
 			if p.Key.IsNull() || p.Key.IsUnknown() {
@@ -62,7 +62,7 @@ func validateRecordSvcbUDDIConfig(ctx context.Context, m *UDDIRecordSvcbModel, r
 	}
 }
 
-func PostFlattenRecordSvcbUDDI(ctx context.Context, planned, flattened *UDDIRecordSvcbModel, diags *diag.Diagnostics) {
+func PostFlattenRecordHttpsUDDI(ctx context.Context, planned, flattened *UDDIRecordHttpsModel, diags *diag.Diagnostics) {
 	if !planned.Rdata.IsNull() {
 		if result, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Rdata, flattened.Rdata, "priority"); !d.HasError() {
 			flattened.Rdata = result.(basetypes.ObjectValue)
@@ -70,18 +70,18 @@ func PostFlattenRecordSvcbUDDI(ctx context.Context, planned, flattened *UDDIReco
 	}
 }
 
-// UDDIRecordSvcbSvcParamModel represents a single service parameter key-value pair.
-type UDDIRecordSvcbSvcParamModel struct {
+// UDDIRecordHttpsSvcParamModel represents a single service parameter key-value pair.
+type UDDIRecordHttpsSvcParamModel struct {
 	Key   types.String `tfsdk:"key"`
 	Value types.String `tfsdk:"value"`
 }
 
-var UDDIRecordSvcbSvcParamAttrTypes = map[string]attr.Type{
+var UDDIRecordHttpsSvcParamAttrTypes = map[string]attr.Type{
 	"key":   types.StringType,
 	"value": types.StringType,
 }
 
-var UDDIRecordSvcbSvcParamResourceSchemaAttributes = map[string]schema.Attribute{
+var UDDIRecordHttpsSvcParamResourceSchemaAttributes = map[string]schema.Attribute{
 	"key": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The service parameter key (e.g. \"port\", \"ipv4hint\", \"ipv6hint\", \"ech\", \"alpn\").",
@@ -92,46 +92,46 @@ var UDDIRecordSvcbSvcParamResourceSchemaAttributes = map[string]schema.Attribute
 	},
 }
 
-type UDDIRecordSvcbRdataModel struct {
+type UDDIRecordHttpsRdataModel struct {
 	Priority   types.Int64  `tfsdk:"priority"`
 	SvcParams  types.List   `tfsdk:"svc_params"`
 	TargetName types.String `tfsdk:"target_name"`
 }
 
-var UDDIRecordSvcbRdataAttrTypes = map[string]attr.Type{
+var UDDIRecordHttpsRdataAttrTypes = map[string]attr.Type{
 	"priority":    types.Int64Type,
-	"svc_params":  types.ListType{ElemType: types.ObjectType{AttrTypes: UDDIRecordSvcbSvcParamAttrTypes}},
+	"svc_params":  types.ListType{ElemType: types.ObjectType{AttrTypes: UDDIRecordHttpsSvcParamAttrTypes}},
 	"target_name": types.StringType,
 }
 
-var UDDIRecordSvcbRdataResourceSchemaAttributes = map[string]schema.Attribute{
+var UDDIRecordHttpsRdataResourceSchemaAttributes = map[string]schema.Attribute{
 	"priority": schema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             int64default.StaticInt64(0),
-		MarkdownDescription: "An unsigned 16-bit integer in the range 0 to 65535 that indicates the priority of the SVCB record. Lower values are preferred.",
+		MarkdownDescription: "An unsigned 16-bit integer in the range 0 to 65535 that indicates the priority of the HTTPS record. Lower values are preferred.",
 	},
 	"svc_params": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
-			Attributes: UDDIRecordSvcbSvcParamResourceSchemaAttributes,
+			Attributes: UDDIRecordHttpsSvcParamResourceSchemaAttributes,
 		},
 		Optional: true,
 		Computed: true,
-		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: UDDIRecordSvcbSvcParamAttrTypes}, []attr.Value{})),
-		MarkdownDescription: "A list of service parameters for the SVCB record. Each entry is a key-value pair " +
+		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: UDDIRecordHttpsSvcParamAttrTypes}, []attr.Value{})),
+		MarkdownDescription: "A list of service parameters for the HTTPS record. Each entry is a key-value pair " +
 			"(e.g. port, ipv4hint, ipv6hint, ech, alpn).",
 	},
 	"target_name": schema.StringAttribute{
 		Required:            true,
-		MarkdownDescription: "The domain name of the SVCB target. Use \".\" to indicate the service is located at the owner name itself.",
+		MarkdownDescription: "The domain name of the HTTPS target. Use \".\" to indicate the service is located at the owner name itself.",
 	},
 }
 
-func ExpandUDDIRecordSvcbRdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
+func ExpandUDDIRecordHttpsRdata(ctx context.Context, o types.Object, diags *diag.Diagnostics) map[string]any {
 	if o.IsNull() || o.IsUnknown() {
 		return nil
 	}
-	var m UDDIRecordSvcbRdataModel
+	var m UDDIRecordHttpsRdataModel
 	diags.Append(o.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil
@@ -143,7 +143,7 @@ func ExpandUDDIRecordSvcbRdata(ctx context.Context, o types.Object, diags *diag.
 	}
 
 	if !m.SvcParams.IsNull() && !m.SvcParams.IsUnknown() {
-		var params []UDDIRecordSvcbSvcParamModel
+		var params []UDDIRecordHttpsSvcParamModel
 		diags.Append(m.SvcParams.ElementsAs(ctx, &params, false)...)
 		if !diags.HasError() {
 			expanded := make([]map[string]any, 0, len(params))
@@ -160,25 +160,25 @@ func ExpandUDDIRecordSvcbRdata(ctx context.Context, o types.Object, diags *diag.
 	return rdata
 }
 
-func FlattenUDDIRecordSvcbRdata(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
+func FlattenUDDIRecordHttpsRdata(ctx context.Context, from map[string]any, diags *diag.Diagnostics) types.Object {
 	if from == nil {
-		return types.ObjectNull(UDDIRecordSvcbRdataAttrTypes)
+		return types.ObjectNull(UDDIRecordHttpsRdataAttrTypes)
 	}
 
-	svcParams := flattenSvcParams(ctx, from["svc_params"], diags)
+	svcParams := flattenHttpsSvcParams(ctx, from["svc_params"], diags)
 
-	m := UDDIRecordSvcbRdataModel{
+	m := UDDIRecordHttpsRdataModel{
 		Priority:   flex.FlattenInt64Pointer(flex.RDataInt64Ptr(from["priority"])),
 		SvcParams:  svcParams,
 		TargetName: flex.FlattenStringPointer(flex.RDataStringPtr(from["target_name"])),
 	}
-	obj, d := types.ObjectValueFrom(ctx, UDDIRecordSvcbRdataAttrTypes, m)
+	obj, d := types.ObjectValueFrom(ctx, UDDIRecordHttpsRdataAttrTypes, m)
 	diags.Append(d...)
 	return obj
 }
 
-func flattenSvcParams(ctx context.Context, raw any, diags *diag.Diagnostics) types.List {
-	nullList := types.ListValueMust(types.ObjectType{AttrTypes: UDDIRecordSvcbSvcParamAttrTypes}, []attr.Value{})
+func flattenHttpsSvcParams(ctx context.Context, raw any, diags *diag.Diagnostics) types.List {
+	nullList := types.ListValueMust(types.ObjectType{AttrTypes: UDDIRecordHttpsSvcParamAttrTypes}, []attr.Value{})
 	if raw == nil {
 		return nullList
 	}
@@ -194,11 +194,11 @@ func flattenSvcParams(ctx context.Context, raw any, diags *diag.Diagnostics) typ
 		if !ok {
 			continue
 		}
-		param := UDDIRecordSvcbSvcParamModel{
+		param := UDDIRecordHttpsSvcParamModel{
 			Key:   flex.FlattenStringPointer(flex.RDataStringPtr(m["key"])),
 			Value: flex.FlattenStringPointer(flex.RDataStringPtr(m["value"])),
 		}
-		obj, d := types.ObjectValueFrom(ctx, UDDIRecordSvcbSvcParamAttrTypes, param)
+		obj, d := types.ObjectValueFrom(ctx, UDDIRecordHttpsSvcParamAttrTypes, param)
 		diags.Append(d...)
 		if d.HasError() {
 			return nullList
@@ -206,7 +206,7 @@ func flattenSvcParams(ctx context.Context, raw any, diags *diag.Diagnostics) typ
 		elems = append(elems, obj)
 	}
 
-	list, d := types.ListValue(types.ObjectType{AttrTypes: UDDIRecordSvcbSvcParamAttrTypes}, elems)
+	list, d := types.ListValue(types.ObjectType{AttrTypes: UDDIRecordHttpsSvcParamAttrTypes}, elems)
 	diags.Append(d...)
 	return list
 }
