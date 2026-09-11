@@ -1,12 +1,16 @@
-// NOTE: The shared record group "shared_group" must already exist on the grid.
-// shared_record_group is a required, immutable field on every shared record.
+// Create a Shared Record Group (Required as Parent)
+resource "infoblox_sharedrecordgroup" "example" {
+  nios = {
+    name = "example-shared-record-group"
+  }
+}
 
 // Create a Shared TXT Record with Basic Fields
 resource "infoblox_sharedrecord_txt" "shared_record_txt_with_basic_fields" {
   nios = {
     name                = "example-shared-record-txt"
     text                = "Example TXT Shared Record"
-    shared_record_group = "shared_group"
+    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
   }
 }
 
@@ -15,7 +19,7 @@ resource "infoblox_sharedrecord_txt" "shared_record_txt_with_additional_fields" 
   nios = {
     name                = "example-shared-record-txt2"
     text                = "Example TXT Shared Record"
-    shared_record_group = "shared_group"
+    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
 
     // Additional Fields
     ext_attrs = {
