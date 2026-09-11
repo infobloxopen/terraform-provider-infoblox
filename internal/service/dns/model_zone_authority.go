@@ -45,10 +45,12 @@ var ZoneAuthorityAttrTypes = map[string]attr.Type{
 var ZoneAuthorityResourceSchemaAttributes = map[string]schema.Attribute{
 	"default_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. ZoneAuthority default ttl for resource records in zone (value in seconds).  Defaults to 28800.",
 	},
 	"expire": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. ZoneAuthority expire time in seconds.  Defaults to 2419200.",
 	},
 	"mname": schema.StringAttribute{
@@ -58,6 +60,7 @@ var ZoneAuthorityResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"negative_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. ZoneAuthority negative caching (minimum) ttl in seconds.  Defaults to 900.",
 	},
 	"protocol_mname": schema.StringAttribute{
@@ -74,6 +77,7 @@ var ZoneAuthorityResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"retry": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. ZoneAuthority retry.  Defaults to 3600.",
 	},
 	"rname": schema.StringAttribute{
@@ -83,6 +87,7 @@ var ZoneAuthorityResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"use_default_mname": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Use default value for master name server.  Defaults to true.",
 	},
 }
