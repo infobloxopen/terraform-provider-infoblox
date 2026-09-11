@@ -90,7 +90,7 @@ var AccessCodeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "The brief description for an access code.",
 	},
 	"expiration": schema.StringAttribute{
 		Required:            true,

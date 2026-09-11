@@ -56,7 +56,7 @@ Read-Only:
 - `access_key` (String) Auto generated unique Bypass Code value
 - `activation` (String) The time when the Bypass Code object was activated.
 - `created_time` (String) The time when the Bypass Code object was created.
-- `description` (String)
+- `description` (String) The brief description for an access code.
 - `expiration` (String) The time when the Bypass Code object was expired.
 - `name` (String) The name of Bypass Code
 - `policy_ids` (List of Number) The list of SecurityPolicy object identifiers.
