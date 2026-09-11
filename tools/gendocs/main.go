@@ -42,6 +42,7 @@ var subcategoryLabels = map[string]string{
 	"federatedrealms":  "FEDERATED REALMS",
 	"grid":             "GRID",
 	"ipam":             "IPAM",
+	"ipamfederation":   "IPAM FEDERATION",
 	"microsoft":        "MICROSOFT",
 	"microsoftserver":  "MICROSOFT SERVER",
 	"misc":             "MISC",
