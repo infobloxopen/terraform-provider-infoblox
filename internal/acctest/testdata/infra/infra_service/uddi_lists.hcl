@@ -1,5 +1,5 @@
 # InfraService — uddi list cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
+#  TODO: Objects to be present in the grid for testing
 #   - infra/pool : infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur
 
 case "basic" {

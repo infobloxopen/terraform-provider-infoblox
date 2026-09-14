@@ -15,22 +15,22 @@ Retrieves information about existing Infoblox InfraService from the UDDI backend
 ### UDDI Backend
 
 ```terraform
-// Get services filtered by an attribute
-data "infoblox_infra_service" "example_by_attribute" {
+// Retrieve a specific Infra Service using filters
+data "infoblox_infra_service" "get_infra_service_using_filters" {
   filters = {
-    "name" = "example_service"
+    name = "example-infra-service"
   }
 }
 
-// Get services filtered by tag
-data "infoblox_infra_service" "example_by_tag" {
+// Retrieve specific Infra Services using Tags
+data "infoblox_infra_service" "get_infra_service_using_tag_filters" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Get all services
-data "infoblox_infra_service" "example_all" {}
+// Retrieve all Infra Services
+data "infoblox_infra_service" "get_all_infra_services" {}
 ```
 
 

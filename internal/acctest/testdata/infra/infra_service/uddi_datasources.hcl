@@ -1,5 +1,5 @@
-# InfraService — uddi datasource cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
+# Auto-generated datasource acceptance-test cases for InfraService.
+#  TODO: Objects to be present in the grid for testing
 #   - infra/pool : infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur
 
 case "filters" {
