@@ -96,11 +96,7 @@ var NotificationRestEndpointResourceSchemaAttributes = map[string]schema.Attribu
 
 var NotificationRestEndpointResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"client_certificate_token": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
+		Computed:            true,
 		MarkdownDescription: "The token returned by the uploadinit function call in object fileop for a notification REST endpoit client certificate.",
 	},
 	"comment": schema.StringAttribute{

@@ -380,6 +380,7 @@ func (r *NotificationRestEndpointResource) Update(ctx context.Context, req resou
 		}
 		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSNotificationRestEndpointAttrTypes, &resp.Diagnostics)
 	}
+
 	if r.backend == core.BackendNIOS {
 		if !r.ProcessNIOSNotificationRestEndpointFileUpload(ctx, &data, &resp.Diagnostics) {
 			return

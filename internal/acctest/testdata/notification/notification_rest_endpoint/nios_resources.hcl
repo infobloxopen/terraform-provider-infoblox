@@ -1,22 +1,8 @@
-# TODO: The following prerequisites MUST be in place before running these tests:
-#
-# Grid objects (must exist on the NIOS grid):
+# TODO: The following prerequisites MUST exist on the grid before running these tests:
 #   - notification_rest_template : Version5_REST_API_Session_Template  (used by template_instance case)
 #   - notification_rest_template : Version5_REST_API_Session_Template1 (used by template_instance case)
 #   - grid member (master candidate) : infoblox.member2               (used by outbound_members/outbound_member_type cases)
 #     NOTE: NIOS only allows master-candidate members in outbound_members; regular members are rejected with a 400.
-#
-# Environment variables (must be set when running TF_ACC=1):
-#   - NIOS_HOST_URL              : NIOS grid master URL (e.g. https://172.28.82.241)
-#   - NIOS_USERNAME              : NIOS admin username
-#   - NIOS_PASSWORD              : NIOS admin password
-#   - NIOS_GRID_MASTER_HOSTNAME  : grid master hostname (e.g. infoblox.172_28_82_241)
-#   - NIOS_GRID_MEMBER_HOSTNAME  : a grid member hostname (used by the test framework)
-#   - INFOBLOX_PORTAL_URL        : portal URL (required even for NIOS-only tests)
-#   - INFOBLOX_PORTAL_KEY        : portal API key (required even for NIOS-only tests)
-#
-# Test data files (already present in this directory):
-#   - dummy-bundle.pem, dummy-bundle2.pem  (used by client_certificate_file case)
 
 case "basic" {
   backend  = "nios"
