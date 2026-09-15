@@ -20,7 +20,7 @@ case "filters" {
 
   step {
     nios {
-      name     = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name     = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
       view     = infoblox_zone_auth.test.nios.view
     }
@@ -49,10 +49,10 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "aaaa-record.${infoblox_zone_auth.test.nios.fqdn}"
+      name      = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
       ipv6addr  = "{{random_ipv6}}"
       view      = infoblox_zone_auth.test.nios.view
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

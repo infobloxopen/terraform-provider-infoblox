@@ -1,9 +1,13 @@
 # Auto-generated datasource acceptance-test cases for RecordRpzTxt.
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - RPZ zone : test-rpz.com  (view: default)
-
 case "filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "filters"
@@ -16,9 +20,9 @@ case "filters" {
 
   step {
     nios {
-      name    = "{{random2}}.test-rpz.com"
+      name    = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text    = "Record Text"
-      rp_zone = "test-rpz.com"
+      rp_zone = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -26,6 +30,13 @@ case "filters" {
 
 case "ext_attr_filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type   = "ext_attr_filters"
@@ -38,10 +49,10 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random2}}.test-rpz.com"
+      name      = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       text      = "Record Text"
-      rp_zone   = "test-rpz.com"
-      ext_attrs = { Site = "{{random}}" }
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      ext_attrs = { Site = "{{random3}}" }
     }
   }
 

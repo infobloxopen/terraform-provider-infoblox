@@ -64,7 +64,7 @@ Read-Only:
 - `comment` (String) Comment for this shared record; maximum 256 characters.
 - `disable` (Boolean) Determines if this shared record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
 - `ipv4addr` (String) The IPv4 Address of the shared record.
 - `name` (String) Name for this shared record. This value can be in unicode format.
 - `shared_record_group` (String) The name of the shared record group in which the record resides.

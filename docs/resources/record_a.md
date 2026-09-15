@@ -22,6 +22,16 @@ resource "infoblox_zone_auth" "example" {
   }
 }
 
+// Create a Network (Required for Dynamic Allocation Examples)
+resource "infoblox_network" "example_network" {
+  nios = {
+    network = "13.0.0.0/24"
+    ext_attrs = {
+      Site = "location-1"
+    }
+  }
+}
+
 resource "infoblox_record_a" "example_1" {
   nios = {
     name     = "rec-1.${infoblox_zone_auth.example.nios.fqdn}"
@@ -39,7 +49,7 @@ resource "infoblox_record_a" "example_dynamic_allocation" {
     name    = "rec-dynamic-1.${infoblox_zone_auth.example.nios.fqdn}"
     comment = "A record with a dynamically allocated address"
     dynamic_allocation = {
-      network = "13.0.0.0/24"
+      network = infoblox_network.example_network.nios.network
     }
   }
 }
@@ -54,6 +64,7 @@ resource "infoblox_record_a" "example_dynamic_allocation_2" {
       }
     }
   }
+  depends_on = [infoblox_network.example_network]
 }
 ```
 
