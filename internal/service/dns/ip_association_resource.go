@@ -206,11 +206,11 @@ func (r *IPAssociationResource) Delete(ctx context.Context, req resource.DeleteR
 		ConfigureForDhcp: types.BoolValue(false),
 		MatchClient:      nios.MatchClient,
 	}
-	r.update(ctx, nios.RecordHostId.ValueString(), cleared.Expand(host), &resp.Diagnostics)
+	r.update(ctx, nios.Ref.ValueString(), cleared.Expand(host), &resp.Diagnostics)
 }
 
 func (r *IPAssociationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("nios").AtName("record_host_id"), req, resp)
+	resource.ImportStatePassthroughID(ctx, path.Root("nios").AtName("ref"), req, resp)
 }
 
 // associate reads the host record, writes this association's settings onto it and flattens the result back.
@@ -231,7 +231,7 @@ func (r *IPAssociationResource) associate(ctx context.Context, data *IPAssociati
 		return
 	}
 
-	updated := r.update(ctx, nios.RecordHostId.ValueString(), nios.Expand(host), diags)
+	updated := r.update(ctx, nios.Ref.ValueString(), nios.Expand(host), diags)
 	if updated == nil {
 		return
 	}
@@ -272,7 +272,7 @@ func (r *IPAssociationResource) findHost(ctx context.Context, data *NIOSIPAssoci
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
-		host, httpResp, apiErr = r.service.Read(ctx, data.RecordHostId.ValueString(), &core.Options{
+		host, httpResp, apiErr = r.service.Read(ctx, data.Ref.ValueString(), &core.Options{
 			ReturnFields: RecordHostReturnFields,
 		})
 		if httpResp != nil {
@@ -314,7 +314,7 @@ func (r *IPAssociationResource) findHost(ctx context.Context, data *NIOSIPAssoci
 	}
 
 	// Adopt the updated reference
-	data.RecordHostId = types.StringValue(*records[0].Id)
+	data.Ref = types.StringValue(*records[0].Id)
 	return records[0], false
 }
 

@@ -38,9 +38,9 @@ func testAccCheckIPAssociationExistsNIOS(resourceName string) resource.TestCheck
 		if !ok {
 			return fmt.Errorf("not found: %s", resourceName)
 		}
-		ref := rs.Primary.Attributes["nios.record_host_id"]
+		ref := rs.Primary.Attributes["nios.ref"]
 		if ref == "" {
-			return fmt.Errorf("nios.record_host_id is not set on %s", resourceName)
+			return fmt.Errorf("nios.ref is not set on %s", resourceName)
 		}
 
 		got, err := associatedDHCPIdentifiers(ref)
@@ -67,7 +67,7 @@ func testAccCheckIPAssociationDestroyNIOS(resourceType string) resource.TestChec
 			if rs.Type != resourceType || strings.HasPrefix(name, "data.") {
 				continue
 			}
-			ref := rs.Primary.Attributes["nios.record_host_id"]
+			ref := rs.Primary.Attributes["nios.ref"]
 			if ref == "" {
 				continue
 			}

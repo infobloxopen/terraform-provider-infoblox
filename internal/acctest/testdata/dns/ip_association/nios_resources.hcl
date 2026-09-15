@@ -20,7 +20,7 @@ case "basic" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac}}"
       configure_for_dhcp = false
     }
@@ -53,7 +53,7 @@ case "configure_for_dhcp" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac}}"
       configure_for_dhcp = true
     }
@@ -64,7 +64,7 @@ case "configure_for_dhcp" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac}}"
       configure_for_dhcp = false
     }
@@ -96,7 +96,7 @@ case "mac" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac}}"
       configure_for_dhcp = true
     }
@@ -107,7 +107,7 @@ case "mac" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac2}}"
       configure_for_dhcp = true
     }
@@ -139,7 +139,7 @@ case "duid" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       duid               = "{{random_duid}}"
       match_client       = "DUID"
       configure_for_dhcp = true
@@ -153,7 +153,7 @@ case "duid" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       duid               = "{{random_duid2}}"
       match_client       = "DUID"
       configure_for_dhcp = true
@@ -186,7 +186,7 @@ case "match_client" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       duid               = "{{random_duid}}"
       match_client       = "DUID"
       configure_for_dhcp = true
@@ -198,7 +198,7 @@ case "match_client" {
 
   step {
     nios {
-      record_host_id     = infoblox_record_host.test.id
+      ref                = infoblox_record_host.test.id
       mac                = "{{random_mac}}"
       match_client       = "MAC_ADDRESS"
       configure_for_dhcp = true

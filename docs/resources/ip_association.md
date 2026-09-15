@@ -51,7 +51,7 @@ resource "infoblox_record_host" "static" {
 
 resource "infoblox_ip_association" "static" {
   nios = {
-    record_host_id     = infoblox_record_host.static.id
+    ref                = infoblox_record_host.static.id
     mac                = "aa:bb:cc:11:22:33"
     configure_for_dhcp = false
   }
@@ -78,7 +78,7 @@ resource "infoblox_record_host" "dual_stack" {
 
 resource "infoblox_ip_association" "dual_stack" {
   nios = {
-    record_host_id     = infoblox_record_host.dual_stack.id
+    ref                = infoblox_record_host.dual_stack.id
     mac                = "aa:bb:cc:11:22:44"
     duid               = "00:03:00:01:aa:bb:cc:11:22:44"
     match_client       = "DUID"
@@ -106,7 +106,7 @@ resource "infoblox_record_host" "dynamic" {
 
 resource "infoblox_ip_association" "dynamic" {
   nios = {
-    record_host_id     = infoblox_record_host.dynamic.id
+    ref                = infoblox_record_host.dynamic.id
     mac                = "aa:bb:cc:11:22:55"
     configure_for_dhcp = true
   }
@@ -126,7 +126,7 @@ resource "infoblox_ip_association" "dynamic" {
 
 Required:
 
-- `record_host_id` (String) Reference to the host record to associate, normally `infoblox_record_host.<name>.id`. The host record must already exist; this resource never creates or destroys one.
+- `ref` (String) Reference to the host record to associate, normally `infoblox_record_host.<name>.id`. The host record must already exist; this resource never creates or destroys one.
 
 Optional:
 

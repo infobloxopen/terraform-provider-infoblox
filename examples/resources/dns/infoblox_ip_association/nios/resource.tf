@@ -34,7 +34,7 @@ resource "infoblox_record_host" "static" {
 
 resource "infoblox_ip_association" "static" {
   nios = {
-    record_host_id     = infoblox_record_host.static.id
+    ref                = infoblox_record_host.static.id
     mac                = "aa:bb:cc:11:22:33"
     configure_for_dhcp = false
   }
@@ -61,7 +61,7 @@ resource "infoblox_record_host" "dual_stack" {
 
 resource "infoblox_ip_association" "dual_stack" {
   nios = {
-    record_host_id     = infoblox_record_host.dual_stack.id
+    ref                = infoblox_record_host.dual_stack.id
     mac                = "aa:bb:cc:11:22:44"
     duid               = "00:03:00:01:aa:bb:cc:11:22:44"
     match_client       = "DUID"
@@ -89,7 +89,7 @@ resource "infoblox_record_host" "dynamic" {
 
 resource "infoblox_ip_association" "dynamic" {
   nios = {
-    record_host_id     = infoblox_record_host.dynamic.id
+    ref                = infoblox_record_host.dynamic.id
     mac                = "aa:bb:cc:11:22:55"
     configure_for_dhcp = true
   }

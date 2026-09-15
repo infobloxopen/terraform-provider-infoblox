@@ -38,7 +38,7 @@ var IPAssociationResourceSchemaAttributes = map[string]schema.Attribute{
 }
 
 type NIOSIPAssociationModel struct {
-	RecordHostId     types.String             `tfsdk:"record_host_id"`
+	Ref              types.String             `tfsdk:"ref"`
 	InternalID       types.String             `tfsdk:"internal_id"`
 	MacAddr          internaltypes.MACAddress `tfsdk:"mac"`
 	Duid             internaltypes.DUIDValue  `tfsdk:"duid"`
@@ -47,7 +47,7 @@ type NIOSIPAssociationModel struct {
 }
 
 var NIOSIPAssociationAttrTypes = map[string]attr.Type{
-	"record_host_id":     types.StringType,
+	"ref":                types.StringType,
 	"internal_id":        types.StringType,
 	"mac":                internaltypes.MACAddressType{},
 	"duid":               internaltypes.DUIDType{},
@@ -56,7 +56,7 @@ var NIOSIPAssociationAttrTypes = map[string]attr.Type{
 }
 
 var IPAssociationResourceNiosSchemaAttributes = map[string]schema.Attribute{
-	"record_host_id": schema.StringAttribute{
+	"ref": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "Reference to the host record to associate, normally `infoblox_record_host.<name>.id`. The host record must already exist; this resource never creates or destroys one.",
 	},
