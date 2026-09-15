@@ -1,26 +1,21 @@
 # Auto-generated list acceptance-test cases for SharedrecordMx.
-#
-# TODO: These cases use the shared record group "shared_group", which must already
-#       exist on the grid. The generated prerequisite is commented out because
-#       infoblox_shared_record_group is not implemented in the provider yet.
-#       Once it is, restore the prerequisite block and remove this note.
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-  # nios = {
-  # name = "{{random3}}"
-  # }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = "shared_group"
+      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
     }
   }
 
@@ -35,20 +30,20 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-  # nios = {
-  # name = "{{random3}}"
-  # }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = "shared_group"
+      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
     }
   }
 
@@ -69,20 +64,20 @@ case "filters" {
 case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_shared_record_group_unknown" "parent_sharedrecord_group" {
-  # nios = {
-  # name = "{{random4}}"
-  # }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+    nios = {
+      name = "{{random4}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       mail_exchanger      = "{{random3}}.example.com"
       name                = "{{random2}}.example.com"
       preference          = 10
-      shared_record_group = "shared_group"
+      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
       ext_attrs           = { Site = "{{random}}" }
     }
   }
