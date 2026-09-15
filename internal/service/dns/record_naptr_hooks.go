@@ -52,7 +52,7 @@ var UDDIRecordNaptrRdataResourceSchemaAttributes = map[string]schema.Attribute{
 	"flags": schema.StringAttribute{
 		Optional: true,
 		Validators: []validator.String{
-			stringvalidator.LengthAtMost(1),
+			stringvalidator.OneOf("U", "S", "P", "A"),
 		},
 		MarkdownDescription: "A character string containing flags to control aspects of the rewriting and interpretation of the fields in the DNS resource record. The flags that are currently used are:\n" +
 			"  * `U`: Indicates that the output maps to a URI (Uniform Record Identifier).\n" +
