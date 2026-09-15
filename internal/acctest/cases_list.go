@@ -199,7 +199,7 @@ func buildListBlock(resourceType string, lc *ListCase) string {
 			refPath := lc.Filters[key]
 			val := resolveStepValue(refPath, lc)
 			if val != "" {
-				fmt.Fprintf(&sb, "      %s = %q\n", key, val)
+				fmt.Fprintf(&sb, "      %q = %q\n", key, val)
 			}
 		}
 		sb.WriteString("    }\n")
