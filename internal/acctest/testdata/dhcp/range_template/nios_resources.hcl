@@ -275,10 +275,10 @@ case "delegated_member" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      delegated_member     = { name = "{{grid_member_hostname}}" }
+      delegated_member     = { name = "{{grid_master_hostname}}" }
     }
     check = {
-      "nios.delegated_member.name" = "{{grid_member_hostname}}"
+      "nios.delegated_member.name" = "{{grid_master_hostname}}"
     }
   }
 
@@ -1002,10 +1002,10 @@ case "member" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      member               = { name = "{{grid_member_hostname}}" }
+      member               = { name = "{{grid_master_hostname}}" }
     }
     check = {
-      "nios.member.name" = "{{grid_member_hostname}}"
+      "nios.member.name" = "{{grid_master_hostname}}"
     }
   }
 
