@@ -4,7 +4,7 @@ case "filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
-      name = "This is a shared record TXT record"
+      name = "{{random3}}"
     }
   }
   PREREQ
