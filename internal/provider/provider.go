@@ -24,6 +24,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
@@ -330,6 +331,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		fw.NewSecurityPolicyResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -414,6 +416,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		fw.NewSecurityPolicyDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -501,6 +504,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		fw.NewSecurityPolicyList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
