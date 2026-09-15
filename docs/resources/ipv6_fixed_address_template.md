@@ -78,7 +78,7 @@ Optional:
 
 Read-Only:
 
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
 
 <a id="nestedatt--nios--logic_filter_rules"></a>
 ### Nested Schema for `nios.logic_filter_rules`

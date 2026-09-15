@@ -13,14 +13,12 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -120,10 +118,7 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,
 		ElementType:         types.StringType,
-		MarkdownDescription: "All ext_attrs including Terraform Internal ID and inherited attributes.",
-		PlanModifiers: []planmodifier.Map{
-			importmod.AssociateInternalId(),
-		},
+		MarkdownDescription: "All ext_attrs including inherited values.",
 	},
 	"logic_filter_rules": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{

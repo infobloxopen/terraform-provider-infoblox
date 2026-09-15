@@ -210,7 +210,6 @@ Optional:
 - `ns_group` (String) The name server group that serves DNS for this zone.
 - `prefix` (String) The RFC2317 prefix value of this DNS zone. Use this field only when the netmask is greater than 24 bits; that is, for a mask between 25 and 31 bits. Enter a prefix, such as the name of the allocated address block. The prefix can be alphanumeric characters, such as 128/26 , 128-189 , or sub-B.
 - `record_name_policy` (String) The hostname policy for records under this zone.
-- `remove_subzones` (Boolean) Remove subzones delete option. Determines whether all child objects should be removed alongside with the parent zone or child objects should be assigned to another parental zone. By default child objects are deleted with the parent zone.
 - `restart_if_needed` (Boolean) Restarts the member service.
 - `scavenging_settings` (Attributes) (see [below for nested schema](#nestedatt--nios--scavenging_settings))
 - `set_soa_serial_number` (Boolean) The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at "soa_serial_number" and pass "set_soa_serial_number" as True.

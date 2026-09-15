@@ -1,0 +1,95 @@
+case "basic" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata = { target_name = "{{random}}.com" }
+      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+    }
+  }
+
+  step {
+    query    = true
+    provider = infoblox
+    limit    = 5
+  }
+
+}
+
+case "filters" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata        = { target_name = "{{random}}.com" }
+      zone         = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      name_in_zone = "{{random2}}"
+    }
+  }
+
+  step {
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    filter {
+      type = "filters"
+      values = {
+        name_in_zone = "uddi.name_in_zone"
+        zone         = "uddi.zone"
+      }
+    }
+  }
+
+}
+
+case "tag_filters" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    uddi = {
+      fqdn = "{{random}}.com."
+      primary_type = "cloud"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      rdata = { target_name = "{{random}}.com" }
+      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      tags  = { tag1 = "{{random2}}" }
+    }
+  }
+
+  step {
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    filter {
+      type = "tag_filters"
+      values = {
+        tag1 = "uddi.tags.tag1"
+      }
+    }
+  }
+
+}
