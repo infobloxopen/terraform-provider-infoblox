@@ -374,6 +374,7 @@ func (r *ZoneAuthResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSZoneAuthAttrTypes, &resp.Diagnostics)
 	}
+
 	obj := data.Expand(ctx, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
