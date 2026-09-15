@@ -15,7 +15,7 @@ Manages an Infoblox AccessCode in the UDDI backend.
 ### UDDI Backend
 
 ```terraform
-// Create Named Lists to reference in Access Code rules
+// Create Named Lists ( Required As Parents )
 resource "infoblox_named_list" "example_1" {
   uddi = {
     name = "example-named-list-1"
