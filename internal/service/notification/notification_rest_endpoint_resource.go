@@ -86,9 +86,9 @@ func (r *NotificationRestEndpointResource) Configure(_ context.Context, req reso
 
 	r.service = coresvc.NewNotificationRestEndpointService(r.backend, client.NIOS, client.UDDI)
 	if client.NIOS != nil {
-		r.niosHostURL = client.NIOSHostURL
-		r.niosUsername = client.NIOSUsername
-		r.niosPassword = client.NIOSPassword
+		r.niosHostURL = client.NIOS.NotificationAPI.Cfg.NIOSHostURL
+		r.niosUsername = client.NIOS.NotificationAPI.Cfg.NIOSUsername
+		r.niosPassword = client.NIOS.NotificationAPI.Cfg.NIOSPassword
 	}
 }
 

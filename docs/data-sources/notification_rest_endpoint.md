@@ -15,7 +15,7 @@ Retrieves information about existing Infoblox NotificationRestEndpoint from the 
 ### NIOS Backend
 
 ```terraform
-// Retrieve a specific NIOS Notification REST Endpoint by filters
+// Retrieve a specific Notification REST Endpoint by filters
 data "infoblox_notification_rest_endpoint" "get_notification_rest_endpoint_using_filters" {
   filters = {
     name = "example_notification_rest_endpoint"

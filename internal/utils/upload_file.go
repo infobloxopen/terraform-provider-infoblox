@@ -24,6 +24,7 @@ type uploadInitResponse struct {
 func generateUploadToken(ctx context.Context, baseURL, username, password string) (*uploadInitResponse, error) {
 	httpClient := &http.Client{
 		Transport: &http.Transport{
+			// NIOS uses a self-signed certificate that cannot be validated via the system trust store.
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 		},
 	}
@@ -52,13 +53,14 @@ func generateUploadToken(ctx context.Context, baseURL, username, password string
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("error decoding uploadinit response: %w", err)
 	}
-	tflog.Debug(ctx, fmt.Sprintf("Generated upload token: %s with URL: %s", result.Token, result.URL))
+	tflog.Debug(ctx, "Upload token generated successfully")
 	return &result, nil
 }
 
 func uploadFile(ctx context.Context, uploadURL, filePath, username, password string) error {
 	httpClient := &http.Client{
 		Transport: &http.Transport{
+			// NIOS uses a self-signed certificate that cannot be validated via the system trust store.
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 		},
 	}

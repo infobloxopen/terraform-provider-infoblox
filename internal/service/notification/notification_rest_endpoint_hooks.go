@@ -106,18 +106,18 @@ func PostFlattenNotificationRestEndpointNIOS(ctx context.Context, planned, flatt
 		flattened.WapiUserPassword = planned.WapiUserPassword
 		flattened.ClientCertificateFile = planned.ClientCertificateFile
 		// token is write-only; NIOS never echoes it back.
-		// Preserve only if known (set explicitly by user or populated by the upload hook).
-		// An Unknown value means no upload happened and no explicit value was given — use null.
+		// Normally set by the upload hook from client_certificate_file; a user may also
+		// supply it directly. Preserve if known; Unknown means no upload this cycle — use null.
 		if !planned.ClientCertificateToken.IsUnknown() {
 			flattened.ClientCertificateToken = planned.ClientCertificateToken
 		} else {
-			flattened.ClientCertificateToken = flex.FlattenStringPointerEmptyAsNull(nil)
+			flattened.ClientCertificateToken = types.StringNull()
 		}
 	} else {
-		flattened.Password = flex.FlattenStringPointerEmptyAsNull(nil)
-		flattened.WapiUserPassword = flex.FlattenStringPointerEmptyAsNull(nil)
+		flattened.Password = types.StringNull()
+		flattened.WapiUserPassword = types.StringNull()
 		flattened.ClientCertificateFile = types.StringNull()
-		flattened.ClientCertificateToken = flex.FlattenStringPointerEmptyAsNull(nil)
+		flattened.ClientCertificateToken = types.StringNull()
 	}
 }
 

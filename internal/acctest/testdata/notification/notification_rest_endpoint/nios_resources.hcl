@@ -1,7 +1,22 @@
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
+# TODO: The following prerequisites MUST be in place before running these tests:
+#
+# Grid objects (must exist on the NIOS grid):
 #   - notification_rest_template : Version5_REST_API_Session_Template  (used by template_instance case)
 #   - notification_rest_template : Version5_REST_API_Session_Template1 (used by template_instance case)
-#   - grid member                : infoblox.172_28_83_167              (used by outbound_members/outbound_member_type cases)
+#   - grid member (master candidate) : infoblox.member2               (used by outbound_members/outbound_member_type cases)
+#     NOTE: NIOS only allows master-candidate members in outbound_members; regular members are rejected with a 400.
+#
+# Environment variables (must be set when running TF_ACC=1):
+#   - NIOS_HOST_URL              : NIOS grid master URL (e.g. https://172.28.82.241)
+#   - NIOS_USERNAME              : NIOS admin username
+#   - NIOS_PASSWORD              : NIOS admin password
+#   - NIOS_GRID_MASTER_HOSTNAME  : grid master hostname (e.g. infoblox.172_28_82_241)
+#   - NIOS_GRID_MEMBER_HOSTNAME  : a grid member hostname (used by the test framework)
+#   - INFOBLOX_PORTAL_URL        : portal URL (required even for NIOS-only tests)
+#   - INFOBLOX_PORTAL_KEY        : portal API key (required even for NIOS-only tests)
+#
+# Test data files (already present in this directory):
+#   - dummy-bundle.pem, dummy-bundle2.pem  (used by client_certificate_file case)
 
 case "basic" {
   backend  = "nios"
@@ -184,6 +199,70 @@ case "client_certificate_file" {
 
 }
 
+case "password" {
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                 = "{{random}}"
+      outbound_member_type = "GM"
+      uri                  = "https://example.com"
+      username             = "example_username"
+      password             = "example_password"
+    }
+    check = {
+      "nios.username" = "example_username"
+    }
+  }
+
+  step {
+    nios {
+      name                 = "{{random}}"
+      outbound_member_type = "GM"
+      uri                  = "https://example.com"
+      username             = "example_username"
+      password             = "example_password_updated"
+    }
+    check = {
+      "nios.username" = "example_username"
+    }
+  }
+
+}
+
+case "wapi_user_password" {
+  backend  = "nios"
+  parallel = true
+
+  step {
+    nios {
+      name                 = "{{random}}"
+      outbound_member_type = "GM"
+      uri                  = "https://example.com"
+      wapi_user_name       = "example_wapi_username"
+      wapi_user_password   = "example_wapi_password"
+    }
+    check = {
+      "nios.wapi_user_name" = "example_wapi_username"
+    }
+  }
+
+  step {
+    nios {
+      name                 = "{{random}}"
+      outbound_member_type = "GM"
+      uri                  = "https://example.com"
+      wapi_user_name       = "example_wapi_username"
+      wapi_user_password   = "example_wapi_password_updated"
+    }
+    check = {
+      "nios.wapi_user_name" = "example_wapi_username"
+    }
+  }
+
+}
+
 case "outbound_member_type" {
   backend  = "nios"
   parallel = true
@@ -202,12 +281,13 @@ case "outbound_member_type" {
   step {
     nios {
       name                 = "{{random}}"
-      outbound_member_type = "GM"
-      uri                  = "https://example-updated.com"
+      outbound_member_type = "MEMBER"
+      outbound_members     = ["infoblox.member2"]
+      uri                  = "https://example.com"
     }
     check = {
-      "nios.outbound_member_type" = "GM"
-      "nios.uri"                  = "https://example-updated.com"
+      "nios.outbound_member_type" = "MEMBER"
+      "nios.outbound_members.#"   = "1"
     }
   }
 
@@ -226,6 +306,19 @@ case "outbound_members" {
     check = {
       "nios.outbound_member_type" = "GM"
       "nios.outbound_members.#"   = "0"
+    }
+  }
+
+  step {
+    nios {
+      name                 = "{{random}}"
+      outbound_member_type = "MEMBER"
+      outbound_members     = ["infoblox.member2"]
+      uri                  = "https://example.com"
+    }
+    check = {
+      "nios.outbound_member_type" = "MEMBER"
+      "nios.outbound_members.#"   = "1"
     }
   }
 

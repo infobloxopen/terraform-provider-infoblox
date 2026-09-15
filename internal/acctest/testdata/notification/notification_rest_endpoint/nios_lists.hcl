@@ -1,6 +1,7 @@
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  parallel       = true
+  min_tf_version = "1.14.0"
 
   step {
     nios {
@@ -19,8 +20,9 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  parallel       = true
+  min_tf_version = "1.14.0"
 
   step {
     nios {
@@ -45,8 +47,9 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  parallel       = true
+  min_tf_version = "1.14.0"
 
   step {
     nios {

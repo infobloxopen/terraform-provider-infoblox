@@ -189,9 +189,6 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
 			niosoption.WithDebug(true),
 		)
-		infobloxClient.NIOSHostURL = data.NIOS.HostUrl.ValueString()
-		infobloxClient.NIOSUsername = data.NIOS.Username.ValueString()
-		infobloxClient.NIOSPassword = data.NIOS.Password.ValueString()
 	}
 
 	// UDDI configurations

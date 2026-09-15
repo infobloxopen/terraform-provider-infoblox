@@ -27,3 +27,13 @@ resource "infoblox_notification_rest_endpoint" "notification_rest_endpoint_with_
     }
   }
 }
+
+// Create a Notification REST Endpoint targeting specific grid members
+resource "infoblox_notification_rest_endpoint" "notification_rest_endpoint_member" {
+  nios = {
+    name                 = "example_notification_rest_endpoint_member"
+    outbound_member_type = "MEMBER"
+    outbound_members     = ["infoblox.example_member"]
+    uri                  = "https://example.com/notify"
+  }
+}
