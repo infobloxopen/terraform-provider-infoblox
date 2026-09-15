@@ -80,7 +80,6 @@ Required:
 Optional:
 
 - `client_certificate_file` (String) Local path to a PEM certificate file to upload to the NIOS grid. When set, the file is uploaded on create/update and the resulting token is stored in `client_certificate_token`.
-- `client_certificate_token` (String) The token returned by the uploadinit function call in object fileop for a notification REST endpoit client certificate.
 - `comment` (String) The comment of a notification REST endpoint.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `log_level` (String) The log level for a notification REST endpoint.
@@ -97,6 +96,7 @@ Optional:
 
 Read-Only:
 
+- `client_certificate_token` (String) The token returned by the uploadinit function call in object fileop for a notification REST endpoit client certificate.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 
 <a id="nestedatt--nios--template_instance"></a>
