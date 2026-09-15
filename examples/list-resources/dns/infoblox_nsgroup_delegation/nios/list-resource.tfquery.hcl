@@ -3,7 +3,7 @@ list "infoblox_nsgroup_delegation" "list_ns_group_delegations_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_ns_group_del"
+      name = "example_ns_group_delegation"
     }
   }
   limit = 10

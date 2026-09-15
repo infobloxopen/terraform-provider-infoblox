@@ -1,7 +1,7 @@
 // Manage an NS group delegation
 resource "infoblox_nsgroup_delegation" "nsgroup_delegation_basic_fields" {
   nios = {
-    name = "example_ns_group_del"
+    name = "example_ns_group_delegation_basic"
     delegate_to = [
       {
         address = "2.3.3.4"
