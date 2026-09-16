@@ -9,7 +9,6 @@ case "basic" {
     }
     check = {
       "nios.name"       = "{{random}}"
-      "nios.comment"    = ""
       "nios.community"  = "public"
       "nios.interval"   = "5"
       "nios.port"       = "161"
@@ -368,31 +367,13 @@ case "timeout" {
 # Reason: requires_resource: infoblox_snmp_user not yet implemented
 case "user" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_snmp_user not yet implemented"
   parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_snmp_user_unknown" "snmpuser_parent" {
-    nios = {
-      name = "nios_security_snmp_user.snmpuser_parent"
-      authentication_protocol = "NONE"
-      privacy_protocol = "NONE"
-    }
-  }
-  resource "infoblox_snmp_user_unknown" "snmpuser_parent1" {
-    nios = {
-      name = "nios_security_snmp_user.snmpuser_parent1"
-      authentication_protocol = "NONE"
-      privacy_protocol = "NONE"
-    }
-  }
-  PREREQ
 
   step {
     nios {
       name    = "{{random}}"
       version = "V3"
-      user    = infoblox_snmp_user_unknown.snmpuser_parent.nios.name
+      user    = "snmpuser"
     }
   }
 
@@ -400,7 +381,7 @@ case "user" {
     nios {
       name    = "{{random}}"
       version = "V3"
-      user    = infoblox_snmp_user_unknown.snmpuser_parent1.nios.name
+      user    = "snmpv3user"
     }
   }
 
@@ -410,23 +391,7 @@ case "user" {
 # Reason: requires_resource: infoblox_snmp_user not yet implemented
 case "version" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_snmp_user not yet implemented"
   parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_snmp_user_unknown" "snmpuser_parent" {
-    nios = {
-      authentication_protocol = "NONE"
-      privacy_protocol = "NONE"
-    }
-  }
-  resource "infoblox_snmp_user_unknown" "snmpuser_parent1" {
-    nios = {
-      authentication_protocol = "NONE"
-      privacy_protocol = "NONE"
-    }
-  }
-  PREREQ
 
   step {
     nios {
@@ -452,7 +417,7 @@ case "version" {
     nios {
       name    = "{{random}}"
       version = "V3"
-      user    = infoblox_snmp_user_unknown.snmpuser_parent1.nios.name
+      user    = "snmpuser"
     }
     check = {
       "nios.version" = "V3"

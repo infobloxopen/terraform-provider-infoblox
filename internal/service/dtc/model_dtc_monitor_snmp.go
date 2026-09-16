@@ -279,10 +279,12 @@ var DtcMonitorSnmpResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"context_engine_id": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Uniquely identifies an SNMP entity that may realize an instance of a context with a particular context name.  Format is an arbitrary string that can contain from 10 to 64 hexadecimal digits (5 to 32 octet numbers).  Ignored for __v1__ and __v2c__ versions.",
 	},
 	"context_name": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Name of administratively unique context for __v3__ version. Ignored for __v1__ and __v2c__ versions.",
 	},
 	"disabled": schema.BoolAttribute{
