@@ -331,8 +331,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		grid.NewServicerestartGroupResource,
 		acl.NewNamedaclResource,
+		
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
@@ -379,14 +379,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		dtc.NewDtcLbdnResource,
 		dtc.NewDtcMonitorPdpResource,
+		dtc.NewDtcMonitorHttpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
 
 		fw.NewAccessCodeResource,
-		dtc.NewDtcMonitorPdpResource,
-		dtc.NewDtcMonitorHttpResource,
-		dtc.NewDtcLbdnResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -422,8 +420,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		grid.NewServicerestartGroupDataSource,
 		acl.NewNamedaclDataSource,
+
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
@@ -470,14 +468,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		dtc.NewDtcLbdnDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
+		dtc.NewDtcMonitorHttpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
 
 		fw.NewAccessCodeDataSource,
-		dtc.NewDtcMonitorPdpDataSource,
-		dtc.NewDtcMonitorHttpDataSource,
-		dtc.NewDtcLbdnDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -516,8 +512,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		grid.NewServicerestartGroupList,
 		acl.NewNamedaclList,
+
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
@@ -564,14 +560,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		dtc.NewDtcLbdnList,
 		dtc.NewDtcMonitorPdpList,
+		dtc.NewDtcMonitorHttpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
 
 		fw.NewAccessCodeList,
-		dtc.NewDtcMonitorPdpList,
-		dtc.NewDtcMonitorHttpList,
-		dtc.NewDtcLbdnList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
