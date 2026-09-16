@@ -36,11 +36,9 @@ type UDDIAddressModel struct {
 	Address           types.String `tfsdk:"address"`
 	Comment           types.String `tfsdk:"comment"`
 	ExternalKeys      types.Map    `tfsdk:"external_keys"`
-	Host              types.String `tfsdk:"host"`
 	Hwaddr            types.String `tfsdk:"hwaddr"`
 	Interface         types.String `tfsdk:"interface"`
 	Names             types.List   `tfsdk:"names"`
-	Range             types.String `tfsdk:"range"`
 	Space             types.String `tfsdk:"space"`
 	Tags              types.Map    `tfsdk:"tags"`
 	TagsAll           types.Map    `tfsdk:"tags_all"`
@@ -51,11 +49,9 @@ var UDDIAddressAttrTypes = map[string]attr.Type{
 	"address":            types.StringType,
 	"comment":            types.StringType,
 	"external_keys":      types.MapType{ElemType: types.StringType},
-	"host":               types.StringType,
 	"hwaddr":             types.StringType,
 	"interface":          types.StringType,
 	"names":              types.ListType{ElemType: types.ObjectType{AttrTypes: NameAttrTypes}},
-	"range":              types.StringType,
 	"space":              types.StringType,
 	"tags":               types.MapType{ElemType: types.StringType},
 	"tags_all":           types.MapType{ElemType: types.StringType},
@@ -82,6 +78,9 @@ var AddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Optional: true,
 		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
 				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
@@ -90,17 +89,18 @@ var AddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The address in form \"a.b.c.d\".",
 	},
 	"comment": schema.StringAttribute{
-		Optional:            true,
+		Default:  stringdefault.StaticString(""),
+		Optional: true,
+		Computed: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 1024),
+		},
 		MarkdownDescription: "The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"external_keys": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
 		MarkdownDescription: "The external keys (source key) for this address in JSON format.",
-	},
-	"host": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
 	},
 	"hwaddr": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
@@ -123,10 +123,6 @@ var AddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of all names associated with this address.",
-	},
-	"range": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
 	},
 	"space": schema.StringAttribute{
 		Required: true,
@@ -180,15 +176,13 @@ func (m *UDDIAddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		Address:      flex.ExpandString(m.Address),
 		Comment:      flex.ExpandStringPointer(m.Comment),
 		ExternalKeys: flex.ExpandMapStringAny(ctx, m.ExternalKeys, diags),
-		Host:         flex.ExpandStringPointer(m.Host),
 		Hwaddr:       flex.ExpandStringPointer(m.Hwaddr),
 		Interface:    flex.ExpandStringPointer(m.Interface),
 		Names:        flex.ExpandFrameworkListNestedBlock(ctx, m.Names, diags, ExpandName),
-		Range:        flex.ExpandStringPointer(m.Range),
-		Space:        flex.ExpandStringPointer(m.Space),
 		Tags:         flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
+		ext.Space = flex.ExpandStringPointer(m.Space)
 		if alloc := BuildAddressAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = *alloc
 		}
@@ -225,11 +219,9 @@ func (m *UDDIAddressModel) Flatten(ctx context.Context, from *coremodel.UDDIAddr
 	m.Address = flex.FlattenString(from.Address)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
-	m.Host = flex.FlattenStringPointer(from.Host)
 	m.Hwaddr = flex.FlattenStringPointer(from.Hwaddr)
 	m.Interface = flex.FlattenStringPointer(from.Interface)
 	m.Names = flex.FlattenFrameworkListNestedBlock(ctx, from.Names, NameAttrTypes, diags, FlattenName)
-	m.Range = flex.FlattenStringPointer(from.Range)
 	m.Space = flex.FlattenStringPointer(from.Space)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {

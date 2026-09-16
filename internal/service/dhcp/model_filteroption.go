@@ -270,7 +270,7 @@ var FilteroptionResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the option filter. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"protocol": schema.StringAttribute{
-		Optional:            true,
+		Default:             stringdefault.StaticString("ip4"),
 		Computed:            true,
 		MarkdownDescription: "The type of protocol of option filter (_ip4_ or _ip6_).",
 	},
@@ -326,7 +326,7 @@ func (m *FilteroptionModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIFilteroptionModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -351,8 +351,8 @@ func (m *NIOSFilteroptionModel) Expand(ctx context.Context, diags *diag.Diagnost
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIFilteroptionModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIFilteroptionExt {
-	return &coremodel.UDDIFilteroptionExt{
+func (m *UDDIFilteroptionModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIFilteroptionExt {
+	ext := &coremodel.UDDIFilteroptionExt{
 		Comment:                         flex.ExpandStringPointer(m.Comment),
 		DhcpOptions:                     flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		HeaderOptionFilename:            flex.ExpandStringPointer(m.HeaderOptionFilename),
@@ -360,12 +360,15 @@ func (m *UDDIFilteroptionModel) Expand(ctx context.Context, diags *diag.Diagnost
 		HeaderOptionServerName:          flex.ExpandStringPointer(m.HeaderOptionServerName),
 		LeaseTime:                       flex.ExpandInt64Pointer(m.LeaseTime),
 		Name:                            flex.ExpandString(m.Name),
-		Protocol:                        flex.ExpandStringPointer(m.Protocol),
 		Role:                            flex.ExpandStringPointer(m.Role),
 		Rules:                           ExpandOptionFilterRuleList(ctx, m.Rules, diags),
 		Tags:                            flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		VendorSpecificOptionOptionSpace: flex.ExpandStringPointer(m.VendorSpecificOptionOptionSpace),
 	}
+	if isCreate {
+		ext.Protocol = flex.ExpandStringPointer(m.Protocol)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.

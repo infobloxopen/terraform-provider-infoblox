@@ -31,6 +31,9 @@ type InheritedField struct {
 //  1. The resource already exists (state is not null — not a create or destroy)
 //  2. A real update operation is in progress (plan differs from state in at least one field)
 //  3. The field's current state value is null (server has not yet echoed the inherited value)
+//  4. The field is not explicitly set in config (Terraform requires the planned value of an
+//     Optional+Computed attribute to match a known config value exactly, so marking it Unknown
+//     would produce a "provider produced invalid plan" error)
 //
 // This allows Terraform to accept whatever the server returns on the next API call,
 // catching up state for inherited fields the server only populates starting from the
@@ -58,6 +61,11 @@ func MarkInheritedFieldsUnknown(
 	for _, f := range fields {
 		stateVal, err := valueAtPath(req.State.Raw, f.Path)
 		if err != nil || !stateVal.IsNull() {
+			continue
+		}
+		// The user set this field in config on this very update: the framework already
+		// planned the config value and Terraform would reject an Unknown in its place.
+		if configVal, err := valueAtPath(req.Config.Raw, f.Path); err == nil && configVal.IsKnown() && !configVal.IsNull() {
 			continue
 		}
 		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, f.Path, f.UnknownValue)...)

@@ -6,7 +6,7 @@ import (
 )
 
 // BuildResourceHCL generates HCL config string for a resource.
-func BuildResourceHCL(resourceType, resourceLabel string, tv *Tfvars) string {
+func BuildResourceHCL(resourceType, resourceLabel string, tv *CaseConfig) string {
 	var sb strings.Builder
 
 	fmt.Fprintf(&sb, "resource %q %q {\n", resourceType, resourceLabel)

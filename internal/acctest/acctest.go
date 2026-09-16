@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
@@ -18,6 +20,7 @@ import (
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/provider"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 const (
@@ -262,8 +265,8 @@ func Random32Hexadecimal() string {
 	return fmt.Sprintf("%016x%016x", rand.Uint64(), rand.Uint64())
 }
 
-// TfvarsExists checks if a tfvars file exists.
-func TfvarsExists(relativePath string) bool {
+// CaseFileExists checks if a case file exists.
+func CaseFileExists(relativePath string) bool {
 	if packageDir == "" {
 		return false
 	}
@@ -291,6 +294,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_GRID_MASTER_HOSTNAME")
 	case name == "grid_member_hostname":
 		return os.Getenv("NIOS_GRID_MEMBER_HOSTNAME")
+	case name == "grid_member_2_hostname":
+		return os.Getenv("NIOS_GRID_MEMBER_2_HOSTNAME")
 	case name == "discovery_member_hostname":
 		return os.Getenv("NIOS_DISCOVERY_MEMBER_HOSTNAME")
 	case name == "pxgrid_endpoint_ref":
@@ -315,9 +320,23 @@ func ResolvePlaceholder(placeholder string) string {
 		return Random32Hexadecimal()
 	case strings.HasPrefix(name, "random_ip"):
 		return RandomIP()
+	case strings.HasPrefix(name, "future_time"):
+		return FutureTime(name)
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}
+}
+
+// FutureTime resolves a "future_time_<N>h" token to a timestamp N hours from now,
+// formatted per utils.NaiveDatetimeLayout. Falls back to a 24-hour offset if N is missing/invalid.
+func FutureTime(name string) string {
+	hours := 24
+	if suffix, ok := strings.CutSuffix(strings.TrimPrefix(name, "future_time_"), "h"); ok {
+		if n, err := strconv.Atoi(suffix); err == nil {
+			hours = n
+		}
+	}
+	return time.Now().Add(time.Duration(hours) * time.Hour).UTC().Format(utils.NaiveDatetimeLayout)
 }
 
 // ReplacePlaceholders substitutes all {{token}} placeholders in content with random or env-sourced values.

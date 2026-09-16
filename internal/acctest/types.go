@@ -2,8 +2,8 @@ package acctest
 
 import "github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-// Tfvars represents the parsed tfvars configuration.
-type Tfvars struct {
+// CaseConfig represents the parsed case file configuration.
+type CaseConfig struct {
 	Backend          string
 	Parallel         bool
 	Common           map[string]any

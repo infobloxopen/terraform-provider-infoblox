@@ -131,35 +131,35 @@ var NIOSIpv6networkcontainerAttrTypes = map[string]attr.Type{
 }
 
 type UDDIIpv6networkcontainerModel struct {
-	Address                    iptypes.IPv6Address `tfsdk:"address"`
-	AsmConfig                  types.Object        `tfsdk:"asm_config"`
-	Cidr                       types.Int64         `tfsdk:"cidr"`
-	Comment                    types.String        `tfsdk:"comment"`
-	CompartmentId              types.String        `tfsdk:"compartment_id"`
-	DdnsClientUpdate           types.String        `tfsdk:"ddns_client_update"`
-	DdnsConflictResolutionMode types.String        `tfsdk:"ddns_conflict_resolution_mode"`
-	DdnsDomain                 types.String        `tfsdk:"ddns_domain"`
-	DdnsGenerateName           types.Bool          `tfsdk:"ddns_generate_name"`
-	DdnsGeneratedPrefix        types.String        `tfsdk:"ddns_generated_prefix"`
-	DdnsSendUpdates            types.Bool          `tfsdk:"ddns_send_updates"`
-	DdnsTtlPercent             types.Float64       `tfsdk:"ddns_ttl_percent"`
-	DdnsUpdateOnRenew          types.Bool          `tfsdk:"ddns_update_on_renew"`
-	DdnsUseConflictResolution  types.Bool          `tfsdk:"ddns_use_conflict_resolution"`
-	DhcpConfig                 types.Object        `tfsdk:"dhcp_config"`
-	DhcpOptions                types.List          `tfsdk:"dhcp_options"`
-	ExternalKeys               types.Map           `tfsdk:"external_keys"`
-	FederatedRealms            types.List          `tfsdk:"federated_realms"`
-	HostnameRewriteChar        types.String        `tfsdk:"hostname_rewrite_char"`
-	HostnameRewriteEnabled     types.Bool          `tfsdk:"hostname_rewrite_enabled"`
-	HostnameRewriteRegex       types.String        `tfsdk:"hostname_rewrite_regex"`
-	InheritanceParent          types.String        `tfsdk:"inheritance_parent"`
-	InheritanceSources         types.Object        `tfsdk:"inheritance_sources"`
-	Name                       types.String        `tfsdk:"name"`
-	Parent                     types.String        `tfsdk:"parent"`
-	Space                      types.String        `tfsdk:"space"`
-	Tags                       types.Map           `tfsdk:"tags"`
-	TagsAll                    types.Map           `tfsdk:"tags_all"`
-	Threshold                  types.Object        `tfsdk:"threshold"`
+	Address                    iptypes.IPv6Address              `tfsdk:"address"`
+	AsmConfig                  types.Object                     `tfsdk:"asm_config"`
+	Cidr                       types.Int64                      `tfsdk:"cidr"`
+	Comment                    types.String                     `tfsdk:"comment"`
+	CompartmentId              types.String                     `tfsdk:"compartment_id"`
+	DdnsClientUpdate           types.String                     `tfsdk:"ddns_client_update"`
+	DdnsConflictResolutionMode types.String                     `tfsdk:"ddns_conflict_resolution_mode"`
+	DdnsDomain                 types.String                     `tfsdk:"ddns_domain"`
+	DdnsGenerateName           types.Bool                       `tfsdk:"ddns_generate_name"`
+	DdnsGeneratedPrefix        types.String                     `tfsdk:"ddns_generated_prefix"`
+	DdnsSendUpdates            types.Bool                       `tfsdk:"ddns_send_updates"`
+	DdnsTtlPercent             types.Float64                    `tfsdk:"ddns_ttl_percent"`
+	DdnsUpdateOnRenew          types.Bool                       `tfsdk:"ddns_update_on_renew"`
+	DdnsUseConflictResolution  types.Bool                       `tfsdk:"ddns_use_conflict_resolution"`
+	DhcpConfig                 types.Object                     `tfsdk:"dhcp_config"`
+	DhcpOptions                types.List                       `tfsdk:"dhcp_options"`
+	ExternalKeys               types.Map                        `tfsdk:"external_keys"`
+	FederatedRealms            internaltypes.UnorderedListValue `tfsdk:"federated_realms"`
+	HostnameRewriteChar        types.String                     `tfsdk:"hostname_rewrite_char"`
+	HostnameRewriteEnabled     types.Bool                       `tfsdk:"hostname_rewrite_enabled"`
+	HostnameRewriteRegex       types.String                     `tfsdk:"hostname_rewrite_regex"`
+	InheritanceParent          types.String                     `tfsdk:"inheritance_parent"`
+	InheritanceSources         types.Object                     `tfsdk:"inheritance_sources"`
+	Name                       types.String                     `tfsdk:"name"`
+	Parent                     types.String                     `tfsdk:"parent"`
+	Space                      types.String                     `tfsdk:"space"`
+	Tags                       types.Map                        `tfsdk:"tags"`
+	TagsAll                    types.Map                        `tfsdk:"tags_all"`
+	Threshold                  types.Object                     `tfsdk:"threshold"`
 }
 
 var UDDIIpv6networkcontainerAttrTypes = map[string]attr.Type{
@@ -180,7 +180,7 @@ var UDDIIpv6networkcontainerAttrTypes = map[string]attr.Type{
 	"dhcp_config":                   types.ObjectType{AttrTypes: Ipv6NetworkcontainerDHCPConfigAttrTypes},
 	"dhcp_options":                  types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"external_keys":                 types.MapType{ElemType: types.StringType},
-	"federated_realms":              types.ListType{ElemType: types.StringType},
+	"federated_realms":              internaltypes.UnorderedListOfStringType,
 	"hostname_rewrite_char":         types.StringType,
 	"hostname_rewrite_enabled":      types.BoolType,
 	"hostname_rewrite_regex":        types.StringType,
@@ -630,6 +630,7 @@ var Ipv6networkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribu
 	"federated_realms": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -940,7 +941,7 @@ func (m *UDDIIpv6networkcontainerModel) Flatten(ctx context.Context, from *corem
 	m.DhcpConfig = FlattenIpv6NetworkcontainerDHCPConfig(ctx, from.DhcpConfig, diags)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.ExternalKeys = flex.FlattenMapStringAny(ctx, from.ExternalKeys, diags)
-	m.FederatedRealms = flex.FlattenFrameworkListString(ctx, from.FederatedRealms, diags)
+	m.FederatedRealms = flex.FlattenFrameworkUnorderedListString(ctx, from.FederatedRealms, diags)
 	m.HostnameRewriteChar = flex.FlattenStringPointer(from.HostnameRewriteChar)
 	m.HostnameRewriteEnabled = flex.FlattenBoolPointer(from.HostnameRewriteEnabled)
 	m.HostnameRewriteRegex = flex.FlattenStringPointer(from.HostnameRewriteRegex)

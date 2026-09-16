@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNetworkcontainerList(t *testing.T) {
-	resourceType := "infoblox_networkcontainer"
+	resourceType := "infoblox_network_container"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -22,7 +22,7 @@ func TestAccNetworkcontainerList(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "ipam/networkcontainer/"+backend+"_lists.tfvars", checksByBackend)
+			acctest.RunListCases(t, resourceType, "ipam/network_container/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

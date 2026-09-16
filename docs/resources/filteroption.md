@@ -175,13 +175,13 @@ Optional:
 - `header_option_server_address` (String) The configuration for header option server address field.
 - `header_option_server_name` (String) The configuration for header option server name field.
 - `lease_time` (Number) The lease lifetime duration in seconds.
-- `protocol` (String) The type of protocol of option filter (_ip4_ or _ip6_).
 - `role` (String) The role of DHCP filter (_values_ or _selection_).  Defaults to _values_.
 - `tags` (Map of String) The tags for the option filter in JSON format.
 - `vendor_specific_option_option_space` (String) The resource identifier.
 
 Read-Only:
 
+- `protocol` (String) The type of protocol of option filter (_ip4_ or _ip6_).
 - `tags_all` (Map of String) All tags including inherited values.
 
 <a id="nestedatt--uddi--rules"></a>

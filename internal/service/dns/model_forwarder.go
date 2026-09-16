@@ -88,5 +88,5 @@ func (m *ForwarderModel) Flatten(ctx context.Context, from *uddidns.Forwarder, d
 		return
 	}
 	m.Address = flex.FlattenString(from.Address)
-	m.Fqdn = flex.FlattenStringPointer(from.Fqdn)
+	m.Fqdn = flex.FlattenStringPointerEmptyAsNull(from.Fqdn)
 }

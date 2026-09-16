@@ -44,6 +44,7 @@ var ExternalPrimaryAttrTypes = map[string]attr.Type{
 var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
@@ -51,6 +52,7 @@ var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"fqdn": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			planmod.UseEmptyStringForNull(),
 		},
@@ -64,7 +66,6 @@ var ExternalPrimaryResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"protocol_fqdn": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "FQDN of nameserver in punycode.",
 	},
@@ -104,13 +105,12 @@ func (m *ExternalPrimaryModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		return nil
 	}
 	to := &uddidns.ExternalPrimary{
-		Address:      flex.ExpandStringPointer(m.Address),
-		Fqdn:         flex.ExpandStringPointer(m.Fqdn),
-		Nsg:          flex.ExpandStringPointer(m.Nsg),
-		ProtocolFqdn: flex.ExpandStringPointer(m.ProtocolFqdn),
-		TsigEnabled:  flex.ExpandBoolPointer(m.TsigEnabled),
-		TsigKey:      ExpandTSIGKey(ctx, m.TsigKey, diags),
-		Type:         flex.ExpandString(m.Type),
+		Address:     flex.ExpandStringPointer(m.Address),
+		Fqdn:        flex.ExpandStringPointer(m.Fqdn),
+		Nsg:         flex.ExpandStringPointer(m.Nsg),
+		TsigEnabled: flex.ExpandBoolPointer(m.TsigEnabled),
+		TsigKey:     ExpandTSIGKey(ctx, m.TsigKey, diags),
+		Type:        flex.ExpandString(m.Type),
 	}
 	return to
 }

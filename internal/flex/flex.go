@@ -14,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/infobloxopen/infoblox-nios-go-client/grid"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
 )
 
 type FrameworkElementFlExFunc[T any, U any] func(context.Context, T, *diag.Diagnostics) U
@@ -198,6 +200,34 @@ func ExpandFrameworkListString(ctx context.Context, tfList interface {
 	return data
 }
 
+// ExpandFrameworkListInt32 expands types.List to []int32
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt32(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int32 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int32
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
+// ExpandFrameworkListInt64 expands types.List to []int64
+// Returns nil for null or unknown lists.
+func ExpandFrameworkListInt64(ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics) []int64 {
+	if tfList.IsNull() || tfList.IsUnknown() {
+		return nil
+	}
+	var data []int64
+	diags.Append(tfList.ElementsAs(ctx, &data, false)...)
+	return data
+}
+
 func ExpandIPv4Address(ipv4addr iptypes.IPv4Address) *string {
 	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
 		return nil
@@ -212,6 +242,20 @@ func ExpandIPv6Address(ipv6addr iptypes.IPv6Address) *string {
 	}
 	v := ipv6addr.ValueString()
 	return &v
+}
+
+func ExpandIPv4AddressValue(ipv4addr iptypes.IPv4Address) string {
+	if ipv4addr.IsNull() || ipv4addr.IsUnknown() {
+		return ""
+	}
+	return ipv4addr.ValueString()
+}
+
+func ExpandIPv6AddressValue(ipv6addr iptypes.IPv6Address) string {
+	if ipv6addr.IsNull() || ipv6addr.IsUnknown() {
+		return ""
+	}
+	return ipv6addr.ValueString()
 }
 
 func ExpandIPAddress(ipaddr iptypes.IPAddress) *string {
@@ -240,6 +284,25 @@ func ExpandMACAddress(mac internaltypes.MACAddress) *string {
 		return nil
 	}
 	return ExpandStringPointer(mac.StringValue)
+}
+
+// ExpandTimeToUnix converts a naive datetime string (utils.NaiveDatetimeLayout,
+// interpreted as UTC) into a Unix epoch seconds pointer for SDKs that only
+// accept the wire value as an integer timestamp.
+func ExpandTimeToUnix(v types.String, diags *diag.Diagnostics) *int64 {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	t, err := time.Parse(utils.NaiveDatetimeLayout, v.ValueString())
+	if err != nil {
+		diags.AddError(
+			"Invalid time value",
+			fmt.Sprintf("Expected format: %s, got: %s (%s)", utils.NaiveDatetimeLayout, v.ValueString(), err),
+		)
+		return nil
+	}
+	unix := t.UTC().Unix()
+	return &unix
 }
 
 func ExpandRFC3339(dt timetypes.RFC3339, diags *diag.Diagnostics) *time.Time {
@@ -432,6 +495,28 @@ func FlattenFrameworkListString(ctx context.Context, l []string, diags *diag.Dia
 	return tfList
 }
 
+// FlattenFrameworkListInt32 flattens []int32 to types.List
+// Returns null list if input is nil or empty.
+func FlattenFrameworkListInt32(ctx context.Context, l []int32, diags *diag.Diagnostics) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.Int32Type)
+	}
+	tfList, d := types.ListValueFrom(ctx, types.Int32Type, l)
+	diags.Append(d...)
+	return tfList
+}
+
+// FlattenFrameworkListInt64 flattens []int64 to types.List
+// Returns null list if input is nil or empty.
+func FlattenFrameworkListInt64(ctx context.Context, l []int64, diags *diag.Diagnostics) types.List {
+	if len(l) == 0 {
+		return types.ListNull(types.Int64Type)
+	}
+	tfList, d := types.ListValueFrom(ctx, types.Int64Type, l)
+	diags.Append(d...)
+	return tfList
+}
+
 func FlattenIPv4Address(ipv4addr *string) iptypes.IPv4Address {
 	if ipv4addr == nil || *ipv4addr == "" {
 		return iptypes.NewIPv4AddressNull()
@@ -444,6 +529,20 @@ func FlattenIPv6Address(ipv6addr *string) iptypes.IPv6Address {
 		return iptypes.NewIPv6AddressNull()
 	}
 	return iptypes.NewIPv6AddressValue(*ipv6addr)
+}
+
+func FlattenIPv4AddressValue(ipv4addr string) iptypes.IPv4Address {
+	if ipv4addr == "" {
+		return iptypes.NewIPv4AddressNull()
+	}
+	return iptypes.NewIPv4AddressValue(ipv4addr)
+}
+
+func FlattenIPv6AddressValue(ipv6addr string) iptypes.IPv6Address {
+	if ipv6addr == "" {
+		return iptypes.NewIPv6AddressNull()
+	}
+	return iptypes.NewIPv6AddressValue(ipv6addr)
 }
 
 func FlattenIPAddress(ipaddr *string) iptypes.IPAddress {
@@ -480,6 +579,15 @@ func FlattenMACAddress(mac *string) internaltypes.MACAddress {
 	return internaltypes.MACAddress{
 		StringValue: FlattenStringPointer(mac),
 	}
+}
+
+// FlattenUnixTime converts a Unix epoch seconds pointer back into a naive
+// datetime string (utils.NaiveDatetimeLayout, UTC), the inverse of ExpandTimeToUnix.
+func FlattenUnixTime(v *int64, diags *diag.Diagnostics) types.String {
+	if v == nil {
+		return types.StringNull()
+	}
+	return types.StringValue(time.Unix(*v, 0).UTC().Format(utils.NaiveDatetimeLayout))
 }
 
 func FlattenRFC3339(t *time.Time) timetypes.RFC3339 {
@@ -562,4 +670,55 @@ func RDataInt64Ptr(v any) *int64 {
 		}
 	}
 	return nil
+}
+func ExpandExtensibleAttributeDefDefaultValue(ctx context.Context, defaultValue types.String, eaType types.String, diags *diag.Diagnostics) *grid.ExtensibleattributedefDefaultValue {
+	if defaultValue.IsNull() || defaultValue.IsUnknown() {
+		return nil
+	}
+
+	value := defaultValue.ValueString()
+	if value == "" {
+		return nil
+	}
+
+	// Check the type to determine if we should send as integer or string
+	if !eaType.IsNull() && !eaType.IsUnknown() && eaType.ValueString() == "INTEGER" {
+		// Convert string to integer for INTEGER type
+		if intVal, err := strconv.ParseInt(value, 10, 32); err == nil {
+			int32Val := int32(intVal)
+			return &grid.ExtensibleattributedefDefaultValue{
+				Int32: &int32Val,
+			}
+		} else {
+			diags.AddError(
+				"Invalid Integer Default Value",
+				fmt.Sprintf("Cannot convert default_value '%s' to integer: %v", value, err),
+			)
+			return nil
+		}
+	}
+
+	// For all other types (STRING, EMAIL, URL, DATE, ENUM), send as string
+	return &grid.ExtensibleattributedefDefaultValue{
+		String: &value,
+	}
+}
+
+func FlattenExtensibleAttributeDefDefaultValue(ctx context.Context, from *grid.ExtensibleattributedefDefaultValue, diags *diag.Diagnostics) types.String {
+	if from == nil {
+		return types.StringNull()
+	}
+
+	if from.Int32 != nil {
+		// Convert int32 to string for Terraform
+		return types.StringValue(strconv.FormatInt(int64(*from.Int32), 10))
+	}
+
+	// Check if string value is set
+	if from.String != nil {
+		return types.StringValue(*from.String)
+	}
+
+	// No value set
+	return types.StringNull()
 }

@@ -157,11 +157,12 @@ func (d *FilteroptionDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields:  FilteroptionReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &resp.Diagnostics),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    FilteroptionReturnFields,
+		Paging:          1,
 	}
 
 	if !data.MaxResults.IsNull() {

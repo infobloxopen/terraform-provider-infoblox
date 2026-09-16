@@ -18,11 +18,11 @@ import (
 // checks if the TagRule type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &TagRule{}
 
-// TagRule A __TagRule__ is a single match criterion used by a tags-based topology rule source. Each rule carries a _key_, _value_, and an optional match _op_.
+// TagRule A __TagRule__ is a single match criterion used to select infrastructure source objects.
 type TagRule struct {
 	// Required. Tag key to match against a source object's effective tags.
 	Key string `json:"key"`
-	// Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value. A missing key does not satisfy either operator.  Defaults to _EQUALS_.
+	// Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value.  A missing key does not satisfy either operator.  Defaults to _EQUALS_.
 	Op *string `json:"op,omitempty"`
 	// Required. Tag value to match against a source object's effective tags.
 	Value                string `json:"value"`

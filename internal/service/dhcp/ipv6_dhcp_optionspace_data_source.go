@@ -151,10 +151,11 @@ func (d *Ipv6DhcpOptionspaceDataSource) Read(ctx context.Context, req datasource
 
 	// Build list options
 	opts := &core.ListOptions{
-		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		TagFilter:    flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
-		ReturnFields: Ipv6DhcpOptionspaceReturnFields,
-		Paging:       1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
+		InternalFilters: map[string]string{"protocol": "ip6"},
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &resp.Diagnostics),
+		ReturnFields:    Ipv6DhcpOptionspaceReturnFields,
+		Paging:          1,
 	}
 
 	if !data.MaxResults.IsNull() {

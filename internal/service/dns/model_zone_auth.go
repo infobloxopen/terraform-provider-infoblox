@@ -96,7 +96,6 @@ type NIOSZoneAuthModel struct {
 	NsGroup                          types.String                        `tfsdk:"ns_group"`
 	Prefix                           internaltypes.CaseInsensitiveString `tfsdk:"prefix"`
 	RecordNamePolicy                 types.String                        `tfsdk:"record_name_policy"`
-	RemoveSubzones                   types.Bool                          `tfsdk:"remove_subzones"`
 	RestartIfNeeded                  types.Bool                          `tfsdk:"restart_if_needed"`
 	ScavengingSettings               types.Object                        `tfsdk:"scavenging_settings"`
 	SetSoaSerialNumber               types.Bool                          `tfsdk:"set_soa_serial_number"`
@@ -168,7 +167,6 @@ var NIOSZoneAuthAttrTypes = map[string]attr.Type{
 	"ns_group":                             types.StringType,
 	"prefix":                               internaltypes.CaseInsensitiveStringType{},
 	"record_name_policy":                   types.StringType,
-	"remove_subzones":                      types.BoolType,
 	"restart_if_needed":                    types.BoolType,
 	"scavenging_settings":                  types.ObjectType{AttrTypes: ZoneAuthScavengingSettingsAttrTypes},
 	"set_soa_serial_number":                types.BoolType,
@@ -670,10 +668,6 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The hostname policy for records under this zone.",
 	},
-	"remove_subzones": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Remove subzones delete option. Determines whether all child objects should be removed alongside with the parent zone or child objects should be assigned to another parental zone. By default child objects are deleted with the parent zone.",
-	},
 	"restart_if_needed": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -821,7 +815,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "Optional. DNS primaries external to BloxOne DDI. Order is not significant.",
+		MarkdownDescription: "Optional. DNS primaries external to Universal DDI. Order is not significant.",
 	},
 	"external_secondaries": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -831,7 +825,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "DNS secondaries external to BloxOne DDI. Order is not significant.",
+		MarkdownDescription: "DNS secondaries external to Universal DDI. Order is not significant.",
 	},
 	"fqdn": schema.StringAttribute{
 		Required: true,
@@ -875,7 +869,7 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "Optional. BloxOne DDI hosts acting as internal secondaries. Order is not significant.",
+		MarkdownDescription: "Optional. Universal DDI hosts acting as internal secondaries. Order is not significant.",
 	},
 	"notify": schema.BoolAttribute{
 		Optional:            true,
@@ -897,11 +891,14 @@ var ZoneAuthResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"primary_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("external", "cloud"),
+		},
 		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a BloxOne DDI host.",
+		MarkdownDescription: "Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a Universal DDI host.",
 	},
 	"query_acl": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -1038,7 +1035,6 @@ func (m *NIOSZoneAuthModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		NsGroup:                          flex.ExpandStringPointer(m.NsGroup),
 		Prefix:                           flex.ExpandStringPointer(m.Prefix.StringValue),
 		RecordNamePolicy:                 flex.ExpandStringPointer(m.RecordNamePolicy),
-		RemoveSubzones:                   flex.ExpandBoolPointer(m.RemoveSubzones),
 		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
 		ScavengingSettings:               ExpandZoneAuthScavengingSettings(ctx, m.ScavengingSettings, diags),
 		SetSoaSerialNumber:               flex.ExpandBoolPointer(m.SetSoaSerialNumber),
@@ -1212,7 +1208,6 @@ func (m *NIOSZoneAuthModel) Flatten(ctx context.Context, from *coremodel.NIOSZon
 	m.NsGroup = flex.FlattenStringPointerEmptyAsNull(from.NsGroup)
 	m.Prefix.StringValue = flex.FlattenStringPointer(from.Prefix)
 	m.RecordNamePolicy = flex.FlattenStringPointerEmptyAsNull(from.RecordNamePolicy)
-	m.RemoveSubzones = flex.FlattenBoolPointer(from.RemoveSubzones)
 	m.ScavengingSettings = FlattenZoneAuthScavengingSettings(ctx, from.ScavengingSettings, diags)
 	m.SoaDefaultTtl = flex.FlattenInt64Pointer(from.SoaDefaultTtl)
 	m.SoaEmail = flex.FlattenStringPointerEmptyAsNull(from.SoaEmail)

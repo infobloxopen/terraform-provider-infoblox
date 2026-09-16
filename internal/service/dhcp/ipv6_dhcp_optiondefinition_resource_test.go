@@ -31,7 +31,7 @@ func TestAccIpv6DhcpOptiondefinitionResource(t *testing.T) {
 
 	for _, backend := range []string{"nios", "uddi"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dhcp/ipv6_dhcp_optiondefinition/"+backend+"_resources.tfvars", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dhcp/ipv6_dhcp_optiondefinition/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

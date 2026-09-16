@@ -38,7 +38,7 @@ type Ipv6networkResource struct {
 }
 
 func (r *Ipv6networkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ipv6network"
+	resp.TypeName = req.ProviderTypeName + "_ipv6_network"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
@@ -160,7 +160,7 @@ func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateReq
 			r.isIpv6networkConvertedToContainer(ctx, &data) {
 			resp.Diagnostics.AddError(
 				"Unable to Create Ipv6network. Ipv6network Might Be Converted to Ipv6network Container",
-				fmt.Sprintf("Failed to create ipv6network. The parent ipv6network appears to have been converted to a ipv6network container. "+
+				fmt.Sprintf("Failed to create ipv6_network. The parent ipv6_network appears to have been converted to a ipv6_network container. "+
 					"Manual intervention is needed to import it as a container. "+
 					"Got error: %s", err),
 			)

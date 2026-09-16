@@ -422,7 +422,6 @@ func mapNIOSZoneAuthToResponse(r *niosdns.ZoneAuth) *dns.ZoneAuth {
 		NsGroup:                             r.NsGroup,
 		Prefix:                              r.Prefix,
 		RecordNamePolicy:                    r.RecordNamePolicy,
-		RemoveSubzones:                      r.RemoveSubzones,
 		RestartIfNeeded:                     r.RestartIfNeeded,
 		ScavengingSettings:                  r.ScavengingSettings,
 		SetSoaSerialNumber:                  r.SetSoaSerialNumber,
