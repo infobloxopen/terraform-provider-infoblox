@@ -25,7 +25,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
@@ -333,13 +332,6 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		acl.NewNamedaclResource,
-		dtc.NewDtcMonitorSnmpResource,
-		dns.NewNsgroupResource,
-		grid.NewNatgroupResource,
-		misc.NewBfdtemplateResource,
-		misc.NewRulesetResource,
-		dhcp.NewIpv6DhcpOptiondefinitionResource,
-		dhcp.NewIpv6DhcpOptionspaceResource,
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
@@ -386,6 +378,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		dtc.NewDtcLbdnResource,
 		dtc.NewDtcMonitorPdpResource,
+		dtc.NewDtcMonitorSnmpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
@@ -427,13 +420,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		acl.NewNamedaclDataSource,
-		dtc.NewDtcMonitorSnmpDataSource,
-		dns.NewNsgroupDataSource,
-		grid.NewNatgroupDataSource,
-		misc.NewBfdtemplateDataSource,
-		misc.NewRulesetDataSource,
-		dhcp.NewIpv6DhcpOptiondefinitionDataSource,
-		dhcp.NewIpv6DhcpOptionspaceDataSource,
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
@@ -480,6 +466,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		dtc.NewDtcLbdnDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
+		dtc.NewDtcMonitorSnmpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
@@ -524,13 +511,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		acl.NewNamedaclList,
-		dtc.NewDtcMonitorSnmpList,
-		dns.NewNsgroupList,
-		grid.NewNatgroupList,
-		misc.NewBfdtemplateList,
-		misc.NewRulesetList,
-		dhcp.NewIpv6DhcpOptiondefinitionList,
-		dhcp.NewIpv6DhcpOptionspaceList,
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
@@ -577,6 +557,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		dtc.NewDtcLbdnList,
 		dtc.NewDtcMonitorPdpList,
+		dtc.NewDtcMonitorSnmpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
