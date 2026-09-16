@@ -51,8 +51,8 @@ case "address" {
   step {
     uddi {
       name    = "{{random}}"
-      address = "{{random_ip2}}"
-       endpoint_type = "address"
+      address       = "{{random_ip2}}"
+      endpoint_type = "address"
     }
     check = {
       "uddi.address" = "{{random_ip2}}"
@@ -245,8 +245,9 @@ case "records" {
       ]
     }
     check = {
-      "uddi.records.#"      = "1"
-      "uddi.records.0.type" = "A"
+      "uddi.records.#"               = "1"
+      "uddi.records.0.type"          = "A"
+      "uddi.records.0.rdata.address" = "192.168.1.1"
     }
   }
 
@@ -260,9 +261,11 @@ case "records" {
       ]
     }
     check = {
-      "uddi.records.#"      = "2"
-      "uddi.records.0.type" = "A"
-      "uddi.records.1.type" = "AAAA"
+      "uddi.records.#"               = "2"
+      "uddi.records.0.type"          = "A"
+      "uddi.records.0.rdata.address" = "192.168.1.1"
+      "uddi.records.1.type"          = "AAAA"
+      "uddi.records.1.rdata.address" = "2001:db8::1"
     }
   }
 

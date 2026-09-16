@@ -826,6 +826,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"federated_realms": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
