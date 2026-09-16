@@ -1,4 +1,7 @@
 # Auto-generated resource acceptance-test cases for Ipv6sharednetwork.
+// Objects to be present on the grid for testing
+// ipv6_option_filter, ipv6_option_filter1 - Logic Filter Rules
+
 case "basic" {
   backend  = "nios"
   parallel = true
