@@ -1372,14 +1372,6 @@ case "snmp3_credential" {
     }
   }
 
-  step {
-    nios {
-      ipv4addr         = "16.0.0.132"
-      match_client     = "CIRCUIT_ID"
-      agent_circuit_id = "{{random_int2}}"
-    }
-  }
-
   # Add SNMP3 credentials
   step {
     nios {
