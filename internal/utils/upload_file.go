@@ -25,7 +25,7 @@ func generateUploadToken(ctx context.Context, baseURL, username, password string
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			// NIOS uses a self-signed certificate that cannot be validated via the system trust store.
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 
@@ -61,7 +61,7 @@ func uploadFile(ctx context.Context, uploadURL, filePath, username, password str
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			// NIOS uses a self-signed certificate that cannot be validated via the system trust store.
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 
