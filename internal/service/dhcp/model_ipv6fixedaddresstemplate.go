@@ -99,6 +99,7 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	"domain_name_servers": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(customvalidator.IsValidIPv6Address()),
