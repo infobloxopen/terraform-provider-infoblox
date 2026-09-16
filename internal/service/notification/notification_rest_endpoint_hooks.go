@@ -113,11 +113,6 @@ func PostFlattenNotificationRestEndpointNIOS(ctx context.Context, planned, flatt
 		} else {
 			flattened.ClientCertificateToken = types.StringNull()
 		}
-	} else {
-		flattened.Password = types.StringNull()
-		flattened.WapiUserPassword = types.StringNull()
-		flattened.ClientCertificateFile = types.StringNull()
-		flattened.ClientCertificateToken = types.StringNull()
 	}
 }
 
