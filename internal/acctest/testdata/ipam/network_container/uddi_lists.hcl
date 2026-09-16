@@ -1,22 +1,20 @@
 # Networkcontainer — uddi list cases
-# No legacy list test was found for this object.
-# Add list cases here manually.
 case "basic" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
     }
   }
 
@@ -31,19 +29,19 @@ case "basic" {
 case "filters" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
       name    = "{{random}}"
     }
   }
@@ -65,19 +63,19 @@ case "filters" {
 case "tag_filters" {
   backend  = "uddi"
   parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
       tags    = { tag1 = "{{random2}}" }
     }
   }

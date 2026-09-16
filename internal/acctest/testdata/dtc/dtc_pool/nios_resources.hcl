@@ -135,13 +135,13 @@ case "consolidated_monitors" {
       lb_preferred_method   = "ROUND_ROBIN"
       disable = true
       monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      consolidated_monitors = [{ monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", availability = "ANY", full_health_communication = false, members = ["infoblox.172_28_82_8"] }]
+      consolidated_monitors = [{ monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", availability = "ANY", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
       "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"
       "nios.consolidated_monitors.0.availability"              = "ANY"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
-      "nios.consolidated_monitors.0.members.0"                 = "infoblox.172_28_82_8"
+      "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
     }
   }
 
@@ -151,13 +151,13 @@ case "consolidated_monitors" {
       lb_preferred_method   = "ROUND_ROBIN"
       disable = true 
       monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      consolidated_monitors = [{ monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", availability = "ALL", full_health_communication = false, members = ["infoblox.172_28_82_8"] }]
+      consolidated_monitors = [{ monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", availability = "ALL", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
       "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"
       "nios.consolidated_monitors.0.availability"              = "ALL"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
-      "nios.consolidated_monitors.0.members.0"                 = "infoblox.172_28_82_8"
+      "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
     }
   }
 

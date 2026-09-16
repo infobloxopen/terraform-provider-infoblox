@@ -2,20 +2,19 @@
 case "basic" {
   backend        = "uddi"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 24
-      # space   = infoblox_network_view.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
     }
   }
 
@@ -30,20 +29,19 @@ case "basic" {
 case "filters" {
   backend        = "uddi"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 24
-      # space   = infoblox_network_view.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
     }
   }
 
@@ -65,20 +63,19 @@ case "filters" {
 case "tag_filters" {
   backend        = "uddi"
   min_tf_version = "1.14.0"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 24
-      # space   = infoblox_network_view.test.id
-      space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
       tags  = { tag1 = "{{random}}" }
     }
   }

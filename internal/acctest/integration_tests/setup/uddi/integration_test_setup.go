@@ -9,8 +9,14 @@
 // Objects created by this setup program (IDs stored as env vars):
 //
 // DHCP Option Groups:
-//   - tf_test_option_group_1 (UDDI_OPTION_GROUP_1_ID)
-//   - tf_test_option_group_2 (UDDI_OPTION_GROUP_2_ID)
+//   - tf_option_group_1 (UDDI_OPTION_GROUP_1_ID)
+//   - tf_option_group_2 (UDDI_OPTION_GROUP_2_ID)
+//
+// DHCP Option Space:
+//   - tf_option_space_1 (UDDI_OPTION_SPACE_1_ID)
+//
+// DHCP Option Code:
+//   - tf_option_code_1 (UDDI_OPTION_CODE_1_ID)
 
 package main
 
@@ -31,16 +37,16 @@ var pipelineEnvFile *os.File
 
 func writePipelineEnvVar(key, value string) error {
 	if pipelineEnvFile == nil {
-		return fmt.Errorf("pipeline.env file is not initialized")
+		return fmt.Errorf("pipeline_uddi.env file is not initialized")
 	}
 	if _, err := fmt.Fprintf(pipelineEnvFile, "%s=%s\n", key, value); err != nil {
-		return fmt.Errorf("write env var %s to pipeline.env: %w", key, err)
+		return fmt.Errorf("write env var %s to pipeline_uddi.env: %w", key, err)
 	}
 	return nil
 }
 
 // StoreDNSHostIDs lists DNS Host objects and stores the IDs of the first two
-// into pipeline.env as UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2.
+// into pipeline_uddi.env as UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2.
 func StoreDNSHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 	resp, _, err := client.DNSConfigurationAPI.HostAPI.List(ctx).Execute()
 	if err != nil {
@@ -78,7 +84,7 @@ func StoreDNSHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 }
 
 // StoreDHCPHostIDs lists DHCP Host objects and stores the IDs of the first two
-// into pipeline.env as UDDI_DHCP_HOST_ID_1 and UDDI_DHCP_HOST_ID_2.
+// into pipeline_uddi.env as UDDI_DHCP_HOST_ID_1 and UDDI_DHCP_HOST_ID_2.
 func StoreDHCPHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 	resp, _, err := client.IPAddressManagementAPI.DhcpHostAPI.List(ctx).Execute()
 	if err != nil {
@@ -94,12 +100,18 @@ func StoreDHCPHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 	stored := 0
 
 	for i, host := range resp.Results {
-		if i >= 2 {
+		if stored >= 2 {
 			break
 		}
 		if host.Id == nil || *host.Id == "" {
 			fmt.Printf("DHCP host at index %d has no ID, skipping\n", i)
 			continue
+		}
+		if val, ok := host.Tags["host/deployment_type"]; ok {
+			if s, ok := val.(string); ok && s == "CNIOS" {
+				fmt.Printf("DHCP host at index %d (%q) has deployment_type CNIOS, skipping\n", i, *host.Id)
+				continue
+			}
 		}
 		if err := writePipelineEnvVar(envVars[stored], *host.Id); err != nil {
 			return fmt.Errorf("store DHCP host IDs: write %s: %w", envVars[stored], err)
@@ -116,7 +128,7 @@ func StoreDHCPHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 }
 
 // CreateOptionGroups creates two DHCP option groups and stores their IDs into
-// pipeline.env as UDDI_OPTION_GROUP_1_ID and UDDI_OPTION_GROUP_2_ID.
+// pipeline_uddi.env as UDDI_OPTION_GROUP_1_ID and UDDI_OPTION_GROUP_2_ID.
 // If a group already exists, its existing ID is stored instead.
 func CreateOptionGroups(ctx context.Context, client *uddiclient.APIClient) error {
 	optionGroups := []struct {
@@ -182,6 +194,114 @@ func CreateOptionGroups(ctx context.Context, client *uddiclient.APIClient) error
 	return nil
 }
 
+// CreateOptionCode creates a DHCP option space and an option code within it,
+// storing their IDs into pipeline_uddi.env as UDDI_OPTION_SPACE_1_ID and UDDI_OPTION_CODE_1_ID.
+// If either object already exists, its existing ID is stored instead.
+func CreateOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
+	const (
+		optionSpaceName = "tf_option_space_1"
+		optionCodeName  = "tf_option_code_1"
+		optionCodeCode  = int64(234)
+		optionCodeType  = "boolean"
+	)
+
+	// Create or find the option space.
+	optionSpaceID, err := createOrFindOptionSpace(ctx, client, optionSpaceName)
+	if err != nil {
+		return err
+	}
+	if err := writePipelineEnvVar("UDDI_OPTION_SPACE_1_ID", optionSpaceID); err != nil {
+		return fmt.Errorf("create option code: write UDDI_OPTION_SPACE_1_ID: %w", err)
+	}
+
+	// Create or find the option code within that option space.
+	body := ipam.OptionCode{
+		Name:        optionCodeName,
+		Code:        optionCodeCode,
+		OptionSpace: optionSpaceID,
+		Type:        optionCodeType,
+	}
+
+	resp, _, err := client.IPAddressManagementAPI.OptionCodeAPI.Create(ctx).Body(body).Execute()
+	if err != nil {
+		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Execute()
+			if listErr != nil {
+				return fmt.Errorf("create option code: list existing option codes to find %q: %w", optionCodeName, listErr)
+			}
+
+			var existingID string
+			if listResp != nil {
+				for _, existing := range listResp.Results {
+					if existing.Name == optionCodeName && existing.Id != nil {
+						existingID = *existing.Id
+						break
+					}
+				}
+			}
+
+			if existingID == "" {
+				return fmt.Errorf("create option code: option code %q already exists but ID could not be resolved", optionCodeName)
+			}
+
+			if err := writePipelineEnvVar("UDDI_OPTION_CODE_1_ID", existingID); err != nil {
+				return fmt.Errorf("create option code: write UDDI_OPTION_CODE_1_ID for existing code: %w", err)
+			}
+
+			fmt.Printf("Option code %q already exists, using existing ID %q (env: UDDI_OPTION_CODE_1_ID)\n", optionCodeName, existingID)
+			return nil
+		}
+		return fmt.Errorf("create option code: create %q: %w", optionCodeName, err)
+	}
+
+	if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+		return fmt.Errorf("create option code: create response for %q missing ID", optionCodeName)
+	}
+
+	createdID := *resp.Result.Id
+	if err := writePipelineEnvVar("UDDI_OPTION_CODE_1_ID", createdID); err != nil {
+		return fmt.Errorf("create option code: write UDDI_OPTION_CODE_1_ID: %w", err)
+	}
+
+	fmt.Printf("Option code %q created successfully (ID: %q, env: UDDI_OPTION_CODE_1_ID)\n", optionCodeName, createdID)
+	return nil
+}
+
+func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, name string) (string, error) {
+	body := ipam.OptionSpace{
+		Name: name,
+	}
+
+	resp, _, err := client.IPAddressManagementAPI.OptionSpaceAPI.Create(ctx).Body(body).Execute()
+	if err != nil {
+		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Execute()
+			if listErr != nil {
+				return "", fmt.Errorf("create or find option space: list existing spaces to find %q: %w", name, listErr)
+			}
+
+			if listResp != nil {
+				for _, existing := range listResp.Results {
+					if existing.Name == name && existing.Id != nil {
+						fmt.Printf("Option space %q already exists, using existing ID %q\n", name, *existing.Id)
+						return *existing.Id, nil
+					}
+				}
+			}
+
+			return "", fmt.Errorf("create or find option space: option space %q already exists but ID could not be resolved", name)
+		}
+		return "", fmt.Errorf("create or find option space: create %q: %w", name, err)
+	}
+
+	if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+		return "", fmt.Errorf("create or find option space: create response for %q missing ID", name)
+	}
+
+	fmt.Printf("Option space %q created successfully (ID: %q)\n", name, *resp.Result.Id)
+	return *resp.Result.Id, nil
+}
+
 func main() {
 	cspURL := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_URL"))
 	apiKey := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_KEY"))
@@ -198,10 +318,10 @@ func main() {
 		return
 	}
 
-	pipelineEnvPath := filepath.Join(cwd, "pipeline.env")
+	pipelineEnvPath := filepath.Join(cwd, "pipeline_uddi.env")
 	f, err := os.OpenFile(pipelineEnvPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
-		fmt.Printf("Error opening pipeline.env: %v\n", err)
+		fmt.Printf("Error opening pipeline_uddi.env: %v\n", err)
 		return
 	}
 	pipelineEnvFile = f
@@ -235,4 +355,10 @@ func main() {
 		return
 	}
 	fmt.Println("Option groups created successfully")
+
+	if err := CreateOptionCode(ctx, client); err != nil {
+		fmt.Printf("Error creating option code: %v\n", err)
+		return
+	}
+	fmt.Println("Option code created successfully")
 }

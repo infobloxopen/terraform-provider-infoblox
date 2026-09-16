@@ -35,6 +35,9 @@
 //   - 192.168.10.0/24 (default view, IPV4 reverse)
 //   - 2001::/64 (default view, IPV6 reverse)
 //
+// DNS Zone RP (RPZ):
+//   - test-rpz.com (default view)
+//
 // DNS DDNS Principal Cluster Groups:
 //   - dynamic_update_grp_1, dynamic_update_grp_2
 //
@@ -143,11 +146,11 @@ var pipelineEnvFile *os.File
 
 func writePipelineEnvVar(key, value string) error {
 	if pipelineEnvFile == nil {
-		return fmt.Errorf("pipeline.env file is not initialized")
+		return fmt.Errorf("pipeline_nios.env file is not initialized")
 	}
 
 	if _, err := fmt.Fprintf(pipelineEnvFile, "%s=%s\n", key, value); err != nil {
-		return fmt.Errorf("write env var %s to pipeline.env: %w", key, err)
+		return fmt.Errorf("write env var %s to pipeline_nios.env: %w", key, err)
 	}
 
 	return nil
@@ -186,7 +189,7 @@ type GridHostnames struct {
 }
 
 // ResolveAndStoreGridHostnames resolves grid hostnames from VIP addresses and
-// persists them into pipeline.env for downstream integration tests.
+// persists them into pipeline_nios.env for downstream integration tests.
 func ResolveAndStoreGridHostnames(gridClient *grid.APIClient) (GridHostnames, error) {
 	if gridClient == nil {
 		return GridHostnames{}, fmt.Errorf("resolve hostnames: GRID client is required")
@@ -616,7 +619,7 @@ type CACertificate struct {
 }
 
 // FetchAndStoreCertificateRef fetches the CA certificate ref from NIOS WAPI and writes it
-// into the opened pipeline.env file using the provided envVarName key.
+// into the opened pipeline_nios.env file using the provided envVarName key.
 func FetchAndStoreCertificateRef(host, wapiVer, username, password, envVarName, certSerialEnvVar string) error {
 	endpoint := fmt.Sprintf("%s/wapi/%s/cacertificate", host, wapiVer)
 
@@ -1330,6 +1333,26 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		}
 	} else {
 		fmt.Printf("Zone auth %q created successfully\n", "2001::/64")
+	}
+
+	// Create RPZ zone
+	zoneRpBody := dns.ZoneRp{
+		Fqdn: dns.PtrString("test-rpz.com"),
+		View: dns.PtrString("default"),
+	}
+
+	_, _, err = clients.DNS.ZoneRpAPI.Create(context.Background()).
+		ZoneRp(zoneRpBody).
+		Execute()
+
+	if err != nil {
+		if strings.Contains(err.Error(), "exists") {
+			fmt.Printf("Zone RP %q already exists, skipping creation\n", "test-rpz.com")
+		} else {
+			return fmt.Errorf("failed to create zone RP %q: %w", "test-rpz.com", err)
+		}
+	} else {
+		fmt.Printf("Zone RP %q created successfully\n", "test-rpz.com")
 	}
 
 	// Create DHCP failovers
@@ -2070,10 +2093,10 @@ func main() {
 		return
 	}
 
-	pipelineEnvPath := filepath.Join(cwd, "pipeline.env")
+	pipelineEnvPath := filepath.Join(cwd, "pipeline_nios.env")
 	f, err := os.Create(pipelineEnvPath)
 	if err != nil {
-		fmt.Printf("Error creating pipeline.env: %v\n", err)
+		fmt.Printf("Error creating pipeline_nios.env: %v\n", err)
 		return
 	}
 	pipelineEnvFile = f

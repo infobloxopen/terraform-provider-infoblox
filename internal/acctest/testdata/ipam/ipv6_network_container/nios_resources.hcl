@@ -644,7 +644,7 @@ case "rir_registration_action" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6networkcontainer" "rir_parent" {
+  resource "infoblox_ipv6_network_container" "rir_parent" {
     nios = {
       network          = "2001:db8:{{random_hextet}}::/48"
       rir_organization = "rir-org-test1"
@@ -676,7 +676,7 @@ case "rir_registration_action" {
         "RIPE IPv6 Status"       = "ASSIGNED"
       }
     }
-    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    depends_on = [infoblox_ipv6_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
       "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"
@@ -699,7 +699,7 @@ case "rir_registration_action" {
         "RIPE IPv6 Status"       = "ASSIGNED"
       }
     }
-    depends_on = [infoblox_ipv6networkcontainer.rir_parent]
+    depends_on = [infoblox_ipv6_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "NONE"
       "nios.network"                 = "2001:db8:{{random_hextet}}:1::/64"

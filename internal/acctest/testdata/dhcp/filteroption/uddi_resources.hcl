@@ -4,6 +4,8 @@
 case "basic" {
   backend  = "uddi"
   parallel = true
+  skip_if_env_empty = ["UDDI_OPTION_CODE_1_ID"]
+  skip_reason       = "UDDI_OPTION_CODE_1_ID environment variable must be set for this test to run"
 
   step {
     uddi {
@@ -12,7 +14,7 @@ case "basic" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -39,7 +41,7 @@ case "disappears" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -59,7 +61,7 @@ case "name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -76,7 +78,7 @@ case "name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -100,7 +102,7 @@ case "comment" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -118,7 +120,7 @@ case "comment" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -166,7 +168,7 @@ case "dhcp_options" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -186,7 +188,7 @@ case "dhcp_options" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -212,7 +214,7 @@ case "header_option_filename" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -230,7 +232,7 @@ case "header_option_filename" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -254,7 +256,7 @@ case "header_option_server_address" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -272,7 +274,7 @@ case "header_option_server_address" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -296,7 +298,7 @@ case "header_option_server_name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -314,7 +316,7 @@ case "header_option_server_name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -338,7 +340,7 @@ case "lease_time" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -356,7 +358,7 @@ case "lease_time" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -380,7 +382,7 @@ case "role" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -398,7 +400,7 @@ case "role" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -421,7 +423,7 @@ case "rules" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -440,7 +442,7 @@ case "rules" {
         match = "all"
         rules = [{
           compare      = "not_equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value2"
         }]
       }
@@ -466,7 +468,7 @@ case "tags" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -485,7 +487,7 @@ case "tags" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -501,22 +503,37 @@ case "tags" {
 case "vendor_specific_option_option_space" {
   backend  = "uddi"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code = 234
+      name = "{{random4}}"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name                                = "{{random}}"
-      vendor_specific_option_option_space = "dhcp/option_space/6f40a100-2410-4ef4-bb41-d0748dd68b2a"
+      vendor_specific_option_option_space = infoblox_dhcp_optionspace.test.id
       rules = {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
           option_value = "value1"
         }]
       }
     }
     check = {
-      "uddi.vendor_specific_option_option_space" = "dhcp/option_space/6f40a100-2410-4ef4-bb41-d0748dd68b2a"
+      "uddi.vendor_specific_option_option_space" = infoblox_dhcp_optionspace.test.id
     }
   }
 

@@ -361,6 +361,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_DHCP_HOST_ID_2")
 	case name == "uddi_option_group_1_id":
 		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
+	case name == "uddi_option_code_1_id":
+		return os.Getenv("UDDI_OPTION_CODE_1_ID")
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}
