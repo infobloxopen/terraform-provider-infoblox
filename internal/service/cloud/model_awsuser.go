@@ -74,6 +74,7 @@ var AwsuserResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 			stringvalidator.LengthAtMost(64),
 		},
 		MarkdownDescription: "The AWS Account ID of this AWS user. Maximum 64 characters.",
@@ -88,6 +89,7 @@ var AwsuserResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
 			stringvalidator.LengthAtMost(64),
 		},
 		MarkdownDescription: "The AWS user name. Maximum 64 characters.",
