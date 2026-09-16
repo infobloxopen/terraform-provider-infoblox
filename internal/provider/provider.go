@@ -332,7 +332,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		acl.NewNamedaclResource,
-		
+
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
