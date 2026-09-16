@@ -47,10 +47,10 @@ case "comment" {
       name    = "dtc-monitor-http-{{random}}"
       port    = 80
       request = "GET / HTTP/1.0\r\n\r\n"
-      comment = "First comment"
+      comment = "Example comment"
     }
     check = {
-      "uddi.comment" = "First comment"
+      "uddi.comment" = "Example comment"
     }
   }
 
@@ -483,8 +483,8 @@ case "tags" {
 case "check_response_body_negative" {
   backend     = "uddi"
   parallel    = true
-  skip        = true
-  skip_reason = "HTTPHealthCheck negative body search is not supported by the NIOS API"
+  # skip        = true
+  # skip_reason = "HTTPHealthCheck negative body search is not supported "
 
   step {
     uddi {
@@ -543,6 +543,87 @@ case "check_response_body_regex" {
     }
     check = {
       "uddi.check_response_body_regex" = "status.*ok"
+    }
+  }
+
+}
+
+case "check_response_header_negative" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name                           = "dtc-monitor-http-{{random}}"
+      port                           = 80
+      request                        = "GET / HTTP/1.0\r\n\r\n"
+      check_response_header          = true
+      check_response_header_negative = false
+      check_response_header_regexes = [
+        { header = "Content-Type", regex = "application/json" }
+      ]
+    }
+    check = {
+      "uddi.check_response_header_negative" = "false"
+    }
+  }
+
+  step {
+    uddi {
+      name                           = "dtc-monitor-http-{{random}}"
+      port                           = 80
+      request                        = "GET / HTTP/1.0\r\n\r\n"
+      check_response_header          = true
+      check_response_header_negative = true
+      check_response_header_regexes = [
+        { header = "Content-Type", regex = "application/json" }
+      ]
+    }
+    check = {
+      "uddi.check_response_header_negative" = "true"
+    }
+  }
+
+}
+
+case "check_response_header_regexes" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name                  = "dtc-monitor-http-{{random}}"
+      port                  = 80
+      request               = "GET / HTTP/1.0\r\n\r\n"
+      check_response_header = true
+      check_response_header_regexes = [
+        { header = "Content-Type", regex = "application/json" }
+      ]
+    }
+    check = {
+      "uddi.check_response_header_regexes.#"        = "1"
+      "uddi.check_response_header_regexes.0.header" = "Content-Type"
+      "uddi.check_response_header_regexes.0.regex"  = "application/json"
+    }
+  }
+
+  step {
+    uddi {
+      name                  = "dtc-monitor-http-{{random}}"
+      port                  = 80
+      request               = "GET / HTTP/1.0\r\n\r\n"
+      check_response_header = true
+      check_response_header_regexes = [
+        { header = "Content-Type", regex = "text/html" },
+        { header = "X-Custom-Header", regex = "expected-value" }
+      ]
+    }
+    check = {
+      "uddi.check_response_header_regexes.#"        = "2"
+      "uddi.check_response_header_regexes.0.header" = "Content-Type"
+      "uddi.check_response_header_regexes.0.regex"  = "text/html"
+      "uddi.check_response_header_regexes.1.header" = "X-Custom-Header"
+      "uddi.check_response_header_regexes.1.regex"  = "expected-value"
     }
   }
 

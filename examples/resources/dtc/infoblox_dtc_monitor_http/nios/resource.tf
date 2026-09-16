@@ -1,11 +1,11 @@
-// Create a DTC Monitor HTTP with required fields only
+// Create a DTC Monitor HTTP with basic fields
 resource "infoblox_dtc_monitor_http" "example" {
   nios = {
     name = "example-monitor-http"
   }
 }
 
-// Create a DTC Monitor HTTP with all optional fields
+// Create a DTC Monitor HTTP with all additional fields
 resource "infoblox_dtc_monitor_http" "example_all_fields" {
   nios = {
     name                  = "example-monitor-http-all-fields"

@@ -15,34 +15,35 @@ Retrieves information about existing Infoblox DtcMonitorHttp from both the NIOS 
 ### NIOS Backend
 
 ```terraform
-// Filter by name
+// Retrieve a specific DTC HTTP Monitor by filters
 data "infoblox_dtc_monitor_http" "by_name" {
   filters = {
     name = "example-monitor-http"
   }
 }
 
-// Filter by extensible attribute
+// Retrieve specific DTC HTTP Monitors by extensible attributes
 data "infoblox_dtc_monitor_http" "by_ext_attrs" {
   ext_attr_filters = {
     Site = "us-east-1"
   }
 }
 
-// List all DTC Monitor HTTP resources
+// Retrieve all DTC HTTP Monitors
 data "infoblox_dtc_monitor_http" "all" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
+// Retrieve a specific DTC HTTP Health Check by filters
 data "infoblox_dtc_monitor_http" "by_name" {
   filters = {
     name = "example-http-monitor"
   }
 }
 
-// Filter by tag
+// Retrieve DTC HTTP Health Checks using Tag filters
 data "infoblox_dtc_monitor_http" "by_tags" {
   tag_filters = {
     Site = "us-east-1"

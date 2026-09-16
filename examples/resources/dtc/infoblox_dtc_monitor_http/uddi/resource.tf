@@ -1,4 +1,4 @@
-// Create a DTC HTTP Health Check with required fields only
+// Create a DTC HTTP Health Check with basic fields
 resource "infoblox_dtc_monitor_http" "example" {
   uddi = {
     name    = "example-http-monitor"
@@ -7,7 +7,7 @@ resource "infoblox_dtc_monitor_http" "example" {
   }
 }
 
-// Create a DTC HTTP Health Check with all optional fields
+// Create a DTC HTTP Health Check with all additional fields
 resource "infoblox_dtc_monitor_http" "example_all_fields" {
   uddi = {
     name                         = "example-http-monitor-full"
