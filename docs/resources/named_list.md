@@ -16,6 +16,8 @@ Manages an Infoblox NamedList in the UDDI backend.
 
 ```terraform
 // Create a Named List with Basic Fields
+// Note: the plain "items" field is discouraged by the API in favor of "items_described",
+// which allows adding a description to each item; this provider does not expose "items".
 resource "infoblox_named_list" "create_named_list" {
   uddi = {
     name = "example_named_list"

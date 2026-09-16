@@ -16,6 +16,7 @@ Retrieves information about existing Infoblox NamedList from the UDDI backend.
 
 ```terraform
 // Retrieve specific Named Lists by filters
+// Note: `filters` only supports the "type" field.
 data "infoblox_named_list" "get_named_list_using_filters" {
   filters = {
     type = "custom_list"
