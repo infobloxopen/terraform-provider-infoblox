@@ -735,7 +735,7 @@ func ApplyFixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj
 	}
 	obj.NIOS.UseBootfile = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("bootfile"))
 	obj.NIOS.UseBootserver = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("bootserver"))
-	obj.NIOS.UseCliCredentials = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("cli_credentials"))
+	obj.NIOS.UseCliCredentials = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("cli_credentials"), path.Root("nios").AtName("snmp3_credential"))
 	obj.NIOS.UseDdnsDomainname = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_domainname"))
 	obj.NIOS.UseDenyBootp = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("deny_bootp"))
 	obj.NIOS.UseEnableDdns = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("enable_ddns"))
