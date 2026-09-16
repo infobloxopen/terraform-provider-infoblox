@@ -21,6 +21,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
@@ -331,6 +332,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		cloud.NewAwsuserResource,
 		acl.NewNamedaclResource,
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
@@ -418,6 +420,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		cloud.NewAwsuserDataSource,
 		acl.NewNamedaclDataSource,
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
@@ -508,6 +511,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		cloud.NewAwsuserList,
 		acl.NewNamedaclList,
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
