@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/zclconf/go-cty/cty"
 
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
@@ -48,6 +49,12 @@ type ResourceCase struct {
 	Parallel           bool
 	PrerequisitesHCL   string
 	Steps              []CaseStep
+	// Import replays the case's final config through `terraform import` and
+	// verifies the imported state matches, mirroring a legacy ImportState step.
+	Import bool
+	// ImportIgnore lists attribute paths that cannot round-trip through import
+	// (write-only fields, ext_attrs_all, ...).
+	ImportIgnore []string
 }
 
 var placeholderPattern = regexp.MustCompile(`\{\{[a-z0-9_]+\}\}`)
@@ -143,6 +150,19 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 			step.ExpectNonEmptyPlan = true
 		}
 		steps = append(steps, step)
+	}
+
+	if rc.Import && len(steps) > 0 {
+		// ImportStateVerify is unsupported with plannable import blocks, so this
+		// uses the import command; the import ID defaults to the resource's
+		// Primary.ID (the NIOS _ref), which is what ImportState expects.
+		steps = append(steps, resource.TestStep{
+			ResourceName:                         resourceAddr,
+			ImportState:                          true,
+			ImportStateVerify:                    true,
+			ImportStateVerifyIdentifierAttribute: "id",
+			ImportStateVerifyIgnore:              rc.ImportIgnore,
+		})
 	}
 
 	tc := resource.TestCase{
@@ -339,6 +359,20 @@ func loadResourceCases(path string) ([]*ResourceCase, error) {
 	return cases, nil
 }
 
+// prereqHCL reads a prerequisites_hcl attribute. An unescaped ${...} inside the heredoc
+// evaluates as an HCL template and yields an unknown value, so it is reported as a clear
+// error instead of panicking inside cty; Terraform interpolations must be written $${...}.
+func prereqHCL(attr *hcl.Attribute) (string, error) {
+	val, diags := attr.Expr.Value(nil)
+	if diags.HasErrors() || !val.IsKnown() || val.IsNull() || val.Type() != cty.String {
+		return "", fmt.Errorf(
+			"prerequisites_hcl at %s is not a static string — write Terraform interpolations as $${...} so they reach Terraform verbatim",
+			attr.Range,
+		)
+	}
+	return val.AsString(), nil
+}
+
 // parseResourceCaseBody decodes a `case` block body into a ResourceCase (Name set by caller).
 func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 	content, _, diags := body.PartialContent(&hcl.BodySchema{
@@ -351,6 +385,8 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 			{Name: "expect_non_empty_plan"},
 			{Name: "parallel"},
 			{Name: "prerequisites_hcl"},
+			{Name: "import"},
+			{Name: "import_ignore"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "step"},
@@ -399,8 +435,22 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 		rc.Parallel = val.True()
 	}
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
+		hcltext, err := prereqHCL(attr)
+		if err != nil {
+			return nil, err
+		}
+		rc.PrerequisitesHCL = hcltext
+	}
+	if attr, ok := content.Attributes["import"]; ok {
 		val, _ := attr.Expr.Value(nil)
-		rc.PrerequisitesHCL = val.AsString()
+		rc.Import = val.True()
+	}
+	if attr, ok := content.Attributes["import_ignore"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		for it := val.ElementIterator(); it.Next(); {
+			_, v := it.Element()
+			rc.ImportIgnore = append(rc.ImportIgnore, v.AsString())
+		}
 	}
 
 	for _, block := range content.Blocks {
@@ -463,8 +513,11 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	}
 
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
-		val, _ := attr.Expr.Value(nil)
-		st.PrerequisitesHCL = val.AsString()
+		hcltext, err := prereqHCL(attr)
+		if err != nil {
+			return st, err
+		}
+		st.PrerequisitesHCL = hcltext
 	}
 
 	if attr, ok := content.Attributes["depends_on"]; ok {

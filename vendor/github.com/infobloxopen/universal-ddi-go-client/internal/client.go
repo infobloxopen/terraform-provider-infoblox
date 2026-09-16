@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
@@ -277,10 +278,30 @@ func parameterToJson(obj interface{}) (string, error) {
 	return string(jsonBuf), err
 }
 
+// redactCredentials replaces the credential-bearing headers with a placeholder so that
+// the debug dumps never contain them, and returns a func that restores the real values.
+func redactCredentials(header http.Header) func() {
+	saved := http.Header{}
+
+	for _, name := range []string{headerAuthorization, "Cookie", "Set-Cookie"} {
+		key := http.CanonicalHeaderKey(name)
+		if values, ok := header[key]; ok {
+			saved[key] = values
+			header[key] = []string{"[REDACTED]"}
+		}
+	}
+
+	return func() {
+		maps.Copy(header, saved)
+	}
+}
+
 // CallAPI do the request.
 func (c *APIClient) CallAPI(request *http.Request) (*http.Response, error) {
 	if c.Cfg.Debug {
+		restore := redactCredentials(request.Header)
 		dump, err := httputil.DumpRequestOut(request, true)
+		restore()
 		if err != nil {
 			return nil, err
 		}
@@ -293,7 +314,9 @@ func (c *APIClient) CallAPI(request *http.Request) (*http.Response, error) {
 	}
 
 	if c.Cfg.Debug {
+		restore := redactCredentials(resp.Header)
 		dump, err := httputil.DumpResponse(resp, true)
+		restore()
 		if err != nil {
 			return resp, err
 		}

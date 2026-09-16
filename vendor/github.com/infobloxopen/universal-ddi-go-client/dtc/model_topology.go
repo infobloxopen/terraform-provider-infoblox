@@ -18,7 +18,7 @@ import (
 // checks if the Topology type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &Topology{}
 
-// Topology A __Topology__ (_dtc/topology_) is a reusable, named set of __TopologyRulePreset__ objects that provide deterministic infrastructure classification for DTC __Policy__ evaluation using infrastructure source object tags.
+// Topology A __Topology__ (_dtc/topology_) is a reusable, named set of __TopologySource__ objects.
 type Topology struct {
 	// Optional. Comment for __Topology__.
 	Comment *string `json:"comment,omitempty"`
@@ -26,12 +26,12 @@ type Topology struct {
 	Disabled *bool `json:"disabled,omitempty"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
-	// Output only. __Topology__ metadata. Defaults to empty object and should be explicitly requested using field selection.
+	// Output only. __Topology__ metadata.  Defaults to empty object and should be explicitly requested using field selection.
 	Metadata *Metadata `json:"metadata,omitempty"`
 	// Display name of __Topology__.
 	Name string `json:"name"`
-	// List of __TopologyRulePreset__ objects defining the resolving strategy for __Policy__. Preset names must be unique within __Topology__.  Defaults to a list with a single, default __TopologyRulePreset__.
-	Rules []TopologyRulePreset `json:"rules,omitempty"`
+	// Required. List of __TopologySource__ objects with unique names.
+	Sources []TopologySource `json:"sources"`
 	// Optional. The tags for __Topology__ in JSON format.
 	Tags                 map[string]interface{} `json:"tags,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -43,9 +43,10 @@ type _Topology Topology
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewTopology(name string) *Topology {
+func NewTopology(name string, sources []TopologySource) *Topology {
 	this := Topology{}
 	this.Name = name
+	this.Sources = sources
 	return &this
 }
 
@@ -209,36 +210,28 @@ func (o *Topology) SetName(v string) {
 	o.Name = v
 }
 
-// GetRules returns the Rules field value if set, zero value otherwise.
-func (o *Topology) GetRules() []TopologyRulePreset {
-	if o == nil || IsNil(o.Rules) {
-		var ret []TopologyRulePreset
+// GetSources returns the Sources field value
+func (o *Topology) GetSources() []TopologySource {
+	if o == nil {
+		var ret []TopologySource
 		return ret
 	}
-	return o.Rules
+
+	return o.Sources
 }
 
-// GetRulesOk returns a tuple with the Rules field value if set, nil otherwise
+// GetSourcesOk returns a tuple with the Sources field value
 // and a boolean to check if the value has been set.
-func (o *Topology) GetRulesOk() ([]TopologyRulePreset, bool) {
-	if o == nil || IsNil(o.Rules) {
+func (o *Topology) GetSourcesOk() ([]TopologySource, bool) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Rules, true
+	return o.Sources, true
 }
 
-// HasRules returns a boolean if a field has been set.
-func (o *Topology) HasRules() bool {
-	if o != nil && !IsNil(o.Rules) {
-		return true
-	}
-
-	return false
-}
-
-// SetRules gets a reference to the given []TopologyRulePreset and assigns it to the Rules field.
-func (o *Topology) SetRules(v []TopologyRulePreset) {
-	o.Rules = v
+// SetSources sets field value
+func (o *Topology) SetSources(v []TopologySource) {
+	o.Sources = v
 }
 
 // GetTags returns the Tags field value if set, zero value otherwise.
@@ -296,9 +289,7 @@ func (o Topology) ToMap() (map[string]interface{}, error) {
 		toSerialize["metadata"] = o.Metadata
 	}
 	toSerialize["name"] = o.Name
-	if !IsNil(o.Rules) {
-		toSerialize["rules"] = o.Rules
-	}
+	toSerialize["sources"] = o.Sources
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
 	}
@@ -316,6 +307,7 @@ func (o *Topology) UnmarshalJSON(data []byte) (err error) {
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"name",
+		"sources",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -350,7 +342,7 @@ func (o *Topology) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "metadata")
 		delete(additionalProperties, "name")
-		delete(additionalProperties, "rules")
+		delete(additionalProperties, "sources")
 		delete(additionalProperties, "tags")
 		o.AdditionalProperties = additionalProperties
 	}

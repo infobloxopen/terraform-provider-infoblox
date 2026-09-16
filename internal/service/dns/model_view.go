@@ -945,7 +945,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. When enabled, the DNS server will only add records to the authority and additional data sections when they are required.  Defaults to _false_.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 256),
+		},
 		MarkdownDescription: "Name of view.",
 	},
 	"notify": schema.BoolAttribute{
@@ -1041,7 +1044,7 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "_use_root_forwarders_for_local_resolution_with_b1td_ allows DNS recursive queries sent to root forwarders for local resolution when deployed alongside BloxOne Thread Defense. Defaults to _false_.",
+		MarkdownDescription: "_use_root_forwarders_for_local_resolution_with_b1td_ allows DNS recursive queries sent to root forwarders for local resolution when deployed alongside Universal Thread Defense. Defaults to _false_.",
 	},
 	"zone_authority": schema.SingleNestedAttribute{
 		Attributes: ZoneAuthorityResourceSchemaAttributes,

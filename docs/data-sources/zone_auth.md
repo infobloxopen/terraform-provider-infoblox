@@ -137,7 +137,6 @@ Read-Only:
 - `ns_group` (String) The name server group that serves DNS for this zone.
 - `prefix` (String) The RFC2317 prefix value of this DNS zone. Use this field only when the netmask is greater than 24 bits; that is, for a mask between 25 and 31 bits. Enter a prefix, such as the name of the allocated address block. The prefix can be alphanumeric characters, such as 128/26 , 128-189 , or sub-B.
 - `record_name_policy` (String) The hostname policy for records under this zone.
-- `remove_subzones` (Boolean) Remove subzones delete option. Determines whether all child objects should be removed alongside with the parent zone or child objects should be assigned to another parental zone. By default child objects are deleted with the parent zone.
 - `restart_if_needed` (Boolean) Restarts the member service.
 - `scavenging_settings` (Attributes) (see [below for nested schema](#nestedatt--results--nios--scavenging_settings))
 - `set_soa_serial_number` (Boolean) The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at "soa_serial_number" and pass "set_soa_serial_number" as True.
@@ -473,17 +472,17 @@ Read-Only:
 - `comment` (String) Optional. Comment for zone configuration.
 - `compartment_id` (String) The access view associated with the object. If no access view is associated with the object, the value defaults to empty.
 - `disabled` (Boolean) Optional. _true_ to disable object. A disabled object is effectively non-existent when generating configuration.
-- `external_primaries` (Attributes List) Optional. DNS primaries external to BloxOne DDI. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--external_primaries))
-- `external_secondaries` (Attributes List) DNS secondaries external to BloxOne DDI. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--external_secondaries))
+- `external_primaries` (Attributes List) Optional. DNS primaries external to Universal DDI. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--external_primaries))
+- `external_secondaries` (Attributes List) DNS secondaries external to Universal DDI. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--external_secondaries))
 - `fqdn` (String) Zone FQDN. The FQDN supplied at creation will be converted to canonical form.  Read-only after creation.
 - `gss_tsig_enabled` (Boolean) _gss_tsig_enabled_ enables/disables GSS-TSIG signed dynamic updates.  Defaults to _false_.
 - `inheritance_sources` (Attributes) Optional. Inheritance configuration. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources))
 - `initial_soa_serial` (Number) On-create-only. SOA serial is allowed to be set when the authoritative zone is created.
-- `internal_secondaries` (Attributes List) Optional. BloxOne DDI hosts acting as internal secondaries. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--internal_secondaries))
+- `internal_secondaries` (Attributes List) Optional. Universal DDI hosts acting as internal secondaries. Order is not significant. (see [below for nested schema](#nestedatt--results--uddi--internal_secondaries))
 - `notify` (Boolean) Also notify all external secondary DNS servers if enabled.  Defaults to _false_.
 - `nsgs` (List of String) The resource identifier.
 - `parent` (String) The resource identifier.
-- `primary_type` (String) Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a BloxOne DDI host.
+- `primary_type` (String) Primary type for an authoritative zone. Read only after creation. Allowed values:  * _external_: zone data owned by an external nameserver,  * _cloud_: zone data is owned by a Universal DDI host.
 - `query_acl` (Attributes List) Optional. Clients must match this ACL to make authoritative queries. Also used for recursive queries if that ACL is unset.  Defaults to empty. (see [below for nested schema](#nestedatt--results--uddi--query_acl))
 - `tags` (Map of String) Tagging specifics.
 - `tags_all` (Map of String) All tags including inherited values.
