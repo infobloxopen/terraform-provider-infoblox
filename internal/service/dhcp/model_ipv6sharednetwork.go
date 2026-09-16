@@ -154,6 +154,7 @@ var Ipv6sharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"domain_name": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: internaltypes.CaseInsensitiveStringType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
@@ -225,12 +226,10 @@ var Ipv6sharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The name of the network view in which this IPv6 shared network resides.",
 	},
-	"networks": schema.ListNestedAttribute{
-		NestedObject: schema.NestedAttributeObject{
-			Attributes: Ipv6sharednetworkNetworksResourceSchemaAttributes,
-		},
-		CustomType: internaltypes.UnorderedListOfStringType,
-		Required:   true,
+	"networks": schema.ListAttribute{
+		ElementType: types.StringType,
+		CustomType:  internaltypes.UnorderedListOfStringType,
+		Required:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -241,6 +240,7 @@ var Ipv6sharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: Ipv6sharednetworkOptionsResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -248,6 +248,7 @@ var Ipv6sharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"preferred_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the preferred lifetime value of a DHCP IPv6 Shared Network object.",
 	},
 	"update_dns_on_lease_renewal": schema.BoolAttribute{
@@ -258,6 +259,7 @@ var Ipv6sharednetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"valid_lifetime": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Use this method to set or retrieve the valid lifetime value of a DHCP IPv6 Shared Network object.",
 	},
 }
@@ -273,15 +275,15 @@ func (m *Ipv6sharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnos
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSIpv6sharednetworkModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSIpv6sharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6sharednetworkExt {
-	return &coremodel.NIOSIpv6sharednetworkExt{
+func (m *NIOSIpv6sharednetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6sharednetworkExt {
+	ext := &coremodel.NIOSIpv6sharednetworkExt{
 		Comment:                 flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		DdnsDomainname:          flex.ExpandStringPointer(m.DdnsDomainname.StringValue),
 		DdnsGenerateHostname:    flex.ExpandBoolPointer(m.DdnsGenerateHostname),
@@ -295,13 +297,16 @@ func (m *NIOSIpv6sharednetworkModel) Expand(ctx context.Context, diags *diag.Dia
 		ExtAttrs:                flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		LogicFilterRules:        flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6sharednetworkLogicFilterRules),
 		Name:                    flex.ExpandStringPointerNullAsEmpty(m.Name),
-		NetworkView:             flex.ExpandStringPointerNullAsEmpty(m.NetworkView),
-		Networks:                flex.ExpandFrameworkListNestedBlock(ctx, m.Networks, diags, ExpandIpv6sharednetworkNetworks),
+		Networks:                ExpandNetworks(ctx, m.Networks, diags),
 		Options:                 flex.ExpandFrameworkListNestedBlock(ctx, m.Options, diags, ExpandIpv6sharednetworkOptions),
 		PreferredLifetime:       flex.ExpandInt64Pointer(m.PreferredLifetime),
 		UpdateDnsOnLeaseRenewal: flex.ExpandBoolPointer(m.UpdateDnsOnLeaseRenewal),
 		ValidLifetime:           flex.ExpandInt64Pointer(m.ValidLifetime),
 	}
+	if isCreate {
+		ext.NetworkView = flex.ExpandStringPointerNullAsEmpty(m.NetworkView)
+	}
+	return ext
 }
 
 // ApplyIpv6sharednetworkNIOSUseFlags derives NIOS use flags from the raw config
@@ -338,8 +343,10 @@ func (m *Ipv6sharednetworkModel) Flatten(ctx context.Context, resp *coremodel.Ip
 	if niosModel == nil {
 		niosModel = &NIOSIpv6sharednetworkModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSIpv6sharednetworkModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenIpv6sharednetworkNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSIpv6sharednetworkAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSIpv6sharednetworkAttrTypes)
@@ -370,7 +377,7 @@ func (m *NIOSIpv6sharednetworkModel) Flatten(ctx context.Context, from *coremode
 	m.LogicFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.LogicFilterRules, Ipv6sharednetworkLogicFilterRulesAttrTypes, diags, FlattenIpv6sharednetworkLogicFilterRules)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.NetworkView = flex.FlattenStringPointerEmptyAsNull(from.NetworkView)
-	m.Networks = flex.FlattenFrameworkListNestedBlock(ctx, from.Networks, Ipv6sharednetworkNetworksAttrTypes, diags, FlattenIpv6sharednetworkNetworks)
+	m.Networks = FlattenNetworks(ctx, from.Networks, diags)
 	m.Options = flex.FlattenFrameworkListNestedBlock(ctx, from.Options, Ipv6sharednetworkOptionsAttrTypes, diags, FlattenIpv6sharednetworkOptions)
 	m.PreferredLifetime = flex.FlattenInt64Pointer(from.PreferredLifetime)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)

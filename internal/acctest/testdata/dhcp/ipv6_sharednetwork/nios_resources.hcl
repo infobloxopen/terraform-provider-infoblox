@@ -18,7 +18,7 @@ case "basic" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
     check = {
       "nios.name"                        = "{{random}}"
@@ -58,7 +58,7 @@ case "disappears" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
   }
 
@@ -85,7 +85,7 @@ case "import" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
   }
 
@@ -110,7 +110,7 @@ case "comment" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       comment  = "Comment for the object"
     }
     check = {
@@ -121,7 +121,7 @@ case "comment" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       comment  = "Updated comment for the object"
     }
     check = {
@@ -150,7 +150,7 @@ case "ddns_domainname" {
   step {
     nios {
       name            = "{{random}}"
-      networks        = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks        = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_domainname = "example.com"
     }
     check = {
@@ -161,7 +161,7 @@ case "ddns_domainname" {
   step {
     nios {
       name            = "{{random}}"
-      networks        = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks        = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_domainname = "updated-example.com"
     }
     check = {
@@ -190,7 +190,7 @@ case "ddns_generate_hostname" {
   step {
     nios {
       name                   = "{{random}}"
-      networks               = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks               = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_generate_hostname = true
     }
     check = {
@@ -201,7 +201,7 @@ case "ddns_generate_hostname" {
   step {
     nios {
       name                   = "{{random}}"
-      networks               = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks               = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_generate_hostname = false
     }
     check = {
@@ -230,7 +230,7 @@ case "ddns_server_always_updates" {
   step {
     nios {
       name                       = "{{random}}"
-      networks                   = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks                   = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_server_always_updates = true
       ddns_use_option81          = true
     }
@@ -242,7 +242,7 @@ case "ddns_server_always_updates" {
   step {
     nios {
       name                       = "{{random}}"
-      networks                   = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks                   = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_server_always_updates = false
       ddns_use_option81          = true
     }
@@ -272,7 +272,7 @@ case "ddns_ttl" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_ttl = 100
     }
     check = {
@@ -283,7 +283,7 @@ case "ddns_ttl" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_ttl = 200
     }
     check = {
@@ -312,7 +312,7 @@ case "ddns_use_option81" {
   step {
     nios {
       name              = "{{random}}"
-      networks          = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks          = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_use_option81 = true
     }
     check = {
@@ -323,7 +323,7 @@ case "ddns_use_option81" {
   step {
     nios {
       name              = "{{random}}"
-      networks          = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks          = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ddns_use_option81 = false
     }
     check = {
@@ -352,7 +352,7 @@ case "disable" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       disable  = true
     }
     check = {
@@ -363,7 +363,7 @@ case "disable" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       disable  = false
     }
     check = {
@@ -392,7 +392,7 @@ case "domain_name" {
   step {
     nios {
       name        = "{{random}}"
-      networks    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       domain_name = "example.com"
     }
     check = {
@@ -403,7 +403,7 @@ case "domain_name" {
   step {
     nios {
       name        = "{{random}}"
-      networks    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       domain_name = "updated-example.com"
     }
     check = {
@@ -432,7 +432,7 @@ case "domain_name_servers" {
   step {
     nios {
       name                = "{{random}}"
-      networks            = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks            = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       domain_name_servers = ["2001:4860:4860::8888", "2001:4860:4860::9999", "2001:4860:4860::8899"]
     }
     check = {
@@ -446,7 +446,7 @@ case "domain_name_servers" {
   step {
     nios {
       name                = "{{random}}"
-      networks            = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks            = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       domain_name_servers = ["2001:4860:4860::8881", "2001:4860:4860::9991"]
     }
     check = {
@@ -477,7 +477,7 @@ case "enable_ddns" {
   step {
     nios {
       name        = "{{random}}"
-      networks    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       enable_ddns = true
     }
     check = {
@@ -488,7 +488,7 @@ case "enable_ddns" {
   step {
     nios {
       name        = "{{random}}"
-      networks    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       enable_ddns = false
     }
     check = {
@@ -517,7 +517,7 @@ case "ext_attrs" {
   step {
     nios {
       name      = "{{random}}"
-      networks  = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks  = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ext_attrs = { Site = "{{random2}}" }
     }
     check = {
@@ -528,7 +528,7 @@ case "ext_attrs" {
   step {
     nios {
       name      = "{{random}}"
-      networks  = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks  = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
@@ -557,7 +557,7 @@ case "logic_filter_rules" {
   step {
     nios {
       name               = "{{random}}"
-      networks           = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks           = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       logic_filter_rules = [{ filter = "ipv6_option_filter", type = "Option" }]
     }
     check = {
@@ -570,7 +570,7 @@ case "logic_filter_rules" {
   step {
     nios {
       name               = "{{random}}"
-      networks           = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks           = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       logic_filter_rules = [{ filter = "ipv6_option_filter1", type = "Option" }]
     }
     check = {
@@ -601,7 +601,7 @@ case "name" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
     check = {
       "nios.name" = "{{random}}"
@@ -611,7 +611,7 @@ case "name" {
   step {
     nios {
       name     = "{{random2}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
     check = {
       "nios.name" = "{{random2}}"
@@ -639,7 +639,7 @@ case "network_view" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
     check = {
       "nios.network_view" = "default"
@@ -667,7 +667,7 @@ case "networks" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
     }
     check = {
       "nios.networks.#" = "2"
@@ -677,7 +677,7 @@ case "networks" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}"]
     }
     check = {
       "nios.networks.#" = "1"
@@ -705,7 +705,7 @@ case "options" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       options  = [{ name = "domain-name", num = "15", value = "example.com" }, { num = "37", value = "remote-id", vendor_class = "DHCPv6" }, { name = "dhcp6.subscriber-id", value = "subscriber-id", vendor_class = "DHCPv6" }]
     }
     check = {
@@ -725,7 +725,7 @@ case "options" {
   step {
     nios {
       name     = "{{random}}"
-      networks = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       options  = [{ name = "domain-name", num = "15", value = "example.org" }, { num = "37", value = "remote-id-updated", vendor_class = "DHCPv6" }]
     }
     check = {
@@ -760,7 +760,7 @@ case "preferred_lifetime" {
   step {
     nios {
       name               = "{{random}}"
-      networks           = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks           = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       preferred_lifetime = 200
       valid_lifetime     = 43200
     }
@@ -772,7 +772,7 @@ case "preferred_lifetime" {
   step {
     nios {
       name               = "{{random}}"
-      networks           = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks           = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       preferred_lifetime = 400
       valid_lifetime     = 43200
     }
@@ -802,7 +802,7 @@ case "update_dns_on_lease_renewal" {
   step {
     nios {
       name                        = "{{random}}"
-      networks                    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks                    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       update_dns_on_lease_renewal = true
     }
     check = {
@@ -813,7 +813,7 @@ case "update_dns_on_lease_renewal" {
   step {
     nios {
       name                        = "{{random}}"
-      networks                    = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks                    = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       update_dns_on_lease_renewal = false
     }
     check = {
@@ -842,7 +842,7 @@ case "valid_lifetime" {
   step {
     nios {
       name           = "{{random}}"
-      networks       = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks       = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       valid_lifetime = 30000
     }
     check = {
@@ -853,7 +853,7 @@ case "valid_lifetime" {
   step {
     nios {
       name           = "{{random}}"
-      networks       = ["${nios_ipam_ipv6network.test1.ref}", "${nios_ipam_ipv6network.test2.ref}"]
+      networks       = ["${infoblox_ipv6_network.test1.id}", "${infoblox_ipv6_network.test2.id}"]
       valid_lifetime = 40000
     }
     check = {
