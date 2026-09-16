@@ -297,9 +297,15 @@ case "view" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "custom_view" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
   resource "infoblox_zone_rp" "test" {
     nios = {
       fqdn = "{{random}}.com"
+      view = infoblox_view.custom_view.nios.name
     }
   }
   PREREQ
@@ -309,9 +315,11 @@ case "view" {
       name      = "{{random_cidr_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
+      view      = infoblox_view.custom_view.nios.name
     }
     check = {
-      "nios.view" = "default"
+      "nios.view"    = "{{random3}}"
+      "nios.rp_zone" = "{{random}}.com"
     }
   }
 
