@@ -343,3 +343,43 @@ case "version" {
   }
 
 }
+
+case "check_list" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      version    = "v2c"
+      check_list = [{ name = ".1.3.6.1.2.1.1.1.0", operator = "eq", type = "string", value = "router" }]
+    }
+    check = {
+      "uddi.check_list.#"          = "1"
+      "uddi.check_list.0.name"     = ".1.3.6.1.2.1.1.1.0"
+      "uddi.check_list.0.operator" = "eq"
+      "uddi.check_list.0.type"     = "string"
+      "uddi.check_list.0.value"    = "router"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "{{random}}"
+      version    = "v2c"
+      check_list = [{ name = ".1.3.6.1.2.1.1.1.0", operator = "eq", type = "string", value = "switch" }, { name = ".1.3.6.1.2.1.1.3.0", operator = "geq", type = "integer", value = "1000" }]
+    }
+    check = {
+      "uddi.check_list.#"          = "2"
+      "uddi.check_list.0.name"     = ".1.3.6.1.2.1.1.1.0"
+      "uddi.check_list.0.operator" = "eq"
+      "uddi.check_list.0.type"     = "string"
+      "uddi.check_list.0.value"    = "switch"
+      "uddi.check_list.1.name"     = ".1.3.6.1.2.1.1.3.0"
+      "uddi.check_list.1.operator" = "geq"
+      "uddi.check_list.1.type"     = "integer"
+      "uddi.check_list.1.value"    = "1000"
+    }
+  }
+
+}

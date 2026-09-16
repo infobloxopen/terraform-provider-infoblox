@@ -3,9 +3,11 @@ package dtc
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -37,10 +39,12 @@ var SNMPHealthCheckEntryCheckAttrTypes = map[string]attr.Type{
 var SNMPHealthCheckEntryCheckResourceSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Comment for __EntryCheck__.",
 	},
 	"max_value": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Expected max value of an entry to check against. Used for __in__ operator only, otherwise ignored.",
 	},
 	"name": schema.StringAttribute{
@@ -48,11 +52,17 @@ var SNMPHealthCheckEntryCheckResourceSchemaAttributes = map[string]schema.Attrib
 		MarkdownDescription: "Name is a dotted-decimal number that defines the location of the entry in the universal MIB tree.",
 	},
 	"operator": schema.StringAttribute{
-		Optional:            true,
+		Validators: []validator.String{
+			stringvalidator.OneOf("any", "eq", "leq", "geq", "in"),
+		},
+		Required:            true,
 		MarkdownDescription: "Operator defines operation to perform on an entry value.  Allowed values: * any - any value must be present * eq  - entry value must be equal to check's __value__. * leq - entry value must less or equal to check's __value__. * geq - entry value must be great or equal to check's __value__. * in  - entry value must be greater or equal than __value__ and less or equal than __max_value__.  Operator __in__ is supported only for __integer__ types.",
 	},
 	"type": schema.StringAttribute{
-		Optional:            true,
+		Validators: []validator.String{
+			stringvalidator.OneOf("string", "integer"),
+		},
+		Required:            true,
 		MarkdownDescription: "Type defines type of an entry value.  Allowed values: * string * integer  String type does not support __in__ operator.",
 	},
 	"value": schema.StringAttribute{
