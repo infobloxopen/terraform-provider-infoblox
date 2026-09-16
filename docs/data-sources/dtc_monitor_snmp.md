@@ -15,42 +15,42 @@ Retrieves information about existing Infoblox DtcMonitorSnmp from both the NIOS 
 ### NIOS Backend
 
 ```terraform
-// Read a specific DTC Monitor SNMP by filters (NIOS)
+// Read a specific DTC Monitor SNMP by filters 
 data "infoblox_dtc_monitor_snmp" "by_name" {
   filters = {
     name = "dtc-monitor-snmp-basic"
   }
 }
 
-// Read DTC Monitor SNMPs by extensible attributes (NIOS)
+// Read DTC Monitor SNMPs by extensible attributes 
 data "infoblox_dtc_monitor_snmp" "by_ext_attrs" {
   ext_attr_filters = {
     Site = "location-1"
   }
 }
 
-// Read all DTC Monitor SNMPs (NIOS)
+// Read all DTC Monitor SNMPs
 data "infoblox_dtc_monitor_snmp" "all" {}
 ```
 
 ### UDDI Backend
 
 ```terraform
-// Read a specific DTC Monitor SNMP by filters (UDDI/BloxOne)
+// Read a specific DTC Monitor SNMP by filters 
 data "infoblox_dtc_monitor_snmp" "by_name" {
   filters = {
     name = "dtc-monitor-snmp-basic"
   }
 }
 
-// Read DTC Monitor SNMPs by tag filters (UDDI/BloxOne)
+// Read DTC Monitor SNMPs by tag filters 
 data "infoblox_dtc_monitor_snmp" "by_tags" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
-// Read all DTC Monitor SNMPs (UDDI/BloxOne)
+// Read all DTC Monitor SNMPs
 data "infoblox_dtc_monitor_snmp" "all" {}
 ```
 

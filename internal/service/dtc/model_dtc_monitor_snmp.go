@@ -20,7 +20,6 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
-	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -37,21 +36,21 @@ var DtcMonitorSnmpAttrTypes = map[string]attr.Type{
 }
 
 type NIOSDtcMonitorSnmpModel struct {
-	Comment     types.String                     `tfsdk:"comment"`
-	Community   types.String                     `tfsdk:"community"`
-	Context     types.String                     `tfsdk:"context"`
-	EngineId    types.String                     `tfsdk:"engine_id"`
-	ExtAttrs    types.Map                        `tfsdk:"ext_attrs"`
-	ExtAttrsAll types.Map                        `tfsdk:"ext_attrs_all"`
-	Interval    types.Int64                      `tfsdk:"interval"`
-	Name        types.String                     `tfsdk:"name"`
-	Oids        internaltypes.UnorderedListValue `tfsdk:"oids"`
-	Port        types.Int64                      `tfsdk:"port"`
-	RetryDown   types.Int64                      `tfsdk:"retry_down"`
-	RetryUp     types.Int64                      `tfsdk:"retry_up"`
-	Timeout     types.Int64                      `tfsdk:"timeout"`
-	User        types.String                     `tfsdk:"user"`
-	Version     types.String                     `tfsdk:"version"`
+	Comment     types.String `tfsdk:"comment"`
+	Community   types.String `tfsdk:"community"`
+	Context     types.String `tfsdk:"context"`
+	EngineId    types.String `tfsdk:"engine_id"`
+	ExtAttrs    types.Map    `tfsdk:"ext_attrs"`
+	ExtAttrsAll types.Map    `tfsdk:"ext_attrs_all"`
+	Interval    types.Int64  `tfsdk:"interval"`
+	Name        types.String `tfsdk:"name"`
+	Oids        types.List   `tfsdk:"oids"`
+	Port        types.Int64  `tfsdk:"port"`
+	RetryDown   types.Int64  `tfsdk:"retry_down"`
+	RetryUp     types.Int64  `tfsdk:"retry_up"`
+	Timeout     types.Int64  `tfsdk:"timeout"`
+	User        types.String `tfsdk:"user"`
+	Version     types.String `tfsdk:"version"`
 }
 
 var NIOSDtcMonitorSnmpAttrTypes = map[string]attr.Type{
@@ -63,7 +62,7 @@ var NIOSDtcMonitorSnmpAttrTypes = map[string]attr.Type{
 	"ext_attrs_all": types.MapType{ElemType: types.StringType},
 	"interval":      types.Int64Type,
 	"name":          types.StringType,
-	"oids":          internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorSnmpOidsAttrTypes}}},
+	"oids":          types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorSnmpOidsAttrTypes}},
 	"port":          types.Int64Type,
 	"retry_down":    types.Int64Type,
 	"retry_up":      types.Int64Type,
@@ -202,8 +201,7 @@ var DtcMonitorSnmpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: MonitorSnmpOidsResourceSchemaAttributes,
 		},
-		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorSnmpOidsAttrTypes}}},
-		Optional:   true,
+		Optional: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -432,8 +430,10 @@ func (m *DtcMonitorSnmpModel) Flatten(ctx context.Context, resp *coremodel.DtcMo
 	if niosModel == nil {
 		niosModel = &NIOSDtcMonitorSnmpModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSDtcMonitorSnmpModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenDtcMonitorSnmpNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSDtcMonitorSnmpAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSDtcMonitorSnmpAttrTypes)
@@ -468,7 +468,7 @@ func (m *NIOSDtcMonitorSnmpModel) Flatten(ctx context.Context, from *coremodel.N
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Interval = flex.FlattenInt64Pointer(from.Interval)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.Oids = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.Oids, MonitorSnmpOidsAttrTypes, diags, FlattenMonitorSnmpOids)
+	m.Oids = flex.FlattenFrameworkListNestedBlock(ctx, from.Oids, MonitorSnmpOidsAttrTypes, diags, FlattenMonitorSnmpOids)
 	m.Port = flex.FlattenInt64Pointer(from.Port)
 	m.RetryDown = flex.FlattenInt64Pointer(from.RetryDown)
 	m.RetryUp = flex.FlattenInt64Pointer(from.RetryUp)

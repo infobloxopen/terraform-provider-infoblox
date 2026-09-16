@@ -1,4 +1,4 @@
-// List DTC Monitor SNMPs using filters (NIOS)
+// List DTC Monitor SNMPs using filters 
 list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_using_filters" {
   provider = infoblox
   config {
@@ -9,7 +9,7 @@ list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_using_filters" {
   limit = 10
 }
 
-// List DTC Monitor SNMPs using extensible attributes (NIOS)
+// List DTC Monitor SNMPs using extensible attributes 
 list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_using_ext_attrs" {
   provider = infoblox
   config {
@@ -19,7 +19,7 @@ list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_using_ext_attrs" {
   }
 }
 
-// List DTC Monitor SNMPs with resource details included (NIOS)
+// List DTC Monitor SNMPs with resource details included 
 list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_with_resource" {
   provider         = infoblox
   include_resource = true

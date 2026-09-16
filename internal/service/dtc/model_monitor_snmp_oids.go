@@ -63,10 +63,12 @@ var MonitorSnmpOidsResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The value of the condition type for DTC SNMP Monitor health check results.",
 	},
 	"condition": schema.StringAttribute{
+		Default: stringdefault.StaticString("ANY"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("ANY", "EXACT", "LEQ", "GEQ", "RANGE"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The condition of the validation result for an SNMP health check. The following conditions can be applied to the health check results: 'ANY' accepts any response; 'EXACT' accepts result equal to 'first'; 'LEQ' accepts result which is less than 'first'; 'GEQ' accepts result which is greater than 'first'; 'RANGE' accepts result value of which is between 'first' and 'last'.",
 	},
 	"first": schema.StringAttribute{

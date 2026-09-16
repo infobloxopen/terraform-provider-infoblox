@@ -1,12 +1,12 @@
-// Create a basic DTC Monitor SNMP on NIOS
+// Create a DTC Monitor SNMP with basic fields
 resource "infoblox_dtc_monitor_snmp" "basic" {
   nios = {
     name = "dtc-monitor-snmp-basic"
   }
 }
 
-// Create a DTC Monitor SNMP with additional fields on NIOS
-resource "infoblox_dtc_monitor_snmp" "full" {
+// Create a DTC Monitor SNMP with additional fields 
+resource "infoblox_dtc_monitor_snmp" "additional_fields" {
   nios = {
     name       = "dtc-monitor-snmp-full"
     comment    = "Example DTC SNMP monitor"
@@ -22,10 +22,17 @@ resource "infoblox_dtc_monitor_snmp" "full" {
     }
     oids = [
       {
-        oid       = ".1.3.6.1.2.1.1.1.0"
-        type      = "STRING"
+        oid       = ".2"
         condition = "EXACT"
-        first     = "Linux"
+        first     = "10"
+      },
+      {
+        oid = ".02"
+      },
+      {
+        oid       = ".1"
+        condition = "EXACT"
+        first     = "20"
       }
     ]
   }

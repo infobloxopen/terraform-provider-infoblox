@@ -1,4 +1,4 @@
-// Create a basic DTC Monitor SNMP on UDDI (BloxOne)
+// Create a DTC Monitor SNMP with basic fields 
 resource "infoblox_dtc_monitor_snmp" "basic" {
   uddi = {
     name    = "dtc-monitor-snmp-basic"
@@ -6,8 +6,8 @@ resource "infoblox_dtc_monitor_snmp" "basic" {
   }
 }
 
-// Create a DTC Monitor SNMP with additional fields on UDDI
-resource "infoblox_dtc_monitor_snmp" "full" {
+// Create a DTC Monitor SNMP with additional fields 
+resource "infoblox_dtc_monitor_snmp" "additional_fields" {
   uddi = {
     name       = "dtc-monitor-snmp-full"
     version    = "v2c"
