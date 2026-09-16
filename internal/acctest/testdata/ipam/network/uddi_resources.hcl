@@ -140,6 +140,11 @@ case "space" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_network_view" "two" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
   PREREQ
 
   step {
@@ -1006,11 +1011,18 @@ case "multiple_federated_realms" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_federated_realm_unknown" "%s" {
+  resource "infoblox_federated_realm" "test" {
     uddi = {
       name = "{{random2}}"
     }
   }
+
+  resource "infoblox_federated_realm" "test2" {
+    uddi = {
+      name = "{{random3}}"
+    }
+  }
+
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -1020,25 +1032,27 @@ case "multiple_federated_realms" {
 
   step {
     uddi {
-      address          = "{{random_ipv4_network}}"
-      cidr             = 16
-      space            = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
-      federated_realms = ["federation/federated_realm/82f6521f-a56e-4615-8df5-a2cd73b725c5"]
+      address          = "{{random_ipv6_network_address}}"
+      cidr             = 64
+      space            = infoblox_network_view.test.id
+      federated_realms = [infoblox_federated_realm.test.id]
     }
     check = {
       "uddi.federated_realms.#" = "1"
+      "uddi.federated_realms.0" = infoblox_federated_realm.test.id
     }
   }
 
   step {
     uddi {
-      address          = "{{random_ipv4_network}}"
-      cidr             = 16
-      space            = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
-      federated_realms = ["federation/federated_realm/5d1e377a-73ef-42e4-b3b7-fc26d3fd79d2"]
+      address          = "{{random_ipv6_network_address}}"
+      cidr             = 64
+      space            = infoblox_network_view.test.id
+      federated_realms = [infoblox_federated_realm.test2.id]
     }
     check = {
       "uddi.federated_realms.#" = "1"
+      "uddi.federated_realms.0" = infoblox_federated_realm.test2.id
     }
   }
 

@@ -439,18 +439,17 @@ case "ecs_zones" {
 case "filter_aaaa_acl" {
   backend  = "uddi"
   parallel = true
-  skip = true
-  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dns_acl" "test" {
+  resource "infoblox_namedacl" "test" {
     uddi = {
-      name = "\"acl-\"+name"
+      name = "{{random}}"
       list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_keys_tsig" "test" {
+  resource "infoblox_tsig_key" "test" {
     uddi = {
-      name = "\"tsig-\"+name+\".\""
+      name = "tsig-key-{{random}}."
+      secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
     }
   }
   PREREQ
@@ -481,21 +480,29 @@ case "filter_aaaa_acl" {
   step {
     uddi {
       name            = "{{random}}"
-      filter_aaaa_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
+      filter_aaaa_acl = [{ element = "acl", acl = infoblox_namedacl.test.id }]
     }
     check = {
       "uddi.filter_aaaa_acl.0.element" = "acl"
+      "uddi.filter_aaaa_acl.0.acl" = "${infoblox_namedacl.test.id}"
     }
   }
 
   step {
     uddi {
       name            = "{{random}}"
-      filter_aaaa_acl = [{ element = "tsig_key", access = "deny" }]
+      filter_aaaa_acl = [
+          { element = "tsig_key", access = "deny",
+          tsig_key = {
+                key = "${infoblox_tsig_key.test.id}"
+              }
+          }]
     }
+    depends_on = [infoblox_tsig_key.test]
     check = {
       "uddi.filter_aaaa_acl.0.access"  = "deny"
       "uddi.filter_aaaa_acl.0.element" = "tsig_key"
+      "uddi.filter_aaaa_acl.0.tsig_key.0.key" = "${infoblox_tsig_key.test.id}"
     }
   }
 
@@ -895,18 +902,17 @@ case "notify" {
 case "query_acl" {
   backend  = "uddi"
   parallel = true
-  skip = true
-  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dns_acl" "test" {
+  resource "infoblox_namedacl" "test" {
     uddi = {
-      name = "\"acl-\"+name"
+      name = "{{random}}"
       list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_keys_tsig" "test" {
+  resource "infoblox_tsig_key" "test" {
     uddi = {
-      name = "\"tsig-\"+name+\".\""
+      name = "tsig-key-{{random}}."
+      secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
     }
   }
   PREREQ
@@ -937,21 +943,29 @@ case "query_acl" {
   step {
     uddi {
       name      = "{{random}}"
-      query_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
+      query_acl = [{ element = "acl", acl = infoblox_namedacl.test.id }]
     }
     check = {
       "uddi.query_acl.0.element" = "acl"
+      "uddi.query_acl.0.acl"     = "${infoblox_namedacl.test.id}"
     }
   }
 
   step {
     uddi {
       name      = "{{random}}"
-      query_acl = [{ element = "tsig_key", access = "deny" }]
+      query_acl = [
+          { element = "tsig_key", access = "deny",
+          tsig_key = {
+                key = "${infoblox_tsig_key.test.id}"
+              }
+          }]
     }
+    depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.query_acl.0.access"  = "deny"
-      "uddi.query_acl.0.element" = "tsig_key"
+      "uddi.query_acl.0.access"          = "deny"
+      "uddi.query_acl.0.element"         = "tsig_key"
+      "uddi.query_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
     }
   }
 
@@ -986,18 +1000,17 @@ case "query_port" {
 case "recursion_acl" {
   backend  = "uddi"
   parallel = true
-  skip = true
-  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dns_acl" "test" {
+  resource "infoblox_namedacl" "test" {
     uddi = {
-      name = "\"acl-\"+name"
+      name = "{{random}}"
       list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_keys_tsig" "test" {
+  resource "infoblox_tsig_key" "test" {
     uddi = {
-      name = "\"tsig-\"+name+\".\""
+      name = "tsig-key-{{random}}."
+      secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
     }
   }
   PREREQ
@@ -1028,21 +1041,29 @@ case "recursion_acl" {
   step {
     uddi {
       name          = "{{random}}"
-      recursion_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
+      recursion_acl = [{ element = "acl", acl = infoblox_namedacl.test.id }]
     }
     check = {
       "uddi.recursion_acl.0.element" = "acl"
+      "uddi.recursion_acl.0.acl"     = "${infoblox_namedacl.test.id}"
     }
   }
 
   step {
     uddi {
       name          = "{{random}}"
-      recursion_acl = [{ element = "tsig_key", access = "deny" }]
+      recursion_acl = [
+          { element = "tsig_key", access = "deny",
+          tsig_key = {
+                key = "${infoblox_tsig_key.test.id}"
+              }
+          }]
     }
+    depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.recursion_acl.0.access"  = "deny"
-      "uddi.recursion_acl.0.element" = "tsig_key"
+      "uddi.recursion_acl.0.access"          = "deny"
+      "uddi.recursion_acl.0.element"         = "tsig_key"
+      "uddi.recursion_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
     }
   }
 
@@ -1275,18 +1296,17 @@ case "tags" {
 case "transfer_acl" {
   backend  = "uddi"
   parallel = true
-  skip = true
-  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dns_acl" "test" {
+  resource "infoblox_namedacl" "test" {
     uddi = {
-      name = "\"acl-\"+name"
+      name = "{{random}}"
       list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_keys_tsig" "test" {
+  resource "infoblox_tsig_key" "test" {
     uddi = {
-      name = "\"tsig-\"+name+\".\""
+      name = "tsig-key-{{random}}."
+      secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
     }
   }
   PREREQ
@@ -1317,21 +1337,29 @@ case "transfer_acl" {
   step {
     uddi {
       name         = "{{random}}"
-      transfer_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
+      transfer_acl = [{ element = "acl", acl = infoblox_namedacl.test.id }]
     }
     check = {
       "uddi.transfer_acl.0.element" = "acl"
+      "uddi.transfer_acl.0.acl"     = "${infoblox_namedacl.test.id}"
     }
   }
 
   step {
     uddi {
       name         = "{{random}}"
-      transfer_acl = [{ element = "tsig_key", access = "deny" }]
+      transfer_acl = [
+          { element = "tsig_key", access = "deny",
+          tsig_key = {
+                key = "${infoblox_tsig_key.test.id}"
+              }
+          }]
     }
+    depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.transfer_acl.0.access"  = "deny"
-      "uddi.transfer_acl.0.element" = "tsig_key"
+      "uddi.transfer_acl.0.access"          = "deny"
+      "uddi.transfer_acl.0.element"         = "tsig_key"
+      "uddi.transfer_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
     }
   }
 
@@ -1340,18 +1368,17 @@ case "transfer_acl" {
 case "update_acl" {
   backend  = "uddi"
   parallel = true
-  skip = true
-  skip_reason = "Requires ACL and TSIG Support"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_dns_acl" "test" {
+  resource "infoblox_namedacl" "test" {
     uddi = {
-      name = "\"acl-\"+name"
+      name = "{{random}}"
       list = [{ access = "allow", element = "ip", address = "10.0.0.0/24" }]
     }
   }
-  resource "infoblox_keys_tsig" "test" {
+  resource "infoblox_tsig_key" "test" {
     uddi = {
-      name = "\"tsig-\"+name+\".\""
+      name = "tsig-key-{{random}}."
+      secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
     }
   }
   PREREQ
@@ -1382,21 +1409,29 @@ case "update_acl" {
   step {
     uddi {
       name       = "{{random}}"
-      update_acl = [{ element = "acl", acl = infoblox_dns_acl.test.id }]
+      update_acl = [{ element = "acl", acl = infoblox_namedacl.test.id }]
     }
     check = {
       "uddi.update_acl.0.element" = "acl"
+      "uddi.update_acl.0.acl"     = "${infoblox_namedacl.test.id}"
     }
   }
 
   step {
     uddi {
       name       = "{{random}}"
-      update_acl = [{ element = "tsig_key", access = "deny" }]
+      update_acl = [
+          { element = "tsig_key", access = "deny",
+          tsig_key = {
+                key = "${infoblox_tsig_key.test.id}"
+              }
+          }]
     }
+    depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.update_acl.0.access"  = "deny"
-      "uddi.update_acl.0.element" = "tsig_key"
+      "uddi.update_acl.0.access"          = "deny"
+      "uddi.update_acl.0.element"         = "tsig_key"
+      "uddi.update_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
     }
   }
 

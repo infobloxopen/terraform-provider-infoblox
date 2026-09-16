@@ -365,6 +365,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
 	case name == "uddi_option_code_1_id":
 		return os.Getenv("UDDI_OPTION_CODE_1_ID")
+	case name == "uddi_compartment_id_1":
+		return os.Getenv("UDDI_COMPARTMENT_ID_1")
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}

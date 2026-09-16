@@ -492,24 +492,41 @@ case "dhcp_config" {
 
 case "default_realms" {
   backend     = "uddi"
-  # skip        = true
-  # skip_reason = "requires_resource: infoblox_federated_realm not yet implemented"
   parallel    = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_federated_realm_unknown" "realm1" {
-  #   uddi = {
-  #     name = "{{random2}}"
-  #   }
-  # }
-  # PREREQ
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_federated_realm" "test" {
+      uddi = {
+        name = "{{random2}}"
+      }
+    }
+
+    resource "infoblox_federated_realm" "test2" {
+      uddi = {
+        name = "{{random3}}"
+      }
+    }
+
+    PREREQ
 
   step {
     uddi {
       name           = "{{random}}"
-      default_realms = ["federation/federated_realm/f76ecc5e-db40-455c-a5f3-2b6ea57785cd"]
+      default_realms = [infoblox_federated_realm.test.id]
     }
     check = {
       "uddi.default_realms.#" = "1"
+      "uddi.default_realms.0" = infoblox_federated_realm.test.id
+    }
+  }
+
+  step {
+    uddi {
+      name           = "{{random}}"
+      default_realms = [infoblox_federated_realm.test2.id]
+    }
+    check = {
+      "uddi.default_realms.#" = "1"
+      "uddi.default_realms.0" = infoblox_federated_realm.test2.id
     }
   }
 

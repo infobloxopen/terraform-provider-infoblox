@@ -60,14 +60,16 @@ case "fqdn" {
 case "compartment_id" {
   backend  = "uddi"
   parallel = true
+  skip_if_env_empty = ["UDDI_COMPARTMENT_ID_1"]
+  skip_reason       = "UDDI_COMPARTMENT_ID_1 environment variable must be set for this test to run"
 
   step {
     uddi {
       fqdn           = "{{random}}.com."
-      compartment_id = "c4695."
+      compartment_id = "{{uddi_compartment_id_1}}"
     }
     check = {
-      "uddi.compartment_id" = "c4695."
+      "uddi.compartment_id" = "{{uddi_compartment_id_1}}"
     }
   }
 

@@ -1256,7 +1256,7 @@ case "rir_registration_action" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_networkcontainer" "rir_parent" {
+  resource "infoblox_network_container" "rir_parent" {
     nios = {
       network          = "10.{{random_octet}}.0.0/16"
       rir_organization = "rir-org-test1"
@@ -1288,7 +1288,7 @@ case "rir_registration_action" {
         "RIPE IPv4 Status"       = "ASSIGNED PA"
       }
     }
-    depends_on = [infoblox_networkcontainer.rir_parent]
+    depends_on = [infoblox_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
       "nios.network"                 = "10.{{random_octet}}.0.0/24"
@@ -1310,7 +1310,7 @@ case "rir_registration_action" {
         "RIPE IPv4 Status"       = "ASSIGNED PA"
       }
     }
-    depends_on = [infoblox_networkcontainer.rir_parent]
+    depends_on = [infoblox_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "NONE"
       "nios.network"                 = "10.{{random_octet}}.0.0/24"
@@ -1482,6 +1482,8 @@ case "update_dns_on_lease_renewal" {
 case "discovery_member" {
   backend  = "nios"
   parallel = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason     = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1504,6 +1506,8 @@ case "discovery_member" {
 case "enable_discovery" {
   backend  = "nios"
   parallel = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason     = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1532,6 +1536,8 @@ case "enable_discovery" {
 case "enable_immediate_discovery" {
   backend  = "nios"
   parallel = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason     = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1614,7 +1620,7 @@ case "rir_organization_action" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_networkcontainer" "rir_parent" {
+  resource "infoblox_network_container" "rir_parent" {
     nios = {
       network          = "11.{{random_octet}}.0.0/16"
       rir_organization = "rir-org-test1"
@@ -1646,7 +1652,7 @@ case "rir_organization_action" {
         "RIPE IPv4 Status"       = "ASSIGNED PA"
       }
     }
-    depends_on = [infoblox_networkcontainer.rir_parent]
+    depends_on = [infoblox_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
     }
@@ -1667,7 +1673,7 @@ case "rir_organization_action" {
         "RIPE IPv4 Status"       = "ASSIGNED PA"
       }
     }
-    depends_on = [infoblox_networkcontainer.rir_parent]
+    depends_on = [infoblox_network_container.rir_parent]
     check = {
       "nios.rir_registration_action" = "NONE"
     }
@@ -1722,7 +1728,7 @@ case "next_available_network" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_networkcontainer" "alloc_parent" {
+  resource "infoblox_network_container" "alloc_parent" {
     nios = {
       network      = "10.{{random_octet}}.0.0/16"
       network_view = "default"
@@ -1733,13 +1739,13 @@ case "next_available_network" {
   step {
     nios {
       dynamic_allocation = {
-        network      = infoblox_networkcontainer.alloc_parent.nios.network
+        network      = infoblox_network_container.alloc_parent.nios.network
         network_view = "default"
         cidr         = 24
       }
       comment = "Created by Dynamic Allocation"
     }
-    depends_on = [infoblox_networkcontainer.alloc_parent]
+    depends_on = [infoblox_network_container.alloc_parent]
     check = {
       "nios.comment"      = "Created by Dynamic Allocation"
       "nios.network_view" = "default"

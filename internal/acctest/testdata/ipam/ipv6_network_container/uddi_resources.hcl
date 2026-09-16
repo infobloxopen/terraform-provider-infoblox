@@ -221,6 +221,8 @@ case "comment" {
 case "compartment_id" {
   backend  = "uddi"
   parallel = true
+  skip_if_env_empty = ["UDDI_COMPARTMENT_ID_1"]
+  skip_reason       = "UDDI_COMPARTMENT_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -234,10 +236,10 @@ case "compartment_id" {
       address        = "{{random_ipv6_network_address}}"
       cidr           = 64
       space   = infoblox_network_view.test.id
-      compartment_id = ""
+      compartment_id = "{{uddi_compartment_id_1}}"
     }
     check = {
-      "uddi.compartment_id" = ""
+      "uddi.compartment_id" = "{{uddi_compartment_id_1}}"
     }
   }
 
@@ -246,6 +248,7 @@ case "compartment_id" {
       address = "{{random_ipv6_network_address}}"
       cidr    = 64
       space   = infoblox_network_view.test.id
+      compartment_id = ""
     }
     check = {
       "uddi.compartment_id" = ""
@@ -837,15 +840,22 @@ case "inheritance_sources" {
 
 }
 
-case "multiple_federated_realms" {
+case "federated_realms" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_federated_realm_unknown" "%s" {
+  resource "infoblox_federated_realm" "test" {
     uddi = {
       name = "{{random2}}"
     }
   }
+
+  resource "infoblox_federated_realm" "test2" {
+    uddi = {
+      name = "{{random3}}"
+    }
+  }
+
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -858,10 +868,11 @@ case "multiple_federated_realms" {
       address          = "{{random_ipv6_network_address}}"
       cidr             = 64
       space   = infoblox_network_view.test.id
-      federated_realms = ["federation/federated_realm/82f6521f-a56e-4615-8df5-a2cd73b725c5"]
+      federated_realms = [infoblox_federated_realm.test.id]
     }
     check = {
       "uddi.federated_realms.#" = "1"
+      "uddi.federated_realms.0" = infoblox_federated_realm.test.id
     }
   }
 
@@ -870,10 +881,11 @@ case "multiple_federated_realms" {
       address          = "{{random_ipv6_network_address}}"
       cidr             = 64
       space   = infoblox_network_view.test.id
-      federated_realms = ["federation/federated_realm/5d1e377a-73ef-42e4-b3b7-fc26d3fd79d2"]
+      federated_realms = [infoblox_federated_realm.test2.id]
     }
     check = {
       "uddi.federated_realms.#" = "1"
+      "uddi.federated_realms.0" = infoblox_federated_realm.test2.id
     }
   }
 

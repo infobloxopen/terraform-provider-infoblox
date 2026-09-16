@@ -1327,23 +1327,23 @@ case "template" {
       name = "{{random}}"
     }
   }
-  # resource "infoblox_ipv6_fixed_address_template_unknown" "test" {
-  #   nios = {
-  #     name = "{{random}}"
-  #   }
-  # }
+  resource "infoblox_ipv6_fixed_address_template" "test" {
+    nios = {
+      name = "{{random}}"
+    }
+  }
   PREREQ
 
   step {
     nios {
       ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      template     = "ipv6-fa-template"
+      template     = infoblox_ipv6_fixed_address_template.test.nios.name
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
     }
     check = {
-      "nios.template" = "ipv6-fa-template"
+      "nios.template" = infoblox_ipv6_fixed_address_template.test.nios.name
     }
   }
 

@@ -48,7 +48,7 @@ func writePipelineEnvVar(key, value string) error {
 // StoreDNSHostIDs lists DNS Host objects and stores the IDs of the first two
 // into pipeline_uddi.env as UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2.
 func StoreDNSHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
-	resp, _, err := client.DNSConfigurationAPI.HostAPI.List(ctx).Execute()
+	resp, _, err := client.DNSConfigurationAPI.HostAPI.List(ctx).Tfilter(`"used_for"=="Terraform Provider Acceptance Tests"`).Execute()
 	if err != nil {
 		return fmt.Errorf("store DNS host IDs: list DNS hosts: %w", err)
 	}
@@ -86,7 +86,7 @@ func StoreDNSHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 // StoreDHCPHostIDs lists DHCP Host objects and stores the IDs of the first two
 // into pipeline_uddi.env as UDDI_DHCP_HOST_ID_1 and UDDI_DHCP_HOST_ID_2.
 func StoreDHCPHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
-	resp, _, err := client.IPAddressManagementAPI.DhcpHostAPI.List(ctx).Execute()
+	resp, _, err := client.IPAddressManagementAPI.DhcpHostAPI.List(ctx).Tfilter(`"used_for"=="Terraform Provider Acceptance Tests"`).Execute()
 	if err != nil {
 		return fmt.Errorf("store DHCP host IDs: list DHCP hosts: %w", err)
 	}
