@@ -27,9 +27,6 @@ case "basic" {
       "nios.start_addr"                      = "10.0.0.11"
       "nios.end_addr"                        = "10.0.0.12"
       "nios.always_update_dns"               = "false"
-      "nios.bootfile"                        = ""
-      "nios.comment"                         = ""
-      "nios.ddns_domainname"                 = ""
       "nios.enable_ddns"                     = "false"
       "nios.enable_discovery"                = "false"
       "nios.enable_ifmap_publishing"         = "false"
@@ -42,7 +39,6 @@ case "basic" {
       "nios.low_water_mark"                  = "0"
       "nios.low_water_mark_reset"            = "10"
       "nios.network_view"                    = "{{random_view}}"
-      "nios.nextserver"                      = ""
       "nios.update_dns_on_lease_renewal"     = "false"
     }
   }
@@ -238,7 +234,6 @@ case "cloud_info" {
     check = {
       "nios.cloud_info.authority_type"   = "GM"
       "nios.cloud_info.delegated_scope"  = "NONE"
-      "nios.cloud_info.mgmt_platform"    = ""
       "nios.cloud_info.owned_by_adaptor" = "false"
     }
   }
@@ -1804,7 +1799,7 @@ case "member" {
     nios = {
       network      = "102.0.0.0/24"
       network_view = infoblox_network_view.test_view.nios.name
-      members      = [{ struct = "dhcpmember" }, { struct = "dhcpmember" }]
+      members      = [{ struct = "dhcpmember", name = "{{grid_master_hostname}}" }]
     }
   }
   PREREQ

@@ -14,6 +14,7 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -266,6 +267,7 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
@@ -365,6 +367,7 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"enable_immediate_discovery": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Determines if the discovery for the range should be immediately enabled.",
 	},
 	"enable_pxe_lease_time": schema.BoolAttribute{
@@ -611,6 +614,7 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		Optional: true,
 		Computed: true,
+		Default:  listdefault.StaticValue(types.ListValueMust(types.ObjectType{AttrTypes: RangeOptionsAttrTypes}, []attr.Value{})),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
