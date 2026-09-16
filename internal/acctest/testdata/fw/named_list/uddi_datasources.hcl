@@ -2,11 +2,8 @@
 case "filters" {
   backend = "uddi"
 
-  # `_filter` on /named_lists only supports the "type" field (confirmed against
-  # the live API and its swagger spec). "type" isn't unique to this test's
-  # resource, so results.0 may be any pre-existing named list of the same
-  # type -- only pair_check what's guaranteed true for every match (the
-  # filtered-on field itself), not the resource's other attributes.
+  # `_filter` only supports "type", which isn't unique to this test's resource,
+  # so only pair_check the filtered-on field itself, not the other attributes.
   filter {
     type   = "filters"
     values = {
@@ -18,9 +15,9 @@ case "filters" {
 
   step {
     uddi {
-      name        = "{{random}}"
-      description = "Example Domain"
-      type        = "custom_list"
+      # trimspace(...) is a no-op; it just skips the auto pair-check on "name".
+      name = trimspace("{{random}}")
+      type = "custom_list"
     }
   }
 

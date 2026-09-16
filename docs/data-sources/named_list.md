@@ -18,7 +18,7 @@ Retrieves information about existing Infoblox NamedList from the UDDI backend.
 // Retrieve specific Named Lists by filters
 data "infoblox_named_list" "get_named_list_using_filters" {
   filters = {
-    name = "example_named_list"
+    type = "custom_list"
   }
 }
 
