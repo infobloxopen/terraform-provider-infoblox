@@ -101,22 +101,14 @@ func validateNotificationRestEndpointNIOSConfig(ctx context.Context, m *NIOSNoti
 // client_certificate_file) from the plan back to the flattened state, since the NIOS API never
 // echoes these values back.
 func PostFlattenNotificationRestEndpointNIOS(ctx context.Context, planned, flattened *NIOSNotificationRestEndpointModel, diags *diag.Diagnostics) {
-	if planned != nil {
-		flattened.Password = planned.Password
-		flattened.WapiUserPassword = planned.WapiUserPassword
-		flattened.ClientCertificateFile = planned.ClientCertificateFile
-		// token is write-only; NIOS never echoes it back.
-		// Normally set by the upload hook from client_certificate_file; a user may also
-		// supply it directly. Preserve if known; Unknown means no upload this cycle — use null.
-		if !planned.ClientCertificateToken.IsUnknown() {
-			flattened.ClientCertificateToken = planned.ClientCertificateToken
-		} else {
-			flattened.ClientCertificateToken = types.StringNull()
-		}
+	flattened.Password = planned.Password
+	flattened.WapiUserPassword = planned.WapiUserPassword
+	flattened.ClientCertificateFile = planned.ClientCertificateFile
+	// token is write-only; NIOS never echoes it back.
+	// Preserve if known; Unknown means no upload this cycle — use null.
+	if !planned.ClientCertificateToken.IsUnknown() {
+		flattened.ClientCertificateToken = planned.ClientCertificateToken
 	} else {
-		flattened.Password = types.StringNull()
-		flattened.WapiUserPassword = types.StringNull()
-		flattened.ClientCertificateFile = types.StringNull()
 		flattened.ClientCertificateToken = types.StringNull()
 	}
 }
