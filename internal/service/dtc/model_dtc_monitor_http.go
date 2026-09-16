@@ -285,6 +285,7 @@ var DtcMonitorHttpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Port for TCP requests.",
 	},
 	"request": schema.StringAttribute{
+		Default:  stringdefault.StaticString("GET /"),
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{

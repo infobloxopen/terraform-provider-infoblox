@@ -24,6 +24,7 @@ case "basic" {
       "nios.secure"                = "false"
       "nios.timeout"               = "15"
       "nios.validate_cert"         = "true"
+      "nios.request"               = "GET /"
     }
   }
 
