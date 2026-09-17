@@ -28,9 +28,3 @@ resource "infoblox_network_list" "create_network_list_with_additional_fields" {
     ]
   }
 }
-
-// Import an existing Network List by its ID
-import {
-  to = infoblox_network_list.create_network_list_with_additional_fields
-  id = "772542"
-}
