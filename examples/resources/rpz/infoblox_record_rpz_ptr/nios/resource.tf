@@ -23,7 +23,7 @@ resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_ipv6" {
   }
 }
 
-// Create Record RPZ PTR using ARPA Name
+// Create Record RPZ PTR using Name
 resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_name" {
   nios = {
     ptrdname = "record3.rpz.example.com"
