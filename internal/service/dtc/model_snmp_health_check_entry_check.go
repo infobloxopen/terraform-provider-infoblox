@@ -62,7 +62,7 @@ var SNMPHealthCheckEntryCheckResourceSchemaAttributes = map[string]schema.Attrib
 		Validators: []validator.String{
 			stringvalidator.OneOf("string", "integer"),
 		},
-		Required:            true,
+		Optional:            true,
 		MarkdownDescription: "Type defines type of an entry value.  Allowed values: * string * integer  String type does not support __in__ operator.",
 	},
 	"value": schema.StringAttribute{

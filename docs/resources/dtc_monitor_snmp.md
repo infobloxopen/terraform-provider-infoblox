@@ -175,11 +175,11 @@ Read-Only:
 Required:
 
 - `operator` (String) Operator defines operation to perform on an entry value.  Allowed values: * any - any value must be present * eq  - entry value must be equal to check's __value__. * leq - entry value must less or equal to check's __value__. * geq - entry value must be great or equal to check's __value__. * in  - entry value must be greater or equal than __value__ and less or equal than __max_value__.  Operator __in__ is supported only for __integer__ types.
-- `type` (String) Type defines type of an entry value.  Allowed values: * string * integer  String type does not support __in__ operator.
 
 Optional:
 
 - `comment` (String) Optional. Comment for __EntryCheck__.
 - `max_value` (String) Optional. Expected max value of an entry to check against. Used for __in__ operator only, otherwise ignored.
 - `name` (String) Name is a dotted-decimal number that defines the location of the entry in the universal MIB tree.
+- `type` (String) Type defines type of an entry value.  Allowed values: * string * integer  String type does not support __in__ operator.
 - `value` (String) Optional. Expected value of an entry to check against. Ignored for __any__ operator.
