@@ -335,8 +335,8 @@ case "dhcp_options" {
 }
 
 case "dhcp_options_v6" {
-  backend     = "uddi"
-  parallel    = true
+  backend  = "uddi"
+  parallel = true
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_dhcp_option_code_unknown" "test" {
   #   uddi = {
@@ -368,7 +368,7 @@ case "dhcp_options_v6" {
 
   step {
     uddi {
-      name            = "{{random}}"
+      name = "{{random}}"
     }
   }
 
@@ -491,8 +491,8 @@ case "dhcp_config" {
 }
 
 case "default_realms" {
-  backend     = "uddi"
-  parallel    = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
     resource "infoblox_federated_realm" "test" {
       uddi = {
@@ -804,10 +804,10 @@ case "inheritance_sources" {
 }
 
 case "multiple_default_realms" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "t.Skip: Skipping test temporarily due to Multiple realms not being supported in the current test environment."
-  parallel    = true
+  backend           = "uddi"
+  skip              = true
+  skip_reason       = "t.Skip: Skipping test temporarily due to Multiple realms not being supported in the current test environment."
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_federated_realm_unknown" "realm1" {
     uddi = {

@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for Ipv6network.
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -39,7 +39,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -58,8 +58,8 @@ case "disappears" {
 }
 
 case "address" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -95,8 +95,8 @@ case "address" {
 }
 
 case "cidr" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -132,8 +132,8 @@ case "cidr" {
 }
 
 case "space" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "one" {
     uddi = {
@@ -153,8 +153,8 @@ case "space" {
 }
 
 case "asm_config" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -208,8 +208,8 @@ case "asm_config" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -245,8 +245,8 @@ case "comment" {
 }
 
 case "ddns_client_update" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -282,8 +282,8 @@ case "ddns_client_update" {
 }
 
 case "ddns_conflict_resolution_mode" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -323,8 +323,8 @@ case "ddns_conflict_resolution_mode" {
 }
 
 case "ddns_domain" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -360,8 +360,8 @@ case "ddns_domain" {
 }
 
 case "ddns_generate_name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -397,8 +397,8 @@ case "ddns_generate_name" {
 }
 
 case "ddns_generated_prefix" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -499,8 +499,8 @@ case "dhcp_options" {
 }
 
 case "ddns_send_updates" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -536,8 +536,8 @@ case "ddns_send_updates" {
 }
 
 case "ddns_ttl_percent" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -573,8 +573,8 @@ case "ddns_ttl_percent" {
 }
 
 case "ddns_update_on_renew" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -610,8 +610,8 @@ case "ddns_update_on_renew" {
 }
 
 case "dhcp_config" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -651,8 +651,8 @@ case "dhcp_config" {
 }
 
 case "disable_dhcp" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -688,8 +688,8 @@ case "disable_dhcp" {
 }
 
 case "hostname_rewrite_char" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -725,8 +725,8 @@ case "hostname_rewrite_char" {
 }
 
 case "hostname_rewrite_enabled" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -762,8 +762,8 @@ case "hostname_rewrite_enabled" {
 }
 
 case "hostname_rewrite_regex" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -799,8 +799,8 @@ case "hostname_rewrite_regex" {
 }
 
 case "inheritance_sources" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -885,10 +885,10 @@ case "inheritance_sources" {
 }
 
 case "multiple_federated_realms" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "t.Skip: Skipping this test as Multiple federated realms are not supported"
-  parallel    = true
+  backend           = "uddi"
+  skip              = true
+  skip_reason       = "t.Skip: Skipping this test as Multiple federated realms are not supported"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -927,8 +927,8 @@ case "multiple_federated_realms" {
 }
 
 case "name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -964,8 +964,8 @@ case "name" {
 }
 
 case "renew_time_and_rebind_time" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -1005,8 +1005,8 @@ case "renew_time_and_rebind_time" {
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {

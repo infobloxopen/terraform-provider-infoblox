@@ -1,8 +1,8 @@
 # Auto-generated resource acceptance-test cases for ZoneDelegated.
 
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -43,7 +43,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -70,8 +70,8 @@ case "disappears" {
 }
 
 case "compartment_id" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   skip_if_env_empty = ["UDDI_COMPARTMENT_ID_1"]
   skip_reason       = "UDDI_COMPARTMENT_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -118,8 +118,8 @@ case "compartment_id" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -164,8 +164,8 @@ case "comment" {
 }
 
 case "delegation_servers" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -226,8 +226,8 @@ case "delegation_servers" {
 }
 
 case "disabled" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -272,8 +272,8 @@ case "disabled" {
 }
 
 case "fqdn" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -316,8 +316,8 @@ case "fqdn" {
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -364,8 +364,8 @@ case "tags" {
 }
 
 case "view" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {

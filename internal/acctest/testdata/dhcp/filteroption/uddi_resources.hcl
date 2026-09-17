@@ -2,8 +2,8 @@
 // An option code and a non-default option space have to be created before running the test cases.
 
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   skip_if_env_empty = ["UDDI_OPTION_CODE_1_ID"]
   skip_reason       = "UDDI_OPTION_CODE_1_ID environment variable must be set for this test to run"
 
@@ -501,8 +501,8 @@ case "tags" {
 }
 
 case "vendor_specific_option_option_space" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {

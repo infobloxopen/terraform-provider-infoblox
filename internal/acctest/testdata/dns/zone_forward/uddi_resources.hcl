@@ -58,8 +58,8 @@ case "fqdn" {
 }
 
 case "compartment_id" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   skip_if_env_empty = ["UDDI_COMPARTMENT_ID_1"]
   skip_reason       = "UDDI_COMPARTMENT_ID_1 environment variable must be set for this test to run"
 
@@ -221,7 +221,7 @@ case "forward_only" {
 case "hosts" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1","UDDI_DNS_HOST_ID_2"]
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
   skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {
@@ -249,14 +249,14 @@ case "hosts" {
 }
 
 case "internal_forwarders" {
-  backend  = "uddi"
-  parallel = true
-  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1","UDDI_DNS_HOST_ID_2"]
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
   skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {
     uddi {
-      fqdn = "{{random}}.com."
+      fqdn                = "{{random}}.com."
       internal_forwarders = ["{{uddi_dns_host_id_1}}"]
     }
     check = {
@@ -267,7 +267,7 @@ case "internal_forwarders" {
 
   step {
     uddi {
-      fqdn = "{{random}}.com."
+      fqdn                = "{{random}}.com."
       internal_forwarders = ["{{uddi_dns_host_id_2}}"]
     }
     check = {
@@ -279,8 +279,8 @@ case "internal_forwarders" {
 }
 
 case "nsgs" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_forward_nsg" "one" {
     uddi = {
@@ -339,8 +339,8 @@ case "tags" {
 }
 
 case "view" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "one" {
     uddi = {

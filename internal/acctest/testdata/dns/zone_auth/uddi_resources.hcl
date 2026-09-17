@@ -373,8 +373,8 @@ case "nsgs" {
 }
 
 case "query_acl" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_namedacl" "test" {
     uddi = {
@@ -431,18 +431,18 @@ case "query_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      query_acl    = [
-          { element = "tsig_key", access = "deny",
+      query_acl = [
+        { element = "tsig_key", access = "deny",
           tsig_key = {
-                key = "${infoblox_tsig_key.test.id}"
-              }
-          }]
+            key = "${infoblox_tsig_key.test.id}"
+          }
+      }]
     }
     depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.query_acl.0.access"          = "deny"
-      "uddi.query_acl.0.element"         = "tsig_key"
-      "uddi.query_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
+      "uddi.query_acl.0.access"         = "deny"
+      "uddi.query_acl.0.element"        = "tsig_key"
+      "uddi.query_acl.0.tsig_key.0.key" = "${infoblox_tsig_key.test.id}"
     }
   }
 
@@ -479,8 +479,8 @@ case "tags" {
 }
 
 case "transfer_acl" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_namedacl" "test" {
     uddi = {
@@ -538,25 +538,25 @@ case "transfer_acl" {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
       transfer_acl = [
-          { element = "tsig_key", access = "deny",
+        { element = "tsig_key", access = "deny",
           tsig_key = {
-                key = "${infoblox_tsig_key.test.id}"
-              }
-          }]
+            key = "${infoblox_tsig_key.test.id}"
+          }
+      }]
     }
     depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.transfer_acl.0.access"          = "deny"
-      "uddi.transfer_acl.0.element"         = "tsig_key"
-      "uddi.transfer_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
+      "uddi.transfer_acl.0.access"         = "deny"
+      "uddi.transfer_acl.0.element"        = "tsig_key"
+      "uddi.transfer_acl.0.tsig_key.0.key" = "${infoblox_tsig_key.test.id}"
     }
   }
 
 }
 
 case "update_acl" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_namedacl" "test" {
     uddi = {
@@ -613,18 +613,18 @@ case "update_acl" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      update_acl   = [
-          { element = "tsig_key", access = "deny",
+      update_acl = [
+        { element = "tsig_key", access = "deny",
           tsig_key = {
-                key = "${infoblox_tsig_key.test.id}"
-              }
-          }]
+            key = "${infoblox_tsig_key.test.id}"
+          }
+      }]
     }
     depends_on = [infoblox_tsig_key.test]
     check = {
-      "uddi.update_acl.0.access"          = "deny"
-      "uddi.update_acl.0.element"         = "tsig_key"
-      "uddi.update_acl.0.tsig_key.0.key"  = "${infoblox_tsig_key.test.id}"
+      "uddi.update_acl.0.access"         = "deny"
+      "uddi.update_acl.0.element"        = "tsig_key"
+      "uddi.update_acl.0.tsig_key.0.key" = "${infoblox_tsig_key.test.id}"
     }
   }
 

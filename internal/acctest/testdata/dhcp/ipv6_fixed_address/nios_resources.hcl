@@ -3,8 +3,8 @@
 // IPv6 Option Filters - ipv6_option_filter and ipv6_option_filter1 
 
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -48,7 +48,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
       network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
@@ -74,8 +74,8 @@ case "disappears" {
 }
 
 case "address_type" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -136,8 +136,8 @@ case "address_type" {
 }
 
 case "allow_telnet" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -154,16 +154,16 @@ case "allow_telnet" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      allow_telnet    = true
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      allow_telnet = true
       cli_credentials = [
         { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" },
-         { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
-         ]
-      comment         = "CLI CRED Comment"
+        { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
+      ]
+      comment = "CLI CRED Comment"
     }
     check = {
       "nios.allow_telnet" = "true"
@@ -172,15 +172,15 @@ case "allow_telnet" {
 
   step {
     nios {
-      ipv6addr        = "2001:db8:{{random_hextet}}:{{random_int}}::1"
-      duid            = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
-      network         = infoblox_ipv6_network.test_ipv6_network.nios.network
-      network_view    = infoblox_network_view.parent_network_view.nios.name
-      allow_telnet    = false
-      cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" }, 
-      { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
+      ipv6addr     = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network      = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view = infoblox_network_view.parent_network_view.nios.name
+      allow_telnet = false
+      cli_credentials = [{ comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "TELNET", credential_group = "default" },
+        { comment = "CLI CRED Comment", user = "NIOS_USER", password = "NIOS_PASSWORD", credential_type = "SSH", credential_group = "default" }
       ]
-      comment         = "CLI CRED Comment"
+      comment = "CLI CRED Comment"
     }
     check = {
       "nios.allow_telnet" = "false"
@@ -190,8 +190,8 @@ case "allow_telnet" {
 }
 
 case "cli_credentials" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -338,8 +338,8 @@ case "cli_credentials" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -383,8 +383,8 @@ case "comment" {
 }
 
 case "device_description" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -428,8 +428,8 @@ case "device_description" {
 }
 
 case "device_location" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -473,8 +473,8 @@ case "device_location" {
 }
 
 case "device_type" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -518,8 +518,8 @@ case "device_type" {
 }
 
 case "device_vendor" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -563,8 +563,8 @@ case "device_vendor" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -608,8 +608,8 @@ case "disable" {
 }
 
 case "disable_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -653,8 +653,8 @@ case "disable_discovery" {
 }
 
 case "domain_name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -698,8 +698,8 @@ case "domain_name" {
 }
 
 case "domain_name_servers" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -747,8 +747,8 @@ case "domain_name_servers" {
 }
 
 case "duid" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -790,8 +790,8 @@ case "duid" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -835,8 +835,8 @@ case "ext_attrs" {
 }
 
 case "ipv6addr" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -878,8 +878,8 @@ case "ipv6addr" {
 }
 
 case "ipv6prefix" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -925,8 +925,8 @@ case "ipv6prefix" {
 }
 
 case "ipv6prefix_bits" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -974,8 +974,8 @@ case "ipv6prefix_bits" {
 }
 
 case "logic_filter_rules" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1023,8 +1023,8 @@ case "logic_filter_rules" {
 }
 
 case "mac_address" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1068,8 +1068,8 @@ case "mac_address" {
 }
 
 case "match_client" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1113,8 +1113,8 @@ case "match_client" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1158,8 +1158,8 @@ case "name" {
 }
 
 case "network" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6network1" {
     nios = {
@@ -1207,8 +1207,8 @@ case "network" {
 }
 
 case "options" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1229,7 +1229,7 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
-      options = [{ name = "domain-name", num = "15", value = "example.com" }, { num = "37", value = "remote-id", vendor_class = "DHCPv6" }, { name = "dhcp6.subscriber-id", value = "subscriber-id", vendor_class = "DHCPv6" }]
+      options      = [{ name = "domain-name", num = "15", value = "example.com" }, { num = "37", value = "remote-id", vendor_class = "DHCPv6" }, { name = "dhcp6.subscriber-id", value = "subscriber-id", vendor_class = "DHCPv6" }]
     }
     check = {
       "nios.options.#"              = "3"
@@ -1251,7 +1251,7 @@ case "options" {
       duid         = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
       network      = infoblox_ipv6_network.test_ipv6_network.nios.network
       network_view = infoblox_network_view.parent_network_view.nios.name
-      options = [{ name = "domain-name", num = "15", value = "example.org" }, { num = "37", value = "remote-id-updated", vendor_class = "DHCPv6" }]
+      options      = [{ name = "domain-name", num = "15", value = "example.org" }, { num = "37", value = "remote-id-updated", vendor_class = "DHCPv6" }]
     }
     check = {
       "nios.options.#"              = "2"
@@ -1266,8 +1266,8 @@ case "options" {
 }
 
 case "preferred_lifetime" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1313,8 +1313,8 @@ case "preferred_lifetime" {
 }
 
 case "template" {
-  backend     = "nios"
-  parallel    = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1350,10 +1350,10 @@ case "template" {
 }
 
 case "reserved_interface" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Skipping test as reserved_interface is not implemented yet"
-  parallel    = true
+  backend           = "nios"
+  skip              = true
+  skip_reason       = "t.Skip: Skipping test as reserved_interface is not implemented yet"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1397,8 +1397,8 @@ case "reserved_interface" {
 }
 
 case "snmp3_credential" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1502,8 +1502,8 @@ case "snmp3_credential" {
 }
 
 case "snmp_credential" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1551,8 +1551,8 @@ case "snmp_credential" {
 }
 
 case "valid_lifetime" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -1596,8 +1596,8 @@ case "valid_lifetime" {
 }
 
 case "dynamic_allocation" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {

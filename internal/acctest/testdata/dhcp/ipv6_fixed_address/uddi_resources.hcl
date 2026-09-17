@@ -1,8 +1,8 @@
 # Auto-generated resource acceptance-test cases for Ipv6fixedaddress.
 // TODO : Objects to be present for testing - Option Group
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -40,7 +40,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -68,8 +68,8 @@ case "disappears" {
 }
 
 case "address" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -113,8 +113,8 @@ case "address" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -161,8 +161,8 @@ case "comment" {
 }
 
 case "disable_dhcp" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -209,8 +209,8 @@ case "disable_dhcp" {
 }
 
 case "dhcp_options" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   skip_if_env_empty = ["UDDI_OPTION_GROUP_2_ID"]
   skip_reason       = "UDDI_OPTION_GROUP_2_ID environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -286,8 +286,8 @@ case "dhcp_options" {
 
 
 case "hostname" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -334,8 +334,8 @@ case "hostname" {
 }
 
 case "inheritance_sources" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -392,8 +392,8 @@ case "inheritance_sources" {
 }
 
 case "ip_space" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "one" {
     uddi = {
@@ -444,8 +444,8 @@ case "ip_space" {
 }
 
 case "match_type_and_match_value" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -493,8 +493,8 @@ case "match_type_and_match_value" {
 
 
 case "name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -541,8 +541,8 @@ case "name" {
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {

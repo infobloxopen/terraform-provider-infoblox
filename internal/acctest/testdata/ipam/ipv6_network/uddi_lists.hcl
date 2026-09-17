@@ -1,7 +1,7 @@
 # Ipv6network — uddi list cases
 case "basic" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -27,8 +27,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -50,7 +50,7 @@ case "filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         address = "uddi.address"
         space   = "uddi.space"
@@ -61,8 +61,8 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -76,7 +76,7 @@ case "tag_filters" {
       address = "{{random_ipv6}}"
       cidr    = 128
       space   = infoblox_network_view.test.id
-      tags  = { tag1 = "{{random}}" }
+      tags    = { tag1 = "{{random}}" }
     }
   }
 
@@ -85,7 +85,7 @@ case "tag_filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "tag_filters"
+      type = "tag_filters"
       values = {
         tag1 = "uddi.tags.tag1"
       }

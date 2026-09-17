@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for RecordHttps.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -11,7 +11,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name_in_zone = "uddi.name_in_zone"
       zone         = "uddi.zone"
@@ -23,7 +23,7 @@ case "filters" {
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone         = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
       rdata        = { target_name = "example.com." }
     }
   }

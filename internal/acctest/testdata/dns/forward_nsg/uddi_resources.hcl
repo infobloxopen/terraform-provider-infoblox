@@ -165,9 +165,9 @@ case "name" {
 }
 
 case "hosts" {
-  backend  = "uddi"
-  parallel = true
-  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1","UDDI_DNS_HOST_ID_2"]
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
   skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {
@@ -195,9 +195,9 @@ case "hosts" {
 }
 
 case "internal_forwarders" {
-  backend  = "uddi"
-  parallel = true
-  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1","UDDI_DNS_HOST_ID_2"]
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
   skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {

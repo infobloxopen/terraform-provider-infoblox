@@ -1,8 +1,8 @@
 # Auto-generated list acceptance-test cases for RecordRpzCnameIpaddress.
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
-  parallel       = true
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -27,9 +27,9 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
-  parallel       = true
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -60,9 +60,9 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
-  parallel       = true
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {

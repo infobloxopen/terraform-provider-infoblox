@@ -13,7 +13,7 @@ case "basic" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
     }
   }
 
@@ -75,7 +75,7 @@ case "tag_filters" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
       tags  = { tag1 = "{{random2}}" }
     }
   }
