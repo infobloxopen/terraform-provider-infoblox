@@ -63,6 +63,9 @@ func validateRecordSvcbUDDIConfig(ctx context.Context, m *UDDIRecordSvcbModel, r
 }
 
 func PostFlattenRecordSvcbUDDI(ctx context.Context, planned, flattened *UDDIRecordSvcbModel, diags *diag.Diagnostics) {
+	if planned == nil {
+		return
+	}
 	if !planned.Rdata.IsNull() {
 		if result, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Rdata, flattened.Rdata, "priority"); !d.HasError() {
 			flattened.Rdata = result.(basetypes.ObjectValue)
