@@ -400,6 +400,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkviewResource,
 		ipam.NewSuperhostResource,
 		ipam.NewBulkhostnametemplateResource,
+		ipam.NewVlanviewResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -492,6 +493,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableSubnetDataSource,
 		ipam.NewSuperhostDataSource,
 		ipam.NewBulkhostnametemplateDataSource,
+		ipam.NewVlanviewDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -581,6 +583,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkviewList,
 		ipam.NewSuperhostList,
 		ipam.NewBulkhostnametemplateList,
+		ipam.NewVlanviewList,
 
 		ipamfederation.NewFederatedRealmList,
 
