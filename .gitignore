@@ -14,8 +14,8 @@ internal/service/*/.openapi-generator-ignore
 **/.DS_Store
 .vscode/
 .idea/
-pipeline.env
 
-# Ignore the generated Go Builds
-nios
-uddi
+# Ignore Pipeline Env Setups
+pipeline_uddi.env
+pipeline_nios.env
+pipeline.env
