@@ -197,8 +197,10 @@ func (m *VlanviewModel) Flatten(ctx context.Context, resp *coremodel.Vlanview, d
 	if niosModel == nil {
 		niosModel = &NIOSVlanviewModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSVlanviewModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenVlanviewNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSVlanviewAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSVlanviewAttrTypes)
