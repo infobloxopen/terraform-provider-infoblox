@@ -1012,10 +1012,12 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"rebind_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The lease rebind time (T2) in seconds.",
 	},
 	"renew_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The lease renew time (T1) in seconds.",
 	},
 	"space": schema.StringAttribute{
