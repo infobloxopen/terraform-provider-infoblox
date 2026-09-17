@@ -334,6 +334,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		notification.NewNotificationRestEndpointResource,
 		acl.NewNamedaclResource,
+
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
@@ -384,6 +385,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcLbdnResource,
 		dtc.NewDtcMonitorPdpResource,
 		dtc.NewDtcMonitorSnmpResource,
+		dtc.NewDtcMonitorHttpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
@@ -427,6 +429,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 	return []func() datasource.DataSource{
 		notification.NewNotificationRestEndpointDataSource,
 		acl.NewNamedaclDataSource,
+
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
@@ -476,6 +479,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcLbdnDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
 		dtc.NewDtcMonitorSnmpDataSource,
+		dtc.NewDtcMonitorHttpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
@@ -522,6 +526,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 	return []func() list.ListResource{
 		notification.NewNotificationRestEndpointList,
 		acl.NewNamedaclList,
+
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
@@ -571,6 +576,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcLbdnList,
 		dtc.NewDtcMonitorPdpList,
 		dtc.NewDtcMonitorSnmpList,
+		dtc.NewDtcMonitorHttpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
