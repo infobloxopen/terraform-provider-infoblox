@@ -1,4 +1,4 @@
-// Manage IPAM Vlan Views (Required as Parent)
+// Create VLAN View (Required as Parent)
 resource "infoblox_vlanview" "ipam_vlanview_parent" {
   nios = {
     start_vlan_id = 5
@@ -7,7 +7,7 @@ resource "infoblox_vlanview" "ipam_vlanview_parent" {
   }
 }
 
-// Manage IPAM Vlan with Basic Fields
+// Create VLAN with Basic Fields
 resource "infoblox_vlan" "ipam_vlan_basic" {
   nios = {
     id     = 6
@@ -16,7 +16,7 @@ resource "infoblox_vlan" "ipam_vlan_basic" {
   }
 }
 
-// Manage IPAM Vlan with Additional Fields
+// Create VLAN with Additional Fields
 resource "infoblox_vlan" "ipam_vlan_with_additional_fields" {
   nios = {
     id     = 7
