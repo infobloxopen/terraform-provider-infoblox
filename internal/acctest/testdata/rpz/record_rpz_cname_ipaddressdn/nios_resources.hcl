@@ -221,12 +221,12 @@ case "name" {
 
   step {
     nios {
-      name      = "2001:db8::/32.${infoblox_zone_rp.test.nios.fqdn}"
+      name      = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       canonical = "{{random2}}.${infoblox_zone_rp.test.nios.fqdn}"
       rp_zone   = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name" = "2001:db8::/32.{{random}}.com"
+      "nios.name" = "{{random_ipv6_network}}.{{random}}.com"
     }
   }
 
