@@ -3,14 +3,22 @@ case "basic" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
-      view      = "default"
+      view      = infoblox_zone_auth.test.nios.view
     }
     check = {
-      "nios.name"                 = "{{random}}.example.com"
+      "nios.name"                 = "{{random}}.{{random2}}.com"
       "nios.view"                 = "default"
       "nios.ipv4addrs.0.ipv4addr" = "192.168.1.10"
       "nios.configure_for_dns"    = "true"
@@ -30,11 +38,19 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.11" }]
-      view      = "default"
+      view      = infoblox_zone_auth.test.nios.view
     }
   }
 
@@ -44,29 +60,37 @@ case "aliases" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random4}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
-      aliases   = ["{{random2}}.example.com"]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
+      aliases   = ["{{random2}}.$${infoblox_zone_auth.test.nios.fqdn}"]
       ipv4addrs = [{ ipv4addr = "192.168.1.12" }]
     }
     check = {
       "nios.aliases.#" = "1"
-      "nios.aliases.0" = "{{random2}}.example.com"
+      "nios.aliases.0" = "{{random2}}.{{random4}}.com"
     }
   }
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
-      aliases   = ["{{random3}}.example.com"]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
+      aliases   = ["{{random3}}.$${infoblox_zone_auth.test.nios.fqdn}"]
       ipv4addrs = [{ ipv4addr = "192.168.1.12" }]
     }
     check = {
       "nios.aliases.#" = "1"
-      "nios.aliases.0" = "{{random3}}.example.com"
+      "nios.aliases.0" = "{{random3}}.{{random4}}.com"
     }
   }
 
@@ -76,10 +100,18 @@ case "cli_credentials" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
     }
     check = {
       "nios.cli_credentials.#" = "0"
@@ -88,14 +120,14 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       cli_credentials = [
         {
-          user            = "user1"
-          credential_type = "SSH"
-          comment         = "cli credential comment"
-          password        = "password1"
+          user             = "user1"
+          credential_type  = "SSH"
+          comment          = "cli credential comment"
+          password         = "password1"
           credential_group = "default"
         }
       ]
@@ -110,14 +142,14 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       cli_credentials = [
         {
-          user            = "user1"
-          credential_type = "SSH"
-          comment         = "cli credential comment"
-          password        = "password12"
+          user             = "user1"
+          credential_type  = "SSH"
+          comment          = "cli credential comment"
+          password         = "password12"
           credential_group = "default"
         }
       ]
@@ -132,14 +164,14 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       cli_credentials = [
         {
-          user            = "user2"
-          credential_type = "SSH"
-          comment         = "cli credential comment update"
-          password        = "password12"
+          user             = "user2"
+          credential_type  = "SSH"
+          comment          = "cli credential comment update"
+          password         = "password12"
           credential_group = "default"
         }
       ]
@@ -154,14 +186,14 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       cli_credentials = [
         {
-          user            = "user1"
-          credential_type = "SSH"
-          comment         = "cli credential comment"
-          password        = "password12"
+          user             = "user1"
+          credential_type  = "SSH"
+          comment          = "cli credential comment"
+          password         = "password12"
           credential_group = "default"
         }
       ]
@@ -176,8 +208,8 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
     }
     check = {
       "nios.cli_credentials.#" = "0"
@@ -186,14 +218,14 @@ case "cli_credentials" {
 
   step {
     nios {
-      name                 = "{{random}}.example.com"
-      ipv4addrs            = [{ ipv4addr = "192.168.1.10" }]
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       cli_credentials = [
         {
-          user            = "user2"
-          credential_type = "SSH"
-          comment         = "cli credential comment update"
-          password        = "password12"
+          user             = "user2"
+          credential_type  = "SSH"
+          comment          = "cli credential comment update"
+          password         = "password12"
           credential_group = "default"
         }
       ]
@@ -212,10 +244,18 @@ case "comment" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.15" }]
       comment   = "new host record"
     }
@@ -226,8 +266,8 @@ case "comment" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.15" }]
       comment   = "updated host record"
     }
@@ -243,6 +283,12 @@ case "configure_for_dns" {
   parallel = true
 
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+
   resource "infoblox_network" "test" {
     nios = {
       network      = "17.0.0.0/24"
@@ -253,8 +299,8 @@ case "configure_for_dns" {
 
   step {
     nios {
-      name              = "{{random}}.example.com"
-      view              = "default"
+      name              = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view              = infoblox_zone_auth.test.nios.view
       ipv4addrs         = [{ ipv4addr = "17.0.0.249" }]
       configure_for_dns = true
     }
@@ -265,8 +311,8 @@ case "configure_for_dns" {
 
   step {
     nios {
-      name              = "{{random}}.example.com"
-      view              = "default"
+      name              = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view              = infoblox_zone_auth.test.nios.view
       ipv4addrs         = [{ ipv4addr = "17.0.0.249" }]
       configure_for_dns = false
     }
@@ -281,10 +327,18 @@ case "ddns_protected" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name           = "{{random}}.example.com"
-      view           = "default"
+      name           = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view           = infoblox_zone_auth.test.nios.view
       ipv4addrs      = [{ ipv4addr = "192.168.1.17" }]
       ddns_protected = false
     }
@@ -295,8 +349,8 @@ case "ddns_protected" {
 
   step {
     nios {
-      name           = "{{random}}.example.com"
-      view           = "default"
+      name           = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view           = infoblox_zone_auth.test.nios.view
       ipv4addrs      = [{ ipv4addr = "192.168.1.17" }]
       ddns_protected = true
     }
@@ -311,10 +365,18 @@ case "device_description" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
+      name               = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
       ipv4addrs          = [{ ipv4addr = "192.168.1.18" }]
       device_description = "device description"
     }
@@ -325,8 +387,8 @@ case "device_description" {
 
   step {
     nios {
-      name               = "{{random}}.example.com"
-      view               = "default"
+      name               = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view               = infoblox_zone_auth.test.nios.view
       ipv4addrs          = [{ ipv4addr = "192.168.1.18" }]
       device_description = "updated device description"
     }
@@ -341,10 +403,18 @@ case "device_location" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name            = "{{random}}.example.com"
-      view            = "default"
+      name            = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view            = infoblox_zone_auth.test.nios.view
       ipv4addrs       = [{ ipv4addr = "192.168.1.19" }]
       device_location = "device location"
     }
@@ -355,8 +425,8 @@ case "device_location" {
 
   step {
     nios {
-      name            = "{{random}}.example.com"
-      view            = "default"
+      name            = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view            = infoblox_zone_auth.test.nios.view
       ipv4addrs       = [{ ipv4addr = "192.168.1.19" }]
       device_location = "updated device location"
     }
@@ -371,10 +441,18 @@ case "device_type" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name        = "{{random}}.example.com"
-      view        = "default"
+      name        = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view        = infoblox_zone_auth.test.nios.view
       ipv4addrs   = [{ ipv4addr = "192.168.1.20" }]
       device_type = "device type"
     }
@@ -385,8 +463,8 @@ case "device_type" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
-      view        = "default"
+      name        = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view        = infoblox_zone_auth.test.nios.view
       ipv4addrs   = [{ ipv4addr = "192.168.1.20" }]
       device_type = "updated device type"
     }
@@ -401,10 +479,18 @@ case "device_vendor" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name          = "{{random}}.example.com"
-      view          = "default"
+      name          = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view          = infoblox_zone_auth.test.nios.view
       ipv4addrs     = [{ ipv4addr = "192.168.1.21" }]
       device_vendor = "device vendor"
     }
@@ -415,8 +501,8 @@ case "device_vendor" {
 
   step {
     nios {
-      name          = "{{random}}.example.com"
-      view          = "default"
+      name          = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view          = infoblox_zone_auth.test.nios.view
       ipv4addrs     = [{ ipv4addr = "192.168.1.21" }]
       device_vendor = "updated device vendor"
     }
@@ -431,10 +517,18 @@ case "disable" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.22" }]
       disable   = false
     }
@@ -445,8 +539,8 @@ case "disable" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.22" }]
       disable   = true
     }
@@ -461,10 +555,18 @@ case "disable_discovery" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name              = "{{random}}.example.com"
-      view              = "default"
+      name              = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view              = infoblox_zone_auth.test.nios.view
       ipv4addrs         = [{ ipv4addr = "192.168.1.23" }]
       disable_discovery = true
     }
@@ -475,8 +577,8 @@ case "disable_discovery" {
 
   step {
     nios {
-      name              = "{{random}}.example.com"
-      view              = "default"
+      name              = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view              = infoblox_zone_auth.test.nios.view
       ipv4addrs         = [{ ipv4addr = "192.168.1.23" }]
       disable_discovery = false
     }
@@ -491,10 +593,18 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random4}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.26" }]
       ext_attrs = { Site = "{{random2}}" }
     }
@@ -505,8 +615,8 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.26" }]
       ext_attrs = { Site = "{{random3}}" }
     }
@@ -521,10 +631,18 @@ case "ipv4addrs" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.27" }]
     }
     check = {
@@ -535,8 +653,8 @@ case "ipv4addrs" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.1.28" }]
     }
     check = {
@@ -551,10 +669,18 @@ case "ipv6addrs" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv6addrs = [{ ipv6addr = "fd00:1234:5678::1" }]
     }
     check = {
@@ -565,8 +691,8 @@ case "ipv6addrs" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv6addrs = [{ ipv6addr = "fd00:1234:5678::12" }]
     }
     check = {
@@ -581,25 +707,33 @@ case "name" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random3}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.10" }]
     }
     check = {
-      "nios.name" = "{{random}}.example.com"
+      "nios.name" = "{{random}}.{{random3}}.com"
     }
   }
 
   step {
     nios {
-      name      = "{{random2}}.example.com"
-      view      = "default"
+      name      = "{{random2}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.10" }]
     }
     check = {
-      "nios.name" = "{{random2}}.example.com"
+      "nios.name" = "{{random2}}.{{random3}}.com"
     }
   }
 
@@ -609,10 +743,18 @@ case "network_view" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.11" }]
     }
     check = {
@@ -626,10 +768,18 @@ case "rrset_order" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name        = "{{random}}.example.com"
-      view        = "default"
+      name        = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view        = infoblox_zone_auth.test.nios.view
       ipv4addrs   = [{ ipv4addr = "192.168.2.12" }]
       rrset_order = "cyclic"
     }
@@ -640,8 +790,8 @@ case "rrset_order" {
 
   step {
     nios {
-      name        = "{{random}}.example.com"
-      view        = "default"
+      name        = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view        = infoblox_zone_auth.test.nios.view
       ipv4addrs   = [{ ipv4addr = "192.168.2.12" }]
       rrset_order = "random"
     }
@@ -656,10 +806,18 @@ case "snmp3_credential" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random7}}.com"
+    }
+  }
+  PREREQ
+
   # Case 1 ({{random}}): create -> update both passwords -> revert both passwords.
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -678,7 +836,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -697,7 +855,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -717,7 +875,7 @@ case "snmp3_credential" {
   # Case 2 ({{random2}}): create -> update only authentication_password.
   step {
     nios {
-      name      = "{{random2}}.example.com"
+      name      = "{{random2}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -736,7 +894,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random2}}.example.com"
+      name      = "{{random2}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -756,7 +914,7 @@ case "snmp3_credential" {
   # Case 3 ({{random3}}): create -> update only privacy_password.
   step {
     nios {
-      name      = "{{random3}}.example.com"
+      name      = "{{random3}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -775,7 +933,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random3}}.example.com"
+      name      = "{{random3}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -795,14 +953,14 @@ case "snmp3_credential" {
   # Case 4 ({{random4}}): create without snmp3_credential -> add it.
   step {
     nios {
-      name      = "{{random4}}.example.com"
+      name      = "{{random4}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
     }
   }
 
   step {
     nios {
-      name      = "{{random4}}.example.com"
+      name      = "{{random4}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -822,7 +980,7 @@ case "snmp3_credential" {
   # Case 5 ({{random5}}): create with snmp3_credential -> remove it.
   step {
     nios {
-      name      = "{{random5}}.example.com"
+      name      = "{{random5}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -841,7 +999,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random5}}.example.com"
+      name      = "{{random5}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
     }
   }
@@ -849,7 +1007,7 @@ case "snmp3_credential" {
   # Case 6 ({{random6}}): create -> update non-secret field (user).
   step {
     nios {
-      name      = "{{random6}}.example.com"
+      name      = "{{random6}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user1"
@@ -868,7 +1026,7 @@ case "snmp3_credential" {
 
   step {
     nios {
-      name      = "{{random6}}.example.com"
+      name      = "{{random6}}.$${infoblox_zone_auth.test.nios.fqdn}"
       ipv4addrs = [{ ipv4addr = "192.168.1.10" }]
       snmp3_credential = {
         user                    = "user2"
@@ -891,12 +1049,20 @@ case "snmp_credential" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name                = "{{random}}.example.com"
-      view                = "default"
-      ipv4addrs           = [{ ipv4addr = "192.168.2.30" }]
-      snmp_credential     = { community_string = "COMMUNITY_STRING", comment = "SNMP Credential Comment", credential_group = "default" }
+      name            = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view            = infoblox_zone_auth.test.nios.view
+      ipv4addrs       = [{ ipv4addr = "192.168.2.30" }]
+      snmp_credential = { community_string = "COMMUNITY_STRING", comment = "SNMP Credential Comment", credential_group = "default" }
     }
     check = {
       "nios.snmp_credential.community_string" = "COMMUNITY_STRING"
@@ -907,10 +1073,10 @@ case "snmp_credential" {
 
   step {
     nios {
-      name                = "{{random}}.example.com"
-      view                = "default"
-      ipv4addrs           = [{ ipv4addr = "192.168.2.30" }]
-      snmp_credential     = { community_string = "COMMUNITY_STRING_UPDATED", comment = "SNMP Credential Comment Updated", credential_group = "default" }
+      name            = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view            = infoblox_zone_auth.test.nios.view
+      ipv4addrs       = [{ ipv4addr = "192.168.2.30" }]
+      snmp_credential = { community_string = "COMMUNITY_STRING_UPDATED", comment = "SNMP Credential Comment Updated", credential_group = "default" }
     }
     check = {
       "nios.snmp_credential.community_string" = "COMMUNITY_STRING_UPDATED"
@@ -925,10 +1091,18 @@ case "ttl" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.13" }]
       ttl       = 10
     }
@@ -939,8 +1113,8 @@ case "ttl" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.13" }]
       ttl       = 0
     }
@@ -955,10 +1129,18 @@ case "use_dns_ea_inheritance" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name                   = "{{random}}.example.com"
-      view                   = "default"
+      name                   = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view                   = infoblox_zone_auth.test.nios.view
       ipv4addrs              = [{ ipv4addr = "192.168.2.14" }]
       use_dns_ea_inheritance = true
     }
@@ -969,8 +1151,8 @@ case "use_dns_ea_inheritance" {
 
   step {
     nios {
-      name                   = "{{random}}.example.com"
-      view                   = "default"
+      name                   = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view                   = infoblox_zone_auth.test.nios.view
       ipv4addrs              = [{ ipv4addr = "192.168.2.14" }]
       use_dns_ea_inheritance = false
     }
@@ -985,10 +1167,18 @@ case "view" {
   backend  = "nios"
   parallel = true
 
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_auth" "test" {
+    nios = {
+      fqdn = "{{random2}}.com"
+    }
+  }
+  PREREQ
+
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.16" }]
     }
     check = {
@@ -998,8 +1188,8 @@ case "view" {
 
   step {
     nios {
-      name      = "{{random}}.example.com"
-      view      = "default"
+      name      = "{{random}}.$${infoblox_zone_auth.test.nios.fqdn}"
+      view      = infoblox_zone_auth.test.nios.view
       ipv4addrs = [{ ipv4addr = "192.168.2.16" }]
     }
     check = {
