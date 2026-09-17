@@ -48,7 +48,7 @@ var SNMPHealthCheckEntryCheckResourceSchemaAttributes = map[string]schema.Attrib
 		MarkdownDescription: "Optional. Expected max value of an entry to check against. Used for __in__ operator only, otherwise ignored.",
 	},
 	"name": schema.StringAttribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "Name is a dotted-decimal number that defines the location of the entry in the universal MIB tree.",
 	},
 	"operator": schema.StringAttribute{
