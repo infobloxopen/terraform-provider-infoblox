@@ -342,6 +342,47 @@ case "version" {
     }
   }
 
+  step {
+    uddi {
+      name                = "{{random}}"
+      version             = "v3"
+      user_security_model = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+    }
+    check = {
+      "uddi.version"             = "v3"
+      "uddi.user_security_model" = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+    }
+  }
+
+}
+
+case "user_security_model" {
+  backend     = "uddi"
+  parallel    = true
+
+  step {
+    uddi {
+      name                = "{{random}}"
+      version             = "v3"
+      user_security_model = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+    }
+    check = {
+      "uddi.version"             = "v3"
+      "uddi.user_security_model" = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+    }
+  }
+
+  step {
+    uddi {
+      name                = "{{random}}"
+      version             = "v3"
+      user_security_model = "dtc/snmp_user_security_model/b88af168-7ddd-4c78-ac6e-0972fbfe96b0"
+    }
+    check = {
+      "uddi.user_security_model" = "dtc/snmp_user_security_model/b88af168-7ddd-4c78-ac6e-0972fbfe96b0"
+    }
+  }
+
 }
 
 case "check_list" {
