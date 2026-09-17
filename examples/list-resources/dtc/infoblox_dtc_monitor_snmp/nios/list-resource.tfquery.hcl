@@ -3,7 +3,7 @@ list "infoblox_dtc_monitor_snmp" "list_dtc_monitor_snmp_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "dtc-monitor-snmp"
+      name = "dtc-monitor-snmp-basic"
     }
   }
   limit = 10

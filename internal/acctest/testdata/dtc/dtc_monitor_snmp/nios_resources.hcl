@@ -363,8 +363,8 @@ case "timeout" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_snmp_user not yet implemented
+
+# Prerequisite: SNMP v3 users "snmpuser" and "snmpv3user" must be pre-created on the NIOS appliance.
 case "user" {
   backend     = "nios"
   parallel    = true
@@ -387,8 +387,8 @@ case "user" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_snmp_user not yet implemented
+
+# Prerequisite: SNMP v3 user "snmpuser" must be pre-created on the NIOS appliance (required for the V3 step).
 case "version" {
   backend     = "nios"
   parallel    = true
