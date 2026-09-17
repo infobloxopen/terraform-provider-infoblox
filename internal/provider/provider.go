@@ -378,9 +378,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewZoneForwardResource,
 		dns.NewZoneRpResource,
 		dns.NewZoneStubResource,
-		dns.NewNsgroupForwardingmemberResource,
-		dns.NewNsgroupForwardstubserverResource,
-		dns.NewNsgroupStubmemberResource,
 		dns.NewRecordHostResource,
 		dns.NewIPAssociationResource,
 
@@ -474,9 +471,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneForwardDataSource,
 		dns.NewZoneRpDataSource,
 		dns.NewZoneStubDataSource,
-		dns.NewNsgroupForwardingmemberDataSource,
-		dns.NewNsgroupForwardstubserverDataSource,
-		dns.NewNsgroupStubmemberDataSource,
 		dns.NewRecordHostDataSource,
 
 		dtc.NewDtcLbdnDataSource,
@@ -572,9 +566,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewZoneForwardList,
 		dns.NewZoneRpList,
 		dns.NewZoneStubList,
-		dns.NewNsgroupForwardingmemberList,
-		dns.NewNsgroupForwardstubserverList,
-		dns.NewNsgroupStubmemberList,
 		dns.NewRecordHostList,
 
 		dtc.NewDtcLbdnList,
