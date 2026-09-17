@@ -31,6 +31,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/redirect"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
@@ -332,6 +333,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		redirect.NewCustomRedirectResource,
 		notification.NewNotificationRestEndpointResource,
 		acl.NewNamedaclResource,
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -422,6 +424,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		redirect.NewCustomRedirectDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 		acl.NewNamedaclDataSource,
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -515,6 +518,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		redirect.NewCustomRedirectList,
 		notification.NewNotificationRestEndpointList,
 		acl.NewNamedaclList,
 		dhcp.NewDhcpOptiondefinitionList,
