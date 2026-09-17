@@ -1,4 +1,4 @@
-// Manage IPAM Vlan Views with Basic Fields
+// Create a VLAN View with Basic Fields
 resource "infoblox_vlanview" "ipam_vlanview_basic" {
   nios = {
     start_vlan_id = 5
@@ -7,12 +7,12 @@ resource "infoblox_vlanview" "ipam_vlanview_basic" {
   }
 }
 
-// Manage IPAM Vlan Views with Additional Fields
+// Create a VLAN View with Additional Fields
 resource "infoblox_vlanview" "ipam_vlanview_with_additional_fields" {
   nios = {
     start_vlan_id = 50
     end_vlan_id   = 100
-    name          = "example_vlan_view2"
+    name          = "example_vlan_view_2"
 
     // Additional Fields
     comment                 = "Example VLAN View"
