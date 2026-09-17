@@ -15,3 +15,7 @@ internal/service/*/.openapi-generator-ignore
 .vscode/
 .idea/
 pipeline.env
+
+# Ignore the generated Go Builds
+nios
+uddi
