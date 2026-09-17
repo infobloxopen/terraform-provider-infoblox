@@ -15,6 +15,7 @@ Retrieves a list of Infoblox DtcMonitorHttp from both the NIOS and UDDI backends
 ### NIOS Backend
 
 ```terraform
+// List DTC Monitor HTTPs using filters
 list "infoblox_dtc_monitor_http" "by_filters" {
   provider = infoblox
   config {
@@ -25,6 +26,7 @@ list "infoblox_dtc_monitor_http" "by_filters" {
   limit = 10
 }
 
+// List DTC Monitor HTTPs using extensible attributes
 list "infoblox_dtc_monitor_http" "by_ext_attrs" {
   provider = infoblox
   config {
@@ -34,6 +36,7 @@ list "infoblox_dtc_monitor_http" "by_ext_attrs" {
   }
 }
 
+// List DTC Monitor HTTPs with resource details included
 list "infoblox_dtc_monitor_http" "with_resource" {
   provider         = infoblox
   include_resource = true
@@ -43,6 +46,7 @@ list "infoblox_dtc_monitor_http" "with_resource" {
 ### UDDI Backend
 
 ```terraform
+// List specific DTC Monitor HTTPs using filters
 list "infoblox_dtc_monitor_http" "by_filters" {
   provider = infoblox
   config {
@@ -53,6 +57,7 @@ list "infoblox_dtc_monitor_http" "by_filters" {
   limit = 10
 }
 
+// List specific DTC Monitor HTTPs using Tags
 list "infoblox_dtc_monitor_http" "by_tags" {
   provider = infoblox
   config {
@@ -62,6 +67,7 @@ list "infoblox_dtc_monitor_http" "by_tags" {
   }
 }
 
+// List DTC Monitor HTTPs with resource details included
 list "infoblox_dtc_monitor_http" "with_resource" {
   provider         = infoblox
   include_resource = true
