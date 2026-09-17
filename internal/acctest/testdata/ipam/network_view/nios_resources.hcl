@@ -93,20 +93,20 @@ case "ddns_dns_view" {
 
   step {
     nios {
-      name          = "{{random}}"
+      name = "{{random}}"
     }
     check = {
-      "nios.ddns_dns_view" = "default.{{random}}"
+      "nios.ddns_dns_view" = "default"
     }
   }
 
   step {
     nios {
       name          = "{{random}}"
-      ddns_dns_view = "default.{{random}}"
+      ddns_dns_view = "default"
     }
     check = {
-      "nios.ddns_dns_view" = "default.{{random}}"
+      "nios.ddns_dns_view" = "default"
     }
   }
 
