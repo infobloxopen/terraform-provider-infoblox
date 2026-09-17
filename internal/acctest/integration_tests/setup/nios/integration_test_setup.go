@@ -317,7 +317,7 @@ func UploadInit(host, wapiVer, username, password string) (*UploadInitResponse, 
 	if err != nil {
 		return nil, fmt.Errorf("uploadinit: execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("uploadinit: unexpected status %s", resp.Status)
@@ -348,7 +348,7 @@ func UploadFile(host, wapiVer, username, password, url, filePath string) error {
 	if err != nil {
 		return fmt.Errorf("uploadfile: open file %q: %w", filePath, err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
@@ -383,7 +383,7 @@ func UploadFile(host, wapiVer, username, password, url, filePath string) error {
 	if err != nil {
 		return fmt.Errorf("uploadfile: execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("uploadfile: unexpected status %s", resp.Status)
@@ -426,7 +426,7 @@ func UploadCertificate(host, wapiVer, username, password, certificateUsage, memb
 	if err != nil {
 		return fmt.Errorf("uploadcertificate: execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == 400 {
 		fmt.Printf("uploadcertificate: bad request. This may indicate that that either `disable_strict_ca_cert_check` is not set on NIOS or Certificate is already uploaded. Skipping certificate upload.\n")
@@ -474,7 +474,7 @@ func UploadEcoSystemTemplates(host, wapiVer, username, password, token string) e
 	if err != nil {
 		return fmt.Errorf("uploadecosystemtemplates: execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("uploadecosystemtemplates: unexpected status %s", resp.Status)
@@ -640,7 +640,7 @@ func FetchAndStoreCertificateRef(host, wapiVer, username, password, envVarName, 
 	if err != nil {
 		return fmt.Errorf("fetchcertref: execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("fetchcertref: unexpected status %s", resp.Status)
