@@ -1,4 +1,4 @@
-// List specific Substitute (PTR Record) Rules using filters
+// List specific (PTR Record) Rules using filters
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_filters" {
   provider = infoblox
   config {
@@ -8,7 +8,7 @@ list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_filters" {
   }
 }
 
-// List specific Substitute (PTR Record) Rules using Extensible Attributes
+// List specific (PTR Record) Rules using Extensible Attributes
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_extensible_attributes" {
   provider = infoblox
   config {
@@ -18,7 +18,7 @@ list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_extensible_attributes"
   }
 }
 
-// List Substitute (PTR Record) Rules with resource details included
+// List (PTR Record) Rules with resource details included
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_with_resource" {
   provider         = infoblox
   include_resource = true

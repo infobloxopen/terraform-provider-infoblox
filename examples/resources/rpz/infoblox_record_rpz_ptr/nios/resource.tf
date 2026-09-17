@@ -46,7 +46,7 @@ resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_additional" {
   }
 }
 
-// Create a Substitute (PTR Record) Rule in a Custom View
+// Create a (PTR Record) Rule in a Custom View
 resource "infoblox_view" "parent_view" {
   nios = {
     name = "custom-view"

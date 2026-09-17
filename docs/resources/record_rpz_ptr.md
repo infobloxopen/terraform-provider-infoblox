@@ -40,7 +40,7 @@ resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_ipv6" {
   }
 }
 
-// Create Record RPZ PTR using ARPA Name
+// Create Record RPZ PTR using Name
 resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_name" {
   nios = {
     ptrdname = "record3.rpz.example.com"
@@ -63,7 +63,7 @@ resource "infoblox_record_rpz_ptr" "create_record_rpz_ptr_additional" {
   }
 }
 
-// Create a Substitute (PTR Record) Rule in a Custom View
+// Create a (PTR Record) Rule in a Custom View
 resource "infoblox_view" "parent_view" {
   nios = {
     name = "custom-view"
