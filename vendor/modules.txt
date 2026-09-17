@@ -212,6 +212,7 @@ github.com/hashicorp/terraform-plugin-framework/resource/schema
 github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault
 github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/defaults
+github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default
 github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier
 github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault
@@ -357,7 +358,7 @@ github.com/infobloxopen/infoblox-nios-go-client/security
 github.com/infobloxopen/infoblox-nios-go-client/smartfolder
 github.com/infobloxopen/infoblox-nios-go-client/threatinsight
 github.com/infobloxopen/infoblox-nios-go-client/threatprotection
-# github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260907084443-b8800b7a96e0
+# github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260915112315-4ef286d0c611
 ## explicit; go 1.23
 github.com/infobloxopen/universal-ddi-go-client/anycast
 github.com/infobloxopen/universal-ddi-go-client/client
@@ -509,6 +510,9 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# golang.org/x/time v0.9.0
+## explicit; go 1.18
+golang.org/x/time/rate
 # golang.org/x/tools v0.44.0
 ## explicit; go 1.25.0
 golang.org/x/tools/cmd/stringer

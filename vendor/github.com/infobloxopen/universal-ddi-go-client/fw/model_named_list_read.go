@@ -18,11 +18,11 @@ import (
 // checks if the NamedListRead type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NamedListRead{}
 
-// NamedListRead The Named List object.  The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+// NamedListRead The Named List object.  The Named List object represents Threat Insight, DGA, DNSM, and other predefined threat intelligence feeds supported by Infoblox Cloud and offered by your subscription. For more protection, create custom allow-lists and deny-lists of domains and IP addresses, and use these custom lists to complement existing feeds or override the Block, Allow, Log, or Redirect action currently defined for existing feeds. Note that lists representing predefined TI feeds cannot be created, updated, or deleted.
 type NamedListRead struct {
-	// The confidence level for a custom list. The possible values are [\"LOW\", \"MEDIUM\", \"HIGH\"]
+	// The confidence level for a custom list. The possible values are \"LOW\", \"MEDIUM\", and \"HIGH\".
 	ConfidenceLevel *string `json:"confidence_level,omitempty"`
-	// The time when this Named List object was created.
+	// The time this Named List object was created.
 	CreatedTime *time.Time `json:"created_time,omitempty"`
 	// The brief description for the named list.
 	Description *string `json:"description,omitempty"`
@@ -34,13 +34,13 @@ type NamedListRead struct {
 	Name *string `json:"name,omitempty"`
 	// The list of the security policy names with which the named list is associated.
 	Policies []string `json:"policies,omitempty"`
-	// Tags associated with this Named List
+	// The tags associated with a named list.
 	Tags map[string]interface{} `json:"tags,omitempty"`
-	// The threat level for a custom list. The possible values are [\"INFO\", \"LOW\", \"MEDIUM\", \"HIGH\"]
+	// The threat level for a custom list. The possible values are \"INFO\", \"LOW\", \"MEDIUM\", and \"HIGH\".
 	ThreatLevel *string `json:"threat_level,omitempty"`
-	// The type of the named list, that can be \"custom_list\", \"threat_insight\", \"fast_flux\", \"dga\", \"dnsm\", \"threat_insight_nde\", \"default_allow\", \"default_block\".
+	// The type of the named list: \"custom_list\", \"threat_insight\", \"dga\", \"dnsm\", \"threat_insight_nde\", \"zero_day_dns\", \"default_allow\", or \"default_block\".
 	Type *string `json:"type,omitempty"`
-	// The time when this Named List object was last updated.
+	// The time this Named List object was updated most recently.
 	UpdatedTime          *time.Time `json:"updated_time,omitempty"`
 	AdditionalProperties map[string]interface{}
 }

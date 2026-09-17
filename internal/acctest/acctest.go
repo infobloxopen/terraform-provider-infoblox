@@ -171,6 +171,20 @@ func RandomIP() string {
 	return fmt.Sprintf("10.%d.%d.%d", rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
 }
 
+// RandomPublicIP generates a random IPv4 address outside the private (10/8, 172.16/12,
+// 192.168/16), loopback (127/8), and link-local (169.254/16) ranges, for APIs (e.g. firewall
+// network lists) that reject private CIDRs as external-network addresses.
+func RandomPublicIP() string {
+	var a int
+	for {
+		a = 1 + rand.Intn(223)
+		if a != 10 && a != 127 && a != 169 && a != 172 && a != 192 {
+			break
+		}
+	}
+	return fmt.Sprintf("%d.%d.%d.%d", a, rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
+}
+
 // RandomIPv6 generates a random IPv6 address under 2001:db8::/32.
 func RandomIPv6() string {
 	third := 1 + rand.Intn(65535)
@@ -320,6 +334,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomMACAddress()
 	case strings.HasPrefix(name, "random_hex32"):
 		return Random32Hexadecimal()
+	case strings.HasPrefix(name, "random_public_ip"):
+		return RandomPublicIP()
 	case strings.HasPrefix(name, "random_ip"):
 		return RandomIP()
 	case strings.HasPrefix(name, "future_time"):

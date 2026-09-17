@@ -26,8 +26,7 @@ type NamedListsAPI interface {
 			CreateNamedList Create Named List.
 
 			Use this method to create a Named List object.
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted. Also use of the field 'items' is discouraged and instead use of new field 'item_described' is suggested as it is possible to add the description/comments to each item in the custom list using this field. In any case, note that use of both the fields 'items' and 'items_described' is not supported and when one of these field is used they must have some value i.e, it cannot be empty.
+		Note that lists representing predefined TI feeds cannot be created, updated, or deleted. In addition, the use of field `items` is discouraged and the use of the new field `item_described` is suggested because it allows adding the description or comments to each item in the custom list. In any case, the use of both fields is not supported, and when one of these fields is used, it must have some value: that is, it cannot be empty.
 
 		Required:
 		- name
@@ -46,9 +45,7 @@ type NamedListsAPI interface {
 	/*
 			DeleteNamedLists Delete Named Lists.
 
-			Use this method to delete Named List objects. Deletion of multiple lists is an all-or-nothing operation (if any of the specified lists can not be deleted then none of the specified lists will be deleted).
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+			Use this method to delete Named List objects. Deletion of multiple lists is an all-or-nothing operation; if any one of the specified lists cannot be deleted, then none of the specified lists will be deleted.
 
 		Required:
 		- ids
@@ -62,33 +59,28 @@ type NamedListsAPI interface {
 	// DeleteNamedListsExecute executes the request
 	DeleteNamedListsExecute(r NamedListsAPIDeleteNamedListsRequest) (*http.Response, error)
 	/*
-			DeleteSingleNamedLists Delete Named Lists.
+		DeleteSingleNamedLists Delete Named Lists.
 
-			Use this method to delete Named List object by given Named List object identifier.
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+		Use this method to delete a Named List object by given Named List object identifier.
 
 
-			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@param id The Named List object identifiers.
-			@return NamedListsAPIDeleteSingleNamedListsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id The Named List object identifiers.
+		@return NamedListsAPIDeleteSingleNamedListsRequest
 	*/
 	DeleteSingleNamedLists(ctx context.Context, id int32) NamedListsAPIDeleteSingleNamedListsRequest
 
 	// DeleteSingleNamedListsExecute executes the request
 	DeleteSingleNamedListsExecute(r NamedListsAPIDeleteSingleNamedListsRequest) (*http.Response, error)
 	/*
-			ListNamedLists List Named Lists.
+		ListNamedLists List Named Lists.
 
-			Use this method to retrieve information on all Named List objects for the account. Note that list items are not returned for this operation.
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+		Use this method to retrieve information on all Named List objects for the account. Note that list items are not returned for this operation.
 
 
 
-
-			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return NamedListsAPIListNamedListsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return NamedListsAPIListNamedListsRequest
 	*/
 	ListNamedLists(ctx context.Context) NamedListsAPIListNamedListsRequest
 
@@ -98,7 +90,7 @@ type NamedListsAPI interface {
 	/*
 		ListNamedListsCSV List Named Lists in CSV format.
 
-		Use this method to download the selected list of named lists in CSV (comma-separate values) format.
+		Use this method to download the selected list of named lists in the CSV format.
 
 
 
@@ -114,9 +106,9 @@ type NamedListsAPI interface {
 			MultiListUpdate Patch Multiple Named Lists.
 
 			Multiple Named Lists in a single operation.
-		Use this method to insert items for multiple Named List objects. Note that duplicated items correspondig to named list are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only named lists of Custom List type can be updated by this operation.
-		If one or more of the list ids is invalid, or the list is of invalid type then the entire operation will be failed.
-		The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+		Use this method to insert items for multiple Named List objects. Duplicated items correspondig to a named list are silently skipped, and only new items are appended to the named list. This operation cannot update DNSM, TI, and DGA lists and can update only named lists of theCustom List type.
+		If any one of the list ids is invalid, or if the list is of an invalid type, then the entire operation will be failed.
+		The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 			@return NamedListsAPIMultiListUpdateRequest
@@ -127,16 +119,14 @@ type NamedListsAPI interface {
 	//  @return map[string]interface{}
 	MultiListUpdateExecute(r NamedListsAPIMultiListUpdateRequest) (map[string]interface{}, *http.Response, error)
 	/*
-			ReadNamedList Read Named List.
+		ReadNamedList Read Named List.
 
-			Use this method to retrieve information on the specified Named List object. Note that returned data includes list items.
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+		Use this method to retrieve information on the specified Named List object. Returned data includes list items.
 
 
-			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@param id The Named List identifier.
-			@return NamedListsAPIReadNamedListRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id The identifier for a Named List object.
+		@return NamedListsAPIReadNamedListRequest
 	*/
 	ReadNamedList(ctx context.Context, id int32) NamedListsAPIReadNamedListRequest
 
@@ -146,9 +136,7 @@ type NamedListsAPI interface {
 	/*
 			UpdateNamedList Update Named List.
 
-			Use this method to update the specified Named List object. Note that list type cannot be updated.
-
-		The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted. Also use of the field 'items' is discouraged and instead use of new field 'item_described' is suggested as it is possible to add the description/comments to each item in the custom list using this field. In any case, note that use of both the fields 'items' and 'items_described' is not supported and when one of these field is used they must have some value i.e, it cannot be empty.
+			Use this method to update the specified Named List object. The list type cannot be updated.
 
 		Required:
 		- name
@@ -167,11 +155,11 @@ type NamedListsAPI interface {
 	/*
 			UpdateNamedListPartial Patch TI List.
 
-			Use this method to update the Severity for a specified named list, which must be of TI list type.
+			Use this method to update the Severity for a specified named list, which must be of the TI list type.
 
 		The severity levels (threat_level and confidence_level) can only be patched for a given id of a TI List.
-		This patch request only accepts threat_level and confidence level as the attributes. At least one of these two attributes must be present in the request. If only one of the two attributes is present, only that attribute is set to the specified value for the specified list and other attribute will be at the present value.
-		This operation is currently applicable only for the TI Lists.
+		This patch request only accepts threat_level and confidence level as the attributes. At least one of these two attributes must be present in the request. If only one of the two attributes is present, only that attribute is set to the specified value for the specified list; the other attribute will be at the present value.
+		Currently, this operation is applicable only to TI lists.
 
 		Required:
 		- id
@@ -212,8 +200,7 @@ func (r NamedListsAPICreateNamedListRequest) Execute() (*NamedListCreateResponse
 CreateNamedList Create Named List.
 
 Use this method to create a Named List object.
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted. Also use of the field 'items' is discouraged and instead use of new field 'item_described' is suggested as it is possible to add the description/comments to each item in the custom list using this field. In any case, note that use of both the fields 'items' and 'items_described' is not supported and when one of these field is used they must have some value i.e, it cannot be empty.
+Note that lists representing predefined TI feeds cannot be created, updated, or deleted. In addition, the use of field `items` is discouraged and the use of the new field `item_described` is suggested because it allows adding the description or comments to each item in the custom list. In any case, the use of both fields is not supported, and when one of these fields is used, it must have some value: that is, it cannot be empty.
 
 Required:
 - name
@@ -361,9 +348,7 @@ func (r NamedListsAPIDeleteNamedListsRequest) Execute() (*http.Response, error) 
 /*
 DeleteNamedLists Delete Named Lists.
 
-Use this method to delete Named List objects. Deletion of multiple lists is an all-or-nothing operation (if any of the specified lists can not be deleted then none of the specified lists will be deleted).
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+Use this method to delete Named List objects. Deletion of multiple lists is an all-or-nothing operation; if any one of the specified lists cannot be deleted, then none of the specified lists will be deleted.
 
 Required:
 - ids
@@ -486,9 +471,7 @@ func (r NamedListsAPIDeleteSingleNamedListsRequest) Execute() (*http.Response, e
 /*
 DeleteSingleNamedLists Delete Named Lists.
 
-Use this method to delete Named List object by given Named List object identifier.
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+Use this method to delete a Named List object by given Named List object identifier.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The Named List object identifiers.
@@ -605,7 +588,7 @@ type NamedListsAPIListNamedListsRequest struct {
 	torderBy   *string
 }
 
-// A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;.  You can filter by following fields:  | Name               | type   | Supported Ops    | | ------------------ | ------ | ---------------- | | type               | string | &#x3D;&#x3D;, !&#x3D;           | | items              | string | ~, !~            | | items_described    | string | &#x3D;&#x3D;               |  Grouping operators (and, or, not, ()) are not supported between different fields.
+// A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;.  You can filter by following fields:  | Name               | type   | Supported Ops    | | ------------------ | ------ | ---------------- | | type               | string | &#x3D;&#x3D;, !&#x3D;           |  Grouping operators (and, or, not, ()) are not supported between different fields. &#x60;&#x60;&#x60;
 func (r NamedListsAPIListNamedListsRequest) Filter(filter string) NamedListsAPIListNamedListsRequest {
 	r.filter = &filter
 	return r
@@ -655,8 +638,6 @@ func (r NamedListsAPIListNamedListsRequest) Execute() (*NamedListReadMultiRespon
 ListNamedLists List Named Lists.
 
 Use this method to retrieve information on all Named List objects for the account. Note that list items are not returned for this operation.
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return NamedListsAPIListNamedListsRequest
@@ -807,7 +788,7 @@ func (r NamedListsAPIListNamedListsCSVRequest) Execute() (*NamedListCSVListRespo
 /*
 ListNamedListsCSV List Named Lists in CSV format.
 
-Use this method to download the selected list of named lists in CSV (comma-separate values) format.
+Use this method to download the selected list of named lists in the CSV format.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return NamedListsAPIListNamedListsCSVRequest
@@ -928,9 +909,9 @@ func (r NamedListsAPIMultiListUpdateRequest) Execute() (map[string]interface{}, 
 MultiListUpdate Patch Multiple Named Lists.
 
 Multiple Named Lists in a single operation.
-Use this method to insert items for multiple Named List objects. Note that duplicated items correspondig to named list are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only named lists of Custom List type can be updated by this operation.
-If one or more of the list ids is invalid, or the list is of invalid type then the entire operation will be failed.
-The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+Use this method to insert items for multiple Named List objects. Duplicated items correspondig to a named list are silently skipped, and only new items are appended to the named list. This operation cannot update DNSM, TI, and DGA lists and can update only named lists of theCustom List type.
+If any one of the list ids is invalid, or if the list is of an invalid type, then the entire operation will be failed.
+The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return NamedListsAPIMultiListUpdateRequest
@@ -1081,13 +1062,13 @@ func (r NamedListsAPIReadNamedListRequest) PageToken(pageToken string) NamedList
 	return r
 }
 
-// The name of the named list. Can be used in pair with &#39;type&#39; (both fields are mandatory) to request the object by their name. This aproach available only if the field &#39;id&#39; is empty (&#x3D;&#x3D;0).
+// The name of the named list. Can be used in a pair with &#x60;type&#x60; (both fields are mandatory) to request the object by its name. This aproach is available only if the field &#x60;id&#x60; is empty (&#x3D;&#x3D;0).
 func (r NamedListsAPIReadNamedListRequest) Name(name string) NamedListsAPIReadNamedListRequest {
 	r.name = &name
 	return r
 }
 
-// The type of the named list. See &#39;NamedList&#39; for more details.
+// The type of the named list. See &#x60;NamedList&#x60; for more details.
 func (r NamedListsAPIReadNamedListRequest) Type_(type_ string) NamedListsAPIReadNamedListRequest {
 	r.type_ = &type_
 	return r
@@ -1100,12 +1081,10 @@ func (r NamedListsAPIReadNamedListRequest) Execute() (*NamedListReadResponse, *h
 /*
 ReadNamedList Read Named List.
 
-Use this method to retrieve information on the specified Named List object. Note that returned data includes list items.
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted.
+Use this method to retrieve information on the specified Named List object. Returned data includes list items.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id The Named List identifier.
+	@param id The identifier for a Named List object.
 	@return NamedListsAPIReadNamedListRequest
 */
 func (a *NamedListsAPIService) ReadNamedList(ctx context.Context, id int32) NamedListsAPIReadNamedListRequest {
@@ -1243,9 +1222,7 @@ func (r NamedListsAPIUpdateNamedListRequest) Execute() (*NamedListUpdateResponse
 /*
 UpdateNamedList Update Named List.
 
-Use this method to update the specified Named List object. Note that list type cannot be updated.
-
-The Named List object represents several types of lists allowed for Infoblox Cloud such as predefined threat intelligence feeds that your subscription offers (Threat Insight, Fast Flux, DGA, DNSM). In addition to the predefined threat intelligence feeds that your subscription offers, you can create custom lists (containing domains and IP addresses) to define whitelists and blacklists for additional protection. You can use a custom list to complement existing feeds or override the Block, Allow, Log, or Redirect action that is currently defined for an existing feed. Note that lists representing predefined TI feeds cannot be created, updated and deleted. Also use of the field 'items' is discouraged and instead use of new field 'item_described' is suggested as it is possible to add the description/comments to each item in the custom list using this field. In any case, note that use of both the fields 'items' and 'items_described' is not supported and when one of these field is used they must have some value i.e, it cannot be empty.
+Use this method to update the specified Named List object. The list type cannot be updated.
 
 Required:
 - name
@@ -1407,11 +1384,11 @@ func (r NamedListsAPIUpdateNamedListPartialRequest) Execute() (*NamedListUpdateR
 /*
 UpdateNamedListPartial Patch TI List.
 
-Use this method to update the Severity for a specified named list, which must be of TI list type.
+Use this method to update the Severity for a specified named list, which must be of the TI list type.
 
 The severity levels (threat_level and confidence_level) can only be patched for a given id of a TI List.
-This patch request only accepts threat_level and confidence level as the attributes. At least one of these two attributes must be present in the request. If only one of the two attributes is present, only that attribute is set to the specified value for the specified list and other attribute will be at the present value.
-This operation is currently applicable only for the TI Lists.
+This patch request only accepts threat_level and confidence level as the attributes. At least one of these two attributes must be present in the request. If only one of the two attributes is present, only that attribute is set to the specified value for the specified list; the other attribute will be at the present value.
+Currently, this operation is applicable only to TI lists.
 
 Required:
 - id
