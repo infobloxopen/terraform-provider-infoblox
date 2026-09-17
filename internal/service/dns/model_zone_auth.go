@@ -96,7 +96,6 @@ type NIOSZoneAuthModel struct {
 	NsGroup                          types.String                        `tfsdk:"ns_group"`
 	Prefix                           internaltypes.CaseInsensitiveString `tfsdk:"prefix"`
 	RecordNamePolicy                 types.String                        `tfsdk:"record_name_policy"`
-	RemoveSubzones                   types.Bool                          `tfsdk:"remove_subzones"`
 	RestartIfNeeded                  types.Bool                          `tfsdk:"restart_if_needed"`
 	ScavengingSettings               types.Object                        `tfsdk:"scavenging_settings"`
 	SetSoaSerialNumber               types.Bool                          `tfsdk:"set_soa_serial_number"`
@@ -168,7 +167,6 @@ var NIOSZoneAuthAttrTypes = map[string]attr.Type{
 	"ns_group":                             types.StringType,
 	"prefix":                               internaltypes.CaseInsensitiveStringType{},
 	"record_name_policy":                   types.StringType,
-	"remove_subzones":                      types.BoolType,
 	"restart_if_needed":                    types.BoolType,
 	"scavenging_settings":                  types.ObjectType{AttrTypes: ZoneAuthScavengingSettingsAttrTypes},
 	"set_soa_serial_number":                types.BoolType,
@@ -670,10 +668,6 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The hostname policy for records under this zone.",
 	},
-	"remove_subzones": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "Remove subzones delete option. Determines whether all child objects should be removed alongside with the parent zone or child objects should be assigned to another parental zone. By default child objects are deleted with the parent zone.",
-	},
 	"restart_if_needed": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
@@ -1041,7 +1035,6 @@ func (m *NIOSZoneAuthModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		NsGroup:                          flex.ExpandStringPointer(m.NsGroup),
 		Prefix:                           flex.ExpandStringPointer(m.Prefix.StringValue),
 		RecordNamePolicy:                 flex.ExpandStringPointer(m.RecordNamePolicy),
-		RemoveSubzones:                   flex.ExpandBoolPointer(m.RemoveSubzones),
 		RestartIfNeeded:                  flex.ExpandBoolPointer(m.RestartIfNeeded),
 		ScavengingSettings:               ExpandZoneAuthScavengingSettings(ctx, m.ScavengingSettings, diags),
 		SetSoaSerialNumber:               flex.ExpandBoolPointer(m.SetSoaSerialNumber),
@@ -1215,7 +1208,6 @@ func (m *NIOSZoneAuthModel) Flatten(ctx context.Context, from *coremodel.NIOSZon
 	m.NsGroup = flex.FlattenStringPointerEmptyAsNull(from.NsGroup)
 	m.Prefix.StringValue = flex.FlattenStringPointer(from.Prefix)
 	m.RecordNamePolicy = flex.FlattenStringPointerEmptyAsNull(from.RecordNamePolicy)
-	m.RemoveSubzones = flex.FlattenBoolPointer(from.RemoveSubzones)
 	m.ScavengingSettings = FlattenZoneAuthScavengingSettings(ctx, from.ScavengingSettings, diags)
 	m.SoaDefaultTtl = flex.FlattenInt64Pointer(from.SoaDefaultTtl)
 	m.SoaEmail = flex.FlattenStringPointerEmptyAsNull(from.SoaEmail)

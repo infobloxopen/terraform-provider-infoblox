@@ -65,7 +65,7 @@ Read-Only:
 - `domain_name` (String) Domain name of the IPv6 fixed address template object.
 - `domain_name_servers` (List of String) The IPv6 addresses of DNS recursive name servers to which the DHCP client can send name resolution requests. The DHCP server includes this information in the DNS Recursive Name Server option in Advertise, Rebind, Information-Request, and Reply messages.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
 - `logic_filter_rules` (Attributes List) This field contains the logic filters to be applied to this IPv6 fixed address. This list corresponds to the match rules that are written to the DHCPv6 configuration file. (see [below for nested schema](#nestedatt--results--nios--logic_filter_rules))
 - `name` (String) Name of an IPv6 fixed address template object.
 - `number_of_addresses` (Number) The number of IPv6 addresses for this fixed address.
