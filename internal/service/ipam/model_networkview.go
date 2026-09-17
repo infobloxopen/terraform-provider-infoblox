@@ -335,6 +335,7 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{

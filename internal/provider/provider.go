@@ -30,6 +30,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
@@ -331,6 +332,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		notification.NewNotificationRestEndpointResource,
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -359,16 +361,17 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordCaaResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordDnameResource,
+		dns.NewRecordHttpsResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordNsResource,
 		dns.NewRecordPtrResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordSvcbResource,
-		dns.NewRecordHttpsResource,
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
+		dns.NewSharedrecordTxtResource,
 		dns.NewSharedrecordgroupResource,
 		dns.NewViewResource,
 		dns.NewZoneAuthResource,
@@ -379,6 +382,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		dtc.NewDtcLbdnResource,
 		dtc.NewDtcMonitorPdpResource,
+		dtc.NewDtcMonitorSnmpResource,
 		dtc.NewDtcMonitorHttpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
@@ -410,9 +414,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
-		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzCnameIpaddressResource,
+		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzTxtResource,
 	}
@@ -420,6 +424,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		notification.NewNotificationRestEndpointDataSource,
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -448,16 +453,17 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordCaaDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordDnameDataSource,
+		dns.NewRecordHttpsDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordNsDataSource,
 		dns.NewRecordPtrDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordSvcbDataSource,
-		dns.NewRecordHttpsDataSource,
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
+		dns.NewSharedrecordTxtDataSource,
 		dns.NewSharedrecordgroupDataSource,
 		dns.NewViewDataSource,
 		dns.NewZoneAuthDataSource,
@@ -468,6 +474,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		dtc.NewDtcLbdnDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
+		dtc.NewDtcMonitorSnmpDataSource,
 		dtc.NewDtcMonitorHttpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
@@ -502,8 +509,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
-		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
+		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameIpaddressDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
@@ -512,6 +519,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		notification.NewNotificationRestEndpointList,
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
@@ -540,16 +548,17 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordCaaList,
 		dns.NewRecordCnameList,
 		dns.NewRecordDnameList,
+		dns.NewRecordHttpsList,
 		dns.NewRecordMxList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordNsList,
 		dns.NewRecordPtrList,
 		dns.NewRecordSrvList,
 		dns.NewRecordSvcbList,
-		dns.NewRecordHttpsList,
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
+		dns.NewSharedrecordTxtList,
 		dns.NewSharedrecordgroupList,
 		dns.NewViewList,
 		dns.NewZoneAuthList,
@@ -560,6 +569,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		dtc.NewDtcLbdnList,
 		dtc.NewDtcMonitorPdpList,
+		dtc.NewDtcMonitorSnmpList,
 		dtc.NewDtcMonitorHttpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
@@ -591,9 +601,9 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
 		rpz.NewRecordRpzAaaaIpaddressList,
-		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzCnameIpaddressList,
+		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzTxtList,
 	}
