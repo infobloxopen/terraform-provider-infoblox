@@ -1,6 +1,3 @@
-# TODO: The following prerequisites MUST exist on the CSP tenant before running these tests:
-#   - named list : "tf-provider-test-access-code"  (type: custom_list)
-
 case "filters" {
   backend  = "uddi"
   parallel = true
@@ -8,18 +5,38 @@ case "filters" {
   filter {
     type   = "filters"
     values = {
-      name = "uddi.name"
+      display_name = "uddi.display_name"
     }
   }
 
-  pair_checks = ["uddi.access_key", "uddi.activation", "uddi.description", "uddi.expiration", "uddi.name"]
+  pair_checks = ["uddi.description", "uddi.display_name", "uddi.ip_space", "uddi.location_id", "uddi.maintenance_mode", "uddi.pool_id", "uddi.serial_number"]
 
   step {
     uddi {
-      name       = "{{random}}"
-      activation = "2030-01-01T00:00:00Z"
-      expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ type = "custom_list", data = "tf-provider-test-access-code" }]
+      display_name = "{{random}}"
+    }
+  }
+}
+
+case "tag_filters" {
+  backend  = "uddi"
+  parallel = true
+
+  filter {
+    type   = "tag_filters"
+    values = {
+      tag1 = "uddi.tags.tag1"
+    }
+  }
+
+  pair_checks = ["uddi.description", "uddi.display_name", "uddi.ip_space", "uddi.location_id", "uddi.maintenance_mode", "uddi.pool_id", "uddi.serial_number"]
+
+  step {
+    uddi {
+      display_name = "{{random}}"
+      tags = {
+        tag1 = "{{random2}}"
+      }
     }
   }
 }
