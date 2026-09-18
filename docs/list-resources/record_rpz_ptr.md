@@ -15,7 +15,7 @@ Retrieves a list of Infoblox RecordRpzPtr from the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// List specific (PTR Record) Rules using filters
+// List specific Record RPZ PTR Rules using filters
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_filters" {
   provider = infoblox
   config {
@@ -25,7 +25,7 @@ list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_filters" {
   }
 }
 
-// List specific (PTR Record) Rules using Extensible Attributes
+// List specific Record RPZ PTR Rules using Extensible Attributes
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_extensible_attributes" {
   provider = infoblox
   config {
@@ -35,7 +35,7 @@ list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_using_extensible_attributes"
   }
 }
 
-// List (PTR Record) Rules with resource details included
+// List Record RPZ PTR Rules with resource details included
 list "infoblox_record_rpz_ptr" "list_record_rpz_ptr_with_resource" {
   provider         = infoblox
   include_resource = true
