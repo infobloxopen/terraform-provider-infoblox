@@ -62,7 +62,7 @@ list "infoblox_dtc_monitor_icmp" "list_dtc_monitor_icmp_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
-      Site = "location-1"
+      Site = "us-east-1"
     }
   }
 }
