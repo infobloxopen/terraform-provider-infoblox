@@ -11,7 +11,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
-// ValidateNetworkview validates the Networkview configuration.
 func ValidateNetworkview(ctx context.Context, data NetworkviewModel, resp *resource.ValidateConfigResponse) {
 	if nios := flex.ExpandNestedObject[NIOSNetworkviewModel](ctx, data.NIOS, &resp.Diagnostics); nios != nil {
 		validateNetworkviewNIOSConfig(ctx, nios, resp)
@@ -27,6 +26,10 @@ func validateNetworkviewNIOSConfig(ctx context.Context, m *NIOSNetworkviewModel,
 func validateNetworkviewUDDIConfig(ctx context.Context, m *UDDINetworkviewModel, resp *resource.ValidateConfigResponse) {
 }
 
+// PostExpandNetworkviewNIOS re-qualifies ddns_dns_view before sending to WAPI.
+// NIOS requires the form "{view}.{networkview_name}" on write. When state holds the
+// stripped short form (e.g. "default") after a null-config flatten or import Read,
+// this adds the ".{name}" suffix so WAPI accepts the update.
 func PostExpandNetworkviewNIOS(ctx context.Context, ext *coremodel.NIOSNetworkviewExt, diags *diag.Diagnostics) *coremodel.NIOSNetworkviewExt {
 	if ext == nil || ext.DdnsDnsView == nil || ext.Name == nil {
 		return ext
@@ -50,12 +53,7 @@ func PostFlattenNetworkviewNIOS(ctx context.Context, planned, flattened *NIOSNet
 		return
 	}
 	stripped := strings.TrimSuffix(val, suffix)
-	if planned == nil {
-		flattened.DdnsDnsView = types.StringValue(stripped)
-		return
-	}
-	plannedView := planned.DdnsDnsView
-	if plannedView.IsNull() || plannedView.IsUnknown() || plannedView.ValueString() == stripped {
+	if planned == nil || planned.DdnsDnsView.IsNull() || planned.DdnsDnsView.IsUnknown() || planned.DdnsDnsView.ValueString() == stripped {
 		flattened.DdnsDnsView = types.StringValue(stripped)
 	}
 }
