@@ -106,11 +106,11 @@ case "rdata_svc_params" {
       rdata = {
         target_name = "{{random}}.com"
         priority    = 5
-        svc_params  = [
-          { key = "port",     value = "80" },
+        svc_params = [
+          { key = "port", value = "80" },
           { key = "ipv4hint", value = "1.1.1.1" },
           { key = "ipv6hint", value = "2001:db8::2" },
-          { key = "ech",      value = "bWVvdw==" },
+          { key = "ech", value = "bWVvdw==" },
         ]
       }
       zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
@@ -134,11 +134,11 @@ case "rdata_svc_params" {
       rdata = {
         target_name = "{{random}}.com"
         priority    = 5
-        svc_params  = [
-          { key = "port",      value = "80" },
-          { key = "ipv4hint",  value = "1.1.1.1" },
-          { key = "ipv6hint",  value = "2001:db8::2" },
-          { key = "ech",       value = "bWVvdw==" },
+        svc_params = [
+          { key = "port", value = "80" },
+          { key = "ipv4hint", value = "1.1.1.1" },
+          { key = "ipv6hint", value = "2001:db8::2" },
+          { key = "ech", value = "bWVvdw==" },
           { key = "mandatory", value = "ech,ipv6hint" },
         ]
       }
@@ -165,7 +165,7 @@ case "rdata_svc_params" {
       rdata = {
         target_name = "{{random}}.com"
         priority    = 5
-        svc_params  = [
+        svc_params = [
           { key = "alpn", value = "h3,h2,h9,h15" },
         ]
       }
@@ -184,11 +184,11 @@ case "rdata_svc_params" {
       rdata = {
         target_name = "{{random}}.com"
         priority    = 5
-        svc_params  = [
+        svc_params = [
           { key = "ohttp" },
-          { key = "key13",     value = "69206c6f766520796f75" },
-          { key = "key15",     value = "69206c6f766520796f7" },
-          { key = "dohpath",   value = "/dns-query{?dns}" },
+          { key = "key13", value = "69206c6f766520796f75" },
+          { key = "key15", value = "69206c6f766520796f7" },
+          { key = "dohpath", value = "/dns-query{?dns}" },
           { key = "mandatory", value = "dohpath,key13" },
         ]
       }

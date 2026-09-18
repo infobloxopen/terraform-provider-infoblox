@@ -1,7 +1,7 @@
 # Ipv6fixedaddress — uddi list cases
 case "basic" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -35,8 +35,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {

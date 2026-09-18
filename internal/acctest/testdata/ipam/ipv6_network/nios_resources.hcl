@@ -69,7 +69,7 @@ case "cloud_info" {
       network = "{{random_ipv6_network}}"
     }
     check = {
-      "nios.network"                     = "{{random_ipv6_network}}"
+      "nios.network" = "{{random_ipv6_network}}"
     }
   }
 
@@ -588,7 +588,7 @@ case "func_call" {
   backend               = "nios"
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_ipv6network" "parent" {
     nios = {
       network = "{{random_ipv6_network}}"
@@ -830,10 +830,10 @@ case "restart_if_needed" {
 }
 
 case "rir_registration_action" {
-  backend  = "nios"
-  parallel = true
-  skip = true
-  skip_reason = "Skipping this test case as ipv6networkcontainer resource is under development as of now"
+  backend           = "nios"
+  parallel          = true
+  skip              = true
+  skip_reason       = "Skipping this test case as ipv6networkcontainer resource is under development as of now"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6networkcontainer" "test_rir_parent" {
     nios = {
@@ -1032,8 +1032,10 @@ case "valid_lifetime" {
 }
 
 case "discovery_member" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1057,8 +1059,10 @@ case "discovery_member" {
 }
 
 case "enable_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1085,8 +1089,10 @@ case "enable_discovery" {
 }
 
 case "enable_immediate_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1290,7 +1296,7 @@ case "vlans" {
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
+      vlans   = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
     }
     check = {
       "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"

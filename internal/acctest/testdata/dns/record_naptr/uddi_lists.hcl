@@ -1,8 +1,8 @@
 # RecordNaptr — uddi list cases
 case "basic" {
-  backend  = "uddi"
-  parallel = true
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  parallel          = true
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -29,9 +29,9 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "uddi"
-  parallel = true
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  parallel          = true
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -65,9 +65,9 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend  = "uddi"
-  parallel = true
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  parallel          = true
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
