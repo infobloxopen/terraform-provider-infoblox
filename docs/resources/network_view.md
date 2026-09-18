@@ -184,8 +184,11 @@ Read-Only:
 
 Optional:
 
-- `authority_type` (String) Type of authority over the object.
 - `delegated_member` (Attributes) The Cloud Platform Appliance to which authority of the object is delegated. (see [below for nested schema](#nestedatt--nios--cloud_info--delegated_member))
+
+Read-Only:
+
+- `authority_type` (String) Type of authority over the object.
 - `delegated_root` (String) Indicates the root of the delegation if delegated_scope is SUBTREE or RECLAIMING. This is not set otherwise.
 - `delegated_scope` (String) Indicates the scope of delegation for the object. This can be one of the following: NONE (outside any delegation), ROOT (the delegation point), SUBTREE (within the scope of a delegation), RECLAIMING (within the scope of a delegation being reclaimed, either as the delegation point or in the subtree).
 - `mgmt_platform` (String) Indicates the specified cloud management platform.
