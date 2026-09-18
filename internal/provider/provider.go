@@ -333,6 +333,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		notification.NewNotificationRestEndpointResource,
+
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
@@ -346,6 +347,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6rangetemplateResource,
 		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
+		dhcp.NewIpv6sharednetworkResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -429,6 +431,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		notification.NewNotificationRestEndpointDataSource,
+
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
@@ -442,6 +445,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6rangetemplateDataSource,
 		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
+		dhcp.NewIpv6sharednetworkDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -527,6 +531,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		notification.NewNotificationRestEndpointList,
+
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
@@ -540,6 +545,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6rangetemplateList,
 		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
+		dhcp.NewIpv6sharednetworkList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
