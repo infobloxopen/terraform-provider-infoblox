@@ -26,10 +26,6 @@ func validateNetworkviewNIOSConfig(ctx context.Context, m *NIOSNetworkviewModel,
 func validateNetworkviewUDDIConfig(ctx context.Context, m *UDDINetworkviewModel, resp *resource.ValidateConfigResponse) {
 }
 
-// PostExpandNetworkviewNIOS re-qualifies ddns_dns_view before sending to WAPI.
-// NIOS requires the form "{view}.{networkview_name}" on write. When state holds the
-// stripped short form (e.g. "default") after a null-config flatten or import Read,
-// this adds the ".{name}" suffix so WAPI accepts the update.
 func PostExpandNetworkviewNIOS(ctx context.Context, ext *coremodel.NIOSNetworkviewExt, diags *diag.Diagnostics) *coremodel.NIOSNetworkviewExt {
 	if ext == nil || ext.DdnsDnsView == nil || ext.Name == nil {
 		return ext
