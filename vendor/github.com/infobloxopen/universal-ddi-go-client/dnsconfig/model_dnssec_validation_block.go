@@ -25,6 +25,8 @@ type DNSSECValidationBlock struct {
 	DnssecEnabled *bool `json:"dnssec_enabled,omitempty"`
 	// Optional. Field config for _dnssec_trust_anchors_ field.
 	DnssecTrustAnchors []TrustAnchor `json:"dnssec_trust_anchors,omitempty"`
+	// Optional. Field configuration for _dnssec_validate_exceptions_ field.
+	DnssecValidateExceptions []DNSSECValidateException `json:"dnssec_validate_exceptions,omitempty"`
 	// Optional. Field config for _dnssec_validate_expiry_ field.
 	DnssecValidateExpiry *bool `json:"dnssec_validate_expiry,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -145,6 +147,38 @@ func (o *DNSSECValidationBlock) SetDnssecTrustAnchors(v []TrustAnchor) {
 	o.DnssecTrustAnchors = v
 }
 
+// GetDnssecValidateExceptions returns the DnssecValidateExceptions field value if set, zero value otherwise.
+func (o *DNSSECValidationBlock) GetDnssecValidateExceptions() []DNSSECValidateException {
+	if o == nil || IsNil(o.DnssecValidateExceptions) {
+		var ret []DNSSECValidateException
+		return ret
+	}
+	return o.DnssecValidateExceptions
+}
+
+// GetDnssecValidateExceptionsOk returns a tuple with the DnssecValidateExceptions field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *DNSSECValidationBlock) GetDnssecValidateExceptionsOk() ([]DNSSECValidateException, bool) {
+	if o == nil || IsNil(o.DnssecValidateExceptions) {
+		return nil, false
+	}
+	return o.DnssecValidateExceptions, true
+}
+
+// HasDnssecValidateExceptions returns a boolean if a field has been set.
+func (o *DNSSECValidationBlock) HasDnssecValidateExceptions() bool {
+	if o != nil && !IsNil(o.DnssecValidateExceptions) {
+		return true
+	}
+
+	return false
+}
+
+// SetDnssecValidateExceptions gets a reference to the given []DNSSECValidateException and assigns it to the DnssecValidateExceptions field.
+func (o *DNSSECValidationBlock) SetDnssecValidateExceptions(v []DNSSECValidateException) {
+	o.DnssecValidateExceptions = v
+}
+
 // GetDnssecValidateExpiry returns the DnssecValidateExpiry field value if set, zero value otherwise.
 func (o *DNSSECValidationBlock) GetDnssecValidateExpiry() bool {
 	if o == nil || IsNil(o.DnssecValidateExpiry) {
@@ -196,6 +230,9 @@ func (o DNSSECValidationBlock) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.DnssecTrustAnchors) {
 		toSerialize["dnssec_trust_anchors"] = o.DnssecTrustAnchors
 	}
+	if !IsNil(o.DnssecValidateExceptions) {
+		toSerialize["dnssec_validate_exceptions"] = o.DnssecValidateExceptions
+	}
 	if !IsNil(o.DnssecValidateExpiry) {
 		toSerialize["dnssec_validate_expiry"] = o.DnssecValidateExpiry
 	}
@@ -224,6 +261,7 @@ func (o *DNSSECValidationBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "dnssec_enable_validation")
 		delete(additionalProperties, "dnssec_enabled")
 		delete(additionalProperties, "dnssec_trust_anchors")
+		delete(additionalProperties, "dnssec_validate_exceptions")
 		delete(additionalProperties, "dnssec_validate_expiry")
 		o.AdditionalProperties = additionalProperties
 	}

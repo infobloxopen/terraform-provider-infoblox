@@ -22,7 +22,7 @@ var _ MappedNullable = &Delegation{}
 // Delegation A __Delegation__ object (_federation/delegation_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. A Delegation is explicitly associated with Federated Realms, and implicitly with Federated Block Parents. A Delegation in a given realm is said to be the child of the closest enclosing parent.
 type Delegation struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
-	Address string `json:"address"`
+	Address *string `json:"address,omitempty"`
 	// The CIDR of the delegation. This is required, if _address_ does not specify it in its input.
 	Cidr *int64 `json:"cidr,omitempty"`
 	// The description for the delegation. May contain 0 to 1024 characters. Can include UTF-8.
@@ -62,9 +62,8 @@ type _Delegation Delegation
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewDelegation(address string, delegatedTo string) *Delegation {
+func NewDelegation(delegatedTo string) *Delegation {
 	this := Delegation{}
-	this.Address = address
 	this.DelegatedTo = delegatedTo
 	return &this
 }
@@ -77,28 +76,36 @@ func NewDelegationWithDefaults() *Delegation {
 	return &this
 }
 
-// GetAddress returns the Address field value
+// GetAddress returns the Address field value if set, zero value otherwise.
 func (o *Delegation) GetAddress() string {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		var ret string
 		return ret
 	}
-
-	return o.Address
+	return *o.Address
 }
 
-// GetAddressOk returns a tuple with the Address field value
+// GetAddressOk returns a tuple with the Address field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Delegation) GetAddressOk() (*string, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		return nil, false
 	}
-	return &o.Address, true
+	return o.Address, true
 }
 
-// SetAddress sets field value
+// HasAddress returns a boolean if a field has been set.
+func (o *Delegation) HasAddress() bool {
+	if o != nil && !IsNil(o.Address) {
+		return true
+	}
+
+	return false
+}
+
+// SetAddress gets a reference to the given string and assigns it to the Address field.
 func (o *Delegation) SetAddress(v string) {
-	o.Address = v
+	o.Address = &v
 }
 
 // GetCidr returns the Cidr field value if set, zero value otherwise.
@@ -583,7 +590,9 @@ func (o Delegation) MarshalJSON() ([]byte, error) {
 
 func (o Delegation) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["address"] = o.Address
+	if !IsNil(o.Address) {
+		toSerialize["address"] = o.Address
+	}
 	if !IsNil(o.Cidr) {
 		toSerialize["cidr"] = o.Cidr
 	}
@@ -640,7 +649,6 @@ func (o *Delegation) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"address",
 		"delegated_to",
 	}
 
