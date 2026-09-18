@@ -91,6 +91,7 @@ var SecurityPolicyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"access_codes": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

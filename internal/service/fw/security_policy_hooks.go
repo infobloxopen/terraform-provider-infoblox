@@ -20,9 +20,12 @@ func ValidateSecurityPolicy(ctx context.Context, data SecurityPolicyModel, resp 
 func validateSecurityPolicyUDDIConfig(ctx context.Context, m *UDDISecurityPolicyModel, resp *resource.ValidateConfigResponse) {
 }
 
-// PostFlattenSecurityPolicyUDDI converts null int list fields to empty lists.
+// PostFlattenSecurityPolicyUDDI converts null int list fields to empty lists and
+// preserves access_codes from the plan when the API omits them on read.
 // The API always returns [] for unset dfps/network_lists/roaming_device_groups; the
 // regular flatten returns null for empty slices, which conflicts with the Default=[].
+// access_codes are write-only in the API response (omitempty); copy from plan so state
+// doesn't drift after apply.
 func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDISecurityPolicyModel, diags *diag.Diagnostics) {
 	if flattened == nil {
 		return
@@ -35,5 +38,8 @@ func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDI
 	}
 	if flattened.RoamingDeviceGroups.IsNull() {
 		flattened.RoamingDeviceGroups = types.ListValueMust(types.Int32Type, []attr.Value{})
+	}
+	if flattened.AccessCodes.IsNull() && planned != nil && !planned.AccessCodes.IsNull() && !planned.AccessCodes.IsUnknown() {
+		flattened.AccessCodes = planned.AccessCodes
 	}
 }
