@@ -85,44 +85,51 @@ case "description" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_td_named_list and infoblox_td_access_code not yet implemented
+# TODO: unskip once infoblox_named_list is merged (PR #625)
 case "access_codes" {
   backend     = "uddi"
   skip        = true
-  skip_reason = "requires_resource: infoblox_td_named_list and infoblox_td_access_code not yet implemented"
+  skip_reason = "requires_resource: infoblox_named_list not yet registered (pending PR #625)"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_td_named_list_unknown" "test" {
+  resource "infoblox_named_list" "test" {
     uddi = {
-      name = "{{random2}}"
+      name            = "{{random2}}"
+      type            = "custom_list"
       items_described = [{ item = "example.com", description = "Example Domain" }]
-      type = "custom_list"
     }
   }
-  resource "infoblox_td_access_code_unknown" "ac_test1" {
+  resource "infoblox_access_code" "ac_test1" {
     uddi = {
-      name = "{{random3}}"
-      rules = [{ type = infoblox_td_named_list_unknown.test.uddi.type }]
+      name  = "{{random3}}"
+      rules = [{ data = infoblox_named_list.test.uddi.name, type = infoblox_named_list.test.uddi.type }]
     }
   }
-  resource "infoblox_td_access_code_unknown" "ac_test2" {
+  resource "infoblox_access_code" "ac_test2" {
     uddi = {
-      name = "{{random4}}"
-      rules = [{ type = infoblox_td_named_list_unknown.test.uddi.type }]
+      name  = "{{random4}}"
+      rules = [{ data = infoblox_named_list.test.uddi.name, type = infoblox_named_list.test.uddi.type }]
     }
   }
   PREREQ
 
   step {
     uddi {
-      name = "{{random}}"
+      name         = "{{random}}"
+      access_codes = [infoblox_access_code.ac_test1.uddi.access_key]
+    }
+    check = {
+      "uddi.access_codes.#" = "1"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name         = "{{random}}"
+      access_codes = [infoblox_access_code.ac_test1.uddi.access_key, infoblox_access_code.ac_test2.uddi.access_key]
+    }
+    check = {
+      "uddi.access_codes.#" = "2"
     }
   }
 
@@ -306,26 +313,25 @@ case "precedence" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_td_named_list not yet implemented
+# TODO: unskip once infoblox_named_list is merged (PR #625)
 case "rules" {
   backend     = "uddi"
   skip        = true
-  skip_reason = "requires_resource: infoblox_td_named_list not yet implemented"
+  skip_reason = "requires_resource: infoblox_named_list not yet registered (pending PR #625)"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_td_named_list_unknown" "nl_test1" {
+  resource "infoblox_named_list" "nl_test1" {
     uddi = {
-      name = "{{random2}}"
-      items_described = [{ item = "tf1-domain.com", description = "Exaample Domain" }]
-      type = "custom_list"
+      name            = "{{random2}}"
+      type            = "custom_list"
+      items_described = [{ item = "tf1-domain.com", description = "Example Domain" }]
     }
   }
-  resource "infoblox_td_named_list_unknown" "nl_test2" {
+  resource "infoblox_named_list" "nl_test2" {
     uddi = {
-      name = "{{random3}}"
-      items_described = [{ item = "tf2-domain.com", description = "Exaample Domain" }]
-      type = "custom_list"
+      name            = "{{random3}}"
+      type            = "custom_list"
+      items_described = [{ item = "tf2-domain.com", description = "Example Domain" }]
     }
   }
   PREREQ
@@ -333,14 +339,22 @@ case "rules" {
   step {
     uddi {
       name  = "{{random}}"
-      rules = [{ action = "action_allow", type = "custom_list" }]
+      rules = [{ action = "action_allow", data = infoblox_named_list.nl_test1.uddi.name, type = infoblox_named_list.nl_test1.uddi.type }]
+    }
+    check = {
+      "uddi.rules.0.action" = "action_allow"
+      "uddi.rules.0.type"   = "custom_list"
     }
   }
 
   step {
     uddi {
       name  = "{{random}}"
-      rules = [{ action = "action_log", type = "custom_list" }]
+      rules = [{ action = "action_block", data = infoblox_named_list.nl_test2.uddi.name, type = infoblox_named_list.nl_test2.uddi.type }]
+    }
+    check = {
+      "uddi.rules.0.action" = "action_block"
+      "uddi.rules.0.type"   = "custom_list"
     }
   }
 
