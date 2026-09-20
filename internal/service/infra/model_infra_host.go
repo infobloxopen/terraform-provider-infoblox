@@ -93,6 +93,7 @@ var InfraHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"pool_id": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},

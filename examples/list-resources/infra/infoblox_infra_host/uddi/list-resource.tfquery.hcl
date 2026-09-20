@@ -3,7 +3,7 @@ list "infoblox_infra_host" "list_infra_host_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_host"
+      display_name = "example_host"
     }
   }
   limit = 10

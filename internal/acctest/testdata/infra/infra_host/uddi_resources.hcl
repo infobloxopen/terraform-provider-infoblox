@@ -67,7 +67,6 @@ case "ip_space" {
   }
   PREREQ
 
-  # TODO: replace the ip_space values below with valid UDDI IP space IDs from the target tenant.
   step {
     uddi {
       display_name = "{{random}}"
@@ -121,20 +120,26 @@ case "serial_number" {
   step {
     uddi {
       display_name  = "{{random}}"
-      serial_number = "{{random2}}"
+      serial_number = "{{random_int}}"
+      tags = {
+          "host/serial_number" = "{{random_int}}"
+      }
     }
     check = {
-      "uddi.serial_number" = "{{random2}}"
+      "uddi.serial_number" = "{{random_int}}"
     }
   }
 
   step {
     uddi {
       display_name  = "{{random}}"
-      serial_number = "{{random3}}"
+      serial_number = "{{random_int2}}"
+      tags = {
+                "host/serial_number" = "{{random_int2}}"
+            }
     }
     check = {
-      "uddi.serial_number" = "{{random3}}"
+      "uddi.serial_number" = "{{random_int2}}"
     }
   }
 }
