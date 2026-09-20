@@ -7,6 +7,8 @@
 case "inheritance_sources" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -19,7 +21,7 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata               = { target_name = "{{random}}.com" }
-      zone                = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone                = "{{uddi_auth_zone_id_1}}"
       inheritance_sources = { ttl = { action = "inherit" } }
     }
     check = {
@@ -30,7 +32,7 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata               = { target_name = "{{random}}.com" }
-      zone                = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone                = "{{uddi_auth_zone_id_1}}"
       inheritance_sources = { ttl = { action = "override" } }
       ttl                 = 57600
     }
@@ -42,7 +44,7 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata               = { target_name = "{{random}}.com" }
-      zone                = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone                = "{{uddi_auth_zone_id_1}}"
       inheritance_sources = { ttl = { action = "inherit" } }
       ttl                 = 57600
     }
@@ -56,6 +58,8 @@ case "inheritance_sources" {
 case "rdata" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -68,7 +72,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com", priority = 0 }
-      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name" = "{{random}}.com"
@@ -79,7 +83,7 @@ case "rdata" {
   step {
     uddi {
       rdata = { target_name = "{{random}}_updated.com", priority = 2 }
-      zone  = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name" = "{{random}}_updated.com"
@@ -92,6 +96,8 @@ case "rdata" {
 case "rdata_svc_params" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -113,7 +119,7 @@ case "rdata_svc_params" {
           { key = "ech", value = "bWVvdw==" },
         ]
       }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name"        = "{{random}}.com"
@@ -142,7 +148,7 @@ case "rdata_svc_params" {
           { key = "mandatory", value = "ech,ipv6hint" },
         ]
       }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name"        = "{{random}}.com"
@@ -169,7 +175,7 @@ case "rdata_svc_params" {
           { key = "alpn", value = "h3,h2,h9,h15" },
         ]
       }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name"        = "{{random}}.com"
@@ -192,7 +198,7 @@ case "rdata_svc_params" {
           { key = "mandatory", value = "dohpath,key13" },
         ]
       }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone = "{{uddi_auth_zone_id_1}}"
     }
     check = {
       "uddi.rdata.target_name"        = "{{random}}.com"

@@ -1,6 +1,8 @@
 # Auto-generated datasource acceptance-test cases for RecordHttps.
 case "filters" {
   backend           = "uddi"
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -23,7 +25,7 @@ case "filters" {
   step {
     uddi {
       name_in_zone = "{{random2}}"
-      zone         = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone         = "{{uddi_auth_zone_id_1}}"
       rdata        = { target_name = "example.com." }
     }
   }

@@ -17,6 +17,9 @@
 //
 // DHCP Option Code:
 //   - tf_option_code_1 (UDDI_OPTION_CODE_1_ID)
+//
+// DNS Auth Zone:
+//   - example_zone_250 (UDDI_AUTH_ZONE_1_ID)
 
 package main
 
@@ -302,6 +305,97 @@ func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, 
 	return *resp.Result.Id, nil
 }
 
+// readDefaultDNSViewID lists DNS views and returns the ID of the view named "default".
+func readDefaultDNSViewID(ctx context.Context, client *uddiclient.APIClient) (string, error) {
+	listResp, _, err := client.DNSConfigurationAPI.ViewAPI.List(ctx).Execute()
+	if err != nil {
+		return "", fmt.Errorf("read default DNS view: list views: %w", err)
+	}
+
+	if listResp != nil {
+		for _, view := range listResp.Results {
+			if view.Name == "default" && view.Id != nil {
+				return *view.Id, nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("read default DNS view: no view named %q found", "default")
+}
+
+// CreateAuthZone creates a DNS auth zone and stores its ID into
+// pipeline_uddi.env as UDDI_AUTH_ZONE_1_ID.
+// If the zone already exists, its existing ID is stored instead.
+func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
+	defaultViewID, err := readDefaultDNSViewID(ctx, client)
+	if err != nil {
+		return fmt.Errorf("create auth zone: %w", err)
+	}
+	fmt.Printf("Using default DNS view ID %q\n", defaultViewID)
+
+	authZones := []struct {
+		fqdn        string
+		primaryType string
+		idVar       string
+	}{
+		{fqdn: "example_zone_250", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
+	}
+
+	for _, az := range authZones {
+		body := dnsconfig.AuthZone{
+			Fqdn:        dnsconfig.PtrString(az.fqdn),
+			PrimaryType: dnsconfig.PtrString(az.primaryType),
+			View:        dnsconfig.PtrString(defaultViewID),
+		}
+
+		resp, _, err := client.DNSConfigurationAPI.AuthZoneAPI.Create(ctx).Body(body).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
+				// Fetch the existing zone's ID
+				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Execute()
+				if listErr != nil {
+					return fmt.Errorf("create auth zone: list existing zones to find %q: %w", az.fqdn, listErr)
+				}
+
+				var existingID string
+				if listResp != nil {
+					for _, existing := range listResp.Results {
+						if existing.Fqdn != nil && *existing.Fqdn == az.fqdn && existing.Id != nil {
+							existingID = *existing.Id
+							break
+						}
+					}
+				}
+
+				if existingID == "" {
+					return fmt.Errorf("create auth zone: auth zone %q already exists but ID could not be resolved", az.fqdn)
+				}
+
+				if err := writePipelineEnvVar(az.idVar, existingID); err != nil {
+					return fmt.Errorf("create auth zone: write %s for existing zone: %w", az.idVar, err)
+				}
+
+				fmt.Printf("Auth zone %q already exists, using existing ID %q (env: %s)\n", az.fqdn, existingID, az.idVar)
+				continue
+			}
+			return fmt.Errorf("create auth zone: create %q: %w", az.fqdn, err)
+		}
+
+		if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+			return fmt.Errorf("create auth zone: create response for %q missing ID", az.fqdn)
+		}
+
+		createdID := *resp.Result.Id
+		if err := writePipelineEnvVar(az.idVar, createdID); err != nil {
+			return fmt.Errorf("create auth zone: write %s: %w", az.idVar, err)
+		}
+
+		fmt.Printf("Auth zone %q created successfully (ID: %q, env: %s)\n", az.fqdn, createdID, az.idVar)
+	}
+
+	return nil
+}
+
 func main() {
 	cspURL := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_URL"))
 	apiKey := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_KEY"))
@@ -361,4 +455,10 @@ func main() {
 		return
 	}
 	fmt.Println("Option code created successfully")
+
+	if err := CreateAuthZone(ctx, client); err != nil {
+		fmt.Printf("Error creating auth zone: %v\n", err)
+		return
+	}
+	fmt.Println("Auth zone created successfully")
 }
