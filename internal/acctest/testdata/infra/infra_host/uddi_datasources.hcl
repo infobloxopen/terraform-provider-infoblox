@@ -3,7 +3,7 @@ case "filters" {
   parallel = true
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       display_name = "uddi.display_name"
     }
@@ -23,7 +23,7 @@ case "tag_filters" {
   parallel = true
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }

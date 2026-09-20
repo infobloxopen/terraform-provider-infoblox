@@ -51,8 +51,8 @@ case "description" {
 }
 
 case "ip_space" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -122,7 +122,7 @@ case "serial_number" {
       display_name  = "{{random}}"
       serial_number = "{{random_int}}"
       tags = {
-          "host/serial_number" = "{{random_int}}"
+        "host/serial_number" = "{{random_int}}"
       }
     }
     check = {
@@ -135,8 +135,8 @@ case "serial_number" {
       display_name  = "{{random}}"
       serial_number = "{{random_int2}}"
       tags = {
-                "host/serial_number" = "{{random_int2}}"
-            }
+        "host/serial_number" = "{{random_int2}}"
+      }
     }
     check = {
       "uddi.serial_number" = "{{random_int2}}"

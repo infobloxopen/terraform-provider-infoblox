@@ -27,11 +27,11 @@ case "filters" {
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         display_name = "uddi.display_name"
       }
@@ -47,16 +47,16 @@ case "tag_filters" {
   step {
     uddi {
       display_name = "{{random}}"
-      tags = { Site = "{{random2}}" }
+      tags         = { Site = "{{random2}}" }
     }
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "tag_filters"
+      type = "tag_filters"
       values = {
         Site = "uddi.tags.Site"
       }
