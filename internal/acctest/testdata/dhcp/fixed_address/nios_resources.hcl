@@ -92,6 +92,9 @@ case "agent_remote_id" {
       match_client    = "REMOTE_ID"
       agent_remote_id = "{{random_int}}"
     }
+    check = {
+      "nios.agent_circuit_id" = "{{random_int}}"
+    }
   }
 
   step {
@@ -99,6 +102,9 @@ case "agent_remote_id" {
       ipv4addr        = "15.0.0.4"
       match_client    = "REMOTE_ID"
       agent_remote_id = "agentRemoteID+10"
+    }
+    check = {
+      "nios.agent_circuit_id" = "agentRemoteID+10"
     }
   }
 

@@ -32,6 +32,7 @@ case "filters" {
       match_type  = "mac"
       match_value = "aa:aa:aa:aa:aa:aa"
     }
+    depends_on = [infoblox_network.test]
   }
 
 }
@@ -70,6 +71,7 @@ case "tag_filters" {
       match_value = "aa:aa:aa:aa:aa:aa"
       tags        = { tag1 = "{{random}}" }
     }
+    depends_on = [infoblox_network.test]
   }
 
 }
