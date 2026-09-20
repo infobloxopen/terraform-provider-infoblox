@@ -12,7 +12,7 @@ resource "infoblox_infra_host" "example" {
     // Other Optional fields
     description   = "An example host"
     serial_number = "1234"
-    ip_space      = infoblox_view.current.id
+    ip_space      = infoblox_network_view.parent_space.id
     tags = {
       Site                 = "location-1"
       "host/serial_number" = "1234"
