@@ -199,13 +199,20 @@ func mapUDDIInfraHostToResponse(r *uddiinframgmt.Host) *infra.InfraHost {
 		Id: r.Id,
 	}
 	resp.UDDI = &infra.UDDIInfraHostExt{
+		Configs:         r.Configs,
 		Description:     r.Description,
 		DisplayName:     r.DisplayName,
+		HostType:        r.HostType,
+		IpAddress:       r.IpAddress,
 		IpSpace:         r.IpSpace,
+		LegacyId:        r.LegacyId,
 		LocationId:      r.LocationId,
+		MacAddress:      r.MacAddress,
 		MaintenanceMode: r.MaintenanceMode,
+		Ophid:           r.Ophid,
 		PoolId:          r.PoolId,
 		SerialNumber:    r.SerialNumber,
+		Timezone:        r.Timezone,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))
