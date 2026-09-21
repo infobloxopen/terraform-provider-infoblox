@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccVlanviewList(t *testing.T) {
-	resourceType := "infoblox_vlanview"
+	resourceType := "infoblox_vlan_view"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -18,7 +18,7 @@ func TestAccVlanviewList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "ipam/vlanview/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "ipam/vlan_view/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

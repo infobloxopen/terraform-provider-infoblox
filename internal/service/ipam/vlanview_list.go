@@ -40,7 +40,7 @@ type VlanviewListModel struct {
 }
 
 func (l *VlanviewList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_vlanview"
+	resp.TypeName = req.ProviderTypeName + "_vlan_view"
 }
 
 func (l *VlanviewList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -105,7 +105,7 @@ func (l *VlanviewList) List(ctx context.Context, req list.ListRequest, stream *l
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_vlanview list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_vlan_view list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

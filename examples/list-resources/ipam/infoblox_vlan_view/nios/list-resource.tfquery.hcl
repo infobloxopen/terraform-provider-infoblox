@@ -1,5 +1,5 @@
 // List specific VLAN Views using filters
-list "infoblox_vlanview" "list_vlanviews_using_filters" {
+list "infoblox_vlan_view" "list_vlanviews_using_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_vlanview" "list_vlanviews_using_filters" {
 }
 
 // List specific VLAN Views using Extensible Attributes
-list "infoblox_vlanview" "list_vlanviews_using_extensible_attributes" {
+list "infoblox_vlan_view" "list_vlanviews_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
@@ -20,7 +20,7 @@ list "infoblox_vlanview" "list_vlanviews_using_extensible_attributes" {
 }
 
 // List VLAN Views with resource details included
-list "infoblox_vlanview" "list_vlanviews_with_resource" {
+list "infoblox_vlan_view" "list_vlanviews_with_resource" {
   provider         = infoblox
   include_resource = true
 }

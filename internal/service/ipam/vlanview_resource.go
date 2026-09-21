@@ -38,7 +38,7 @@ type VlanviewResource struct {
 }
 
 func (r *VlanviewResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_vlanview"
+	resp.TypeName = req.ProviderTypeName + "_vlan_view"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

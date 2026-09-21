@@ -1,5 +1,5 @@
 // Create VLAN View (Required as Parent)
-resource "infoblox_vlanview" "ipam_vlanview_parent" {
+resource "infoblox_vlan_view" "ipam_vlanview_parent" {
   nios = {
     start_vlan_id = 5
     end_vlan_id   = 10
@@ -12,7 +12,7 @@ resource "infoblox_vlan" "ipam_vlan_basic" {
   nios = {
     id     = 6
     name   = "example_vlan"
-    parent = infoblox_vlanview.ipam_vlanview_parent.id
+    parent = infoblox_vlan_view.ipam_vlanview_parent.id
   }
 }
 
@@ -21,7 +21,7 @@ resource "infoblox_vlan" "ipam_vlan_with_additional_fields" {
   nios = {
     id     = 7
     name   = "example_vlan_additional"
-    parent = infoblox_vlanview.ipam_vlanview_parent.id
+    parent = infoblox_vlan_view.ipam_vlanview_parent.id
 
     // Additional Fields
     comment     = "Example VLAN"

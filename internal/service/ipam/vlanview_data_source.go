@@ -36,7 +36,7 @@ type VlanviewDataSource struct {
 }
 
 func (d *VlanviewDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_vlanview"
+	resp.TypeName = req.ProviderTypeName + "_vlan_view"
 }
 
 // VlanviewDataSourceModel is the filter model for the datasource
