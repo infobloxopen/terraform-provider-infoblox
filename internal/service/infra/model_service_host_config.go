@@ -3,7 +3,6 @@ package infra
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,24 +15,20 @@ import (
 
 // ServiceHostConfigModel is the Terraform model for ServiceHostConfig
 type ServiceHostConfigModel struct {
-	CurrentVersion types.String      `tfsdk:"current_version"`
-	ExtraData      types.String      `tfsdk:"extra_data"`
-	HostId         types.String      `tfsdk:"host_id"`
-	Id             types.String      `tfsdk:"id"`
-	ServiceId      types.String      `tfsdk:"service_id"`
-	ServiceType    types.String      `tfsdk:"service_type"`
-	UpgradedAt     timetypes.RFC3339 `tfsdk:"upgraded_at"`
+	CurrentVersion types.String `tfsdk:"current_version"`
+	HostId         types.String `tfsdk:"host_id"`
+	Id             types.String `tfsdk:"id"`
+	ServiceId      types.String `tfsdk:"service_id"`
+	ServiceType    types.String `tfsdk:"service_type"`
 }
 
 // ServiceHostConfigAttrTypes contains the attribute types for ServiceHostConfigModel
 var ServiceHostConfigAttrTypes = map[string]attr.Type{
 	"current_version": types.StringType,
-	"extra_data":      types.StringType,
 	"host_id":         types.StringType,
 	"id":              types.StringType,
 	"service_id":      types.StringType,
 	"service_type":    types.StringType,
-	"upgraded_at":     timetypes.RFC3339Type{},
 }
 
 // ServiceHostConfigResourceSchemaAttributes contains the schema attributes for ServiceHostConfigModel
@@ -41,10 +36,6 @@ var ServiceHostConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"current_version": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The current version of the Service deployed on the Host.",
-	},
-	"extra_data": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "The field to carry any extra data specific to this configuration.",
 	},
 	"host_id": schema.StringAttribute{
 		Computed:            true,
@@ -61,10 +52,6 @@ var ServiceHostConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"service_type": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The type of the Service deployed on the Host (`dns`, `cdc`, etc.).",
-	},
-	"upgraded_at": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "The timestamp of the latest upgrade of the Host-specific Service configuration.",
 	},
 }
 
@@ -88,12 +75,10 @@ func (m *ServiceHostConfigModel) Expand(ctx context.Context, diags *diag.Diagnos
 	}
 	to := &uddiinfra.ServiceHostConfig{
 		CurrentVersion: flex.ExpandStringPointer(m.CurrentVersion),
-		ExtraData:      flex.ExpandStringPointer(m.ExtraData),
 		HostId:         flex.ExpandStringPointer(m.HostId),
 		Id:             flex.ExpandStringPointer(m.Id),
 		ServiceId:      flex.ExpandStringPointer(m.ServiceId),
 		ServiceType:    flex.ExpandStringPointer(m.ServiceType),
-		UpgradedAt:     flex.ExpandTimePointer(ctx, m.UpgradedAt, diags),
 	}
 	return to
 }
@@ -116,10 +101,8 @@ func (m *ServiceHostConfigModel) Flatten(ctx context.Context, from *uddiinfra.Se
 		return
 	}
 	m.CurrentVersion = flex.FlattenStringPointer(from.CurrentVersion)
-	m.ExtraData = flex.FlattenStringPointer(from.ExtraData)
 	m.HostId = flex.FlattenStringPointer(from.HostId)
 	m.Id = flex.FlattenStringPointer(from.Id)
 	m.ServiceId = flex.FlattenStringPointer(from.ServiceId)
 	m.ServiceType = flex.FlattenStringPointer(from.ServiceType)
-	m.UpgradedAt = timetypes.NewRFC3339TimePointerValue(from.UpgradedAt)
 }
