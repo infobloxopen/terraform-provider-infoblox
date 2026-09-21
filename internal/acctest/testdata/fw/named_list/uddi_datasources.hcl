@@ -29,7 +29,7 @@ case "tag_filters" {
   filter {
     type   = "tag_filters"
     values = {
-      display_name = "uddi.tags.display_name"
+      tag1 = "uddi.tags.tag1"
     }
   }
 
@@ -38,9 +38,9 @@ case "tag_filters" {
   step {
     uddi {
       name        = "{{random}}"
-      description = "Exaample Domain"
+      description = "Example Domain"
       type        = "custom_list"
-      tags        = { display_name = "Terraform Example Named List" }
+      tags        = { tag1 = "{{random2}}" }
     }
   }
 

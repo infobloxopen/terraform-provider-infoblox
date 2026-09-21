@@ -16,8 +16,6 @@ Manages an Infoblox NamedList in the UDDI backend.
 
 ```terraform
 // Create a Named List with Basic Fields
-// Note: the plain "items" field is discouraged by the API in favor of "items_described",
-// which allows adding a description to each item; this provider does not expose "items".
 resource "infoblox_named_list" "create_named_list" {
   uddi = {
     name = "example_named_list"
@@ -102,5 +100,8 @@ Optional:
 
 - `description` (String) The description of the item.
 - `expiry_time` (String) The time at which this list item expires, as an RFC 3339 timestamp string. May be specified in any timezone. Unset (null) means no expiry.  Write semantics: - Insert/replace (POST /named_lists/{id}/items): set when present;   NULL when absent in payload. - Patch update (PATCH /named_lists/{id}/items, updated_items_described):   set when present; unchanged when absent in payload. Clearing an existing expiry_time via request field mask is not supported.
+
+Read-Only:
+
 - `status` (String) The status of the item. Applicable to TI domains only
 - `status_details` (String) The status details of the item. Applicable to TI domains only

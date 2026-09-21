@@ -53,12 +53,10 @@ var ItemStructsResourceSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("ACTIVE", "INACTIVE"),
 		},
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The status of the item. Applicable to TI domains only",
 	},
 	"status_details": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The status details of the item. Applicable to TI domains only",
 	},
