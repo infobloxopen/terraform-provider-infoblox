@@ -15,18 +15,7 @@ Retrieves information about existing Infoblox CustomRedirect from the UDDI backe
 ### UDDI Backend
 
 ```terraform
-data "infoblox_custom_redirect" "by_filters" {
-  filters = {
-    name = "example_custom_redirect"
-  }
-}
-
-data "infoblox_custom_redirect" "by_tag_filters" {
-  tag_filters = {
-    Site = "location-1"
-  }
-}
-
+// Retrieve all custom redirects
 data "infoblox_custom_redirect" "all" {}
 ```
 
