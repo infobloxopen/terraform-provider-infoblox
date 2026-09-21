@@ -18,7 +18,7 @@ Retrieves information about existing Infoblox DtcTopology from both the NIOS and
 // Retrieve a specific DTC Topology using filters
 data "infoblox_dtc_topology" "get_dtc_topology_using_filters" {
   filters = {
-    name = "example-topology-basic"
+    name = "example-topology-basic_1"
   }
 }
 

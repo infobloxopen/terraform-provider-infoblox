@@ -3,7 +3,7 @@ list "infoblox_dtc_topology" "list_dtc_topology_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example-topology-basic"
+      name = "example-topology-basic_1"
     }
   }
   limit = 10
