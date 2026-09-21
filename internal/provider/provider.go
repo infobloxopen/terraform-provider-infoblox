@@ -348,6 +348,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
 		dhcp.NewIpv6sharednetworkResource,
+		dhcp.NewIpv6filteroptionResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -447,6 +448,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
 		dhcp.NewIpv6sharednetworkDataSource,
+		dhcp.NewIpv6filteroptionDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -548,6 +550,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
 		dhcp.NewIpv6sharednetworkList,
+		dhcp.NewIpv6filteroptionList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
