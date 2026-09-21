@@ -15,16 +15,24 @@ Manages an Infoblox InfraHost in the UDDI backend.
 ### UDDI Backend
 
 ```terraform
-// Create a Network View ( Required as Parent )
+// Manage a Network View ( Required as Parent )
 resource "infoblox_network_view" "parent_space" {
   uddi = {
     name = "example-space"
   }
 }
 
+// Manage an Basic Infra Host
 resource "infoblox_infra_host" "example" {
   uddi = {
     display_name = "example_host"
+  }
+}
+
+// Manage an Infra Host with Additional Fields
+resource "infoblox_infra_host" "example" {
+  uddi = {
+    display_name = "example_host2"
 
     // Other Optional fields
     description   = "An example host"
