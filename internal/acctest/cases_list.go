@@ -28,10 +28,10 @@ type ListCase struct {
 	SkipReason     string
 	SkipIfEnvEmpty []string
 	MinTFVersion   string            // minimum Terraform version string (e.g. "1.14.0")
-	FilterType   string            // filters | ext_attr_filters | tag_filters; empty = list-all
-	Filters      map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
-	FilterOrder  []string          // filter keys in deterministic order
-	Step         CaseStep          // resource-create step
+	FilterType     string            // filters | ext_attr_filters | tag_filters; empty = list-all
+	Filters        map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
+	FilterOrder    []string          // filter keys in deterministic order
+	Step           CaseStep          // resource-create step
 	// PrerequisitesHCL is prepended to both the create and query steps so the resource stays alive.
 	PrerequisitesHCL string
 }
