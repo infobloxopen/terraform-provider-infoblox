@@ -8,6 +8,7 @@ import (
 
 	niosacl "github.com/infobloxopen/infoblox-nios-go-client/acl"
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
@@ -121,6 +122,7 @@ func (s *namedaclService) readNIOS(ctx context.Context, id string, opts *core.Op
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -280,6 +282,7 @@ func (s *namedaclService) listNIOS(ctx context.Context, opts *core.ListOptions) 
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

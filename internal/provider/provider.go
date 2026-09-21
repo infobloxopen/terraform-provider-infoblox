@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -17,6 +18,7 @@ import (
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	gridclient "github.com/infobloxopen/infoblox-nios-go-client/grid"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
@@ -53,9 +55,10 @@ type (
 	}
 
 	NIOSConfig struct {
-		HostUrl  types.String `tfsdk:"host_url"`
-		Username types.String `tfsdk:"username"`
-		Password types.String `tfsdk:"password"`
+		HostUrl     types.String `tfsdk:"host_url"`
+		Username    types.String `tfsdk:"username"`
+		Password    types.String `tfsdk:"password"`
+		ProxySearch types.String `tfsdk:"proxy_search"`
 	}
 
 	UDDIConfig struct {
@@ -110,6 +113,13 @@ func buildNIOSAttribute() schema.Attribute {
 				MarkdownDescription: "Password for the NIOS host",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"proxy_search": schema.StringAttribute{
+				Optional:    true,
+				Description: "Proxy search mode. Allowed values: LOCAL (default), GM.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("LOCAL", "GM"),
+				},
 			},
 		},
 	}
@@ -189,6 +199,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
 			niosoption.WithDebug(true),
 		)
+		config.SetProxySearch(data.NIOS.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
