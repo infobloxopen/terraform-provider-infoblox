@@ -69,9 +69,6 @@ var overrides = map[override]Policy{
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 
-	{"RecordTxt", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordTxt", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-
 	{"RecordPtr", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordPtr", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
