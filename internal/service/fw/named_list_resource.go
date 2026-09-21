@@ -56,7 +56,7 @@ func (r *NamedListResource) IdentitySchema(_ context.Context, _ resource.Identit
 
 func (r *NamedListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox NamedList in the UDDI backend.",
+		MarkdownDescription: "Manages an Infoblox NamedList in the UDDI backend. Named lists are also known as custom lists.",
 		Attributes:          NamedListResourceSchemaAttributes,
 	}
 }

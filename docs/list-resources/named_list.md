@@ -3,12 +3,12 @@
 page_title: "infoblox_named_list List Resource - terraform-provider-infoblox"
 subcategory: "FW"
 description: |-
-  Retrieves a list of Infoblox NamedList from the UDDI backend.
+  Retrieves a list of Infoblox NamedList from the UDDI backend. Named lists are also known as custom lists.
 ---
 
 # infoblox_named_list (List Resource)
 
-Retrieves a list of Infoblox NamedList from the UDDI backend.
+Retrieves a list of Infoblox NamedList from the UDDI backend. Named lists are also known as custom lists.
 
 ## Example Usage
 

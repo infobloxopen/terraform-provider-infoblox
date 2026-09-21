@@ -3,12 +3,12 @@
 page_title: "infoblox_named_list Resource - terraform-provider-infoblox"
 subcategory: "FW"
 description: |-
-  Manages an Infoblox NamedList in the UDDI backend.
+  Manages an Infoblox NamedList in the UDDI backend. Named lists are also known as custom lists.
 ---
 
 # infoblox_named_list (Resource)
 
-Manages an Infoblox NamedList in the UDDI backend.
+Manages an Infoblox NamedList in the UDDI backend. Named lists are also known as custom lists.
 
 ## Example Usage
 
