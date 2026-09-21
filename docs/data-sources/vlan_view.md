@@ -21,6 +21,7 @@ data "infoblox_vlan_view" "get_ipam_vlanview_using_filters" {
     name = "example_vlan_view"
   }
 }
+
 // Retrieve specific VLAN Views using Extensible Attributes
 data "infoblox_vlan_view" "get_ipam_vlanview_using_extensible_attributes" {
   ext_attr_filters = {

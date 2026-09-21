@@ -21,6 +21,7 @@ data "infoblox_vlan" "get_ipam_vlan_using_filters" {
     name = "example_vlan"
   }
 }
+
 // Retrieve specific VLANs using Extensible Attributes
 data "infoblox_vlan" "get_ipam_vlan_using_extensible_attributes" {
   ext_attr_filters = {
