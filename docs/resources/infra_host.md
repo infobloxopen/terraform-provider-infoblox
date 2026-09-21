@@ -92,9 +92,7 @@ Read-Only:
 Read-Only:
 
 - `current_version` (String) The current version of the Service deployed on the Host.
-- `extra_data` (String) The field to carry any extra data specific to this configuration.
 - `host_id` (String) The resource identifier.
 - `id` (String) The resource identifier.
 - `service_id` (String) The resource identifier.
 - `service_type` (String) The type of the Service deployed on the Host (`dns`, `cdc`, etc.).
-- `upgraded_at` (String) The timestamp of the latest upgrade of the Host-specific Service configuration.
