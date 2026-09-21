@@ -51,7 +51,7 @@ func validateRecordSvcbUDDIConfig(ctx context.Context, m *UDDIRecordSvcbModel, r
 			if p.Key.ValueString() == "ohttp" {
 				continue
 			}
-			if p.Value.IsNull() || p.Value.IsUnknown() || p.Value.ValueString() == "" {
+			if p.Value.IsNull() {
 				resp.Diagnostics.AddAttributeError(
 					path.Root("uddi").AtName("rdata").AtName("svc_params").AtListIndex(i).AtName("value"),
 					"Invalid Configuration",
