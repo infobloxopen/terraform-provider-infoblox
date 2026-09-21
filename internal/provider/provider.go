@@ -59,6 +59,7 @@ type (
 		Username    types.String `tfsdk:"username"`
 		Password    types.String `tfsdk:"password"`
 		ProxySearch types.String `tfsdk:"proxy_search"`
+		ProxyURL    types.String `tfsdk:"proxy_url"`
 	}
 
 	UDDIConfig struct {
@@ -120,6 +121,10 @@ func buildNIOSAttribute() schema.Attribute {
 				Validators: []validator.String{
 					stringvalidator.OneOf("LOCAL", "GM"),
 				},
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:    true,
+				Description: "Proxy URL to connect to Infoblox NIOS.",
 			},
 		},
 	}
@@ -197,6 +202,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
+			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
 		config.SetProxySearch(data.NIOS.ProxySearch.ValueString())
