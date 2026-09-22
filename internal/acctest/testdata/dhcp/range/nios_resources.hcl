@@ -1,3 +1,11 @@
+// Objects to be present on the grid for testing
+// example_option_filter_1, example_option_filter_2- Logic Filter Rules
+// mac_filter , mac_filter2 - MAC Filter Rules
+// nac_filter - NAC Filter Rule
+// relay_agent_filter - Relay Agent Filter Rule
+// filter_fingerprint1, filter_fingerprint2 - Fingerprint Filter Rules
+// example_failover_association, example_failover_association1 - DHCP Failover Associations
+
 # Auto-generated resource acceptance-test cases for Range.
 case "basic" {
   backend  = "nios"
@@ -1275,10 +1283,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "filter_fingerprint2", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint"
+      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint2"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1288,10 +1296,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint1", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "filter_fingerprint1", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint1"
+      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint1"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1642,10 +1650,10 @@ case "logic_filter_rules" {
       start_addr         = "10.0.0.85"
       end_addr           = "10.0.0.86"
       network_view       = infoblox_network.test_network.nios.network_view
-      logic_filter_rules = [{ filter = "example-option-filter-1", type = "Option" }]
+      logic_filter_rules = [{ filter = "example_option_filter_1", type = "Option" }]
     }
     check = {
-      "nios.logic_filter_rules.0.filter" = "example-option-filter-1"
+      "nios.logic_filter_rules.0.filter" = "example_option_filter_1"
       "nios.logic_filter_rules.0.type"   = "Option"
     }
   }
@@ -2149,10 +2157,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example-option-filter-1", permission = "Allow" }]
+      option_filter_rules = [{ filter = "example_option_filter_1", permission = "Allow" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example-option-filter-1"
+      "nios.option_filter_rules.0.filter"     = "example_option_filter_1"
       "nios.option_filter_rules.0.permission" = "Allow"
     }
   }
@@ -2162,10 +2170,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example-option-filter-2", permission = "Deny" }]
+      option_filter_rules = [{ filter = "example_option_filter_2", permission = "Deny" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example-option-filter-2"
+      "nios.option_filter_rules.0.filter"     = "example_option_filter_2"
       "nios.option_filter_rules.0.permission" = "Deny"
     }
   }

@@ -3,27 +3,27 @@ case "basic" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.end"          = "10.0.0.20"
       "uddi.start"        = "10.0.0.8"
@@ -39,27 +39,27 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
   }
 
 }
@@ -68,28 +68,28 @@ case "comment" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space   = infoblox_view.test.id
+      space   = infoblox_network_view.test.id
       start   = "10.0.0.8"
       end     = "10.0.0.20"
       comment = "this range is created by terraform"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.comment" = "this range is created by terraform"
     }
@@ -97,12 +97,12 @@ case "comment" {
 
   step {
     uddi {
-      space   = infoblox_view.test.id
+      space   = infoblox_network_view.test.id
       start   = "10.0.0.8"
       end     = "10.0.0.20"
       comment = "this range was created by terraform"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.comment" = "this range was created by terraform"
     }
@@ -114,28 +114,28 @@ case "disable_dhcp" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space        = infoblox_view.test.id
+      space        = infoblox_network_view.test.id
       start        = "10.0.0.8"
       end          = "10.0.0.20"
       disable_dhcp = true
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.disable_dhcp" = "true"
     }
@@ -143,12 +143,12 @@ case "disable_dhcp" {
 
   step {
     uddi {
-      space        = infoblox_view.test.id
+      space        = infoblox_network_view.test.id
       start        = "10.0.0.8"
       end          = "10.0.0.20"
       disable_dhcp = false
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.disable_dhcp" = "false"
     }
@@ -164,16 +164,16 @@ case "dhcp_options" {
   skip_reason = "requires_resource: infoblox_dhcp_option_group not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random2}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
@@ -200,12 +200,12 @@ case "dhcp_options" {
 
   step {
     uddi {
-      space        = infoblox_view.test.id
+      space        = infoblox_network_view.test.id
       start        = "10.0.0.10"
       end          = "10.0.0.20"
       dhcp_options = [{ type = "option", option_code = infoblox_dhcp_optiondefinition.test.id, option_value = true }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.dhcp_options.#"              = "1"
       "uddi.dhcp_options.0.option_value" = "true"
@@ -214,12 +214,12 @@ case "dhcp_options" {
 
   step {
     uddi {
-      space        = infoblox_view.test.id
+      space        = infoblox_network_view.test.id
       start        = "10.0.0.10"
       end          = "10.0.0.20"
       dhcp_options = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.dhcp_options.#" = "1"
     }
@@ -231,27 +231,27 @@ case "end" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.end" = "10.0.0.20"
     }
@@ -259,11 +259,11 @@ case "end" {
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.29"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.end" = "10.0.0.29"
     }
@@ -275,28 +275,28 @@ case "exclusion_ranges" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space            = infoblox_view.test.id
+      space            = infoblox_network_view.test.id
       start            = "10.0.0.8"
       end              = "10.0.0.20"
       exclusion_ranges = [{ end = "10.0.0.16", start = "10.0.0.12" }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.exclusion_ranges.0.start" = "10.0.0.12"
       "uddi.exclusion_ranges.0.end"   = "10.0.0.16"
@@ -305,12 +305,12 @@ case "exclusion_ranges" {
 
   step {
     uddi {
-      space            = infoblox_view.test.id
+      space            = infoblox_network_view.test.id
       start            = "10.0.0.8"
       end              = "10.0.0.20"
       exclusion_ranges = [{ end = "10.0.0.16", start = "10.0.0.14" }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.exclusion_ranges.0.start" = "10.0.0.14"
       "uddi.exclusion_ranges.0.end"   = "10.0.0.16"
@@ -323,16 +323,16 @@ case "inheritance_sources" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -341,10 +341,10 @@ case "inheritance_sources" {
     uddi {
       start               = "10.0.0.8"
       end                 = "10.0.0.20"
-      space               = infoblox_view.test.id
+      space               = infoblox_network_view.test.id
       inheritance_sources = { dhcp_options = { action = "inherit" } }
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.inheritance_sources.dhcp_options.action" = "inherit"
     }
@@ -354,10 +354,10 @@ case "inheritance_sources" {
     uddi {
       start               = "10.0.0.8"
       end                 = "10.0.0.20"
-      space               = infoblox_view.test.id
+      space               = infoblox_network_view.test.id
       inheritance_sources = { dhcp_options = { action = "block" } }
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.inheritance_sources.dhcp_options.action" = "block"
     }
@@ -369,28 +369,28 @@ case "name" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
       name  = "range-test"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.name" = "range-test"
     }
@@ -398,12 +398,12 @@ case "name" {
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
       name  = "range-test-1"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.name" = "range-test-1"
     }
@@ -415,41 +415,41 @@ case "space" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "one" {
+  resource "infoblox_network_view" "one" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_view" "two" {
+  resource "infoblox_network_view" "two" {
     uddi = {
       name = "{{random2}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 8
-      space = infoblox_view.one.id
+      space = infoblox_network_view.one.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.one.id
+      space = infoblox_network_view.one.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
   }
 
   step {
     uddi {
-      space = infoblox_view.one.id
+      space = infoblox_network_view.one.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
   }
 
 }
@@ -458,27 +458,27 @@ case "start" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.start" = "10.0.0.8"
     }
@@ -486,11 +486,11 @@ case "start" {
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.12"
       end   = "10.0.0.20"
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.start" = "10.0.0.12"
     }
@@ -502,28 +502,28 @@ case "tags" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
       tags  = { site = "NA" }
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.tags.site" = "NA"
     }
@@ -531,12 +531,12 @@ case "tags" {
 
   step {
     uddi {
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       end   = "10.0.0.20"
       tags  = { site = "CA" }
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.tags.site" = "CA"
     }

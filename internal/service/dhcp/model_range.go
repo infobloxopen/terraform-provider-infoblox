@@ -184,10 +184,8 @@ type UDDIRangeModel struct {
 	End                types.String `tfsdk:"end"`
 	ExclusionRanges    types.List   `tfsdk:"exclusion_ranges"`
 	Filters            types.List   `tfsdk:"filters"`
-	InheritanceParent  types.String `tfsdk:"inheritance_parent"`
 	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
 	Name               types.String `tfsdk:"name"`
-	Parent             types.String `tfsdk:"parent"`
 	Space              types.String `tfsdk:"space"`
 	Start              types.String `tfsdk:"start"`
 	Tags               types.Map    `tfsdk:"tags"`
@@ -203,10 +201,8 @@ var UDDIRangeAttrTypes = map[string]attr.Type{
 	"end":                 types.StringType,
 	"exclusion_ranges":    types.ListType{ElemType: types.ObjectType{AttrTypes: ExclusionRangeAttrTypes}},
 	"filters":             types.ListType{ElemType: types.ObjectType{AttrTypes: AccessFilterAttrTypes}},
-	"inheritance_parent":  types.StringType,
 	"inheritance_sources": types.ObjectType{AttrTypes: DHCPOptionsInheritanceAttrTypes},
 	"name":                types.StringType,
-	"parent":              types.StringType,
 	"space":               types.StringType,
 	"start":               types.StringType,
 	"tags":                types.MapType{ElemType: types.StringType},
@@ -722,6 +718,7 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},
@@ -729,6 +726,7 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"dhcp_host": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
@@ -736,6 +734,7 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -756,6 +755,7 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: ExclusionRangeResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -766,18 +766,16 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			Attributes: AccessFilterResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
 		MarkdownDescription: "The list of all allow/deny filters of the range.",
 	},
-	"inheritance_parent": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
-	},
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: DHCPOptionsInheritanceResourceSchemaAttributes,
 		Optional:   true,
+		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
 		},
@@ -785,14 +783,11 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(1, 256),
 		},
 		MarkdownDescription: "The name of the range. May contain 1 to 256 characters. Can include UTF-8.",
-	},
-	"parent": schema.StringAttribute{
-		Optional:            true,
-		MarkdownDescription: "The resource identifier.",
 	},
 	"space": schema.StringAttribute{
 		Required: true,
@@ -823,6 +818,7 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"threshold": schema.SingleNestedAttribute{
 		Attributes:          UtilizationThresholdResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "A __UtilizationThreshold__ object represents IP address utilization threshold settings.",
 	},
 }
@@ -844,7 +840,7 @@ func (m *RangeModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCrea
 	// Expand UDDI nested attribute (returns nil if not present)
 	uddiModel := flex.ExpandNestedObject[UDDIRangeModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
-		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = uddiModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
@@ -956,8 +952,8 @@ func ApplyRangeNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *corem
 }
 
 // Expand converts the UDDI TF model to the core model.
-func (m *UDDIRangeModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIRangeExt {
-	return &coremodel.UDDIRangeExt{
+func (m *UDDIRangeModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIRangeExt {
+	ext := &coremodel.UDDIRangeExt{
 		Comment:            flex.ExpandStringPointer(m.Comment),
 		DhcpHost:           flex.ExpandStringPointer(m.DhcpHost),
 		DhcpOptions:        flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
@@ -965,15 +961,16 @@ func (m *UDDIRangeModel) Expand(ctx context.Context, diags *diag.Diagnostics) *c
 		End:                flex.ExpandString(m.End),
 		ExclusionRanges:    flex.ExpandFrameworkListNestedBlock(ctx, m.ExclusionRanges, diags, ExpandExclusionRange),
 		Filters:            flex.ExpandFrameworkListNestedBlock(ctx, m.Filters, diags, ExpandAccessFilter),
-		InheritanceParent:  flex.ExpandStringPointer(m.InheritanceParent),
 		InheritanceSources: ExpandDHCPOptionsInheritance(ctx, m.InheritanceSources, diags),
 		Name:               flex.ExpandStringPointer(m.Name),
-		Parent:             flex.ExpandStringPointer(m.Parent),
-		Space:              flex.ExpandStringPointer(m.Space),
 		Start:              flex.ExpandString(m.Start),
 		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
 		Threshold:          ExpandUtilizationThreshold(ctx, m.Threshold, diags),
 	}
+	if isCreate {
+		ext.Space = flex.ExpandStringPointer(m.Space)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -1039,7 +1036,6 @@ func (m *NIOSRangeModel) Flatten(ctx context.Context, from *coremodel.NIOSRangeE
 	m.EnableDiscovery = flex.FlattenBoolPointer(from.EnableDiscovery)
 	m.EnableEmailWarnings = flex.FlattenBoolPointer(from.EnableEmailWarnings)
 	m.EnableIfmapPublishing = flex.FlattenBoolPointer(from.EnableIfmapPublishing)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
 	m.EnableSnmpWarnings = flex.FlattenBoolPointer(from.EnableSnmpWarnings)
 	m.EndAddr = flex.FlattenIPv4Address(from.EndAddr)
@@ -1096,10 +1092,8 @@ func (m *UDDIRangeModel) Flatten(ctx context.Context, from *coremodel.UDDIRangeE
 	m.End = flex.FlattenString(from.End)
 	m.ExclusionRanges = flex.FlattenFrameworkListNestedBlock(ctx, from.ExclusionRanges, ExclusionRangeAttrTypes, diags, FlattenExclusionRange)
 	m.Filters = flex.FlattenFrameworkListNestedBlock(ctx, from.Filters, AccessFilterAttrTypes, diags, FlattenAccessFilter)
-	m.InheritanceParent = flex.FlattenStringPointer(from.InheritanceParent)
 	m.InheritanceSources = FlattenDHCPOptionsInheritance(ctx, from.InheritanceSources, diags)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.Parent = flex.FlattenStringPointer(from.Parent)
 	m.Space = flex.FlattenStringPointer(from.Space)
 	m.Start = flex.FlattenString(from.Start)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)

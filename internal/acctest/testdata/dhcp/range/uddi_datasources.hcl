@@ -2,16 +2,16 @@
 case "filters" {
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -25,12 +25,12 @@ case "filters" {
     }
   }
 
-  pair_checks = ["uddi.comment", "uddi.dhcp_host", "uddi.disable_dhcp", "uddi.end", "uddi.inheritance_parent", "uddi.name", "uddi.parent", "uddi.space", "uddi.start"]
+  pair_checks = ["uddi.comment", "uddi.dhcp_host", "uddi.disable_dhcp", "uddi.end", "uddi.name", "uddi.space", "uddi.start"]
 
   step {
     uddi {
       end   = "10.0.0.20"
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
     }
   }
@@ -40,16 +40,16 @@ case "filters" {
 case "tag_filters" {
   backend = "uddi"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -61,12 +61,12 @@ case "tag_filters" {
     }
   }
 
-  pair_checks = ["uddi.comment", "uddi.dhcp_host", "uddi.disable_dhcp", "uddi.end", "uddi.inheritance_parent", "uddi.name", "uddi.parent", "uddi.space", "uddi.start"]
+  pair_checks = ["uddi.comment", "uddi.dhcp_host", "uddi.disable_dhcp", "uddi.end", "uddi.name", "uddi.space", "uddi.start"]
 
   step {
     uddi {
       end   = "10.0.0.20"
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
       start = "10.0.0.8"
       tags  = { tag1 = "{{random}}" }
     }

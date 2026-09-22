@@ -33,6 +33,7 @@ var ExclusionRangeAttrTypes = map[string]attr.Type{
 var ExclusionRangeResourceSchemaAttributes = map[string]schema.Attribute{
 	"comment": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.LengthBetween(0, 1024),
 		},

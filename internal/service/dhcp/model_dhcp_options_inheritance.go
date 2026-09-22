@@ -6,9 +6,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	uddidhcp "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
@@ -25,8 +27,12 @@ var DHCPOptionsInheritanceAttrTypes = map[string]attr.Type{
 // DHCPOptionsInheritanceResourceSchemaAttributes contains the schema attributes for DHCPOptionsInheritanceModel
 var DHCPOptionsInheritanceResourceSchemaAttributes = map[string]schema.Attribute{
 	"dhcp_options": schema.SingleNestedAttribute{
-		Attributes:          InheritedDHCPOptionListResourceSchemaAttributes,
-		Optional:            true,
+		Attributes: InheritedDHCPOptionListResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			objectplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The inheritance configuration for the _dhcp_options_ field.",
 	},
 }

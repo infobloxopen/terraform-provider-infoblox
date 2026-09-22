@@ -1,4 +1,5 @@
-resource "infoblox_view" "example" {
+// Create an IP Space (Required as Parent)
+resource "infoblox_network_view" "example" {
   uddi = {
     name    = "example"
     comment = "Example IP space created by the terraform provider"
@@ -8,11 +9,20 @@ resource "infoblox_view" "example" {
   }
 }
 
+// Create a Network that contains the range (Required as Parent)
+resource "infoblox_network" "example" {
+  uddi = {
+    address = "192.168.1.0"
+    cidr    = 24
+    space   = infoblox_network_view.example.id
+  }
+}
+
 resource "infoblox_range" "example" {
   uddi = {
     start = "192.168.1.15"
     end   = "192.168.1.30"
-    space = infoblox_view.example.id
+    space = infoblox_network_view.example.id
 
     // Other optional fields
     name    = "example"
@@ -27,4 +37,5 @@ resource "infoblox_range" "example" {
       }
     ]
   }
+  depends_on = [infoblox_network.example]
 }

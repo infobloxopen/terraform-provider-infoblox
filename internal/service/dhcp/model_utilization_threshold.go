@@ -30,15 +30,18 @@ var UtilizationThresholdAttrTypes = map[string]attr.Type{
 // UtilizationThresholdResourceSchemaAttributes contains the schema attributes for UtilizationThresholdModel
 var UtilizationThresholdResourceSchemaAttributes = map[string]schema.Attribute{
 	"enabled": schema.BoolAttribute{
-		Required:            true,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Indicates whether the utilization threshold for IP addresses is enabled or not.",
 	},
 	"high": schema.Int64Attribute{
-		Required:            true,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The high threshold value for the percentage of used IP addresses relative to the total IP addresses available in the scope of the object. Thresholds are inclusive in the comparison test.",
 	},
 	"low": schema.Int64Attribute{
-		Required:            true,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The low threshold value for the percentage of used IP addresses relative to the total IP addresses available in the scope of the object. Thresholds are inclusive in the comparison test.",
 	},
 }
