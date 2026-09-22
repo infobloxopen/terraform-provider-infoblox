@@ -1,7 +1,7 @@
 # Awsuser — nios list cases
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
 
   step {
     nios {
@@ -20,15 +20,14 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
 
   step {
     nios {
       access_key_id    = "AKIA{{random}}"
       account_id       = "337773173961"
       name             = "{{random2}}"
-      # tostring() makes this a RawExpr so the framework skips the auto pair-check (writeOnly field)
       secret_access_key = tostring("S1JGWfwcZWEYhSkfpyhxigL9A/uaJ6mY")
     }
   }
