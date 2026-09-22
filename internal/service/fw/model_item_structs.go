@@ -18,20 +18,18 @@ import (
 
 // ItemStructsModel is the Terraform model for ItemStructs
 type ItemStructsModel struct {
-	Description   types.String      `tfsdk:"description"`
-	ExpiryTime    timetypes.RFC3339 `tfsdk:"expiry_time"`
-	Item          types.String      `tfsdk:"item"`
-	Status        types.String      `tfsdk:"status"`
-	StatusDetails types.String      `tfsdk:"status_details"`
+	Description types.String      `tfsdk:"description"`
+	ExpiryTime  timetypes.RFC3339 `tfsdk:"expiry_time"`
+	Item        types.String      `tfsdk:"item"`
+	Status      types.String      `tfsdk:"status"`
 }
 
 // ItemStructsAttrTypes contains the attribute types for ItemStructsModel
 var ItemStructsAttrTypes = map[string]attr.Type{
-	"description":    types.StringType,
-	"expiry_time":    timetypes.RFC3339Type{},
-	"item":           types.StringType,
-	"status":         types.StringType,
-	"status_details": types.StringType,
+	"description": types.StringType,
+	"expiry_time": timetypes.RFC3339Type{},
+	"item":        types.StringType,
+	"status":      types.StringType,
 }
 
 // ItemStructsResourceSchemaAttributes contains the schema attributes for ItemStructsModel
@@ -56,10 +54,6 @@ var ItemStructsResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The status of the item. Applicable to TI domains only",
 	},
-	"status_details": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "The status details of the item. Applicable to TI domains only",
-	},
 }
 
 // ExpandItemStructs converts a Terraform Object to SDK type
@@ -81,11 +75,10 @@ func (m *ItemStructsModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		return nil
 	}
 	to := &uddifw.ItemStructs{
-		Description:   flex.ExpandStringPointer(m.Description),
-		ExpiryTime:    flex.ExpandRFC3339(m.ExpiryTime, diags),
-		Item:          flex.ExpandStringPointer(m.Item),
-		Status:        (*uddifw.ItemStructsItemStatus)(flex.ExpandStringPointer(m.Status)),
-		StatusDetails: flex.ExpandStringPointer(m.StatusDetails),
+		Description: flex.ExpandStringPointer(m.Description),
+		ExpiryTime:  flex.ExpandRFC3339(m.ExpiryTime, diags),
+		Item:        flex.ExpandStringPointer(m.Item),
+		Status:      (*uddifw.ItemStructsItemStatus)(flex.ExpandStringPointer(m.Status)),
 	}
 	return to
 }
@@ -111,5 +104,4 @@ func (m *ItemStructsModel) Flatten(ctx context.Context, from *uddifw.ItemStructs
 	m.ExpiryTime = flex.FlattenRFC3339(from.ExpiryTime)
 	m.Item = flex.FlattenStringPointer(from.Item)
 	m.Status = flex.FlattenStringPointer((*string)(from.Status))
-	m.StatusDetails = flex.FlattenStringPointer(from.StatusDetails)
 }

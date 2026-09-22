@@ -104,6 +104,7 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"policies": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

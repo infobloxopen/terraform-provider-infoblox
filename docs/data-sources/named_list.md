@@ -3,12 +3,12 @@
 page_title: "infoblox_named_list Data Source - terraform-provider-infoblox"
 subcategory: "FW"
 description: |-
-  Retrieves information about existing Infoblox NamedList from the UDDI backend. Named lists are also known as custom lists.
+  Retrieves information about existing Infoblox Named List ( Custom List ) from the UDDI backend.
 ---
 
 # infoblox_named_list (Data Source)
 
-Retrieves information about existing Infoblox NamedList from the UDDI backend. Named lists are also known as custom lists.
+Retrieves information about existing Infoblox Named List ( Custom List ) from the UDDI backend.
 
 ## Example Usage
 
@@ -81,4 +81,3 @@ Read-Only:
 - `expiry_time` (String) The time at which this list item expires, as an RFC 3339 timestamp string. May be specified in any timezone. Unset (null) means no expiry.  Write semantics: - Insert/replace (POST /named_lists/{id}/items): set when present;   NULL when absent in payload. - Patch update (PATCH /named_lists/{id}/items, updated_items_described):   set when present; unchanged when absent in payload. Clearing an existing expiry_time via request field mask is not supported.
 - `item` (String) The data of the item.
 - `status` (String) The status of the item. Applicable to TI domains only
-- `status_details` (String) The status details of the item. Applicable to TI domains only

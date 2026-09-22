@@ -69,7 +69,7 @@ func (m *NamedListDataSourceModel) FlattenResults(ctx context.Context, from []*c
 
 func (d *NamedListDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about existing Infoblox NamedList from the UDDI backend. Named lists are also known as custom lists.",
+		MarkdownDescription: "Retrieves information about existing Infoblox Named List ( Custom List ) from the UDDI backend.",
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",

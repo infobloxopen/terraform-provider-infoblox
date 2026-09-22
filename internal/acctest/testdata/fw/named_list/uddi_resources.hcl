@@ -9,12 +9,11 @@ case "basic" {
       type            = "custom_list"
     }
     check = {
-      "uddi.name"                             = "{{random}}"
-      "uddi.items_described.0.item"           = "{{random2}}.com"
-      "uddi.items_described.0.description"    = "Example Domain"
-      "uddi.items_described.0.status"         = "ACTIVE"
-      "uddi.items_described.0.status_details" = ""
-      "uddi.description"                      = ""
+      "uddi.name"                          = "{{random}}"
+      "uddi.items_described.0.item"        = "{{random2}}.com"
+      "uddi.items_described.0.description" = "Example Domain"
+      "uddi.items_described.0.status"      = "ACTIVE"
+      "uddi.description"                   = ""
     }
   }
 
