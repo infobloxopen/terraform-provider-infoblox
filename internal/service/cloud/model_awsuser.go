@@ -109,6 +109,7 @@ var AwsuserResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
+			stringvalidator.LengthAtMost(255),
 		},
 		MarkdownDescription: "The Secret Access Key for the Access Key ID of this user. Maximum 255 characters.",
 	},
