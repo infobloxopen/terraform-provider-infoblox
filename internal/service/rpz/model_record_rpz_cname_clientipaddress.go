@@ -76,7 +76,10 @@ var RecordRpzCnameClientipaddressResourceSchemaAttributes = map[string]schema.At
 
 var RecordRpzCnameClientipaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"canonical": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.IsValidNIOSDomainName(customvalidator.WithAllowNullOrEmpty()),
+		},
 		MarkdownDescription: "The canonical name in FQDN format. This value can be in unicode format.",
 	},
 	"comment": schema.StringAttribute{
