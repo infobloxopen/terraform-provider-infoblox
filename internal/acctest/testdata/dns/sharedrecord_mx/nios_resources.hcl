@@ -195,7 +195,7 @@ case "mail_exchanger" {
   step {
     nios {
       mail_exchanger      = "{{random3}}.example.com"
-      name                = "example.com"
+      name                = "{{random}}.example.com"
       preference          = 10
       shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
     }
