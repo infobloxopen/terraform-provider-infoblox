@@ -357,7 +357,7 @@ github.com/infobloxopen/infoblox-nios-go-client/security
 github.com/infobloxopen/infoblox-nios-go-client/smartfolder
 github.com/infobloxopen/infoblox-nios-go-client/threatinsight
 github.com/infobloxopen/infoblox-nios-go-client/threatprotection
-# github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260907051529-8445f2cf928e
+# github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260907084443-b8800b7a96e0
 ## explicit; go 1.23
 github.com/infobloxopen/universal-ddi-go-client/anycast
 github.com/infobloxopen/universal-ddi-go-client/client

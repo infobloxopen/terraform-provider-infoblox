@@ -1,0 +1,71 @@
+package dns
+
+import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+
+// RecordHostNIOSFieldMap maps infoblox model fields to NIOS struct fields
+var RecordHostNIOSFieldMap = map[string]string{
+	"Id":                            "Ref",
+	"NIOS.Aliases":                  "Aliases",
+	"NIOS.CliCredentials":           "CliCredentials",
+	"NIOS.Comment":                  "Comment",
+	"NIOS.ConfigureForDns":          "ConfigureForDns",
+	"NIOS.DdnsProtected":            "DdnsProtected",
+	"NIOS.DeviceDescription":        "DeviceDescription",
+	"NIOS.DeviceLocation":           "DeviceLocation",
+	"NIOS.DeviceType":               "DeviceType",
+	"NIOS.DeviceVendor":             "DeviceVendor",
+	"NIOS.Disable":                  "Disable",
+	"NIOS.DisableDiscovery":         "DisableDiscovery",
+	"NIOS.EnableImmediateDiscovery": "EnableImmediateDiscovery",
+	"NIOS.Ipv4addrs":                "Ipv4addrs",
+	"NIOS.Ipv6addrs":                "Ipv6addrs",
+	"NIOS.Name":                     "Name",
+	"NIOS.NetworkView":              "NetworkView",
+	"NIOS.RestartIfNeeded":          "RestartIfNeeded",
+	"NIOS.RrsetOrder":               "RrsetOrder",
+	"NIOS.Snmp3Credential":          "Snmp3Credential",
+	"NIOS.SnmpCredential":           "SnmpCredential",
+	"NIOS.Ttl":                      "Ttl",
+	"NIOS.UseCliCredentials":        "UseCliCredentials",
+	"NIOS.UseDnsEaInheritance":      "UseDnsEaInheritance",
+	"NIOS.UseSnmp3Credential":       "UseSnmp3Credential",
+	"NIOS.UseSnmpCredential":        "UseSnmpCredential",
+	"NIOS.UseTtl":                   "UseTtl",
+	"NIOS.View":                     "View",
+}
+
+// TODO: only searchable fields should be included here
+// RecordHostFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
+var RecordHostFilterFieldMap = map[core.BackendType]map[string]string{
+	core.BackendNIOS: {
+		"id":                              "_ref",
+		"nios.aliases":                    "aliases",
+		"nios.cli_credentials":            "cli_credentials",
+		"nios.comment":                    "comment",
+		"nios.configure_for_dns":          "configure_for_dns",
+		"nios.ddns_protected":             "ddns_protected",
+		"nios.device_description":         "device_description",
+		"nios.device_location":            "device_location",
+		"nios.device_type":                "device_type",
+		"nios.device_vendor":              "device_vendor",
+		"nios.disable":                    "disable",
+		"nios.disable_discovery":          "disable_discovery",
+		"nios.enable_immediate_discovery": "enable_immediate_discovery",
+		"nios.ext_attrs":                  "extattrs",
+		"nios.ipv4addrs":                  "ipv4addrs",
+		"nios.ipv6addrs":                  "ipv6addrs",
+		"nios.name":                       "name",
+		"nios.network_view":               "network_view",
+		"nios.restart_if_needed":          "restart_if_needed",
+		"nios.rrset_order":                "rrset_order",
+		"nios.snmp3_credential":           "snmp3_credential",
+		"nios.snmp_credential":            "snmp_credential",
+		"nios.ttl":                        "ttl",
+		"nios.use_cli_credentials":        "use_cli_credentials",
+		"nios.use_dns_ea_inheritance":     "use_dns_ea_inheritance",
+		"nios.use_snmp3_credential":       "use_snmp3_credential",
+		"nios.use_snmp_credential":        "use_snmp_credential",
+		"nios.use_ttl":                    "use_ttl",
+		"nios.view":                       "view",
+	},
+}

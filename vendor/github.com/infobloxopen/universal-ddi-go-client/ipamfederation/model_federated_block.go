@@ -22,7 +22,7 @@ var _ MappedNullable = &FederatedBlock{}
 // FederatedBlock A __FederatedBlock__ object (_federation/federated_block_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. Federated blocks are hierarchical and may be parented to other federated blocks as long as the parent block fully contains the child and no sibling overlaps. Top level federated blocks are parented to a federated realm.
 type FederatedBlock struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
-	Address string `json:"address"`
+	Address *string `json:"address,omitempty"`
 	// The percentage of the Federated Block’s total address space that is consumed by Leaf Terminals.
 	AllocationV4 *Allocation `json:"allocation_v4,omitempty"`
 	// The CIDR of the federated block. This is required, if _address_ does not specify it in its input.
@@ -69,9 +69,8 @@ type _FederatedBlock FederatedBlock
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewFederatedBlock(address string, federatedRealm string) *FederatedBlock {
+func NewFederatedBlock(federatedRealm string) *FederatedBlock {
 	this := FederatedBlock{}
-	this.Address = address
 	this.FederatedRealm = federatedRealm
 	return &this
 }
@@ -84,28 +83,36 @@ func NewFederatedBlockWithDefaults() *FederatedBlock {
 	return &this
 }
 
-// GetAddress returns the Address field value
+// GetAddress returns the Address field value if set, zero value otherwise.
 func (o *FederatedBlock) GetAddress() string {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		var ret string
 		return ret
 	}
-
-	return o.Address
+	return *o.Address
 }
 
-// GetAddressOk returns a tuple with the Address field value
+// GetAddressOk returns a tuple with the Address field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *FederatedBlock) GetAddressOk() (*string, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		return nil, false
 	}
-	return &o.Address, true
+	return o.Address, true
 }
 
-// SetAddress sets field value
+// HasAddress returns a boolean if a field has been set.
+func (o *FederatedBlock) HasAddress() bool {
+	if o != nil && !IsNil(o.Address) {
+		return true
+	}
+
+	return false
+}
+
+// SetAddress gets a reference to the given string and assigns it to the Address field.
 func (o *FederatedBlock) SetAddress(v string) {
-	o.Address = v
+	o.Address = &v
 }
 
 // GetAllocationV4 returns the AllocationV4 field value if set, zero value otherwise.
@@ -718,7 +725,9 @@ func (o FederatedBlock) MarshalJSON() ([]byte, error) {
 
 func (o FederatedBlock) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["address"] = o.Address
+	if !IsNil(o.Address) {
+		toSerialize["address"] = o.Address
+	}
 	if !IsNil(o.AllocationV4) {
 		toSerialize["allocation_v4"] = o.AllocationV4
 	}
@@ -787,7 +796,6 @@ func (o *FederatedBlock) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"address",
 		"federated_realm",
 	}
 
