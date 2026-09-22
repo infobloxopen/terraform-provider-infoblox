@@ -589,7 +589,7 @@ case "func_call" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6network" "parent" {
+  resource "infoblox_ipv6_network" "parent" {
     nios = {
       network = "{{random_ipv6_network}}"
       network_view = "default"
@@ -600,10 +600,10 @@ case "func_call" {
 
   step {
     nios {
-      dynamic_allocation = { network = infoblox_ipv6network.parent.nios.network, network_view = "default", cidr = 126 }
+      dynamic_allocation = { network = infoblox_ipv6_network.parent.nios.network, network_view = "default", cidr = 126 }
       comment            = "Created by Dynamic Allocation"
     }
-    depends_on = [infoblox_ipv6network.parent]
+    depends_on = [infoblox_ipv6_network.parent]
     check = {
       "nios.comment" = "Created by Dynamic Allocation"
     }
@@ -835,7 +835,7 @@ case "rir_registration_action" {
   skip = true
   skip_reason = "Skipping this test case as ipv6networkcontainer resource is under development as of now"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6networkcontainer" "test_rir_parent" {
+  resource "infoblox_ipv6_network_container" "test_rir_parent" {
     nios = {
       network = "{{random_ipv6_network}}"
       rir_organization = "rir-org-test1"
@@ -851,7 +851,7 @@ case "rir_registration_action" {
       rir_organization        = "rir-org-test1"
       ext_attrs               = { "RIPE Network Name" = "TEST-NET-V6-CHILD", "RIPE Description" = "Test IPv6 child network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE", "RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
     }
-    depends_on = [infoblox_ipv6networkcontainer.test_rir_parent]
+    depends_on = [infoblox_ipv6_network_container.test_rir_parent]
     check = {
       "nios.rir_registration_action" = "CREATE"
     }
