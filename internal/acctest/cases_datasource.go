@@ -94,7 +94,13 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
-	checkFuncs = append(checkFuncs, dataSourcePairChecks(dsAddr, resourceAddr, dc)...)
+	// An unfiltered read returns every object on the grid, so results.0 is not
+	// the resource under test and per-attribute pair checks would compare
+	// unrelated objects. The results.0.id assertion above still proves the read
+	// path works end to end.
+	if dc.FilterType != "" {
+		checkFuncs = append(checkFuncs, dataSourcePairChecks(dsAddr, resourceAddr, dc)...)
+	}
 
 	tc := resource.TestCase{
 		ProtoV6ProviderFactories: ProtoV6ProviderFactories,
@@ -111,14 +117,21 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 }
 
 // buildDataSourceBlock renders the data source HCL block with filter values referencing the test resource.
+//
+// A case with no filter block renders an unfiltered read. Some NIOS objects
+// expose no searchable field at all (discovery:credentialgroup reports
+// searchable_by="" for its only field), so filtering them is a server-side
+// error and reading everything is the only thing the data source can do.
 func buildDataSourceBlock(dsType, resourceType string, dc *DataSourceCase) string {
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "data %q \"test\" {\n", dsType)
-	fmt.Fprintf(&sb, "  %s = {\n", dc.FilterType)
-	for _, key := range dc.FilterOrder {
-		fmt.Fprintf(&sb, "    %q = %s.test.%s\n", key, resourceType, dc.Filters[key])
+	if dc.FilterType != "" {
+		fmt.Fprintf(&sb, "  %s = {\n", dc.FilterType)
+		for _, key := range dc.FilterOrder {
+			fmt.Fprintf(&sb, "    %q = %s.test.%s\n", key, resourceType, dc.Filters[key])
+		}
+		sb.WriteString("  }\n")
 	}
-	sb.WriteString("  }\n")
 	fmt.Fprintf(&sb, "  depends_on = [%s.test]\n", resourceType)
 	sb.WriteString("}\n")
 	return sb.String()
