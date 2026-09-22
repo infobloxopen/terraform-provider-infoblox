@@ -64,7 +64,7 @@ Read-Only:
 
 - `confidence_level` (String) The confidence level for a custom list. The possible values are "LOW", "MEDIUM", and "HIGH".
 - `description` (String) The brief description for the named list.
-- `items_described` (Attributes List) The list of ItemStructs structures that contains items, descriptions, status and status details. Use of the plain 'items' field is discouraged by the API in favor of this field, since it allows adding a description or comment to each item; this provider does not expose 'items' for that reason. (see [below for nested schema](#nestedatt--results--uddi--items_described))
+- `items_described` (Attributes List) The list of ItemStructs structures that contains items, descriptions, status and status details. The plain `items` field is deprecated in favor of this field, since it allows adding a description or comment to each item; this provider does not expose `items` for that reason. (see [below for nested schema](#nestedatt--results--uddi--items_described))
 - `name` (String) The name of the named list.
 - `policies` (List of String) The list of the security policy names with which the named list is associated.
 - `tags` (Map of String) Enables tag support for a resource where the tags attribute contains user-defined key-value pairs.

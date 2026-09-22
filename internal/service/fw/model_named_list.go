@@ -11,6 +11,7 @@ import (
 	int32planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -83,6 +84,7 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The confidence level for a custom list. The possible values are \"LOW\", \"MEDIUM\", and \"HIGH\".",
 	},
 	"description": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The brief description for the named list.",
@@ -95,19 +97,15 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "The list of ItemStructs structures that contains items, descriptions, status and status details. Use of the plain 'items' field is discouraged by the API in favor of this field, since it allows adding a description or comment to each item; this provider does not expose 'items' for that reason.",
+		MarkdownDescription: "The list of ItemStructs structures that contains items, descriptions, status and status details. The plain `items` field is deprecated in favor of this field, since it allows adding a description or comment to each item; this provider does not expose `items` for that reason.",
 	},
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the named list.",
 	},
 	"policies": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Computed:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
+		ElementType:         types.StringType,
+		Computed:            true,
 		MarkdownDescription: "The list of the security policy names with which the named list is associated.",
 	},
 	"tags": schema.MapAttribute{
@@ -137,8 +135,7 @@ var NamedListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.String{
 			stringvalidator.OneOf("custom_list", "threat_insight", "fast_flux", "dga", "dnsm", "threat_insight_nde", "default_allow", "default_block", "zero_day_dns"),
 		},
-		Optional: true,
-		Computed: true,
+		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},

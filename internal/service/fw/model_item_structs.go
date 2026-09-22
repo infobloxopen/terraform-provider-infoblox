@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -35,7 +36,9 @@ var ItemStructsAttrTypes = map[string]attr.Type{
 // ItemStructsResourceSchemaAttributes contains the schema attributes for ItemStructsModel
 var ItemStructsResourceSchemaAttributes = map[string]schema.Attribute{
 	"description": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description of the item.",
 	},
 	"expiry_time": schema.StringAttribute{

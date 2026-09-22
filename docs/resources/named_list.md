@@ -74,19 +74,19 @@ resource "infoblox_named_list" "create_named_list_with_additional_fields" {
 Required:
 
 - `name` (String) The name of the named list.
+- `type` (String) The type of the named list: "custom_list", "threat_insight", "dga", "dnsm", "default_allow", "default_block", "threat_insight_nde", or "zero_day_dns".
 
 Optional:
 
 - `confidence_level` (String) The confidence level for a custom list. The possible values are "LOW", "MEDIUM", and "HIGH".
 - `description` (String) The brief description for the named list.
-- `items_described` (Attributes List) The list of ItemStructs structures that contains items, descriptions, status and status details. Use of the plain 'items' field is discouraged by the API in favor of this field, since it allows adding a description or comment to each item; this provider does not expose 'items' for that reason. (see [below for nested schema](#nestedatt--uddi--items_described))
-- `policies` (List of String) The list of the security policy names with which the named list is associated.
+- `items_described` (Attributes List) The list of ItemStructs structures that contains items, descriptions, status and status details. The plain `items` field is deprecated in favor of this field, since it allows adding a description or comment to each item; this provider does not expose `items` for that reason. (see [below for nested schema](#nestedatt--uddi--items_described))
 - `tags` (Map of String) Enables tag support for a resource where the tags attribute contains user-defined key-value pairs.
 - `threat_level` (String) The threat level for a custom list. The possible values are "INFO", "LOW", "MEDIUM", and "HIGH".
-- `type` (String) The type of the named list: "custom_list", "threat_insight", "dga", "dnsm", "default_allow", "default_block", "threat_insight_nde", or "zero_day_dns".
 
 Read-Only:
 
+- `policies` (List of String) The list of the security policy names with which the named list is associated.
 - `tags_all` (Map of String) All tags including inherited values.
 
 <a id="nestedatt--uddi--items_described"></a>
