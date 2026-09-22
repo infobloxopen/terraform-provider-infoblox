@@ -55,8 +55,9 @@ case "access_key_id" {
       secret_access_key = "S1JGWfwcZWEY+hSkfpyhxigL9A/ua96mY"
     }
     check = {
-      "nios.account_id" = "337773173961"
-      "nios.name"       = "{{random}}"
+      "nios.access_key_id" = "AKIA{{random2}}"
+      "nios.account_id"    = "337773173961"
+      "nios.name"          = "{{random}}"
     }
   }
 
@@ -68,8 +69,9 @@ case "access_key_id" {
       secret_access_key = "S1JGWfwcZWEY+hSkfpyhxigL9A/ua96mY"
     }
     check = {
-      "nios.account_id" = "337773173961"
-      "nios.name"       = "{{random}}"
+      "nios.access_key_id" = "AKIA{{random3}}"
+      "nios.account_id"    = "337773173961"
+      "nios.name"          = "{{random}}"
     }
   }
 

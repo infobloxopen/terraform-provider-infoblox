@@ -98,7 +98,6 @@ var AwsuserResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Computed: true,
 		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
 			stringvalidator.LengthAtMost(64),
 		},
 		MarkdownDescription: "The NIOS user name mapped to this AWS user. Maximum 64 characters.",
@@ -139,7 +138,7 @@ func (m *NIOSAwsuserModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 		AccountId:       flex.ExpandStringPointerNullAsEmpty(m.AccountId),
 		GovcloudEnabled: flex.ExpandBoolPointer(m.GovcloudEnabled),
 		Name:            flex.ExpandStringPointerNullAsEmpty(m.Name),
-		NiosUserName:    flex.ExpandStringPointer(m.NiosUserName),
+		NiosUserName:    flex.ExpandStringPointerNullAsEmpty(m.NiosUserName),
 		SecretAccessKey: flex.ExpandStringPointerNullAsEmpty(m.SecretAccessKey),
 	}
 }
