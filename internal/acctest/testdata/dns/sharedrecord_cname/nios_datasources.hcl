@@ -16,7 +16,7 @@ case "filters" {
     }
   }
 
-  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.shared_record_group", "nios.ttl", "nios.use_ttl"]
+  pair_checks = ["nios.canonical", "nios.comment", "nios.disable", "nios.name", "nios.shared_record_group", "nios.ttl"]
 
   step {
     nios {
