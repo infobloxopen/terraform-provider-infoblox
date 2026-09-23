@@ -22,13 +22,15 @@ import (
 )
 
 type NamedListModel struct {
-	Id   types.Int32  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int32  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var NamedListAttrTypes = map[string]attr.Type{
-	"id":   types.Int32Type,
-	"uddi": types.ObjectType{AttrTypes: UDDINamedListAttrTypes},
+	"id":             types.Int32Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDINamedListAttrTypes},
 }
 
 type UDDINamedListModel struct {
@@ -66,6 +68,10 @@ var NamedListResourceSchemaAttributes = map[string]schema.Attribute{
 			int32planmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The Named List object identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
