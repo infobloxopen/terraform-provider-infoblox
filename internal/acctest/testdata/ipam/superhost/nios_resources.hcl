@@ -31,9 +31,9 @@ case "disappears" {
 }
 
 case "import" {
-  backend  = "nios"
-  parallel = true
-  import   = true
+  backend       = "nios"
+  parallel      = true
+  import        = true
   import_ignore = ["nios.delete_associated_objects", "nios.ext_attrs_all"]
 
   step {
@@ -176,56 +176,56 @@ case "disabled" {
 case "dns_associated_objects" {
   backend  = "nios"
   parallel = true
-# extracted prerequisites_hcl:
-#  prerequisites_hcl = <<-PREREQ
-#   resource "infoblox_record_a" "record_a" {
-#     nios = {
-#       name = "parent-record_a.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-#       ipv4addr = "10.0.0.20"
-#       view = "default"
-#     }
-#   }
-#   resource "infoblox_record_aaaa" "record_aaaa" {
-#     nios = {
-#       name = "parent-record_aaaa.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-#       ipv6addr = "2002:1111::1401"
-#       view = "default"
-#     }
-#   }
-#   resource "infoblox_record_ptr_unknown" "record_ptr" {
-#     nios = {
-#       name = "23.252.168.192.in-addr.arpa"
-#       ptrdname = "test.example.com"
-#       view = "default"
-#     }
-#   }
-#   resource "infoblox_zone_auth" "parent_auth_zone" {
-#     nios = {
-#       fqdn = "{{random2}}.com"
-#       view = "default"
-#     }
-#   }
-#   resource "infoblox_zone_auth" "parent_reverse_zone" {
-#     nios = {
-#       fqdn = "192.168.252.0/24"
-#       view = "default"
-#       zone_format = "IPV4"
-#     }
-#   }
-#   resource "infoblox_ip_allocation_unknown" "allocation" {
-#     nios = {
-#       name = "parent-record_host.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-#       view = "default"
-#     }
-#   }
-#   resource "infoblox_ip_association_unknown" "association" {
-#     nios = {
-#       ref = infoblox_ip_allocation_unknown.allocation.nios.ref
-#       mac = "12:00:43:fe:9a:8c"
-#       configure_for_dhcp = true
-#     }
-#   }
-#   PREREQ
+  # extracted prerequisites_hcl:
+  #  prerequisites_hcl = <<-PREREQ
+  #   resource "infoblox_record_a" "record_a" {
+  #     nios = {
+  #       name = "parent-record_a.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
+  #       ipv4addr = "10.0.0.20"
+  #       view = "default"
+  #     }
+  #   }
+  #   resource "infoblox_record_aaaa" "record_aaaa" {
+  #     nios = {
+  #       name = "parent-record_aaaa.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
+  #       ipv6addr = "2002:1111::1401"
+  #       view = "default"
+  #     }
+  #   }
+  #   resource "infoblox_record_ptr_unknown" "record_ptr" {
+  #     nios = {
+  #       name = "23.252.168.192.in-addr.arpa"
+  #       ptrdname = "test.example.com"
+  #       view = "default"
+  #     }
+  #   }
+  #   resource "infoblox_zone_auth" "parent_auth_zone" {
+  #     nios = {
+  #       fqdn = "{{random2}}.com"
+  #       view = "default"
+  #     }
+  #   }
+  #   resource "infoblox_zone_auth" "parent_reverse_zone" {
+  #     nios = {
+  #       fqdn = "192.168.252.0/24"
+  #       view = "default"
+  #       zone_format = "IPV4"
+  #     }
+  #   }
+  #   resource "infoblox_ip_allocation_unknown" "allocation" {
+  #     nios = {
+  #       name = "parent-record_host.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
+  #       view = "default"
+  #     }
+  #   }
+  #   resource "infoblox_ip_association_unknown" "association" {
+  #     nios = {
+  #       ref = infoblox_ip_allocation_unknown.allocation.nios.ref
+  #       mac = "12:00:43:fe:9a:8c"
+  #       configure_for_dhcp = true
+  #     }
+  #   }
+  #   PREREQ
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "parent_auth_zone" {

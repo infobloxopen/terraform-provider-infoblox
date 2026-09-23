@@ -77,6 +77,7 @@ resource "infoblox_dtc_monitor_tcp" "dtc_monitor_tcp_additional" {
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 

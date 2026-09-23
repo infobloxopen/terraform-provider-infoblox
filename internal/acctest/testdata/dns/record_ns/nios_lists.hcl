@@ -48,11 +48,11 @@ case "filters" {
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name       = "nios.name"
         nameserver = "nios.nameserver"

@@ -16,20 +16,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/querycheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
+	"github.com/zclconf/go-cty/cty"
 )
 
 // ListCase is the per-subtest configuration for a list query acceptance test.
 // Each case maps to a `case "<name>" { ... }` block in <backend>_lists.hcl.
 type ListCase struct {
-	Name         string
-	Backend      string
-	Skip         bool
-	SkipReason   string
-	MinTFVersion string            // minimum Terraform version string (e.g. "1.14.0")
-	FilterType   string            // filters | ext_attr_filters | tag_filters; empty = list-all
-	Filters      map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
-	FilterOrder  []string          // filter keys in deterministic order
-	Step         CaseStep          // resource-create step
+	Name           string
+	Backend        string
+	Skip           bool
+	SkipReason     string
+	SkipIfEnvEmpty []string
+	MinTFVersion   string            // minimum Terraform version string (e.g. "1.14.0")
+	FilterType     string            // filters | ext_attr_filters | tag_filters; empty = list-all
+	Filters        map[string]string // filter key -> resource attribute path (e.g. "network" -> "nios.network")
+	FilterOrder    []string          // filter keys in deterministic order
+	Step           CaseStep          // resource-create step
 	// PrerequisitesHCL is prepended to both the create and query steps so the resource stays alive.
 	PrerequisitesHCL string
 }
@@ -55,6 +57,12 @@ func RunListCases(t *testing.T, resourceType, fileRelPath string, checksByBacken
 			if lc.Skip {
 				t.Skipf("Skipped: %s", lc.SkipReason)
 				return
+			}
+			for _, envVar := range lc.SkipIfEnvEmpty {
+				if os.Getenv(envVar) == "" {
+					t.Skipf("%s environment variable must be set for this test to run", envVar)
+					return
+				}
 			}
 
 			checks, ok := checksByBackend[lc.Backend]
@@ -447,6 +455,7 @@ func parseListCaseBody(body hcl.Body, src []byte) (*ListCase, error) {
 			{Name: "backend"},
 			{Name: "skip"},
 			{Name: "skip_reason"},
+			{Name: "skip_if_env_empty"},
 			{Name: "min_tf_version"},
 			{Name: "prerequisites_hcl"},
 		},
@@ -470,6 +479,18 @@ func parseListCaseBody(body hcl.Body, src []byte) (*ListCase, error) {
 	if attr, ok := content.Attributes["skip_reason"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		lc.SkipReason = val.AsString()
+	}
+	if attr, ok := content.Attributes["skip_if_env_empty"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		switch val.Type() {
+		case cty.String:
+			lc.SkipIfEnvEmpty = []string{val.AsString()}
+		default:
+			for it := val.ElementIterator(); it.Next(); {
+				_, v := it.Element()
+				lc.SkipIfEnvEmpty = append(lc.SkipIfEnvEmpty, v.AsString())
+			}
+		}
 	}
 	if attr, ok := content.Attributes["min_tf_version"]; ok {
 		val, _ := attr.Expr.Value(nil)
