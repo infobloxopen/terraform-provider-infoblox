@@ -27,13 +27,11 @@ resource "infoblox_dtc_topology" "example_with_rules" {
     comment = "Topology with geographic rules"
     rules = [
       {
-        # Default rule (no sources = catch-all)
         dest_type        = "SERVER"
         destination_link = infoblox_dtc_server.example_server_default.id
         return_type      = "REGULAR"
       },
       {
-        # Rule matching US traffic by country
         dest_type        = "SERVER"
         destination_link = infoblox_dtc_server.example_server_us.id
         return_type      = "REGULAR"

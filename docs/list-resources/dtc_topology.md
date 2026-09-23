@@ -46,28 +46,28 @@ list "infoblox_dtc_topology" "list_dtc_topology_with_resource" {
 ### UDDI Backend
 
 ```terraform
-// List specific Dtc Topologies using filters
+// List specific DTC Topologies using filters
 list "infoblox_dtc_topology" "list_dtc_topology_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      comment = "Topology with geographic rules"
     }
   }
   limit = 10
 }
 
-// List specific Dtc Topologies using Tags
+// List specific DTC Topologies using Tags
 list "infoblox_dtc_topology" "list_dtc_topology_using_tags" {
   provider = infoblox
   config {
     tag_filters = {
-      Site = "location-1"
+      Site = "us-east-1"
     }
   }
 }
 
-// List Dtc Topologies with resource details included
+// List DTC Topologies with resource details included
 list "infoblox_dtc_topology" "list_dtc_topology_with_resource" {
   provider         = infoblox
   include_resource = true

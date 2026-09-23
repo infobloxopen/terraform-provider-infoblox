@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddidtc "github.com/infobloxopen/universal-ddi-go-client/dtc"
@@ -50,6 +51,7 @@ var TopologySourceResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
+			listvalidator.ValueStringsAre(customvalidator.IsValidIPCIDR()),
 		},
 		MarkdownDescription: "Optional. List of subnets in CIDR format.  Must be set if _source_ is set to _subnet_, otherwise must be empty.",
 	},

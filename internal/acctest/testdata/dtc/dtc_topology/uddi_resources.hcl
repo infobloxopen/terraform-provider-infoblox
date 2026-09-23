@@ -167,6 +167,20 @@ case "sources" {
     uddi {
       name    = "topology-{{random}}"
       sources = [
+        { name = "src1-{{random}}", source = "subnet", subnets = ["192.168.0.0/16" ,"10.0.0.0/8"] }
+      ]
+    }
+    check = {
+      "uddi.sources.#"                 = "1"
+      "uddi.sources.0.source"          = "subnet"
+      "uddi.sources.0.subnets.#"       = "2"
+    }
+  }
+
+  step {
+    uddi {
+      name    = "topology-{{random}}"
+      sources = [
         { name = "src1-{{random}}", source = "subnet", subnets = ["10.0.0.0/8"] },
         { name = "src2-{{random}}", source = "subnet", subnets = ["172.16.0.0/12"] }
       ]
@@ -203,7 +217,6 @@ case "sources_tag_rule" {
         {
           name      = "src-{{random}}"
           source    = "tag_rule"
-          subnets = ["10.0.0.0/8"]
           tag_rules = [{ key = "env", op = "EQUALS", value = "production" }]
         }
       ]
@@ -226,14 +239,20 @@ case "sources_tag_rule" {
           name      = "src-{{random}}"
           source    = "tag_rule"
           tag_rules = [
-            { key = "env", op = "EQUALS", value = "production" },
-            { key = "region", op = "NOT_EQUALS", value = "us-east-1" }
+            { key = "env",          op = "EQUALS",     value = "production" },
+            { key = "region",       op = "NOT_EQUALS", value = "us-east-1" },
+            { key = "Env/Region-01", op = "EQUALS",    value = "US-East/1" },
+            { key = "App/Tier-ABC",  op = "NOT_EQUALS", value = "FrontEnd/2" }
           ]
         }
       ]
     }
     check = {
-      "uddi.sources.0.tag_rules.#" = "2"
+      "uddi.sources.0.tag_rules.#"       = "4"
+      "uddi.sources.0.tag_rules.2.key"   = "Env/Region-01"
+      "uddi.sources.0.tag_rules.2.value" = "US-East/1"
+      "uddi.sources.0.tag_rules.3.key"   = "App/Tier-ABC"
+      "uddi.sources.0.tag_rules.3.value" = "FrontEnd/2"
     }
   }
 

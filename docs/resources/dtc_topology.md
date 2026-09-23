@@ -23,6 +23,7 @@ resource "infoblox_dtc_server" "example_server_us" {
   }
 }
 
+// Create DTC Servers (required as rule destinations)
 resource "infoblox_dtc_server" "example_server_default" {
   nios = {
     name = "example-server-default"
@@ -43,13 +44,11 @@ resource "infoblox_dtc_topology" "example_with_rules" {
     comment = "Topology with geographic rules"
     rules = [
       {
-        # Default rule (no sources = catch-all)
         dest_type        = "SERVER"
         destination_link = infoblox_dtc_server.example_server_default.id
         return_type      = "REGULAR"
       },
       {
-        # Rule matching US traffic by country
         dest_type        = "SERVER"
         destination_link = infoblox_dtc_server.example_server_us.id
         return_type      = "REGULAR"
@@ -216,10 +215,13 @@ Read-Only:
 <a id="nestedatt--uddi--sources"></a>
 ### Nested Schema for `uddi.sources`
 
-Optional:
+Required:
 
 - `name` (String) Required. Display name of __TopologySource__.
 - `source` (String) Type of source.  Allowed values: - subnet - tag_rule  Required.
+
+Optional:
+
 - `subnets` (List of String) Optional. List of subnets in CIDR format.  Must be set if _source_ is set to _subnet_, otherwise must be empty.
 - `tag_rules` (Attributes List) Optional. List of tag rules to match against infrastructure source objects effective tags.  Must be set if _source_ is set to _tag_rule_, otherwise must be empty. (see [below for nested schema](#nestedatt--uddi--sources--tag_rules))
 
