@@ -5,8 +5,8 @@ case "basic" {
   step {
     uddi {
       name               = "{{random}}"
-              service            = "NTP"
-              anycast_ip_address = "{{random_ip}}"
+      service            = "NTP"
+      anycast_ip_address = "{{random_ip}}"
     }
   }
 
@@ -23,12 +23,12 @@ case "filters" {
   min_tf_version = "1.14.0"
 
   step {
-      uddi {
-        name               = "{{random}}"
-                service            = "NTP"
-                anycast_ip_address = "{{random_ip}}"
-      }
+    uddi {
+      name               = "{{random}}"
+      service            = "NTP"
+      anycast_ip_address = "{{random_ip}}"
     }
+  }
 
   step {
     query            = true
@@ -51,9 +51,9 @@ case "tag_filters" {
   step {
     uddi {
       name               = "{{random}}"
-              service            = "NTP"
-              anycast_ip_address = "{{random_ip}}"
-      tags = { tag1 = "{{random2}}" }
+      service            = "NTP"
+      anycast_ip_address = "{{random_ip}}"
+      tags               = { tag1 = "{{random2}}" }
     }
   }
 

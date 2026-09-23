@@ -13,8 +13,8 @@ case "filters" {
   step {
     uddi {
       name               = "{{random}}"
-            service            = "NTP"
-            anycast_ip_address = "{{random_ip}}"
+      service            = "NTP"
+      anycast_ip_address = "{{random_ip}}"
     }
   }
 
@@ -24,7 +24,7 @@ case "tag_filters" {
   backend = "uddi"
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }

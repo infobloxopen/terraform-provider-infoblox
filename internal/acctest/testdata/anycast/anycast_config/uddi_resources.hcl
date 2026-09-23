@@ -117,42 +117,42 @@ case "name" {
 }
 
 case "onprem_hosts" {
-    backend  = "uddi"
-      parallel = true
-    //skip = true
-   //skip_reason = "Requires Infra Service To be Configured"
+  backend  = "uddi"
+  parallel = true
+  //skip = true
+  //skip_reason = "Requires Infra Service To be Configured"
 
-      step {
-          uddi {
-            anycast_ip_address = "{{random_ip}}"
-            name               = "{{random}}"
-            service            = "NTP"
-            onprem_hosts = [
-                {
-                    id = 1373162
-                    name = "b1ddi-qa_2874800989939739572",
-                }
-                ]
-          }
-          check = {
-            "uddi.onprem_hosts.#" = "1"
-            "uddi.onprem_hosts.0.id" = "1373162"
-            "uddi.onprem_hosts.0.name" = "b1ddi-qa_2874800989939739572"
-          }
+  step {
+    uddi {
+      anycast_ip_address = "{{random_ip}}"
+      name               = "{{random}}"
+      service            = "NTP"
+      onprem_hosts = [
+        {
+          id   = 1373162
+          name = "b1ddi-qa_2874800989939739572",
         }
-
-    step {
-              uddi {
-                anycast_ip_address = "{{random_ip}}"
-                name               = "{{random}}"
-                service            = "NTP"
-
-              }
-              check = {
-                "uddi.onprem_hosts.#" = "0"
-              }
-            }
+      ]
     }
+    check = {
+      "uddi.onprem_hosts.#"      = "1"
+      "uddi.onprem_hosts.0.id"   = "1373162"
+      "uddi.onprem_hosts.0.name" = "b1ddi-qa_2874800989939739572"
+    }
+  }
+
+  step {
+    uddi {
+      anycast_ip_address = "{{random_ip}}"
+      name               = "{{random}}"
+      service            = "NTP"
+
+    }
+    check = {
+      "uddi.onprem_hosts.#" = "0"
+    }
+  }
+}
 
 case "service" {
   backend  = "uddi"

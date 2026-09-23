@@ -47,7 +47,7 @@ data "infoblox_anycast_config" "example_all" {
 
 Read-Only:
 
-- `id` (Number)
+- `id` (Number) The resource identifier.
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
 - `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
@@ -58,16 +58,12 @@ Read-Only:
 
 - `anycast_ip_address` (String) IPv4 address of the host in string format.
 - `anycast_ipv6_address` (String) IPv6 address of the host in string format
-- `created_at` (String) Time when the object has been created.
 - `description` (String) The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.
-- `is_configured` (Boolean)
 - `name` (String) The name of the anycast configuration.
 - `onprem_hosts` (Attributes List) Struct on-prem host reference. (see [below for nested schema](#nestedatt--results--uddi--onprem_hosts))
-- `runtime_status` (String)
 - `service` (String) The type of the Service used in anycast configuration, supports (`dns`, `ntp`, `dfp`).
 - `tags` (Map of String) The tags for the anycast configuration object.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 
 <a id="nestedatt--results--uddi--onprem_hosts"></a>
 ### Nested Schema for `results.uddi.onprem_hosts`
@@ -79,4 +75,3 @@ Read-Only:
 - `ipv6_address` (String) IPv6 address of the host in string format
 - `name` (String) The name of the anycast.
 - `ophid` (String) Unique 32-character string identifier assigned to the host
-- `runtime_status` (String) The runtime status of the host

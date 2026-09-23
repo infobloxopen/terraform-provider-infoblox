@@ -55,7 +55,7 @@ resource "infoblox_anycast_config" "example" {
 
 ### Read-Only
 
-- `id` (Number) The ID of this resource.
+- `id` (Number) The resource identifier.
 
 <a id="nestedatt--uddi"></a>
 ### Nested Schema for `uddi`
@@ -70,31 +70,23 @@ Optional:
 
 - `anycast_ipv6_address` (String) IPv6 address of the host in string format
 - `description` (String) The description for the address object. May contain 0 to 1024 characters. Can include UTF-8.
-- `is_configured` (Boolean)
 - `onprem_hosts` (Attributes List) Struct on-prem host reference. (see [below for nested schema](#nestedatt--uddi--onprem_hosts))
-- `runtime_status` (String)
 - `tags` (Map of String) The tags for the anycast configuration object.
 
 Read-Only:
 
-- `created_at` (String) Time when the object has been created.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 
 <a id="nestedatt--uddi--onprem_hosts"></a>
 ### Nested Schema for `uddi.onprem_hosts`
 
-Required:
-
-- `id` (Number) The resource identifier.
-
 Optional:
 
-- `ip_address` (String) IPv4 address of the host in string format
-- `ipv6_address` (String) IPv6 address of the host in string format
+- `id` (Number) The resource identifier.
 - `name` (String) The name of the anycast.
 
 Read-Only:
 
+- `ip_address` (String) IPv4 address of the host in string format
+- `ipv6_address` (String) IPv6 address of the host in string format
 - `ophid` (String) Unique 32-character string identifier assigned to the host
-- `runtime_status` (String) The runtime status of the host
