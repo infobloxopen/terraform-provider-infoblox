@@ -47,6 +47,7 @@ Read-Only:
 
 - `id` (String) Auto generated unique Bypass Code value
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 <a id="nestedatt--results--uddi"></a>
 ### Nested Schema for `results.uddi`
@@ -56,7 +57,7 @@ Read-Only:
 - `access_key` (String) Auto generated unique Bypass Code value
 - `activation` (String) The time when the Bypass Code object was activated.
 - `created_time` (String) The time when the Bypass Code object was created.
-- `description` (String) The brief description for an access code.
+- `description` (String)
 - `expiration` (String) The time when the Bypass Code object was expired.
 - `name` (String) The name of Bypass Code
 - `policy_ids` (List of Number) The list of SecurityPolicy object identifiers.
@@ -68,8 +69,8 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String) The action to be used in the rule.
-- `data` (String) The data to be used in the rule.
-- `description` (String) The brief description of the rule.
-- `redirect_name` (String) The name of the redirect to be used in the rule.
-- `type` (String) The type of the rule.
+- `action` (String)
+- `data` (String)
+- `description` (String)
+- `redirect_name` (String)
+- `type` (String)
