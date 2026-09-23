@@ -48,7 +48,7 @@ case "ext_attr_filters" {
     }
   }
 
-  pair_checks = ["nios.comment", "nios.disable", "nios.name", "nios.port", "nios.priority", "nios.shared_record_group", "nios.target", "nios.ttl", "nios.use_ttl", "nios.weight"]
+  pair_checks = ["nios.comment", "nios.disable", "nios.name", "nios.port", "nios.priority", "nios.shared_record_group", "nios.target", "nios.ttl", "nios.weight"]
 
   step {
     nios {
