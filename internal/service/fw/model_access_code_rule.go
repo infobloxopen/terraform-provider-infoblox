@@ -38,27 +38,27 @@ var AccessCodeRuleResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The action to be used in the rule.",
+		MarkdownDescription: "",
 	},
 	"data": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "The data to be used in the rule.",
+		MarkdownDescription: "",
 	},
 	"description": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The brief description of the rule.",
+		MarkdownDescription: "",
 	},
 	"redirect_name": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The name of the redirect to be used in the rule.",
+		MarkdownDescription: "",
 	},
 	"type": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "The type of the rule.",
+		MarkdownDescription: "",
 	},
 }
 

@@ -58,7 +58,10 @@ const (
 
 var AccessCodeResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Computed:            true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "Auto generated unique Bypass Code value",
 	},
 	"uddi": schema.SingleNestedAttribute{
@@ -90,7 +93,7 @@ var AccessCodeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "The brief description for an access code.",
+		MarkdownDescription: "",
 	},
 	"expiration": schema.StringAttribute{
 		Required:            true,
