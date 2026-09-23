@@ -363,7 +363,6 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"enable_immediate_discovery": schema.BoolAttribute{
 		Optional:            true,
-		Computed:            true,
 		MarkdownDescription: "Determines if the discovery for the range should be immediately enabled.",
 	},
 	"enable_pxe_lease_time": schema.BoolAttribute{

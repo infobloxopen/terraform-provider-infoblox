@@ -33,6 +33,7 @@ case "filters" {
       space = infoblox_network_view.test.id
       start = "10.0.0.8"
     }
+    depends_on = [infoblox_network.test]
   }
 
 }
@@ -70,6 +71,7 @@ case "tag_filters" {
       start = "10.0.0.8"
       tags  = { tag1 = "{{random}}" }
     }
+    depends_on = [infoblox_network.test]
   }
 
 }
