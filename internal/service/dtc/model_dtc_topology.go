@@ -18,6 +18,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -50,19 +51,19 @@ var NIOSDtcTopologyAttrTypes = map[string]attr.Type{
 }
 
 type UDDIDtcTopologyModel struct {
-	Comment  types.String `tfsdk:"comment"`
-	Disabled types.Bool   `tfsdk:"disabled"`
-	Name     types.String `tfsdk:"name"`
-	Sources  types.List   `tfsdk:"sources"`
-	Tags     types.Map    `tfsdk:"tags"`
-	TagsAll  types.Map    `tfsdk:"tags_all"`
+	Comment  types.String                     `tfsdk:"comment"`
+	Disabled types.Bool                       `tfsdk:"disabled"`
+	Name     types.String                     `tfsdk:"name"`
+	Sources  internaltypes.UnorderedListValue `tfsdk:"sources"`
+	Tags     types.Map                        `tfsdk:"tags"`
+	TagsAll  types.Map                        `tfsdk:"tags_all"`
 }
 
 var UDDIDtcTopologyAttrTypes = map[string]attr.Type{
 	"comment":  types.StringType,
 	"disabled": types.BoolType,
 	"name":     types.StringType,
-	"sources":  types.ListType{ElemType: types.ObjectType{AttrTypes: TopologySourceAttrTypes}},
+	"sources":  internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: TopologySourceAttrTypes}}},
 	"tags":     types.MapType{ElemType: types.StringType},
 	"tags_all": types.MapType{ElemType: types.StringType},
 }
@@ -157,7 +158,8 @@ var DtcTopologyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: TopologySourceResourceSchemaAttributes,
 		},
-		Optional: true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: TopologySourceAttrTypes}}},
+		Optional:   true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -280,7 +282,7 @@ func (m *UDDIDtcTopologyModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.Disabled = flex.FlattenBoolPointer(from.Disabled)
 	m.Name = flex.FlattenString(from.Name)
-	m.Sources = flex.FlattenFrameworkListNestedBlock(ctx, from.Sources, TopologySourceAttrTypes, diags, FlattenTopologySource)
+	m.Sources = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.Sources, TopologySourceAttrTypes, diags, FlattenTopologySource)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll

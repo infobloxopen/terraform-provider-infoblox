@@ -30,6 +30,34 @@ func validateDtcTopologyNIOSConfig(ctx context.Context, m *NIOSDtcTopologyModel,
 }
 
 func validateDtcTopologyUDDIConfig(ctx context.Context, m *UDDIDtcTopologyModel, resp *resource.ValidateConfigResponse) {
+	if m.Sources.IsNull() || m.Sources.IsUnknown() {
+		return
+	}
+	var sources []TopologySourceModel
+	resp.Diagnostics.Append(m.Sources.ElementsAs(ctx, &sources, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	for i, src := range sources {
+		if src.Source.IsUnknown() {
+			continue
+		}
+		sourceVal := src.Source.ValueString()
+		hasSubnets := !src.Subnets.IsNull() && !src.Subnets.IsUnknown()
+		hasTagRules := !src.TagRules.IsNull() && !src.TagRules.IsUnknown()
+		if sourceVal == "tag_rule" && hasSubnets {
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				fmt.Sprintf("sources[%d]: 'subnets' must not be set when 'source' is \"tag_rule\".", i),
+			)
+		}
+		if sourceVal == "subnet" && hasTagRules {
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				fmt.Sprintf("sources[%d]: 'tag_rules' must not be set when 'source' is \"subnet\".", i),
+			)
+		}
+	}
 }
 
 // populateDtcTopologyNIOSRules resolves each rule ref in the topology response to its full details.

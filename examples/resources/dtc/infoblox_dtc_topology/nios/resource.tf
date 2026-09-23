@@ -6,6 +6,7 @@ resource "infoblox_dtc_server" "example_server_us" {
   }
 }
 
+// Create DTC Servers (required as rule destinations)
 resource "infoblox_dtc_server" "example_server_default" {
   nios = {
     name = "example-server-default"

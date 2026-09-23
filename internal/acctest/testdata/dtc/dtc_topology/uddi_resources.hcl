@@ -176,6 +176,20 @@ case "sources" {
     }
   }
 
+  # Reorder the 2 sources — no diff expected if sources are order-independent.
+  step {
+    uddi {
+      name    = "topology-{{random}}"
+      sources = [
+        { name = "src2-{{random}}", source = "subnet", subnets = ["172.16.0.0/12"] },
+        { name = "src1-{{random}}", source = "subnet", subnets = ["10.0.0.0/8"] }
+      ]
+    }
+    check = {
+      "uddi.sources.#" = "2"
+    }
+  }
+
 }
 
 case "sources_tag_rule" {
@@ -189,6 +203,7 @@ case "sources_tag_rule" {
         {
           name      = "src-{{random}}"
           source    = "tag_rule"
+          subnets = ["10.0.0.0/8"]
           tag_rules = [{ key = "env", op = "EQUALS", value = "production" }]
         }
       ]

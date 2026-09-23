@@ -104,12 +104,9 @@ case "name" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_dtc_server not yet implemented
 case "rules" {
   backend     = "nios"
   skip        = false
-  //skip_reason = "requires_resource: infoblox_dtc_server not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dtc_server" "test_server" {
@@ -132,22 +129,47 @@ case "rules" {
 
   step {
     nios {
-      name  = "{{random}}"
-      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.test_server.id }]
+      name = "{{random}}"
+      rules = [{
+        dest_type        = "SERVER"
+        destination_link = infoblox_dtc_server.test_server.id
+        sources = [
+          { source_op = "IS", source_type = "SUBNET",    source_value = "10.0.0.0/8" },
+          { source_op = "IS", source_type = "CONTINENT", source_value = "Africa" },
+        ]
+      }]
     }
     check = {
-      "nios.rules.0.dest_type" = "SERVER"
+      "nios.rules.0.dest_type"        = "SERVER"
+      "nios.rules.0.sources.#"        = "2"
+      "nios.rules.0.sources.0.source_value" = "10.0.0.0/8"
+      "nios.rules.0.sources.1.source_value" = "Africa"
+    }
+  }
+
+  # Reorder sources — no diff expected if sources are order-independent.
+  step {
+    nios {
+      name = "{{random}}"
+      rules = [{
+        dest_type        = "SERVER"
+        destination_link = infoblox_dtc_server.test_server.id
+        sources = [
+          { source_op = "IS", source_type = "CONTINENT", source_value = "Africa" },
+          { source_op = "IS", source_type = "SUBNET",    source_value = "10.0.0.0/8" },
+        ]
+      }]
+    }
+    check = {
+      "nios.rules.0.sources.#" = "2"
     }
   }
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_dtc_server and infoblox_dtc_pool not yet implemented
 case "rules_with_pool" {
   backend     = "nios"
   skip        = false
-  //skip_reason = "requires_resource: infoblox_dtc_server and infoblox_dtc_pool not yet implemented"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dtc_server" "test_server_for_pool" {

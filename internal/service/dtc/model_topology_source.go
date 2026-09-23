@@ -3,6 +3,7 @@ package dtc
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -34,11 +35,14 @@ var TopologySourceAttrTypes = map[string]attr.Type{
 // TopologySourceResourceSchemaAttributes contains the schema attributes for TopologySourceModel
 var TopologySourceResourceSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
-		Optional:            true,
+		Required:            true,
 		MarkdownDescription: "Required. Display name of __TopologySource__.",
 	},
 	"source": schema.StringAttribute{
-		Optional:            true,
+		Validators: []validator.String{
+			stringvalidator.OneOf("subnet", "tag_rule"),
+		},
+		Required:            true,
 		MarkdownDescription: "Type of source.  Allowed values: - subnet - tag_rule  Required.",
 	},
 	"subnets": schema.ListAttribute{
