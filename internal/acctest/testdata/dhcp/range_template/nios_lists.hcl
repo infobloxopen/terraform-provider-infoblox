@@ -60,7 +60,7 @@ case "ext_attr_filters" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      ext_attrs = { "Tenant ID" = "{{random2}}" }
+      ext_attrs            = { "Tenant ID" = "{{random2}}" }
     }
   }
 

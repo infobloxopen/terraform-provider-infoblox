@@ -113,8 +113,8 @@ case "ddns_dns_view" {
 }
 
 case "ddns_zone_primaries" {
-  backend     = "nios"
-  parallel    = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "parent_zone1" {
     nios = {
@@ -213,19 +213,19 @@ case "federated_realms" {
 }
 
 case "internal_forward_zones" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
       fqdn = "{{random}}1"
-      view = "default.{{random}}"
+      view = "default"
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
       fqdn = "{{random}}2"
-      view = "default.{{random}}"
+      view = "default"
     }
   }
   PREREQ

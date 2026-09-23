@@ -336,6 +336,51 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomIP()
 	case strings.HasPrefix(name, "future_time"):
 		return FutureTime(name)
+		// Placeholders for Integration Test Params
+	case name == "nios_ca_cert1_ref":
+		return os.Getenv("NIOS_CA_CERT1_REF")
+	case name == "nios_ca_cert2_ref":
+		return os.Getenv("NIOS_CA_CERT2_REF")
+	case name == "nios_ca_cert1_serial":
+		return os.Getenv("NIOS_CA_CERT1_SERIAL")
+	case name == "nios_ca_cert2_serial":
+		return os.Getenv("NIOS_CA_CERT2_SERIAL")
+	case name == "nios_dtc_cert1_ref":
+		return os.Getenv("NIOS_DTC_CERT1_REF")
+	case name == "nios_dtc_cert2_ref":
+		return os.Getenv("NIOS_DTC_CERT2_REF")
+	case name == "nios_ad_auth_service_active_dir_ref":
+		return os.Getenv("NIOS_AD_AUTH_SERVICE_ACTIVE_DIR_REF")
+	case name == "nios_ad_auth_service_active_dir_test_ref":
+		return os.Getenv("NIOS_AD_AUTH_SERVICE_ACTIVE_DIR_TEST_REF")
+	case name == "nios_notification_rest_endpoint_ref":
+		return os.Getenv("NIOS_NOTIFICATION_REST_ENDPOINT_REF")
+	case name == "nios_gss_tsig_cert_ref":
+		return os.Getenv("NIOS_GSS_TSIG_CERT_REF")
+	case name == "nios_grid_master_config_addr_type":
+		return os.Getenv("NIOS_GRID_MASTER_CONFIG_ADDR_TYPE")
+	case name == "nios_discovery_member_config_addr_type":
+		return os.Getenv("NIOS_DISCOVERY_MEMBER_CONFIG_ADDR_TYPE")
+	case name == "nios_syslog_endpoint_ref":
+		return os.Getenv("NIOS_SYSLOG_ENDPOINT_REF")
+	case name == "subscriber_block_size_editable":
+		return os.Getenv("SUBSCRIBER_BLOCK_SIZE_EDITABLE")
+	case name == "uddi_dns_host_id_1":
+		return os.Getenv("UDDI_DNS_HOST_ID_1")
+	case name == "uddi_dns_host_id_2":
+		return os.Getenv("UDDI_DNS_HOST_ID_2")
+	case name == "uddi_dhcp_host_id_1":
+		return os.Getenv("UDDI_DHCP_HOST_ID_1")
+	case name == "uddi_dhcp_host_id_2":
+		return os.Getenv("UDDI_DHCP_HOST_ID_2")
+	case name == "uddi_option_group_1_id":
+		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
+	case name == "uddi_option_code_1_id":
+		return os.Getenv("UDDI_OPTION_CODE_1_ID")
+	case name == "uddi_compartment_id_1":
+		return os.Getenv("UDDI_COMPARTMENT_ID_1")
+	case name == "uddi_auth_zone_id_1":
+		return os.Getenv("UDDI_AUTH_ZONE_ID_1")
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}

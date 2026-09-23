@@ -1480,8 +1480,10 @@ case "update_dns_on_lease_renewal" {
 }
 
 case "discovery_member" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1502,8 +1504,10 @@ case "discovery_member" {
 }
 
 case "enable_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {
@@ -1530,8 +1534,10 @@ case "enable_discovery" {
 }
 
 case "enable_immediate_discovery" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   step {
     nios {

@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "name": "DHCP_Lease",
+  "type": "REST_EVENT",
+  "event_type": ["LEASE"],
+  "action_type": "Some Action",
+  "comment": "DHCP Lease validation",
+  "content_type": "application/json",
+  "vendor_identifier": "extattrsgg WAPI",
+  "headers": {
+      "User-Agent": "Outbound API 0.1 rrtest"
+  },
+  "transport": {
+      "path": "/wapi/v2.3",
+      "content_type": "application/json",
+      "override_path": true
+  },
+  "steps":
+  [
+      {
+          "name": "insert_zone",
+          "operation": "POST",
+          "transport": {
+              "path": "/zone_auth"
+          },
+          "body_list": [
+              "{",
+              "\"fqdn\": \"lease.com\",",
+              "\"comment\": \"testing_DHCP_event\"",
+              "}"
+          ]
+      }
+  ]
+}

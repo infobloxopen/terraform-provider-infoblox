@@ -20,6 +20,7 @@ type DataSourceCase struct {
 	Backend          string
 	Skip             bool
 	SkipReason       string
+	SkipIfEnvEmpty   []string
 	PrerequisitesHCL string
 	FilterType       string            // filters | ext_attr_filters | tag_filters
 	Filters          map[string]string // filter key -> resource attribute path (e.g. "name" -> "nios.name")
@@ -56,6 +57,12 @@ func RunDataSourceCases(t *testing.T, dsType, resourceType, fileRelPath string, 
 			if dc.Skip {
 				t.Skipf("Skipped: %s", dc.SkipReason)
 				return
+			}
+			for _, envVar := range dc.SkipIfEnvEmpty {
+				if os.Getenv(envVar) == "" {
+					t.Skipf("%s environment variable must be set for this test to run", envVar)
+					return
+				}
 			}
 
 			checks, ok := checksByBackend[dc.Backend]
@@ -315,6 +322,7 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 			{Name: "backend"},
 			{Name: "skip"},
 			{Name: "skip_reason"},
+			{Name: "skip_if_env_empty"},
 			{Name: "prerequisites_hcl"},
 			{Name: "pair_checks"},
 		},
@@ -339,6 +347,18 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 	if attr, ok := content.Attributes["skip_reason"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		dc.SkipReason = val.AsString()
+	}
+	if attr, ok := content.Attributes["skip_if_env_empty"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		switch val.Type() {
+		case cty.String:
+			dc.SkipIfEnvEmpty = []string{val.AsString()}
+		default:
+			for it := val.ElementIterator(); it.Next(); {
+				_, v := it.Element()
+				dc.SkipIfEnvEmpty = append(dc.SkipIfEnvEmpty, v.AsString())
+			}
+		}
 	}
 	if attr, ok := content.Attributes["prerequisites_hcl"]; ok {
 		val, _ := attr.Expr.Value(nil)

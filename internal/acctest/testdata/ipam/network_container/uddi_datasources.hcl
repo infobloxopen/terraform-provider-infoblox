@@ -1,14 +1,13 @@
-# Auto-generated datasource acceptance-test cases for Networkcontainer.
 case "filters" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ip_space" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
     type = "filters"
@@ -24,22 +23,22 @@ case "filters" {
       name    = "{{random}}"
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
     }
   }
 
 }
 
 case "tag_filters" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ip_space" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
     type = "tag_filters"
@@ -55,7 +54,7 @@ case "tag_filters" {
       name    = "{{random}}"
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
       tags    = { tag1 = "{{random2}}" }
     }
   }
