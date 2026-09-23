@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -24,6 +25,155 @@ func ValidateFixedaddress(ctx context.Context, data FixedaddressModel, resp *res
 }
 
 func validateFixedaddressNIOSConfig(ctx context.Context, m *NIOSFixedaddressModel, resp *resource.ValidateConfigResponse) {
+	niosPath := path.Root("nios")
+
+	if m.MatchClient.ValueString() == "MAC_ADDRESS" {
+		if m.Mac.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("mac"),
+				"Invalid configuration",
+				"The 'mac' attribute must be set when 'match_client' is set to 'MAC_ADDRESS'.",
+			)
+		}
+		if (!m.AgentCircuitId.IsNull() && !m.AgentCircuitId.IsUnknown()) ||
+			(!m.AgentRemoteId.IsNull() && !m.AgentRemoteId.IsUnknown()) ||
+			(!m.DhcpClientIdentifier.IsNull() && !m.DhcpClientIdentifier.IsUnknown()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("match_client"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'MAC_ADDRESS', the 'agent_circuit_id', 'agent_remote_id', and 'dhcp_client_identifier' attributes must not be set.",
+			)
+		}
+
+	} else if m.MatchClient.ValueString() == "CLIENT_ID" {
+		if !m.DhcpClientIdentifier.IsUnknown() && (m.DhcpClientIdentifier.IsNull() || m.DhcpClientIdentifier.ValueString() == "") {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("dhcp_client_identifier"),
+				"Invalid configuration",
+				"The 'dhcp_client_identifier' attribute must be set and cannot be empty when 'match_client' is set to 'CLIENT_ID'.",
+			)
+		}
+		if (!m.AgentCircuitId.IsNull() && !m.AgentCircuitId.IsUnknown()) ||
+			(!m.AgentRemoteId.IsNull() && !m.AgentRemoteId.IsUnknown()) ||
+			(!m.Mac.IsNull() && !m.Mac.IsUnknown()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("match_client"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'CLIENT_ID', the 'agent_circuit_id', 'agent_remote_id', and 'mac' attributes must not be set.",
+			)
+		}
+	} else if m.MatchClient.ValueString() == "CIRCUIT_ID" {
+		if !m.AgentCircuitId.IsUnknown() && (m.AgentCircuitId.IsNull() || m.AgentCircuitId.ValueString() == "") {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("agent_circuit_id"),
+				"Invalid configuration",
+				"The 'agent_circuit_id' attribute must be set when 'match_client' is set to 'CIRCUIT_ID'.",
+			)
+		}
+		if (!m.Mac.IsNull() && !m.Mac.IsUnknown()) ||
+			(!m.DhcpClientIdentifier.IsNull() && !m.DhcpClientIdentifier.IsUnknown()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("match_client"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'CIRCUIT_ID', the 'mac' and 'dhcp_client_identifier' attributes must not be set.",
+			)
+		}
+	} else if m.MatchClient.ValueString() == "REMOTE_ID" {
+		if !m.AgentRemoteId.IsUnknown() && (m.AgentRemoteId.IsNull() || m.AgentRemoteId.ValueString() == "") {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("agent_remote_id"),
+				"Invalid configuration",
+				"The 'agent_remote_id' attribute must be set when 'match_client' is set to 'REMOTE_ID'.",
+			)
+		}
+		if (!m.Mac.IsNull() && !m.Mac.IsUnknown()) ||
+			(!m.DhcpClientIdentifier.IsNull() && !m.DhcpClientIdentifier.IsUnknown()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("match_client"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'REMOTE_ID', the 'mac' and 'dhcp_client_identifier' attributes must not be set.",
+			)
+		}
+	} else if m.MatchClient.ValueString() == "RESERVED" {
+		if !m.Mac.IsNull() && !m.Mac.IsUnknown() && m.Mac.ValueString() != "00:00:00:00:00:00" {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("mac"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'RESERVED', the 'mac' attribute must be set to '00:00:00:00:00:00' or left unset.",
+			)
+		}
+		if (!m.AgentCircuitId.IsNull() && !m.AgentCircuitId.IsUnknown()) ||
+			(!m.AgentRemoteId.IsNull() && !m.AgentRemoteId.IsUnknown()) ||
+			(!m.DhcpClientIdentifier.IsNull() && !m.DhcpClientIdentifier.IsUnknown()) {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("match_client"),
+				"Invalid configuration",
+				"When 'match_client' is set to 'RESERVED', the 'agent_circuit_id', 'agent_remote_id', and 'dhcp_client_identifier' attributes must not be set.",
+			)
+		}
+	}
+
+	// DHCP options validation
+	utils.ValidateDHCPOptionsConfig(ctx, m.Options, niosPath.AtName("options"), &resp.Diagnostics)
+
+	// Check if allow_telnet is true, then cli_credentials must contain at least one element with credential_type set to "TELNET"
+	if !m.AllowTelnet.IsUnknown() && !m.AllowTelnet.IsNull() && m.AllowTelnet.ValueBool() {
+		isTelnet := false
+		isSSH := false
+		if !m.CliCredentials.IsNull() && !m.CliCredentials.IsUnknown() {
+			// Iterate through cli_credentials to check if an element has credential_type set to "TELNET"
+			var cliCredentials []FixedaddressCliCredentialsModel
+			diags := m.CliCredentials.ElementsAs(ctx, &cliCredentials, false)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			for _, credentials := range cliCredentials {
+				if credentials.CredentialType.IsUnknown() || credentials.CredentialType.IsNull() {
+					continue
+				}
+				credentialsType := credentials.CredentialType.ValueString()
+				if credentialsType == "SSH" {
+					isSSH = true
+				}
+				if credentialsType == "TELNET" {
+					isTelnet = true
+				}
+			}
+		}
+		if !isSSH {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("allow_telnet"),
+				"Invalid configuration",
+				"The 'cli_credentials' must contain credentials with 'credential_type' set to 'SSH'.",
+			)
+		}
+		if !isTelnet {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("allow_telnet"),
+				"Invalid configuration",
+				"The 'allow_telnet' attribute must be set to false when 'cli_credentials' is not set or does not contain any credentials with 'credential_type' set to 'TELNET'.",
+			)
+		}
+	}
+
+	// Check if SNMP , then the corresponding use_snmp_credential attribute must be set to true
+	if !m.SnmpCredential.IsUnknown() && !m.SnmpCredential.IsNull() {
+		// Validate that community_string is provided when snmp_credential block is set
+		var snmpCredential FixedaddressSnmpCredentialModel
+		diags := m.SnmpCredential.As(ctx, &snmpCredential, basetypes.ObjectAsOptions{})
+		resp.Diagnostics.Append(diags...)
+		if !resp.Diagnostics.HasError() {
+			if snmpCredential.CommunityString.IsNull() || (!snmpCredential.CommunityString.IsUnknown() && snmpCredential.CommunityString.ValueString() == "") {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("snmp_credential").AtName("community_string"),
+					"Invalid configuration",
+					"The 'community_string' attribute must be set when 'snmp_credential' is configured.",
+				)
+			}
+		}
+	}
 }
 
 func validateFixedaddressUDDIConfig(ctx context.Context, m *UDDIFixedaddressModel, resp *resource.ValidateConfigResponse) {

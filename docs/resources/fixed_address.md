@@ -15,7 +15,7 @@ Manages an Infoblox Fixedaddress in both NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
-// Create an IPV4 Network (Required as Parent)
+// Create an IPv4 Network (Required as Parent)
 resource "infoblox_network" "parent_network" {
   nios = {
     network      = "16.0.0.0/24"

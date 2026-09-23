@@ -1,3 +1,6 @@
+//TODO : OBJECTS TO BE PRESENT IN GRID FOR TESTS
+// - Ipv4 Network - 15.0.0.0/24 , 16.0.0.0/24
+// - Logic Filter Rules - example-mac-filter-1 , example-option-filter-1
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -93,7 +96,7 @@ case "agent_remote_id" {
       agent_remote_id = "{{random_int}}"
     }
     check = {
-      "nios.agent_circuit_id" = "{{random_int}}"
+      "nios.agent_remote_id" = "{{random_int}}"
     }
   }
 
@@ -101,10 +104,10 @@ case "agent_remote_id" {
     nios {
       ipv4addr        = "15.0.0.4"
       match_client    = "REMOTE_ID"
-      agent_remote_id = "agentRemoteID+10"
+      agent_remote_id = "{{random_int2}}"
     }
     check = {
-      "nios.agent_circuit_id" = "agentRemoteID+10"
+      "nios.agent_remote_id" = "{{random_int2}}"
     }
   }
 
@@ -112,11 +115,11 @@ case "agent_remote_id" {
     nios {
       ipv4addr         = "15.0.0.4"
       match_client     = "REMOTE_ID"
-      agent_circuit_id = "35"
-      agent_remote_id  = "agentRemoteID+20"
+      agent_circuit_id = "{{random_int4}}"
+      agent_remote_id  = "{{random_int3}}"
     }
     check = {
-      "nios.agent_circuit_id" = "35"
+      "nios.agent_remote_id" = "{{random_int3}}"
     }
   }
 
