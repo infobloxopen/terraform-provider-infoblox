@@ -20,7 +20,7 @@ func TestAccDtcMonitorPdpList(t *testing.T) {
 		},
 	}
 
-	for _, backend := range []string{"nios", "uddi"} {
+	for _, backend := range []string{"nios"} { // PDP health check feature in uddi not deployed to prod
 		t.Run(backend, func(t *testing.T) {
 			acctest.RunListCases(t, resourceType, "dtc/dtc_monitor_pdp/"+backend+"_lists.hcl", checksByBackend)
 		})
