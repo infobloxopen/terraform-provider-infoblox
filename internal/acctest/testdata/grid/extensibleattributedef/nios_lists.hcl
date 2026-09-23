@@ -34,7 +34,7 @@ case "filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name = "nios.name"
       }

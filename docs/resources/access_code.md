@@ -84,6 +84,7 @@ resource "infoblox_access_code" "example_full" {
 ### Optional
 
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -101,7 +102,7 @@ Required:
 
 Optional:
 
-- `description` (String) The brief description for an access code.
+- `description` (String)
 
 Read-Only:
 

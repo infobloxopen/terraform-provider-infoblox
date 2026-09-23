@@ -1,6 +1,8 @@
 case "basic" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -13,7 +15,7 @@ case "basic" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "{{uddi_auth_zone_id_1}}"
     }
   }
 
@@ -28,6 +30,8 @@ case "basic" {
 case "filters" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -63,6 +67,8 @@ case "filters" {
 case "tag_filters" {
   backend           = "uddi"
   parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
+  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -75,7 +81,7 @@ case "tag_filters" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      zone = "dns/auth_zone/cf7a5e79-82c2-4de1-9788-4397c846d317"
+      zone  = "{{uddi_auth_zone_id_1}}"
       tags  = { tag1 = "{{random2}}" }
     }
   }
