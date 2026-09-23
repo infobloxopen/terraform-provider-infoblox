@@ -24,15 +24,17 @@ import (
 )
 
 type DtcMonitorHttpModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var DtcMonitorHttpAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSDtcMonitorHttpAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDIDtcMonitorHttpAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSDtcMonitorHttpAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDIDtcMonitorHttpAttrTypes},
 }
 
 type NIOSDtcMonitorHttpModel struct {
@@ -141,6 +143,10 @@ var DtcMonitorHttpResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
