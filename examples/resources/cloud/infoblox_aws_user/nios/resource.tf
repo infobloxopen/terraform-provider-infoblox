@@ -1,5 +1,5 @@
 // Create an AWS User with Basic Fields
-resource "infoblox_awsuser" "aws_user_basic" {
+resource "infoblox_aws_user" "aws_user_basic" {
   nios = {
     access_key_id     = "AKIAexample1"
     account_id        = "337773173961"
@@ -9,7 +9,7 @@ resource "infoblox_awsuser" "aws_user_basic" {
 }
 
 // Create an AWS User with Additional Fields
-resource "infoblox_awsuser" "aws_user_additional" {
+resource "infoblox_aws_user" "aws_user_additional" {
   nios = {
     access_key_id     = "AKIAexample2"
     account_id        = "337773173962"

@@ -1,5 +1,5 @@
 // List specific AWS Users using filters
-list "infoblox_awsuser" "list_aws_users_by_filters" {
+list "infoblox_aws_user" "list_aws_users_by_filters" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_awsuser" "list_aws_users_by_filters" {
 }
 
 // List all AWS Users with resource details included
-list "infoblox_awsuser" "list_all_aws_users" {
+list "infoblox_aws_user" "list_all_aws_users" {
   provider         = infoblox
   include_resource = true
 }

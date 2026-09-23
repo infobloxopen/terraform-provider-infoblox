@@ -7,8 +7,8 @@ import (
 )
 
 func TestAccAwsuserDataSource(t *testing.T) {
-	dsType := "infoblox_awsuser"
-	resourceType := "infoblox_awsuser"
+	dsType := "infoblox_aws_user"
+	resourceType := "infoblox_aws_user"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -19,7 +19,7 @@ func TestAccAwsuserDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "cloud/awsuser/"+backend+"_datasources.hcl", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "cloud/aws_user/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }

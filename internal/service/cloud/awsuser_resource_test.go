@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccAwsuserResource(t *testing.T) {
-	resourceType := "infoblox_awsuser"
+	resourceType := "infoblox_aws_user"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -26,7 +26,7 @@ func TestAccAwsuserResource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "cloud/awsuser/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "cloud/aws_user/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

@@ -37,7 +37,7 @@ type AwsuserResource struct {
 }
 
 func (r *AwsuserResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_awsuser"
+	resp.TypeName = req.ProviderTypeName + "_aws_user"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
