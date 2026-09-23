@@ -18,54 +18,50 @@ import (
 
 // OnpremHostRefModel is the Terraform model for OnpremHostRef
 type OnpremHostRefModel struct {
-	Id            types.Int64         `tfsdk:"id"`
-	IpAddress     iptypes.IPv4Address `tfsdk:"ip_address"`
-	Ipv6Address   iptypes.IPv6Address `tfsdk:"ipv6_address"`
-	Name          types.String        `tfsdk:"name"`
-	Ophid         types.String        `tfsdk:"ophid"`
-	RuntimeStatus types.String        `tfsdk:"runtime_status"`
+	Id          types.Int64         `tfsdk:"id"`
+	IpAddress   iptypes.IPv4Address `tfsdk:"ip_address"`
+	Ipv6Address iptypes.IPv6Address `tfsdk:"ipv6_address"`
+	Name        types.String        `tfsdk:"name"`
+	Ophid       types.String        `tfsdk:"ophid"`
 }
 
 // OnpremHostRefAttrTypes contains the attribute types for OnpremHostRefModel
 var OnpremHostRefAttrTypes = map[string]attr.Type{
-	"id":             types.Int64Type,
-	"ip_address":     iptypes.IPv4AddressType{},
-	"ipv6_address":   iptypes.IPv6AddressType{},
-	"name":           types.StringType,
-	"ophid":          types.StringType,
-	"runtime_status": types.StringType,
+	"id":           types.Int64Type,
+	"ip_address":   iptypes.IPv4AddressType{},
+	"ipv6_address": iptypes.IPv6AddressType{},
+	"name":         types.StringType,
+	"ophid":        types.StringType,
 }
 
 // OnpremHostRefResourceSchemaAttributes contains the schema attributes for OnpremHostRefModel
 var OnpremHostRefResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
-		Required: true,
+		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.Int64{
 			int64planmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"ip_address": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		CustomType:          iptypes.IPv4AddressType{},
 		MarkdownDescription: "IPv4 address of the host in string format",
 	},
 	"ipv6_address": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		CustomType:          iptypes.IPv6AddressType{},
 		MarkdownDescription: "IPv6 address of the host in string format",
 	},
 	"name": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The name of the anycast.",
 	},
 	"ophid": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "Unique 32-character string identifier assigned to the host",
-	},
-	"runtime_status": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "The runtime status of the host",
 	},
 }
 
@@ -88,12 +84,11 @@ func (m *OnpremHostRefModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		return nil
 	}
 	to := &uddianycast.OnpremHostRef{
-		Id:            flex.ExpandInt64Pointer(m.Id),
-		IpAddress:     flex.ExpandIPv4Address(m.IpAddress),
-		Ipv6Address:   flex.ExpandIPv6Address(m.Ipv6Address),
-		Name:          flex.ExpandStringPointer(m.Name),
-		Ophid:         flex.ExpandStringPointer(m.Ophid),
-		RuntimeStatus: flex.ExpandStringPointer(m.RuntimeStatus),
+		Id:          flex.ExpandInt64Pointer(m.Id),
+		IpAddress:   flex.ExpandIPv4Address(m.IpAddress),
+		Ipv6Address: flex.ExpandIPv6Address(m.Ipv6Address),
+		Name:        flex.ExpandStringPointer(m.Name),
+		Ophid:       flex.ExpandStringPointer(m.Ophid),
 	}
 	return to
 }
@@ -120,5 +115,4 @@ func (m *OnpremHostRefModel) Flatten(ctx context.Context, from *uddianycast.Onpr
 	m.Ipv6Address = flex.FlattenIPv6Address(from.Ipv6Address)
 	m.Name = flex.FlattenStringPointer(from.Name)
 	m.Ophid = flex.FlattenStringPointer(from.Ophid)
-	m.RuntimeStatus = flex.FlattenStringPointer(from.RuntimeStatus)
 }
