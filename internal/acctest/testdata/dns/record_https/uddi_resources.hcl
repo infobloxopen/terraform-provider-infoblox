@@ -44,7 +44,6 @@ case "inheritance_sources" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      #zone                = infoblox_zone_auth.test.id
       zone                = "{{uddi_auth_zone_id_1}}"
       inheritance_sources = { ttl = { action = "inherit" } }
       ttl                 = 57600
@@ -196,7 +195,7 @@ case "rdata_svc_params" {
           { key = "key13", value = "69206c6f766520796f75" },
           { key = "key15", value = "69206c6f766520796f7" },
           { key = "dohpath", value = "/dns-query{?dns}" },
-          { key = "mandatory", value = "" },
+          { key = "mandatory", value = "dohpath,key15" },
         ]
       }
       zone = "{{uddi_auth_zone_id_1}}"

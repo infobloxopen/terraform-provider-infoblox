@@ -96,7 +96,7 @@ case "ddns_dns_view" {
       name = "{{random}}"
     }
     check = {
-      "nios.ddns_dns_view" = "default.{{random}}"
+      "nios.ddns_dns_view" = "default"
     }
   }
 
