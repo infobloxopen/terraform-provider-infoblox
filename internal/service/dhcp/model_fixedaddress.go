@@ -31,15 +31,17 @@ import (
 )
 
 type FixedaddressModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var FixedaddressAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSFixedaddressAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDIFixedaddressAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSFixedaddressAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDIFixedaddressAttrTypes},
 }
 
 type NIOSFixedaddressModel struct {
@@ -185,6 +187,10 @@ var FixedaddressResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -745,7 +751,7 @@ func ApplyFixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj
 	obj.NIOS.UseNextserver = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("nextserver"))
 	obj.NIOS.UseOptions = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("options"))
 	obj.NIOS.UsePxeLeaseTime = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("pxe_lease_time"))
-	obj.NIOS.UseSnmp3Credential = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("snmp3_credential"), path.Root("nios").AtName("cli_credentials"))
+	obj.NIOS.UseSnmp3Credential = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("snmp3_credential"))
 	obj.NIOS.UseSnmpCredential = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("snmp_credential"))
 }
 
