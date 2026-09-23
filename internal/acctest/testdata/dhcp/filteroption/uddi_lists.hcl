@@ -99,7 +99,7 @@ case "tag_filters" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
-      name = "{{random3}}"
+      name = "{{random2}}"
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
@@ -115,7 +115,7 @@ case "tag_filters" {
   step {
     uddi {
       name = "{{random}}"
-      tags = { tag1 = "{{random2}}" }
+      tags = { tag1 = "{{random3}}" }
       rules = {
         match = "any"
         rules = [{

@@ -1,6 +1,7 @@
 # Auto-generated datasource acceptance-test cases for Filteroption.
 case "filters" {
-  backend = "nios"
+  backend  = "nios"
+  parallel = true
 
   filter {
     type   = "filters"
@@ -20,7 +21,8 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend  = "nios"
+  parallel = true
 
   filter {
     type   = "ext_attr_filters"

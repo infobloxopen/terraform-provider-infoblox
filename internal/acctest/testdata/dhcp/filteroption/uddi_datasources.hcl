@@ -1,6 +1,7 @@
 # Filteroption — uddi datasource cases
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
@@ -43,11 +44,12 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
-      name = "{{random3}}"
+      name = "{{random2}}"
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
@@ -72,7 +74,7 @@ case "tag_filters" {
   step {
     uddi {
       name = "{{random}}"
-      tags = { tag1 = "{{random2}}" }
+      tags = { tag1 = "{{random3}}" }
       rules = {
         match = "any"
         rules = [{
