@@ -67,7 +67,7 @@ func (l *NetworkListList) Configure(_ context.Context, req resource.ConfigureReq
 
 func (l *NetworkListList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox NetworkList from the UDDI backend.",
+		MarkdownDescription: "Retrieves a list of Infoblox Network Lists ( External Networks ) from the UDDI backend.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",

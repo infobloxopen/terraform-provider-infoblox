@@ -151,4 +151,27 @@ case "addr_block_multi" {
     }
   }
 
+  // Swap element order
+
+  step {
+    uddi {
+      name = "{{random}}"
+      addr_block = [
+        { address = "{{random_public_ip2}}/32", description = "Test Address Block 2" },
+        { address = "{{random_public_ip}}/32", description = "Test Address Block 1" },
+        { address = "{{random_public_ip3}}/32", description = "Test Address Block 3" },
+      ]
+    }
+    check = {
+      "uddi.name"                     = "{{random}}"
+      "uddi.addr_block.#"             = "3"
+      "uddi.addr_block.0.address"     = "{{random_public_ip2}}/32"
+      "uddi.addr_block.0.description" = "Test Address Block 2"
+      "uddi.addr_block.1.address"     = "{{random_public_ip}}/32"
+      "uddi.addr_block.1.description" = "Test Address Block 1"
+      "uddi.addr_block.2.address"     = "{{random_public_ip3}}/32"
+      "uddi.addr_block.2.description" = "Test Address Block 3"
+    }
+  }
+
 }

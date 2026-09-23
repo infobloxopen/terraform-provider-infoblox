@@ -3,12 +3,12 @@
 page_title: "infoblox_network_list Resource - terraform-provider-infoblox"
 subcategory: "FW"
 description: |-
-  Manages an Infoblox NetworkList in the UDDI backend.
+  Manages an Infoblox Network List ( External Networks ) in the UDDI backend.
 ---
 
 # infoblox_network_list (Resource)
 
-Manages an Infoblox NetworkList in the UDDI backend.
+Manages an Infoblox Network List ( External Networks ) in the UDDI backend.
 
 ## Example Usage
 
@@ -54,6 +54,7 @@ resource "infoblox_network_list" "create_network_list_with_additional_fields" {
 ### Optional
 
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -64,7 +65,7 @@ resource "infoblox_network_list" "create_network_list_with_additional_fields" {
 
 Required:
 
-- `addr_block` (Attributes List) The list of address blocks (CIDRs) in the network list, each with an optional end-user description. The legacy `items` field (plain CIDR strings, no per-entry description) is not exposed by this provider; use `addr_block` for all CIDR assignments. (see [below for nested schema](#nestedatt--uddi--addr_block))
+- `addr_block` (Attributes List) The list of address blocks (CIDRs) in the network list, each with an optional end-user description. The plain `items` field is deprecated in favor of this field, since it allows adding a description to each address block; this provider does not expose `items` for that reason. (see [below for nested schema](#nestedatt--uddi--addr_block))
 - `name` (String) The name of the network list.
 
 Optional:

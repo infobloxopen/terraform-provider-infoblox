@@ -18,13 +18,15 @@ import (
 )
 
 type NetworkListModel struct {
-	Id   types.Int32  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int32  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var NetworkListAttrTypes = map[string]attr.Type{
-	"id":   types.Int32Type,
-	"uddi": types.ObjectType{AttrTypes: UDDINetworkListAttrTypes},
+	"id":             types.Int32Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDINetworkListAttrTypes},
 }
 
 type UDDINetworkListModel struct {
@@ -51,6 +53,10 @@ var NetworkListResourceSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The Network List object identifier.",
 	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
+	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "UDDI backend-specific fields.",
@@ -67,7 +73,7 @@ var NetworkListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "The list of address blocks (CIDRs) in the network list, each with an optional end-user description. The legacy `items` field (plain CIDR strings, no per-entry description) is not exposed by this provider; use `addr_block` for all CIDR assignments.",
+		MarkdownDescription: "The list of address blocks (CIDRs) in the network list, each with an optional end-user description. The plain `items` field is deprecated in favor of this field, since it allows adding a description to each address block; this provider does not expose `items` for that reason.",
 	},
 	"description": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),

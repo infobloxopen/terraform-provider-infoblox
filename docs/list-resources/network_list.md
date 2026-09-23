@@ -3,12 +3,12 @@
 page_title: "infoblox_network_list List Resource - terraform-provider-infoblox"
 subcategory: "FW"
 description: |-
-  Retrieves a list of Infoblox NetworkList from the UDDI backend.
+  Retrieves a list of Infoblox Network Lists ( External Networks ) from the UDDI backend.
 ---
 
 # infoblox_network_list (List Resource)
 
-Retrieves a list of Infoblox NetworkList from the UDDI backend.
+Retrieves a list of Infoblox Network Lists ( External Networks ) from the UDDI backend.
 
 ## Example Usage
 

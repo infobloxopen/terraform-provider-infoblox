@@ -56,7 +56,7 @@ func (r *NetworkListResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *NetworkListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox NetworkList in the UDDI backend.",
+		MarkdownDescription: "Manages an Infoblox Network List ( External Networks ) in the UDDI backend.",
 		Attributes:          NetworkListResourceSchemaAttributes,
 	}
 }
