@@ -15,15 +15,19 @@ Manages an Infoblox SharedrecordA in the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// NOTE: The shared record group "shared_group" must already exist on the grid.
-// shared_record_group is a required, immutable field on every shared record.
+// Create a Shared Record Group (Required as Parent)
+resource "infoblox_sharedrecordgroup" "example" {
+  nios = {
+    name = "example-shared-record-group"
+  }
+}
 
 // Create a Shared A Record with Basic Fields
 resource "infoblox_sharedrecord_a" "shared_record_a_with_basic_fields" {
   nios = {
     name                = "sharedrecord_a_basic"
     ipv4addr            = "10.0.0.10"
-    shared_record_group = "shared_group"
+    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
   }
 }
 
@@ -32,7 +36,7 @@ resource "infoblox_sharedrecord_a" "shared_record_a_with_additional_fields" {
   nios = {
     name                = "sharedrecord_a_additional_fields"
     ipv4addr            = "20.0.0.0"
-    shared_record_group = "shared_group"
+    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
 
     // Additional Fields
     ext_attrs = {
@@ -52,6 +56,7 @@ resource "infoblox_sharedrecord_a" "shared_record_a_with_additional_fields" {
 ### Optional
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 

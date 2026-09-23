@@ -23,13 +23,15 @@ import (
 )
 
 type Ipv6fixedaddresstemplateModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
 }
 
 var Ipv6fixedaddresstemplateAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSIpv6fixedaddresstemplateAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSIpv6fixedaddresstemplateAttrTypes},
 }
 
 type NIOSIpv6fixedaddresstemplateModel struct {
@@ -71,6 +73,10 @@ var Ipv6fixedaddresstemplateResourceSchemaAttributes = map[string]schema.Attribu
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
 	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
+	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
@@ -99,6 +105,7 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	"domain_name_servers": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(customvalidator.IsValidIPv6Address()),

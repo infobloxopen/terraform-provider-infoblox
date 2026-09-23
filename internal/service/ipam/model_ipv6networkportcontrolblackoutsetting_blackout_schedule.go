@@ -58,6 +58,7 @@ var Ipv6networkportcontrolblackoutsettingBlackoutScheduleResourceSchemaAttribute
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),

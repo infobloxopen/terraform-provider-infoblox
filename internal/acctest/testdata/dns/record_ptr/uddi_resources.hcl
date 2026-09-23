@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordPtr.
 case "rdata" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -46,8 +46,8 @@ case "rdata" {
 }
 
 case "options" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -96,8 +96,8 @@ case "options" {
 }
 
 case "absolute_name_spec" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -148,8 +148,8 @@ case "absolute_name_spec" {
 # IPv6 reverse mapping: the zone covers 2001:db8:0:1::/64, so the record is addressed by
 # options.address and UDDI derives the 16 nibble labels of name_in_zone from it.
 case "reverse_mapping_ipv6" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -196,8 +196,8 @@ case "reverse_mapping_ipv6" {
 }
 
 case "ttl" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -247,8 +247,8 @@ case "ttl" {
 
 
 case "name_in_zone" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -294,8 +294,8 @@ case "name_in_zone" {
 
 
 case "inheritance_sources" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -345,8 +345,8 @@ case "inheritance_sources" {
 }
 
 case "zone" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -397,8 +397,8 @@ case "zone" {
 }
 
 case "view" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {

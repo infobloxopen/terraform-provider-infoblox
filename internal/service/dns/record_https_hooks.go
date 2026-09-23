@@ -11,10 +11,13 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
+	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
 // ValidateRecordHttps validates the RecordHttps configuration.
@@ -48,21 +51,32 @@ func validateRecordHttpsUDDIConfig(ctx context.Context, m *UDDIRecordHttpsModel,
 			if p.Key.IsNull() || p.Key.IsUnknown() {
 				continue
 			}
+			paramPath := path.Root("uddi").AtName("rdata").AtName("svc_params").AtListIndex(i).AtName("value")
 			if p.Key.ValueString() == "ohttp" {
-				continue
-			}
-			if p.Value.IsNull() {
-				resp.Diagnostics.AddAttributeError(
-					path.Root("uddi").AtName("rdata").AtName("svc_params").AtListIndex(i).AtName("value"),
-					"Invalid Configuration",
-					fmt.Sprintf("'value' is required for svc_params entry with key %q.", p.Key.ValueString()),
-				)
+				if !p.Value.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						paramPath,
+						"Invalid Configuration",
+						"'value' must not be provided for svc_params entry with key \"ohttp\".",
+					)
+				}
+			} else {
+				if p.Value.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						paramPath,
+						"Invalid Configuration",
+						fmt.Sprintf("'value' is required for svc_params entry with key %q.", p.Key.ValueString()),
+					)
+				}
 			}
 		}
 	}
 }
 
 func PostFlattenRecordHttpsUDDI(ctx context.Context, planned, flattened *UDDIRecordHttpsModel, diags *diag.Diagnostics) {
+	if planned == nil {
+		return
+	}
 	if !planned.Rdata.IsNull() {
 		if result, d := utils.CopyFieldFromPlanToRespObject(ctx, planned.Rdata, flattened.Rdata, "priority"); !d.HasError() {
 			flattened.Rdata = result.(basetypes.ObjectValue)
@@ -87,7 +101,11 @@ var UDDIRecordHttpsSvcParamResourceSchemaAttributes = map[string]schema.Attribut
 		MarkdownDescription: "The service parameter key (e.g. \"port\", \"ipv4hint\", \"ipv6hint\", \"ech\", \"alpn\").",
 	},
 	"value": schema.StringAttribute{
-		Optional:            true,
+		Optional: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+			customvalidator.ValidateTrimmedString(),
+		},
 		MarkdownDescription: "The service parameter value.",
 	},
 }

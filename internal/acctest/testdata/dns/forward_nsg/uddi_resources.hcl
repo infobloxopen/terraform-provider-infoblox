@@ -1,4 +1,6 @@
-# Auto-generated resource acceptance-test cases for ForwardNsg.
+// Objects to be present on the grid for testing
+// DNS Hosts
+
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -163,56 +165,60 @@ case "name" {
 }
 
 case "hosts" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
+  skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {
     uddi {
       name  = "{{random}}"
-      hosts = ["dns/host/1008608"]
+      hosts = ["{{uddi_dns_host_id_1}}"]
     }
     check = {
       "uddi.hosts.#" = "1"
-      "uddi.hosts.0" = "dns/host/1008608"
+      "uddi.hosts.0" = "{{uddi_dns_host_id_1}}"
     }
   }
 
   step {
     uddi {
       name  = "{{random}}"
-      hosts = ["dns/host/1390921"]
+      hosts = ["{{uddi_dns_host_id_2}}"]
     }
     check = {
       "uddi.hosts.#" = "1"
-      "uddi.hosts.0" = "dns/host/1390921"
+      "uddi.hosts.0" = "{{uddi_dns_host_id_2}}"
     }
   }
 
 }
 
 case "internal_forwarders" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DNS_HOST_ID_1", "UDDI_DNS_HOST_ID_2"]
+  skip_reason       = "UDDI_DNS_HOST_ID_1 and UDDI_DNS_HOST_ID_2 environment variable must be set for this test to run"
 
   step {
     uddi {
       name                = "{{random}}"
-      internal_forwarders = ["dns/host/1008608"]
+      internal_forwarders = ["{{uddi_dns_host_id_1}}"]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
-      "uddi.internal_forwarders.0" = "dns/host/1008608"
+      "uddi.internal_forwarders.0" = "{{uddi_dns_host_id_1}}"
     }
   }
 
   step {
     uddi {
       name                = "{{random}}"
-      internal_forwarders = ["dns/host/1390921"]
+      internal_forwarders = ["{{uddi_dns_host_id_2}}"]
     }
     check = {
       "uddi.internal_forwarders.#" = "1"
-      "uddi.internal_forwarders.0" = "dns/host/1390921"
+      "uddi.internal_forwarders.0" = "{{uddi_dns_host_id_2}}"
     }
   }
 

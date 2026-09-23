@@ -50,7 +50,7 @@ case "filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name = "nios.name"
       }
@@ -84,7 +84,7 @@ case "ext_attr_filters" {
     provider         = infoblox
     include_resource = true
     filter {
-      type   = "ext_attr_filters"
+      type = "ext_attr_filters"
       values = {
         Site = "nios.ext_attrs.Site"
       }
