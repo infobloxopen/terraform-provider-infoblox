@@ -1,16 +1,16 @@
 # Auto-generated datasource acceptance-test cases for Ipv6network.
 case "filters" {
-  backend = "uddi"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ip_space" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       address = "uddi.address"
       space   = "uddi.space"
@@ -23,25 +23,24 @@ case "filters" {
     uddi {
       address = "{{random_ipv6}}"
       cidr    = 128
-      # space   = infoblox_ip_space.test.id
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
     }
   }
 
 }
 
 case "tag_filters" {
-  backend = "uddi"
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ip_space" "test" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }
@@ -53,8 +52,7 @@ case "tag_filters" {
     uddi {
       address = "{{random_ipv6}}"
       cidr    = 128
-      # space   = infoblox_ip_space.test.id
-      space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      space   = infoblox_network_view.test.id
       tags    = { tag1 = "{{random}}" }
     }
   }

@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for RecordAaaa.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -11,7 +11,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name_in_zone = "uddi.name_in_zone"
       zone         = "uddi.zone"

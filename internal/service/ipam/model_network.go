@@ -37,15 +37,17 @@ import (
 )
 
 type NetworkModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var NetworkAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSNetworkAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDINetworkAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSNetworkAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDINetworkAttrTypes},
 }
 
 type NIOSNetworkModel struct {
@@ -275,6 +277,10 @@ var NetworkResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -1012,10 +1018,12 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"rebind_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The lease rebind time (T2) in seconds.",
 	},
 	"renew_time": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The lease renew time (T1) in seconds.",
 	},
 	"space": schema.StringAttribute{

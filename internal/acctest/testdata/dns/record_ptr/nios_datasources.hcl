@@ -11,7 +11,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name     = "nios.name"
       ptrdname = "nios.ptrdname"
@@ -43,7 +43,7 @@ case "ext_attr_filters" {
   PREREQ
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }
@@ -78,7 +78,7 @@ case "ipv4addr_filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       ipv4addr = "nios.ipv4addr"
       ptrdname = "nios.ptrdname"
@@ -114,7 +114,7 @@ case "ipv6addr_filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       ipv6addr = "nios.ipv6addr"
       ptrdname = "nios.ptrdname"
