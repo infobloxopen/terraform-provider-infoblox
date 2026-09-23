@@ -293,6 +293,13 @@ case "option_list" {
 case "option_space" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -301,6 +308,16 @@ case "option_space" {
     }
     check = {
       "nios.option_space" = "DHCP"
+    }
+  }
+
+  step {
+    nios {
+      name         = "{{random}}"
+      option_space = infoblox_dhcp_optionspace.test.nios.name
+    }
+    check = {
+      "nios.option_space" = "{{random2}}"
     }
   }
 
