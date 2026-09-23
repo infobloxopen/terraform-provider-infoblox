@@ -27,6 +27,30 @@ func ValidateDtcTopology(ctx context.Context, data DtcTopologyModel, resp *resou
 }
 
 func validateDtcTopologyNIOSConfig(ctx context.Context, m *NIOSDtcTopologyModel, resp *resource.ValidateConfigResponse) {
+	if m.Rules.IsNull() || m.Rules.IsUnknown() {
+		return
+	}
+	var rules []TopologyRulesInnerModel
+	resp.Diagnostics.Append(m.Rules.ElementsAs(ctx, &rules, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	firstDestType := ""
+	for _, rule := range rules {
+		if rule.DestType.IsUnknown() {
+			continue
+		}
+		destType := rule.DestType.ValueString()
+		if firstDestType == "" {
+			firstDestType = destType
+		} else if firstDestType != destType {
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				fmt.Sprintf("All topology rules must have the same 'dest_type'. Found %q and %q.", firstDestType, destType),
+			)
+			return
+		}
+	}
 }
 
 func validateDtcTopologyUDDIConfig(ctx context.Context, m *UDDIDtcTopologyModel, resp *resource.ValidateConfigResponse) {
