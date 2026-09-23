@@ -13,13 +13,15 @@ import (
 )
 
 type CustomRedirectModel struct {
-	Id   types.Int32  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int32  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var CustomRedirectAttrTypes = map[string]attr.Type{
-	"id":   types.Int32Type,
-	"uddi": types.ObjectType{AttrTypes: UDDICustomRedirectAttrTypes},
+	"id":             types.Int32Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDICustomRedirectAttrTypes},
 }
 
 type UDDICustomRedirectModel struct {
@@ -40,6 +42,10 @@ var CustomRedirectResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int32Attribute{
 		Computed:            true,
 		MarkdownDescription: "The Custom Redirect object identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
