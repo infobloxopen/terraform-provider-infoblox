@@ -74,13 +74,12 @@ var overrides = map[override]Policy{
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 
-	{"RecordTxt", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordTxt", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-
 	{"RecordPtr", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordPtr", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
 	{"Networkview", core.BackendUDDI, OpDelete}: {Retryable: IsNetworkViewReferenced, Timeout: 2 * time.Minute},
+
+	{"TsigKey", core.BackendUDDI, OpDelete}: {Retryable: IsTsigReferenced, Timeout: 2 * time.Minute},
 
 	// The redirect API returns 400 "Non-existent: <id>" (not 404) when deleting an already-deleted
 	// resource. IgnoreError makes Do return nil for that case, which the generated delete function
@@ -112,6 +111,10 @@ func IsZoneReferenced(err error) bool {
 func IsNetworkViewReferenced(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "Cannot delete IP Space") &&
 		strings.Contains(err.Error(), "it is being used")
+}
+
+func IsTsigReferenced(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "object is referenced by a 'TSIG Key' object")
 }
 
 func IsNonExistent(err error) bool {

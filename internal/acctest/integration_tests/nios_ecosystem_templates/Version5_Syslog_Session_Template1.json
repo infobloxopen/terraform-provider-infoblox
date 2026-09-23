@@ -1,0 +1,15 @@
+{
+    "version": "5.0",
+    "vendor_identifier": "WAPI",
+    "name": "Version5_Syslog_Session_Template1",
+    "type": "SYSLOG_ENDPOINT",
+    "comment": "Outbound API phase 3",
+    "path": "/wapi/v2.3/",
+    "override_path": true,
+    "timeout": 123,
+    "keepalive": true,
+    "retry": 6,
+    "retry_template": 1,
+    "rate_limit": 200,
+    "endpoint_variables": []
+}

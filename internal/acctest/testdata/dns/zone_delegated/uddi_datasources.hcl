@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for ZoneDelegated.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -17,7 +17,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       fqdn = "uddi.fqdn"
     }
@@ -27,16 +27,16 @@ case "filters" {
 
   step {
     uddi {
-      fqdn = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      fqdn               = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
-      view = infoblox_view.test.id
+      view               = infoblox_view.test.id
     }
   }
 
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -53,7 +53,7 @@ case "tag_filters" {
   PREREQ
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }
@@ -63,10 +63,10 @@ case "tag_filters" {
 
   step {
     uddi {
-      fqdn = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
+      fqdn               = "{{random}}.${infoblox_zone_auth.test.uddi.fqdn}"
       delegation_servers = [{ address = "12.0.0.0", fqdn = "ns1.com." }]
-      tags = { tag1 = "{{random}}" }
-      view = infoblox_view.test.id
+      tags               = { tag1 = "{{random}}" }
+      view               = infoblox_view.test.id
     }
   }
 

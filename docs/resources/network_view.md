@@ -150,6 +150,7 @@ resource "infoblox_network_view" "create_network_view_with_additional_fields" {
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -184,14 +185,7 @@ Read-Only:
 
 Optional:
 
-- `authority_type` (String) Type of authority over the object.
 - `delegated_member` (Attributes) The Cloud Platform Appliance to which authority of the object is delegated. (see [below for nested schema](#nestedatt--nios--cloud_info--delegated_member))
-- `delegated_root` (String) Indicates the root of the delegation if delegated_scope is SUBTREE or RECLAIMING. This is not set otherwise.
-- `delegated_scope` (String) Indicates the scope of delegation for the object. This can be one of the following: NONE (outside any delegation), ROOT (the delegation point), SUBTREE (within the scope of a delegation), RECLAIMING (within the scope of a delegation being reclaimed, either as the delegation point or in the subtree).
-- `mgmt_platform` (String) Indicates the specified cloud management platform.
-- `owned_by_adaptor` (Boolean) Determines whether the object was created by the cloud adapter or not.
-- `tenant` (String) Reference to the tenant object associated with the object, if any.
-- `usage` (String) Indicates the cloud origin of the object.
 
 <a id="nestedatt--nios--cloud_info--delegated_member"></a>
 ### Nested Schema for `nios.cloud_info.delegated_member`
