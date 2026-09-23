@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -36,10 +37,12 @@ var TagRuleResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Required. Tag key to match against a source object's effective tags.",
 	},
 	"op": schema.StringAttribute{
+		Default: stringdefault.StaticString("EQUALS"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("EQUALS", "NOT_EQUALS"),
 		},
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Match operator.  Supported values: - EQUALS: matches when the key exists and its value equals the configured value. - NOT_EQUALS: matches when the key exists and all values for that key differ   from the configured value.  A missing key does not satisfy either operator.  Defaults to _EQUALS_.",
 	},
 	"value": schema.StringAttribute{
