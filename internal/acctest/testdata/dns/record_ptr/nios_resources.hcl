@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordPtr.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -34,7 +34,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -53,8 +53,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -90,8 +90,8 @@ case "comment" {
 }
 
 case "creator" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -127,8 +127,8 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -166,8 +166,8 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -203,8 +203,8 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -240,8 +240,8 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -277,8 +277,8 @@ case "ext_attrs" {
 }
 
 case "forbid_reclamation" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -314,8 +314,8 @@ case "forbid_reclamation" {
 }
 
 case "ipv4addr" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {
@@ -357,8 +357,8 @@ case "ipv4addr" {
 }
 
 case "ipv6addr" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {
@@ -400,8 +400,8 @@ case "ipv6addr" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -435,8 +435,8 @@ case "name" {
 }
 
 case "ptrdname" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -470,8 +470,8 @@ case "ptrdname" {
 }
 
 case "ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -507,12 +507,12 @@ case "ttl" {
 }
 
 case "reverse_mapping" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {
-      fqdn        = "192.168.10.0/24"
+      fqdn        = "192.228.10.0/24"
       zone_format = "IPV4"
       view        = "default"
     }
@@ -522,7 +522,7 @@ case "reverse_mapping" {
   step {
     depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr = "192.168.10.50"
+      ipv4addr = "192.228.10.50"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }
@@ -538,8 +538,8 @@ case "reverse_mapping" {
 }
 
 case "reverse_mapping_ipv6" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {
@@ -569,8 +569,8 @@ case "reverse_mapping_ipv6" {
 }
 
 case "func_call" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network" "test" {
     nios = {
@@ -621,8 +621,8 @@ case "func_call" {
 }
 
 case "func_call_ipv6" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test" {
     nios = {
@@ -673,8 +673,8 @@ case "func_call_ipv6" {
 }
 
 case "name_arpa_ipv4" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {
@@ -717,8 +717,8 @@ case "name_arpa_ipv4" {
 }
 
 case "name_arpa_ipv6" {
-  backend  = "nios"
-  parallel = false
+  backend           = "nios"
+  parallel          = false
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "reverse" {
     nios = {

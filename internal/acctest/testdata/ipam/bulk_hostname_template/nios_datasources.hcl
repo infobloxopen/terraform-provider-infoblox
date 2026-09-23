@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       template_name   = "nios.template_name"
       template_format = "nios.template_format"

@@ -1,7 +1,7 @@
 # Ipv6DhcpOptiondefinition — uddi list cases
 case "basic" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -28,8 +28,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {

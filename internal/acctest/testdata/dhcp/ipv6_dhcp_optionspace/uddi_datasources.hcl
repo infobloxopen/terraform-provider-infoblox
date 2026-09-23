@@ -23,7 +23,7 @@ case "tag_filters" {
   backend = "uddi"
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }
@@ -33,8 +33,8 @@ case "tag_filters" {
 
   step {
     uddi {
-      name     = "{{random}}"
-      tags     = { tag1 = "{{random}}" }
+      name = "{{random}}"
+      tags = { tag1 = "{{random}}" }
     }
   }
 

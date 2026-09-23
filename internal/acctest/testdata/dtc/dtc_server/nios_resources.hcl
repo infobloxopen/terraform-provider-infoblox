@@ -177,10 +177,10 @@ case "monitors" {
 
   step {
     nios {
-      name     = "{{random}}"
-      host     = "{{random_ip}}"
+      name = "{{random}}"
+      host = "{{random_ip}}"
       monitors = [
-        { host = "3.2.2.2",   monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHBz:https" },
+        { host = "3.2.2.2", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHBz:https" },
         { host = "3.231.2.2", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http" },
       ]
     }
@@ -195,8 +195,8 @@ case "monitors" {
 
   step {
     nios {
-      name     = "{{random}}"
-      host     = "{{random_ip}}"
+      name = "{{random}}"
+      host = "{{random_ip}}"
       monitors = [
         { host = "3.2.2.2", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHBz:https" },
       ]

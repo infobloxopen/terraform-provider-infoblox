@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for Ipv6fixedaddress.
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -16,7 +16,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       ipv6addr     = "nios.ipv6addr"
       mac_address  = "nios.mac_address"
@@ -39,7 +39,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -55,7 +55,7 @@ case "ext_attr_filters" {
   PREREQ
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }

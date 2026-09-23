@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for Ipv6DhcpOptiondefinition.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
@@ -33,7 +33,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
       name = "{{random2}}"
@@ -54,8 +54,8 @@ case "disappears" {
 }
 
 case "code" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
@@ -92,8 +92,8 @@ case "code" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
@@ -130,8 +130,8 @@ case "name" {
 }
 
 case "space" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test1" {
     nios = {
@@ -174,8 +174,8 @@ case "space" {
 }
 
 case "type" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {

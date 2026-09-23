@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for Ipv6DhcpOptiondefinition.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -30,7 +30,7 @@ case "filters" {
 }
 
 case "filters_code" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {

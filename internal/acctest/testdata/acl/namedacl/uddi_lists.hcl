@@ -1,6 +1,6 @@
 # Namedacl — uddi list cases
 case "basic" {
-  backend = "uddi"
+  backend        = "uddi"
   min_tf_version = "1.14.0"
 
   step {
@@ -18,7 +18,7 @@ case "basic" {
 }
 
 case "filters" {
-  backend = "uddi"
+  backend        = "uddi"
   min_tf_version = "1.14.0"
 
   step {
@@ -28,11 +28,11 @@ case "filters" {
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         name = "uddi.name"
       }
@@ -42,7 +42,7 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend        = "uddi"
   min_tf_version = "1.14.0"
 
   step {
@@ -53,11 +53,11 @@ case "tag_filters" {
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "tag_filters"
+      type = "tag_filters"
       values = {
         tag1 = "uddi.tags.tag1"
       }

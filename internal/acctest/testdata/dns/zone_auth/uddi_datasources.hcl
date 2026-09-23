@@ -3,7 +3,7 @@ case "filters" {
   backend = "uddi"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       fqdn = "uddi.fqdn"
     }
@@ -22,7 +22,7 @@ case "tag_filters" {
   backend = "uddi"
 
   filter {
-    type   = "tag_filters"
+    type = "tag_filters"
     values = {
       tag1 = "uddi.tags.tag1"
     }

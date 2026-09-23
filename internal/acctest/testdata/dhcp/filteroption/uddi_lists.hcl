@@ -14,7 +14,7 @@ case "basic" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -40,7 +40,7 @@ case "filters" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }
@@ -73,7 +73,7 @@ case "tag_filters" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+          option_code  = "{{uddi_option_code_1_id}}"
           option_value = "value1"
         }]
       }

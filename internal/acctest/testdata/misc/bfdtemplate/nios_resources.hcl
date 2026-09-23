@@ -8,12 +8,12 @@ case "basic" {
       name = "{{random}}"
     }
     check = {
-      "nios.name"                 = "{{random}}"
-      "nios.authentication_type"  = "NONE"
+      "nios.name"                  = "{{random}}"
+      "nios.authentication_type"   = "NONE"
       "nios.authentication_key_id" = "1"
-      "nios.detection_multiplier" = "3"
-      "nios.min_rx_interval"      = "100"
-      "nios.min_tx_interval"      = "100"
+      "nios.detection_multiplier"  = "3"
+      "nios.min_rx_interval"       = "100"
+      "nios.min_tx_interval"       = "100"
     }
   }
 
@@ -42,11 +42,11 @@ case "authentication_key" {
       name = "{{random}}"
     }
     check = {
-      "nios.name"                         = "{{random}}"
-      "nios.authentication_type"          = "NONE"
-      "nios.detection_multiplier"         = "3"
-      "nios.min_rx_interval"              = "100"
-      "nios.min_tx_interval"              = "100"
+      "nios.name"                 = "{{random}}"
+      "nios.authentication_type"  = "NONE"
+      "nios.detection_multiplier" = "3"
+      "nios.min_rx_interval"      = "100"
+      "nios.min_tx_interval"      = "100"
     }
   }
 
@@ -56,11 +56,11 @@ case "authentication_key" {
       authentication_key = "auth_key_1234"
     }
     check = {
-      "nios.name"                         = "{{random}}"
-      "nios.authentication_type"          = "NONE"
-      "nios.detection_multiplier"         = "3"
-      "nios.min_rx_interval"              = "100"
-      "nios.min_tx_interval"              = "100"
+      "nios.name"                 = "{{random}}"
+      "nios.authentication_type"  = "NONE"
+      "nios.detection_multiplier" = "3"
+      "nios.min_rx_interval"      = "100"
+      "nios.min_tx_interval"      = "100"
     }
   }
 
@@ -70,11 +70,11 @@ case "authentication_key" {
       authentication_key = "updated_auth_key_1234"
     }
     check = {
-      "nios.name"                         = "{{random}}"
-      "nios.authentication_type"          = "NONE"
-      "nios.detection_multiplier"         = "3"
-      "nios.min_rx_interval"              = "100"
-      "nios.min_tx_interval"              = "100"
+      "nios.name"                 = "{{random}}"
+      "nios.authentication_type"  = "NONE"
+      "nios.detection_multiplier" = "3"
+      "nios.min_rx_interval"      = "100"
+      "nios.min_tx_interval"      = "100"
     }
   }
 

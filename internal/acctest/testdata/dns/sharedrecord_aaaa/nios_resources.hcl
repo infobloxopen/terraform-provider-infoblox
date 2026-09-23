@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for SharedrecordAaaa.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -31,7 +31,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
@@ -50,8 +50,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -87,8 +87,8 @@ case "comment" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -124,8 +124,8 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -161,8 +161,8 @@ case "ext_attrs" {
 }
 
 case "ipv6addr" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -196,8 +196,8 @@ case "ipv6addr" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -231,8 +231,8 @@ case "name" {
 }
 
 case "shared_record_group" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
@@ -255,8 +255,8 @@ case "shared_record_group" {
 }
 
 case "ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
     nios = {
