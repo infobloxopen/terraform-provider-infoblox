@@ -660,8 +660,10 @@ case "tags" {
 }
 
 case "vendor_specific_option_option_space" {
-  backend           = "uddi"
-  parallel          = true
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "BloxOne requires option code 43 in the built-in dhcp4 space; not reliably available across tenants"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
