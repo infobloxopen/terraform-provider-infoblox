@@ -419,6 +419,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
 		dtc.NewDtcMonitorIcmpResource,
+		dtc.NewDtcTopologyResource,
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
@@ -528,6 +529,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
 		dtc.NewDtcMonitorIcmpDataSource,
+		dtc.NewDtcTopologyDataSource,
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
@@ -640,6 +642,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
 		dtc.NewDtcMonitorIcmpList,
+		dtc.NewDtcTopologyList,
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
