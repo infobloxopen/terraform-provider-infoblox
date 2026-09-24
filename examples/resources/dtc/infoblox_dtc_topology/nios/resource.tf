@@ -1,4 +1,4 @@
-// Create DTC Servers (required as rule destinations)
+// Create DTC Servers (required as a rule destination for the topology)
 resource "infoblox_dtc_server" "example_server_us" {
   nios = {
     name = "example-server-us"
@@ -6,7 +6,7 @@ resource "infoblox_dtc_server" "example_server_us" {
   }
 }
 
-// Create DTC Servers (required as rule destinations)
+// Create DTC Servers (required as a rule destination for the topology)
 resource "infoblox_dtc_server" "example_server_default" {
   nios = {
     name = "example-server-default"

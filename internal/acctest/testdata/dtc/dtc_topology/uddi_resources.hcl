@@ -190,7 +190,6 @@ case "sources" {
     }
   }
 
-  # Reorder the 2 sources — no diff expected if sources are order-independent.
   step {
     uddi {
       name    = "topology-{{random}}"
