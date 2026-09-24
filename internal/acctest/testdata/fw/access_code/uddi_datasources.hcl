@@ -6,7 +6,7 @@ case "filters" {
   parallel = true
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name = "uddi.name"
     }

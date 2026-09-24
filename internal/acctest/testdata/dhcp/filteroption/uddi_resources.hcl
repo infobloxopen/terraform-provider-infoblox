@@ -225,6 +225,7 @@ case "dhcp_options" {
       }
     }
     check = {
+      "uddi.dhcp_options.#"              = "1"
       "uddi.dhcp_options.0.type"         = "option"
       "uddi.dhcp_options.0.option_value" = "true"
     }

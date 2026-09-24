@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name = "nios.name"
     }
@@ -13,9 +13,9 @@ case "filters" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 10
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 10
+      offset              = 50
     }
   }
 

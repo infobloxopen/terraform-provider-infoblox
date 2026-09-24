@@ -24,13 +24,15 @@ import (
 )
 
 type SharedrecordAModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
 }
 
 var SharedrecordAAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSSharedrecordAAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSSharedrecordAAttrTypes},
 }
 
 type NIOSSharedrecordAModel struct {
@@ -63,6 +65,10 @@ var SharedrecordAResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,

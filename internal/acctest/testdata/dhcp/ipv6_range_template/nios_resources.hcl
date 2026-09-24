@@ -8,9 +8,9 @@ case "basic" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
     }
     check = {
       "nios.name"                    = "{{random}}"
@@ -29,17 +29,17 @@ case "disappears" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
     }
   }
 
 }
 
 case "cloud_api_compatible" {
-  backend     = "nios"
-  parallel    = true
+  backend  = "nios"
+  parallel = true
 
   step {
     nios {
@@ -73,10 +73,10 @@ case "comment" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      comment              = "example comment"
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      comment             = "example comment"
     }
     check = {
       "nios.comment" = "example comment"
@@ -85,10 +85,10 @@ case "comment" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      comment              = "example comment updated"
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      comment             = "example comment updated"
     }
     check = {
       "nios.comment" = "example comment updated"
@@ -103,10 +103,10 @@ case "delegated_member" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      delegated_member     = { name = "{{grid_master_hostname}}" }
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      delegated_member    = { name = "{{grid_master_hostname}}" }
     }
     check = {
       "nios.delegated_member.name" = "{{grid_master_hostname}}"
@@ -115,10 +115,10 @@ case "delegated_member" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      delegated_member     = { name = "{{grid_member_hostname}}" }
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      delegated_member    = { name = "{{grid_member_hostname}}" }
     }
     check = {
       "nios.delegated_member.name" = "{{grid_member_hostname}}"
@@ -133,10 +133,10 @@ case "exclude" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      exclude              = [{ number_of_addresses = 10, offset = 20 }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      exclude             = [{ number_of_addresses = 10, offset = 20 }]
     }
     check = {
       "nios.exclude.#"                     = "1"
@@ -147,10 +147,10 @@ case "exclude" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      exclude              = [{ number_of_addresses = 15, offset = 25, comment = "exclude for range template" }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      exclude             = [{ number_of_addresses = 15, offset = 25, comment = "exclude for range template" }]
     }
     check = {
       "nios.exclude.#"                     = "1"
@@ -168,10 +168,10 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      logic_filter_rules   = [{ filter = "ipv6_option_filter", type = "Option" }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      logic_filter_rules  = [{ filter = "ipv6_option_filter", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -182,10 +182,10 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      logic_filter_rules   = [{ filter = "ipv6_option_filter1", type = "Option" }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      logic_filter_rules  = [{ filter = "ipv6_option_filter1", type = "Option" }]
     }
     check = {
       "nios.logic_filter_rules.#"        = "1"
@@ -234,9 +234,9 @@ case "name" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
     }
     check = {
       "nios.name" = "{{random}}"
@@ -245,9 +245,9 @@ case "name" {
 
   step {
     nios {
-      name                 = "{{random2}}"
-      number_of_addresses  = 100
-      offset               = 50
+      name                = "{{random2}}"
+      number_of_addresses = 100
+      offset              = 50
     }
     check = {
       "nios.name" = "{{random2}}"
@@ -262,9 +262,9 @@ case "number_of_addresses" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
     }
     check = {
       "nios.number_of_addresses" = "100"
@@ -273,9 +273,9 @@ case "number_of_addresses" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 150
-      offset               = 50
+      name                = "{{random}}"
+      number_of_addresses = 150
+      offset              = 50
     }
     check = {
       "nios.number_of_addresses" = "150"
@@ -290,9 +290,9 @@ case "offset" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 200
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 200
     }
     check = {
       "nios.offset" = "200"
@@ -301,9 +301,9 @@ case "offset" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 250
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 250
     }
     check = {
       "nios.offset" = "250"
@@ -318,10 +318,10 @@ case "option_filter_rules" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      option_filter_rules  = [{ filter = "ipv6_option_filter", permission = "Allow" }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      option_filter_rules = [{ filter = "ipv6_option_filter", permission = "Allow" }]
     }
     check = {
       "nios.option_filter_rules.#"            = "1"
@@ -332,10 +332,10 @@ case "option_filter_rules" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      option_filter_rules  = [{ filter = "ipv6_option_filter", permission = "Deny" }]
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      option_filter_rules = [{ filter = "ipv6_option_filter", permission = "Deny" }]
     }
     check = {
       "nios.option_filter_rules.#"            = "1"
@@ -352,10 +352,10 @@ case "recycle_leases" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      recycle_leases       = false
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      recycle_leases      = false
     }
     check = {
       "nios.recycle_leases" = "false"
@@ -364,10 +364,10 @@ case "recycle_leases" {
 
   step {
     nios {
-      name                 = "{{random}}"
-      number_of_addresses  = 100
-      offset               = 50
-      recycle_leases       = true
+      name                = "{{random}}"
+      number_of_addresses = 100
+      offset              = 50
+      recycle_leases      = true
     }
     check = {
       "nios.recycle_leases" = "true"

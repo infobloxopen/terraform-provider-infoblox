@@ -26,6 +26,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/infra"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
@@ -332,11 +333,13 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
+		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -374,6 +377,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
+		dns.NewSharedrecordCnameResource,
+		dns.NewSharedrecordMxResource,
+		dns.NewSharedrecordSrvResource,
 		dns.NewSharedrecordTxtResource,
 		dns.NewSharedrecordgroupResource,
 		dns.NewViewResource,
@@ -434,11 +440,13 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
+		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -476,6 +484,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
+		dns.NewSharedrecordCnameDataSource,
+		dns.NewSharedrecordMxDataSource,
+		dns.NewSharedrecordSrvDataSource,
 		dns.NewSharedrecordTxtDataSource,
 		dns.NewSharedrecordgroupDataSource,
 		dns.NewViewDataSource,
@@ -538,11 +549,13 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
+		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
@@ -580,6 +593,9 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
+		dns.NewSharedrecordCnameList,
+		dns.NewSharedrecordMxList,
+		dns.NewSharedrecordSrvList,
 		dns.NewSharedrecordTxtList,
 		dns.NewSharedrecordgroupList,
 		dns.NewViewList,

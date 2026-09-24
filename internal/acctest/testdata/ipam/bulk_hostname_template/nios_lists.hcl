@@ -30,11 +30,11 @@ case "filters" {
   }
 
   step {
-    query    = true
-    provider = infoblox
+    query            = true
+    provider         = infoblox
     include_resource = true
     filter {
-      type   = "filters"
+      type = "filters"
       values = {
         template_name = "nios.template_name"
       }
