@@ -21,6 +21,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
@@ -338,6 +339,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		acl.NewNamedaclResource,
 
+		cloud.NewAwsuserResource,
+
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
@@ -445,6 +448,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
+
+		cloud.NewAwsuserDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewFixedaddressDataSource,
@@ -555,6 +560,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
+
+		cloud.NewAwsuserList,
 
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewFixedaddressList,
