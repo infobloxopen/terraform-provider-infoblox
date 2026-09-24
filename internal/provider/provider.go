@@ -402,10 +402,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
 		dtc.NewDtcMonitorIcmpResource,
+		dtc.NewDtcTopologyResource,
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
-		dtc.NewDtcTopologyResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -512,10 +512,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
 		dtc.NewDtcMonitorIcmpDataSource,
+		dtc.NewDtcTopologyDataSource,
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
-		dtc.NewDtcTopologyDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -625,10 +625,10 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
 		dtc.NewDtcMonitorIcmpList,
+		dtc.NewDtcTopologyList,
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
-		dtc.NewDtcTopologyList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
