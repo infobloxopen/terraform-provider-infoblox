@@ -3,10 +3,14 @@ package internal
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
+
+	"golang.org/x/time/rate"
 )
 
 // contextKeys are used to identify the type of value in the context.
@@ -66,6 +70,8 @@ type Configuration struct {
 	OperationServers map[string]ServerConfigurations
 	HTTPClient       *http.Client
 	DefaultTags      map[string]string
+	RateLimiter      RateLimiter
+	RetryConfig      *RetryConfig
 }
 
 // NewConfiguration returns a new Configuration object.
@@ -86,6 +92,25 @@ func NewConfiguration() *Configuration {
 		OperationServers: map[string]ServerConfigurations{},
 		DefaultTags:      make(map[string]string),
 	}
+
+	rateLimit := lookupEnvFloat64(envRateLimit, defaultRateLimit)
+	if rateLimit > 0 {
+		burst := lookupEnvInt(envRateLimitBurst, int(math.Ceil(rateLimit)))
+		if burst < 1 {
+			burst = 1
+		}
+		cfg.RateLimiter = rate.NewLimiter(rate.Limit(rateLimit), burst)
+	}
+
+	maxRetries := lookupEnvInt(envMaxRetries, DefaultMaxRetries)
+	if maxRetries > 0 {
+		cfg.RetryConfig = &RetryConfig{
+			MaxRetries: maxRetries,
+			MinWait:    lookupEnvDuration(envRetryMinWait, DefaultRetryMinWait),
+			MaxWait:    lookupEnvDuration(envRetryMaxWait, DefaultRetryMaxWait),
+		}
+	}
+
 	return cfg
 }
 
@@ -216,6 +241,33 @@ func lookupEnvBool(key string, def bool) bool {
 	if logLvlStr, ok := os.LookupEnv(key); ok {
 		if logLvl, err := strconv.ParseBool(logLvlStr); err == nil {
 			return logLvl
+		}
+	}
+	return def
+}
+
+func lookupEnvFloat64(key string, def float64) float64 {
+	if v, ok := os.LookupEnv(key); ok {
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			return f
+		}
+	}
+	return def
+}
+
+func lookupEnvInt(key string, def int) int {
+	if v, ok := os.LookupEnv(key); ok {
+		if i, err := strconv.Atoi(v); err == nil {
+			return i
+		}
+	}
+	return def
+}
+
+func lookupEnvDuration(key string, def time.Duration) time.Duration {
+	if v, ok := os.LookupEnv(key); ok {
+		if d, err := time.ParseDuration(v); err == nil {
+			return d
 		}
 	}
 	return def

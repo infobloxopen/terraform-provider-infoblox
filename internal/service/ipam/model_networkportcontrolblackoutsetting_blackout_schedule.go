@@ -58,6 +58,7 @@ var NetworkportcontrolblackoutsettingBlackoutScheduleResourceSchemaAttributes = 
 	"weekdays": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
@@ -88,6 +89,7 @@ var NetworkportcontrolblackoutsettingBlackoutScheduleResourceSchemaAttributes = 
 	},
 	"every": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The number of frequency to wait before repeating the scheduled task.",
 	},
 	"minutes_past_hour": schema.Int64Attribute{
