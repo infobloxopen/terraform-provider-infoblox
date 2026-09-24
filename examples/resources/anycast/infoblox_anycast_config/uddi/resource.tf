@@ -1,4 +1,4 @@
-# Retrieve Infra Host ( Required as Parent )
+# Retrieve Infra Host with Anycast Service Configured ( Required as Parent )
 data "infoblox_infra_host" "parent" {
   filters = {
     display_name = "my_host"
@@ -20,6 +20,12 @@ resource "infoblox_anycast_config" "example" {
   anycast_ip_address = "192.2.2.2"
 
   # Other Optional Fields
+  onprem_hosts = [
+    {
+      id   = infoblox_infra_host.parent.legacy_id
+      name = infoblox_infra_host.parent.display_name
+    }
+  ]
   description = "anycast configuration example"
   tags = {
     Site = "location-1"

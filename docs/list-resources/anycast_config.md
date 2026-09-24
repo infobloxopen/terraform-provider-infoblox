@@ -15,6 +15,16 @@ Retrieves a list of Infoblox AnycastConfig from the UDDI backend.
 ### UDDI Backend
 
 ```terraform
+// List specific Anycast Configs using Filters
+list "infoblox_anycast_config" "list_anycast_config_using_filters" {
+  provider = infoblox
+  config {
+    filters = {
+      name = "anycast_config_example"
+    }
+  }
+}
+
 // List specific Anycast Configs using Tags
 list "infoblox_anycast_config" "list_anycast_config_using_tags" {
   provider = infoblox
