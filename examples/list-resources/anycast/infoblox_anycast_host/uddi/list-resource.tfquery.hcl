@@ -3,7 +3,7 @@ list "infoblox_anycast_host" "list_anycast_host_using_filters" {
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      name = "example_anycast_host"
     }
   }
   limit = 10
