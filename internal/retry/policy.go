@@ -81,9 +81,7 @@ var overrides = map[override]Policy{
 
 	{"TsigKey", core.BackendUDDI, OpDelete}: {Retryable: IsTsigReferenced, Timeout: 2 * time.Minute},
 
-	// The redirect API returns 400 "Non-existent: <id>" (not 404) when deleting an already-deleted
-	// resource. IgnoreError makes Do return nil for that case, which the generated delete function
-	// interprets as success (no error → resource is gone, which is the desired outcome).
+	// Redirect API returns 400 "Non-existent: <id>" instead of 404 for already-deleted resources; treat it as success.
 	{"CustomRedirect", core.BackendUDDI, OpDelete}: {IgnoreError: IsNonExistent},
 }
 
