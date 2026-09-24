@@ -15,13 +15,15 @@ import (
 )
 
 type CredentialGroupModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
 }
 
 var CredentialGroupAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSCredentialGroupAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSCredentialGroupAttrTypes},
 }
 
 type NIOSCredentialGroupModel struct {
@@ -40,6 +42,10 @@ var CredentialGroupResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
