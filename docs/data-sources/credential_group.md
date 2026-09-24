@@ -15,14 +15,10 @@ Retrieves information about existing Infoblox CredentialGroup from the NIOS back
 ### NIOS Backend
 
 ```terraform
-// Retrieve a specific Discovery Credential Group by filters
-data "infoblox_credential_group" "get_discovery_credentialgroup_using_filters" {
-  filters = {
-    name = "example_credential_group"
-  }
-}
-
 // Retrieve all Discovery Credential Groups
+//
+// discovery:credentialgroup exposes no searchable field, so an unfiltered read
+// is the only form this data source supports.
 data "infoblox_credential_group" "get_all_discovery_credentialgroups" {}
 ```
 
