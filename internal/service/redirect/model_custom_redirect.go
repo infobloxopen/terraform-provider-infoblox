@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	int32planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/int32planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/redirect"
@@ -40,7 +42,10 @@ const (
 
 var CustomRedirectResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int32Attribute{
-		Computed:            true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int32{
+			int32planmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The Custom Redirect object identifier.",
 	},
 	"update_trigger": schema.StringAttribute{
