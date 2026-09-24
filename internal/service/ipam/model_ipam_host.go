@@ -8,9 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	listplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -20,13 +21,15 @@ import (
 )
 
 type IpamHostModel struct {
-	Id   types.String `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var IpamHostAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"uddi": types.ObjectType{AttrTypes: UDDIIpamHostAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIIpamHostAttrTypes},
 }
 
 type UDDIIpamHostModel struct {
@@ -58,6 +61,10 @@ var IpamHostResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
+	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "UDDI backend-specific fields.",
@@ -86,7 +93,9 @@ var IpamHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This flag specifies if resource records have to be auto generated for the host.",
 	},
 	"comment": schema.StringAttribute{
+		Default:             stringdefault.StaticString(""),
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The description for the IPAM host. May contain 0 to 1024 characters. Can include UTF-8.",
 	},
 	"host_names": schema.ListNestedAttribute{

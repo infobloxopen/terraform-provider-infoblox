@@ -123,9 +123,21 @@ case "addresses" {
 //     }
 //   }
 
+//   step {
+//     uddi {
+//       addresses = [{ next_available_id = infoblox_ipv6_network.test.id }, { next_available_id = infoblox_ipv6_network.test1.id }, { next_available_id = infoblox_ipv6_network.test2.id }]
+//     }
+//     check = {
+//       "uddi.addresses.#"         = "3"
+//       "uddi.addresses.0.address" = "10.0.0.1"
+//       "uddi.addresses.1.address" = "192.168.1.1"
+//       "uddi.addresses.2.address" = "10.0.0.1"
+//     }
+//   }
+
   step {
     uddi {
-        name = "{{random}}"
+      name = "{{random}}"
       addresses = [{ address = "10.0.0.1", space = infoblox_network_view.test.id }]
     }
     depends_on = [infoblox_network.test]

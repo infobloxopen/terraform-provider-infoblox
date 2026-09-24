@@ -1,4 +1,4 @@
-// List specific Ipam Hosts using filters
+// List specific IPAM Hosts using filters
 list "infoblox_ipam_host" "list_ipam_host_using_filters" {
   provider = infoblox
   config {
@@ -9,7 +9,7 @@ list "infoblox_ipam_host" "list_ipam_host_using_filters" {
   limit = 10
 }
 
-// List specific Ipam Hosts using Tags
+// List specific IPAM Hosts using Tags
 list "infoblox_ipam_host" "list_ipam_host_using_tags" {
   provider = infoblox
   config {
@@ -19,7 +19,7 @@ list "infoblox_ipam_host" "list_ipam_host_using_tags" {
   }
 }
 
-// List Ipam Hosts with resource details included
+// List IPAM Hosts with resource details included
 list "infoblox_ipam_host" "list_ipam_host_with_resource" {
   provider         = infoblox
   include_resource = true
