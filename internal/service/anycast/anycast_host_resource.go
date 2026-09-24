@@ -15,6 +15,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/anycast"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/anycast"
+	lookupsvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/infra"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -32,8 +33,9 @@ func NewAnycastHostResource() resource.Resource {
 }
 
 type AnycastHostResource struct {
-	backend core.BackendType
-	service coresvc.AnycastHostService
+	backend       core.BackendType
+	service       coresvc.AnycastHostService
+	lookupService lookupsvc.InfraHostService
 }
 
 func (r *AnycastHostResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -81,6 +83,7 @@ func (r *AnycastHostResource) Configure(_ context.Context, req resource.Configur
 	}
 
 	r.service = coresvc.NewAnycastHostService(r.backend, client.NIOS, client.UDDI)
+	r.lookupService = lookupsvc.NewInfraHostService(r.backend, client.NIOS, client.UDDI)
 }
 
 func (r *AnycastHostResource) retryPolicy(op retry.Operation) retry.Policy {
@@ -112,7 +115,12 @@ func (r *AnycastHostResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	obj := data.Expand(ctx, &resp.Diagnostics, true)
+	obj := data.Expand(ctx, &resp.Diagnostics, false)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.lookupAnycastHost(ctx, obj, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -122,9 +130,9 @@ func (r *AnycastHostResource) Create(ctx context.Context, req resource.CreateReq
 		httpResp *http.Response
 	)
 
-	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
+	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
-		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
+		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueInt64(), obj, &core.Options{
 			ReturnFields: AnycastHostReturnFields,
 		})
 		if httpResp != nil {
@@ -133,7 +141,7 @@ func (r *AnycastHostResource) Create(ctx context.Context, req resource.CreateReq
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create AnycastHost: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update AnycastHost: %s", err))
 		return
 	}
 
