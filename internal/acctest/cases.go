@@ -42,6 +42,7 @@ type ResourceCase struct {
 	Backend            string
 	Skip               bool
 	SkipReason         string
+	SkipIfEnvEmpty     []string
 	Disappears         bool
 	ExpectNonEmptyPlan bool
 	Parallel           bool
@@ -84,6 +85,12 @@ func RunResourceCases(t *testing.T, resourceType, fileRelPath string, checksByBa
 			if rc.Skip {
 				t.Skipf("Skipped: %s", rc.SkipReason)
 				return
+			}
+			for _, envVar := range rc.SkipIfEnvEmpty {
+				if os.Getenv(envVar) == "" {
+					t.Skipf("%s environment variable must be set for this test to run", envVar)
+					return
+				}
 			}
 
 			checks, ok := checksByBackend[rc.Backend]
@@ -372,6 +379,7 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 			{Name: "backend"},
 			{Name: "skip"},
 			{Name: "skip_reason"},
+			{Name: "skip_if_env_empty"},
 			{Name: "disappears"},
 			{Name: "expect_non_empty_plan"},
 			{Name: "parallel"},
@@ -399,6 +407,19 @@ func parseResourceCaseBody(body hcl.Body, src []byte) (*ResourceCase, error) {
 	if attr, ok := content.Attributes["skip_reason"]; ok {
 		val, _ := attr.Expr.Value(nil)
 		rc.SkipReason = val.AsString()
+	}
+	if attr, ok := content.Attributes["skip_if_env_empty"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		switch val.Type() {
+		case cty.String:
+			rc.SkipIfEnvEmpty = []string{val.AsString()}
+		default:
+			// tuple or list of strings
+			for it := val.ElementIterator(); it.Next(); {
+				_, v := it.Element()
+				rc.SkipIfEnvEmpty = append(rc.SkipIfEnvEmpty, v.AsString())
+			}
+		}
 	}
 	if attr, ok := content.Attributes["disappears"]; ok {
 		val, _ := attr.Expr.Value(nil)

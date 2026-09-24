@@ -69,13 +69,12 @@ var overrides = map[override]Policy{
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 
-	{"RecordTxt", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
-	{"RecordTxt", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
-
 	{"RecordPtr", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordPtr", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
 	{"Networkview", core.BackendUDDI, OpDelete}: {Retryable: IsNetworkViewReferenced, Timeout: 2 * time.Minute},
+
+	{"TsigKey", core.BackendUDDI, OpDelete}: {Retryable: IsTsigReferenced, Timeout: 2 * time.Minute},
 }
 
 // For resolves the policy for op on backend. T is the core model of the object,
@@ -102,4 +101,8 @@ func IsZoneReferenced(err error) bool {
 func IsNetworkViewReferenced(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "Cannot delete IP Space") &&
 		strings.Contains(err.Error(), "it is being used")
+}
+
+func IsTsigReferenced(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "object is referenced by a 'TSIG Key' object")
 }

@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name = "nios.name"
     }
@@ -23,10 +23,10 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend     = "nios"
+  backend = "nios"
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       "Tenant ID" = "nios.ext_attrs[\"Tenant ID\"]"
     }
@@ -40,7 +40,7 @@ case "ext_attr_filters" {
       number_of_addresses  = 100
       offset               = 50
       cloud_api_compatible = true
-      ext_attrs = { "Tenant ID" = "{{random2}}" }
+      ext_attrs            = { "Tenant ID" = "{{random2}}" }
     }
   }
 }

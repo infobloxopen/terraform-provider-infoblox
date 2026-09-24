@@ -17,7 +17,7 @@ import (
 // checks if the NetworkListCreateResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NetworkListCreateResponse{}
 
-// NetworkListCreateResponse The Network List create response.
+// NetworkListCreateResponse The Network List creation response.
 type NetworkListCreateResponse struct {
 	// The Network List object.
 	Results              *NetworkList `json:"results,omitempty"`

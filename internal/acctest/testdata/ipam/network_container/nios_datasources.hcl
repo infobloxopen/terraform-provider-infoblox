@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       network = "nios.network"
     }
@@ -23,7 +23,7 @@ case "ext_attr_filters" {
   backend = "nios"
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }

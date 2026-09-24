@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for Address.
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -28,8 +28,8 @@ case "filters" {
 
   step {
     uddi {
-      address       = "10.0.0.1"
-      space         = infoblox_network_view.test.id
+      address = "10.0.0.1"
+      space   = infoblox_network_view.test.id
     }
     depends_on = [infoblox_network.test]
   }
@@ -37,7 +37,7 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -64,9 +64,9 @@ case "tag_filters" {
 
   step {
     uddi {
-      address       = "10.0.0.1"
-      space         = infoblox_network_view.test.id
-      tags          = { tag1 = "{{random}}" }
+      address = "10.0.0.1"
+      space   = infoblox_network_view.test.id
+      tags    = { tag1 = "{{random}}" }
     }
     depends_on = [infoblox_network.test]
   }

@@ -19,13 +19,15 @@ import (
 )
 
 type AccessCodeModel struct {
-	Id   types.String `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var AccessCodeAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"uddi": types.ObjectType{AttrTypes: UDDIAccessCodeAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIAccessCodeAttrTypes},
 }
 
 type UDDIAccessCodeModel struct {
@@ -63,6 +65,10 @@ var AccessCodeResourceSchemaAttributes = map[string]schema.Attribute{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "Auto generated unique Bypass Code value",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,

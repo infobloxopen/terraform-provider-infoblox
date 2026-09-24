@@ -1,0 +1,20 @@
+{
+  "name": "Version5_DXL_Session_Template1",
+  "version": "5.0",
+  "type": "DXL_ENDPOINT",
+  "comment": "some comment",
+  "inactivity_interval": 1000,
+  "rate_limit": 1000.3,
+  "rate_limit_requests": 31,
+  "rate_limit_interval": 561,
+  "rate_limit_reset": 57,
+  "requests_per_session": 1,
+  "retry": 3,
+  "retry_template": 3,
+  "wapi_rate_limit": 45.6,
+  "vendor_identifier": "testing123",
+  "dxl_keep_alive_interval": 97,
+  "dxl_topic": "/outbound/session"
+}
+
+

@@ -17,15 +17,15 @@ import (
 // checks if the ListSeverityLevels type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &ListSeverityLevels{}
 
-// ListSeverityLevels The Payload for Patch Operation to update Threat/Confidence Levels and Tags in TI List
+// ListSeverityLevels The payload for the patch operation used to update the threat or confidence levels and tags in the TI list.
 type ListSeverityLevels struct {
-	// The confidence level for a TI list. The possible values are [LOW\", \"MEDIUM\", \"HIGH\"]
+	// The confidence level for a TI list. The possible values are LOW\", \"MEDIUM\", and \"HIGH\".
 	ConfidenceLevel *string `json:"confidence_level,omitempty"`
 	// The Named List object identifier.
 	Id *int32 `json:"id,omitempty"`
-	// Enables tag support for resource where tags attribute contains user-defined key value pairs
+	// Enables tag support for a resource where the tags attribute contains user-defined key-value pairs.
 	Tags map[string]interface{} `json:"tags,omitempty"`
-	// The threat level for a TI list. The possible values are [\"INFO\", \"LOW\", \"MEDIUM\", \"HIGH\"]
+	// The threat level for a TI list. The possible values are \"INFO\", \"LOW\", \"MEDIUM\", and \"HIGH\".
 	ThreatLevel          *string `json:"threat_level,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
