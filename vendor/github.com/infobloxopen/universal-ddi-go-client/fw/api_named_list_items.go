@@ -25,11 +25,12 @@ type NamedListItemsAPI interface {
 	/*
 			DeleteNamedListItems Delete Named List Items.
 
-			Use this method to remove items from a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be deleted.
+			Use this method to remove items from a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list. DNSM, TI, and DGA lists cannot be updated; only Custom List items can be deleted.
 
-		The Custom List Items represent the list of the FQDN or IPv4 or IPv6 addresses to define whitelists and blacklists for additional protection.
+		The Custom List Items represent the list of the FQDN or IPv4 or IPv6 addresses used to define allow-lists and deny-lists for additional protection.
 
 		Required:
+		- id
 		- items
 
 
@@ -44,9 +45,9 @@ type NamedListItemsAPI interface {
 	/*
 			InsertOrReplaceNamedListItems Insert Named List Items.
 
-			Use this method to update existing items with new ones for a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be updated.
+			Use this method to update existing items with new ones for a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list. DNSM, TI, and DGA lists cannot be updated; only Custom List items can be updated.
 
-		The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+		The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -61,9 +62,9 @@ type NamedListItemsAPI interface {
 	/*
 			NamedListItemsPartialUpdate Partial Update Named List Items.
 
-			Use this method to insert ot delete items  for a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be updated.
+			Use this method to insert, update or delete items  for a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list.
 
-		The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+		The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -73,8 +74,8 @@ type NamedListItemsAPI interface {
 	NamedListItemsPartialUpdate(ctx context.Context, id int32) NamedListItemsAPINamedListItemsPartialUpdateRequest
 
 	// NamedListItemsPartialUpdateExecute executes the request
-	//  @return map[string]interface{}
-	NamedListItemsPartialUpdateExecute(r NamedListItemsAPINamedListItemsPartialUpdateRequest) (map[string]interface{}, *http.Response, error)
+	//  @return NamedListItemsPartialUpdateResponse
+	NamedListItemsPartialUpdateExecute(r NamedListItemsAPINamedListItemsPartialUpdateRequest) (*NamedListItemsPartialUpdateResponse, *http.Response, error)
 }
 
 // NamedListItemsAPIService NamedListItemsAPI service
@@ -99,11 +100,12 @@ func (r NamedListItemsAPIDeleteNamedListItemsRequest) Execute() (*http.Response,
 /*
 DeleteNamedListItems Delete Named List Items.
 
-Use this method to remove items from a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be deleted.
+Use this method to remove items from a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list. DNSM, TI, and DGA lists cannot be updated; only Custom List items can be deleted.
 
-The Custom List Items represent the list of the FQDN or IPv4 or IPv6 addresses to define whitelists and blacklists for additional protection.
+The Custom List Items represent the list of the FQDN or IPv4 or IPv6 addresses used to define allow-lists and deny-lists for additional protection.
 
 Required:
+- id
 - items
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -234,9 +236,9 @@ func (r NamedListItemsAPIInsertOrReplaceNamedListItemsRequest) Execute() (*Named
 /*
 InsertOrReplaceNamedListItems Insert Named List Items.
 
-Use this method to update existing items with new ones for a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be updated.
+Use this method to update existing items with new ones for a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list. DNSM, TI, and DGA lists cannot be updated; only Custom List items can be updated.
 
-The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The Named List object identifier.
@@ -361,22 +363,22 @@ type NamedListItemsAPINamedListItemsPartialUpdateRequest struct {
 	body       *NamedListItemsPartialUpdate
 }
 
-// NamedListItemsPartialUpdate object
+// NamedListItemsPartialUpdate object.
 func (r NamedListItemsAPINamedListItemsPartialUpdateRequest) Body(body NamedListItemsPartialUpdate) NamedListItemsAPINamedListItemsPartialUpdateRequest {
 	r.body = &body
 	return r
 }
 
-func (r NamedListItemsAPINamedListItemsPartialUpdateRequest) Execute() (map[string]interface{}, *http.Response, error) {
+func (r NamedListItemsAPINamedListItemsPartialUpdateRequest) Execute() (*NamedListItemsPartialUpdateResponse, *http.Response, error) {
 	return r.ApiService.NamedListItemsPartialUpdateExecute(r)
 }
 
 /*
 NamedListItemsPartialUpdate Partial Update Named List Items.
 
-Use this method to insert ot delete items  for a specified Named List object. Note that duplicated items are silently skipped and only new items are appended to the named list. Note that DNSM, TI, Fast Flux and DGA lists cannot be updated. Only Custom List items can be updated.
+Use this method to insert, update or delete items  for a specified Named List object. Duplicated items are silently skipped, and only new items are appended to the named list.
 
-The Custom List Items represent the list of the FQDN or IPv4 addresses to define whitelists and blacklists for additional protection.
+The Custom List Items represent the list of the FQDN or IPv4 addresses used to define allow-lists and deny-lists for additional protection.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The Named List object identifier.
@@ -392,13 +394,13 @@ func (a *NamedListItemsAPIService) NamedListItemsPartialUpdate(ctx context.Conte
 
 // Execute executes the request
 //
-//	@return map[string]interface{}
-func (a *NamedListItemsAPIService) NamedListItemsPartialUpdateExecute(r NamedListItemsAPINamedListItemsPartialUpdateRequest) (map[string]interface{}, *http.Response, error) {
+//	@return NamedListItemsPartialUpdateResponse
+func (a *NamedListItemsAPIService) NamedListItemsPartialUpdateExecute(r NamedListItemsAPINamedListItemsPartialUpdateRequest) (*NamedListItemsPartialUpdateResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []internal.FormFile
-		localVarReturnValue map[string]interface{}
+		localVarReturnValue *NamedListItemsPartialUpdateResponse
 	)
 
 	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "NamedListItemsAPIService.NamedListItemsPartialUpdate")

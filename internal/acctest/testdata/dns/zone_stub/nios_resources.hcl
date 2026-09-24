@@ -381,8 +381,8 @@ case "stub_members" {
 }
 
 case "stub_msservers" {
-  backend     = "nios"
-  parallel    = true
+  backend  = "nios"
+  parallel = true
 
   step {
     nios {
@@ -450,8 +450,8 @@ case "zone_format_ipv6" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_dns_view" {
     nios = {

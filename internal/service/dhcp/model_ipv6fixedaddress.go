@@ -33,15 +33,17 @@ import (
 )
 
 type Ipv6fixedaddressModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var Ipv6fixedaddressAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSIpv6fixedaddressAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDIIpv6fixedaddressAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSIpv6fixedaddressAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDIIpv6fixedaddressAttrTypes},
 }
 
 type NIOSIpv6fixedaddressModel struct {
@@ -162,6 +164,10 @@ var Ipv6fixedaddressResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
 	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
+	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
@@ -266,6 +272,7 @@ var Ipv6fixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"domain_name_servers": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(customvalidator.IsValidIPv6Address()),

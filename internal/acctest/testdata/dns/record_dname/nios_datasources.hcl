@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for RecordDname.
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -10,7 +10,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name   = "nios.name"
       target = "nios.target"
@@ -31,7 +31,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -41,7 +41,7 @@ case "ext_attr_filters" {
   PREREQ
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }

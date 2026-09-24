@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       enterprise_number = "nios.enterprise_number"
       name              = "nios.name"

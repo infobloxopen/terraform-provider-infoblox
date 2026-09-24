@@ -26,15 +26,17 @@ import (
 )
 
 type NetworkviewModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var NetworkviewAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSNetworkviewAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDINetworkviewAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSNetworkviewAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDINetworkviewAttrTypes},
 }
 
 type NIOSNetworkviewModel struct {
@@ -136,6 +138,10 @@ var NetworkviewResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -335,6 +341,7 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ddns_ttl_percent": schema.Float64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "DDNS TTL value - to be calculated as a simple percentage of the lease's lifetime, using the parameter's value as the percentage. It is specified as a percentage (e.g. 25, 75). Defaults to unspecified.",
 	},
 	"ddns_update_on_renew": schema.BoolAttribute{
@@ -483,6 +490,7 @@ func (m *NetworkviewModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 	niosModel := flex.ExpandNestedObject[NIOSNetworkviewModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = PostExpandNetworkviewNIOS(ctx, obj.NIOS, diags)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -556,8 +564,10 @@ func (m *NetworkviewModel) Flatten(ctx context.Context, resp *coremodel.Networkv
 	if niosModel == nil {
 		niosModel = &NIOSNetworkviewModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSNetworkviewModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenNetworkviewNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSNetworkviewAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSNetworkviewAttrTypes)

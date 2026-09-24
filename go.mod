@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	github.com/infobloxopen/infoblox-nios-go-client v0.1.2-0.20260907051105-9b72d49d38be
-	github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260907084443-b8800b7a96e0
+	github.com/infobloxopen/universal-ddi-go-client v0.4.1-0.20260915112315-4ef286d0c611
 	github.com/zclconf/go-cty v1.18.1
 )
 
@@ -80,6 +80,7 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect

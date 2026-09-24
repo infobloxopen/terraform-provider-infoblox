@@ -21,15 +21,18 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/infra"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
@@ -331,10 +334,15 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		anycast.NewAnycastHostResource,
+		infra.NewInfraHostResource,
+		notification.NewNotificationRestEndpointResource,
+
 		acl.NewNamedaclResource,
 
+		cloud.NewAwsuserResource,
+
 		dhcp.NewDhcpOptiondefinitionResource,
+		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -343,7 +351,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
 		dhcp.NewIpv6rangetemplateResource,
+		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
+		dhcp.NewIpv6sharednetworkResource,
+		dhcp.NewIpv6filteroptionResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -359,16 +370,20 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewRecordCaaResource,
 		dns.NewRecordCnameResource,
 		dns.NewRecordDnameResource,
+		dns.NewRecordHttpsResource,
 		dns.NewRecordMxResource,
 		dns.NewRecordNaptrResource,
 		dns.NewRecordNsResource,
 		dns.NewRecordPtrResource,
 		dns.NewRecordSrvResource,
 		dns.NewRecordSvcbResource,
-		dns.NewRecordHttpsResource,
 		dns.NewRecordTxtResource,
 		dns.NewSharedrecordAResource,
 		dns.NewSharedrecordAaaaResource,
+		dns.NewSharedrecordCnameResource,
+		dns.NewSharedrecordMxResource,
+		dns.NewSharedrecordSrvResource,
+		dns.NewSharedrecordTxtResource,
 		dns.NewSharedrecordgroupResource,
 		dns.NewViewResource,
 		dns.NewZoneAuthResource,
@@ -376,12 +391,21 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dns.NewZoneForwardResource,
 		dns.NewZoneRpResource,
 		dns.NewZoneStubResource,
+		dns.NewRecordHostResource,
+		dns.NewIPAssociationResource,
 
 		dtc.NewDtcLbdnResource,
 		dtc.NewDtcMonitorPdpResource,
+		dtc.NewDtcMonitorSnmpResource,
+		dtc.NewDtcMonitorHttpResource,
 		dtc.NewDtcPoolResource,
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
+		dtc.NewDtcMonitorIcmpResource,
+		dtc.NewDtcTopologyResource,
+
+		fw.NewAccessCodeResource,
+		fw.NewNamedListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -396,6 +420,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewNetworkviewResource,
 		ipam.NewSuperhostResource,
 		ipam.NewBulkhostnametemplateResource,
+		ipam.NewVlanviewResource,
+		ipam.NewVlanResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -407,20 +433,27 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
-		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzCnameClientipaddressdnResource,
 		rpz.NewRecordRpzCnameIpaddressResource,
+		rpz.NewRecordRpzCnameIpaddressdnResource,
+		rpz.NewRecordRpzCnameResource,
 		rpz.NewRecordRpzNaptrResource,
+		rpz.NewRecordRpzPtrResource,
 		rpz.NewRecordRpzTxtResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		anycast.NewAnycastHostDataSource,
+		infra.NewInfraHostDataSource,
+		notification.NewNotificationRestEndpointDataSource,
+
 		acl.NewNamedaclDataSource,
 
+		cloud.NewAwsuserDataSource,
+
 		dhcp.NewDhcpOptiondefinitionDataSource,
+		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -429,7 +462,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
 		dhcp.NewIpv6rangetemplateDataSource,
+		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
+		dhcp.NewIpv6sharednetworkDataSource,
+		dhcp.NewIpv6filteroptionDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -445,16 +481,20 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewRecordCaaDataSource,
 		dns.NewRecordCnameDataSource,
 		dns.NewRecordDnameDataSource,
+		dns.NewRecordHttpsDataSource,
 		dns.NewRecordMxDataSource,
 		dns.NewRecordNaptrDataSource,
 		dns.NewRecordNsDataSource,
 		dns.NewRecordPtrDataSource,
 		dns.NewRecordSrvDataSource,
 		dns.NewRecordSvcbDataSource,
-		dns.NewRecordHttpsDataSource,
 		dns.NewRecordTxtDataSource,
 		dns.NewSharedrecordADataSource,
 		dns.NewSharedrecordAaaaDataSource,
+		dns.NewSharedrecordCnameDataSource,
+		dns.NewSharedrecordMxDataSource,
+		dns.NewSharedrecordSrvDataSource,
+		dns.NewSharedrecordTxtDataSource,
 		dns.NewSharedrecordgroupDataSource,
 		dns.NewViewDataSource,
 		dns.NewZoneAuthDataSource,
@@ -462,12 +502,20 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dns.NewZoneForwardDataSource,
 		dns.NewZoneRpDataSource,
 		dns.NewZoneStubDataSource,
+		dns.NewRecordHostDataSource,
 
 		dtc.NewDtcLbdnDataSource,
 		dtc.NewDtcMonitorPdpDataSource,
+		dtc.NewDtcMonitorSnmpDataSource,
+		dtc.NewDtcMonitorHttpDataSource,
 		dtc.NewDtcPoolDataSource,
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
+		dtc.NewDtcMonitorIcmpDataSource,
+		dtc.NewDtcTopologyDataSource,
+
+		fw.NewAccessCodeDataSource,
+		fw.NewNamedListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -485,6 +533,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewNextAvailableSubnetDataSource,
 		ipam.NewSuperhostDataSource,
 		ipam.NewBulkhostnametemplateDataSource,
+		ipam.NewVlanviewDataSource,
+		ipam.NewVlanDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -496,20 +546,27 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
-		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameClientipaddressdnDataSource,
+		rpz.NewRecordRpzCnameDataSource,
 		rpz.NewRecordRpzCnameIpaddressDataSource,
+		rpz.NewRecordRpzCnameIpaddressdnDataSource,
 		rpz.NewRecordRpzNaptrDataSource,
+		rpz.NewRecordRpzPtrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		anycast.NewAnycastHostList,
+		infra.NewInfraHostList,
+		notification.NewNotificationRestEndpointList,
+
 		acl.NewNamedaclList,
 
+		cloud.NewAwsuserList,
+
 		dhcp.NewDhcpOptiondefinitionList,
+		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
@@ -518,7 +575,10 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
 		dhcp.NewIpv6rangetemplateList,
+		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
+		dhcp.NewIpv6sharednetworkList,
+		dhcp.NewIpv6filteroptionList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -534,16 +594,20 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewRecordCaaList,
 		dns.NewRecordCnameList,
 		dns.NewRecordDnameList,
+		dns.NewRecordHttpsList,
 		dns.NewRecordMxList,
 		dns.NewRecordNaptrList,
 		dns.NewRecordNsList,
 		dns.NewRecordPtrList,
 		dns.NewRecordSrvList,
 		dns.NewRecordSvcbList,
-		dns.NewRecordHttpsList,
 		dns.NewRecordTxtList,
 		dns.NewSharedrecordAList,
 		dns.NewSharedrecordAaaaList,
+		dns.NewSharedrecordCnameList,
+		dns.NewSharedrecordMxList,
+		dns.NewSharedrecordSrvList,
+		dns.NewSharedrecordTxtList,
 		dns.NewSharedrecordgroupList,
 		dns.NewViewList,
 		dns.NewZoneAuthList,
@@ -551,12 +615,20 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dns.NewZoneForwardList,
 		dns.NewZoneRpList,
 		dns.NewZoneStubList,
+		dns.NewRecordHostList,
 
 		dtc.NewDtcLbdnList,
 		dtc.NewDtcMonitorPdpList,
+		dtc.NewDtcMonitorSnmpList,
+		dtc.NewDtcMonitorHttpList,
 		dtc.NewDtcPoolList,
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
+		dtc.NewDtcMonitorIcmpList,
+		dtc.NewDtcTopologyList,
+
+		fw.NewAccessCodeList,
+		fw.NewNamedListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
@@ -571,6 +643,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewNetworkviewList,
 		ipam.NewSuperhostList,
 		ipam.NewBulkhostnametemplateList,
+		ipam.NewVlanviewList,
+		ipam.NewVlanList,
 
 		ipamfederation.NewFederatedRealmList,
 
@@ -582,10 +656,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
 		rpz.NewRecordRpzAaaaIpaddressList,
-		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzCnameClientipaddressdnList,
 		rpz.NewRecordRpzCnameIpaddressList,
+		rpz.NewRecordRpzCnameIpaddressdnList,
+		rpz.NewRecordRpzCnameList,
 		rpz.NewRecordRpzNaptrList,
+		rpz.NewRecordRpzPtrList,
 		rpz.NewRecordRpzTxtList,
 	}
 }

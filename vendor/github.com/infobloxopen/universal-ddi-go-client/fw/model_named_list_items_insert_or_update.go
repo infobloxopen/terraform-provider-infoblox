@@ -21,9 +21,9 @@ var _ MappedNullable = &NamedListItemsInsertOrUpdate{}
 type NamedListItemsInsertOrUpdate struct {
 	// The Named List object identifier.
 	Id *int32 `json:"id,omitempty"`
-	// The list of the FQDN or IPv4/IPv6 addresses or IPv4/IPv6 CIDRs to define whitelists and blacklists for additional protection.
+	// The list of the FQDN or IPv4/IPv6 addresses or IPv4/IPv6 CIDRs, used to define allow-lists and deny-lists for additional protection.
 	Items []string `json:"items,omitempty"`
-	// The List of ItemStructs structure which contains the item and its description
+	// The list of ItemStructs structures that contains items and their descriptions.
 	ItemsDescribed       []ItemStructs `json:"items_described,omitempty"`
 	AdditionalProperties map[string]interface{}
 }

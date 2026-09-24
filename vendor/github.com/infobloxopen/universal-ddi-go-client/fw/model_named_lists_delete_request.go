@@ -17,9 +17,9 @@ import (
 // checks if the NamedListsDeleteRequest type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NamedListsDeleteRequest{}
 
-// NamedListsDeleteRequest The Named List delete request.
+// NamedListsDeleteRequest The Named List deletion request.
 type NamedListsDeleteRequest struct {
-	// The list of Named List object identifiers.
+	// A list of identifiers of Named List objects.
 	Ids                  []int32 `json:"ids,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
