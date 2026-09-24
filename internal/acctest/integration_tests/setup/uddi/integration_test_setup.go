@@ -18,6 +18,9 @@
 // DHCP Option Code:
 //   - tf_option_code_1 (UDDI_OPTION_CODE_1_ID)
 //
+// DHCP Option Code (builtin dhcp4 space, required by vendor_specific_option_option_space tests):
+//   - vendor-encapsulated-options (code 43 in dhcp4)
+//
 // DNS Auth Zone:
 //   - example_zone_250 (UDDI_AUTH_ZONE_1_ID)
 
@@ -270,6 +273,49 @@ func CreateOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
 	return nil
 }
 
+// EnsureVendorOptionCode ensures that option code 43 ("vendor-encapsulated-options", type "binary")
+// exists in the built-in "dhcp4" option space. BloxOne requires this when any filteroption or
+// ipv6_filteroption sets vendor_specific_option_option_space.
+func EnsureVendorOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
+	// Find the built-in dhcp4 option space.
+	listResp, _, err := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Execute()
+	if err != nil {
+		return fmt.Errorf("ensure vendor option code: list option spaces: %w", err)
+	}
+
+	var dhcp4SpaceID string
+	if listResp != nil {
+		for _, existing := range listResp.Results {
+			if existing.Name == "dhcp4" && existing.Id != nil {
+				dhcp4SpaceID = *existing.Id
+				break
+			}
+		}
+	}
+	if dhcp4SpaceID == "" {
+		return fmt.Errorf("ensure vendor option code: built-in option space %q not found", "dhcp4")
+	}
+
+	body := ipam.OptionCode{
+		Name:        "vendor-encapsulated-options",
+		Code:        int64(43),
+		OptionSpace: dhcp4SpaceID,
+		Type:        "text",
+	}
+
+	_, _, err = client.IPAddressManagementAPI.OptionCodeAPI.Create(ctx).Body(body).Execute()
+	if err != nil {
+		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "reserved") {
+			fmt.Println("Option code 43 in dhcp4 already exists or is reserved, skipping")
+			return nil
+		}
+		return fmt.Errorf("ensure vendor option code: create option code 43 in dhcp4: %w", err)
+	}
+
+	fmt.Println("Option code 43 (vendor-encapsulated-options) created in dhcp4 successfully")
+	return nil
+}
+
 func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, name string) (string, error) {
 	body := ipam.OptionSpace{
 		Name: name,
@@ -455,6 +501,12 @@ func main() {
 		return
 	}
 	fmt.Println("Option code created successfully")
+
+	if err := EnsureVendorOptionCode(ctx, client); err != nil {
+		fmt.Printf("Error ensuring vendor option code: %v\n", err)
+		return
+	}
+	fmt.Println("Vendor option code (dhcp4/43) ready")
 
 	if err := CreateAuthZone(ctx, client); err != nil {
 		fmt.Printf("Error creating auth zone: %v\n", err)
