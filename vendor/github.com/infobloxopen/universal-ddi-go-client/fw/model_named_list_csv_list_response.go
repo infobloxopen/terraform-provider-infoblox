@@ -17,9 +17,9 @@ import (
 // checks if the NamedListCSVListResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NamedListCSVListResponse{}
 
-// NamedListCSVListResponse The Named List CSV list response
+// NamedListCSVListResponse The Named List CSV list response.
 type NamedListCSVListResponse struct {
-	// Named Lists for csv file
+	// Named lists for a CSV file.
 	Results              []string `json:"results,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
