@@ -26,16 +26,24 @@ type AuthNSG struct {
 	ExternalPrimaries []ExternalPrimary `json:"external_primaries,omitempty"`
 	// DNS secondaries external to Universal DDI. Order is not significant.
 	ExternalSecondaries []ExternalSecondary `json:"external_secondaries,omitempty"`
+	// Optional. The list of the NIOS Grid Primaries assigned to an AuthNSG, only applicable for the NIOS.
+	GridPrimaries []MemberServer `json:"grid_primaries,omitempty"`
+	// Optional. The list of the NIOS Grid Secondaries assigned to an AuthNSG, only applicable for the NIOS.
+	GridSecondaries []MemberServer `json:"grid_secondaries,omitempty"`
 	// The resource identifier.
 	Id *string `json:"id,omitempty"`
 	// Optional. Universal DDI hosts acting as internal secondaries. Order is not significant.
 	InternalSecondaries []InternalSecondary `json:"internal_secondaries,omitempty"`
 	// Name of the object.
 	Name string `json:"name"`
+	// Optional. A list of DNS Nameservers of various roles.
+	Nameservers []Nameserver `json:"nameservers,omitempty"`
 	// The resource identifier.
 	Nsgs []string `json:"nsgs,omitempty"`
 	// Tagging specifics.
-	Tags                 map[string]interface{} `json:"tags,omitempty"`
+	Tags map[string]interface{} `json:"tags,omitempty"`
+	// Read Only.  Version indicates the version of the Authoritative DNS Server Group in context of DNS NSGs and nameservers that are used.  Possible values: - _v1_: The Authoritative DNS Server Group uses original NSG model - _v2_: The Authoritative DNS Server Group uses new \"Unified Nameservers\" model
+	Version              *string `json:"version,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -155,6 +163,70 @@ func (o *AuthNSG) SetExternalSecondaries(v []ExternalSecondary) {
 	o.ExternalSecondaries = v
 }
 
+// GetGridPrimaries returns the GridPrimaries field value if set, zero value otherwise.
+func (o *AuthNSG) GetGridPrimaries() []MemberServer {
+	if o == nil || IsNil(o.GridPrimaries) {
+		var ret []MemberServer
+		return ret
+	}
+	return o.GridPrimaries
+}
+
+// GetGridPrimariesOk returns a tuple with the GridPrimaries field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthNSG) GetGridPrimariesOk() ([]MemberServer, bool) {
+	if o == nil || IsNil(o.GridPrimaries) {
+		return nil, false
+	}
+	return o.GridPrimaries, true
+}
+
+// HasGridPrimaries returns a boolean if a field has been set.
+func (o *AuthNSG) HasGridPrimaries() bool {
+	if o != nil && !IsNil(o.GridPrimaries) {
+		return true
+	}
+
+	return false
+}
+
+// SetGridPrimaries gets a reference to the given []MemberServer and assigns it to the GridPrimaries field.
+func (o *AuthNSG) SetGridPrimaries(v []MemberServer) {
+	o.GridPrimaries = v
+}
+
+// GetGridSecondaries returns the GridSecondaries field value if set, zero value otherwise.
+func (o *AuthNSG) GetGridSecondaries() []MemberServer {
+	if o == nil || IsNil(o.GridSecondaries) {
+		var ret []MemberServer
+		return ret
+	}
+	return o.GridSecondaries
+}
+
+// GetGridSecondariesOk returns a tuple with the GridSecondaries field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthNSG) GetGridSecondariesOk() ([]MemberServer, bool) {
+	if o == nil || IsNil(o.GridSecondaries) {
+		return nil, false
+	}
+	return o.GridSecondaries, true
+}
+
+// HasGridSecondaries returns a boolean if a field has been set.
+func (o *AuthNSG) HasGridSecondaries() bool {
+	if o != nil && !IsNil(o.GridSecondaries) {
+		return true
+	}
+
+	return false
+}
+
+// SetGridSecondaries gets a reference to the given []MemberServer and assigns it to the GridSecondaries field.
+func (o *AuthNSG) SetGridSecondaries(v []MemberServer) {
+	o.GridSecondaries = v
+}
+
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *AuthNSG) GetId() string {
 	if o == nil || IsNil(o.Id) {
@@ -243,6 +315,38 @@ func (o *AuthNSG) SetName(v string) {
 	o.Name = v
 }
 
+// GetNameservers returns the Nameservers field value if set, zero value otherwise.
+func (o *AuthNSG) GetNameservers() []Nameserver {
+	if o == nil || IsNil(o.Nameservers) {
+		var ret []Nameserver
+		return ret
+	}
+	return o.Nameservers
+}
+
+// GetNameserversOk returns a tuple with the Nameservers field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthNSG) GetNameserversOk() ([]Nameserver, bool) {
+	if o == nil || IsNil(o.Nameservers) {
+		return nil, false
+	}
+	return o.Nameservers, true
+}
+
+// HasNameservers returns a boolean if a field has been set.
+func (o *AuthNSG) HasNameservers() bool {
+	if o != nil && !IsNil(o.Nameservers) {
+		return true
+	}
+
+	return false
+}
+
+// SetNameservers gets a reference to the given []Nameserver and assigns it to the Nameservers field.
+func (o *AuthNSG) SetNameservers(v []Nameserver) {
+	o.Nameservers = v
+}
+
 // GetNsgs returns the Nsgs field value if set, zero value otherwise.
 func (o *AuthNSG) GetNsgs() []string {
 	if o == nil || IsNil(o.Nsgs) {
@@ -307,6 +411,38 @@ func (o *AuthNSG) SetTags(v map[string]interface{}) {
 	o.Tags = v
 }
 
+// GetVersion returns the Version field value if set, zero value otherwise.
+func (o *AuthNSG) GetVersion() string {
+	if o == nil || IsNil(o.Version) {
+		var ret string
+		return ret
+	}
+	return *o.Version
+}
+
+// GetVersionOk returns a tuple with the Version field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthNSG) GetVersionOk() (*string, bool) {
+	if o == nil || IsNil(o.Version) {
+		return nil, false
+	}
+	return o.Version, true
+}
+
+// HasVersion returns a boolean if a field has been set.
+func (o *AuthNSG) HasVersion() bool {
+	if o != nil && !IsNil(o.Version) {
+		return true
+	}
+
+	return false
+}
+
+// SetVersion gets a reference to the given string and assigns it to the Version field.
+func (o *AuthNSG) SetVersion(v string) {
+	o.Version = &v
+}
+
 func (o AuthNSG) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -326,6 +462,12 @@ func (o AuthNSG) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.ExternalSecondaries) {
 		toSerialize["external_secondaries"] = o.ExternalSecondaries
 	}
+	if !IsNil(o.GridPrimaries) {
+		toSerialize["grid_primaries"] = o.GridPrimaries
+	}
+	if !IsNil(o.GridSecondaries) {
+		toSerialize["grid_secondaries"] = o.GridSecondaries
+	}
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
@@ -333,11 +475,17 @@ func (o AuthNSG) ToMap() (map[string]interface{}, error) {
 		toSerialize["internal_secondaries"] = o.InternalSecondaries
 	}
 	toSerialize["name"] = o.Name
+	if !IsNil(o.Nameservers) {
+		toSerialize["nameservers"] = o.Nameservers
+	}
 	if !IsNil(o.Nsgs) {
 		toSerialize["nsgs"] = o.Nsgs
 	}
 	if !IsNil(o.Tags) {
 		toSerialize["tags"] = o.Tags
+	}
+	if !IsNil(o.Version) {
+		toSerialize["version"] = o.Version
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -385,11 +533,15 @@ func (o *AuthNSG) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "comment")
 		delete(additionalProperties, "external_primaries")
 		delete(additionalProperties, "external_secondaries")
+		delete(additionalProperties, "grid_primaries")
+		delete(additionalProperties, "grid_secondaries")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "internal_secondaries")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "nameservers")
 		delete(additionalProperties, "nsgs")
 		delete(additionalProperties, "tags")
+		delete(additionalProperties, "version")
 		o.AdditionalProperties = additionalProperties
 	}
 

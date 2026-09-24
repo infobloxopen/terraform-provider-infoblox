@@ -21,11 +21,13 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/infra"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
@@ -333,12 +335,16 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		infra.NewInfraHostResource,
 		redirect.NewCustomRedirectResource,
 		notification.NewNotificationRestEndpointResource,
 
 		acl.NewNamedaclResource,
 
+		cloud.NewAwsuserResource,
+
 		dhcp.NewDhcpOptiondefinitionResource,
+		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -400,6 +406,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcMonitorIcmpResource,
 
 		fw.NewAccessCodeResource,
+		fw.NewNamedListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -439,12 +446,16 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		infra.NewInfraHostDataSource,
 		redirect.NewCustomRedirectDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
 
+		cloud.NewAwsuserDataSource,
+
 		dhcp.NewDhcpOptiondefinitionDataSource,
+		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -505,6 +516,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcMonitorIcmpDataSource,
 
 		fw.NewAccessCodeDataSource,
+		fw.NewNamedListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -547,12 +559,16 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		infra.NewInfraHostList,
 		redirect.NewCustomRedirectList,
 		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
 
+		cloud.NewAwsuserList,
+
 		dhcp.NewDhcpOptiondefinitionList,
+		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
@@ -613,6 +629,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcMonitorIcmpList,
 
 		fw.NewAccessCodeList,
+		fw.NewNamedListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
