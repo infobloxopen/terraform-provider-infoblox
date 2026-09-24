@@ -18,13 +18,15 @@ import (
 )
 
 type AnycastHostModel struct {
-	Id   types.Int64  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int64  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var AnycastHostAttrTypes = map[string]attr.Type{
-	"id":   types.Int64Type,
-	"uddi": types.ObjectType{AttrTypes: UDDIAnycastHostAttrTypes},
+	"id":             types.Int64Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIAnycastHostAttrTypes},
 }
 
 type UDDIAnycastHostModel struct {
@@ -59,6 +61,10 @@ var AnycastHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
 		Computed:            true,
 		MarkdownDescription: "",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,

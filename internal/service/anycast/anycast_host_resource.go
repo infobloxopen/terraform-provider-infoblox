@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/anycast"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/anycast"
