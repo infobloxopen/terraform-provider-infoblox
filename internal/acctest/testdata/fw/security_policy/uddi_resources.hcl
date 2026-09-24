@@ -85,19 +85,23 @@ case "description" {
 
 }
 
-# TODO: The following prerequisites MUST exist on the portal before running these tests:
-#   - named_list : tf-test-named-list  (id: 1752596, type: custom_list)
-# TODO: update prerequisites_hcl to use infoblox_named_list once PR #625 is merged
 case "access_codes" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_named_list" "nl_test" {
+    uddi = {
+      name            = "{{random4}}"
+      type            = "custom_list"
+      items_described = [{ item = "tf-domain.com", description = "Example Domain" }]
+    }
+  }
   resource "infoblox_access_code" "ac_test1" {
     uddi = {
       name       = "{{random2}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ data = "tf-test-named-list", type = "custom_list" }]
+      rules      = [{ data = infoblox_named_list.nl_test.uddi.name, type = infoblox_named_list.nl_test.uddi.type }]
     }
   }
   resource "infoblox_access_code" "ac_test2" {
@@ -105,7 +109,7 @@ case "access_codes" {
       name       = "{{random3}}"
       activation = "2030-01-01T00:00:00Z"
       expiration = "2031-01-01T00:00:00Z"
-      rules      = [{ data = "tf-test-named-list", type = "custom_list" }]
+      rules      = [{ data = infoblox_named_list.nl_test.uddi.name, type = infoblox_named_list.nl_test.uddi.type }]
     }
   }
   PREREQ
@@ -310,12 +314,8 @@ case "precedence" {
 
 }
 
-# TODO: unskip once infoblox_named_list is merged (PR #625)
 case "rules" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_named_list not yet registered (pending PR #625)"
-  parallel    = true
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_named_list" "nl_test1" {
     uddi = {
@@ -332,6 +332,7 @@ case "rules" {
     }
   }
   PREREQ
+  parallel = true
 
   step {
     uddi {
