@@ -26,6 +26,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/grid"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/infra"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/ipamfederation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
@@ -333,11 +334,13 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		fw.NewNamedListResource,
+		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 
 		acl.NewNamedaclResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
+		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
 		dhcp.NewFilteroptionResource,
 		dhcp.NewHaGroupResource,
@@ -439,11 +442,13 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		fw.NewNamedListDataSource,
+		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
+		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
 		dhcp.NewFilteroptionDataSource,
 		dhcp.NewHaGroupDataSource,
@@ -547,11 +552,13 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		fw.NewNamedListList,
+		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
 
 		dhcp.NewDhcpOptiondefinitionList,
+		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
 		dhcp.NewFilteroptionList,
 		dhcp.NewHaGroupList,
