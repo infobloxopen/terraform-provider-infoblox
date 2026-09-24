@@ -333,7 +333,6 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		fw.NewNamedListResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 
@@ -402,6 +401,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcMonitorIcmpResource,
 
 		fw.NewAccessCodeResource,
+		fw.NewNamedListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -441,7 +441,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		fw.NewNamedListDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
@@ -509,6 +508,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcMonitorIcmpDataSource,
 
 		fw.NewAccessCodeDataSource,
+		fw.NewNamedListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -551,7 +551,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		fw.NewNamedListList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 
@@ -619,6 +618,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcMonitorIcmpList,
 
 		fw.NewAccessCodeList,
+		fw.NewNamedListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
