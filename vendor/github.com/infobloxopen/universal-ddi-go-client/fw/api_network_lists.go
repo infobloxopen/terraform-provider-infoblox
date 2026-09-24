@@ -25,13 +25,14 @@ type NetworkListsAPI interface {
 	/*
 			CreateNetworkList Create Network List.
 
-			Use this method to create a Network List object.
-
-		Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+			Use this method to create a Network List object. The legacy `items` field
+		(CIDR strings only) is deprecated; new clients should use `addr_block`,
+		which mirrors the same CIDR set and additionally carries an end-user
+		description per entry. Exactly one of the two must be supplied.
 
 		Required:
 		- name
-		- items
+		- items or addr_block
 
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -45,9 +46,7 @@ type NetworkListsAPI interface {
 	/*
 			DeleteNetworkLists Delete Network Lists.
 
-			Use this method to delete the Network List objects. Deletion of multiple lists is an all-or-nothing operation (if any of the specified lists can not be deleted then none of the specified lists will be deleted).
-
-		Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of  or IPv6 addresses or blocks.
+			Use this method to delete the Network List objects. Deletion of multiple lists is an all-or-nothing operation; if any one of the specified lists cannot be deleted, then none of the specified lists will be deleted.
 
 		Required:
 		- ids
@@ -61,33 +60,28 @@ type NetworkListsAPI interface {
 	// DeleteNetworkListsExecute executes the request
 	DeleteNetworkListsExecute(r NetworkListsAPIDeleteNetworkListsRequest) (*http.Response, error)
 	/*
-			DeleteSingleNetworkLists Delete Network Lists.
+		DeleteSingleNetworkLists Delete Network Lists.
 
-			Use this method to delete the Network List object by the specified Network List object id.
-
-		Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of  or IPv6 addresses or blocks.
+		Use this method to delete the Network List object by the specified Network List object id.
 
 
-
-			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@param id The Network List object identifier.
-			@return NetworkListsAPIDeleteSingleNetworkListsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id The Network List object identifier.
+		@return NetworkListsAPIDeleteSingleNetworkListsRequest
 	*/
 	DeleteSingleNetworkLists(ctx context.Context, id int32) NetworkListsAPIDeleteSingleNetworkListsRequest
 
 	// DeleteSingleNetworkListsExecute executes the request
 	DeleteSingleNetworkListsExecute(r NetworkListsAPIDeleteSingleNetworkListsRequest) (*http.Response, error)
 	/*
-			ListNetworkLists List Network Lists.
+		ListNetworkLists List Network Lists.
 
-			Use this method to retrieve information on all Network List objects for the account.
-
-		Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+		Use this method to retrieve information on all Network List objects for the account.
 
 
 
-			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-			@return NetworkListsAPIListNetworkListsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return NetworkListsAPIListNetworkListsRequest
 	*/
 	ListNetworkLists(ctx context.Context) NetworkListsAPIListNetworkListsRequest
 
@@ -114,13 +108,15 @@ type NetworkListsAPI interface {
 	/*
 			UpdateNetworkList Update Network List.
 
-			Use this method to update a specified Network List object.
-
-		Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+			Use this method to update a specified Network List object. The legacy
+		`items` field (CIDR strings only) is deprecated; new clients should use
+		`addr_block`, which additionally carries an end-user description per
+		entry. Exactly one of the two must be supplied; supplying only `items`
+		will clear any existing per-entry descriptions.
 
 		Required:
 		- name
-		- items
+		- items or addr_block
 
 
 			@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
@@ -156,13 +152,14 @@ func (r NetworkListsAPICreateNetworkListRequest) Execute() (*NetworkListCreateRe
 /*
 CreateNetworkList Create Network List.
 
-Use this method to create a Network List object.
-
-Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+Use this method to create a Network List object. The legacy `items` field
+(CIDR strings only) is deprecated; new clients should use `addr_block`,
+which mirrors the same CIDR set and additionally carries an end-user
+description per entry. Exactly one of the two must be supplied.
 
 Required:
 - name
-- items
+- items or addr_block
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return NetworkListsAPICreateNetworkListRequest
@@ -295,9 +292,7 @@ func (r NetworkListsAPIDeleteNetworkListsRequest) Execute() (*http.Response, err
 /*
 DeleteNetworkLists Delete Network Lists.
 
-Use this method to delete the Network List objects. Deletion of multiple lists is an all-or-nothing operation (if any of the specified lists can not be deleted then none of the specified lists will be deleted).
-
-Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of  or IPv6 addresses or blocks.
+Use this method to delete the Network List objects. Deletion of multiple lists is an all-or-nothing operation; if any one of the specified lists cannot be deleted, then none of the specified lists will be deleted.
 
 Required:
 - ids
@@ -422,8 +417,6 @@ DeleteSingleNetworkLists Delete Network Lists.
 
 Use this method to delete the Network List object by the specified Network List object id.
 
-Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of  or IPv6 addresses or blocks.
-
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The Network List object identifier.
 	@return NetworkListsAPIDeleteSingleNetworkListsRequest
@@ -537,7 +530,7 @@ type NetworkListsAPIListNetworkListsRequest struct {
 	pageToken  *string
 }
 
-// A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;.  You can filter by following fields:  | Name                    | type   | Supported Op                | | ----------------------- | ------ | --------------------------- | | id                      | int32  | !&#x3D;, &#x3D;&#x3D;, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D;        | | policy_id               | int32  | !&#x3D;, &#x3D;&#x3D;, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D;        | | name                    | string | !&#x3D;, &#x3D;&#x3D;, ~, !~, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D; | | description             | string | !&#x3D;, &#x3D;&#x3D;, ~, !~, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D; | | default_security_policy | bool   | !&#x3D;, &#x3D;&#x3D;                      | | items                   | string | &gt;&#x3D;                           |  In addition grouping operators are supported:  | Op  | Description          | | --- | -------------------- | | and | Logical AND          | | or  | Logical OR           | | not | Logical NOT          | | ()  | Groupping Operators  |  Allowed sets of parameters that can be groupped in one query:  - id, policy_id, name, description, default_security_policy - items  Example: &#x60;&#x60;&#x60; ?_filter&#x3D;\&quot;((name&#x3D;&#x3D;&#39;net_list1&#39;)or(name~&#39;list_b&#39;))and(default_security_policy!&#x3D;&#39;true&#39;)\&quot; &#x60;&#x60;&#x60;
+// A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;.  You can filter by following fields:  | Name                    | type   | Supported Op                | | ----------------------- | ------ | --------------------------- | | id                      | int32  | !&#x3D;, &#x3D;&#x3D;, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D;        | | policy_id               | int32  | !&#x3D;, &#x3D;&#x3D;, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D;        | | name                    | string | !&#x3D;, &#x3D;&#x3D;, ~, !~, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D; | | description             | string | !&#x3D;, &#x3D;&#x3D;, ~, !~, &gt;, &lt;, &lt;&#x3D;, &gt;&#x3D; | | default_security_policy | bool   | !&#x3D;, &#x3D;&#x3D;                      | | items                   | string | &gt;&#x3D;                           |  In addition, grouping operators are supported:  | Op  | Description          | | --- | -------------------- | | and | Logical AND          | | or  | Logical OR           | | not | Logical NOT          | | ()  | Groupping Operators  |  Allowed sets of parameters that can be groupped in one query:  - id, policy_id, name, description, default_security_policy - items  Example: &#x60;&#x60;&#x60; ?_filter&#x3D;\&quot;((name&#x3D;&#x3D;&#39;net_list1&#39;)or(name~&#39;list_b&#39;))and(default_security_policy!&#x3D;&#39;true&#39;)\&quot; &#x60;&#x60;&#x60;
 func (r NetworkListsAPIListNetworkListsRequest) Filter(filter string) NetworkListsAPIListNetworkListsRequest {
 	r.filter = &filter
 	return r
@@ -575,8 +568,6 @@ func (r NetworkListsAPIListNetworkListsRequest) Execute() (*NetworkListMultiResp
 ListNetworkLists List Network Lists.
 
 Use this method to retrieve information on all Network List objects for the account.
-
-Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return NetworkListsAPIListNetworkListsRequest
@@ -839,13 +830,15 @@ func (r NetworkListsAPIUpdateNetworkListRequest) Execute() (*NetworkListUpdateRe
 /*
 UpdateNetworkList Update Network List.
 
-Use this method to update a specified Network List object.
-
-Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+Use this method to update a specified Network List object. The legacy
+`items` field (CIDR strings only) is deprecated; new clients should use
+`addr_block`, which additionally carries an end-user description per
+entry. Exactly one of the two must be supplied; supplying only `items`
+will clear any existing per-entry descriptions.
 
 Required:
 - name
-- items
+- items or addr_block
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The Network List object identifier.

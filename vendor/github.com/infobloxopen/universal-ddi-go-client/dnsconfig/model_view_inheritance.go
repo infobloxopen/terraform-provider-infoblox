@@ -19,57 +19,61 @@ var _ MappedNullable = &ViewInheritance{}
 
 // ViewInheritance Inheritance configuration specifies how and which fields _View_ object inherits from [ _Global_, _Server_ ] parent.
 type ViewInheritance struct {
-	// Field config for _add_edns_option_in_outgoing_query_ field from _View_ object.
+	// Field configuration for _add_edns_option_in_outgoing_query_ field from _View_ object.
 	AddEdnsOptionInOutgoingQuery *Inheritance2InheritedBool `json:"add_edns_option_in_outgoing_query,omitempty"`
-	// Optional. Field config for _custom_root_ns_block_ field from _View_ object.
+	// Optional. Field configuration for _custom_root_ns_block_ field from _View_ object.
 	CustomRootNsBlock *InheritedCustomRootNSBlock `json:"custom_root_ns_block,omitempty"`
-	// Optional. Field config for _dnssec_validation_block_ field from _View_ object.
+	// Optional. Field configuration for _dnssec_signing_policy_ field from _View_ object.
+	DnssecSigningPolicy *InheritedDNSSECSigningPolicy `json:"dnssec_signing_policy,omitempty"`
+	// Optional. Field configuration for _dnssec_validation_block_ field from _View_ object.
 	DnssecValidationBlock *InheritedDNSSECValidationBlock `json:"dnssec_validation_block,omitempty"`
-	// Optional. Field config for _dtc_config_ field from _View_ object.
+	// Optional. Field configuration for _dtc_config_ field from _View_ object.
 	DtcConfig *InheritedDtcConfig `json:"dtc_config,omitempty"`
-	// Optional. Field config for _ecs_block_ field from _View_ object.
+	// Optional. Field configuration for _ecs_block_ field from _View_ object.
 	EcsBlock *InheritedECSBlock `json:"ecs_block,omitempty"`
-	// Optional. Field config for _edns_udp_size_ field from [View] object.
+	// Optional. Field configuration for _edns_udp_size_ field from _View_ object.
 	EdnsUdpSize *Inheritance2InheritedUInt32 `json:"edns_udp_size,omitempty"`
-	// Optional. Field config for _filter_aaaa_acl_ field from _View_ object.
+	// Optional. Field configuration for _filter_aaaa_acl_ field from _View_ object.
 	FilterAaaaAcl *InheritedACLItems `json:"filter_aaaa_acl,omitempty"`
-	// Optional. Field config for _filter_aaaa_on_v4_ field from _View_ object.
+	// Optional. Field configuration for _filter_aaaa_on_v4_ field from _View_ object.
 	FilterAaaaOnV4 *Inheritance2InheritedString `json:"filter_aaaa_on_v4,omitempty"`
-	// Optional. Field config for _forwarders_block_ field from _View_ object.
+	// Optional. Field configuration for _forwarders_block_ field from _View_ object.
 	ForwardersBlock *InheritedForwardersBlock `json:"forwarders_block,omitempty"`
-	// Optional. Field config for _gss_tsig_enabled_ field from _View_ object.
+	// Optional. Field configuration for _gss_tsig_enabled_ field from _View_ object.
 	GssTsigEnabled *Inheritance2InheritedBool `json:"gss_tsig_enabled,omitempty"`
-	// Optional. Field config for _lame_ttl_ field from _View_ object.
+	// Optional. Field configuration for _lame_ttl_ field from _View_ object.
 	LameTtl *Inheritance2InheritedUInt32 `json:"lame_ttl,omitempty"`
-	// Optional. Field config for _match_recursive_only_ field from _View_ object.
+	// Optional. Field configuration for _match_recursive_only_ field from _View_ object.
 	MatchRecursiveOnly *Inheritance2InheritedBool `json:"match_recursive_only,omitempty"`
-	// Optional. Field config for _max_cache_ttl_ field from _View_ object.
+	// Optional. Field configuration for _max_cache_ttl_ field from _View_ object.
 	MaxCacheTtl *Inheritance2InheritedUInt32 `json:"max_cache_ttl,omitempty"`
-	// Optional. Field config for _max_negative_ttl_ field from _View_ object.
+	// Optional. Field configuration for _max_negative_ttl_ field from _View_ object.
 	MaxNegativeTtl *Inheritance2InheritedUInt32 `json:"max_negative_ttl,omitempty"`
-	// Optional. Field config for _max_udp_size_ field from [View] object.
+	// Optional. Field configuration for _max_udp_size_ field from _View_ object.
 	MaxUdpSize *Inheritance2InheritedUInt32 `json:"max_udp_size,omitempty"`
-	// Optional. Field config for _minimal_responses_ field from _View_ object.
+	// Optional. Field configuration for _minimal_responses_ field from _View_ object.
 	MinimalResponses *Inheritance2InheritedBool `json:"minimal_responses,omitempty"`
-	// Field config for _notify_ field from _View_ object.
+	// Field configuration for _notify_ field from _View_ object.
 	Notify *Inheritance2InheritedBool `json:"notify,omitempty"`
-	// Optional. Field config for _query_acl_ field from _View_ object.
+	// Optional. Field configuration for _query_acl_ field from _View_ object.
 	QueryAcl *InheritedACLItems `json:"query_acl,omitempty"`
-	// Optional. Field config for _recursion_acl_ field from _View_ object.
+	// Optional. Field configuration for _recursion_acl_ field from _View_ object.
 	RecursionAcl *InheritedACLItems `json:"recursion_acl,omitempty"`
-	// Optional. Field config for _recursion_enabled_ field from _View_ object.
+	// Optional. Field configuration for _recursion_enabled_ field from _View_ object.
 	RecursionEnabled *Inheritance2InheritedBool `json:"recursion_enabled,omitempty"`
-	// Optional. Field config for _sort_list_ field from _View_ object.
+	// Optional. Field configuration for _secondary_zone_records_sync_ field from _View_ object.
+	SecondaryZoneRecordsSync *Inheritance2InheritedBool `json:"secondary_zone_records_sync,omitempty"`
+	// Optional. Field configuration for _sort_list_ field from _View_ object.
 	SortList *InheritedSortListItems `json:"sort_list,omitempty"`
-	// Field config for _synthesize_address_records_from_https_ field from _View_ object.
+	// Field configuration for _synthesize_address_records_from_https_ field from _View_ object.
 	SynthesizeAddressRecordsFromHttps *Inheritance2InheritedBool `json:"synthesize_address_records_from_https,omitempty"`
-	// Optional. Field config for _transfer_acl_ field from _View_ object.
+	// Optional. Field configuration for _transfer_acl_ field from _View_ object.
 	TransferAcl *InheritedACLItems `json:"transfer_acl,omitempty"`
-	// Optional. Field config for _update_acl_ field from _View_ object.
+	// Optional. Field configuration for _update_acl_ field from _View_ object.
 	UpdateAcl *InheritedACLItems `json:"update_acl,omitempty"`
-	// Optional. Field config for _use_forwarders_for_subzones_ field from _View_ object.
+	// Optional. Field configuration for _use_forwarders_for_subzones_ field from _View_ object.
 	UseForwardersForSubzones *Inheritance2InheritedBool `json:"use_forwarders_for_subzones,omitempty"`
-	// Optional. Field config for _zone_authority_ field from _View_ object.
+	// Optional. Field configuration for _zone_authority_ field from _View_ object.
 	ZoneAuthority        *InheritedZoneAuthority `json:"zone_authority,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
@@ -155,6 +159,38 @@ func (o *ViewInheritance) HasCustomRootNsBlock() bool {
 // SetCustomRootNsBlock gets a reference to the given InheritedCustomRootNSBlock and assigns it to the CustomRootNsBlock field.
 func (o *ViewInheritance) SetCustomRootNsBlock(v InheritedCustomRootNSBlock) {
 	o.CustomRootNsBlock = &v
+}
+
+// GetDnssecSigningPolicy returns the DnssecSigningPolicy field value if set, zero value otherwise.
+func (o *ViewInheritance) GetDnssecSigningPolicy() InheritedDNSSECSigningPolicy {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		var ret InheritedDNSSECSigningPolicy
+		return ret
+	}
+	return *o.DnssecSigningPolicy
+}
+
+// GetDnssecSigningPolicyOk returns a tuple with the DnssecSigningPolicy field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ViewInheritance) GetDnssecSigningPolicyOk() (*InheritedDNSSECSigningPolicy, bool) {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		return nil, false
+	}
+	return o.DnssecSigningPolicy, true
+}
+
+// HasDnssecSigningPolicy returns a boolean if a field has been set.
+func (o *ViewInheritance) HasDnssecSigningPolicy() bool {
+	if o != nil && !IsNil(o.DnssecSigningPolicy) {
+		return true
+	}
+
+	return false
+}
+
+// SetDnssecSigningPolicy gets a reference to the given InheritedDNSSECSigningPolicy and assigns it to the DnssecSigningPolicy field.
+func (o *ViewInheritance) SetDnssecSigningPolicy(v InheritedDNSSECSigningPolicy) {
+	o.DnssecSigningPolicy = &v
 }
 
 // GetDnssecValidationBlock returns the DnssecValidationBlock field value if set, zero value otherwise.
@@ -733,6 +769,38 @@ func (o *ViewInheritance) SetRecursionEnabled(v Inheritance2InheritedBool) {
 	o.RecursionEnabled = &v
 }
 
+// GetSecondaryZoneRecordsSync returns the SecondaryZoneRecordsSync field value if set, zero value otherwise.
+func (o *ViewInheritance) GetSecondaryZoneRecordsSync() Inheritance2InheritedBool {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		var ret Inheritance2InheritedBool
+		return ret
+	}
+	return *o.SecondaryZoneRecordsSync
+}
+
+// GetSecondaryZoneRecordsSyncOk returns a tuple with the SecondaryZoneRecordsSync field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ViewInheritance) GetSecondaryZoneRecordsSyncOk() (*Inheritance2InheritedBool, bool) {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		return nil, false
+	}
+	return o.SecondaryZoneRecordsSync, true
+}
+
+// HasSecondaryZoneRecordsSync returns a boolean if a field has been set.
+func (o *ViewInheritance) HasSecondaryZoneRecordsSync() bool {
+	if o != nil && !IsNil(o.SecondaryZoneRecordsSync) {
+		return true
+	}
+
+	return false
+}
+
+// SetSecondaryZoneRecordsSync gets a reference to the given Inheritance2InheritedBool and assigns it to the SecondaryZoneRecordsSync field.
+func (o *ViewInheritance) SetSecondaryZoneRecordsSync(v Inheritance2InheritedBool) {
+	o.SecondaryZoneRecordsSync = &v
+}
+
 // GetSortList returns the SortList field value if set, zero value otherwise.
 func (o *ViewInheritance) GetSortList() InheritedSortListItems {
 	if o == nil || IsNil(o.SortList) {
@@ -941,6 +1009,9 @@ func (o ViewInheritance) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CustomRootNsBlock) {
 		toSerialize["custom_root_ns_block"] = o.CustomRootNsBlock
 	}
+	if !IsNil(o.DnssecSigningPolicy) {
+		toSerialize["dnssec_signing_policy"] = o.DnssecSigningPolicy
+	}
 	if !IsNil(o.DnssecValidationBlock) {
 		toSerialize["dnssec_validation_block"] = o.DnssecValidationBlock
 	}
@@ -995,6 +1066,9 @@ func (o ViewInheritance) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.RecursionEnabled) {
 		toSerialize["recursion_enabled"] = o.RecursionEnabled
 	}
+	if !IsNil(o.SecondaryZoneRecordsSync) {
+		toSerialize["secondary_zone_records_sync"] = o.SecondaryZoneRecordsSync
+	}
 	if !IsNil(o.SortList) {
 		toSerialize["sort_list"] = o.SortList
 	}
@@ -1037,6 +1111,7 @@ func (o *ViewInheritance) UnmarshalJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "add_edns_option_in_outgoing_query")
 		delete(additionalProperties, "custom_root_ns_block")
+		delete(additionalProperties, "dnssec_signing_policy")
 		delete(additionalProperties, "dnssec_validation_block")
 		delete(additionalProperties, "dtc_config")
 		delete(additionalProperties, "ecs_block")
@@ -1055,6 +1130,7 @@ func (o *ViewInheritance) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "query_acl")
 		delete(additionalProperties, "recursion_acl")
 		delete(additionalProperties, "recursion_enabled")
+		delete(additionalProperties, "secondary_zone_records_sync")
 		delete(additionalProperties, "sort_list")
 		delete(additionalProperties, "synthesize_address_records_from_https")
 		delete(additionalProperties, "transfer_acl")

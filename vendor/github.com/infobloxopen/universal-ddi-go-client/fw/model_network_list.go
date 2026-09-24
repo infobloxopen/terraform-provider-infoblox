@@ -18,21 +18,25 @@ import (
 // checks if the NetworkList type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NetworkList{}
 
-// NetworkList The Network List object.  Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up DNS Firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
+// NetworkList The Network List object.  Before you can apply security policies, you must first define the networks that you want to protect from malicious attacks. The first step in configuring Infoblox Cloud is to set up a DNS firewall by defining your remote networks. You identify these external networks by their IP addresses. A network can contain a group of IPv4 or IPv6 addresses or blocks.
 type NetworkList struct {
-	// The time when this Network List object was created.
+	// The list of address blocks in the network list with optional end-user descriptions. Preferred over the deprecated `items` field for new clients; mirrors the same CIDR set and additionally carries a description per entry.
+	AddrBlock []AddrBlock `json:"addr_block,omitempty"`
+	// The time this Network List object was created.
 	CreatedTime *time.Time `json:"created_time,omitempty"`
 	// The brief description for the network list.
 	Description *string `json:"description,omitempty"`
 	// The Network List object identifier.
 	Id *int32 `json:"id,omitempty"`
-	// The list of networks' CIDRs that are subject for malicious attacks protection.
+	// The address blocks in the network list, along with their approval status.
+	ItemApprovals []AddrBlockApprovals `json:"item_approvals,omitempty"`
+	// The list of networks' CIDRs that are subject to protection from malicious attacks.  Deprecated: use `addr_block` instead. `items` is retained for backwards compatibility with existing clients and carries only CIDR strings, with no per-entry description. New clients should populate `addr_block`, which mirrors these CIDRs and additionally supports an end-user description per address block.
 	Items []string `json:"items,omitempty"`
 	// The name of the network list.
 	Name *string `json:"name,omitempty"`
 	// The identifier of the security policy with which the network list is associated.
 	PolicyId *int32 `json:"policy_id,omitempty"`
-	// The time when this Network List object was last updated.
+	// The time this Network List object was updated most recently.
 	UpdatedTime          *time.Time `json:"updated_time,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
@@ -54,6 +58,38 @@ func NewNetworkList() *NetworkList {
 func NewNetworkListWithDefaults() *NetworkList {
 	this := NetworkList{}
 	return &this
+}
+
+// GetAddrBlock returns the AddrBlock field value if set, zero value otherwise.
+func (o *NetworkList) GetAddrBlock() []AddrBlock {
+	if o == nil || IsNil(o.AddrBlock) {
+		var ret []AddrBlock
+		return ret
+	}
+	return o.AddrBlock
+}
+
+// GetAddrBlockOk returns a tuple with the AddrBlock field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *NetworkList) GetAddrBlockOk() ([]AddrBlock, bool) {
+	if o == nil || IsNil(o.AddrBlock) {
+		return nil, false
+	}
+	return o.AddrBlock, true
+}
+
+// HasAddrBlock returns a boolean if a field has been set.
+func (o *NetworkList) HasAddrBlock() bool {
+	if o != nil && !IsNil(o.AddrBlock) {
+		return true
+	}
+
+	return false
+}
+
+// SetAddrBlock gets a reference to the given []AddrBlock and assigns it to the AddrBlock field.
+func (o *NetworkList) SetAddrBlock(v []AddrBlock) {
+	o.AddrBlock = v
 }
 
 // GetCreatedTime returns the CreatedTime field value if set, zero value otherwise.
@@ -150,6 +186,38 @@ func (o *NetworkList) HasId() bool {
 // SetId gets a reference to the given int32 and assigns it to the Id field.
 func (o *NetworkList) SetId(v int32) {
 	o.Id = &v
+}
+
+// GetItemApprovals returns the ItemApprovals field value if set, zero value otherwise.
+func (o *NetworkList) GetItemApprovals() []AddrBlockApprovals {
+	if o == nil || IsNil(o.ItemApprovals) {
+		var ret []AddrBlockApprovals
+		return ret
+	}
+	return o.ItemApprovals
+}
+
+// GetItemApprovalsOk returns a tuple with the ItemApprovals field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *NetworkList) GetItemApprovalsOk() ([]AddrBlockApprovals, bool) {
+	if o == nil || IsNil(o.ItemApprovals) {
+		return nil, false
+	}
+	return o.ItemApprovals, true
+}
+
+// HasItemApprovals returns a boolean if a field has been set.
+func (o *NetworkList) HasItemApprovals() bool {
+	if o != nil && !IsNil(o.ItemApprovals) {
+		return true
+	}
+
+	return false
+}
+
+// SetItemApprovals gets a reference to the given []AddrBlockApprovals and assigns it to the ItemApprovals field.
+func (o *NetworkList) SetItemApprovals(v []AddrBlockApprovals) {
+	o.ItemApprovals = v
 }
 
 // GetItems returns the Items field value if set, zero value otherwise.
@@ -290,6 +358,9 @@ func (o NetworkList) MarshalJSON() ([]byte, error) {
 
 func (o NetworkList) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.AddrBlock) {
+		toSerialize["addr_block"] = o.AddrBlock
+	}
 	if !IsNil(o.CreatedTime) {
 		toSerialize["created_time"] = o.CreatedTime
 	}
@@ -298,6 +369,9 @@ func (o NetworkList) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
+	}
+	if !IsNil(o.ItemApprovals) {
+		toSerialize["item_approvals"] = o.ItemApprovals
 	}
 	if !IsNil(o.Items) {
 		toSerialize["items"] = o.Items
@@ -333,9 +407,11 @@ func (o *NetworkList) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "addr_block")
 		delete(additionalProperties, "created_time")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "id")
+		delete(additionalProperties, "item_approvals")
 		delete(additionalProperties, "items")
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "policy_id")
