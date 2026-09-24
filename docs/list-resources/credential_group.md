@@ -15,15 +15,13 @@ Retrieves a list of Infoblox CredentialGroup from the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// List specific Credential Groups using filters
-list "infoblox_credential_group" "list_credential_group_using_filters" {
+// List all Credential Groups
+//
+// discovery:credentialgroup exposes no searchable field, so the list resource
+// supports no filters block.
+list "infoblox_credential_group" "list_credential_group_all" {
   provider = infoblox
-  config {
-    filters = {
-      name = "example_credential_group"
-    }
-  }
-  limit = 10
+  limit    = 10
 }
 
 // List Credential Groups with resource details included
