@@ -401,6 +401,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcMonitorIcmpResource,
 
 		fw.NewAccessCodeResource,
+		fw.NewApplicationFilterResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -507,6 +508,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcMonitorIcmpDataSource,
 
 		fw.NewAccessCodeDataSource,
+		fw.NewApplicationFilterDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -616,6 +618,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcMonitorIcmpList,
 
 		fw.NewAccessCodeList,
+		fw.NewApplicationFilterList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
