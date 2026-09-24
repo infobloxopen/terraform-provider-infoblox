@@ -11,7 +11,7 @@ case "basic" {
     check = {
       "nios.name"     = "{{random}}"
       "nios.type"     = "NXDOMAIN"
-       "nios.disabled" = "false"
+      "nios.disabled" = "false"
     }
   }
 

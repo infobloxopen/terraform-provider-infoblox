@@ -19,19 +19,23 @@ var _ MappedNullable = &AuthZoneInheritance{}
 
 // AuthZoneInheritance struct for AuthZoneInheritance
 type AuthZoneInheritance struct {
-	// Optional. Field config for _gss_tsig_enabled_ field from _AuthZone_ object.
+	// Optional. Field configuration for _dnssec_signing_policy_ field from _AuthZone_ object.
+	DnssecSigningPolicy *InheritedDNSSECSigningPolicy `json:"dnssec_signing_policy,omitempty"`
+	// Optional. Field configuration for _gss_tsig_enabled_ field from _AuthZone_ object.
 	GssTsigEnabled *Inheritance2InheritedBool `json:"gss_tsig_enabled,omitempty"`
-	// Field config for _notify_ field from _AuthZone_ object.
+	// Field configuration for _notify_ field from _AuthZone_ object.
 	Notify *Inheritance2InheritedBool `json:"notify,omitempty"`
-	// Optional. Field config for _query_acl_ field from _AuthZone_ object.
+	// Optional. Field configuration for _query_acl_ field from _AuthZone_ object.
 	QueryAcl *InheritedACLItems `json:"query_acl,omitempty"`
-	// Optional. Field config for _transfer_acl_ field from _AuthZone_ object.
+	// Optional. Field configuration for _secondary_zone_records_sync_ field from _AuthZone_ object.
+	SecondaryZoneRecordsSync *Inheritance2InheritedBool `json:"secondary_zone_records_sync,omitempty"`
+	// Optional. Field configuration for _transfer_acl_ field from _AuthZone_ object.
 	TransferAcl *InheritedACLItems `json:"transfer_acl,omitempty"`
-	// Optional. Field config for _update_acl_ field from _AuthZone_ object.
+	// Optional. Field configuration for _update_acl_ field from _AuthZone_ object.
 	UpdateAcl *InheritedACLItems `json:"update_acl,omitempty"`
-	// Optional. Field config for _use_forwarders_for_subzones_ field from _AuthZone_ object.
+	// Optional. Field configuration for _use_forwarders_for_subzones_ field from _AuthZone_ object.
 	UseForwardersForSubzones *Inheritance2InheritedBool `json:"use_forwarders_for_subzones,omitempty"`
-	// Optional. Field config for _zone_authority_ field from _AuthZone_ object.
+	// Optional. Field configuration for _zone_authority_ field from _AuthZone_ object.
 	ZoneAuthority        *InheritedZoneAuthority `json:"zone_authority,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
@@ -53,6 +57,38 @@ func NewAuthZoneInheritance() *AuthZoneInheritance {
 func NewAuthZoneInheritanceWithDefaults() *AuthZoneInheritance {
 	this := AuthZoneInheritance{}
 	return &this
+}
+
+// GetDnssecSigningPolicy returns the DnssecSigningPolicy field value if set, zero value otherwise.
+func (o *AuthZoneInheritance) GetDnssecSigningPolicy() InheritedDNSSECSigningPolicy {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		var ret InheritedDNSSECSigningPolicy
+		return ret
+	}
+	return *o.DnssecSigningPolicy
+}
+
+// GetDnssecSigningPolicyOk returns a tuple with the DnssecSigningPolicy field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthZoneInheritance) GetDnssecSigningPolicyOk() (*InheritedDNSSECSigningPolicy, bool) {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		return nil, false
+	}
+	return o.DnssecSigningPolicy, true
+}
+
+// HasDnssecSigningPolicy returns a boolean if a field has been set.
+func (o *AuthZoneInheritance) HasDnssecSigningPolicy() bool {
+	if o != nil && !IsNil(o.DnssecSigningPolicy) {
+		return true
+	}
+
+	return false
+}
+
+// SetDnssecSigningPolicy gets a reference to the given InheritedDNSSECSigningPolicy and assigns it to the DnssecSigningPolicy field.
+func (o *AuthZoneInheritance) SetDnssecSigningPolicy(v InheritedDNSSECSigningPolicy) {
+	o.DnssecSigningPolicy = &v
 }
 
 // GetGssTsigEnabled returns the GssTsigEnabled field value if set, zero value otherwise.
@@ -149,6 +185,38 @@ func (o *AuthZoneInheritance) HasQueryAcl() bool {
 // SetQueryAcl gets a reference to the given InheritedACLItems and assigns it to the QueryAcl field.
 func (o *AuthZoneInheritance) SetQueryAcl(v InheritedACLItems) {
 	o.QueryAcl = &v
+}
+
+// GetSecondaryZoneRecordsSync returns the SecondaryZoneRecordsSync field value if set, zero value otherwise.
+func (o *AuthZoneInheritance) GetSecondaryZoneRecordsSync() Inheritance2InheritedBool {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		var ret Inheritance2InheritedBool
+		return ret
+	}
+	return *o.SecondaryZoneRecordsSync
+}
+
+// GetSecondaryZoneRecordsSyncOk returns a tuple with the SecondaryZoneRecordsSync field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthZoneInheritance) GetSecondaryZoneRecordsSyncOk() (*Inheritance2InheritedBool, bool) {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		return nil, false
+	}
+	return o.SecondaryZoneRecordsSync, true
+}
+
+// HasSecondaryZoneRecordsSync returns a boolean if a field has been set.
+func (o *AuthZoneInheritance) HasSecondaryZoneRecordsSync() bool {
+	if o != nil && !IsNil(o.SecondaryZoneRecordsSync) {
+		return true
+	}
+
+	return false
+}
+
+// SetSecondaryZoneRecordsSync gets a reference to the given Inheritance2InheritedBool and assigns it to the SecondaryZoneRecordsSync field.
+func (o *AuthZoneInheritance) SetSecondaryZoneRecordsSync(v Inheritance2InheritedBool) {
+	o.SecondaryZoneRecordsSync = &v
 }
 
 // GetTransferAcl returns the TransferAcl field value if set, zero value otherwise.
@@ -289,6 +357,9 @@ func (o AuthZoneInheritance) MarshalJSON() ([]byte, error) {
 
 func (o AuthZoneInheritance) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.DnssecSigningPolicy) {
+		toSerialize["dnssec_signing_policy"] = o.DnssecSigningPolicy
+	}
 	if !IsNil(o.GssTsigEnabled) {
 		toSerialize["gss_tsig_enabled"] = o.GssTsigEnabled
 	}
@@ -297,6 +368,9 @@ func (o AuthZoneInheritance) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.QueryAcl) {
 		toSerialize["query_acl"] = o.QueryAcl
+	}
+	if !IsNil(o.SecondaryZoneRecordsSync) {
+		toSerialize["secondary_zone_records_sync"] = o.SecondaryZoneRecordsSync
 	}
 	if !IsNil(o.TransferAcl) {
 		toSerialize["transfer_acl"] = o.TransferAcl
@@ -332,9 +406,11 @@ func (o *AuthZoneInheritance) UnmarshalJSON(data []byte) (err error) {
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "dnssec_signing_policy")
 		delete(additionalProperties, "gss_tsig_enabled")
 		delete(additionalProperties, "notify")
 		delete(additionalProperties, "query_acl")
+		delete(additionalProperties, "secondary_zone_records_sync")
 		delete(additionalProperties, "transfer_acl")
 		delete(additionalProperties, "update_acl")
 		delete(additionalProperties, "use_forwarders_for_subzones")

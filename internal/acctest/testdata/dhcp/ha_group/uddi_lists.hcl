@@ -1,7 +1,7 @@
 # HaGroup — uddi list cases
-#  TODO: Objects to be present in the grid for testing
-#  dhcp/host/470520
-#  dhcp/host/470521
+#  Objects to be present in the grid for testing
+#  DHCP Hosts
+
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -9,8 +9,8 @@ case "basic" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -32,8 +32,8 @@ case "filters" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -61,8 +61,8 @@ case "tag_filters" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"

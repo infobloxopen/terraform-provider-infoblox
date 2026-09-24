@@ -85,6 +85,7 @@ resource "infoblox_record_rpz_naptr" "create_record_rpz_naptr_custom_view" {
 ### Optional
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 

@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordRpzNaptr.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -38,7 +38,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -59,8 +59,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -100,8 +100,8 @@ case "comment" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -141,8 +141,8 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -182,8 +182,8 @@ case "ext_attrs" {
 }
 
 case "flags" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -251,8 +251,8 @@ case "flags" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -290,8 +290,8 @@ case "name" {
 }
 
 case "order" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -329,8 +329,8 @@ case "order" {
 }
 
 case "preference" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -368,8 +368,8 @@ case "preference" {
 }
 
 case "regexp" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -408,8 +408,8 @@ case "regexp" {
 }
 
 case "replacement" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -447,8 +447,8 @@ case "replacement" {
 }
 
 case "rp_zone" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -473,8 +473,8 @@ case "rp_zone" {
 }
 
 case "services" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -514,8 +514,8 @@ case "services" {
 }
 
 case "ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -555,8 +555,8 @@ case "ttl" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "custom_view" {
     nios = {

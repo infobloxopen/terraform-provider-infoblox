@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for Ipv6DhcpOptiondefinition.
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -32,7 +32,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
@@ -52,8 +52,8 @@ case "disappears" {
 }
 
 case "array" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -91,8 +91,8 @@ case "array" {
 }
 
 case "code" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -128,8 +128,8 @@ case "code" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -167,8 +167,8 @@ case "comment" {
 }
 
 case "name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
@@ -204,8 +204,8 @@ case "name" {
 }
 
 case "option_space" {
-  backend     = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test1" {
     uddi = {
@@ -245,8 +245,8 @@ case "option_space" {
 }
 
 case "type" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     uddi = {
