@@ -1,6 +1,7 @@
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test_zone" {
     nios = {
@@ -26,8 +27,9 @@ case "basic" {
 }
 
 case "filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test_zone" {
     nios = {
@@ -59,8 +61,9 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend  = "nios"
-  parallel = true
+  backend        = "nios"
+  min_tf_version = "1.14.0"
+  parallel       = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test_zone" {
     nios = {
