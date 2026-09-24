@@ -15,7 +15,7 @@ Manages an Infoblox RecordRpzAIpaddress in the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// Create a custom DNS view (optional — omit to use the "default" view)
+// Create a custom DNS view
 resource "infoblox_view" "example" {
   nios = {
     name = "example-view"
