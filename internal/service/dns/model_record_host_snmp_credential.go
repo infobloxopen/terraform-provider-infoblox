@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -32,7 +33,8 @@ var RecordHostSnmpCredentialAttrTypes = map[string]attr.Type{
 // RecordHostSnmpCredentialResourceSchemaAttributes contains the schema attributes for RecordHostSnmpCredentialModel
 var RecordHostSnmpCredentialResourceSchemaAttributes = map[string]schema.Attribute{
 	"community_string": schema.StringAttribute{
-		Optional: true,
+		Sensitive: true,
+		Optional:  true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
@@ -46,7 +48,9 @@ var RecordHostSnmpCredentialResourceSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "Comments for the SNMPv1 and SNMPv2 users.",
 	},
 	"credential_group": schema.StringAttribute{
+		Default:  stringdefault.StaticString("default"),
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
