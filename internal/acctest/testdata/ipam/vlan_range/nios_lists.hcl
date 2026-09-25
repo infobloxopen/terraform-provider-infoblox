@@ -1,4 +1,8 @@
-# Auto-generated list acceptance-test cases for Vlan.
+# Auto-generated list acceptance-test cases for Vlanrange.
+#
+# Each case creates its own parent VLAN View; the range's start/end must fall
+# within the view's start_vlan_id/end_vlan_id window.
+
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
@@ -14,9 +18,10 @@ case "basic" {
 
   step {
     nios {
-      id     = 71
-      name   = "{{random}}"
-      parent = infoblox_vlan_view.test.id
+      name          = "{{random}}"
+      start_vlan_id = 61
+      end_vlan_id   = 71
+      vlan_view     = infoblox_vlan_view.test.id
     }
   }
 
@@ -43,9 +48,10 @@ case "filters" {
 
   step {
     nios {
-      id     = 72
-      name   = "{{random}}"
-      parent = infoblox_vlan_view.test.id
+      name          = "{{random}}"
+      start_vlan_id = 61
+      end_vlan_id   = 71
+      vlan_view     = infoblox_vlan_view.test.id
     }
   }
 
@@ -78,10 +84,11 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      id        = 73
-      name      = "{{random}}"
-      parent    = infoblox_vlan_view.test.id
-      ext_attrs = { Site = "{{random3}}" }
+      name          = "{{random}}"
+      start_vlan_id = 61
+      end_vlan_id   = 71
+      vlan_view     = infoblox_vlan_view.test.id
+      ext_attrs     = { Site = "{{random3}}" }
     }
   }
 
