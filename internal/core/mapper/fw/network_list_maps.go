@@ -7,6 +7,7 @@ var NetworkListUDDIFieldMap = map[string]string{
 	"UDDI.AddrBlock":   "AddrBlock",
 	"UDDI.Description": "Description",
 	"UDDI.Name":        "Name",
+	"UDDI.PolicyId":    "PolicyId",
 }
 
 // TODO: only searchable fields should be included here
@@ -16,5 +17,6 @@ var NetworkListFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.addr_block":  "addr_block",
 		"uddi.description": "description",
 		"uddi.name":        "name",
+		"uddi.policy_id":   "policy_id",
 	},
 }

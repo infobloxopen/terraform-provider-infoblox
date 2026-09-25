@@ -57,6 +57,7 @@ Read-Only:
 - `addr_block` (Attributes List) The list of address blocks (CIDRs) in the network list, each with an optional end-user description. The plain `items` field is deprecated in favor of this field, since it allows adding a description to each address block; this provider does not expose `items` for that reason. (see [below for nested schema](#nestedatt--results--uddi--addr_block))
 - `description` (String) The brief description for the network list.
 - `name` (String) The name of the network list.
+- `policy_id` (Number) The identifier of the security policy with which the network list is associated.
 
 <a id="nestedatt--results--uddi--addr_block"></a>
 ### Nested Schema for `results.uddi.addr_block`

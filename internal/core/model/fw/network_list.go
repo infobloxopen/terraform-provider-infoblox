@@ -16,4 +16,5 @@ type UDDINetworkListExt struct {
 	Description *string
 	Items       []string
 	Name        *string
+	PolicyId    *int32
 }

@@ -194,6 +194,7 @@ func mapUDDINetworkListToResponse(r *uddifw.NetworkList) *fw.NetworkList {
 		Description: r.Description,
 		Items:       r.Items,
 		Name:        r.Name,
+		PolicyId:    r.PolicyId,
 	}
 	return resp
 }

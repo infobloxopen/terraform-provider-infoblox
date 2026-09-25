@@ -72,6 +72,10 @@ Optional:
 
 - `description` (String) The brief description for the network list.
 
+Read-Only:
+
+- `policy_id` (Number) The identifier of the security policy with which the network list is associated.
+
 <a id="nestedatt--uddi--addr_block"></a>
 ### Nested Schema for `uddi.addr_block`
 

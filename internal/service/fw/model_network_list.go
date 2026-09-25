@@ -33,12 +33,14 @@ type UDDINetworkListModel struct {
 	AddrBlock   types.List   `tfsdk:"addr_block"`
 	Description types.String `tfsdk:"description"`
 	Name        types.String `tfsdk:"name"`
+	PolicyId    types.Int32  `tfsdk:"policy_id"`
 }
 
 var UDDINetworkListAttrTypes = map[string]attr.Type{
 	"addr_block":  types.ListType{ElemType: types.ObjectType{AttrTypes: AddrBlockAttrTypes}},
 	"description": types.StringType,
 	"name":        types.StringType,
+	"policy_id":   types.Int32Type,
 }
 
 const (
@@ -84,6 +86,10 @@ var NetworkListResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the network list.",
+	},
+	"policy_id": schema.Int32Attribute{
+		Computed:            true,
+		MarkdownDescription: "The identifier of the security policy with which the network list is associated.",
 	},
 }
 
@@ -142,4 +148,5 @@ func (m *UDDINetworkListModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.AddrBlock = flex.FlattenFrameworkListNestedBlock(ctx, from.AddrBlock, AddrBlockAttrTypes, diags, FlattenAddrBlock)
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.Name = flex.FlattenStringPointer(from.Name)
+	m.PolicyId = flex.FlattenInt32Pointer(from.PolicyId)
 }
