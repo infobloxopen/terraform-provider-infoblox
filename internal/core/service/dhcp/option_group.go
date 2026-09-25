@@ -200,11 +200,9 @@ func mapUDDIOptionGroupToResponse(r *uddiipam.OptionGroup) *dhcp.OptionGroup {
 	}
 	resp.UDDI = &dhcp.UDDIOptionGroupExt{
 		Comment:     r.Comment,
-		CreatedAt:   r.CreatedAt,
 		DhcpOptions: r.DhcpOptions,
 		Name:        r.Name,
 		Protocol:    r.Protocol,
-		UpdatedAt:   r.UpdatedAt,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))

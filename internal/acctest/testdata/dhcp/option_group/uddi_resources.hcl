@@ -76,6 +76,12 @@ case "dhcp_options" {
       name = "{{random}}"
     }
   }
+  resource "infoblox_option_group" "test_group" {
+    uddi = {
+      name     = "{{random3}}"
+      protocol = "ip4"
+    }
+  }
   PREREQ
 
   step {
@@ -102,6 +108,18 @@ case "dhcp_options" {
     }
   }
 
+  step {
+    uddi {
+      name         = "{{random2}}"
+      protocol     = "ip4"
+      dhcp_options = [{ type = "group", group = infoblox_option_group.test_group.id }]
+    }
+    check = {
+      "uddi.dhcp_options.#"          = "1"
+      "uddi.dhcp_options.0.type"     = "group"
+    }
+  }
+
 }
 
 case "name" {
@@ -125,6 +143,22 @@ case "name" {
     }
     check = {
       "uddi.name" = "option_group_test_1"
+    }
+  }
+
+}
+
+case "protocol" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      protocol = "ip4"
+    }
+    check = {
+      "uddi.protocol" = "ip4"
     }
   }
 

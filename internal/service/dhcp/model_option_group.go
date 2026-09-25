@@ -3,7 +3,6 @@ package dhcp
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -31,25 +30,21 @@ var OptionGroupAttrTypes = map[string]attr.Type{
 }
 
 type UDDIOptionGroupModel struct {
-	Comment     types.String      `tfsdk:"comment"`
-	CreatedAt   timetypes.RFC3339 `tfsdk:"created_at"`
-	DhcpOptions types.List        `tfsdk:"dhcp_options"`
-	Name        types.String      `tfsdk:"name"`
-	Protocol    types.String      `tfsdk:"protocol"`
-	Tags        types.Map         `tfsdk:"tags"`
-	TagsAll     types.Map         `tfsdk:"tags_all"`
-	UpdatedAt   timetypes.RFC3339 `tfsdk:"updated_at"`
+	Comment     types.String `tfsdk:"comment"`
+	DhcpOptions types.List   `tfsdk:"dhcp_options"`
+	Name        types.String `tfsdk:"name"`
+	Protocol    types.String `tfsdk:"protocol"`
+	Tags        types.Map    `tfsdk:"tags"`
+	TagsAll     types.Map    `tfsdk:"tags_all"`
 }
 
 var UDDIOptionGroupAttrTypes = map[string]attr.Type{
 	"comment":      types.StringType,
-	"created_at":   timetypes.RFC3339Type{},
 	"dhcp_options": types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"name":         types.StringType,
 	"protocol":     types.StringType,
 	"tags":         types.MapType{ElemType: types.StringType},
 	"tags_all":     types.MapType{ElemType: types.StringType},
-	"updated_at":   timetypes.RFC3339Type{},
 }
 
 const (
@@ -76,11 +71,6 @@ var OptionGroupResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.LengthBetween(0, 1024),
 		},
 		MarkdownDescription: "The description for the option group. May contain 0 to 1024 characters. Can include UTF-8.",
-	},
-	"created_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Time when the object has been created.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -123,11 +113,6 @@ var OptionGroupResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
-	},
-	"updated_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Time when the object has been updated. Equals to _created_at_ if not updated after creation.",
 	},
 }
 
@@ -189,7 +174,6 @@ func (m *UDDIOptionGroupModel) Flatten(ctx context.Context, from *coremodel.UDDI
 		return
 	}
 	m.Comment = flex.FlattenStringPointer(from.Comment)
-	m.CreatedAt = flex.FlattenRFC3339(from.CreatedAt)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.Name = flex.FlattenString(from.Name)
 	m.Protocol = flex.FlattenStringPointer(from.Protocol)
@@ -198,5 +182,4 @@ func (m *UDDIOptionGroupModel) Flatten(ctx context.Context, from *coremodel.UDDI
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
-	m.UpdatedAt = flex.FlattenRFC3339(from.UpdatedAt)
 }
