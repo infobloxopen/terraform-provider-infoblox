@@ -668,7 +668,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzPtrList,
 		rpz.NewRecordRpzTxtList,
 		rpz.NewRecordRpzAIpaddressList,
-    rpz.NewRecordRpzCnameClientipaddressList,
+		rpz.NewRecordRpzCnameClientipaddressList,
 	}
 }
 
