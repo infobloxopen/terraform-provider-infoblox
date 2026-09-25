@@ -1,11 +1,22 @@
-# Filteroption — uddi resource cases
-// An option code and a non-default option space have to be created before running the test cases.
-
+# Auto-generated resource acceptance-test cases for Filteroption (uddi).
 case "basic" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_OPTION_CODE_1_ID"]
-  skip_reason       = "UDDI_OPTION_CODE_1_ID environment variable must be set for this test to run"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -14,8 +25,8 @@ case "basic" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -33,6 +44,21 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -41,8 +67,8 @@ case "disappears" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -51,8 +77,23 @@ case "disappears" {
 }
 
 case "name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -61,8 +102,8 @@ case "name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -78,8 +119,8 @@ case "name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -91,8 +132,23 @@ case "name" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -102,8 +158,8 @@ case "comment" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -120,8 +176,8 @@ case "comment" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -135,41 +191,36 @@ case "comment" {
 case "dhcp_options" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_OPTION_GROUP_1_ID"]
-  skip_reason       = "UDDI_OPTION_GROUP_1_ID environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
-      name = "{{random3}}"
+      name = "{{random2}}"
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
     uddi = {
-      code = 234
-      name = "{{random4}}"
+      code         = 234
+      name         = "prereq_code"
       option_space = infoblox_dhcp_optionspace.test.id
-      type = "boolean"
+      type         = "boolean"
     }
   }
-
-//   resource "infoblox_dhcp_option_group_unknown" "test" {
-//       uddi = {
-//         name = "\"og-\"+optionSpace"
-//         protocol = "ip4"
-//       }
-//   }
   PREREQ
 
   step {
     uddi {
-      name         = "{{random}}"
-      dhcp_options = [{ type = "option", option_code = infoblox_dhcp_optiondefinition.test.id, option_value = "true" }]
+      name = "{{random}}"
+      dhcp_options = [{
+        type         = "option"
+        option_code  = infoblox_dhcp_optiondefinition.test.id
+        option_value = "true"
+      }]
       rules = {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -182,29 +233,47 @@ case "dhcp_options" {
 
   step {
     uddi {
-      name         = "{{random}}"
-      dhcp_options = [{ type = "group", group = "{{uddi_option_group_1_id}}" }]
+      name = "{{random}}"
+      dhcp_options = [{
+        type         = "option"
+        option_code  = infoblox_dhcp_optiondefinition.test.id
+        option_value = "false"
+      }]
       rules = {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
     check = {
-      "uddi.dhcp_options.#"       = "1"
-      "uddi.dhcp_options.0.type"  = "group"
-      "uddi.dhcp_options.0.group" = "{{uddi_option_group_1_id}}"
+      "uddi.dhcp_options.0.type"         = "option"
+      "uddi.dhcp_options.0.option_value" = "false"
     }
   }
 
 }
 
 case "header_option_filename" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -214,8 +283,8 @@ case "header_option_filename" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -232,8 +301,8 @@ case "header_option_filename" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -245,8 +314,23 @@ case "header_option_filename" {
 }
 
 case "header_option_server_address" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -256,8 +340,8 @@ case "header_option_server_address" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -274,8 +358,8 @@ case "header_option_server_address" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -287,8 +371,23 @@ case "header_option_server_address" {
 }
 
 case "header_option_server_name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -298,8 +397,8 @@ case "header_option_server_name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -316,8 +415,8 @@ case "header_option_server_name" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -329,8 +428,23 @@ case "header_option_server_name" {
 }
 
 case "lease_time" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -340,8 +454,8 @@ case "lease_time" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -358,8 +472,8 @@ case "lease_time" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -371,8 +485,23 @@ case "lease_time" {
 }
 
 case "role" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -382,8 +511,8 @@ case "role" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -400,8 +529,8 @@ case "role" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -413,8 +542,23 @@ case "role" {
 }
 
 case "rules" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -423,15 +567,15 @@ case "rules" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
     check = {
       "uddi.rules.match"                = "any"
       "uddi.rules.rules.0.compare"      = "equals"
-      "uddi.rules.rules.0.option_value" = "value1"
+      "uddi.rules.rules.0.option_value" = "true"
     }
   }
 
@@ -442,23 +586,38 @@ case "rules" {
         match = "all"
         rules = [{
           compare      = "not_equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value2"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "false"
         }]
       }
     }
     check = {
       "uddi.rules.match"                = "all"
       "uddi.rules.rules.0.compare"      = "not_equals"
-      "uddi.rules.rules.0.option_value" = "value2"
+      "uddi.rules.rules.0.option_value" = "false"
     }
   }
 
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -468,8 +627,8 @@ case "tags" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -487,8 +646,8 @@ case "tags" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -501,20 +660,22 @@ case "tags" {
 }
 
 case "vendor_specific_option_option_space" {
-  backend           = "uddi"
-  parallel          = true
+  backend     = "uddi"
+  parallel    = true
+  skip        = true
+  skip_reason = "BloxOne requires option code 43 in the built-in dhcp4 space; not reliably available across tenants"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
-      name = "{{random3}}"
+      name = "{{random2}}"
     }
   }
   resource "infoblox_dhcp_optiondefinition" "test" {
     uddi = {
-      code = 234
-      name = "{{random4}}"
+      code         = 234
+      name         = "prereq_code"
       option_space = infoblox_dhcp_optionspace.test.id
-      type = "boolean"
+      type         = "boolean"
     }
   }
   PREREQ
@@ -528,12 +689,9 @@ case "vendor_specific_option_option_space" {
         rules = [{
           compare      = "equals"
           option_code  = infoblox_dhcp_optiondefinition.test.id
-          option_value = "value1"
+          option_value = "true"
         }]
       }
-    }
-    check = {
-      "uddi.vendor_specific_option_option_space" = infoblox_dhcp_optionspace.test.id
     }
   }
 

@@ -27,3 +27,18 @@ resource "infoblox_filteroption" "filteroption_additional_fields" {
     }
   }
 }
+
+// Create a Custom Option Space (used as option_space in filteroption)
+resource "infoblox_dhcp_optionspace" "option_space" {
+  nios = {
+    name = "example_option_space"
+  }
+}
+
+// Create a DHCP Option Filter using a Custom Option Space
+resource "infoblox_filteroption" "filteroption_custom_option_space" {
+  nios = {
+    name         = "filteroption_example_3"
+    option_space = infoblox_dhcp_optionspace.option_space.nios.name
+  }
+}

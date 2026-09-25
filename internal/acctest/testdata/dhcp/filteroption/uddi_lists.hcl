@@ -1,11 +1,26 @@
 # Filteroption — uddi list cases
 # No legacy list test was found for this object.
 # Add list cases here manually.
-// An option code has to be created before running the test cases.
 
 case "basic" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -14,8 +29,8 @@ case "basic" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -30,8 +45,24 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
@@ -40,8 +71,8 @@ case "filters" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -62,19 +93,35 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend        = "uddi"
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  min_tf_version    = "1.14.0"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name = "{{random}}"
-      tags = { tag1 = "{{random2}}" }
+      tags = { tag1 = "{{random3}}" }
       rules = {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
