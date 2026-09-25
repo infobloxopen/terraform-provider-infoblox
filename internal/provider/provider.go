@@ -33,6 +33,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rir"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
@@ -430,6 +431,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		rir.NewRirOrganizationResource,
+
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
@@ -544,6 +547,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		rir.NewRirOrganizationDataSource,
+
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
@@ -654,6 +659,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
+
+		rir.NewRirOrganizationList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
