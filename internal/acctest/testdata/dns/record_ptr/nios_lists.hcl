@@ -1,7 +1,7 @@
 # Auto-generated list acceptance-test cases for RecordPtr.
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -27,8 +27,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -61,8 +61,8 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -95,8 +95,8 @@ case "ext_attr_filters" {
 }
 
 case "creator_filter" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {

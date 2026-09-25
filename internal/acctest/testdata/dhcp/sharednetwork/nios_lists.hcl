@@ -1,7 +1,7 @@
 # Sharednetwork — nios list cases
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
     nios = {
@@ -33,8 +33,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
     nios = {
@@ -73,8 +73,8 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
     nios = {

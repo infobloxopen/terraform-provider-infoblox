@@ -3,7 +3,7 @@ case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -16,7 +16,7 @@ case "basic" {
     nios {
       id     = 71
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
   }
 
@@ -32,7 +32,7 @@ case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -45,7 +45,7 @@ case "filters" {
     nios {
       id     = 72
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
   }
 
@@ -67,7 +67,7 @@ case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -80,7 +80,7 @@ case "ext_attr_filters" {
     nios {
       id        = 73
       name      = "{{random}}"
-      parent    = infoblox_vlanview.test.id
+      parent    = infoblox_vlan_view.test.id
       ext_attrs = { Site = "{{random3}}" }
     }
   }

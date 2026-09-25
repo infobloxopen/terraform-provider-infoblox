@@ -6,7 +6,7 @@ case "basic" {
   step {
     nios {
       enterprise_number = 5896
-      name = "{{random}}"
+      name              = "{{random}}"
     }
   }
 
@@ -25,7 +25,7 @@ case "filters" {
   step {
     nios {
       enterprise_number = 5896
-      name = "{{random}}"
+      name              = "{{random}}"
     }
   }
 
@@ -37,7 +37,7 @@ case "filters" {
       type = "filters"
       values = {
         enterprise_number = "nios.enterprise_number"
-        name = "nios.name"
+        name              = "nios.name"
       }
     }
   }

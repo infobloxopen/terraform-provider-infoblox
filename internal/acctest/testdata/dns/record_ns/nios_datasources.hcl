@@ -10,7 +10,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name       = "nios.name"
       nameserver = "nios.nameserver"

@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for Ipv6DhcpOptiondefinition.
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
@@ -11,7 +11,7 @@ case "filters" {
   PREREQ
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       code = "nios.code"
       name = "nios.name"
