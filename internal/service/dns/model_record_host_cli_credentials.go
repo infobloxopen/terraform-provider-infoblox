@@ -48,7 +48,8 @@ var RecordHostCliCredentialsResourceSchemaAttributes = map[string]schema.Attribu
 		MarkdownDescription: "The CLI user name.",
 	},
 	"password": schema.StringAttribute{
-		Optional: true,
+		Sensitive: true,
+		Optional:  true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
