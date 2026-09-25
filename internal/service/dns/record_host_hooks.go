@@ -214,6 +214,14 @@ func PostFlattenRecordHostNIOS(ctx context.Context, planned, flattened *NIOSReco
 		}
 	}
 
+	if !planned.CliCredentials.IsUnknown() {
+		if reordered, d := utils.ReorderAndFilterNestedListResponse(ctx, planned.CliCredentials, flattened.CliCredentials, "credential_type"); !d.HasError() {
+			if list, ok := reordered.(basetypes.ListValue); ok {
+				flattened.CliCredentials = list
+			}
+		}
+	}
+
 	// Secrets are write-only - NIOS accepts them but never echoes them back.
 	if restored, d := utils.CopyFieldFromPlanToRespList(ctx, planned.CliCredentials, flattened.CliCredentials, "password"); !d.HasError() {
 		if list, ok := restored.(types.List); ok {
