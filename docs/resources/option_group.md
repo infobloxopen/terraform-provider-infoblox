@@ -15,6 +15,7 @@ Manages an Infoblox OptionGroup in the UDDI backend.
 ### UDDI Backend
 
 ```terraform
+// Create a DHCP Option Group with required fields
 resource "infoblox_option_group" "example" {
   uddi = {
     name     = "example_dhcp_option_group"
@@ -37,6 +38,7 @@ resource "infoblox_dhcp_optiondefinition" "option_code" {
   }
 }
 
+// Create a DHCP Option Group with all optional fields
 resource "infoblox_option_group" "example_with_options" {
   uddi = {
     name     = "example_dhcp_option_group_with_options"
@@ -85,9 +87,7 @@ Optional:
 
 Read-Only:
 
-- `created_at` (String) Time when the object has been created.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 
 <a id="nestedatt--uddi--dhcp_options"></a>
 ### Nested Schema for `uddi.dhcp_options`

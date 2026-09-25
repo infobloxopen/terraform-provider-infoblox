@@ -15,18 +15,21 @@ Retrieves information about existing Infoblox OptionGroup from the UDDI backend.
 ### UDDI Backend
 
 ```terraform
+// Retrieve a specific DHCP Option Group by name
 data "infoblox_option_group" "example_by_name" {
   filters = {
-    name = "example-group"
+    name = "example_dhcp_option_group"
   }
 }
 
+// Retrieve DHCP Option Groups using tag filters
 data "infoblox_option_group" "example_by_tag" {
   tag_filters = {
     Site = "location-1"
   }
 }
 
+// Retrieve all DHCP Option Groups
 data "infoblox_option_group" "example_all" {}
 ```
 
@@ -59,13 +62,11 @@ Read-Only:
 Read-Only:
 
 - `comment` (String) The description for the option group. May contain 0 to 1024 characters. Can include UTF-8.
-- `created_at` (String) Time when the object has been created.
 - `dhcp_options` (Attributes List) The list of DHCP options for the option group. May be either a specific option or a group of options. (see [below for nested schema](#nestedatt--results--uddi--dhcp_options))
 - `name` (String) The name of the option group. Must contain 1 to 256 characters. Can include UTF-8.
 - `protocol` (String) The type of protocol (_ip4_ or _ip6_).
 - `tags` (Map of String) The tags for the option group in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 
 <a id="nestedatt--results--uddi--dhcp_options"></a>
 ### Nested Schema for `results.uddi.dhcp_options`
