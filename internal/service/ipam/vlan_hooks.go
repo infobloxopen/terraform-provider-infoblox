@@ -3,9 +3,12 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 )
 
@@ -17,6 +20,20 @@ func ValidateVlan(ctx context.Context, data VlanModel, resp *resource.ValidateCo
 }
 
 func validateVlanNIOSConfig(ctx context.Context, m *NIOSVlanModel, resp *resource.ValidateConfigResponse) {
+}
+
+func BuildVlanFuncCall(ctx context.Context, data types.Object, diags *diag.Diagnostics) *ipam.FuncCall {
+	if data.IsNull() || data.IsUnknown() {
+		return nil
+	}
+
+	var m dynamicallocation.NextAvailableVlanIdModel
+	diags.Append(data.As(ctx, &m, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	return m.FuncCall(ctx, "Id", "vlanview", diags)
 }
 
 func ExpandVlanParent(str types.String) *ipam.VlanParent {

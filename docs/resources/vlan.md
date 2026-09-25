@@ -21,6 +21,9 @@ resource "infoblox_vlan_view" "ipam_vlanview_parent" {
     start_vlan_id = 5
     end_vlan_id   = 10
     name          = "example_vlan_view"
+    ext_attrs = {
+      Site = "us-east-1"
+    }
   }
 }
 
@@ -53,6 +56,31 @@ resource "infoblox_vlan" "ipam_vlan_with_additional_fields" {
     }
   }
 }
+
+// Create VLAN with Next Available VLAN ID
+resource "infoblox_vlan" "example_dynamic_allocation" {
+  nios = {
+    name   = "example_vlan_2"
+    parent = infoblox_vlan_view.ipam_vlanview_parent.id
+
+    dynamic_allocation = {
+      vlan_view = infoblox_vlan_view.ipam_vlanview_parent.nios.name
+    }
+  }
+}
+
+resource "infoblox_vlan" "example_dynamic_allocation_2" {
+  nios = {
+    name   = "example_vlan_3"
+    parent = infoblox_vlan_view.ipam_vlanview_parent.id
+
+    dynamic_allocation = {
+      filter_params = {
+        "*Site" : "us-east-1"
+      }
+    }
+  }
+}
 ```
 
 
@@ -73,7 +101,6 @@ resource "infoblox_vlan" "ipam_vlan_with_additional_fields" {
 
 Required:
 
-- `id` (Number) VLAN ID value.
 - `name` (String) Name of the VLAN.
 - `parent` (String) The VLAN View or VLAN Range to which this VLAN belongs.
 
@@ -83,9 +110,19 @@ Optional:
 - `contact` (String) Contact information for person/team managing or using VLAN.
 - `department` (String) Department where VLAN is used.
 - `description` (String) Description for the VLAN object, may be potentially used for longer VLAN names.
+- `dynamic_allocation` (Attributes) Dynamically allocate the vlan id using the NIOS next_available_vlan_id function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
+- `id` (Number) VLAN ID value.
 - `reserved` (Boolean) When set VLAN can only be assigned to IPAM object manually.
 
 Read-Only:
 
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+
+<a id="nestedatt--nios--dynamic_allocation"></a>
+### Nested Schema for `nios.dynamic_allocation`
+
+Optional:
+
+- `filter_params` (Map of String) Extensible-attribute filters used to select the VLAN View to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "vlan_view".
+- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from. Defaults to the default VLAN View when omitted. Mutually exclusive with "filter_params".
