@@ -19,13 +19,15 @@ var _ MappedNullable = &NamedListItemsPartialUpdate{}
 
 // NamedListItemsPartialUpdate struct for NamedListItemsPartialUpdate
 type NamedListItemsPartialUpdate struct {
-	// The List of ItemStructs structure which contains the item and its description
+	// The list of ItemStructs structures that contains items and their descriptions.
 	DeletedItemsDescribed []ItemStructs `json:"deleted_items_described,omitempty"`
 	// The Named List object identifier.
 	Id *int32 `json:"id,omitempty"`
-	// The List of ItemStructs structure which contains the item and its description
+	// The list of ItemStructs structures that contains items and their descriptions.
 	InsertedItemsDescribed []ItemStructs `json:"inserted_items_described,omitempty"`
-	AdditionalProperties   map[string]interface{}
+	// The list of ItemStructs structures that contains items, descriptions, statuses, status detail
+	UpdatedItemsDescribed []ItemStructs `json:"updated_items_described,omitempty"`
+	AdditionalProperties  map[string]interface{}
 }
 
 type _NamedListItemsPartialUpdate NamedListItemsPartialUpdate
@@ -143,6 +145,38 @@ func (o *NamedListItemsPartialUpdate) SetInsertedItemsDescribed(v []ItemStructs)
 	o.InsertedItemsDescribed = v
 }
 
+// GetUpdatedItemsDescribed returns the UpdatedItemsDescribed field value if set, zero value otherwise.
+func (o *NamedListItemsPartialUpdate) GetUpdatedItemsDescribed() []ItemStructs {
+	if o == nil || IsNil(o.UpdatedItemsDescribed) {
+		var ret []ItemStructs
+		return ret
+	}
+	return o.UpdatedItemsDescribed
+}
+
+// GetUpdatedItemsDescribedOk returns a tuple with the UpdatedItemsDescribed field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *NamedListItemsPartialUpdate) GetUpdatedItemsDescribedOk() ([]ItemStructs, bool) {
+	if o == nil || IsNil(o.UpdatedItemsDescribed) {
+		return nil, false
+	}
+	return o.UpdatedItemsDescribed, true
+}
+
+// HasUpdatedItemsDescribed returns a boolean if a field has been set.
+func (o *NamedListItemsPartialUpdate) HasUpdatedItemsDescribed() bool {
+	if o != nil && !IsNil(o.UpdatedItemsDescribed) {
+		return true
+	}
+
+	return false
+}
+
+// SetUpdatedItemsDescribed gets a reference to the given []ItemStructs and assigns it to the UpdatedItemsDescribed field.
+func (o *NamedListItemsPartialUpdate) SetUpdatedItemsDescribed(v []ItemStructs) {
+	o.UpdatedItemsDescribed = v
+}
+
 func (o NamedListItemsPartialUpdate) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -161,6 +195,9 @@ func (o NamedListItemsPartialUpdate) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.InsertedItemsDescribed) {
 		toSerialize["inserted_items_described"] = o.InsertedItemsDescribed
+	}
+	if !IsNil(o.UpdatedItemsDescribed) {
+		toSerialize["updated_items_described"] = o.UpdatedItemsDescribed
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -187,6 +224,7 @@ func (o *NamedListItemsPartialUpdate) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "deleted_items_described")
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "inserted_items_described")
+		delete(additionalProperties, "updated_items_described")
 		o.AdditionalProperties = additionalProperties
 	}
 
