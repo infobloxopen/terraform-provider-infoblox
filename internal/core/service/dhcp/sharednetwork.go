@@ -7,6 +7,7 @@ import (
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosdhcp "github.com/infobloxopen/infoblox-nios-go-client/dhcp"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/dhcp"
@@ -93,6 +94,7 @@ func (s *sharednetworkService) readNIOS(ctx context.Context, id string, opts *co
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +207,7 @@ func (s *sharednetworkService) listNIOS(ctx context.Context, opts *core.ListOpti
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

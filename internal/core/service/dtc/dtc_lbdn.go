@@ -8,6 +8,7 @@ import (
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosdtc "github.com/infobloxopen/infoblox-nios-go-client/dtc"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/dtc"
@@ -125,6 +126,7 @@ func (s *dtcLbdnService) readNIOS(ctx context.Context, id string, opts *core.Opt
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -292,6 +294,7 @@ func (s *dtcLbdnService) listNIOS(ctx context.Context, opts *core.ListOptions) (
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

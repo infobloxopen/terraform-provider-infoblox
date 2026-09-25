@@ -7,6 +7,7 @@ import (
 
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	niosrpz "github.com/infobloxopen/infoblox-nios-go-client/rpz"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/common"
 	mapper "github.com/infobloxopen/terraform-provider-infoblox/internal/core/mapper/rpz"
@@ -93,6 +94,7 @@ func (s *recordRpzTxtService) readNIOS(ctx context.Context, id string, opts *cor
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +207,7 @@ func (s *recordRpzTxtService) listNIOS(ctx context.Context, opts *core.ListOptio
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(config.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

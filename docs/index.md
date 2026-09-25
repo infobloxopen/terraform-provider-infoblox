@@ -69,6 +69,8 @@ Optional:
 
 - `host_url` (String) URL for the NIOS host
 - `password` (String, Sensitive) Password for the NIOS host
+- `proxy_search` (String) Proxy search mode. Allowed values: LOCAL (default), GM.
+- `proxy_url` (String) Proxy URL to connect to Infoblox NIOS.
 - `username` (String) Username for the NIOS host
 
 
