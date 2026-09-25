@@ -63,7 +63,7 @@ resource "infoblox_range" "range_additional_fields" {
     // DHCP threshold monitoring
     enable_dhcp_thresholds = true
     high_water_mark        = 90
-    low_water_mark         = 20
+    low_water_mark         = 5
     enable_email_warnings  = true
     email_list             = ["admin@infoblox.com"]
 
@@ -88,9 +88,26 @@ resource "infoblox_range" "range_with_member" {
     network_view = infoblox_network.example_network.nios.network_view
     comment      = "Example Range assigned to a grid member"
 
-    server_association_type = "MEMBER"
-    member = {
-      name = "infoblox.member" // Replace with the name of a Grid Member
-    }
+    # server_association_type = "MEMBER"
+    # member = {
+    #   name = "infoblox.172_28_83_113" // Replace with the name of a Grid Member
+    # }
   }
+}
+
+	  terraform {
+	    required_providers {
+	      infoblox = {
+	        source  = "infobloxopen/infoblox"
+	        version = "0.0.1"
+	      }
+	    }
+	  }
+	  
+	  provider "infoblox" {
+	    nios = {
+	      host_url = "https://172.28.82.8"
+	      username = "admin"
+	      password = "Infoblox@123"
+	    }
 }

@@ -5,6 +5,8 @@
 // relay_agent_filter - Relay Agent Filter Rule
 // filter_fingerprint1, filter_fingerprint2 - Fingerprint Filter Rules
 // example_failover_association, example_failover_association1 - DHCP Failover Associations
+// 10.10.0.10 - ms_server
+// Cisco ISE Endpoint - subscribe_settings
 
 # Auto-generated resource acceptance-test cases for Range.
 case "basic" {
@@ -640,6 +642,8 @@ case "discovery_blackout_setting" {
 }
 
 case "discovery_member" {
+  skip        = true
+  skip_reason = "t.Skip: Requires non-grid master candidate to be in discovery polling mode"
   backend  = "nios"
   parallel = true
 
@@ -1798,16 +1802,14 @@ case "member" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network_view" "test_view" {
-    nios = {
-      name = "{{random_view}}"
-    }
-  }
   resource "infoblox_network" "test_network" {
     nios = {
       network      = "102.0.0.0/24"
-      network_view = infoblox_network_view.test_view.nios.name
-      members      = [{ struct = "dhcpmember", name = "{{grid_master_hostname}}" }]
+      network_view = "default"
+      members      = [
+        { struct = "dhcpmember", name = "{{grid_master_hostname}}" },
+        { struct = "dhcpmember", name = "{{grid_member_hostname}}" },
+      ]
     }
   }
   PREREQ
@@ -1816,10 +1818,11 @@ case "member" {
     nios {
       start_addr              = "102.0.0.93"
       end_addr                = "102.0.0.94"
-      network_view            = infoblox_network.test_network.nios.network_view
+      network_view            = "default"
       member                  = { name = "{{grid_master_hostname}}" }
       server_association_type = "MEMBER"
     }
+    depends_on = [infoblox_network.test_network]
     check = {
       "nios.member.name" = "{{grid_master_hostname}}"
     }
@@ -1829,10 +1832,11 @@ case "member" {
     nios {
       start_addr              = "102.0.0.93"
       end_addr                = "102.0.0.94"
-      network_view            = infoblox_network.test_network.nios.network_view
+      network_view            = "default"
       member                  = { name = "{{grid_member_hostname}}" }
       server_association_type = "MEMBER"
     }
+    depends_on = [infoblox_network.test_network]
     check = {
       "nios.member.name" = "{{grid_member_hostname}}"
     }
@@ -1892,16 +1896,11 @@ case "ms_server" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network_view" "test_view" {
-    nios = {
-      name = "{{random_view}}"
-    }
-  }
   resource "infoblox_network" "test_network" {
     nios = {
       network      = "101.0.0.0/24"
-      network_view = infoblox_network_view.test_view.nios.name
-      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.10.10" }]
+      network_view = "default"
+      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.0.10" }]
     }
   }
   PREREQ
@@ -1910,12 +1909,13 @@ case "ms_server" {
     nios {
       start_addr              = "101.0.0.95"
       end_addr                = "101.0.0.96"
-      network_view            = infoblox_network.test_network.nios.network_view
+      network_view            = "default"
       ms_server               = { ipv4addr = infoblox_network.test_network.nios.members[0].ipv4addr }
       server_association_type = "MS_SERVER"
     }
+    depends_on = [infoblox_network.test_network]
     check = {
-      "nios.ms_server.ipv4addr" = "10.10.10.10"
+      "nios.ms_server.ipv4addr" = "10.10.0.10"
     }
   }
 
@@ -2564,15 +2564,11 @@ case "subscribe_settings" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_network_view" "test_view" {
-    nios = {
-      name = "{{random_view}}"
-    }
-  }
   resource "infoblox_network" "test_network" {
     nios = {
-      network      = "110.0.0.0/24"
-      network_view = infoblox_network_view.test_view.nios.name
+      network            = "110.0.0.0/24"
+      network_view       = "default"
+      subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
   }
   PREREQ
@@ -2581,7 +2577,8 @@ case "subscribe_settings" {
     nios {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
-      network_view       = infoblox_network.test_network.nios.network_view
+      network            = infoblox_network.test_network.nios.network
+      network_view       = "default"
       subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
     check = {
@@ -2593,7 +2590,8 @@ case "subscribe_settings" {
     nios {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
-      network_view       = infoblox_network.test_network.nios.network_view
+      network            = infoblox_network.test_network.nios.network
+      network_view       = "default"
       subscribe_settings = { enabled_attributes = ["ENDPOINT_PROFILE"] }
     }
     check = {
