@@ -12,13 +12,12 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 ## Table of Contents
 
 - [Requirements](#requirements)
-- [How the Unified Provider Works](#how-the-unified-provider-works)
+- [How the Provider Works](#how-the-provider-works)
 - [Getting Started](#getting-started)
   - [Configure the Provider](#configure-the-provider)
   - [Prerequisites](#prerequisites)
     - [Setting Up Terraform Internal ID](#setting-up-terraform-internal-id)
 - [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal)
-- [Default Tags for UDDI](#default-tags-for-uddi)
 - [Usage Examples](#usage-examples)
 - [Available Resources and DataSources](#available-resources-and-datasources)
 - [Host Record Management](#host-record-management)
@@ -33,10 +32,10 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
 - [Go](https://golang.org/doc/install) >= 1.25.1
 - One of:
-  - [Infoblox NIOS](https://www.infoblox.com/products/nios/) (version 9.0.6 or higher)
-  - An [Infoblox Portal](https://portal.infoblox.com) account
+  - Infoblox NIOS (version 9.0.6, WAPI v2.13.6)
+  - An Infoblox Portal account
 
-## How the Unified Provider Works
+## How the Provider Works
 
 Each resource and data source has a nested block named after the backend. You fill in the block for the backend you configured:
 
@@ -62,8 +61,6 @@ resource "infoblox_record_a" "example" {
   }
 }
 ```
-
-The two backends are different products, so their fields are not the same. Keeping them in separate blocks lets you use one provider and one state file for both.
 
 A configuration targets one backend at a time. The provider accepts either a `nios` block or a `uddi` block, not both. To manage both in the same run, declare two provider instances with aliases.
 
@@ -140,21 +137,6 @@ If your NIOS Grid is connected to the Infoblox Portal, you can manage it through
 
 For detailed information, refer to the [WAPI Passthrough](guides/wapi_passthrough.md) page.
 
-## Default Tags for UDDI
-
-Use `default_tags` in the `uddi` block to apply the same tags to every object the provider creates or updates. A tag set on a resource overrides the default of the same name.
-
-```hcl
-provider "infoblox" {
-  uddi = {
-    portal_url = var.portal_url
-    portal_key = var.portal_key
-    default_tags = {
-      managed_by = "terraform"
-    }
-  }
-}
-```
 
 ## Usage Examples
 
