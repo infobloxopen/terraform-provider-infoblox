@@ -114,16 +114,6 @@ func BuildNetworkFuncCall(ctx context.Context, data types.Object, diags *diag.Di
 }
 
 func PostFlattenNetworkNIOS(ctx context.Context, planned, flattened *NIOSNetworkModel, diags *diag.Diagnostics) {
-	if planned != nil && !planned.Options.IsUnknown() {
-		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
-		diags.Append(*d...)
-		if d.HasError() {
-			return
-		}
-		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
-			flattened.Options = reorderedList
-		}
-	}
 }
 
 func BuildNetworkAllocation(ctx context.Context, allocObj types.Object, diags *diag.Diagnostics) *string {
