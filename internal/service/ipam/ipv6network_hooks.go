@@ -209,6 +209,16 @@ func BuildIpv6networkFuncCall(ctx context.Context, data types.Object, diags *dia
 }
 
 func PostFlattenIpv6networkNIOS(ctx context.Context, planned, flattened *NIOSIpv6networkModel, diags *diag.Diagnostics) {
+	if planned != nil && !planned.Options.IsUnknown() {
+		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
+		diags.Append(*d...)
+		if d.HasError() {
+			return
+		}
+		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
+			flattened.Options = reorderedList
+		}
+	}
 }
 
 func (r *Ipv6networkResource) isIpv6networkContainerConversionError(err error) bool {
