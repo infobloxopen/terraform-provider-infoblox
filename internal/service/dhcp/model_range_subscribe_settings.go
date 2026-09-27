@@ -34,6 +34,7 @@ var RangeSubscribeSettingsResourceSchemaAttributes = map[string]schema.Attribute
 	"enabled_attributes": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			listvalidator.ValueStringsAre(stringvalidator.OneOf("DOMAINNAME", "ENDPOINT_PROFILE", "SECURITY_GROUP", "SESSION_STATE", "SSID", "USERNAME", "VLAN")),
@@ -45,6 +46,7 @@ var RangeSubscribeSettingsResourceSchemaAttributes = map[string]schema.Attribute
 			Attributes: RangesubscribesettingsMappedEaAttributesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

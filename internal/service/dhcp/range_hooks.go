@@ -81,6 +81,19 @@ func validateRangeNIOSConfig(ctx context.Context, m *NIOSRangeModel, resp *resou
 			&resp.Diagnostics,
 		)
 	}
+
+	// enabled_attributes is required when subscribe_settings is configured
+	if !m.SubscribeSettings.IsNull() && !m.SubscribeSettings.IsUnknown() {
+		attrs := m.SubscribeSettings.Attributes()
+		enabledAttrs, exists := attrs["enabled_attributes"]
+		if !exists || enabledAttrs.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				niosPath.AtName("subscribe_settings").AtName("enabled_attributes"),
+				"Missing Required Attribute",
+				"The 'enabled_attributes' attribute is required when 'subscribe_settings' is configured.",
+			)
+		}
+	}
 }
 
 func validateRangeUDDIConfig(ctx context.Context, m *UDDIRangeModel, resp *resource.ValidateConfigResponse) {

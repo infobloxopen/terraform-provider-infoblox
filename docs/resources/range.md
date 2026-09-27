@@ -80,7 +80,7 @@ resource "infoblox_range" "range_additional_fields" {
     // DHCP threshold monitoring
     enable_dhcp_thresholds = true
     high_water_mark        = 90
-    low_water_mark         = 20
+    low_water_mark         = 5
     enable_email_warnings  = true
     email_list             = ["admin@infoblox.com"]
 
@@ -167,6 +167,7 @@ resource "infoblox_range" "example" {
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 

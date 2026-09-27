@@ -643,7 +643,7 @@ case "discovery_blackout_setting" {
 
 case "discovery_member" {
   skip        = true
-  skip_reason = "t.Skip: Requires non-grid master candidate to be in discovery polling mode"
+  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
   backend  = "nios"
   parallel = true
 
@@ -1127,6 +1127,8 @@ case "ext_attrs" {
 }
 
 case "enable_discovery" {
+  skip        = true
+  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
   backend  = "nios"
   parallel = true
 
