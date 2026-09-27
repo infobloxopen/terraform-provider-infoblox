@@ -336,6 +336,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomIP()
 	case strings.HasPrefix(name, "future_time"):
 		return FutureTime(name)
+	case strings.HasPrefix(name, "random_arn"):
+		return fmt.Sprintf("%d", 1+rand.Intn(999999999999))
 		// Placeholders for Integration Test Params
 	case name == "nios_ca_cert1_ref":
 		return os.Getenv("NIOS_CA_CERT1_REF")
