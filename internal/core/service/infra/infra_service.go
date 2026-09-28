@@ -200,7 +200,6 @@ func mapUDDIInfraServiceToResponse(r *uddiinframgmt.Service) *infra.InfraService
 	}
 	resp.UDDI = &infra.UDDIInfraServiceExt{
 		Configs:         r.Configs,
-		CreatedAt:       r.CreatedAt,
 		Description:     r.Description,
 		DesiredState:    r.DesiredState,
 		DesiredVersion:  r.DesiredVersion,
@@ -208,7 +207,6 @@ func mapUDDIInfraServiceToResponse(r *uddiinframgmt.Service) *infra.InfraService
 		Name:            r.Name,
 		PoolId:          r.PoolId,
 		ServiceType:     r.ServiceType,
-		UpdatedAt:       r.UpdatedAt,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))
