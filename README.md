@@ -158,22 +158,22 @@ Please refer to these examples for detailed usage patterns and configurations.
 ## Available Resources and DataSources
 
 The object groups available in this provider are categorized as follows:
-  - [DHCP](guides/resources_datasources.md#dhcp)
-  - [DNS](guides/resources_datasources.md#dns)
-  - [DTC](guides/resources_datasources.md#dtc)
-  - [RPZ](guides/resources_datasources.md#rpz)
-  - [IPAM](guides/resources_datasources.md#ipam)
-  - [IPAM FEDERATION](guides/resources_datasources.md#ipam-federation)
-  - [GRID](guides/resources_datasources.md#grid)
-  - [SECURITY](guides/resources_datasources.md#security)
-  - [ACL](guides/resources_datasources.md#acl)
-  - [KEYS](guides/resources_datasources.md#keys)
-  - [NOTIFICATION](guides/resources_datasources.md#notification)
-  - [MISC](guides/resources_datasources.md#miscellaneous)
+  - [DHCP](guides/resources-datasources.md#dhcp)
+  - [DNS](guides/resources-datasources.md#dns)
+  - [DTC](guides/resources-datasources.md#dtc)
+  - [RPZ](guides/resources-datasources.md#rpz)
+  - [IPAM](guides/resources-datasources.md#ipam)
+  - [IPAM FEDERATION](guides/resources-datasources.md#ipam-federation)
+  - [GRID](guides/resources-datasources.md#grid)
+  - [SECURITY](guides/resources-datasources.md#security)
+  - [ACL](guides/resources-datasources.md#acl)
+  - [KEYS](guides/resources-datasources.md#keys)
+  - [NOTIFICATION](guides/resources-datasources.md#notification)
+  - [MISC](guides/resources-datasources.md#miscellaneous)
 
 Not every object is available on both backends. The documentation page for each one shows whether it accepts `nios`, `uddi`, or both.
 
-For a detailed list of available resources and data sources, refer to the [Resources and Data Sources](guides/resources_datasources.md) page.
+For a detailed list of available resources and data sources, refer to the [Resources and Data Sources](guides/resources-datasources.md) page.
 
 ## Host Record Management
 
@@ -183,27 +183,27 @@ For a detailed list of available resources and data sources, refer to the [Resou
 
 Both resources are available on the NIOS backend only.
 
-Detailed documentation for these resources can be found in [Host Record Documentation](guides/host_record_management.md) page.
+Detailed documentation for these resources can be found in [Host Record Documentation](guides/host-record-management.md) page.
 
 ## Listing Existing Objects
 
 Every resource has a matching list resource, which finds objects that already exist without importing them into state. Run them with `terraform query`.
 
-For detailed information, refer to the [Listing Existing Objects](guides/list_resources.md) page.
+For detailed information, refer to the [Listing Existing Objects](guides/list-resources.md) page.
 
 ## Importing Existing Resources
 
 Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
 
-For detailed information, refer to the [Importing Existing Resources](guides/importing_resources.md) page.
+For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
 
 ## Documentation
 
-For detailed documentation, refer to the [Documentation](guides/documentation_details.md) page.
+For detailed documentation, refer to the [Documentation](guides/documentation-details.md) page.
 
 ## Logging and Debugging
 
-For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](guides/logging_debugging.md)
+For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](guides/logging-debugging.md)
 
 ## Support
 
