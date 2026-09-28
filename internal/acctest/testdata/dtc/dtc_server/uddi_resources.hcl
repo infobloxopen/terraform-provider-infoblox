@@ -50,7 +50,7 @@ case "address" {
 
   step {
     uddi {
-      name    = "{{random}}"
+      name          = "{{random}}"
       address       = "{{random_ip2}}"
       endpoint_type = "address"
     }
@@ -256,7 +256,7 @@ case "records" {
       name    = "{{random}}"
       address = "{{random_ip}}"
       records = [
-        { type = "A",    rdata = { address = "192.168.1.1" } },
+        { type = "A", rdata = { address = "192.168.1.1" } },
         { type = "AAAA", rdata = { address = "2001:db8::1" } },
       ]
     }

@@ -89,6 +89,7 @@ var NetworkdiscoveryblackoutsettingBlackoutScheduleResourceSchemaAttributes = ma
 	},
 	"every": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The number of frequency to wait before repeating the scheduled task.",
 	},
 	"minutes_past_hour": schema.Int64Attribute{

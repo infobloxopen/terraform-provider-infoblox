@@ -1,7 +1,7 @@
 # Ipv6DhcpOptiondefinition — nios list cases
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {
@@ -29,8 +29,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_dhcp_optionspace" "test" {
     nios = {

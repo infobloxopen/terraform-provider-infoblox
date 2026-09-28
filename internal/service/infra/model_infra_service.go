@@ -3,7 +3,6 @@ package infra
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -21,33 +20,30 @@ import (
 )
 
 type InfraServiceModel struct {
-	Id   types.String `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var InfraServiceAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"uddi": types.ObjectType{AttrTypes: UDDIInfraServiceAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIInfraServiceAttrTypes},
 }
 
 type UDDIInfraServiceModel struct {
-	Configs         types.List        `tfsdk:"configs"`
-	CreatedAt       timetypes.RFC3339 `tfsdk:"created_at"`
-	Description     types.String      `tfsdk:"description"`
-	DesiredState    types.String      `tfsdk:"desired_state"`
-	DesiredVersion  types.String      `tfsdk:"desired_version"`
-	InterfaceLabels types.List        `tfsdk:"interface_labels"`
-	Name            types.String      `tfsdk:"name"`
-	PoolId          types.String      `tfsdk:"pool_id"`
-	ServiceType     types.String      `tfsdk:"service_type"`
-	Tags            types.Map         `tfsdk:"tags"`
-	TagsAll         types.Map         `tfsdk:"tags_all"`
-	UpdatedAt       timetypes.RFC3339 `tfsdk:"updated_at"`
+	Description     types.String `tfsdk:"description"`
+	DesiredState    types.String `tfsdk:"desired_state"`
+	DesiredVersion  types.String `tfsdk:"desired_version"`
+	InterfaceLabels types.List   `tfsdk:"interface_labels"`
+	Name            types.String `tfsdk:"name"`
+	PoolId          types.String `tfsdk:"pool_id"`
+	ServiceType     types.String `tfsdk:"service_type"`
+	Tags            types.Map    `tfsdk:"tags"`
+	TagsAll         types.Map    `tfsdk:"tags_all"`
 }
 
 var UDDIInfraServiceAttrTypes = map[string]attr.Type{
-	"configs":          types.ListType{ElemType: types.ObjectType{AttrTypes: ServiceHostConfigAttrTypes}},
-	"created_at":       timetypes.RFC3339Type{},
 	"description":      types.StringType,
 	"desired_state":    types.StringType,
 	"desired_version":  types.StringType,
@@ -57,7 +53,6 @@ var UDDIInfraServiceAttrTypes = map[string]attr.Type{
 	"service_type":     types.StringType,
 	"tags":             types.MapType{ElemType: types.StringType},
 	"tags_all":         types.MapType{ElemType: types.StringType},
-	"updated_at":       timetypes.RFC3339Type{},
 }
 
 const (
@@ -69,6 +64,10 @@ var InfraServiceResourceSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
+	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "UDDI backend-specific fields.",
@@ -77,18 +76,6 @@ var InfraServiceResourceSchemaAttributes = map[string]schema.Attribute{
 }
 
 var InfraServiceResourceUddiSchemaAttributes = map[string]schema.Attribute{
-	"configs": schema.ListNestedAttribute{
-		NestedObject: schema.NestedAttributeObject{
-			Attributes: ServiceHostConfigResourceSchemaAttributes,
-		},
-		Computed:            true,
-		MarkdownDescription: "List of Host-specific configurations of this Service.",
-	},
-	"created_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Timestamp of creation of Service.",
-	},
 	"description": schema.StringAttribute{
 		Optional:            true,
 		MarkdownDescription: "The description of the Service (optional).",
@@ -143,11 +130,6 @@ var InfraServiceResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
-	},
-	"updated_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Timestamp of the latest update on Service.",
 	},
 }
 
@@ -208,8 +190,6 @@ func (m *UDDIInfraServiceModel) Flatten(ctx context.Context, from *coremodel.UDD
 	if from == nil || m == nil {
 		return
 	}
-	m.Configs = flex.FlattenFrameworkListNestedBlock(ctx, from.Configs, ServiceHostConfigAttrTypes, diags, FlattenServiceHostConfig)
-	m.CreatedAt = flex.FlattenRFC3339(from.CreatedAt)
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.DesiredState = flex.FlattenStringPointer(from.DesiredState)
 	m.DesiredVersion = flex.FlattenStringPointer(from.DesiredVersion)
@@ -222,5 +202,4 @@ func (m *UDDIInfraServiceModel) Flatten(ctx context.Context, from *coremodel.UDD
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
-	m.UpdatedAt = flex.FlattenRFC3339(from.UpdatedAt)
 }

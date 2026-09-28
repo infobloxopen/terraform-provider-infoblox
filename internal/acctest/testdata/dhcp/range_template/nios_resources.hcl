@@ -1422,7 +1422,7 @@ case "server_association_type" {
       number_of_addresses     = 100
       offset                  = 50
       cloud_api_compatible    = true
-      failover_association = "example_failover_association"
+      failover_association    = "example_failover_association"
     }
     check = {
       "nios.server_association_type" = "FAILOVER"

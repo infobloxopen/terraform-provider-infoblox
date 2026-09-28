@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordNaptr.
 case "rdata" {
-  backend = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -42,8 +42,8 @@ case "rdata" {
 }
 
 case "rdata_flags_and_regexp" {
-  backend = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {

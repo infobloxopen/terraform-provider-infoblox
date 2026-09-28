@@ -3,8 +3,8 @@
 # TODO: "next_available_range" case needs pre-created range - drop this once infoblox_range is onboarded.
 
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -41,7 +41,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
@@ -67,8 +67,8 @@ case "disappears" {
 }
 
 case "address" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -109,8 +109,8 @@ case "address" {
 }
 
 case "comment" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -153,8 +153,8 @@ case "comment" {
 }
 
 case "external_keys" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -198,8 +198,8 @@ case "external_keys" {
 }
 
 case "hwaddr" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -242,8 +242,8 @@ case "hwaddr" {
 }
 
 case "interface" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -286,8 +286,8 @@ case "interface" {
 }
 
 case "names" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -332,8 +332,8 @@ case "names" {
 }
 
 case "space" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "one" {
     uddi = {
@@ -386,8 +386,8 @@ case "space" {
 }
 
 case "tags" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -411,8 +411,8 @@ case "tags" {
     }
     depends_on = [infoblox_network.test]
     check = {
-      "uddi.tags.tag1"     = "value1"
-      "uddi.tags.tag2"     = "value2"
+      "uddi.tags.tag1" = "value1"
+      "uddi.tags.tag2" = "value2"
     }
   }
 
@@ -424,16 +424,16 @@ case "tags" {
     }
     depends_on = [infoblox_network.test]
     check = {
-      "uddi.tags.tag2"     = "value2changed"
-      "uddi.tags.tag3"     = "value3"
+      "uddi.tags.tag2" = "value2changed"
+      "uddi.tags.tag3" = "value3"
     }
   }
 
 }
 
 case "next_available_subnet" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -479,8 +479,8 @@ case "next_available_subnet" {
 }
 
 case "next_available_address_block" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -544,8 +544,8 @@ case "next_available_address_block" {
 }
 
 case "next_available_range" {
-  backend     = "uddi"
-  parallel    = true
+  backend  = "uddi"
+  parallel = true
 
   step {
     uddi {
@@ -570,8 +570,8 @@ case "next_available_range" {
 }
 
 case "next_available_id_count" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {

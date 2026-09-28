@@ -411,8 +411,8 @@ case "member_soa_mnames" {
 }
 
 case "ns_group" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_nsgroup" "test" {
     nios = {
@@ -1057,8 +1057,8 @@ case "use_external_primary" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_view" {
     nios = {

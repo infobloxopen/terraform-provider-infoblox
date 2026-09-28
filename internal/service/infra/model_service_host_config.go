@@ -39,15 +39,15 @@ var ServiceHostConfigAttrTypes = map[string]attr.Type{
 // ServiceHostConfigResourceSchemaAttributes contains the schema attributes for ServiceHostConfigModel
 var ServiceHostConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"current_version": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The current version of the Service deployed on the Host.",
 	},
 	"extra_data": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The field to carry any extra data specific to this configuration.",
 	},
 	"host_id": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"id": schema.StringAttribute{
@@ -55,15 +55,15 @@ var ServiceHostConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"service_id": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"service_type": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The type of the Service deployed on the Host (`dns`, `cdc`, etc.).",
 	},
 	"upgraded_at": schema.StringAttribute{
-		Optional:            true,
+		Computed:            true,
 		CustomType:          timetypes.RFC3339Type{},
 		MarkdownDescription: "The timestamp of the latest upgrade of the Host-specific Service configuration.",
 	},

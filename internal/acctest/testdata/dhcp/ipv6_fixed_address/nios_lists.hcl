@@ -1,8 +1,8 @@
 # Ipv6fixedaddress — nios list cases
 
 case "basic" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
@@ -35,8 +35,8 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "nios"
-  min_tf_version = "1.14.0"
+  backend           = "nios"
+  min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "test_ipv6_network" {
     nios = {
