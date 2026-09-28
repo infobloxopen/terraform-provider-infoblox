@@ -4,7 +4,7 @@ case "basic" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -18,7 +18,7 @@ case "basic" {
       }]
     }
     check = {
-      "uddi.name"               = "{{random}}"
+      "uddi.name"               = "tf_acc_{{random_int}}"
       "uddi.provider_type"      = "Amazon Web Services"
       "uddi.account_preference" = "single"
       "uddi.desired_state"      = "enabled"
@@ -357,9 +357,8 @@ case "destinations_with_zone_filters" {
               ]
             }
           }
+          destination_type = "DNS"
         }
-        destination_type = "DNS"
-      }
     ]
   }
   check = {

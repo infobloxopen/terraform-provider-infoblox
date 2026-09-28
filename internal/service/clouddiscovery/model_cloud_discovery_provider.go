@@ -137,6 +137,7 @@ var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attri
 	},
 	"is_disabled": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "is_disabled. Enables/Disables provider. Newer version of desired_state.",
 	},
 	"labs_provider": schema.BoolAttribute{

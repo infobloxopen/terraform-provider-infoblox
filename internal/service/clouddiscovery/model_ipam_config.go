@@ -32,7 +32,7 @@ var IPAMConfigAttrTypes = map[string]attr.Type{
 var IPAMConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"dhcp_server": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Address of the DHCP Server.",
 	},
 	"disable_ipam_projection": schema.BoolAttribute{
 		Optional:            true,

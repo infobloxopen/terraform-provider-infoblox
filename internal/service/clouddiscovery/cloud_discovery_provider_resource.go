@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/clouddiscovery"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/clouddiscovery"
@@ -238,6 +239,11 @@ func (r *CloudDiscoveryProviderResource) Delete(ctx context.Context, req resourc
 	var data CloudDiscoveryProviderModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.preDeleteCloudDiscoveryProvider(ctx, &data, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

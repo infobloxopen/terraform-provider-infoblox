@@ -29,12 +29,12 @@ var DestinationConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"dns": schema.SingleNestedAttribute{
 		Attributes:          DNSConfigResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Destination Config for DNS",
 	},
 	"ipam": schema.SingleNestedAttribute{
 		Attributes:          IPAMConfigResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Destination Config for IPAM/DHCP",
 	},
 }
 

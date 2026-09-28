@@ -108,6 +108,7 @@ var AccountResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"name": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Name of the source account.",
 	},
 	"parent_id": schema.StringAttribute{
