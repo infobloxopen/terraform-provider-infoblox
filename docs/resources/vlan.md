@@ -81,6 +81,57 @@ resource "infoblox_vlan" "example_dynamic_allocation_2" {
     }
   }
 }
+
+// Create VLAN View (Required as Parent)
+resource "infoblox_vlan_view" "ipam_vlanview_parent_2" {
+  nios = {
+    start_vlan_id = 5
+    end_vlan_id   = 10
+    name          = "example_vlan_view_2"
+    ext_attrs = {
+      Site = "us-east-1"
+    }
+  }
+}
+
+// Create VLAN Range (Required for Next Available VLAN ID by VLAN Range)
+resource "infoblox_vlan_range" "ipam_vlanrange_parent" {
+  nios = {
+    name          = "example_vlan_range"
+    start_vlan_id = 5
+    end_vlan_id   = 8
+    vlan_view     = infoblox_vlan_view.ipam_vlanview_parent_2.id
+    ext_attrs = {
+      Site = "us-east-2"
+    }
+  }
+}
+
+// Create VLAN with Next Available VLAN ID from a VLAN Range
+resource "infoblox_vlan" "example_dynamic_allocation_3" {
+  nios = {
+    name   = "example_vlan_4"
+    parent = infoblox_vlan_range.ipam_vlanrange_parent.id
+
+    dynamic_allocation = {
+      vlan_range = infoblox_vlan_range.ipam_vlanrange_parent.nios.name
+    }
+  }
+}
+
+resource "infoblox_vlan" "example_dynamic_allocation_4" {
+  nios = {
+    name   = "example_vlan_5"
+    parent = infoblox_vlan_range.ipam_vlanrange_parent.id
+
+    dynamic_allocation = {
+      filter_object = "vlanrange"
+      filter_params = {
+        "*Site" : "us-east-2"
+      }
+    }
+  }
+}
 ```
 
 
@@ -124,5 +175,7 @@ Read-Only:
 
 Optional:
 
-- `filter_params` (Map of String) Extensible-attribute filters used to select the VLAN View to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "vlan_view".
-- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from. Defaults to the default VLAN View when omitted. Mutually exclusive with "filter_params".
+- `filter_object` (String) Whether "filter_params" searches VLAN Views or VLAN Ranges. Valid values are "vlanview" and "vlanrange". Defaults to "vlanview".
+- `filter_params` (Map of String) Extensible Attribute filters used to select the VLAN View or VLAN Range to allocate from (e.g. {"*Site" = "location-1"}). The object type searched is set by "filter_object".
+- `vlan_range` (String) The name of the VLAN Range to allocate the next available VLAN ID from.
+- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from.

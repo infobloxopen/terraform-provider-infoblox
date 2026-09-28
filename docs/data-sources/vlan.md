@@ -79,5 +79,7 @@ Read-Only:
 
 Read-Only:
 
-- `filter_params` (Map of String) Extensible-attribute filters used to select the VLAN View to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "vlan_view".
-- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from. Defaults to the default VLAN View when omitted. Mutually exclusive with "filter_params".
+- `filter_object` (String) Whether "filter_params" searches VLAN Views or VLAN Ranges. Valid values are "vlanview" and "vlanrange". Defaults to "vlanview".
+- `filter_params` (Map of String) Extensible Attribute filters used to select the VLAN View or VLAN Range to allocate from (e.g. {"*Site" = "location-1"}). The object type searched is set by "filter_object".
+- `vlan_range` (String) The name of the VLAN Range to allocate the next available VLAN ID from.
+- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from.

@@ -37,8 +37,8 @@ func BuildVlanFuncCall(ctx context.Context, data types.Object, diags *diag.Diagn
 }
 
 func ExpandVlanParent(str types.String) *ipam.VlanParent {
-	if str.IsNull() {
-		return &ipam.VlanParent{}
+	if str.IsNull() || str.IsUnknown() {
+		return nil
 	}
 	var m ipam.VlanParent
 	m.String = flex.ExpandStringPointer(str)
@@ -47,7 +47,7 @@ func ExpandVlanParent(str types.String) *ipam.VlanParent {
 }
 
 func FlattenVlanParent(from *ipam.VlanParent) types.String {
-	if from.VlanParentOneOf == nil {
+	if from == nil || from.VlanParentOneOf == nil {
 		return types.StringNull()
 	}
 	m := flex.FlattenStringPointer(from.VlanParentOneOf.Ref)
@@ -55,8 +55,8 @@ func FlattenVlanParent(from *ipam.VlanParent) types.String {
 }
 
 func ExpandVlanId(val types.Int64) *ipam.VlanId {
-	if val.IsNull() {
-		return &ipam.VlanId{}
+	if val.IsNull() || val.IsUnknown() {
+		return nil
 	}
 	var m ipam.VlanId
 	m.Int64 = flex.ExpandInt64Pointer(val)
@@ -65,7 +65,7 @@ func ExpandVlanId(val types.Int64) *ipam.VlanId {
 }
 
 func FlattenVlanId(from *ipam.VlanId) types.Int64 {
-	if from.Int64 == nil {
+	if from == nil || from.Int64 == nil {
 		return types.Int64Null()
 	}
 	m := flex.FlattenInt64Pointer(from.Int64)
