@@ -334,6 +334,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 
@@ -407,6 +408,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
 		fw.NewNetworkListResource,
+		fw.NewCategoryFilterResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -449,6 +451,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
@@ -521,6 +524,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
 		fw.NewNetworkListDataSource,
+		fw.NewCategoryFilterDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -566,6 +570,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		fw.NewCategoryFilterList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 
