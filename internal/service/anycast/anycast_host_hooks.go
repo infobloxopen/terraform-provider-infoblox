@@ -21,7 +21,7 @@ func ValidateAnycastHost(ctx context.Context, data AnycastHostModel, resp *resou
 func validateAnycastHostUDDIConfig(ctx context.Context, m *UDDIAnycastHostModel, resp *resource.ValidateConfigResponse) {
 }
 
-func (r *AnycastHostResource) lookupAnycastHost(ctx context.Context, obj *coremodel.AnycastHost, diags *diag.Diagnostics) {
+func (r *AnycastHostResource) lookupAnycastHost(ctx context.Context, data *AnycastHostModel, obj *coremodel.AnycastHost, diags *diag.Diagnostics) {
 	results, _, _, err := r.lookupService.List(ctx, &core.ListOptions{
 		InternalFilters: map[string]string{
 			"legacy_id": fmt.Sprintf("%d", *obj.Id),

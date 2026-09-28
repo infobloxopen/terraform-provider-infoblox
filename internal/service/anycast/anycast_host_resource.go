@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/identityschema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/anycast"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/anycast"
@@ -120,7 +121,7 @@ func (r *AnycastHostResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	r.lookupAnycastHost(ctx, obj, &resp.Diagnostics)
+	r.lookupAnycastHost(ctx, &data, obj, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

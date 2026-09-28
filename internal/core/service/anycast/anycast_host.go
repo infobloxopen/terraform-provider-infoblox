@@ -37,31 +37,9 @@ func NewAnycastHostService(backend core.BackendType, nios *niosclient.APIClient,
 // Create creates a new AnycastHost and returns the created object
 func (s *anycastHostService) Create(ctx context.Context, obj *anycast.AnycastHost, opts *core.Options) (*anycast.AnycastHost, *http.Response, error) {
 	switch s.backend {
-	case core.BackendUDDI:
-		return s.createUDDI(ctx, obj, opts)
 	default:
 		return nil, nil, fmt.Errorf("unsupported backend: %s", s.backend)
 	}
-}
-
-func (s *anycastHostService) createUDDI(ctx context.Context, obj *anycast.AnycastHost, opts *core.Options) (*anycast.AnycastHost, *http.Response, error) {
-	payload, err := common.MapTo[uddianycast.OnpremHost](obj, mapper.AnycastHostUDDIFieldMap)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req := s.uddiClient.AnycastAPI.OnPremAnycastManagerAPI.
-		Create(ctx).
-		Body(payload)
-
-	resp, httpResp, err := req.Execute()
-	if err != nil {
-		return nil, httpResp, err
-	}
-
-	result := resp.GetResults()
-
-	return mapUDDIAnycastHostToResponse(&result), httpResp, nil
 }
 
 // Read retrieves a AnycastHost by ID
@@ -139,32 +117,9 @@ func (s *anycastHostService) deleteUDDI(ctx context.Context, id int64) (*http.Re
 // List retrieves AnycastHost objects based on filter options
 func (s *anycastHostService) List(ctx context.Context, opts *core.ListOptions) ([]*anycast.AnycastHost, *http.Response, string, error) {
 	switch s.backend {
-	case core.BackendUDDI:
-		return s.listUDDI(ctx, opts)
 	default:
 		return nil, nil, "", fmt.Errorf("unsupported backend: %s", s.backend)
 	}
-}
-
-func (s *anycastHostService) listUDDI(ctx context.Context, opts *core.ListOptions) ([]*anycast.AnycastHost, *http.Response, string, error) {
-	req := s.uddiClient.AnycastAPI.OnPremAnycastManagerAPI.List(ctx)
-
-	if opts != nil {
-
-	}
-
-	resp, httpResp, err := req.Execute()
-	if err != nil {
-		return nil, httpResp, "", err
-	}
-
-	results := resp.GetResults()
-	items := make([]*anycast.AnycastHost, 0, len(results))
-	for i := range results {
-		items = append(items, mapUDDIAnycastHostToResponse(&results[i]))
-	}
-
-	return items, httpResp, "", nil
 }
 
 func mapUDDIAnycastHostToResponse(r *uddianycast.OnpremHost) *anycast.AnycastHost {
