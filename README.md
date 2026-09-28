@@ -203,7 +203,7 @@ For detailed documentation, refer to the [Documentation](guides/documentation-de
 
 ## Logging and Debugging
 
-For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](guides/logging-debugging.md)
+For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](docs/guides/logging-debugging.md)
 
 ## Support
 
