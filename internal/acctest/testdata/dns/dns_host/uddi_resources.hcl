@@ -6,7 +6,7 @@ case "basic" {
 
   prerequisites_hcl = <<-PREREQ
     resource "infoblox_dns_server" "test" {
-        uddi {
+        uddi = {
               name = "{{random}}"
             }
     }

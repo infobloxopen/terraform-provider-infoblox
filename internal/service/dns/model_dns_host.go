@@ -72,7 +72,7 @@ const (
 
 var DnsHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Computed:            true,
+		Required:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"update_trigger": schema.StringAttribute{
