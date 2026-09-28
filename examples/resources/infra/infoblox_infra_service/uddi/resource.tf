@@ -9,7 +9,7 @@ resource "infoblox_infra_host" "example" {
   }
 }
 
-// Create a basic Infra Service
+// Create an Infra Service with basic fields
 resource "infoblox_infra_service" "example" {
   uddi = {
     name         = "example-infra-service"

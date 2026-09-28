@@ -3,7 +3,7 @@ list "infoblox_infra_service" "list_infra_service_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_service"
+      name = "example-infra-service"
     }
   }
   limit = 10
