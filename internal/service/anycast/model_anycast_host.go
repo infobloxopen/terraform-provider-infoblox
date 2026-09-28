@@ -3,7 +3,6 @@ package anycast
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -30,15 +29,13 @@ var AnycastHostAttrTypes = map[string]attr.Type{
 }
 
 type UDDIAnycastHostModel struct {
-	AnycastConfigRefs types.List        `tfsdk:"anycast_config_refs"`
-	ConfigBgp         types.Object      `tfsdk:"config_bgp"`
-	ConfigOspf        types.Object      `tfsdk:"config_ospf"`
-	ConfigOspfv3      types.Object      `tfsdk:"config_ospfv3"`
-	CreatedAt         timetypes.RFC3339 `tfsdk:"created_at"`
-	IpAddress         types.String      `tfsdk:"ip_address"`
-	Ipv6Address       types.String      `tfsdk:"ipv6_address"`
-	Name              types.String      `tfsdk:"name"`
-	UpdatedAt         timetypes.RFC3339 `tfsdk:"updated_at"`
+	AnycastConfigRefs types.List   `tfsdk:"anycast_config_refs"`
+	ConfigBgp         types.Object `tfsdk:"config_bgp"`
+	ConfigOspf        types.Object `tfsdk:"config_ospf"`
+	ConfigOspfv3      types.Object `tfsdk:"config_ospfv3"`
+	IpAddress         types.String `tfsdk:"ip_address"`
+	Ipv6Address       types.String `tfsdk:"ipv6_address"`
+	Name              types.String `tfsdk:"name"`
 }
 
 var UDDIAnycastHostAttrTypes = map[string]attr.Type{
@@ -46,11 +43,9 @@ var UDDIAnycastHostAttrTypes = map[string]attr.Type{
 	"config_bgp":          types.ObjectType{AttrTypes: BgpConfigAttrTypes},
 	"config_ospf":         types.ObjectType{AttrTypes: OspfConfigAttrTypes},
 	"config_ospfv3":       types.ObjectType{AttrTypes: Ospfv3ConfigAttrTypes},
-	"created_at":          timetypes.RFC3339Type{},
 	"ip_address":          types.StringType,
 	"ipv6_address":        types.StringType,
 	"name":                types.StringType,
-	"updated_at":          timetypes.RFC3339Type{},
 }
 
 const (
@@ -82,27 +77,22 @@ var AnycastHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "Array of AnycastConfigRef structures, identifying the anycast configurations that this host is a member of.",
 	},
 	"config_bgp": schema.SingleNestedAttribute{
 		Attributes:          BgpConfigResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Struct BGP configuration; defines BGP configuration for one anycast-enabled on-prem host.",
 	},
 	"config_ospf": schema.SingleNestedAttribute{
 		Attributes:          OspfConfigResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Struct OSPF configuration; defines OSPF configuration for one anycast-enabled on-prem host.",
 	},
 	"config_ospfv3": schema.SingleNestedAttribute{
 		Attributes:          Ospfv3ConfigResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
-	},
-	"created_at": schema.StringAttribute{
-		Optional:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "",
+		MarkdownDescription: "Struct OSPFv3 configuration; defines OSPFv3 configuration for one anycast-enabled on-prem host.",
 	},
 	"ip_address": schema.StringAttribute{
 		Optional:            true,
@@ -117,12 +107,7 @@ var AnycastHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
-		MarkdownDescription: "",
-	},
-	"updated_at": schema.StringAttribute{
-		Optional:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "",
+		MarkdownDescription: "User-friendly name of the host @example \"dns-host-1\", \"Central Office Server\".",
 	},
 }
 
@@ -150,11 +135,9 @@ func (m *UDDIAnycastHostModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		ConfigBgp:         ExpandBgpConfig(ctx, m.ConfigBgp, diags),
 		ConfigOspf:        ExpandOspfConfig(ctx, m.ConfigOspf, diags),
 		ConfigOspfv3:      ExpandOspfv3Config(ctx, m.ConfigOspfv3, diags),
-		CreatedAt:         flex.ExpandRFC3339(m.CreatedAt, diags),
 		IpAddress:         flex.ExpandStringPointer(m.IpAddress),
 		Ipv6Address:       flex.ExpandStringPointer(m.Ipv6Address),
 		Name:              flex.ExpandStringPointer(m.Name),
-		UpdatedAt:         flex.ExpandRFC3339(m.UpdatedAt, diags),
 	}
 }
 
@@ -188,9 +171,7 @@ func (m *UDDIAnycastHostModel) Flatten(ctx context.Context, from *coremodel.UDDI
 	m.ConfigBgp = FlattenBgpConfig(ctx, from.ConfigBgp, diags)
 	m.ConfigOspf = FlattenOspfConfig(ctx, from.ConfigOspf, diags)
 	m.ConfigOspfv3 = FlattenOspfv3Config(ctx, from.ConfigOspfv3, diags)
-	m.CreatedAt = flex.FlattenRFC3339(from.CreatedAt)
 	m.IpAddress = flex.FlattenStringPointer(from.IpAddress)
 	m.Ipv6Address = flex.FlattenStringPointer(from.Ipv6Address)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.UpdatedAt = flex.FlattenRFC3339(from.UpdatedAt)
 }

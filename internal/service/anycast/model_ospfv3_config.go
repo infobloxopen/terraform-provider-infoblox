@@ -43,15 +43,15 @@ var Ospfv3ConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"cost": schema.Int64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Explicit link cost for the interface.",
 	},
 	"dead_interval": schema.Int64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "OSPF router dead interval timer in seconds; must be the same for all the routers on the same network; default: 40 sec.",
 	},
 	"hello_interval": schema.Int64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Period (in seconds) of OSPF Hello packet, sent by the OSPF router; must be the same for all the routers on the same network; default: 10 secs.",
 	},
 	"interface": schema.StringAttribute{
 		Optional:            true,
@@ -59,11 +59,11 @@ var Ospfv3ConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"retransmit_interval": schema.Int64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Period (in seconds) of retransmitting for OSPF Database Description and Link State Requests; default: 5 seconds.",
 	},
 	"transmit_delay": schema.Int64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Estimated time to transmit link state advertisements; default: 1 sec.",
 	},
 }
 

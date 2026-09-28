@@ -32,7 +32,7 @@ var AnycastConfigRefAttrTypes = map[string]attr.Type{
 var AnycastConfigRefResourceSchemaAttributes = map[string]schema.Attribute{
 	"anycast_config_name": schema.StringAttribute{
 		Required:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Anycast Config Name",
 	},
 	"routing_protocols": schema.ListAttribute{
 		ElementType: types.StringType,
