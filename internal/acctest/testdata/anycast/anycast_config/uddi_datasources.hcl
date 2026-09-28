@@ -37,7 +37,7 @@ case "tag_filters" {
       anycast_ip_address = "{{random_ip}}"
       name               = "{{random}}"
       service            = "DNS"
-      tags               = { tag1 = "value1" }
+      tags               = { tag1 = "{{random2}}" }
     }
   }
 
