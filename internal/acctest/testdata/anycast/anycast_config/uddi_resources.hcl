@@ -8,6 +8,11 @@ case "basic" {
       service            = "NTP"
       anycast_ip_address = "{{random_ip}}"
     }
+    check = {
+      "uddi.name"               = "{{random}}"
+      "uddi.service"            = "NTP"
+      "uddi.anycast_ip_address" = "{{random_ip}}"
+    }
   }
 
 }
