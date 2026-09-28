@@ -336,8 +336,6 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		security.NewAdminuserResource,
-		grid.NewServicerestartGroupResource,
-		dtc.NewDtcMonitorPdpResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 		acl.NewNamedaclResource,
@@ -452,8 +450,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		security.NewAdminuserDataSource,
-		grid.NewServicerestartGroupDataSource,
-		dtc.NewDtcMonitorPdpDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 		acl.NewNamedaclDataSource,
@@ -570,8 +566,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		security.NewAdminuserList,
-		grid.NewServicerestartGroupList,
-		dtc.NewDtcMonitorPdpList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 		acl.NewNamedaclList,
