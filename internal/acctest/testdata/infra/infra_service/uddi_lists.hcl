@@ -1,16 +1,21 @@
-# InfraService — uddi list cases
-#  TODO: Objects to be present in the grid for testing
-#   - infra/pool : infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur
-
 case "basic" {
-  backend        = "uddi"
-  parallel       = true
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  parallel          = true
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_infra_host" "test" {
+      uddi = {
+        display_name  = "{{random}}"
+        serial_number = "{{random_int}}"
+        tags          = { "host/serial_number" = "{{random_int}}" }
+      }
+    }
+    PREREQ
 
   step {
     uddi {
       name         = "{{random}}"
-      pool_id      = "infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur"
+      pool_id      = infoblox_infra_host.test.uddi.pool_id
       service_type = "dns"
     }
   }
@@ -24,14 +29,23 @@ case "basic" {
 }
 
 case "filters" {
-  backend        = "uddi"
-  parallel       = true
-  min_tf_version = "1.14.0"
+  backend           = "uddi"
+  parallel          = true
+  min_tf_version    = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_infra_host" "test" {
+      uddi = {
+        display_name  = "{{random}}"
+        serial_number = "{{random_int}}"
+        tags          = { "host/serial_number" = "{{random_int}}" }
+      }
+    }
+    PREREQ
 
   step {
     uddi {
       name         = "{{random}}"
-      pool_id      = "infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur"
+      pool_id      = infoblox_infra_host.test.uddi.pool_id
       service_type = "dns"
     }
   }

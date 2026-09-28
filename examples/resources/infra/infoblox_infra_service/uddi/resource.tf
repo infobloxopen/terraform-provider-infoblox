@@ -1,9 +1,19 @@
+// Manage an Infra Host (Required as Parent)
+resource "infoblox_infra_host" "example" {
+  uddi = {
+    display_name  = "example-host"
+    serial_number = "1234"
+    tags = {
+      "host/serial_number" = "1234"
+    }
+  }
+}
+
 // Create a basic Infra Service
-// Note: replace pool_id with a real InfraPool resource identifier (infra/pool/<id>)
 resource "infoblox_infra_service" "example" {
   uddi = {
     name         = "example-infra-service"
-    pool_id      = "infra/pool/<pool-id>"
+    pool_id      = infoblox_infra_host.example.uddi.pool_id
     service_type = "dns"
   }
 }
@@ -12,7 +22,7 @@ resource "infoblox_infra_service" "example" {
 resource "infoblox_infra_service" "example_with_options" {
   uddi = {
     name            = "example-dhcp-service"
-    pool_id         = "infra/pool/<pool-id>"
+    pool_id         = infoblox_infra_host.example.uddi.pool_id
     service_type    = "dhcp"
     description     = "DHCP service created by Terraform"
     desired_state   = "start"

@@ -1,9 +1,14 @@
-# Auto-generated datasource acceptance-test cases for InfraService.
-#  TODO: Objects to be present in the grid for testing
-#   - infra/pool : infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur
-
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_infra_host" "test" {
+      uddi = {
+        display_name  = "{{random}}"
+        serial_number = "{{random_int}}"
+        tags          = { "host/serial_number" = "{{random_int}}" }
+      }
+    }
+    PREREQ
 
   filter {
     type   = "filters"
@@ -17,7 +22,7 @@ case "filters" {
   step {
     uddi {
       name         = "{{random}}"
-      pool_id      = "infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur"
+      pool_id      = infoblox_infra_host.test.uddi.pool_id
       service_type = "dns"
     }
   }
@@ -25,7 +30,16 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_infra_host" "test" {
+      uddi = {
+        display_name  = "{{random}}"
+        serial_number = "{{random_int}}"
+        tags          = { "host/serial_number" = "{{random_int}}" }
+      }
+    }
+    PREREQ
 
   filter {
     type   = "tag_filters"
@@ -39,7 +53,7 @@ case "tag_filters" {
   step {
     uddi {
       name         = "{{random}}"
-      pool_id      = "infra/pool/ch4sbtxrcat2wkppegumcuizdyll5nur"
+      pool_id      = infoblox_infra_host.test.uddi.pool_id
       service_type = "dns"
       tags         = { env = "{{random2}}" }
     }
