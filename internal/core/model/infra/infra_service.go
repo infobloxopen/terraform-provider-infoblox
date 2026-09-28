@@ -1,5 +1,11 @@
 package infra
 
+import (
+	"time"
+
+	uddiinframgmt "github.com/infobloxopen/universal-ddi-go-client/inframgmt"
+)
+
 // Infoblox InfraService model
 type InfraService struct {
 	Id   *string
@@ -8,6 +14,8 @@ type InfraService struct {
 
 // UDDIInfraServiceExt - UDDI specific fields for InfraService
 type UDDIInfraServiceExt struct {
+	Configs         []uddiinframgmt.ServiceHostConfig
+	CreatedAt       *time.Time
 	Description     *string
 	DesiredState    *string
 	DesiredVersion  *string
@@ -16,4 +24,5 @@ type UDDIInfraServiceExt struct {
 	PoolId          string
 	ServiceType     string
 	Tags            map[string]any
+	UpdatedAt       *time.Time
 }
