@@ -37,8 +37,8 @@ case "disappears" {
 }
 
 case "auth_zones" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dtc_server" "test_server1" {
     nios = {
@@ -363,8 +363,8 @@ case "persistence" {
 }
 
 case "pools" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dtc_server" "test_server1" {
     nios = {

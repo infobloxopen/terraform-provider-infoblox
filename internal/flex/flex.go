@@ -193,7 +193,7 @@ func ExpandFrameworkListString(ctx context.Context, tfList interface {
 	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
 }, diags *diag.Diagnostics) []string {
 	if tfList.IsNull() || tfList.IsUnknown() {
-		return nil
+		return make([]string, 0)
 	}
 	var data []string
 	diags.Append(tfList.ElementsAs(ctx, &data, false)...)

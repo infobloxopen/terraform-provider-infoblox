@@ -30,15 +30,17 @@ import (
 )
 
 type ViewModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var ViewAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSViewAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDIViewAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSViewAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDIViewAttrTypes},
 }
 
 type NIOSViewModel struct {
@@ -270,6 +272,10 @@ var ViewResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -945,7 +951,10 @@ var ViewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. When enabled, the DNS server will only add records to the authority and additional data sections when they are required.  Defaults to _false_.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			stringvalidator.LengthBetween(0, 256),
+		},
 		MarkdownDescription: "Name of view.",
 	},
 	"notify": schema.BoolAttribute{

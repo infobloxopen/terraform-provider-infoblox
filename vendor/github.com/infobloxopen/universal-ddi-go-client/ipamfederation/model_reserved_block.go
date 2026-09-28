@@ -22,7 +22,7 @@ var _ MappedNullable = &ReservedBlock{}
 // ReservedBlock A __ReservedBlock__ object (_federation/reserved_block_) is a set of contiguous IP addresses with no gap, expressed as a CIDR block. It is explicitly associated with a Federated Realm. A __ReservedBlock__ indicates an address range for which authority is expressly forbidden. Cooperating IPAM services must not make allocations in this range.
 type ReservedBlock struct {
 	// The address field in form “a.b.c.d/n” where the “/n” may be omitted. In this case, the CIDR value must be defined in the _cidr_ field. When reading, the _address_ field is always in the form “a.b.c.d”.
-	Address string `json:"address"`
+	Address *string `json:"address,omitempty"`
 	// The CIDR of the reserved block. This is required field, if _address_ does not specify it in its input.
 	Cidr *int64 `json:"cidr,omitempty"`
 	// The description for the reserved block. May contain 0 to 1024 characters. Can include UTF-8.
@@ -60,9 +60,8 @@ type _ReservedBlock ReservedBlock
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewReservedBlock(address string, federatedRealm string) *ReservedBlock {
+func NewReservedBlock(federatedRealm string) *ReservedBlock {
 	this := ReservedBlock{}
-	this.Address = address
 	this.FederatedRealm = federatedRealm
 	return &this
 }
@@ -75,28 +74,36 @@ func NewReservedBlockWithDefaults() *ReservedBlock {
 	return &this
 }
 
-// GetAddress returns the Address field value
+// GetAddress returns the Address field value if set, zero value otherwise.
 func (o *ReservedBlock) GetAddress() string {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		var ret string
 		return ret
 	}
-
-	return o.Address
+	return *o.Address
 }
 
-// GetAddressOk returns a tuple with the Address field value
+// GetAddressOk returns a tuple with the Address field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ReservedBlock) GetAddressOk() (*string, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.Address) {
 		return nil, false
 	}
-	return &o.Address, true
+	return o.Address, true
 }
 
-// SetAddress sets field value
+// HasAddress returns a boolean if a field has been set.
+func (o *ReservedBlock) HasAddress() bool {
+	if o != nil && !IsNil(o.Address) {
+		return true
+	}
+
+	return false
+}
+
+// SetAddress gets a reference to the given string and assigns it to the Address field.
 func (o *ReservedBlock) SetAddress(v string) {
-	o.Address = v
+	o.Address = &v
 }
 
 // GetCidr returns the Cidr field value if set, zero value otherwise.
@@ -549,7 +556,9 @@ func (o ReservedBlock) MarshalJSON() ([]byte, error) {
 
 func (o ReservedBlock) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["address"] = o.Address
+	if !IsNil(o.Address) {
+		toSerialize["address"] = o.Address
+	}
 	if !IsNil(o.Cidr) {
 		toSerialize["cidr"] = o.Cidr
 	}
@@ -603,7 +612,6 @@ func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"address",
 		"federated_realm",
 	}
 

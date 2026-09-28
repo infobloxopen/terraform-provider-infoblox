@@ -639,9 +639,11 @@ case "discovery_blackout_setting" {
 }
 
 case "discovery_member" {
-  backend     = "nios"
-  parallel    = true
-  
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
+
   step {
     nios {
       network          = "{{random_cidr_network}}"
@@ -745,9 +747,11 @@ case "enable_dhcp_thresholds" {
 }
 
 case "enable_discovery" {
-  backend     = "nios"
-  parallel    = true
-  
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
+
   step {
     nios {
       network          = "{{random_cidr_network}}"
@@ -829,9 +833,11 @@ case "enable_ifmap_publishing" {
 }
 
 case "enable_immediate_discovery" {
-  backend     = "nios"
-  parallel    = true
-  
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
+
   step {
     nios {
       network                    = "{{random_cidr_network}}"
@@ -1561,7 +1567,7 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs = { "RIPE Network Name" = "test-network", "RIPE Description" = "test description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
+      ext_attrs        = { "RIPE Network Name" = "test-network", "RIPE Description" = "test description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
       "nios.rir_organization"            = "rir-org-test1"
@@ -1574,7 +1580,7 @@ case "rir_organization" {
     nios {
       network          = "{{random_cidr_network}}"
       rir_organization = "rir-org-test1"
-      ext_attrs = { "RIPE Network Name" = "updated-network", "RIPE Description" = "updated description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
+      ext_attrs        = { "RIPE Network Name" = "updated-network", "RIPE Description" = "updated description", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "IB-RIPE", "RIPE Technical Contact" = "IB-RIPE", "RIPE IPv4 Status" = "ASSIGNED PA", "RIPE Registry Source" = "TEST" }
     }
     check = {
       "nios.rir_organization"            = "rir-org-test1"
@@ -1698,8 +1704,8 @@ case "send_rir_request" {
 }
 
 case "subscribe_settings" {
-  backend     = "nios"
-  parallel    = true
+  backend  = "nios"
+  parallel = true
 
   step {
     nios {
@@ -1795,8 +1801,10 @@ case "update_dns_on_lease_renewal" {
 }
 
 case "vlans" {
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "VLAN needs to be added"
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_vlan_view" "test_vlan_view" {
   #   nios = {
@@ -1828,7 +1836,7 @@ case "vlans" {
   step {
     nios {
       network = "{{random_cidr_network}}"
-      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
+      vlans   = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
     }
     check = {
       "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"

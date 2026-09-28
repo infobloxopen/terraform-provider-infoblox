@@ -21,7 +21,7 @@ var _ MappedNullable = &MultiListUpdate{}
 type MultiListUpdate struct {
 	// The Named List object identifier.
 	Ids []int32 `json:"ids,omitempty"`
-	// The List of ItemStructs structure which contains the item and its description
+	// The List of ItemStructs which contain an item and their description
 	InsertedItemsDescribed []ItemStructs `json:"inserted_items_described,omitempty"`
 	AdditionalProperties   map[string]interface{}
 }

@@ -1,6 +1,6 @@
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -31,7 +31,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -50,8 +50,8 @@ case "disappears" {
 }
 
 case "canonical" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -85,8 +85,8 @@ case "canonical" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -122,8 +122,8 @@ case "comment" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -159,8 +159,8 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -196,8 +196,8 @@ case "ext_attrs" {
 }
 
 case "name" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -231,8 +231,8 @@ case "name" {
 }
 
 case "ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -268,8 +268,8 @@ case "ttl" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
