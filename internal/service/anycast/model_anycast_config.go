@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -98,6 +99,7 @@ var AnycastConfigResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		Optional: true,
 		Computed: true,
+		Default:  listdefault.StaticValue(types.ListNull(types.ObjectType{AttrTypes: OnpremHostRefAttrTypes})),
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

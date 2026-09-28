@@ -119,8 +119,9 @@ case "name" {
 case "onprem_hosts" {
   backend  = "uddi"
   parallel = true
-  //skip = true
-  //skip_reason = "Requires Infra Service To be Configured"
+  skip_if_env_empty = ["UDDI_INFRA_HOST_DISPLAY_NAME_1","UDDI_INFRA_HOST_LEGACY_ID_1"]
+  skip_reason       = "UDDI_INFRA_HOST_DISPLAY_NAME_1 and UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
+
 
   step {
     uddi {
@@ -129,15 +130,15 @@ case "onprem_hosts" {
       service            = "NTP"
       onprem_hosts = [
         {
-          id   = 1373162
-          name = "b1ddi-qa_2874800989939739572",
+          id   = "{{uddi_infra_host_legacy_id_1}}"
+          name = "{{uddi_infra_host_display_name_1}}",
         }
       ]
     }
     check = {
       "uddi.onprem_hosts.#"      = "1"
-      "uddi.onprem_hosts.0.id"   = "1373162"
-      "uddi.onprem_hosts.0.name" = "b1ddi-qa_2874800989939739572"
+      "uddi.onprem_hosts.0.id"   = "{{uddi_infra_host_legacy_id_1}}"
+      "uddi.onprem_hosts.0.name" = "{{uddi_infra_host_display_name_1}}",
     }
   }
 
@@ -191,24 +192,24 @@ case "tags" {
       anycast_ip_address = "{{random_ip}}"
       name               = "{{random2}}"
       service            = "DNS"
-      tags               = { tag1 = "{{random}}", tag2 = "value2" }
+      tags               = { tag1 = "{{random}}", tag2 = "{{random2}}" }
     }
     check = {
-      "uddi.tags.tag1" = "value1"
-      "uddi.tags.tag2" = "value2"
+      "uddi.tags.tag1" = "{{random}}"
+      "uddi.tags.tag2" = "{{random2}}"
     }
   }
 
   step {
     uddi {
       anycast_ip_address = "{{random_ip}}"
-      name               = "{{random2}}"
+      name               = "{{random3}}"
       service            = "DNS"
-      tags               = { tag2 = "{{random}}", tag3 = "{{random3}}" }
+      tags               = { tag2 = "{{random}}", tag3 = "{{random4}}" }
     }
     check = {
       "uddi.tags.tag2" = "{{random}}"
-      "uddi.tags.tag3" = "{{random3}}"
+      "uddi.tags.tag3" = "{{random4}}"
     }
   }
 
