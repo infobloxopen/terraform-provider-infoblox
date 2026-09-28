@@ -93,6 +93,7 @@ resource "infoblox_record_host" "example_dynamic" {
 ### Optional
 
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--nios))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -146,7 +147,7 @@ Optional:
 
 - `comment` (String) The commment for the credential.
 - `credential_group` (String) Group for the CLI credential.
-- `password` (String) The CLI password.
+- `password` (String, Sensitive) The CLI password.
 - `user` (String) The CLI user name.
 
 Read-Only:
@@ -290,9 +291,9 @@ Optional:
 
 Required:
 
-- `authentication_password` (String) Authentication password for the SNMPv3 user.
+- `authentication_password` (String, Sensitive) Authentication password for the SNMPv3 user.
 - `authentication_protocol` (String) Authentication protocol for the SNMPv3 user.
-- `privacy_password` (String) Privacy password for the SNMPv3 user.
+- `privacy_password` (String, Sensitive) Privacy password for the SNMPv3 user.
 - `privacy_protocol` (String) Privacy protocol for the SNMPv3 user.
 - `user` (String) The SNMPv3 user name.
 
@@ -308,5 +309,5 @@ Optional:
 Optional:
 
 - `comment` (String) Comments for the SNMPv1 and SNMPv2 users.
-- `community_string` (String) The public community string.
+- `community_string` (String, Sensitive) The public community string.
 - `credential_group` (String) Group for the SNMPv1 and SNMPv2 credential.

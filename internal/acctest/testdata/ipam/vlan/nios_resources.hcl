@@ -3,7 +3,7 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -16,7 +16,7 @@ case "basic" {
     nios {
       id     = 51
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
     check = {
       "nios.id"       = "51"
@@ -33,7 +33,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -46,7 +46,7 @@ case "disappears" {
     nios {
       id     = 52
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
   }
 
@@ -58,7 +58,7 @@ case "import" {
   import   = true
   import_ignore = ["nios.ext_attrs_all"]
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -71,7 +71,7 @@ case "import" {
     nios {
       id     = 53
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
   }
 
@@ -81,7 +81,7 @@ case "comment" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -94,7 +94,7 @@ case "comment" {
     nios {
       id      = 54
       name    = "{{random}}"
-      parent  = infoblox_vlanview.test.id
+      parent  = infoblox_vlan_view.test.id
       comment = "Comment for the object"
     }
     check = {
@@ -106,7 +106,7 @@ case "comment" {
     nios {
       id      = 54
       name    = "{{random}}"
-      parent  = infoblox_vlanview.test.id
+      parent  = infoblox_vlan_view.test.id
       comment = "Updated comment for the object"
     }
     check = {
@@ -120,7 +120,7 @@ case "contact" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -133,7 +133,7 @@ case "contact" {
     nios {
       id      = 55
       name    = "{{random}}"
-      parent  = infoblox_vlanview.test.id
+      parent  = infoblox_vlan_view.test.id
       contact = "contact_FIRST"
     }
     check = {
@@ -145,7 +145,7 @@ case "contact" {
     nios {
       id      = 55
       name    = "{{random}}"
-      parent  = infoblox_vlanview.test.id
+      parent  = infoblox_vlan_view.test.id
       contact = "CONTACT_2"
     }
     check = {
@@ -159,7 +159,7 @@ case "department" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -172,7 +172,7 @@ case "department" {
     nios {
       id         = 56
       name       = "{{random}}"
-      parent     = infoblox_vlanview.test.id
+      parent     = infoblox_vlan_view.test.id
       department = "DEPARTMENT"
     }
     check = {
@@ -184,7 +184,7 @@ case "department" {
     nios {
       id         = 56
       name       = "{{random}}"
-      parent     = infoblox_vlanview.test.id
+      parent     = infoblox_vlan_view.test.id
       department = "department_UPDATE"
     }
     check = {
@@ -198,7 +198,7 @@ case "description" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -211,7 +211,7 @@ case "description" {
     nios {
       id          = 57
       name        = "{{random}}"
-      parent      = infoblox_vlanview.test.id
+      parent      = infoblox_vlan_view.test.id
       description = "description_INITIAL"
     }
     check = {
@@ -223,7 +223,7 @@ case "description" {
     nios {
       id          = 57
       name        = "{{random}}"
-      parent      = infoblox_vlanview.test.id
+      parent      = infoblox_vlan_view.test.id
       description = "DESCRIPTION_UPDATE"
     }
     check = {
@@ -237,7 +237,7 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -250,7 +250,7 @@ case "ext_attrs" {
     nios {
       id        = 58
       name      = "{{random}}"
-      parent    = infoblox_vlanview.test.id
+      parent    = infoblox_vlan_view.test.id
       ext_attrs = { Site = "{{random3}}" }
     }
     check = {
@@ -262,7 +262,7 @@ case "ext_attrs" {
     nios {
       id        = 58
       name      = "{{random}}"
-      parent    = infoblox_vlanview.test.id
+      parent    = infoblox_vlan_view.test.id
       ext_attrs = { Site = "{{random4}}" }
     }
     check = {
@@ -276,7 +276,7 @@ case "id" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -289,7 +289,7 @@ case "id" {
     nios {
       id     = 51
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
     check = {
       "nios.id" = "51"
@@ -300,7 +300,7 @@ case "id" {
     nios {
       id     = 59
       name   = "{{random3}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
     check = {
       "nios.id" = "59"
@@ -313,7 +313,7 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -326,7 +326,7 @@ case "name" {
     nios {
       id     = 60
       name   = "{{random}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
     check = {
       "nios.name" = "{{random}}"
@@ -337,7 +337,7 @@ case "name" {
     nios {
       id     = 60
       name   = "{{random3}}"
-      parent = infoblox_vlanview.test.id
+      parent = infoblox_vlan_view.test.id
     }
     check = {
       "nios.name" = "{{random3}}"
@@ -350,14 +350,14 @@ case "parent" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "one" {
+  resource "infoblox_vlan_view" "one" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
       end_vlan_id   = 100
     }
   }
-  resource "infoblox_vlanview" "two" {
+  resource "infoblox_vlan_view" "two" {
     nios = {
       name          = "{{random3}}"
       start_vlan_id = 51
@@ -370,18 +370,18 @@ case "parent" {
     nios {
       id     = 61
       name   = "{{random}}"
-      parent = infoblox_vlanview.one.id
+      parent = infoblox_vlan_view.one.id
     }
-    depends_on = [infoblox_vlanview.one, infoblox_vlanview.two]
+    depends_on = [infoblox_vlan_view.one, infoblox_vlan_view.two]
   }
 
   step {
     nios {
       id     = 61
       name   = "{{random}}"
-      parent = infoblox_vlanview.two.id
+      parent = infoblox_vlan_view.two.id
     }
-    depends_on = [infoblox_vlanview.one, infoblox_vlanview.two]
+    depends_on = [infoblox_vlan_view.one, infoblox_vlan_view.two]
   }
 
 }
@@ -390,7 +390,7 @@ case "reserved" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_vlanview" "test" {
+  resource "infoblox_vlan_view" "test" {
     nios = {
       name          = "{{random2}}"
       start_vlan_id = 50
@@ -403,7 +403,7 @@ case "reserved" {
     nios {
       id       = 62
       name     = "{{random}}"
-      parent   = infoblox_vlanview.test.id
+      parent   = infoblox_vlan_view.test.id
       reserved = true
     }
     check = {
@@ -415,7 +415,7 @@ case "reserved" {
     nios {
       id       = 62
       name     = "{{random}}"
-      parent   = infoblox_vlanview.test.id
+      parent   = infoblox_vlan_view.test.id
       reserved = false
     }
     check = {
