@@ -3,6 +3,7 @@ package clouddiscovery
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -31,17 +32,22 @@ var ZoneFilterAttrTypes = map[string]attr.Type{
 // ZoneFilterResourceSchemaAttributes contains the schema attributes for ZoneFilterModel
 var ZoneFilterResourceSchemaAttributes = map[string]schema.Attribute{
 	"action": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("include", "exclude"),
+		},
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Action to take on matching zones. Allowed values: \"include\", \"exclude\".",
 	},
 	"wildcards": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		CustomType:  internaltypes.UnorderedListOfStringType,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "List of zone wildcard patterns to include or exclude.",
 	},
 }
 

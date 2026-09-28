@@ -42,7 +42,7 @@ var IPAMConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ip_space": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "IP Space.",
 	},
 }
 

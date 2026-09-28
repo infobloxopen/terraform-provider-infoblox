@@ -3,9 +3,11 @@ package clouddiscovery
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -28,12 +30,18 @@ var CredentialPreferenceAttrTypes = map[string]attr.Type{
 // CredentialPreferenceResourceSchemaAttributes contains the schema attributes for CredentialPreferenceModel
 var CredentialPreferenceResourceSchemaAttributes = map[string]schema.Attribute{
 	"access_identifier_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("role_arn", "tenant_id", "project_id"),
+		},
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Access identifier type. Possible values: role_arn, tenant_id, project_id.",
 	},
 	"credential_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("dynamic", "static"),
+		},
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Credential type. Possible values: dynamic, static.",
 	},
 }
 

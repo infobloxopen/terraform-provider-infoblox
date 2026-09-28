@@ -47,10 +47,11 @@ var DNSConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.Bool{
 			boolplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "consolidated_zone_data_enabled consolidates private zones into a single view, which is separate from the public zone view.",
 	},
 	"resolver_endpoints_sync_enabled": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "resolver_endpoints_sync_enabled enables discovery of inbound and outbound endpoints from third party providers.",
 	},
 	"split_view_enabled": schema.BoolAttribute{
@@ -62,31 +63,32 @@ var DNSConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"sync_type": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Type of sync. Sync_type values: \"read_only\", \"read_write\".",
 	},
 	"view_id": schema.StringAttribute{
 		Optional: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "Unique identifier of the view.",
 	},
 	"view_name": schema.StringAttribute{
 		Optional: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "Name of the view.",
 	},
 	"zone_filters": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ZoneFilterResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "Zone filters to include or exclude zones from discovery.",
 	},
 }
 

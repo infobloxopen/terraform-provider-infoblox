@@ -36,21 +36,23 @@ var ObjectTypeResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "",
+		MarkdownDescription: "Discover new objects.",
 	},
 	"objects": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ObjectResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "List of objects to discover.",
 	},
 	"version": schema.Float64Attribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Version of the object type.",
 	},
 }
 

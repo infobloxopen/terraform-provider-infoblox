@@ -41,25 +41,25 @@ var AdditionalConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "List of account IDs to exclude from discovery.",
 	},
 	"forward_zone_enabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "",
+		MarkdownDescription: "Enable/Disable forward zone discovery.",
 	},
 	"internal_ranges_enabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "",
+		MarkdownDescription: "Enable/Disable internal ranges discovery.",
 	},
 	"object_type": schema.SingleNestedAttribute{
 		Attributes:          ObjectTypeResourceSchemaAttributes,
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Object type to discover.",
 	},
 }
 

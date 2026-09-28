@@ -32,17 +32,19 @@ var ObjectResourceSchemaAttributes = map[string]schema.Attribute{
 	"category": schema.SingleNestedAttribute{
 		Attributes:          CategoryResourceSchemaAttributes,
 		Optional:            true,
-		MarkdownDescription: "",
+		Computed:            true,
+		MarkdownDescription: "Category of the object.",
 	},
 	"resource_set": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ResourceResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "Resource set of the object .",
 	},
 }
 

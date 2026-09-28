@@ -36,15 +36,15 @@ var CredentialConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "access_identifier values: role_arn_1, tenant_id_123,project_id_123",
 	},
 	"enclave": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Enclave of the account.",
 	},
 	"region": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Region of the account.",
 	},
 }
 
