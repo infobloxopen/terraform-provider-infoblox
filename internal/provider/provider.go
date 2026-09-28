@@ -18,7 +18,6 @@ import (
 	niosclient "github.com/infobloxopen/infoblox-nios-go-client/client"
 	gridclient "github.com/infobloxopen/infoblox-nios-go-client/grid"
 	niosoption "github.com/infobloxopen/infoblox-nios-go-client/option"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/config"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
@@ -209,7 +208,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
-		config.SetProxySearch(data.NIOS.ProxySearch.ValueString())
+		core.SetProxySearch(data.NIOS.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
