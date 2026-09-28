@@ -195,7 +195,7 @@ For detailed information, refer to the [Listing Existing Objects](guides/list-re
 
 Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
 
-For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
+For detailed information, refer to the [Importing Existing Resources](docs/guides/importing-resources.md) page.
 
 ## Documentation
 
