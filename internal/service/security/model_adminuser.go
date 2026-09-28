@@ -25,13 +25,15 @@ import (
 )
 
 type AdminuserModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
 }
 
 var AdminuserAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSAdminuserAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSAdminuserAttrTypes},
 }
 
 type NIOSAdminuserModel struct {
@@ -78,6 +80,10 @@ var AdminuserResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -304,7 +310,6 @@ func (m *NIOSAdminuserModel) Flatten(ctx context.Context, from *coremodel.NIOSAd
 	m.EnableCertificateAuthentication = flex.FlattenBoolPointer(from.EnableCertificateAuthentication)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
-	m.Password = flex.FlattenStringPointerEmptyAsNull(from.Password)
 	m.SshKeys = flex.FlattenFrameworkListNestedBlock(ctx, from.SshKeys, AdminuserSshKeysAttrTypes, diags, FlattenAdminuserSshKeys)
 	m.TimeZone = flex.FlattenStringPointerEmptyAsNull(from.TimeZone)
 }
