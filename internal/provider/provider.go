@@ -334,6 +334,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		dns.NewDnsHostResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
 
@@ -448,6 +449,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		dns.NewDnsHostDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
@@ -564,6 +566,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		dns.NewDnsHostList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
 
