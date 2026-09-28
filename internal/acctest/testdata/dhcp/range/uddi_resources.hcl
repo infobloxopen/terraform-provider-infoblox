@@ -156,8 +156,6 @@ case "disable_dhcp" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_dhcp_option_group not yet implemented
 case "dhcp_options" {
   backend     = "uddi"
   skip        = true

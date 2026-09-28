@@ -1,10 +1,3 @@
-// Create a Network View (Required as Parent)
-resource "infoblox_network_view" "example_network_view" {
-  nios = {
-    name = "example-range-view"
-  }
-}
-
 // Create an IPv4 Network inside the Network View (Required as Parent of the Range)
 resource "infoblox_network" "example_network" {
   nios = {
