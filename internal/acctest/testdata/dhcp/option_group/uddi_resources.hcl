@@ -164,6 +164,22 @@ case "protocol" {
 
 }
 
+case "protocol_ip6" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      protocol = "ip6"
+    }
+    check = {
+      "uddi.protocol" = "ip6"
+    }
+  }
+
+}
+
 case "tags" {
   backend  = "uddi"
   parallel = true
