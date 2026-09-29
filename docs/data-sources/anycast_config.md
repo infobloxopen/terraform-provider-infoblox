@@ -24,7 +24,7 @@ data "infoblox_anycast_config" "example_filters" {
 # Retrieve Anycast Configuration by Tag Filters
 data "infoblox_anycast_config" "example_tag_filter" {
   tag_filters = {
-    tag1 = "value1"
+    Site = "location-1"
   }
 }
 
