@@ -544,13 +544,15 @@ case "next_available_address_block" {
 }
 
 case "next_available_range" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_RANGE_1_ID", "UDDI_RANGE_2_ID"]
+  skip_reason       = "UDDI_RANGE_1_ID and UDDI_RANGE_2_ID environment variables must be set for this test to run"
 
   step {
     uddi {
-      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
-      dynamic_allocation = { next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572" }
+      space              = "{{uddi_ip_space_for_range_id}}"
+      dynamic_allocation = { next_available_id = "{{uddi_range_1_id}}" }
     }
     check = {
       "uddi.address" = "10.0.0.10"
@@ -559,8 +561,8 @@ case "next_available_range" {
 
   step {
     uddi {
-      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
-      dynamic_allocation = { next_available_id = "ipam/range/8f0bfc0e-a2d7-11f1-a4fc-eecab8c1578d" }
+      space              = "{{uddi_ip_space_for_range_id}}"
+      dynamic_allocation = { next_available_id = "{{uddi_range_2_id}}" }
     }
     check = {
       "uddi.address" = "10.0.0.30"

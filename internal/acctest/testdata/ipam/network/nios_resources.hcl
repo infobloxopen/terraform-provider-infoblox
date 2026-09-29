@@ -1732,8 +1732,10 @@ case "subscribe_settings" {
 }
 
 case "template" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_NETWORK_TEMPLATE_CREATED"]
+  skip_reason       = "Network template 'test-networktemplate-for-network' must be pre-created by the NIOS integration test setup program"
   # prerequisites_hcl = <<-PREREQ
   # resource "infoblox_network_template_unknown" "test_net_tmpl" {
   #   nios = {

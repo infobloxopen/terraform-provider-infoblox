@@ -20,6 +20,13 @@
 //
 // DNS Auth Zone:
 //   - example_zone_250 (UDDI_AUTH_ZONE_1_ID)
+//
+// IPAM IP Space (for range tests):
+//   - tf-ipam-test-space-for-ranges (UDDI_IP_SPACE_FOR_RANGE_ID)
+//
+// IPAM Ranges (in the above IP space):
+//   - 10.0.0.10-10.0.0.20 (UDDI_RANGE_1_ID)
+//   - 10.0.0.30-10.0.0.40 (UDDI_RANGE_2_ID)
 
 package main
 
@@ -396,6 +403,104 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 	return nil
 }
 
+func CreateIPSpaceAndRanges(ctx context.Context, client *uddiclient.APIClient) error {
+	const spaceName = "tf-ipam-test-space-for-ranges"
+
+	// Create or find the IP space.
+	spaceResp, _, err := client.IPAddressManagementAPI.IpSpaceAPI.Create(ctx).Body(ipam.IPSpace{Name: spaceName}).Execute()
+	var spaceID string
+	if err != nil {
+		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
+			listResp, _, listErr := client.IPAddressManagementAPI.IpSpaceAPI.List(ctx).Filter("name==\"" + spaceName + "\"").Execute()
+			if listErr != nil {
+				return fmt.Errorf("create ip space: list existing to find %q: %w", spaceName, listErr)
+			}
+			if listResp == nil || len(listResp.Results) == 0 || listResp.Results[0].Id == nil {
+				return fmt.Errorf("create ip space: %q already exists but ID could not be resolved", spaceName)
+			}
+			spaceID = *listResp.Results[0].Id
+			fmt.Printf("IP space %q already exists, using existing ID %q\n", spaceName, spaceID)
+		} else {
+			return fmt.Errorf("create ip space %q: %w", spaceName, err)
+		}
+	} else {
+		if spaceResp == nil || spaceResp.Result == nil || spaceResp.Result.Id == nil {
+			return fmt.Errorf("create ip space %q: response missing ID", spaceName)
+		}
+		spaceID = *spaceResp.Result.Id
+		fmt.Printf("IP space %q created (ID: %q)\n", spaceName, spaceID)
+	}
+
+	if err := writePipelineEnvVar("UDDI_IP_SPACE_FOR_RANGE_ID", spaceID); err != nil {
+		return fmt.Errorf("create ip space: write UDDI_IP_SPACE_FOR_RANGE_ID: %w", err)
+	}
+
+	// Create the address block 10.0.0.0/8 that contains the ranges.
+	abResp, _, err := client.IPAddressManagementAPI.AddressBlockAPI.Create(ctx).Body(ipam.AddressBlock{
+		Address: ipam.PtrString("10.0.0.0"),
+		Cidr:    ipam.PtrInt64(8),
+		Space:   ipam.PtrString(spaceID),
+	}).Execute()
+	if err != nil {
+		if !strings.Contains(err.Error(), "is already an existing") && !strings.Contains(err.Error(), "conflict") && !strings.Contains(err.Error(), "already exists") {
+			return fmt.Errorf("create address block 10.0.0.0/8: %w", err)
+		}
+		fmt.Println("Address block 10.0.0.0/8 already exists, continuing")
+	} else {
+		if abResp != nil && abResp.Result != nil && abResp.Result.Id != nil {
+			fmt.Printf("Address block 10.0.0.0/8 created (ID: %q)\n", *abResp.Result.Id)
+		}
+	}
+
+	// Create the two ranges.
+	ranges := []struct {
+		start string
+		end   string
+		idVar string
+	}{
+		{start: "10.0.0.10", end: "10.0.0.20", idVar: "UDDI_RANGE_1_ID"},
+		{start: "10.0.0.30", end: "10.0.0.40", idVar: "UDDI_RANGE_2_ID"},
+	}
+
+	for _, r := range ranges {
+		rangeResp, _, err := client.IPAddressManagementAPI.RangeAPI.Create(ctx).Body(ipam.Range{
+			Start: r.start,
+			End:   r.end,
+			Space: ipam.PtrString(spaceID),
+		}).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
+				listResp, _, listErr := client.IPAddressManagementAPI.RangeAPI.List(ctx).
+					Filter("start==\"" + r.start + "\" and end==\"" + r.end + "\"").Execute()
+				if listErr != nil {
+					return fmt.Errorf("create range %s-%s: list existing: %w", r.start, r.end, listErr)
+				}
+				if listResp == nil || len(listResp.Results) == 0 || listResp.Results[0].Id == nil {
+					return fmt.Errorf("create range %s-%s: already exists but ID could not be resolved", r.start, r.end)
+				}
+				existingID := *listResp.Results[0].Id
+				if err := writePipelineEnvVar(r.idVar, existingID); err != nil {
+					return fmt.Errorf("create range %s-%s: write %s: %w", r.start, r.end, r.idVar, err)
+				}
+				fmt.Printf("Range %s-%s already exists, using existing ID %q (env: %s)\n", r.start, r.end, existingID, r.idVar)
+				continue
+			}
+			return fmt.Errorf("create range %s-%s: %w", r.start, r.end, err)
+		}
+
+		if rangeResp == nil || rangeResp.Result == nil || rangeResp.Result.Id == nil {
+			return fmt.Errorf("create range %s-%s: response missing ID", r.start, r.end)
+		}
+		createdID := *rangeResp.Result.Id
+		if err := writePipelineEnvVar(r.idVar, createdID); err != nil {
+			return fmt.Errorf("create range %s-%s: write %s: %w", r.start, r.end, r.idVar, err)
+		}
+		fmt.Printf("Range %s-%s created (ID: %q, env: %s)\n", r.start, r.end, createdID, r.idVar)
+	}
+
+	return nil
+}
+
 func main() {
 	cspURL := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_URL"))
 	apiKey := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_KEY"))
@@ -461,4 +566,10 @@ func main() {
 		return
 	}
 	fmt.Println("Auth zone created successfully")
+
+	if err := CreateIPSpaceAndRanges(ctx, client); err != nil {
+		fmt.Printf("Error creating IP space and ranges: %v\n", err)
+		return
+	}
+	fmt.Println("IP space and ranges created successfully")
 }
