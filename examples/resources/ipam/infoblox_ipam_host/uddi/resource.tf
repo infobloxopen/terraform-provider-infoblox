@@ -33,13 +33,3 @@ resource "infoblox_ipam_host" "ipam_host_with_additional_fields" {
     }
   }
 }
-
-// Manage IPAM Hosts with Next Available Address
-resource "infoblox_ipam_host" "ipam_host_with_na_address" {
-  uddi = {
-    name      = "example_ipam_host_full"
-    comment   = "IPAM Hosts Example with Next Available Address"
-    addresses = [{ next_available_id = infoblox_network.parent_network.id }]
-
-  }
-}
