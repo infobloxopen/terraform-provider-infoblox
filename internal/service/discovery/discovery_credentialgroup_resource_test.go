@@ -13,25 +13,25 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
 
-func TestAccCredentialGroupResource(t *testing.T) {
-	resourceType := "infoblox_credential_group"
+func TestAccDiscoveryCredentialgroupResource(t *testing.T) {
+	resourceType := "infoblox_discovery_credential_group"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
-			Exists:     testAccCheckCredentialGroupExistsNIOS,
-			Destroy:    testAccCheckCredentialGroupDestroyNIOS,
-			Disappears: testAccCheckCredentialGroupDisappearsNIOS,
+			Exists:     testAccCheckDiscoveryCredentialgroupExistsNIOS,
+			Destroy:    testAccCheckDiscoveryCredentialgroupDestroyNIOS,
+			Disappears: testAccCheckDiscoveryCredentialgroupDisappearsNIOS,
 		},
 	}
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "discovery/credential_group/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "discovery/discovery_credential_group/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
 
-func testAccCheckCredentialGroupExistsNIOS(resourceName string) resource.TestCheckFunc {
+func testAccCheckDiscoveryCredentialgroupExistsNIOS(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -43,16 +43,16 @@ func testAccCheckCredentialGroupExistsNIOS(resourceName string) resource.TestChe
 		conn := acctest.NIOSClient
 		res, _, err := conn.DiscoveryAPI.DiscoveryCredentialgroupAPI.Read(context.Background(), acctest.ExtractNIOSRef(rs.Primary.ID)).Execute()
 		if err != nil {
-			return fmt.Errorf("failed to read CredentialGroup: %w", err)
+			return fmt.Errorf("failed to read DiscoveryCredentialgroup: %w", err)
 		}
 		if res == nil {
-			return fmt.Errorf("CredentialGroup not found: %s", rs.Primary.ID)
+			return fmt.Errorf("DiscoveryCredentialgroup not found: %s", rs.Primary.ID)
 		}
 		return nil
 	}
 }
 
-func testAccCheckCredentialGroupDestroyNIOS(resourceType string) resource.TestCheckFunc {
+func testAccCheckDiscoveryCredentialgroupDestroyNIOS(resourceType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		conn := acctest.NIOSClient
 		for name, rs := range s.RootModule().Resources {
@@ -67,13 +67,13 @@ func testAccCheckCredentialGroupDestroyNIOS(resourceType string) resource.TestCh
 				}
 				return err
 			}
-			return fmt.Errorf("CredentialGroup still exists: %s", rs.Primary.ID)
+			return fmt.Errorf("DiscoveryCredentialgroup still exists: %s", rs.Primary.ID)
 		}
 		return nil
 	}
 }
 
-func testAccCheckCredentialGroupDisappearsNIOS(resourceName string) resource.TestCheckFunc {
+func testAccCheckDiscoveryCredentialgroupDisappearsNIOS(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -82,7 +82,7 @@ func testAccCheckCredentialGroupDisappearsNIOS(resourceName string) resource.Tes
 		conn := acctest.NIOSClient
 		_, err := conn.DiscoveryAPI.DiscoveryCredentialgroupAPI.Delete(context.Background(), acctest.ExtractNIOSRef(rs.Primary.ID)).Execute()
 		if err != nil {
-			return fmt.Errorf("failed to delete CredentialGroup: %w", err)
+			return fmt.Errorf("failed to delete DiscoveryCredentialgroup: %w", err)
 		}
 		return nil
 	}

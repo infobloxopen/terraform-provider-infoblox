@@ -22,25 +22,25 @@ import (
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
-var _ datasource.DataSource = &CredentialGroupDataSource{}
-var _ datasource.DataSourceWithValidateConfig = &CredentialGroupDataSource{}
-var _ datasource.DataSourceWithConfigure = &CredentialGroupDataSource{}
+var _ datasource.DataSource = &DiscoveryCredentialgroupDataSource{}
+var _ datasource.DataSourceWithValidateConfig = &DiscoveryCredentialgroupDataSource{}
+var _ datasource.DataSourceWithConfigure = &DiscoveryCredentialgroupDataSource{}
 
-func NewCredentialGroupDataSource() datasource.DataSource {
-	return &CredentialGroupDataSource{}
+func NewDiscoveryCredentialgroupDataSource() datasource.DataSource {
+	return &DiscoveryCredentialgroupDataSource{}
 }
 
-type CredentialGroupDataSource struct {
+type DiscoveryCredentialgroupDataSource struct {
 	backend core.BackendType
-	service coresvc.CredentialGroupService
+	service coresvc.DiscoveryCredentialgroupService
 }
 
-func (d *CredentialGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_credential_group"
+func (d *DiscoveryCredentialgroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_discovery_credential_group"
 }
 
-// CredentialGroupDataSourceModel is the filter model for the datasource
-type CredentialGroupDataSourceModel struct {
+// DiscoveryCredentialgroupDataSourceModel is the filter model for the datasource
+type DiscoveryCredentialgroupDataSourceModel struct {
 	Filters    types.Map   `tfsdk:"filters"`
 	Results    types.List  `tfsdk:"results"`
 	MaxResults types.Int32 `tfsdk:"max_results"`
@@ -48,27 +48,27 @@ type CredentialGroupDataSourceModel struct {
 }
 
 // FlattenResults flattens core records to the Results list using existing Flatten method.
-func (m *CredentialGroupDataSourceModel) FlattenResults(ctx context.Context, from []*coremodel.CredentialGroup, diags *diag.Diagnostics) {
+func (m *DiscoveryCredentialgroupDataSourceModel) FlattenResults(ctx context.Context, from []*coremodel.DiscoveryCredentialgroup, diags *diag.Diagnostics) {
 	if len(from) == 0 {
-		m.Results = types.ListNull(types.ObjectType{AttrTypes: CredentialGroupAttrTypes})
+		m.Results = types.ListNull(types.ObjectType{AttrTypes: DiscoveryCredentialgroupAttrTypes})
 		return
 	}
 	elements := make([]attr.Value, 0, len(from))
 	for _, obj := range from {
-		model := &CredentialGroupModel{}
+		model := &DiscoveryCredentialgroupModel{}
 		model.Flatten(ctx, obj, diags)
-		objValue, d := types.ObjectValueFrom(ctx, CredentialGroupAttrTypes, model)
+		objValue, d := types.ObjectValueFrom(ctx, DiscoveryCredentialgroupAttrTypes, model)
 		diags.Append(d...)
 		elements = append(elements, objValue)
 	}
-	list, d := types.ListValue(types.ObjectType{AttrTypes: CredentialGroupAttrTypes}, elements)
+	list, d := types.ListValue(types.ObjectType{AttrTypes: DiscoveryCredentialgroupAttrTypes}, elements)
 	diags.Append(d...)
 	m.Results = list
 }
 
-func (d *CredentialGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DiscoveryCredentialgroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about existing Infoblox CredentialGroup from the NIOS backend.",
+		MarkdownDescription: "Retrieves information about existing Infoblox DiscoveryCredentialgroup from the NIOS backend.",
 		Attributes: map[string]schema.Attribute{
 			"filters": schema.MapAttribute{
 				Description: "Filter are used to return a more specific list of results. Filters can be used to match resources by specific attributes.",
@@ -77,7 +77,7 @@ func (d *CredentialGroupDataSource) Schema(_ context.Context, _ datasource.Schem
 			},
 			"results": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
-					Attributes: utils.DataSourceResultAttributes(CredentialGroupResourceSchemaAttributes),
+					Attributes: utils.DataSourceResultAttributes(DiscoveryCredentialgroupResourceSchemaAttributes),
 				},
 				Computed: true,
 			},
@@ -96,7 +96,7 @@ func (d *CredentialGroupDataSource) Schema(_ context.Context, _ datasource.Schem
 	}
 }
 
-func (d *CredentialGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *DiscoveryCredentialgroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -116,11 +116,11 @@ func (d *CredentialGroupDataSource) Configure(_ context.Context, req datasource.
 		d.backend = core.BackendUDDI
 	}
 
-	d.service = coresvc.NewCredentialGroupService(d.backend, client.NIOS, client.UDDI)
+	d.service = coresvc.NewDiscoveryCredentialgroupService(d.backend, client.NIOS, client.UDDI)
 }
 
-func (d *CredentialGroupDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
-	var data CredentialGroupDataSourceModel
+func (d *DiscoveryCredentialgroupDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+	var data DiscoveryCredentialgroupDataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -130,8 +130,8 @@ func (d *CredentialGroupDataSource) ValidateConfig(ctx context.Context, req data
 	customvalidator.ValidateDataSourceFilters(d.backend, types.MapNull(types.StringType), types.MapNull(types.StringType), data.MaxResults, types.Int32Null(), &resp.Diagnostics)
 }
 
-func (d *CredentialGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data CredentialGroupDataSourceModel
+func (d *DiscoveryCredentialgroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data DiscoveryCredentialgroupDataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -141,7 +141,7 @@ func (d *CredentialGroupDataSource) Read(ctx context.Context, req datasource.Rea
 	// Build list options
 	opts := &core.ListOptions{
 		Filters:      flex.ExpandMapString(ctx, data.Filters, &resp.Diagnostics),
-		ReturnFields: CredentialGroupReturnFields,
+		ReturnFields: DiscoveryCredentialgroupReturnFields,
 		Paging:       1,
 	}
 
@@ -156,18 +156,18 @@ func (d *CredentialGroupDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	var allResults []*coremodel.CredentialGroup
+	var allResults []*coremodel.DiscoveryCredentialgroup
 	var err error
 
 	switch d.backend {
 	case core.BackendNIOS:
-		allResults, err = core.ReadAllPagesNIOS(func(pageID string) ([]*coremodel.CredentialGroup, string, error) {
+		allResults, err = core.ReadAllPagesNIOS(func(pageID string) ([]*coremodel.DiscoveryCredentialgroup, string, error) {
 			opts.PageID = pageID
 			recs, _, nextPageID, e := d.service.List(ctx, opts)
 			return recs, nextPageID, e
 		})
 	case core.BackendUDDI:
-		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.CredentialGroup, error) {
+		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.DiscoveryCredentialgroup, error) {
 			opts.Offset = offset
 			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
@@ -176,7 +176,7 @@ func (d *CredentialGroupDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to list CredentialGroup records: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to list DiscoveryCredentialgroup records: %s", err))
 		return
 	}
 

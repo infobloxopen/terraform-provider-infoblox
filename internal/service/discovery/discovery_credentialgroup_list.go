@@ -20,29 +20,29 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var (
-	_ list.ListResource                   = &CredentialGroupList{}
-	_ list.ListResourceWithConfigure      = &CredentialGroupList{}
-	_ list.ListResourceWithValidateConfig = &CredentialGroupList{}
+	_ list.ListResource                   = &DiscoveryCredentialgroupList{}
+	_ list.ListResourceWithConfigure      = &DiscoveryCredentialgroupList{}
+	_ list.ListResourceWithValidateConfig = &DiscoveryCredentialgroupList{}
 )
 
-func NewCredentialGroupList() list.ListResource {
-	return &CredentialGroupList{}
+func NewDiscoveryCredentialgroupList() list.ListResource {
+	return &DiscoveryCredentialgroupList{}
 }
 
-type CredentialGroupList struct {
+type DiscoveryCredentialgroupList struct {
 	backend core.BackendType
-	service coresvc.CredentialGroupService
+	service coresvc.DiscoveryCredentialgroupService
 }
 
-type CredentialGroupListModel struct {
+type DiscoveryCredentialgroupListModel struct {
 	Filters types.Map `tfsdk:"filters"`
 }
 
-func (l *CredentialGroupList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_credential_group"
+func (l *DiscoveryCredentialgroupList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_discovery_credential_group"
 }
 
-func (l *CredentialGroupList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (l *DiscoveryCredentialgroupList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -62,12 +62,12 @@ func (l *CredentialGroupList) Configure(_ context.Context, req resource.Configur
 		l.backend = core.BackendUDDI
 	}
 
-	l.service = coresvc.NewCredentialGroupService(l.backend, client.NIOS, client.UDDI)
+	l.service = coresvc.NewDiscoveryCredentialgroupService(l.backend, client.NIOS, client.UDDI)
 }
 
-func (l *CredentialGroupList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
+func (l *DiscoveryCredentialgroupList) ListResourceConfigSchema(_ context.Context, _ list.ListResourceSchemaRequest, resp *list.ListResourceSchemaResponse) {
 	resp.Schema = listschema.Schema{
-		MarkdownDescription: "Retrieves a list of Infoblox CredentialGroup from the NIOS backend.",
+		MarkdownDescription: "Retrieves a list of Infoblox DiscoveryCredentialgroup from the NIOS backend.",
 		Attributes: map[string]listschema.Attribute{
 			"filters": listschema.MapAttribute{
 				MarkdownDescription: "Filters are used to return a more specific list of results. Filters can be used to match resources by specific attributes (e.g. name, view). If multiple filters are specified, only resources that match all of them are returned.",
@@ -78,8 +78,8 @@ func (l *CredentialGroupList) ListResourceConfigSchema(_ context.Context, _ list
 	}
 }
 
-func (l *CredentialGroupList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
-	var data CredentialGroupListModel
+func (l *DiscoveryCredentialgroupList) ValidateListResourceConfig(ctx context.Context, req list.ValidateConfigRequest, resp *list.ValidateConfigResponse) {
+	var data DiscoveryCredentialgroupListModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -89,8 +89,8 @@ func (l *CredentialGroupList) ValidateListResourceConfig(ctx context.Context, re
 	validator.ValidateListFilters(l.backend, types.MapNull(types.StringType), types.MapNull(types.StringType), &resp.Diagnostics)
 }
 
-func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
-	var data CredentialGroupListModel
+func (l *DiscoveryCredentialgroupList) List(ctx context.Context, req list.ListRequest, stream *list.ListResultsStream) {
+	var data DiscoveryCredentialgroupListModel
 
 	diags := req.Config.Get(ctx, &data)
 	if diags.HasError() {
@@ -99,12 +99,12 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_credential_group list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_discovery_credential_group list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
 		Filters:      flex.ExpandMapString(ctx, data.Filters, &diags),
-		ReturnFields: CredentialGroupReturnFields,
+		ReturnFields: DiscoveryCredentialgroupReturnFields,
 		Paging:       1,
 	}
 	if diags.HasError() {
@@ -112,7 +112,7 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 		return
 	}
 
-	var records []*coremodel.CredentialGroup
+	var records []*coremodel.DiscoveryCredentialgroup
 	var err error
 	var totalFetched int32
 	pageCount := 0
@@ -120,7 +120,7 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 	switch l.backend {
 	case core.BackendNIOS:
 		records, err = core.ReadAllPagesNIOS(
-			func(pageID string) ([]*coremodel.CredentialGroup, string, error) {
+			func(pageID string) ([]*coremodel.DiscoveryCredentialgroup, string, error) {
 				// Shrink page size so we never over-fetch past the caller's limit.
 				pageSize := min(requestLimit-totalFetched, core.DefaultListLimit)
 				pageCount++
@@ -143,7 +143,7 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 
 	case core.BackendUDDI:
 		records, err = core.ReadAllPagesUDDI(
-			func(offset, _ int32) ([]*coremodel.CredentialGroup, error) {
+			func(offset, _ int32) ([]*coremodel.DiscoveryCredentialgroup, error) {
 				// Once the cap is reached, return an empty page
 				remaining := requestLimit - totalFetched
 				if remaining <= 0 {
@@ -167,7 +167,7 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 	}
 
 	if err != nil {
-		diags.AddError("Client Error", fmt.Sprintf("Unable to list CredentialGroup records: %s", err))
+		diags.AddError("Client Error", fmt.Sprintf("Unable to list DiscoveryCredentialgroup records: %s", err))
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
 		return
 	}
@@ -192,7 +192,7 @@ func (l *CredentialGroupList) List(ctx context.Context, req list.ListRequest, st
 			// By default, list only returns the identity. If IncludeResource is true,
 			// the full resource is flattened and set on result.Resource.
 			if req.IncludeResource {
-				model := &CredentialGroupModel{}
+				model := &DiscoveryCredentialgroupModel{}
 				model.Flatten(ctx, item, &result.Diagnostics)
 				if !result.Diagnostics.HasError() {
 					result.Diagnostics.Append(result.Resource.Set(ctx, model)...)

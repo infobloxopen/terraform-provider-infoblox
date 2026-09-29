@@ -14,28 +14,28 @@ import (
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 )
 
-type CredentialGroupService interface {
-	Create(ctx context.Context, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error)
-	Read(ctx context.Context, id string, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error)
-	Update(ctx context.Context, id string, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error)
+type DiscoveryCredentialgroupService interface {
+	Create(ctx context.Context, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error)
+	Read(ctx context.Context, id string, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error)
+	Update(ctx context.Context, id string, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error)
 	Delete(ctx context.Context, id string) (*http.Response, error)
-	List(ctx context.Context, opts *core.ListOptions) ([]*discovery.CredentialGroup, *http.Response, string, error)
+	List(ctx context.Context, opts *core.ListOptions) ([]*discovery.DiscoveryCredentialgroup, *http.Response, string, error)
 }
 
-type credentialGroupService struct {
+type discoveryCredentialgroupService struct {
 	backend    core.BackendType
 	niosClient *niosclient.APIClient
 }
 
-func NewCredentialGroupService(backend core.BackendType, nios *niosclient.APIClient, uddi *uddiclient.APIClient) CredentialGroupService {
-	return &credentialGroupService{
+func NewDiscoveryCredentialgroupService(backend core.BackendType, nios *niosclient.APIClient, uddi *uddiclient.APIClient) DiscoveryCredentialgroupService {
+	return &discoveryCredentialgroupService{
 		backend:    backend,
 		niosClient: nios,
 	}
 }
 
-// Create creates a new CredentialGroup and returns the created object
-func (s *credentialGroupService) Create(ctx context.Context, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
+// Create creates a new DiscoveryCredentialgroup and returns the created object
+func (s *discoveryCredentialgroupService) Create(ctx context.Context, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.createNIOS(ctx, obj, opts)
@@ -44,8 +44,8 @@ func (s *credentialGroupService) Create(ctx context.Context, obj *discovery.Cred
 	}
 }
 
-func (s *credentialGroupService) createNIOS(ctx context.Context, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
-	payload, err := common.MapTo[niosdiscovery.DiscoveryCredentialgroup](obj, mapper.CredentialGroupNIOSFieldMap)
+func (s *discoveryCredentialgroupService) createNIOS(ctx context.Context, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
+	payload, err := common.MapTo[niosdiscovery.DiscoveryCredentialgroup](obj, mapper.DiscoveryCredentialgroupNIOSFieldMap)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,11 +66,11 @@ func (s *credentialGroupService) createNIOS(ctx context.Context, obj *discovery.
 
 	result := resp.CreateDiscoveryCredentialgroupResponseAsObject.GetResult()
 
-	return mapNIOSCredentialGroupToResponse(&result), httpResp, nil
+	return mapNIOSDiscoveryCredentialgroupToResponse(&result), httpResp, nil
 }
 
-// Read retrieves a CredentialGroup by ID
-func (s *credentialGroupService) Read(ctx context.Context, id string, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
+// Read retrieves a DiscoveryCredentialgroup by ID
+func (s *discoveryCredentialgroupService) Read(ctx context.Context, id string, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.readNIOS(ctx, id, opts)
@@ -79,7 +79,7 @@ func (s *credentialGroupService) Read(ctx context.Context, id string, opts *core
 	}
 }
 
-func (s *credentialGroupService) readNIOS(ctx context.Context, id string, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
+func (s *discoveryCredentialgroupService) readNIOS(ctx context.Context, id string, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
 	req := s.niosClient.DiscoveryAPI.DiscoveryCredentialgroupAPI.
 		Read(ctx, core.ExtractNIOSRef(id)).
 		ReturnAsObject(1)
@@ -95,11 +95,11 @@ func (s *credentialGroupService) readNIOS(ctx context.Context, id string, opts *
 
 	result := resp.GetDiscoveryCredentialgroupResponseObjectAsResult.GetResult()
 
-	return mapNIOSCredentialGroupToResponse(&result), httpResp, nil
+	return mapNIOSDiscoveryCredentialgroupToResponse(&result), httpResp, nil
 }
 
-// Update modifies an existing CredentialGroup and returns the updated object
-func (s *credentialGroupService) Update(ctx context.Context, id string, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
+// Update modifies an existing DiscoveryCredentialgroup and returns the updated object
+func (s *discoveryCredentialgroupService) Update(ctx context.Context, id string, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.updateNIOS(ctx, id, obj, opts)
@@ -108,8 +108,8 @@ func (s *credentialGroupService) Update(ctx context.Context, id string, obj *dis
 	}
 }
 
-func (s *credentialGroupService) updateNIOS(ctx context.Context, id string, obj *discovery.CredentialGroup, opts *core.Options) (*discovery.CredentialGroup, *http.Response, error) {
-	payload, err := common.MapTo[niosdiscovery.DiscoveryCredentialgroup](obj, mapper.CredentialGroupNIOSFieldMap)
+func (s *discoveryCredentialgroupService) updateNIOS(ctx context.Context, id string, obj *discovery.DiscoveryCredentialgroup, opts *core.Options) (*discovery.DiscoveryCredentialgroup, *http.Response, error) {
+	payload, err := common.MapTo[niosdiscovery.DiscoveryCredentialgroup](obj, mapper.DiscoveryCredentialgroupNIOSFieldMap)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -130,11 +130,11 @@ func (s *credentialGroupService) updateNIOS(ctx context.Context, id string, obj 
 
 	result := resp.UpdateDiscoveryCredentialgroupResponseAsObject.GetResult()
 
-	return mapNIOSCredentialGroupToResponse(&result), httpResp, nil
+	return mapNIOSDiscoveryCredentialgroupToResponse(&result), httpResp, nil
 }
 
-// Delete removes a CredentialGroup by ID
-func (s *credentialGroupService) Delete(ctx context.Context, id string) (*http.Response, error) {
+// Delete removes a DiscoveryCredentialgroup by ID
+func (s *discoveryCredentialgroupService) Delete(ctx context.Context, id string) (*http.Response, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.deleteNIOS(ctx, id)
@@ -143,15 +143,15 @@ func (s *credentialGroupService) Delete(ctx context.Context, id string) (*http.R
 	}
 }
 
-func (s *credentialGroupService) deleteNIOS(ctx context.Context, id string) (*http.Response, error) {
+func (s *discoveryCredentialgroupService) deleteNIOS(ctx context.Context, id string) (*http.Response, error) {
 	httpResp, err := s.niosClient.DiscoveryAPI.DiscoveryCredentialgroupAPI.
 		Delete(ctx, core.ExtractNIOSRef(id)).
 		Execute()
 	return httpResp, err
 }
 
-// List retrieves CredentialGroup objects based on filter options
-func (s *credentialGroupService) List(ctx context.Context, opts *core.ListOptions) ([]*discovery.CredentialGroup, *http.Response, string, error) {
+// List retrieves DiscoveryCredentialgroup objects based on filter options
+func (s *discoveryCredentialgroupService) List(ctx context.Context, opts *core.ListOptions) ([]*discovery.DiscoveryCredentialgroup, *http.Response, string, error) {
 	switch s.backend {
 	case core.BackendNIOS:
 		return s.listNIOS(ctx, opts)
@@ -160,7 +160,7 @@ func (s *credentialGroupService) List(ctx context.Context, opts *core.ListOption
 	}
 }
 
-func (s *credentialGroupService) listNIOS(ctx context.Context, opts *core.ListOptions) ([]*discovery.CredentialGroup, *http.Response, string, error) {
+func (s *discoveryCredentialgroupService) listNIOS(ctx context.Context, opts *core.ListOptions) ([]*discovery.DiscoveryCredentialgroup, *http.Response, string, error) {
 	req := s.niosClient.DiscoveryAPI.DiscoveryCredentialgroupAPI.
 		List(ctx).
 		ReturnAsObject(1)
@@ -170,7 +170,7 @@ func (s *credentialGroupService) listNIOS(ctx context.Context, opts *core.ListOp
 			req = req.ReturnFieldsPlus(opts.ReturnFields)
 		}
 		if len(opts.Filters) > 0 {
-			translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.CredentialGroupFilterFieldMap[core.BackendNIOS])
+			translatedFilters := core.TranslateFilterKeys(opts.Filters, mapper.DiscoveryCredentialgroupFilterFieldMap[core.BackendNIOS])
 			filters := make(map[string]any, len(translatedFilters))
 			for k, v := range translatedFilters {
 				filters[k] = v
@@ -201,9 +201,9 @@ func (s *credentialGroupService) listNIOS(ctx context.Context, opts *core.ListOp
 	}
 
 	results := resp.ListDiscoveryCredentialgroupResponseObject.GetResult()
-	items := make([]*discovery.CredentialGroup, 0, len(results))
+	items := make([]*discovery.DiscoveryCredentialgroup, 0, len(results))
 	for i := range results {
-		items = append(items, mapNIOSCredentialGroupToResponse(&results[i]))
+		items = append(items, mapNIOSDiscoveryCredentialgroupToResponse(&results[i]))
 	}
 
 	var nextPageID string
@@ -218,11 +218,11 @@ func (s *credentialGroupService) listNIOS(ctx context.Context, opts *core.ListOp
 	return items, httpResp, nextPageID, nil
 }
 
-func mapNIOSCredentialGroupToResponse(r *niosdiscovery.DiscoveryCredentialgroup) *discovery.CredentialGroup {
-	resp := &discovery.CredentialGroup{
+func mapNIOSDiscoveryCredentialgroupToResponse(r *niosdiscovery.DiscoveryCredentialgroup) *discovery.DiscoveryCredentialgroup {
+	resp := &discovery.DiscoveryCredentialgroup{
 		Id: r.Ref,
 	}
-	resp.NIOS = &discovery.NIOSCredentialGroupExt{
+	resp.NIOS = &discovery.NIOSDiscoveryCredentialgroupExt{
 		Name: r.Name,
 	}
 	return resp

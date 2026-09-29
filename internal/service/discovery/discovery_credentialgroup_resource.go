@@ -20,30 +20,30 @@ import (
 )
 
 var (
-	_ resource.Resource                   = &CredentialGroupResource{}
-	_ resource.ResourceWithValidateConfig = &CredentialGroupResource{}
-	_ resource.ResourceWithConfigure      = &CredentialGroupResource{}
-	_ resource.ResourceWithImportState    = &CredentialGroupResource{}
-	_ resource.ResourceWithIdentity       = &CredentialGroupResource{}
+	_ resource.Resource                   = &DiscoveryCredentialgroupResource{}
+	_ resource.ResourceWithValidateConfig = &DiscoveryCredentialgroupResource{}
+	_ resource.ResourceWithConfigure      = &DiscoveryCredentialgroupResource{}
+	_ resource.ResourceWithImportState    = &DiscoveryCredentialgroupResource{}
+	_ resource.ResourceWithIdentity       = &DiscoveryCredentialgroupResource{}
 )
 
-func NewCredentialGroupResource() resource.Resource {
-	return &CredentialGroupResource{}
+func NewDiscoveryCredentialgroupResource() resource.Resource {
+	return &DiscoveryCredentialgroupResource{}
 }
 
-type CredentialGroupResource struct {
+type DiscoveryCredentialgroupResource struct {
 	backend core.BackendType
-	service coresvc.CredentialGroupService
+	service coresvc.DiscoveryCredentialgroupService
 }
 
-func (r *CredentialGroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_credential_group"
+func (r *DiscoveryCredentialgroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_discovery_credential_group"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
 }
 
-func (r *CredentialGroupResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
+func (r *DiscoveryCredentialgroupResource) IdentitySchema(_ context.Context, _ resource.IdentitySchemaRequest, resp *resource.IdentitySchemaResponse) {
 	resp.IdentitySchema = identityschema.Schema{
 		Attributes: map[string]identityschema.Attribute{
 			"id": identityschema.StringAttribute{
@@ -53,14 +53,14 @@ func (r *CredentialGroupResource) IdentitySchema(_ context.Context, _ resource.I
 	}
 }
 
-func (r *CredentialGroupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DiscoveryCredentialgroupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an Infoblox CredentialGroup in the NIOS backend.",
-		Attributes:          CredentialGroupResourceSchemaAttributes,
+		MarkdownDescription: "Manages an Infoblox DiscoveryCredentialgroup in the NIOS backend.",
+		Attributes:          DiscoveryCredentialgroupResourceSchemaAttributes,
 	}
 }
 
-func (r *CredentialGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *DiscoveryCredentialgroupResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -80,15 +80,15 @@ func (r *CredentialGroupResource) Configure(_ context.Context, req resource.Conf
 		r.backend = core.BackendUDDI
 	}
 
-	r.service = coresvc.NewCredentialGroupService(r.backend, client.NIOS, client.UDDI)
+	r.service = coresvc.NewDiscoveryCredentialgroupService(r.backend, client.NIOS, client.UDDI)
 }
 
-func (r *CredentialGroupResource) retryPolicy(op retry.Operation) retry.Policy {
-	return retry.For[coremodel.CredentialGroup](r.backend, op)
+func (r *DiscoveryCredentialgroupResource) retryPolicy(op retry.Operation) retry.Policy {
+	return retry.For[coremodel.DiscoveryCredentialgroup](r.backend, op)
 }
 
-func (r *CredentialGroupResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data CredentialGroupModel
+func (r *DiscoveryCredentialgroupResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data DiscoveryCredentialgroupModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -101,11 +101,11 @@ func (r *CredentialGroupResource) ValidateConfig(ctx context.Context, req resour
 		return
 	}
 
-	ValidateCredentialGroup(ctx, data, resp)
+	ValidateDiscoveryCredentialgroup(ctx, data, resp)
 }
 
-func (r *CredentialGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data CredentialGroupModel
+func (r *DiscoveryCredentialgroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data DiscoveryCredentialgroupModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -118,14 +118,14 @@ func (r *CredentialGroupResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	var (
-		apiResp  *coremodel.CredentialGroup
+		apiResp  *coremodel.DiscoveryCredentialgroup
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpCreate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Create(ctx, obj, &core.Options{
-			ReturnFields: CredentialGroupReturnFields,
+			ReturnFields: DiscoveryCredentialgroupReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -133,7 +133,7 @@ func (r *CredentialGroupResource) Create(ctx context.Context, req resource.Creat
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create CredentialGroup: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create DiscoveryCredentialgroup: %s", err))
 		return
 	}
 
@@ -146,8 +146,8 @@ func (r *CredentialGroupResource) Create(ctx context.Context, req resource.Creat
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *CredentialGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data CredentialGroupModel
+func (r *DiscoveryCredentialgroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data DiscoveryCredentialgroupModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -155,14 +155,14 @@ func (r *CredentialGroupResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	var (
-		apiResp  *coremodel.CredentialGroup
+		apiResp  *coremodel.DiscoveryCredentialgroup
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
-			ReturnFields: CredentialGroupReturnFields,
+			ReturnFields: DiscoveryCredentialgroupReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -174,7 +174,7 @@ func (r *CredentialGroupResource) Read(ctx context.Context, req resource.ReadReq
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read CredentialGroup: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read DiscoveryCredentialgroup: %s", err))
 		return
 	}
 
@@ -187,8 +187,8 @@ func (r *CredentialGroupResource) Read(ctx context.Context, req resource.ReadReq
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *CredentialGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data CredentialGroupModel
+func (r *DiscoveryCredentialgroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data DiscoveryCredentialgroupModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -207,14 +207,14 @@ func (r *CredentialGroupResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	var (
-		apiResp  *coremodel.CredentialGroup
+		apiResp  *coremodel.DiscoveryCredentialgroup
 		httpResp *http.Response
 	)
 
 	err := retry.Do(ctx, r.retryPolicy(retry.OpUpdate), func(ctx context.Context) (int, error) {
 		var apiErr error
 		apiResp, httpResp, apiErr = r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-			ReturnFields: CredentialGroupReturnFields,
+			ReturnFields: DiscoveryCredentialgroupReturnFields,
 		})
 		if httpResp != nil {
 			return httpResp.StatusCode, apiErr
@@ -222,7 +222,7 @@ func (r *CredentialGroupResource) Update(ctx context.Context, req resource.Updat
 		return 0, apiErr
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update CredentialGroup: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update DiscoveryCredentialgroup: %s", err))
 		return
 	}
 
@@ -235,8 +235,8 @@ func (r *CredentialGroupResource) Update(ctx context.Context, req resource.Updat
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 }
 
-func (r *CredentialGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data CredentialGroupModel
+func (r *DiscoveryCredentialgroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data DiscoveryCredentialgroupModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -257,11 +257,11 @@ func (r *CredentialGroupResource) Delete(ctx context.Context, req resource.Delet
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete CredentialGroup: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete DiscoveryCredentialgroup: %s", err))
 	}
 }
 
-func (r *CredentialGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DiscoveryCredentialgroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.Identity != nil && req.Identity.Raw.IsKnown() && !req.Identity.Raw.IsNull() {
 		diags := req.Identity.GetAttribute(ctx, path.Root("id"), &req.ID)
 		if diags.HasError() {

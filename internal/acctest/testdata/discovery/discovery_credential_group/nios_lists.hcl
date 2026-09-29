@@ -1,4 +1,4 @@
-# CredentialGroup — nios list cases
+# DiscoveryCredentialgroup — nios list cases
 #
 # discovery:credentialgroup has no searchable field (see nios_datasources.hcl),
 # so there is no filters case: NIOS rejects any filtered query outright.

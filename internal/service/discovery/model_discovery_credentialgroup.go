@@ -14,31 +14,31 @@ import (
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
-type CredentialGroupModel struct {
+type DiscoveryCredentialgroupModel struct {
 	Id            types.String `tfsdk:"id"`
 	UpdateTrigger types.String `tfsdk:"update_trigger"`
 	NIOS          types.Object `tfsdk:"nios"`
 }
 
-var CredentialGroupAttrTypes = map[string]attr.Type{
+var DiscoveryCredentialgroupAttrTypes = map[string]attr.Type{
 	"id":             types.StringType,
 	"update_trigger": types.StringType,
-	"nios":           types.ObjectType{AttrTypes: NIOSCredentialGroupAttrTypes},
+	"nios":           types.ObjectType{AttrTypes: NIOSDiscoveryCredentialgroupAttrTypes},
 }
 
-type NIOSCredentialGroupModel struct {
+type NIOSDiscoveryCredentialgroupModel struct {
 	Name types.String `tfsdk:"name"`
 }
 
-var NIOSCredentialGroupAttrTypes = map[string]attr.Type{
+var NIOSDiscoveryCredentialgroupAttrTypes = map[string]attr.Type{
 	"name": types.StringType,
 }
 
 const (
-	CredentialGroupReturnFields = "name"
+	DiscoveryCredentialgroupReturnFields = "name"
 )
 
-var CredentialGroupResourceSchemaAttributes = map[string]schema.Attribute{
+var DiscoveryCredentialgroupResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
@@ -50,11 +50,11 @@ var CredentialGroupResourceSchemaAttributes = map[string]schema.Attribute{
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: "NIOS backend-specific fields.",
-		Attributes:          CredentialGroupResourceNiosSchemaAttributes,
+		Attributes:          DiscoveryCredentialgroupResourceNiosSchemaAttributes,
 	},
 }
 
-var CredentialGroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
+var DiscoveryCredentialgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
@@ -66,15 +66,15 @@ var CredentialGroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 }
 
 // Expand converts the TF model to the infoblox core model
-func (m *CredentialGroupModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.CredentialGroup {
+func (m *DiscoveryCredentialgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.DiscoveryCredentialgroup {
 	if m == nil {
 		return nil
 	}
 
-	obj := &coremodel.CredentialGroup{}
+	obj := &coremodel.DiscoveryCredentialgroup{}
 
 	// Expand NIOS nested attribute (returns nil if not present)
-	niosModel := flex.ExpandNestedObject[NIOSCredentialGroupModel](ctx, m.NIOS, diags)
+	niosModel := flex.ExpandNestedObject[NIOSDiscoveryCredentialgroupModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
 		obj.NIOS = niosModel.Expand(ctx, diags)
 	}
@@ -83,14 +83,14 @@ func (m *CredentialGroupModel) Expand(ctx context.Context, diags *diag.Diagnosti
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSCredentialGroupModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSCredentialGroupExt {
-	return &coremodel.NIOSCredentialGroupExt{
+func (m *NIOSDiscoveryCredentialgroupModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSDiscoveryCredentialgroupExt {
+	return &coremodel.NIOSDiscoveryCredentialgroupExt{
 		Name: flex.ExpandStringPointerNullAsEmpty(m.Name),
 	}
 }
 
 // Flatten populates the TF model from a core response.
-func (m *CredentialGroupModel) Flatten(ctx context.Context, resp *coremodel.CredentialGroup, diags *diag.Diagnostics) {
+func (m *DiscoveryCredentialgroupModel) Flatten(ctx context.Context, resp *coremodel.DiscoveryCredentialgroup, diags *diag.Diagnostics) {
 	if resp == nil {
 		return
 	}
@@ -98,21 +98,21 @@ func (m *CredentialGroupModel) Flatten(ctx context.Context, resp *coremodel.Cred
 	m.Id = flex.FlattenStringPointer(resp.Id)
 
 	// Extract existing NIOS model, flatten API response onto it, convert back
-	niosModel := flex.ExpandNestedObject[NIOSCredentialGroupModel](ctx, m.NIOS, diags)
+	niosModel := flex.ExpandNestedObject[NIOSDiscoveryCredentialgroupModel](ctx, m.NIOS, diags)
 	if niosModel == nil {
-		niosModel = &NIOSCredentialGroupModel{}
+		niosModel = &NIOSDiscoveryCredentialgroupModel{}
 	}
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
-		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSCredentialGroupAttrTypes, diags)
+		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSDiscoveryCredentialgroupAttrTypes, diags)
 	} else {
-		m.NIOS = types.ObjectNull(NIOSCredentialGroupAttrTypes)
+		m.NIOS = types.ObjectNull(NIOSDiscoveryCredentialgroupAttrTypes)
 	}
 
 }
 
 // Flatten merges API response onto existing NIOS model.
-func (m *NIOSCredentialGroupModel) Flatten(ctx context.Context, from *coremodel.NIOSCredentialGroupExt, diags *diag.Diagnostics) {
+func (m *NIOSDiscoveryCredentialgroupModel) Flatten(ctx context.Context, from *coremodel.NIOSDiscoveryCredentialgroupExt, diags *diag.Diagnostics) {
 	if from == nil || m == nil {
 		return
 	}

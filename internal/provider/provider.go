@@ -389,7 +389,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
 
-		discovery.NewCredentialGroupResource,
+		discovery.NewDiscoveryCredentialgroupResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -515,7 +515,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
 
-		discovery.NewCredentialGroupDataSource,
+		discovery.NewDiscoveryCredentialgroupDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -643,7 +643,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
 
-		discovery.NewCredentialGroupList,
+		discovery.NewDiscoveryCredentialgroupList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,

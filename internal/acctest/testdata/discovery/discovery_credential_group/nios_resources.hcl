@@ -1,4 +1,4 @@
-# Auto-generated resource acceptance-test cases for CredentialGroup.
+# Auto-generated resource acceptance-test cases for DiscoveryCredentialgroup.
 #
 # The NIOS discovery:credentialgroup object exposes a single writable field,
 # name, and carries no extensible attributes, so there is no ext_attrs case and

@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -28,6 +29,9 @@ type DataSourceCase struct {
 	Step             CaseStep
 	// PairChecks lists extra backend-prefixed paths (e.g. "nios.comment") for TestCheckResourceAttrPair.
 	PairChecks []string
+	// MatchResult lists resource attribute paths that must equal some element of
+	// the data source's `results`. Walks `results.N.<path>` and succeeds on match.
+	MatchResult []string
 }
 
 // RunDataSourceCases loads all `case` blocks from testdata/<fileRelPath> and runs each as a subtest,
@@ -94,12 +98,12 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 		checkFuncs = append(checkFuncs, checks.Exists(resourceAddr))
 	}
 	checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrSet(dsAddr, "results.0.id"))
-	// An unfiltered read returns every object on the grid, so results.0 is not
-	// the resource under test and per-attribute pair checks would compare
-	// unrelated objects. The results.0.id assertion above still proves the read
-	// path works end to end.
+	// Pair checks are index-based, so only meaningful when a filter narrows results.
 	if dc.FilterType != "" {
 		checkFuncs = append(checkFuncs, dataSourcePairChecks(dsAddr, resourceAddr, dc)...)
+	}
+	for _, path := range dc.MatchResult {
+		checkFuncs = append(checkFuncs, matchResultCheck(dsAddr, resourceAddr, path))
 	}
 
 	tc := resource.TestCase{
@@ -116,12 +120,8 @@ func runDataSourceCase(t *testing.T, dsType, resourceType string, dc *DataSource
 	resource.Test(t, tc)
 }
 
-// buildDataSourceBlock renders the data source HCL block with filter values referencing the test resource.
-//
-// A case with no filter block renders an unfiltered read. Some NIOS objects
-// expose no searchable field at all (discovery:credentialgroup reports
-// searchable_by="" for its only field), so filtering them is a server-side
-// error and reading everything is the only thing the data source can do.
+// buildDataSourceBlock renders the data source HCL block. A case with no filter
+// block renders an unfiltered read.
 func buildDataSourceBlock(dsType, resourceType string, dc *DataSourceCase) string {
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "data %q \"test\" {\n", dsType)
@@ -338,6 +338,7 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 			{Name: "skip_if_env_empty"},
 			{Name: "prerequisites_hcl"},
 			{Name: "pair_checks"},
+			{Name: "match_result"},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "filter"},
@@ -389,6 +390,18 @@ func parseDataSourceCaseBody(body hcl.Body, src []byte) (*DataSourceCase, error)
 			}
 		}
 	}
+	if attr, ok := content.Attributes["match_result"]; ok {
+		val, _ := attr.Expr.Value(nil)
+		if val.CanIterateElements() {
+			it := val.ElementIterator()
+			for it.Next() {
+				_, v := it.Element()
+				if v.Type() == cty.String {
+					dc.MatchResult = append(dc.MatchResult, v.AsString())
+				}
+			}
+		}
+	}
 
 	for _, block := range content.Blocks {
 		switch block.Type {
@@ -425,5 +438,40 @@ func parseFilterBlock(body hcl.Body, dc *DataSourceCase) {
 			dc.FilterOrder = append(dc.FilterOrder, k)
 		}
 		sort.Strings(dc.FilterOrder)
+	}
+}
+
+// matchResultCheck asserts that at least one element of
+// `results.*.<path>` on the data source equals the resource's `<path>`.
+func matchResultCheck(dsAddr, resourceAddr, path string) resource.TestCheckFunc {
+	return func(st *terraform.State) error {
+		rs, ok := st.RootModule().Resources[resourceAddr]
+		if !ok {
+			return fmt.Errorf("resource %q not found", resourceAddr)
+		}
+		want, ok := rs.Primary.Attributes[path]
+		if !ok {
+			return fmt.Errorf("resource %q has no attribute %q", resourceAddr, path)
+		}
+		ds, ok := st.RootModule().Resources[dsAddr]
+		if !ok {
+			return fmt.Errorf("data source %q not found", dsAddr)
+		}
+		countStr, ok := ds.Primary.Attributes["results.#"]
+		if !ok {
+			return fmt.Errorf("data source %q has no results.#", dsAddr)
+		}
+		var count int
+		if _, err := fmt.Sscanf(countStr, "%d", &count); err != nil {
+			return fmt.Errorf("data source %q results.# %q not an integer: %w", dsAddr, countStr, err)
+		}
+		for i := 0; i < count; i++ {
+			key := fmt.Sprintf("results.%d.%s", i, path)
+			if got := ds.Primary.Attributes[key]; got == want {
+				return nil
+			}
+		}
+		return fmt.Errorf("no element of %s.results.*.%s equals resource %s.%s (=%q)",
+			dsAddr, path, resourceAddr, path, want)
 	}
 }
