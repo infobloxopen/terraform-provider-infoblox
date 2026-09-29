@@ -16,7 +16,7 @@ Retrieves information about an existing Infoblox RIR Organization in the NIOS ba
 
 ```terraform
 // Retrieve a specific RIR Organization by filters
-data "infoblox_rir_organization" "by_name" {
+data "infoblox_rir_organization" "get_rir_organization_using_filters" {
   filters = {
     name = "example_rir_organization"
   }

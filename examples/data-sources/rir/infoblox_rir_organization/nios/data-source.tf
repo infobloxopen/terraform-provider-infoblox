@@ -1,5 +1,5 @@
 // Retrieve a specific RIR Organization by filters
-data "infoblox_rir_organization" "by_name" {
+data "infoblox_rir_organization" "get_rir_organization_using_filters" {
   filters = {
     name = "example_rir_organization"
   }
