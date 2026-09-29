@@ -610,8 +610,8 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "",
 	},
 	"pxe_lease_time": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Any(int64validator.Between(0, 4294967295)),
 		},
