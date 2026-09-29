@@ -1,5 +1,9 @@
 // Objects read by this setup program (not created, IDs stored as env vars):
 //
+// Infra Hosts (up to 2 online hosts):
+//   - UDDI_INFRA_HOST_DISPLAY_NAME_1, UDDI_INFRA_HOST_LEGACY_ID_1, UDDI_INFRA_HOST_TAG_KEY_1, UDDI_INFRA_HOST_TAG_VALUE_1
+//   - UDDI_INFRA_HOST_DISPLAY_NAME_2, UDDI_INFRA_HOST_LEGACY_ID_2, UDDI_INFRA_HOST_TAG_KEY_2, UDDI_INFRA_HOST_TAG_VALUE_2
+//
 // DNS Hosts (up to 2):
 //   - UDDI_DNS_HOST_ID_1, UDDI_DNS_HOST_ID_2
 //
@@ -28,6 +32,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -45,6 +50,74 @@ func writePipelineEnvVar(key, value string) error {
 	if _, err := fmt.Fprintf(pipelineEnvFile, "%s=%s\n", key, value); err != nil {
 		return fmt.Errorf("write env var %s to pipeline_uddi.env: %w", key, err)
 	}
+	return nil
+}
+
+// StoreInfraHostDetails fetches up to two online Infra Hosts via the Detail API
+// and stores each host's display_name and legacy_id into pipeline_uddi.env as
+// UDDI_INFRA_HOST_DISPLAY_NAME_1/2 and UDDI_INFRA_HOST_LEGACY_ID_1/2.
+func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) error {
+	resp, _, err := client.InfraManagementAPI.DetailAPI.HostsList(ctx).
+		Filter("composite_status=='online'").
+		Limit(2).
+		Execute()
+	if err != nil {
+		return fmt.Errorf("store infra host details: list detail hosts: %w", err)
+	}
+
+	if resp == nil || len(resp.GetResults()) == 0 {
+		fmt.Println("No online infra hosts found, skipping infra host detail storage")
+		return nil
+	}
+
+	tagN := 1
+	for i, host := range resp.GetResults() {
+		if i >= 2 {
+			break
+		}
+		n := i + 1
+		displayNameVar := fmt.Sprintf("UDDI_INFRA_HOST_DISPLAY_NAME_%d", n)
+		legacyIDVar := fmt.Sprintf("UDDI_INFRA_HOST_LEGACY_ID_%d", n)
+
+		if v := host.GetDisplayName(); v != "" {
+			if err := writePipelineEnvVar(displayNameVar, v); err != nil {
+				return fmt.Errorf("store infra host details: write %s: %w", displayNameVar, err)
+			}
+			fmt.Printf("Stored infra host display_name %q as %s\n", v, displayNameVar)
+		}
+
+		if v := host.GetLegacyId(); v != "" {
+			if err := writePipelineEnvVar(legacyIDVar, v); err != nil {
+				return fmt.Errorf("store infra host details: write %s: %w", legacyIDVar, err)
+			}
+			fmt.Printf("Stored infra host legacy_id %q as %s\n", v, legacyIDVar)
+		}
+
+		if tags := host.GetTags(); len(tags) > 0 {
+			tagKeyVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_KEY_%d", tagN)
+			tagValueVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_VALUE_%d", tagN)
+
+			keys := make([]string, 0, len(tags))
+			for k := range tags {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			firstKey := keys[0]
+			firstValue := fmt.Sprintf("%v", tags[firstKey])
+
+			if err := writePipelineEnvVar(tagKeyVar, firstKey); err != nil {
+				return fmt.Errorf("store infra host details: write %s: %w", tagKeyVar, err)
+			}
+			fmt.Printf("Stored infra host tag key %q as %s\n", firstKey, tagKeyVar)
+
+			if err := writePipelineEnvVar(tagValueVar, firstValue); err != nil {
+				return fmt.Errorf("store infra host details: write %s: %w", tagValueVar, err)
+			}
+			fmt.Printf("Stored infra host tag value %q as %s\n", firstValue, tagValueVar)
+			tagN++
+		}
+	}
+
 	return nil
 }
 
@@ -431,6 +504,12 @@ func main() {
 	)
 
 	ctx := context.Background()
+
+	if err := StoreInfraHostDetails(ctx, client); err != nil {
+		fmt.Printf("Error storing infra host details: %v\n", err)
+		return
+	}
+	fmt.Println("Infra host details stored successfully")
 
 	if err := StoreDNSHostIDs(ctx, client); err != nil {
 		fmt.Printf("Error storing DNS host IDs: %v\n", err)
