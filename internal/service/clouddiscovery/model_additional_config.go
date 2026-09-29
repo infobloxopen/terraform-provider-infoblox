@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddiclouddiscovery "github.com/infobloxopen/universal-ddi-go-client/clouddiscovery"
@@ -46,13 +45,10 @@ var AdditionalConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	"forward_zone_enabled": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Enable/Disable forward zone discovery.",
 	},
 	"internal_ranges_enabled": schema.BoolAttribute{
 		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Enable/Disable internal ranges discovery.",
 	},
 	"object_type": schema.SingleNestedAttribute{

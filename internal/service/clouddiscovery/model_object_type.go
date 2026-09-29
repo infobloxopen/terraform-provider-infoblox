@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddiclouddiscovery "github.com/infobloxopen/universal-ddi-go-client/clouddiscovery"
@@ -35,7 +34,6 @@ var ObjectTypeResourceSchemaAttributes = map[string]schema.Attribute{
 	"discover_new": schema.BoolAttribute{
 		Optional:            true,
 		Computed:            true,
-		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Discover new objects.",
 	},
 	"objects": schema.ListNestedAttribute{

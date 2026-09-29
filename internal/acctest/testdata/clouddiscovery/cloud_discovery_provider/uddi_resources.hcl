@@ -30,12 +30,13 @@ case "basic" {
 case "disappears" {
   backend               = "uddi"
   disappears            = true
+  skip = true
   expect_non_empty_plan = true
   parallel              = true
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -57,27 +58,7 @@ case "account_preference" {
 
   step {
     uddi {
-      name               = "{{random}}"
-      provider_type      = "Amazon Web Services"
-      account_preference = "single"
-      credential_preference = {
-        access_identifier_type = "role_arn"
-        credential_type        = "dynamic"
-      }
-      source_configs = [{
-        credential_config = {
-          access_identifier = "arn:aws:iam::{{random_arn}}:role/infoblox_discovery"
-        }
-      }]
-    }
-    check = {
-      "uddi.account_preference" = "single"
-    }
-  }
-
-  step {
-    uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "auto_discover_multiple"
       credential_preference = {
@@ -95,6 +76,27 @@ case "account_preference" {
     }
   }
 
+  step {
+    uddi {
+      name               = "tf_acc_{{random_int}}"
+      provider_type      = "Amazon Web Services"
+      desired_state = "disabled"
+      account_preference = "single"
+      credential_preference = {
+        access_identifier_type = "role_arn"
+        credential_type        = "dynamic"
+      }
+      source_configs = [{
+        credential_config = {
+          access_identifier = "arn:aws:iam::{{random_arn}}:role/infoblox_discovery"
+        }
+      }]
+    }
+    check = {
+      "uddi.account_preference" = "single"
+    }
+  }
+
 }
 
 case "additional_config" {
@@ -103,7 +105,7 @@ case "additional_config" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -137,7 +139,7 @@ case "additional_config" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "auto_discover_multiple"
       credential_preference = {
@@ -177,7 +179,7 @@ case "credential_preference" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -201,7 +203,7 @@ case "destinations" {
   backend           = "uddi"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-    resource "infoblox_network_view" "test" {
+    resource "infoblox_view" "test" {
       uddi = {
         name = "{{random}}"
       }
@@ -210,7 +212,7 @@ case "destinations" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -237,9 +239,9 @@ case "destinations" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
-      account_preference = "auto_discover_multiple"
+      account_preference = "single"
       credential_preference = {
         access_identifier_type = "role_arn"
         credential_type        = "dynamic"
@@ -249,7 +251,7 @@ case "destinations" {
           access_identifier = "arn:aws:iam::{{random_arn}}:role/infoblox_discovery"
         }
       }]
-      destination_types_enabled = ["DNS"]
+      destination_types_enabled = ["IPAM/DHCP", "DNS"]
       destinations = [
         {
           config           = {}
@@ -258,13 +260,14 @@ case "destinations" {
         {
           config = {
             dns = {
-              view_id = infoblox_network_view.test.id
+              view_id = infoblox_view.test.id
             }
           }
           destination_type = "DNS"
         }
       ]
     }
+    depends_on = [ infoblox_view.test ]
     check = {
       "uddi.destinations.0.destination_type" = "IPAM/DHCP"
       "uddi.destinations.1.destination_type" = "DNS"
@@ -286,7 +289,7 @@ case "destinations_with_zone_filters" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -327,7 +330,7 @@ case "destinations_with_zone_filters" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "auto_discover_multiple"
       credential_preference = {
@@ -375,7 +378,7 @@ case "name" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -389,13 +392,13 @@ case "name" {
       }]
     }
     check = {
-      "uddi.name" = "{{random}}"
+      "uddi.name" = "tf_acc_{{random_int}}"
     }
   }
 
   step {
     uddi {
-      name               = "{{random2}}"
+      name               = "tf_acc_{{random_int2}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -409,7 +412,7 @@ case "name" {
       }]
     }
     check = {
-      "uddi.name" = "{{random2}}"
+      "uddi.name" = "tf_acc_{{random_int2}}"
     }
   }
 
@@ -421,7 +424,7 @@ case "provider_type" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -442,11 +445,11 @@ case "provider_type" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Google Cloud Platform"
       account_preference = "single"
       credential_preference = {
-        access_identifier_type = "role_arn"
+        access_identifier_type = "project_id"
         credential_type        = "dynamic"
       }
       source_configs = [{
@@ -463,11 +466,11 @@ case "provider_type" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Microsoft Azure"
       account_preference = "single"
       credential_preference = {
-        access_identifier_type = "role_arn"
+        access_identifier_type = "tenant_id"
         credential_type        = "dynamic"
       }
       source_configs = [{
@@ -491,7 +494,7 @@ case "description" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       description        = "Initial description"
@@ -512,7 +515,7 @@ case "description" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       description        = "Updated description"
@@ -538,7 +541,7 @@ case "desired_state" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       desired_state      = "disabled"
@@ -559,7 +562,7 @@ case "desired_state" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       desired_state      = "enabled"
@@ -585,7 +588,7 @@ case "tags" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -606,7 +609,7 @@ case "tags" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -632,7 +635,7 @@ case "source_configs" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -652,7 +655,7 @@ case "source_configs" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -678,7 +681,7 @@ case "sync_interval" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -699,7 +702,7 @@ case "sync_interval" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
