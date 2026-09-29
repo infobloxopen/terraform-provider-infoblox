@@ -500,6 +500,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		infra.NewInfraHostResource,
 		infra.NewInfraServiceResource,
+		infra.NewJoinTokenResource,
 
 		ipam.NewAddressResource,
 		ipam.NewIpamHostResource,
@@ -634,6 +635,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		infra.NewInfraHostDataSource,
 		infra.NewInfraServiceDataSource,
+		infra.NewJoinTokenDataSource,
 
 		ipam.NewAddressDataSource,
 		ipam.NewIpamHostDataSource,
@@ -771,6 +773,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		infra.NewInfraHostList,
 		infra.NewInfraServiceList,
+		infra.NewJoinTokenList,
 
 		ipam.NewAddressList,
 		ipam.NewIpamHostList,
