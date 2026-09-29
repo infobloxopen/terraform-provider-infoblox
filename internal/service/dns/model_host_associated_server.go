@@ -32,7 +32,6 @@ var HostAssociatedServerResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"name": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "DNS server name.",
 	},
@@ -57,8 +56,7 @@ func (m *HostAssociatedServerModel) Expand(ctx context.Context, diags *diag.Diag
 		return nil
 	}
 	to := &uddidns.HostAssociatedServer{
-		Id:   flex.ExpandStringPointer(m.Id),
-		Name: flex.ExpandStringPointer(m.Name),
+		Id: flex.ExpandStringPointer(m.Id),
 	}
 	return to
 }

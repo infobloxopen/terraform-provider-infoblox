@@ -255,6 +255,18 @@ func (r *DnsHostResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 func (r *DnsHostResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data DnsHostModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	r.preDeleteDnsHost(ctx, &data, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	resp.State.RemoveResource(ctx)
 }
 

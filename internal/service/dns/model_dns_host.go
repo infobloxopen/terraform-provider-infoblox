@@ -104,6 +104,7 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"associated_server": schema.SingleNestedAttribute{
 		Attributes:          HostAssociatedServerResourceSchemaAttributes,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Host associated server configuration.",
 	},
 	"dfp_service": schema.StringAttribute{
@@ -112,7 +113,6 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"inheritance_sources": schema.SingleNestedAttribute{
 		Attributes: HostInheritanceResourceSchemaAttributes,
-		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
 			objectplanmodifier.UseStateForUnknown(),
@@ -150,7 +150,6 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
-		Optional:    true,
 		Computed:    true,
 		ElementType: types.StringType,
 		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
@@ -190,12 +189,8 @@ func (m *DnsHostModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCr
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIDnsHostModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.UDDIDnsHostExt {
 	return &coremodel.UDDIDnsHostExt{
-		AbsoluteName:       flex.ExpandStringPointer(m.AbsoluteName),
-		AssociatedServer:   ExpandHostAssociatedServer(ctx, m.AssociatedServer, diags),
-		InheritanceSources: ExpandHostInheritance(ctx, m.InheritanceSources, diags),
-		KerberosKeys:       flex.ExpandFrameworkListNestedBlock(ctx, m.KerberosKeys, diags, ExpandKerberosKey),
-		Server:             flex.ExpandStringPointer(m.Server),
-		Tags:               flex.ExpandMapStringAny(ctx, m.Tags, diags),
+		AbsoluteName: flex.ExpandStringPointer(m.AbsoluteName),
+		Server:       flex.ExpandStringPointer(m.Server),
 	}
 }
 

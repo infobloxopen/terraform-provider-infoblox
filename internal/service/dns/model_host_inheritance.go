@@ -26,7 +26,7 @@ var HostInheritanceAttrTypes = map[string]attr.Type{
 var HostInheritanceResourceSchemaAttributes = map[string]schema.Attribute{
 	"kerberos_keys": schema.SingleNestedAttribute{
 		Attributes:          InheritedKerberosKeysResourceSchemaAttributes,
-		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Optional. Field config for _kerberos_keys_ field from _Host_ object.",
 	},
 }

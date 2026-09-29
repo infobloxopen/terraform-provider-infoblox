@@ -11,8 +11,7 @@ func TestAccDnsHostList(t *testing.T) {
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"uddi": {
-			Exists:  testAccCheckDnsHostExistsUDDI,
-			Destroy: testAccCheckDnsHostDestroyUDDI,
+			Exists: testAccCheckDnsHostExistsUDDI,
 		},
 	}
 

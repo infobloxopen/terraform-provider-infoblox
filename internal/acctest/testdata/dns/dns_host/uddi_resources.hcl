@@ -1,60 +1,60 @@
 case "basic" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
-    resource "infoblox_dns_server" "test" {
-        uddi = {
-              name = "{{random}}"
-            }
-    }
-  PREREQ
+  resource "infoblox_dns_server" "test" {
+      uddi = {
+          name = "{{random}}"
+      }
+  }
+    PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
     check = {
-      "uddi.server"                        = infoblox_dns_server.test.id
+      "uddi.server" = infoblox_dns_server.test.id
     }
   }
 
 }
 
 case "absolute_name" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
-    resource "infoblox_dns_server" "test" {
-        name = {{random}}
-    }
-  PREREQ
+  resource "infoblox_dns_server" "test" {
+      uddi = {
+          name = "{{random}}"
+      }
+  }
+    PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
-      server = infoblox_dns_server.test.id
+      server        = infoblox_dns_server.test.id
       absolute_name = "{{random2}}."
     }
     check = {
-      "uddi.absolute_name"                        = "{{random}}."
+      "uddi.absolute_name" = "{{random2}}."
     }
   }
 
-step {
+  step {
     id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
-      server = infoblox_dns_server.test.id
+      server        = infoblox_dns_server.test.id
       absolute_name = "{{random3}}."
     }
     check = {
-      "uddi.absolute_name"                        = "{{random3}}."
+      "uddi.absolute_name" = "{{random3}}."
     }
   }
 
@@ -62,37 +62,40 @@ step {
 
 
 case "server" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
-    resource "infoblox_dns_server" "test" {
-        name = {{random}}
-    }
-    resource "infoblox_dns_server" "test2" {
-            name = {{random2}}
-        }
+  resource "infoblox_dns_server" "test" {
+      uddi = {
+          name = "{{random}}"
+      }
+  }
+  resource "infoblox_dns_server" "test2" {
+      uddi = {
+          name = "{{random2}}"
+      }
+  }
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
     check = {
-      "uddi.server"                        = infoblox_dns_server.test.id
+      "uddi.server" = infoblox_dns_server.test.id
     }
   }
 
-step {
+  step {
     id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test2.id
     }
     check = {
-      "uddi.server"                        = infoblox_dns_server.test2.id
+      "uddi.server" = infoblox_dns_server.test2.id
     }
   }
 
