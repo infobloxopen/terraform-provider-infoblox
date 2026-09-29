@@ -71,6 +71,8 @@ type (
 		NIOSLicenseUID     types.String `tfsdk:"nios_license_uid"`
 		EnableNIOSPassthru types.Bool   `tfsdk:"enable_nios_passthru"`
 		DefaultTags        types.Map    `tfsdk:"default_tags"`
+		ProxySearch        types.String `tfsdk:"proxy_search"`
+		ProxyURL           types.String `tfsdk:"proxy_url"`
 	}
 )
 
@@ -161,6 +163,17 @@ func buildUDDIAttribute() schema.Attribute {
 				MarkdownDescription: "Tags applied to every UDDI object the provider creates or updates. A tag set on the resource itself takes precedence over the default of the same name. Not applicable when `enable_nios_passthru` is true.",
 				Optional:            true,
 			},
+			"proxy_search": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Proxy search mode for WAPI passthrough. Allowed values: LOCAL (default), GM.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("LOCAL", "GM"),
+				},
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Proxy URL for WAPI passthrough connections.",
+			},
 		},
 	}
 }
@@ -244,6 +257,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 				return
 			}
 
+			core.SetProxySearch(data.UDDI.ProxySearch.ValueString())
 			infobloxClient.NIOS = client
 		} else {
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
@@ -307,6 +321,7 @@ func (p *InfobloxProvider) newNIOSPassthruClient(
 		niosoption.WithPortalUrl(uddi.PortalURL.ValueString()),
 		niosoption.WithPortalAPIKey(uddi.PortalKey.ValueString()),
 		niosoption.WithNIOSLicenseUID(uddi.NIOSLicenseUID.ValueString()),
+		niosoption.WithProxyURL(uddi.ProxyURL.ValueString()),
 		niosoption.WithDebug(true),
 	}
 
