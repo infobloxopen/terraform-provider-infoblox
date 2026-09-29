@@ -83,34 +83,34 @@ Read-Only:
 
 Read-Only:
 
-- `excluded_accounts` (List of String)
-- `forward_zone_enabled` (Boolean)
-- `internal_ranges_enabled` (Boolean)
-- `object_type` (Attributes) (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type))
+- `excluded_accounts` (List of String) List of account IDs to exclude from discovery.
+- `forward_zone_enabled` (Boolean) Enable/Disable forward zone discovery.
+- `internal_ranges_enabled` (Boolean) Enable/Disable internal ranges discovery.
+- `object_type` (Attributes) Object type to discover. (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type))
 
 <a id="nestedatt--results--uddi--additional_config--object_type"></a>
 ### Nested Schema for `results.uddi.additional_config.object_type`
 
 Read-Only:
 
-- `discover_new` (Boolean)
-- `objects` (Attributes List) (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects))
-- `version` (Number)
+- `discover_new` (Boolean) Discover new objects.
+- `objects` (Attributes List) List of objects to discover. (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects))
+- `version` (Number) Version of the object type.
 
 <a id="nestedatt--results--uddi--additional_config--object_type--objects"></a>
 ### Nested Schema for `results.uddi.additional_config.object_type.objects`
 
 Read-Only:
 
-- `category` (Attributes) (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects--category))
-- `resource_set` (Attributes List) (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects--resource_set))
+- `category` (Attributes) Category of the object. (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects--category))
+- `resource_set` (Attributes List) Resource set of the object . (see [below for nested schema](#nestedatt--results--uddi--additional_config--object_type--objects--resource_set))
 
 <a id="nestedatt--results--uddi--additional_config--object_type--objects--category"></a>
 ### Nested Schema for `results.uddi.additional_config.object_type.objects.category`
 
 Read-Only:
 
-- `excluded` (Boolean)
+- `excluded` (Boolean) If set true , the category is excluded from discovery.
 - `id` (String)
 
 
@@ -119,8 +119,8 @@ Read-Only:
 
 Read-Only:
 
-- `excluded` (Boolean)
-- `id` (String)
+- `excluded` (Boolean) If set true, the resource set of a particular category is excluded from discovery.
+- `id` (String) The resource set ID.
 
 
 
@@ -131,8 +131,8 @@ Read-Only:
 
 Read-Only:
 
-- `access_identifier_type` (String)
-- `credential_type` (String)
+- `access_identifier_type` (String) Access identifier type. Possible values: role_arn, tenant_id, project_id.
+- `credential_type` (String) Credential type. Possible values: dynamic, static.
 
 
 <a id="nestedatt--results--uddi--destinations"></a>
@@ -141,40 +141,38 @@ Read-Only:
 Read-Only:
 
 - `config` (Attributes) Destination configuration. Ex.: '{  "dns": {    "view_name": "view 1",    "view_id": "dns/view/v1",    "consolidated_zone_data_enabled": false,    "sync_type": "read_only/read_write"    "split_view_enabled": false  },  "ipam": {    "ip_space": "",  },  "account": {},  }'. (see [below for nested schema](#nestedatt--results--uddi--destinations--config))
-- `created_at` (String) Timestamp when the object has been created.
 - `deleted_at` (String) Timestamp when the object has been deleted.
 - `destination_type` (String) Destination type: DNS / IPAM / ACCOUNT.
 - `id` (String) Auto-generated unique destination ID. Format BloxID.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 <a id="nestedatt--results--uddi--destinations--config"></a>
 ### Nested Schema for `results.uddi.destinations.config`
 
 Read-Only:
 
-- `dns` (Attributes) (see [below for nested schema](#nestedatt--results--uddi--destinations--config--dns))
-- `ipam` (Attributes) (see [below for nested schema](#nestedatt--results--uddi--destinations--config--ipam))
+- `dns` (Attributes) Destination Config for DNS (see [below for nested schema](#nestedatt--results--uddi--destinations--config--dns))
+- `ipam` (Attributes) Destination Config for IPAM/DHCP (see [below for nested schema](#nestedatt--results--uddi--destinations--config--ipam))
 
 <a id="nestedatt--results--uddi--destinations--config--dns"></a>
 ### Nested Schema for `results.uddi.destinations.config.dns`
 
 Read-Only:
 
-- `consolidated_zone_data_enabled` (Boolean)
+- `consolidated_zone_data_enabled` (Boolean) consolidated_zone_data_enabled consolidates private zones into a single view, which is separate from the public zone view.
 - `resolver_endpoints_sync_enabled` (Boolean) resolver_endpoints_sync_enabled enables discovery of inbound and outbound endpoints from third party providers.
 - `split_view_enabled` (Boolean) split_view_enabled consolidates private zones into a single view, which is separate from the public zone view.
-- `sync_type` (String)
-- `view_id` (String)
-- `view_name` (String)
-- `zone_filters` (Attributes List) (see [below for nested schema](#nestedatt--results--uddi--destinations--config--dns--zone_filters))
+- `sync_type` (String) Type of sync. Sync_type values: "read_only", "read_write".
+- `view_id` (String) Unique identifier of the view.
+- `view_name` (String) Name of the view.
+- `zone_filters` (Attributes List) Zone filters to include or exclude zones from discovery. (see [below for nested schema](#nestedatt--results--uddi--destinations--config--dns--zone_filters))
 
 <a id="nestedatt--results--uddi--destinations--config--dns--zone_filters"></a>
 ### Nested Schema for `results.uddi.destinations.config.dns.zone_filters`
 
 Read-Only:
 
-- `action` (String)
-- `wildcards` (List of String)
+- `action` (String) Action to take on matching zones. Allowed values: "include", "exclude".
+- `wildcards` (List of String) List of zone wildcard patterns to include or exclude.
 
 
 
@@ -183,9 +181,9 @@ Read-Only:
 
 Read-Only:
 
-- `dhcp_server` (String)
+- `dhcp_server` (String) Address of the DHCP Server.
 - `disable_ipam_projection` (Boolean) This flag controls the IPAM Sync/Reconciliation for the provider
-- `ip_space` (String)
+- `ip_space` (String) IP Space.
 
 
 
@@ -196,14 +194,12 @@ Read-Only:
 Read-Only:
 
 - `account_schedule_id` (String) Account Schedule ID.
-- `accounts` (Attributes List) (see [below for nested schema](#nestedatt--results--uddi--source_configs--accounts))
+- `accounts` (Attributes List) List of accounts to be discovered. (see [below for nested schema](#nestedatt--results--uddi--source_configs--accounts))
 - `cloud_credential_id` (String) Cloud Credential ID.
-- `created_at` (String) Timestamp when the object has been created.
 - `credential_config` (Attributes) Credential configuration. Ex.: '{    "access_identifier": "arn:aws:iam::1234:role/access_for_discovery",    "region": "us-east-1",    "enclave": "commercial/gov"  }'. (see [below for nested schema](#nestedatt--results--uddi--source_configs--credential_config))
 - `deleted_at` (String) Timestamp when the object has been deleted.
 - `id` (String) Auto-generated unique source config ID. Format BloxID.
 - `restricted_to_accounts` (List of String) Provider account IDs such as accountID/ SubscriptionID to be restricted for a given source_config.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 <a id="nestedatt--results--uddi--source_configs--accounts"></a>
 ### Nested Schema for `results.uddi.source_configs.accounts`
@@ -235,6 +231,6 @@ Read-Only:
 
 Read-Only:
 
-- `access_identifier` (String)
-- `enclave` (String)
-- `region` (String)
+- `access_identifier` (String) access_identifier values: role_arn_1, tenant_id_123,project_id_123
+- `enclave` (String) Enclave of the account.
+- `region` (String) Region of the account.

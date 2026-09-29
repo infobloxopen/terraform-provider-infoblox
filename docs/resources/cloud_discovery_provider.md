@@ -10,57 +10,177 @@ description: |-
 
 Manages a Cloud Discovery Provider in the UDDI backend.
 
-## Example Usage
-
-### UDDI Backend
+## Example Usage in Amazon Web Services
 
 ```terraform
-// Create a Cloud Discovery Provider for Amazon Web Services (basic)
-resource "infoblox_cloud_discovery_provider" "aws_basic" {
-  uddi = {
-    name               = "example-aws-provider"
-    provider_type      = "Amazon Web Services"
-    account_preference = "single"
-    credential_preference = {
-      access_identifier_type = "role_arn"
-      credential_type        = "dynamic"
-    }
-    source_configs = [
-      {
-        credential_config = {
-          access_identifier = "arn:aws:iam::123456789012:role/infoblox_discovery"
-        }
-      }
-    ]
-  }
+resource "bloxone_dns_view" "example" {
+  name = "example_dns_view"
 }
 
-// Create a Cloud Discovery Provider with additional fields
-resource "infoblox_cloud_discovery_provider" "aws_advanced" {
-  uddi = {
-    name               = "example-aws-provider-advanced"
-    provider_type      = "Amazon Web Services"
-    account_preference = "single"
-    description        = "AWS discovery provider for production accounts"
-    desired_state      = "enabled"
-    sync_interval      = "Auto"
-    credential_preference = {
-      access_identifier_type = "role_arn"
-      credential_type        = "dynamic"
+
+resource "infoblox_cloud_discovery_provider" "example_aws" {
+  name               = "example_provider_aws"
+  provider_type      = "Amazon Web Services"
+  account_preference = "single"
+  credential_preference = {
+    access_identifier_type = "role_arn"
+    credential_type        = "dynamic"
+  }
+  source_configs = [
+    {
+      credential_config = {
+        access_identifier = "arn:aws:iam::123456789012:role/role-name"
+      }
     }
-    source_configs = [
-      {
-        credential_config = {
-          access_identifier = "arn:aws:iam::123456789012:role/infoblox_discovery"
-          region            = "us-east-1"
+  ]
+  destination_types_enabled = [
+    "IPAM/DHCP",
+    "DNS"
+  ]
+  # Other Optional fields
+  destinations = [
+    {
+      config           = {}
+      destination_type = "IPAM/DHCP"
+    },
+    {
+      config = {
+        dns = {
+          view_id = bloxone_dns_view.example.id
+          # Optional: filter which DNS zones are synced
+          zone_filters = [
+            {
+              action    = "include"
+              wildcards = ["*.example.com", "*.internal.example.com"]
+            }
+          ]
         }
       }
-    ]
-    destination_types_enabled = ["IPAM/DHCP", "DNS"]
-    tags = {
-      environment = "production"
-      site        = "Site A"
+      destination_type = "DNS"
     }
+  ]
+
+  tags = {
+    site = "Site A"
+  }
+
+}
+```
+
+## Example Usage in Microsoft Azure
+
+```terraform
+resource "bloxone_dns_view" "example_azure" {
+  name = "example_dns_view_azure"
+}
+
+resource "infoblox_cloud_discovery_provider" "example_azure" {
+  name               = "example_provider_azure"
+  provider_type      = "Microsoft Azure"
+  account_preference = "auto_discover_multiple"
+  credential_preference = {
+    access_identifier_type = "tenant_id"
+    credential_type        = "dynamic"
+  }
+  source_configs = [
+    {
+      credential_config = {
+        access_identifier = "xyz98765-4321-abcd-efgh-ijklmnopqrst"
+      }
+      restricted_to_accounts = ["12345678-abcd-efgh-ijkl-901234567890"]
+    }
+  ]
+  destination_types_enabled = [
+    "IPAM/DHCP",
+    "ACCOUNTS",
+    "DNS"
+  ]
+  destinations = [
+    {
+      config           = {}
+      destination_type = "IPAM/DHCP"
+    },
+    {
+      config           = {}
+      destination_type = "ACCOUNTS"
+    },
+    {
+      config = {
+        dns = {
+          view_id = bloxone_dns_view.example_azure.id
+          # Optional: filter which DNS zones are synced
+          zone_filters = [
+            {
+              action    = "exclude"
+              wildcards = ["*.test.azure.com", "*.staging.azure.com"]
+            }
+          ]
+        }
+      }
+      destination_type = "DNS"
+    }
+  ]
+
+  # Other Optional fields
+
+  tags = {
+    site = "Site A"
+  }
+}
+```
+
+## Example Usage in Google Cloud Platform
+
+```terraform
+resource "bloxone_dns_view" "example_gcp" {
+  name = "example_dns_view_gcp"
+}
+
+resource "infoblox_cloud_discovery_provider" "example_gcp" {
+  name               = "example_provider_gcp"
+  provider_type      = "Google Cloud Platform"
+  account_preference = "single"
+  credential_preference = {
+    access_identifier_type = "project_id"
+    credential_type        = "dynamic"
+  }
+  source_configs = [
+    {
+      credential_config = {
+        access_identifier = "my-bloxone-example-2024"
+      }
+    }
+  ]
+  destination_types_enabled = [
+    "IPAM/DHCP",
+    "DNS"
+  ]
+  destinations = [
+    {
+      config           = {}
+      destination_type = "IPAM/DHCP"
+    },
+    {
+      config = {
+        dns = {
+          view_id = bloxone_dns_view.example_gcp.id
+          # Optional: filter which DNS zones are synced
+          zone_filters = [
+            {
+              action    = "include"
+              wildcards = ["*.gcp.example.com"]
+            }
+          ]
+        }
+      }
+      destination_type = "DNS"
+    }
+  ]
+
+  # Other Optional fields
+
+  tags = {
+    site = "Site A"
   }
 }
 ```
@@ -110,37 +230,34 @@ Read-Only:
 
 Optional:
 
-- `excluded_accounts` (List of String)
-- `forward_zone_enabled` (Boolean)
-- `internal_ranges_enabled` (Boolean)
-- `object_type` (Attributes) (see [below for nested schema](#nestedatt--uddi--additional_config--object_type))
+- `excluded_accounts` (List of String) List of account IDs to exclude from discovery.
+- `forward_zone_enabled` (Boolean) Enable/Disable forward zone discovery.
+- `internal_ranges_enabled` (Boolean) Enable/Disable internal ranges discovery.
+- `object_type` (Attributes) Object type to discover. (see [below for nested schema](#nestedatt--uddi--additional_config--object_type))
 
 <a id="nestedatt--uddi--additional_config--object_type"></a>
 ### Nested Schema for `uddi.additional_config.object_type`
 
 Optional:
 
-- `discover_new` (Boolean)
-- `objects` (Attributes List) (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects))
-- `version` (Number)
+- `discover_new` (Boolean) Discover new objects.
+- `objects` (Attributes List) List of objects to discover. (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects))
+- `version` (Number) Version of the object type.
 
 <a id="nestedatt--uddi--additional_config--object_type--objects"></a>
 ### Nested Schema for `uddi.additional_config.object_type.objects`
 
 Optional:
 
-- `category` (Attributes) (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects--category))
-- `resource_set` (Attributes List) (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects--resource_set))
+- `category` (Attributes) Category of the object. (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects--category))
+- `resource_set` (Attributes List) Resource set of the object . (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects--resource_set))
 
 <a id="nestedatt--uddi--additional_config--object_type--objects--category"></a>
 ### Nested Schema for `uddi.additional_config.object_type.objects.category`
 
 Optional:
 
-- `excluded` (Boolean)
-
-Read-Only:
-
+- `excluded` (Boolean) If set true , the category is excluded from discovery.
 - `id` (String)
 
 
@@ -149,11 +266,11 @@ Read-Only:
 
 Optional:
 
-- `excluded` (Boolean)
+- `excluded` (Boolean) If set true, the resource set of a particular category is excluded from discovery.
 
 Read-Only:
 
-- `id` (String)
+- `id` (String) The resource set ID.
 
 
 
@@ -164,8 +281,8 @@ Read-Only:
 
 Optional:
 
-- `access_identifier_type` (String)
-- `credential_type` (String)
+- `access_identifier_type` (String) Access identifier type. Possible values: role_arn, tenant_id, project_id.
+- `credential_type` (String) Credential type. Possible values: dynamic, static.
 
 
 <a id="nestedatt--uddi--destinations"></a>
@@ -174,10 +291,8 @@ Optional:
 Optional:
 
 - `config` (Attributes) Destination configuration. Ex.: '{  "dns": {    "view_name": "view 1",    "view_id": "dns/view/v1",    "consolidated_zone_data_enabled": false,    "sync_type": "read_only/read_write"    "split_view_enabled": false  },  "ipam": {    "ip_space": "",  },  "account": {},  }'. (see [below for nested schema](#nestedatt--uddi--destinations--config))
-- `created_at` (String) Timestamp when the object has been created.
 - `deleted_at` (String) Timestamp when the object has been deleted.
 - `destination_type` (String) Destination type: DNS / IPAM / ACCOUNT.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 Read-Only:
 
@@ -188,29 +303,29 @@ Read-Only:
 
 Optional:
 
-- `dns` (Attributes) (see [below for nested schema](#nestedatt--uddi--destinations--config--dns))
-- `ipam` (Attributes) (see [below for nested schema](#nestedatt--uddi--destinations--config--ipam))
+- `dns` (Attributes) Destination Config for DNS (see [below for nested schema](#nestedatt--uddi--destinations--config--dns))
+- `ipam` (Attributes) Destination Config for IPAM/DHCP (see [below for nested schema](#nestedatt--uddi--destinations--config--ipam))
 
 <a id="nestedatt--uddi--destinations--config--dns"></a>
 ### Nested Schema for `uddi.destinations.config.dns`
 
 Optional:
 
-- `consolidated_zone_data_enabled` (Boolean)
+- `consolidated_zone_data_enabled` (Boolean) consolidated_zone_data_enabled consolidates private zones into a single view, which is separate from the public zone view.
 - `resolver_endpoints_sync_enabled` (Boolean) resolver_endpoints_sync_enabled enables discovery of inbound and outbound endpoints from third party providers.
 - `split_view_enabled` (Boolean) split_view_enabled consolidates private zones into a single view, which is separate from the public zone view.
-- `sync_type` (String)
-- `view_id` (String)
-- `view_name` (String)
-- `zone_filters` (Attributes List) (see [below for nested schema](#nestedatt--uddi--destinations--config--dns--zone_filters))
+- `sync_type` (String) Type of sync. Sync_type values: "read_only", "read_write".
+- `view_id` (String) Unique identifier of the view.
+- `view_name` (String) Name of the view.
+- `zone_filters` (Attributes List) Zone filters to include or exclude zones from discovery. (see [below for nested schema](#nestedatt--uddi--destinations--config--dns--zone_filters))
 
 <a id="nestedatt--uddi--destinations--config--dns--zone_filters"></a>
 ### Nested Schema for `uddi.destinations.config.dns.zone_filters`
 
 Optional:
 
-- `action` (String)
-- `wildcards` (List of String)
+- `action` (String) Action to take on matching zones. Allowed values: "include", "exclude".
+- `wildcards` (List of String) List of zone wildcard patterns to include or exclude.
 
 
 
@@ -219,9 +334,9 @@ Optional:
 
 Optional:
 
-- `dhcp_server` (String)
+- `dhcp_server` (String) Address of the DHCP Server.
 - `disable_ipam_projection` (Boolean) This flag controls the IPAM Sync/Reconciliation for the provider
-- `ip_space` (String)
+- `ip_space` (String) IP Space.
 
 
 
@@ -233,15 +348,13 @@ Optional:
 
 - `account_schedule_id` (String) Account Schedule ID.
 - `cloud_credential_id` (String) Cloud Credential ID.
-- `created_at` (String) Timestamp when the object has been created.
 - `credential_config` (Attributes) Credential configuration. Ex.: '{    "access_identifier": "arn:aws:iam::1234:role/access_for_discovery",    "region": "us-east-1",    "enclave": "commercial/gov"  }'. (see [below for nested schema](#nestedatt--uddi--source_configs--credential_config))
 - `deleted_at` (String) Timestamp when the object has been deleted.
 - `restricted_to_accounts` (List of String) Provider account IDs such as accountID/ SubscriptionID to be restricted for a given source_config.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 Read-Only:
 
-- `accounts` (Attributes List) (see [below for nested schema](#nestedatt--uddi--source_configs--accounts))
+- `accounts` (Attributes List) List of accounts to be discovered. (see [below for nested schema](#nestedatt--uddi--source_configs--accounts))
 - `id` (String) Auto-generated unique source config ID. Format BloxID.
 
 <a id="nestedatt--uddi--source_configs--credential_config"></a>
@@ -249,9 +362,9 @@ Read-Only:
 
 Optional:
 
-- `access_identifier` (String)
-- `enclave` (String)
-- `region` (String)
+- `access_identifier` (String) access_identifier values: role_arn_1, tenant_id_123,project_id_123
+- `enclave` (String) Enclave of the account.
+- `region` (String) Region of the account.
 
 
 <a id="nestedatt--uddi--source_configs--accounts"></a>

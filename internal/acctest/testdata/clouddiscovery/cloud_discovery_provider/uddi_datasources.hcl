@@ -13,7 +13,7 @@ case "filters" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
@@ -44,7 +44,7 @@ case "tag_filters" {
 
   step {
     uddi {
-      name               = "{{random}}"
+      name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
       account_preference = "single"
       credential_preference = {
