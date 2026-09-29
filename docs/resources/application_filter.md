@@ -43,6 +43,7 @@ resource "infoblox_application_filter" "example_by_category" {
 ### Optional
 
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -63,6 +64,7 @@ Optional:
 
 Read-Only:
 
+- `policies` (List of String) The list of security policy names with which the application filter is associated.
 - `readonly` (Boolean) True if it is a predefined application filter
 - `tags_all` (Map of String) All tags including inherited values.
 
@@ -71,10 +73,10 @@ Read-Only:
 
 Optional:
 
-- `category` (String)
-- `name` (String) Name for the application. Since the name of application is unique it may be used as alternate key for the application. The 'name' is used for import-export workflow and should be resolved to the 'id' before continue processing Create/Update operations.
-- `subcategory` (String)
+- `category` (String) Category of the application (e.g. `Email`, `Communication`). Mutually exclusive with `name` — set one or the other, not both.
+- `name` (String) Name of the application (e.g. `Microsoft 365`). Since the name is unique it may be used as an alternate key and is resolved to the `id` before Create/Update operations. Mutually exclusive with `category` — set one or the other, not both.
+- `subcategory` (String) Subcategory of the application. Only applicable when `category` is set.
 
 Read-Only:
 
-- `id` (String)
+- `id` (String) Unique identifier of the application.

@@ -15,14 +15,17 @@ Retrieves information about existing Infoblox ApplicationFilter from the UDDI ba
 ### UDDI Backend
 
 ```terraform
+// Retrieve a specific Application Filter by name
 data "infoblox_application_filter" "get_by_name" {
   filters = { name = "example-app-filter-by-name" }
 }
 
+// Retrieve Application Filters matching a tag value
 data "infoblox_application_filter" "get_by_tag" {
   tag_filters = { Site = "location-1" }
 }
 
+// Retrieve all Application Filters
 data "infoblox_application_filter" "get_all" {}
 ```
 
@@ -48,6 +51,7 @@ Read-Only:
 
 - `id` (Number) The Application Filter object identifier.
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 <a id="nestedatt--results--uddi"></a>
 ### Nested Schema for `results.uddi`
@@ -57,6 +61,7 @@ Read-Only:
 - `criteria` (Attributes List) The array of key-value pairs specifying criteria for the search. (see [below for nested schema](#nestedatt--results--uddi--criteria))
 - `description` (String) The brief description for the application filter.
 - `name` (String) The name of the application filter.
+- `policies` (List of String) The list of security policy names with which the application filter is associated.
 - `readonly` (Boolean) True if it is a predefined application filter
 - `tags` (Map of String) Enables tag support for resource where tags attribute contains user-defined key value pairs
 - `tags_all` (Map of String) All tags including inherited values.
@@ -66,7 +71,7 @@ Read-Only:
 
 Read-Only:
 
-- `category` (String)
-- `id` (String)
-- `name` (String) Name for the application. Since the name of application is unique it may be used as alternate key for the application. The 'name' is used for import-export workflow and should be resolved to the 'id' before continue processing Create/Update operations.
-- `subcategory` (String)
+- `category` (String) Category of the application (e.g. `Email`, `Communication`). Mutually exclusive with `name` — set one or the other, not both.
+- `id` (String) Unique identifier of the application.
+- `name` (String) Name of the application (e.g. `Microsoft 365`). Since the name is unique it may be used as an alternate key and is resolved to the `id` before Create/Update operations. Mutually exclusive with `category` — set one or the other, not both.
+- `subcategory` (String) Subcategory of the application. Only applicable when `category` is set.

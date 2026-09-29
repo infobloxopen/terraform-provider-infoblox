@@ -7,6 +7,7 @@ var ApplicationFilterUDDIFieldMap = map[string]string{
 	"UDDI.Criteria":    "Criteria",
 	"UDDI.Description": "Description",
 	"UDDI.Name":        "Name",
+	"UDDI.Policies":    "Policies",
 	"UDDI.Readonly":    "Readonly",
 	"UDDI.Tags":        "Tags",
 }
@@ -18,6 +19,7 @@ var ApplicationFilterFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.criteria":    "criteria",
 		"uddi.description": "description",
 		"uddi.name":        "name",
+		"uddi.policies":    "policies",
 		"uddi.readonly":    "readonly",
 		"uddi.tags":        "tags",
 	},
