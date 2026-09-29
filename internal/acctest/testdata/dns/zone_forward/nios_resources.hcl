@@ -5,8 +5,8 @@
 
 # Auto-generated resource acceptance-test cases for ZoneForward.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -39,7 +39,7 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -57,8 +57,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -92,8 +92,8 @@ case "comment" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -127,8 +127,8 @@ case "disable" {
 }
 
 case "disable_ns_generation" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -162,8 +162,8 @@ case "disable_ns_generation" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -197,8 +197,8 @@ case "ext_attrs" {
 }
 
 case "external_ns_group" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -230,8 +230,8 @@ case "external_ns_group" {
 }
 
 case "forward_to" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -267,8 +267,8 @@ case "forward_to" {
 }
 
 case "forwarders_only" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -302,8 +302,8 @@ case "forwarders_only" {
 }
 
 case "forwarding_servers" {
-  backend      = "nios"
-  parallel     = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -357,8 +357,8 @@ case "forwarding_servers" {
 }
 
 case "locked" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -392,8 +392,8 @@ case "locked" {
 }
 
 case "ms_ad_integrated" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -427,8 +427,8 @@ case "ms_ad_integrated" {
 }
 
 case "ms_ddns_mode" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -461,9 +461,10 @@ case "ms_ddns_mode" {
 
 }
 
+
 case "ns_group" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_nsgroup" "test_ns_group1" {
     nios = {
@@ -519,8 +520,8 @@ case "ns_group" {
 }
 
 case "prefix" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -554,8 +555,8 @@ case "prefix" {
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_dns_view" {
     nios = {

@@ -36,15 +36,17 @@ import (
 )
 
 type NetworkcontainerModel struct {
-	Id   types.String `tfsdk:"id"`
-	NIOS types.Object `tfsdk:"nios"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	NIOS          types.Object `tfsdk:"nios"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var NetworkcontainerAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"nios": types.ObjectType{AttrTypes: NIOSNetworkcontainerAttrTypes},
-	"uddi": types.ObjectType{AttrTypes: UDDINetworkcontainerAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"nios":           types.ObjectType{AttrTypes: NIOSNetworkcontainerAttrTypes},
+	"uddi":           types.ObjectType{AttrTypes: UDDINetworkcontainerAttrTypes},
 }
 
 type NIOSNetworkcontainerModel struct {
@@ -142,7 +144,7 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 	"high_water_mark_reset":                types.Int64Type,
 	"ignore_dhcp_option_list_request":      types.BoolType,
 	"ignore_id":                            types.StringType,
-	"ignore_mac_addresses":                 types.ListType{ElemType: types.StringType},
+	"ignore_mac_addresses":                 types.ListType{ElemType: internaltypes.MACAddressType{}},
 	"ipam_email_addresses":                 types.ListType{ElemType: types.StringType},
 	"ipam_threshold_settings":              types.ObjectType{AttrTypes: NetworkcontainerIpamThresholdSettingsAttrTypes},
 	"ipam_trap_settings":                   types.ObjectType{AttrTypes: NetworkcontainerIpamTrapSettingsAttrTypes},
@@ -252,6 +254,10 @@ var NetworkcontainerResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"nios": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -482,7 +488,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Indicates whether the appliance will ignore DHCP client IDs or MAC addresses.",
 	},
 	"ignore_mac_addresses": schema.ListAttribute{
-		ElementType: types.StringType,
+		ElementType: internaltypes.MACAddressType{},
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
@@ -605,6 +611,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"pxe_lease_time": schema.Int64Attribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Any(int64validator.Between(0, 4294967295)),
 		},

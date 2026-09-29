@@ -22,13 +22,15 @@ import (
 )
 
 type DnsServerModel struct {
-	Id   types.String `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var DnsServerAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"uddi": types.ObjectType{AttrTypes: UDDIDnsServerAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIDnsServerAttrTypes},
 }
 
 type UDDIDnsServerModel struct {
@@ -138,6 +140,10 @@ var DnsServerResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,

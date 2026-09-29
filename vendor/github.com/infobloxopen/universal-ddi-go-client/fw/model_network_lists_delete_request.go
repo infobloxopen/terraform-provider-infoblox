@@ -17,7 +17,7 @@ import (
 // checks if the NetworkListsDeleteRequest type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &NetworkListsDeleteRequest{}
 
-// NetworkListsDeleteRequest The Network List delete request.
+// NetworkListsDeleteRequest The Network List deletion request.
 type NetworkListsDeleteRequest struct {
 	// The list of Network List object identifiers.
 	Ids                  []int32 `json:"ids,omitempty"`

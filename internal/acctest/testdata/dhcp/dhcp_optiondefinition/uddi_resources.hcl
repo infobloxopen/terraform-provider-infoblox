@@ -228,7 +228,7 @@ case "option_space" {
       type         = "boolean"
     }
     check = {
-      "uddi.name"         = "basic_opt_code_1"
+      "uddi.name" = "basic_opt_code_1"
     }
     check_pair = {
       "uddi.option_space" = infoblox_dhcp_optionspace.test1.id
@@ -243,7 +243,7 @@ case "option_space" {
       type         = "boolean"
     }
     check = {
-      "uddi.name"         = "basic_opt_code_1"
+      "uddi.name" = "basic_opt_code_1"
     }
     check_pair = {
       "uddi.option_space" = infoblox_dhcp_optionspace.test2.id

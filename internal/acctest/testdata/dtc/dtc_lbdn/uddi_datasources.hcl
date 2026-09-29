@@ -1,6 +1,6 @@
 # Auto-generated datasource acceptance-test cases for DtcLbdn (UDDI backend).
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_view" {
     uddi = {
@@ -26,7 +26,7 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_view" {
     uddi = {

@@ -1065,9 +1065,9 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      name         = "{{random}}"
-      networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
-      network_view = infoblox_network_view.test_view.nios.name
+      name               = "{{random}}"
+      networks           = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
+      network_view       = infoblox_network_view.test_view.nios.name
       logic_filter_rules = [{ filter = "example-option-filter-1", type = "Option" }]
     }
     check = {
@@ -1079,9 +1079,9 @@ case "logic_filter_rules" {
 
   step {
     nios {
-      name         = "{{random}}"
-      networks     = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
-      network_view = infoblox_network_view.test_view.nios.name
+      name               = "{{random}}"
+      networks           = [{ ref = infoblox_network.test_network1.id }, { ref = infoblox_network.test_network2.id }]
+      network_view       = infoblox_network_view.test_view.nios.name
       logic_filter_rules = [{ filter = "example-option-filter-2", type = "Option" }]
     }
     check = {

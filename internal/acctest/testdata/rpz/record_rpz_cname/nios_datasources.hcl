@@ -1,7 +1,7 @@
 # Auto-generated datasource acceptance-test cases for RecordRpzCname.
 
 case "filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {
@@ -30,7 +30,7 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend = "nios"
+  backend           = "nios"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_rp" "test" {
     nios = {

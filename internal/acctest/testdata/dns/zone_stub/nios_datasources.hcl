@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       fqdn = "nios.fqdn"
     }
@@ -24,7 +24,7 @@ case "ext_attr_filters" {
   backend = "nios"
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }
@@ -34,7 +34,7 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      fqdn = "{{random}}.com"
+      fqdn      = "{{random}}.com"
       stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
       ext_attrs = { Site = "{{random3}}" }
     }

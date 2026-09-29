@@ -8,7 +8,7 @@ case "basic" {
       name = "{{random}}"
     }
     check = {
-      "nios.name"    = "{{random}}"
+      "nios.name" = "{{random}}"
     }
   }
 

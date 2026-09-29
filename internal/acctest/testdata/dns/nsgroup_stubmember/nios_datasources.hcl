@@ -3,7 +3,7 @@ case "filters" {
   backend = "nios"
 
   filter {
-    type   = "filters"
+    type = "filters"
     values = {
       name = "nios.name"
     }
@@ -13,7 +13,7 @@ case "filters" {
 
   step {
     nios {
-      name = "{{random}}"
+      name         = "{{random}}"
       stub_members = [{ name = "{{grid_member_hostname}}" }]
     }
   }
@@ -24,7 +24,7 @@ case "ext_attr_filters" {
   backend = "nios"
 
   filter {
-    type   = "ext_attr_filters"
+    type = "ext_attr_filters"
     values = {
       Site = "nios.ext_attrs.Site"
     }
@@ -34,9 +34,9 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random}}"
+      name         = "{{random}}"
       stub_members = [{ name = "{{grid_member_hostname}}" }]
-      ext_attrs = { Site = "{{random2}}" }
+      ext_attrs    = { Site = "{{random2}}" }
     }
   }
 

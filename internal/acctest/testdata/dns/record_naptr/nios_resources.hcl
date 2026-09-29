@@ -1,7 +1,7 @@
 # Auto-generated resource acceptance-test cases for RecordNaptr.
 case "basic" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -32,11 +32,11 @@ case "basic" {
 }
 
 case "disappears" {
-  backend = "nios"
-  disappears = true
+  backend               = "nios"
+  disappears            = true
   expect_non_empty_plan = true
-  parallel = true
-  prerequisites_hcl = <<-PREREQ
+  parallel              = true
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -56,8 +56,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -95,8 +95,8 @@ case "comment" {
 }
 
 case "creator" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -134,8 +134,8 @@ case "creator" {
 }
 
 case "ddns_principal" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -175,8 +175,8 @@ case "ddns_principal" {
 }
 
 case "ddns_protected" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -214,8 +214,8 @@ case "ddns_protected" {
 }
 
 case "disable" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -253,8 +253,8 @@ case "disable" {
 }
 
 case "ext_attrs" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -292,8 +292,8 @@ case "ext_attrs" {
 }
 
 case "flags" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -357,8 +357,8 @@ case "flags" {
 }
 
 case "forbid_reclamation" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -396,8 +396,8 @@ case "forbid_reclamation" {
 }
 
 case "name" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -427,8 +427,8 @@ case "name" {
 }
 
 case "order" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -464,8 +464,8 @@ case "order" {
 }
 
 case "preference" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -501,8 +501,8 @@ case "preference" {
 }
 
 case "regexp" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -540,8 +540,8 @@ case "regexp" {
 }
 
 case "replacement" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -577,8 +577,8 @@ case "replacement" {
 }
 
 case "services" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -616,8 +616,8 @@ case "services" {
 }
 
 case "ttl" {
-  backend = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {

@@ -1,15 +1,15 @@
 # Auto-generated resource acceptance-test cases for HaGroup.
 #  TODO: Objects to be present in the grid for testing
-#  dhcp/host/470520,
-#  dhcp/host/470521
+#  DHCP Hosts
+
 case "basic" {
   backend = "uddi"
 
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -32,8 +32,8 @@ case "disappears" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -48,8 +48,8 @@ case "comment" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name    = "{{random}}"
       mode    = "active-active"
@@ -63,8 +63,8 @@ case "comment" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name    = "{{random}}"
       mode    = "active-active"
@@ -83,8 +83,8 @@ case "hosts" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"
@@ -99,8 +99,8 @@ case "hosts" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470521", role = "active" },
-        { host = "dhcp/host/470520", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_1}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"
@@ -120,8 +120,8 @@ case "mode" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -134,8 +134,8 @@ case "mode" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"
@@ -148,8 +148,8 @@ case "mode" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "advanced-active-passive"
@@ -167,8 +167,8 @@ case "split_ranges" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "split-ranges"
@@ -186,8 +186,8 @@ case "name" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random}}"
       mode = "active-active"
@@ -200,8 +200,8 @@ case "name" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "active" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "active" }
       ]
       name = "{{random2}}"
       mode = "active-active"
@@ -219,8 +219,8 @@ case "tags" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"
@@ -235,8 +235,8 @@ case "tags" {
   step {
     uddi {
       hosts = [
-        { host = "dhcp/host/470520", role = "active" },
-        { host = "dhcp/host/470521", role = "passive" }
+        { host = "{{uddi_dhcp_host_id_1}}", role = "active" },
+        { host = "{{uddi_dhcp_host_id_2}}", role = "passive" }
       ]
       name = "{{random}}"
       mode = "active-passive"

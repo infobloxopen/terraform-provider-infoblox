@@ -353,8 +353,8 @@ case "inheritance_sources" {
 }
 
 case "servers" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dtc_server" "one" {
     uddi = {

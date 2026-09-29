@@ -3,8 +3,8 @@
 
 # Auto-generated resource acceptance-test cases for ZoneDelegated.
 case "basic" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -33,7 +33,7 @@ case "basic" {
 
 case "disappears" {
   backend               = "nios"
-  prerequisites_hcl = <<-PREREQ
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
       fqdn = "{{random}}.com"
@@ -54,8 +54,8 @@ case "disappears" {
 }
 
 case "comment" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -89,8 +89,8 @@ case "comment" {
 }
 
 case "delegate_to" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -124,8 +124,8 @@ case "delegate_to" {
 }
 
 case "delegated_ttl" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -159,8 +159,8 @@ case "delegated_ttl" {
 }
 
 case "disable" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -194,8 +194,8 @@ case "disable" {
 }
 
 case "enable_rfc2317_exclusion" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -229,8 +229,8 @@ case "enable_rfc2317_exclusion" {
 }
 
 case "ext_attrs" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -264,8 +264,8 @@ case "ext_attrs" {
 }
 
 case "locked" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -299,8 +299,8 @@ case "locked" {
 }
 
 case "ms_ad_integrated" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -334,8 +334,8 @@ case "ms_ad_integrated" {
 }
 
 case "ms_ddns_mode" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -381,8 +381,8 @@ case "ms_ddns_mode" {
 }
 
 case "ns_group" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -416,8 +416,8 @@ case "ns_group" {
 }
 
 case "prefix" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     nios = {
@@ -451,8 +451,8 @@ case "prefix" {
 }
 
 case "zone_format_ipv4" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
 resource "infoblox_zone_auth" "parent_auth_reverse_zone_ipv4" {
   nios = {
@@ -478,8 +478,8 @@ PREREQ
 }
 
 case "zone_format_ipv6" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
 resource "infoblox_zone_auth" "parent_auth_reverse_zone_ipv6" {
   nios = {
@@ -505,8 +505,8 @@ PREREQ
 }
 
 case "view" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_dns_view" {
     nios = {

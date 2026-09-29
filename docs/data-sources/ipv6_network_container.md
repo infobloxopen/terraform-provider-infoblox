@@ -87,6 +87,7 @@ Read-Only:
 - `id` (String) The reference to the object.
 - `nios` (Attributes) NIOS backend-specific fields. (see [below for nested schema](#nestedatt--results--nios))
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 <a id="nestedatt--results--nios"></a>
 ### Nested Schema for `results.nios`
