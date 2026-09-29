@@ -334,6 +334,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return Random32Hexadecimal()
 	case strings.HasPrefix(name, "random_ip"):
 		return RandomIP()
+	case strings.HasPrefix(name, "future_rfc3339"):
+		return FutureRFC3339(name)
 	case strings.HasPrefix(name, "future_time"):
 		return FutureTime(name)
 		// Placeholders for Integration Test Params
@@ -384,6 +386,20 @@ func ResolvePlaceholder(placeholder string) string {
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}
+}
+
+// FutureRFC3339 resolves a "future_rfc3339_<N>h" token to a timestamp N hours
+// from now in RFC3339. UDDI timestamps are RFC3339, which carries a timezone;
+// FutureTime's NIOS layout does not, so the two are not interchangeable.
+// Falls back to a 24-hour offset if N is missing or unparseable.
+func FutureRFC3339(name string) string {
+	hours := 24
+	if suffix, ok := strings.CutSuffix(strings.TrimPrefix(name, "future_rfc3339_"), "h"); ok {
+		if n, err := strconv.Atoi(suffix); err == nil {
+			hours = n
+		}
+	}
+	return time.Now().Add(time.Duration(hours) * time.Hour).UTC().Format(time.RFC3339)
 }
 
 // FutureTime resolves a "future_time_<N>h" token to a timestamp N hours from now,
