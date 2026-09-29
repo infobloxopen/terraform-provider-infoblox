@@ -49,6 +49,9 @@ func (s *vlanService) createNIOS(ctx context.Context, obj *ipam.Vlan, opts *core
 	if err != nil {
 		return nil, nil, err
 	}
+	if payload.FuncCall != nil && payload.Id == nil {
+		payload.Id = &niosipam.VlanId{}
+	}
 	if obj.NIOS != nil && obj.NIOS.ExtAttrs != nil {
 		if err := common.ProcessExtAttrs(obj.NIOS, &payload); err != nil {
 			return nil, nil, err
