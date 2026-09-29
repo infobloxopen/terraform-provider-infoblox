@@ -202,6 +202,7 @@ func mapUDDIApplicationFilterToResponse(r *uddifw.ApplicationFilter) *fw.Applica
 		Criteria:    r.Criteria,
 		Description: r.Description,
 		Name:        r.Name,
+		Policies:    r.Policies,
 		Readonly:    r.Readonly,
 	}
 	if r.Tags != nil {

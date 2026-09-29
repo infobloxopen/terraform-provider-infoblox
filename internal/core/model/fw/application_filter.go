@@ -15,6 +15,7 @@ type UDDIApplicationFilterExt struct {
 	Criteria    []uddifw.ApplicationCriterion
 	Description *string
 	Name        *string
+	Policies    []string
 	Readonly    *bool
 	Tags        map[string]any
 }
