@@ -50,16 +50,6 @@ resource "infoblox_ipam_host" "ipam_host_with_additional_fields" {
     }
   }
 }
-
-// Manage IPAM Hosts with Next Available Address
-resource "infoblox_ipam_host" "ipam_host_with_na_address" {
-  uddi = {
-    name      = "example_ipam_host_full"
-    comment   = "IPAM Hosts Example with Next Available Address"
-    addresses = [{ next_available_id = infoblox_network.parent_network.id }]
-
-  }
-}
 ```
 
 
@@ -100,17 +90,8 @@ Read-Only:
 Optional:
 
 - `address` (String) Field usage depends on the operation:  * For read operation, _address_ of the _Address_ corresponding to the _ref_ resource.  * For write operation, _address_ to be created if the _Address_ does not exist. Required if _ref_ is not set on write:     * If the _Address_ already exists and is already pointing to the right _Host_, the operation proceeds.     * If the _Address_ already exists and is pointing to a different _Host, the operation must abort.     * If the _Address_ already exists and is not pointing to any _Host_, it is linked to the _Host_.
-- `dynamic_allocation` (Attributes) Dynamically allocate the address using the NIOS next_available_address function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--uddi--addresses--dynamic_allocation))
 - `ref` (String) The resource identifier.
 - `space` (String) The resource identifier.
-
-<a id="nestedatt--uddi--addresses--dynamic_allocation"></a>
-### Nested Schema for `uddi.addresses.dynamic_allocation`
-
-Required:
-
-- `next_available_id` (String) The resource identifier of the address block, range or subnet from which the next available address should be allocated.
-
 
 
 <a id="nestedatt--uddi--host_names"></a>

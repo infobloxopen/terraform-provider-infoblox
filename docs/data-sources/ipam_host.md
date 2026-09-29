@@ -76,17 +76,8 @@ Read-Only:
 Read-Only:
 
 - `address` (String) Field usage depends on the operation:  * For read operation, _address_ of the _Address_ corresponding to the _ref_ resource.  * For write operation, _address_ to be created if the _Address_ does not exist. Required if _ref_ is not set on write:     * If the _Address_ already exists and is already pointing to the right _Host_, the operation proceeds.     * If the _Address_ already exists and is pointing to a different _Host, the operation must abort.     * If the _Address_ already exists and is not pointing to any _Host_, it is linked to the _Host_.
-- `dynamic_allocation` (Attributes) Dynamically allocate the address using the NIOS next_available_address function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--uddi--addresses--dynamic_allocation))
 - `ref` (String) The resource identifier.
 - `space` (String) The resource identifier.
-
-<a id="nestedatt--results--uddi--addresses--dynamic_allocation"></a>
-### Nested Schema for `results.uddi.addresses.dynamic_allocation`
-
-Read-Only:
-
-- `next_available_id` (String) The resource identifier of the address block, range or subnet from which the next available address should be allocated.
-
 
 
 <a id="nestedatt--results--uddi--host_names"></a>
