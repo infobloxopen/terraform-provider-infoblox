@@ -56,13 +56,13 @@ type (
 		OperationTimeout   types.Int64  `tfsdk:"operation_timeout"`
 		ManageInternalIdEA types.Bool   `tfsdk:"manage_internal_id_ea"`
 		ProxySearch        types.String `tfsdk:"proxy_search"`
-		ProxyURL           types.String `tfsdk:"proxy_url"`
 	}
 
 	NIOSConfig struct {
 		HostUrl  types.String `tfsdk:"host_url"`
 		Username types.String `tfsdk:"username"`
 		Password types.String `tfsdk:"password"`
+		ProxyURL types.String `tfsdk:"proxy_url"`
 	}
 
 	UDDIConfig struct {
@@ -103,10 +103,6 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 					stringvalidator.OneOf("LOCAL", "GM"),
 				},
 			},
-			"proxy_url": schema.StringAttribute{
-				Optional:    true,
-				Description: "HTTP proxy URL to route NIOS WAPI calls through.",
-			},
 		},
 	}
 }
@@ -128,6 +124,10 @@ func buildNIOSAttribute() schema.Attribute {
 				MarkdownDescription: "Password for the NIOS host",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "HTTP proxy URL to route NIOS WAPI calls through.",
 			},
 		},
 	}
@@ -205,7 +205,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
-			niosoption.WithProxyURL(data.ProxyURL.ValueString()),
+			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
 		core.SetProxySearch(data.ProxySearch.ValueString())
@@ -239,7 +239,7 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 				return
 			}
 
-			client := p.newNIOSPassthruClient(data.UDDI, data.ProxyURL.ValueString(), resp)
+			client := p.newNIOSPassthruClient(data.UDDI, resp)
 			if client == nil {
 				return
 			}
@@ -300,7 +300,6 @@ func expandDefaultTags(ctx context.Context, tags types.Map, resp *provider.Confi
 // newNIOSPassthruClient builds a NIOS client that reaches a Grid through the Infoblox Portal.
 func (p *InfobloxProvider) newNIOSPassthruClient(
 	uddi *UDDIConfig,
-	proxyURL string,
 	resp *provider.ConfigureResponse,
 ) *niosclient.APIClient {
 	options := []niosoption.ClientOption{
@@ -309,7 +308,6 @@ func (p *InfobloxProvider) newNIOSPassthruClient(
 		niosoption.WithPortalUrl(uddi.PortalURL.ValueString()),
 		niosoption.WithPortalAPIKey(uddi.PortalKey.ValueString()),
 		niosoption.WithNIOSLicenseUID(uddi.NIOSLicenseUID.ValueString()),
-		niosoption.WithProxyURL(proxyURL),
 		niosoption.WithDebug(true),
 	}
 
