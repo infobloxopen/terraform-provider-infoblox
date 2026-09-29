@@ -51,18 +51,18 @@ type (
 	}
 
 	InfobloxProviderConfig struct {
-		NIOS               *NIOSConfig `tfsdk:"nios"`
-		UDDI               *UDDIConfig `tfsdk:"uddi"`
-		OperationTimeout   types.Int64 `tfsdk:"operation_timeout"`
-		ManageInternalIdEA types.Bool  `tfsdk:"manage_internal_id_ea"`
+		NIOS               *NIOSConfig  `tfsdk:"nios"`
+		UDDI               *UDDIConfig  `tfsdk:"uddi"`
+		OperationTimeout   types.Int64  `tfsdk:"operation_timeout"`
+		ManageInternalIdEA types.Bool   `tfsdk:"manage_internal_id_ea"`
+		ProxySearch        types.String `tfsdk:"proxy_search"`
+		ProxyURL           types.String `tfsdk:"proxy_url"`
 	}
 
 	NIOSConfig struct {
-		HostUrl     types.String `tfsdk:"host_url"`
-		Username    types.String `tfsdk:"username"`
-		Password    types.String `tfsdk:"password"`
-		ProxySearch types.String `tfsdk:"proxy_search"`
-		ProxyURL    types.String `tfsdk:"proxy_url"`
+		HostUrl  types.String `tfsdk:"host_url"`
+		Username types.String `tfsdk:"username"`
+		Password types.String `tfsdk:"password"`
 	}
 
 	UDDIConfig struct {
@@ -71,8 +71,6 @@ type (
 		NIOSLicenseUID     types.String `tfsdk:"nios_license_uid"`
 		EnableNIOSPassthru types.Bool   `tfsdk:"enable_nios_passthru"`
 		DefaultTags        types.Map    `tfsdk:"default_tags"`
-		ProxySearch        types.String `tfsdk:"proxy_search"`
-		ProxyURL           types.String `tfsdk:"proxy_url"`
 	}
 )
 
@@ -98,6 +96,17 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Optional:            true,
 				MarkdownDescription: "Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true",
 			},
+			"proxy_search": schema.StringAttribute{
+				Optional:    true,
+				Description: "Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("LOCAL", "GM"),
+				},
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:    true,
+				Description: "HTTP proxy URL to route NIOS WAPI calls through.",
+			},
 		},
 	}
 }
@@ -119,17 +128,6 @@ func buildNIOSAttribute() schema.Attribute {
 				MarkdownDescription: "Password for the NIOS host",
 				Optional:            true,
 				Sensitive:           true,
-			},
-			"proxy_search": schema.StringAttribute{
-				Optional:    true,
-				Description: "Proxy search mode. Allowed values: LOCAL (default), GM.",
-				Validators: []validator.String{
-					stringvalidator.OneOf("LOCAL", "GM"),
-				},
-			},
-			"proxy_url": schema.StringAttribute{
-				Optional:    true,
-				Description: "Proxy URL to connect to Infoblox NIOS.",
 			},
 		},
 	}
@@ -162,17 +160,6 @@ func buildUDDIAttribute() schema.Attribute {
 				ElementType:         types.StringType,
 				MarkdownDescription: "Tags applied to every UDDI object the provider creates or updates. A tag set on the resource itself takes precedence over the default of the same name. Not applicable when `enable_nios_passthru` is true.",
 				Optional:            true,
-			},
-			"proxy_search": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "Proxy search mode for WAPI passthrough. Allowed values: LOCAL (default), GM.",
-				Validators: []validator.String{
-					stringvalidator.OneOf("LOCAL", "GM"),
-				},
-			},
-			"proxy_url": schema.StringAttribute{
-				Optional:            true,
-				MarkdownDescription: "Proxy URL for WAPI passthrough connections.",
 			},
 		},
 	}
@@ -218,10 +205,10 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
-			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
+			niosoption.WithProxyURL(data.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
-		core.SetProxySearch(data.NIOS.ProxySearch.ValueString())
+		core.SetProxySearch(data.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
@@ -252,12 +239,12 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 				return
 			}
 
-			client := p.newNIOSPassthruClient(data.UDDI, resp)
+			client := p.newNIOSPassthruClient(data.UDDI, data.ProxyURL.ValueString(), resp)
 			if client == nil {
 				return
 			}
 
-			core.SetProxySearch(data.UDDI.ProxySearch.ValueString())
+			core.SetProxySearch(data.ProxySearch.ValueString())
 			infobloxClient.NIOS = client
 		} else {
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
@@ -313,6 +300,7 @@ func expandDefaultTags(ctx context.Context, tags types.Map, resp *provider.Confi
 // newNIOSPassthruClient builds a NIOS client that reaches a Grid through the Infoblox Portal.
 func (p *InfobloxProvider) newNIOSPassthruClient(
 	uddi *UDDIConfig,
+	proxyURL string,
 	resp *provider.ConfigureResponse,
 ) *niosclient.APIClient {
 	options := []niosoption.ClientOption{
@@ -321,7 +309,7 @@ func (p *InfobloxProvider) newNIOSPassthruClient(
 		niosoption.WithPortalUrl(uddi.PortalURL.ValueString()),
 		niosoption.WithPortalAPIKey(uddi.PortalKey.ValueString()),
 		niosoption.WithNIOSLicenseUID(uddi.NIOSLicenseUID.ValueString()),
-		niosoption.WithProxyURL(uddi.ProxyURL.ValueString()),
+		niosoption.WithProxyURL(proxyURL),
 		niosoption.WithDebug(true),
 	}
 
