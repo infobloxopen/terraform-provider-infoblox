@@ -78,6 +78,37 @@ func validateRirOrganizationNIOSConfig(ctx context.Context, m *NIOSRirOrganizati
 		return
 	}
 
+	// The four required RIPE extensible attributes for a RIPE-registered RIR
+	// organization. Mirrors the MapContainsKey validators on the legacy provider.
+	for _, required := range []string{"RIPE Admin Contact", "RIPE Country", "RIPE Technical Contact", "RIPE Email"} {
+		if _, ok := extattrsMap[required]; !ok {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("ext_attrs"),
+				"Missing Required Extensible Attribute",
+				fmt.Sprintf("`%s` is required in `ext_attrs` for a RIPE RIR organization.", required),
+			)
+		}
+	}
+
+	// The closed set of extensible-attribute keys the legacy provider allows via
+	// KeysAre(OneOf(...)). Any other key is a configuration error.
+	allowedKeys := map[string]struct{}{
+		"RIPE Description": {}, "RIPE Admin Contact": {}, "RIPE Country": {},
+		"RIPE Technical Contact": {}, "RIPE Email": {}, "RIPE Remarks": {},
+		"RIPE Notify": {}, "RIPE Registry Source": {}, "RIPE Organization Type": {},
+		"RIPE Address": {}, "RIPE Phone Number": {}, "RIPE Fax Number": {},
+		"RIPE Abuse Mailbox": {}, "RIPE Reference Notify": {},
+	}
+	for key := range extattrsMap {
+		if _, ok := allowedKeys[key]; !ok {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("ext_attrs"),
+				"Invalid Extensible Attribute Key",
+				fmt.Sprintf("`%s` is not a valid extensible attribute key for a RIPE RIR organization.", key),
+			)
+		}
+	}
+
 	for key, value := range extattrsMap {
 		switch key {
 		case "RIPE Country":
@@ -124,10 +155,11 @@ func validateRirOrganizationNIOSConfig(ctx context.Context, m *NIOSRirOrganizati
 	}
 }
 
-// PostFlattenRirOrganizationNIOS copies write-only fields from the plan back to the flattened
-// state, since the NIOS API never echoes password back in responses.
 func PostFlattenRirOrganizationNIOS(ctx context.Context, planned, flattened *NIOSRirOrganizationModel, diags *diag.Diagnostics) {
-	if planned != nil {
+	if planned == nil || flattened == nil {
+		return
+	}
+	if !planned.Password.IsUnknown() && !planned.Password.IsNull() {
 		flattened.Password = planned.Password
 	}
 }

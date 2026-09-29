@@ -59,7 +59,31 @@ case "filters" {
 }
 
 case "ext_attr_filters" {
-  backend     = "nios"
-  skip        = true
-  skip_reason = "NIOS API does not allow non-RIPE extensible attributes on RIR Organization objects"
+  backend  = "nios"
+  parallel = true
+
+  filter {
+    type   = "ext_attr_filters"
+    values = {
+      "RIPE Email" = "nios.ext_attrs[\"RIPE Email\"]"
+    }
+  }
+
+  step {
+    nios {
+      id           = "ORG-CB{{random_int}}-IBTEST"
+      maintainer   = "infoblox"
+      name         = "{{random}}"
+      password     = "test-pass"
+      rir          = "RIPE"
+      sender_email = "support@infoblox.com"
+      ext_attrs = {
+        "RIPE Admin Contact"     = "ib-contact"
+        "RIPE Country"           = "United Kingdom (GB)"
+        "RIPE Technical Contact" = "TEST123-IB"
+        "RIPE Email"             = "{{random2}}@infoblox.com"
+      }
+    }
+  }
+
 }

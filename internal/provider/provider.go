@@ -474,6 +474,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewRulesetResource,
 
 		notification.NewNotificationRestEndpointResource,
+
 		rir.NewRirOrganizationResource,
 
 		rpz.NewRecordRpzAResource,
@@ -604,6 +605,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewRulesetDataSource,
 
 		notification.NewNotificationRestEndpointDataSource,
+
 		rir.NewRirOrganizationDataSource,
 
 		rpz.NewRecordRpzADataSource,
@@ -731,6 +733,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewRulesetList,
 
 		notification.NewNotificationRestEndpointList,
+
 		rir.NewRirOrganizationList,
 
 		rpz.NewRecordRpzAList,
