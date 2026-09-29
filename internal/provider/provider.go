@@ -411,6 +411,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		grid.NewNatgroupResource,
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
+		grid.NewDistributionscheduleResource,
 
 		ipam.NewAddressResource,
 		ipam.NewIpv6networkResource,
@@ -524,6 +525,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewNatgroupDataSource,
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
+		grid.NewDistributionscheduleDataSource,
 
 		ipam.NewAddressDataSource,
 		ipam.NewIpv6networkDataSource,
@@ -640,6 +642,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		grid.NewNatgroupList,
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
+		grid.NewDistributionscheduleList,
 
 		ipam.NewAddressList,
 		ipam.NewIpv6networkList,
