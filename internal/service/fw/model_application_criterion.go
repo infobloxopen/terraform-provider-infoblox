@@ -36,23 +36,23 @@ var ApplicationCriterionResourceSchemaAttributes = map[string]schema.Attribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Category of the application (e.g. `Email`, `Communication`). Mutually exclusive with `name` — set one or the other, not both.",
 	},
 	"id": schema.StringAttribute{
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Unique identifier of the application.",
 	},
 	"name": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "Name for the application. Since the name of application is unique it may be used as alternate key for the application. The 'name' is used for import-export workflow and should be resolved to the 'id' before continue processing Create/Update operations.",
+		MarkdownDescription: "Name of the application (e.g. `Microsoft 365`). Since the name is unique it may be used as an alternate key and is resolved to the `id` before Create/Update operations. Mutually exclusive with `category` — set one or the other, not both.",
 	},
 	"subcategory": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Subcategory of the application. Only applicable when `category` is set.",
 	},
 }
 

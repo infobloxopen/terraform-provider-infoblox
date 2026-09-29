@@ -139,6 +139,34 @@ case "criteria_category" {
 
 }
 
+case "criteria_subcategory" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      criteria = [{ category = "Email", subcategory = "Collaboration" }]
+    }
+    check = {
+      "uddi.criteria.0.category"    = "Email"
+      "uddi.criteria.0.subcategory" = "Collaboration"
+    }
+  }
+
+  step {
+    uddi {
+      name     = "{{random}}"
+      criteria = [{ category = "Email", subcategory = "Productivity" }]
+    }
+    check = {
+      "uddi.criteria.0.category"    = "Email"
+      "uddi.criteria.0.subcategory" = "Productivity"
+    }
+  }
+
+}
+
 case "tags" {
   backend  = "uddi"
   parallel = true
@@ -147,11 +175,11 @@ case "tags" {
     uddi {
       name     = "{{random}}"
       criteria = [{ name = "Microsoft 365" }]
-      tags     = { tag1 = "value1", tag2 = "value2" }
+      tags     = { tag1 = "{{random2}}", tag2 = "{{random3}}" }
     }
     check = {
-      "uddi.tags.tag1" = "value1"
-      "uddi.tags.tag2" = "value2"
+      "uddi.tags.tag1" = "{{random2}}"
+      "uddi.tags.tag2" = "{{random3}}"
     }
   }
 
@@ -159,11 +187,11 @@ case "tags" {
     uddi {
       name     = "{{random}}"
       criteria = [{ name = "Microsoft 365" }]
-      tags     = { tag2 = "value2changed", tag3 = "value3" }
+      tags     = { tag2 = "{{random4}}", tag3 = "{{random5}}" }
     }
     check = {
-      "uddi.tags.tag2" = "value2changed"
-      "uddi.tags.tag3" = "value3"
+      "uddi.tags.tag2" = "{{random4}}"
+      "uddi.tags.tag3" = "{{random5}}"
     }
   }
 
