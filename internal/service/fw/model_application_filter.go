@@ -20,19 +20,22 @@ import (
 )
 
 type ApplicationFilterModel struct {
-	Id   types.Int32  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int32  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var ApplicationFilterAttrTypes = map[string]attr.Type{
-	"id":   types.Int32Type,
-	"uddi": types.ObjectType{AttrTypes: UDDIApplicationFilterAttrTypes},
+	"id":             types.Int32Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIApplicationFilterAttrTypes},
 }
 
 type UDDIApplicationFilterModel struct {
 	Criteria    types.List   `tfsdk:"criteria"`
 	Description types.String `tfsdk:"description"`
 	Name        types.String `tfsdk:"name"`
+	Policies    types.List   `tfsdk:"policies"`
 	Readonly    types.Bool   `tfsdk:"readonly"`
 	Tags        types.Map    `tfsdk:"tags"`
 	TagsAll     types.Map    `tfsdk:"tags_all"`
@@ -42,6 +45,7 @@ var UDDIApplicationFilterAttrTypes = map[string]attr.Type{
 	"criteria":    types.ListType{ElemType: types.ObjectType{AttrTypes: ApplicationCriterionAttrTypes}},
 	"description": types.StringType,
 	"name":        types.StringType,
+	"policies":    types.ListType{ElemType: types.StringType},
 	"readonly":    types.BoolType,
 	"tags":        types.MapType{ElemType: types.StringType},
 	"tags_all":    types.MapType{ElemType: types.StringType},
@@ -58,6 +62,10 @@ var ApplicationFilterResourceSchemaAttributes = map[string]schema.Attribute{
 			int32planmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The Application Filter object identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -86,6 +94,11 @@ var ApplicationFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the application filter.",
+	},
+	"policies": schema.ListAttribute{
+		ElementType:         types.StringType,
+		Computed:            true,
+		MarkdownDescription: "The list of security policy names with which the application filter is associated.",
 	},
 	"readonly": schema.BoolAttribute{
 		Computed:            true,
@@ -164,6 +177,7 @@ func (m *UDDIApplicationFilterModel) Flatten(ctx context.Context, from *coremode
 	m.Criteria = flex.FlattenFrameworkListNestedBlock(ctx, from.Criteria, ApplicationCriterionAttrTypes, diags, FlattenApplicationCriterion)
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.Name = flex.FlattenStringPointer(from.Name)
+	m.Policies = flex.FlattenFrameworkListString(ctx, from.Policies, diags)
 	m.Readonly = flex.FlattenBoolPointer(from.Readonly)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
