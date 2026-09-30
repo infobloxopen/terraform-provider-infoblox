@@ -366,6 +366,50 @@ case "rules" {
 
 }
 
+case "rules_all_attributes" {
+  backend           = "uddi"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_named_list" "nl_test" {
+    uddi = {
+      name            = "{{random2}}"
+      type            = "custom_list"
+      items_described = [{ item = "tf-domain.com", description = "Example Domain" }]
+    }
+  }
+  resource "infoblox_custom_redirect" "redirect_test" {
+    uddi = {
+      name = "{{random3}}"
+      data = "192.0.2.10"
+    }
+  }
+  PREREQ
+  parallel = true
+
+  step {
+    uddi {
+      name = "{{random}}"
+      rules = [{
+        action        = "action_redirect"
+        data          = infoblox_named_list.nl_test.uddi.name
+        type          = infoblox_named_list.nl_test.uddi.type
+        redirect_name = infoblox_custom_redirect.redirect_test.uddi.name
+      }]
+    }
+    check = {
+      "uddi.rules.0.action"        = "action_redirect"
+      "uddi.rules.0.data"          = "{{random2}}"
+      "uddi.rules.0.type"          = "custom_list"
+      "uddi.rules.0.redirect_name" = "{{random3}}"
+    }
+    # policy_id is server-assigned to this policy's id; list_id is server-assigned from the named list
+    check_pair = {
+      "uddi.rules.0.policy_id" = infoblox_security_policy.test.id
+      "uddi.rules.0.list_id"   = infoblox_named_list.nl_test.uddi.id
+    }
+  }
+
+}
+
 # TODO: add prerequisite to dynamically create a DFP resource once DFP service support is added.
 case "dfps" {
   backend     = "uddi"

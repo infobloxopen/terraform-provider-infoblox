@@ -55,6 +55,7 @@ Read-Only:
 
 - `id` (Number) The Security Policy object identifier.
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 <a id="nestedatt--results--uddi"></a>
 ### Nested Schema for `results.uddi`
@@ -87,8 +88,8 @@ Read-Only:
 
 - `addr_net` (String) network address in IPv4 CIDR (address/bitmask length) string format
 - `dfp_ids` (List of Number) The list of identifiers of DFPs that have association with this scope.
-- `dfp_service_ids` (List of String)
-- `end` (String)
+- `dfp_service_ids` (List of String) The list of service IDs of DFPs that have association with this scope.
+- `end` (String) End of the address range used for range scope type.
 - `external_scope_id` (String) external scope ID, UUID
 - `host_id` (String) Host reference, UUID
 - `ip_space_id` (String) IPSpace reference, UUID

@@ -22,30 +22,7 @@ resource "infoblox_security_policy" "example_basic" {
   }
 }
 
-// Create a Security Policy with additional fields
-resource "infoblox_security_policy" "example_full" {
-  uddi = {
-    name           = "example-security-policy-full"
-    description    = "Security policy created by Terraform"
-    default_action = "action_allow"
-    ecs            = true
-    onprem_resolve = false
-    safe_search    = false
-    tags = {
-      Site = "location-1"
-    }
-  }
-}
-
-// Create a Security Policy with DNS Forwarding Proxies assigned
-resource "infoblox_security_policy" "example_with_dfps" {
-  uddi = {
-    name = "example-security-policy-with-dfps"
-    dfps = [530499]
-  }
-}
-
-// Create a Named List and assign it to a Security Policy rule
+// Create a Named List and Application Filter to reference in the policy rules
 resource "infoblox_named_list" "example" {
   uddi = {
     name            = "example-named-list"
@@ -54,20 +31,6 @@ resource "infoblox_named_list" "example" {
   }
 }
 
-resource "infoblox_security_policy" "example_with_named_list" {
-  uddi = {
-    name = "example-sp-with-named-list"
-    rules = [
-      {
-        action = "action_block"
-        data   = infoblox_named_list.example.uddi.name
-        type   = infoblox_named_list.example.uddi.type
-      }
-    ]
-  }
-}
-
-// Create an Application Filter and assign it to a Security Policy rule
 resource "infoblox_application_filter" "example" {
   uddi = {
     name     = "example-app-filter"
@@ -75,10 +38,26 @@ resource "infoblox_application_filter" "example" {
   }
 }
 
-resource "infoblox_security_policy" "example_with_application_filter" {
+// Create a Security Policy with all configurable fields
+resource "infoblox_security_policy" "example_full" {
   uddi = {
-    name = "example-sp-with-application-filter"
+    name                  = "example-security-policy-full"
+    description           = "Security policy created by Terraform"
+    default_action        = "action_allow"
+    default_redirect_name = ""
+    ecs                   = true
+    onprem_resolve        = false
+    safe_search           = false
+    dfps                  = [530499]
+    tags = {
+      Site = "location-1"
+    }
     rules = [
+      {
+        action = "action_block"
+        data   = infoblox_named_list.example.uddi.name
+        type   = infoblox_named_list.example.uddi.type
+      },
       {
         action = "action_allow"
         data   = infoblox_application_filter.example.uddi.name
@@ -96,6 +75,7 @@ resource "infoblox_security_policy" "example_with_application_filter" {
 ### Optional
 
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -138,8 +118,8 @@ Optional:
 
 - `addr_net` (String) network address in IPv4 CIDR (address/bitmask length) string format
 - `dfp_ids` (List of Number) The list of identifiers of DFPs that have association with this scope.
-- `dfp_service_ids` (List of String)
-- `end` (String)
+- `dfp_service_ids` (List of String) The list of service IDs of DFPs that have association with this scope.
+- `end` (String) End of the address range used for range scope type.
 - `external_scope_id` (String) external scope ID, UUID
 - `host_id` (String) Host reference, UUID
 - `ip_space_id` (String) IPSpace reference, UUID
@@ -154,8 +134,11 @@ Optional:
 
 - `action` (String) The action for the policy rule that can be either "action_allow" or "action_log" or "action_redirect" or "action_block" or "action_allow_with_local_resolution". "action_allow_with_local_resolution" only supported for application filter rule with enabled onprem_resolve flag on the Security policy.
 - `data` (String) The data source for the policy rule, that can be either a name of the predefined feed for "named_feed", custom list name for "custom_list" type, category filter name for "category_filter" type and application filter name for "application_filter" type.
-- `list_id` (Number) The Custom List object identifier with which the policy rule is associated. 0 value means no custom list is associated with this policy rule.
-- `policy_id` (Number) The identifier of the Security Policy object with which the policy rule is associated.
 - `policy_name` (String) The name of the security policy with which the policy rule is associated.
 - `redirect_name` (String) The name of the redirect address for redirect actions that can be either IPv4 address or a domain name.
 - `type` (String) The policy rule type that can be either "named_feed" or "custom_list" or "category_filter" or "application_filter".
+
+Read-Only:
+
+- `list_id` (Number) The Custom List object identifier with which the policy rule is associated. 0 value means no custom list is associated with this policy rule.
+- `policy_id` (Number) The identifier of the Security Policy object with which the policy rule is associated.

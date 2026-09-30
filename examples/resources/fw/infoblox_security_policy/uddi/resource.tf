@@ -5,22 +5,7 @@ resource "infoblox_security_policy" "example_basic" {
   }
 }
 
-// Create a Security Policy with additional fields
-resource "infoblox_security_policy" "example_full" {
-  uddi = {
-    name           = "example-security-policy-full"
-    description    = "Security policy created by Terraform"
-    default_action = "action_allow"
-    ecs            = true
-    onprem_resolve = false
-    safe_search    = false
-    tags = {
-      Site = "location-1"
-    }
-  }
-}
-
-// Create a Named List and assign it to a Security Policy rule
+// Create a Named List and Application Filter to reference in the policy rules
 resource "infoblox_named_list" "example" {
   uddi = {
     name            = "example-named-list"
@@ -29,20 +14,6 @@ resource "infoblox_named_list" "example" {
   }
 }
 
-resource "infoblox_security_policy" "example_with_named_list" {
-  uddi = {
-    name = "example-sp-with-named-list"
-    rules = [
-      {
-        action = "action_block"
-        data   = infoblox_named_list.example.uddi.name
-        type   = infoblox_named_list.example.uddi.type
-      }
-    ]
-  }
-}
-
-// Create an Application Filter and assign it to a Security Policy rule
 resource "infoblox_application_filter" "example" {
   uddi = {
     name     = "example-app-filter"
@@ -50,10 +21,26 @@ resource "infoblox_application_filter" "example" {
   }
 }
 
-resource "infoblox_security_policy" "example_with_application_filter" {
+// Create a Security Policy with all configurable fields
+resource "infoblox_security_policy" "example_full" {
   uddi = {
-    name = "example-sp-with-application-filter"
+    name                  = "example-security-policy-full"
+    description           = "Security policy created by Terraform"
+    default_action        = "action_allow"
+    default_redirect_name = ""
+    ecs                   = true
+    onprem_resolve        = false
+    safe_search           = false
+    dfps                  = [530499]
+    tags = {
+      Site = "location-1"
+    }
     rules = [
+      {
+        action = "action_block"
+        data   = infoblox_named_list.example.uddi.name
+        type   = infoblox_named_list.example.uddi.type
+      },
       {
         action = "action_allow"
         data   = infoblox_application_filter.example.uddi.name

@@ -46,12 +46,10 @@ var SecurityPolicyRuleResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The data source for the policy rule, that can be either a name of the predefined feed for \"named_feed\", custom list name for \"custom_list\" type, category filter name for \"category_filter\" type and application filter name for \"application_filter\" type.",
 	},
 	"list_id": schema.Int32Attribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The Custom List object identifier with which the policy rule is associated. 0 value means no custom list is associated with this policy rule.",
 	},
 	"policy_id": schema.Int32Attribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The identifier of the Security Policy object with which the policy rule is associated.",
 	},
@@ -90,8 +88,6 @@ func (m *SecurityPolicyRuleModel) Expand(ctx context.Context, diags *diag.Diagno
 	to := &uddifw.SecurityPolicyRule{
 		Action:       flex.ExpandStringPointer(m.Action),
 		Data:         flex.ExpandStringPointer(m.Data),
-		ListId:       flex.ExpandInt32Pointer(m.ListId),
-		PolicyId:     flex.ExpandInt32Pointer(m.PolicyId),
 		PolicyName:   flex.ExpandStringPointer(m.PolicyName),
 		RedirectName: flex.ExpandStringPointer(m.RedirectName),
 		Type:         flex.ExpandStringPointer(m.Type),
