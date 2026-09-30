@@ -90,7 +90,13 @@ var CloudDiscoveryProviderResourceSchemaAttributes = map[string]schema.Attribute
 
 var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"account_preference": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplaceIfConfigured(),
+		},
+		Validators: []validator.String{
+			stringvalidator.OneOf("single", "multiple", "auto_discover_multiple"),
+		},
 		MarkdownDescription: "Account preference. For ex.: single, multiple, auto-discover-multiple.",
 	},
 	"additional_config": schema.SingleNestedAttribute{

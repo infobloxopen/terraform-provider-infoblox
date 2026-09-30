@@ -362,6 +362,15 @@ func FlattenBool(b bool) types.Bool {
 	return types.BoolValue(b)
 }
 
+// For most fields, API returns false as expected from the provider, so use types.BoolPointerValue() instead.
+// In cases where the API returns null instead of False, use FlattenBoolPointerFalseAsNull.
+func FlattenBoolPointerFalseAsNull(b *bool) types.Bool {
+	if b == nil {
+		return types.BoolValue(false)
+	}
+	return types.BoolValue(*b)
+}
+
 func FlattenBoolPointer(b *bool) types.Bool {
 	if b == nil {
 		return types.BoolNull()

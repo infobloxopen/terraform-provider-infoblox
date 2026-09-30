@@ -81,12 +81,10 @@ var AccountResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Timestamp when the object has been deleted.",
 	},
 	"dhcp_server_id": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "",
 	},
 	"dns_server_id": schema.StringAttribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "DNS Server ID.",
 	},
@@ -175,8 +173,6 @@ func (m *AccountModel) Expand(ctx context.Context, diags *diag.Diagnostics) *udd
 		CompositeStatusMessage: flex.ExpandStringPointer(m.CompositeStatusMessage),
 		CreatedAt:              flex.ExpandRFC3339(m.CreatedAt, diags),
 		DeletedAt:              flex.ExpandRFC3339(m.DeletedAt, diags),
-		DhcpServerId:           flex.ExpandStringPointer(m.DhcpServerId),
-		DnsServerId:            flex.ExpandStringPointer(m.DnsServerId),
 		Id:                     flex.ExpandStringPointer(m.Id),
 		LastSuccessfulSync:     flex.ExpandRFC3339(m.LastSuccessfulSync, diags),
 		LastSync:               flex.ExpandRFC3339(m.LastSync, diags),

@@ -131,7 +131,7 @@ case "additional_config" {
       }
     }
     check = {
-      "uddi.additional_config.object_type.objects.0.category.excluded" = "single"
+      "uddi.additional_config.object_type.objects.0.category.excluded" = "true"
       "uddi.additional_config.object_type.objects.0.category.id"       = "storage"
       "uddi.additional_config.forward_zone_enabled"                    = "false"
     }
@@ -165,7 +165,7 @@ case "additional_config" {
       }
     }
     check = {
-      "uddi.additional_config.object_type.objects.0.category.excluded" = "single"
+      "uddi.additional_config.object_type.objects.0.category.excluded" = "true"
       "uddi.additional_config.object_type.objects.0.category.id"       = "security"
       "uddi.additional_config.forward_zone_enabled"                    = "true"
     }
@@ -280,7 +280,7 @@ case "destinations_with_zone_filters" {
   backend           = "uddi"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-    resource "infoblox_network_view" "test" {
+    resource "infoblox_view" "test" {
       uddi = {
         name = "{{random}}"
       }
@@ -310,7 +310,7 @@ case "destinations_with_zone_filters" {
         {
           config = {
             dns = {
-              view_id = infoblox_network_view.test.id
+              view_id = infoblox_view.test.id
               zone_filters = [
                 {
                   action    = "include"
@@ -332,7 +332,7 @@ case "destinations_with_zone_filters" {
     uddi {
       name               = "tf_acc_{{random_int}}"
       provider_type      = "Amazon Web Services"
-      account_preference = "auto_discover_multiple"
+      account_preference = "single"
       credential_preference = {
         access_identifier_type = "role_arn"
         credential_type        = "dynamic"
@@ -351,7 +351,7 @@ case "destinations_with_zone_filters" {
         {
           config = {
             dns = {
-              view_id = infoblox_network_view.test.id
+              view_id = infoblox_view.test.id
               zone_filters = [
                 {
                   action    = "exclude"

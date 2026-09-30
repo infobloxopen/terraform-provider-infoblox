@@ -116,7 +116,6 @@ func (m *SourceConfigModel) Expand(ctx context.Context, diags *diag.Diagnostics)
 		return nil
 	}
 	to := &uddiclouddiscovery.SourceConfig{
-		AccountScheduleId:    flex.ExpandStringPointer(m.AccountScheduleId),
 		Accounts:             flex.ExpandFrameworkListNestedBlock(ctx, m.Accounts, diags, ExpandAccount),
 		CloudCredentialId:    flex.ExpandStringPointer(m.CloudCredentialId),
 		CredentialConfig:     ExpandCredentialConfig(ctx, m.CredentialConfig, diags),

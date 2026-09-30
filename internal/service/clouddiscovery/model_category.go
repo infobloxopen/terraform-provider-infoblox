@@ -40,7 +40,7 @@ var CategoryResourceSchemaAttributes = map[string]schema.Attribute{
 		},
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Category ID. Must be one of \"security\", \"networking-basics\", \"lbs\", \"compute\", \"azure-storage\", \"networking-advanced\", \"storage\"",
 	},
 }
 

@@ -104,7 +104,7 @@ func (m *AdditionalConfigModel) Flatten(ctx context.Context, from *uddiclouddisc
 		return
 	}
 	m.ExcludedAccounts = flex.FlattenFrameworkListString(ctx, from.ExcludedAccounts, diags)
-	m.ForwardZoneEnabled = flex.FlattenBoolPointer(from.ForwardZoneEnabled)
+	m.ForwardZoneEnabled = flex.FlattenBoolPointerFalseAsNull(from.ForwardZoneEnabled)
 	m.InternalRangesEnabled = flex.FlattenBoolPointer(from.InternalRangesEnabled)
 	m.ObjectType = FlattenObjectType(ctx, from.ObjectType, diags)
 }
