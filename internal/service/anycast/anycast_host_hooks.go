@@ -22,9 +22,10 @@ func validateAnycastHostUDDIConfig(ctx context.Context, m *UDDIAnycastHostModel,
 }
 
 func (r *AnycastHostResource) lookupAnycastHost(ctx context.Context, data *AnycastHostModel, obj *coremodel.AnycastHost, diags *diag.Diagnostics) {
+	legacyID := data.Id.ValueInt64()
 	results, _, _, err := r.lookupService.List(ctx, &core.ListOptions{
 		InternalFilters: map[string]string{
-			"legacy_id": fmt.Sprintf("%d", *obj.Id),
+			"legacy_id": fmt.Sprintf("%d", legacyID),
 		},
 	})
 	if err != nil {
@@ -32,7 +33,7 @@ func (r *AnycastHostResource) lookupAnycastHost(ctx context.Context, data *Anyca
 		return
 	}
 	if len(results) != 1 {
-		diags.AddError("Client Error", fmt.Sprintf("Expected exactly one host with legacy_id %d, found %d", *obj.Id, len(results)))
+		diags.AddError("Client Error", fmt.Sprintf("Expected exactly one host with legacy_id %d, found %d", legacyID, len(results)))
 		return
 	}
 

@@ -54,7 +54,7 @@ const (
 
 var AnycastHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
-		Computed:            true,
+		Required:            true,
 		MarkdownDescription: "",
 	},
 	"update_trigger": schema.StringAttribute{
@@ -96,14 +96,17 @@ var AnycastHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ip_address": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "IPv4 address of the on-prem host",
 	},
 	"ipv6_address": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "IPv6 address of the on-prem host",
 	},
 	"name": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},

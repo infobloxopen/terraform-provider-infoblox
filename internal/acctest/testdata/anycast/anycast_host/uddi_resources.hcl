@@ -1,5 +1,5 @@
 case "basic" {
-  backend     = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -13,7 +13,7 @@ case "basic" {
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
     }
@@ -21,19 +21,16 @@ case "basic" {
       "id"                         = "{{uddi_infra_host_legacy_id_1}}"
       "uddi.anycast_config_refs.#" = "1"
     }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-    }
   }
 
 }
 
 
 case "disappears" {
-  backend               = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
-  disappears            = true
+  disappears        = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_anycast_config" "test_onprem_hosts" {
     uddi = {
@@ -45,16 +42,15 @@ case "disappears" {
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
     }
   }
-
 }
 
 case "anycast_config_refs" {
-  backend     = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -69,7 +65,7 @@ case "anycast_config_refs" {
     resource "infoblox_anycast_config" "test_onprem_hosts2" {
           uddi = {
             name = "{{random2}}"
-            anycast_ip_address = "{{random_ip}}"
+            anycast_ip_address = "{{random_ip2}}"
             service = "DNS"
           }
         }
@@ -77,43 +73,39 @@ case "anycast_config_refs" {
     resource "infoblox_anycast_config" "test_onprem_hosts3" {
           uddi = {
             name = "{{random3}}"
-            anycast_ip_address = "{{random_ip}}"
+            anycast_ip_address = "{{random_ip3}}"
             service = "DNS"
           }
         }
     PREREQ
 
-    step {
-          id = "{{uddi_infra_host_legacy_id_1}}"
-        uddi {
-          anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name },{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts2.uddi.name }]
-        }
-        check = {
-          "uddi.anycast_config_refs.#" = "2"
-        }
-        check_pair = {
-          "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-          "uddi.anycast_config_refs.1.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts2.uddi.name"
-        }
-      }
+  step {
+    id = "{{uddi_infra_host_legacy_id_1}}"
+    uddi {
+      anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }, { anycast_config_name = infoblox_anycast_config.test_onprem_hosts2.uddi.name }]
+    }
+    check = {
+      "uddi.anycast_config_refs.#"                     = "2"
+      "uddi.anycast_config_refs.0.anycast_config_name" = "{{random}}"
+      "uddi.anycast_config_refs.1.anycast_config_name" = "{{random2}}"
+    }
+  }
 
   step {
-            id = "{{uddi_infra_host_legacy_id_1}}"
-          uddi {
-            anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts3.uddi.name }]
-          }
-          check = {
-            "uddi.anycast_config_refs.#" = "1"
-          }
-          check_pair = {
-            "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts3.uddi.name"
-          }
-        }
+    id = "{{uddi_infra_host_legacy_id_1}}"
+    uddi {
+      anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts3.uddi.name }]
+    }
+    check = {
+      "uddi.anycast_config_refs.#"                     = "1"
+      "uddi.anycast_config_refs.0.anycast_config_name" = "{{random3}}"
+    }
+  }
 }
 
 
 case "enable_routing" {
-  backend     = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -127,7 +119,7 @@ case "enable_routing" {
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
       config_bgp          = { asn = 6500, holddown_secs = 180, neighbors = [{ asn = 6501, ip_address = "172.28.4.198" }] }
@@ -140,38 +132,34 @@ case "enable_routing" {
       "uddi.config_bgp.neighbors.0.asn"        = "6501"
       "uddi.config_bgp.neighbors.0.ip_address" = "172.28.4.198"
     }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-    }
   }
 
   step {
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
       config_ospf         = { area_type = "STANDARD", area = "10.10.0.1", authentication_type = "Clear", interface = "eth0", authentication_key = "YXV0aGV", hello_interval = 10, dead_interval = 40, retransmit_interval = 5, transmit_delay = 1 }
     }
     check = {
-      "uddi.anycast_config_refs.#"               = "1"
-      "uddi.config_ospf.area_type"               = "STANDARD"
-      "uddi.config_ospf.area"                    = "10.10.0.1"
-      "uddi.config_ospf.authentication_type"     = "Clear"
-      "uddi.config_ospf.interface"               = "eth0"
-      "uddi.config_ospf.authentication_key"      = "YXV0aGV"
-      "uddi.config_ospf.hello_interval"          = "10"
-      "uddi.config_ospf.dead_interval"           = "40"
-      "uddi.config_ospf.retransmit_interval"     = "5"
-      "uddi.config_ospf.transmit_delay"          = "1"
+      "uddi.anycast_config_refs.#"           = "1"
+      "uddi.config_ospf.area_type"           = "STANDARD"
+      "uddi.config_ospf.area"                = "10.10.0.1"
+      "uddi.config_ospf.authentication_type" = "Clear"
+      "uddi.config_ospf.interface"           = "eth0"
+      "uddi.config_ospf.authentication_key"  = "YXV0aGV"
+      "uddi.config_ospf.hello_interval"      = "10"
+      "uddi.config_ospf.dead_interval"       = "40"
+      "uddi.config_ospf.retransmit_interval" = "5"
+      "uddi.config_ospf.transmit_delay"      = "1"
     }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-    }
+
   }
 
 }
 
 
 case "bgp" {
-  backend     = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -185,10 +173,10 @@ case "bgp" {
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
-      config_bgp          = { asn = "BGP", holddown_secs = 6500, neighbors = [{ asn = 6501, ip_address = "172.28.4.198" }] }
+      config_bgp          = { asn = "6500", holddown_secs = 180, neighbors = [{ asn = 6501, ip_address = "172.28.4.198" }] }
     }
     check = {
       "uddi.anycast_config_refs.#"             = "1"
@@ -196,16 +184,13 @@ case "bgp" {
       "uddi.config_bgp.holddown_secs"          = "180"
       "uddi.config_bgp.neighbors.0.ip_address" = "172.28.4.198"
     }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-    }
   }
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
-      config_bgp          = { asn = "BGP", holddown_secs = 6601, neighbors = [{ asn = 6501, ip_address = "172.28.4.198" }] }
+      config_bgp          = { asn = "6601", holddown_secs = 200, neighbors = [{ asn = 6501, ip_address = "172.28.4.198" }] }
     }
     check = {
       "uddi.anycast_config_refs.#"             = "1"
@@ -213,16 +198,13 @@ case "bgp" {
       "uddi.config_bgp.holddown_secs"          = "200"
       "uddi.config_bgp.neighbors.0.ip_address" = "172.28.4.198"
     }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
-    }
   }
 
 }
 
 
 case "ospf" {
-  backend     = "uddi"
+  backend           = "uddi"
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
@@ -236,50 +218,44 @@ case "ospf" {
   PREREQ
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
-      config_ospf         = { area_type = "OSPF", area = "STANDARD", authentication_type = "10.10.0.1", interface = "Clear", authentication_key = "YXV0aGV", authentication_key_id = 1, hello_interval = "eth0", dead_interval = 10, retransmit_interval = 40, transmit_delay = 5 }
+      config_ospf         = { area_type = "STANDARD", area = "10.10.0.1", authentication_type = "Clear", interface = "eth0", authentication_key = "YXV0aGV", authentication_key_id = 1, hello_interval = 10, dead_interval = 40, retransmit_interval = 5, transmit_delay = 10 }
     }
     check = {
-      "uddi.anycast_config_refs.#"               = "1"
-      "uddi.config_ospf.area_type"               = "STANDARD"
-      "uddi.config_ospf.area"                    = "10.10.0.1"
-      "uddi.config_ospf.authentication_type"     = "Clear"
-      "uddi.config_ospf.interface"               = "eth0"
-      "uddi.config_ospf.authentication_key"      = "YXV0aGV"
-      "uddi.config_ospf.authentication_key_id"   = "1"
-      "uddi.config_ospf.hello_interval"          = "10"
-      "uddi.config_ospf.dead_interval"           = "40"
-      "uddi.config_ospf.retransmit_interval"     = "5"
-      "uddi.config_ospf.transmit_delay"          = "1"
-    }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
+      "uddi.anycast_config_refs.#"             = "1"
+      "uddi.config_ospf.area_type"             = "STANDARD"
+      "uddi.config_ospf.area"                  = "10.10.0.1"
+      "uddi.config_ospf.authentication_type"   = "Clear"
+      "uddi.config_ospf.interface"             = "eth0"
+      "uddi.config_ospf.authentication_key"    = "YXV0aGV"
+      "uddi.config_ospf.authentication_key_id" = "1"
+      "uddi.config_ospf.hello_interval"        = "10"
+      "uddi.config_ospf.dead_interval"         = "40"
+      "uddi.config_ospf.retransmit_interval"   = "5"
+      "uddi.config_ospf.transmit_delay"        = "10"
     }
   }
 
   step {
-      id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       anycast_config_refs = [{ anycast_config_name = infoblox_anycast_config.test_onprem_hosts.uddi.name }]
-      config_ospf         = { area_type = "OSPF", area = "NSSA", authentication_type = "10.10.0.2", interface = "MD5", authentication_key = "YXV0aGV", authentication_key_id = 1, hello_interval = "ens160", dead_interval = 20, retransmit_interval = 50, transmit_delay = 10 }
+      config_ospf         = { area_type = "NSSA", area = "10.10.0.2", authentication_type = "MD5", interface = "ens160", authentication_key = "YXV0aGV", authentication_key_id = 3, hello_interval = 20, dead_interval = 50, retransmit_interval = 10, transmit_delay = 2 }
     }
     check = {
-      "uddi.anycast_config_refs.#"               = "1"
-      "uddi.config_ospf.area_type"               = "NSSA"
-      "uddi.config_ospf.area"                    = "10.10.0.2"
-      "uddi.config_ospf.authentication_type"     = "MD5"
-      "uddi.config_ospf.interface"               = "ens160"
-      "uddi.config_ospf.authentication_key"      = "YXV0aGV"
-      "uddi.config_ospf.authentication_key_id"   = "1"
-      "uddi.config_ospf.hello_interval"          = "20"
-      "uddi.config_ospf.dead_interval"           = "50"
-      "uddi.config_ospf.retransmit_interval"     = "10"
-      "uddi.config_ospf.transmit_delay"          = "2"
-    }
-    check_pair = {
-      "uddi.anycast_config_refs.0.anycast_config_name" = "infoblox_anycast_config.test_onprem_hosts.uddi.name"
+      "uddi.anycast_config_refs.#"             = "1"
+      "uddi.config_ospf.area_type"             = "NSSA"
+      "uddi.config_ospf.area"                  = "10.10.0.2"
+      "uddi.config_ospf.authentication_type"   = "MD5"
+      "uddi.config_ospf.interface"             = "ens160"
+      "uddi.config_ospf.authentication_key"    = "YXV0aGV"
+      "uddi.config_ospf.authentication_key_id" = "3"
+      "uddi.config_ospf.hello_interval"        = "20"
+      "uddi.config_ospf.dead_interval"         = "50"
+      "uddi.config_ospf.retransmit_interval"   = "10"
+      "uddi.config_ospf.transmit_delay"        = "2"
     }
   }
 

@@ -41,6 +41,7 @@ var BgpNeighborResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"asn_text": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Autonomous system as text (supported in ASDOT or ASPLAIN format) Optional, requires the asn field to be set to the equivalent integer value of the ASDOT/ASPLAIN string contained in this field or be unset/zero.",
 	},
 	"ip_address": schema.StringAttribute{
