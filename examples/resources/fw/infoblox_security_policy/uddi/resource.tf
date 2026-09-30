@@ -20,14 +20,6 @@ resource "infoblox_security_policy" "example_full" {
   }
 }
 
-// Create a Security Policy with DNS Forwarding Proxies assigned
-resource "infoblox_security_policy" "example_with_dfps" {
-  uddi = {
-    name = "example-security-policy-with-dfps"
-    dfps = [530499]
-  }
-}
-
 // Create a Named List and assign it to a Security Policy rule
 resource "infoblox_named_list" "example" {
   uddi = {

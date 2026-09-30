@@ -231,34 +231,40 @@ case "ecs" {
 }
 
 case "network_lists" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_td_network_list not yet implemented"
-  parallel    = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_td_network_list_unknown" "nl_test1" {
+  resource "infoblox_network_list" "nl_test1" {
     uddi = {
-      name = "{{random2}}"
-      items = ["{{random4}}/32"]
+      name       = "{{random2}}"
+      addr_block = [{ address = "{{random4}}/32" }]
     }
   }
-  resource "infoblox_td_network_list_unknown" "nl_test2" {
+  resource "infoblox_network_list" "nl_test2" {
     uddi = {
-      name = "{{random3}}"
-      items = ["{{random5}}/32"]
+      name       = "{{random3}}"
+      addr_block = [{ address = "{{random5}}/32" }]
     }
   }
   PREREQ
 
   step {
     uddi {
-      name = "{{random}}"
+      name          = "{{random}}"
+      network_lists = [infoblox_network_list.nl_test1.uddi.id]
+    }
+    check = {
+      "uddi.network_lists.#" = "1"
     }
   }
 
   step {
     uddi {
-      name = "{{random}}"
+      name          = "{{random}}"
+      network_lists = [infoblox_network_list.nl_test1.uddi.id, infoblox_network_list.nl_test2.uddi.id]
+    }
+    check = {
+      "uddi.network_lists.#" = "2"
     }
   }
 
