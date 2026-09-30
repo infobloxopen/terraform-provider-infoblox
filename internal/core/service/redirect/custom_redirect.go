@@ -182,8 +182,9 @@ func mapUDDICustomRedirectToResponse(r *uddiredirect.CustomRedirect) *redirect.C
 		Id: r.Id,
 	}
 	resp.UDDI = &redirect.UDDICustomRedirectExt{
-		Data: r.Data,
-		Name: r.Name,
+		Data:      r.Data,
+		Name:      r.Name,
+		PolicyIds: r.PolicyIds,
 	}
 	return resp
 }

@@ -8,6 +8,7 @@ type CustomRedirect struct {
 
 // UDDICustomRedirectExt - UDDI specific fields for CustomRedirect
 type UDDICustomRedirectExt struct {
-	Data *string
-	Name *string
+	Data      *string
+	Name      *string
+	PolicyIds []int32
 }

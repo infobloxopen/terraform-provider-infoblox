@@ -336,7 +336,6 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		infra.NewInfraHostResource,
-		redirect.NewCustomRedirectResource,
 		notification.NewNotificationRestEndpointResource,
 
 		acl.NewNamedaclResource,
@@ -431,6 +430,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		redirect.NewCustomRedirectResource,
+
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
@@ -447,7 +448,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		infra.NewInfraHostDataSource,
-		redirect.NewCustomRedirectDataSource,
 		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
@@ -544,6 +544,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		redirect.NewCustomRedirectDataSource,
+
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
@@ -560,7 +562,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		infra.NewInfraHostList,
-		redirect.NewCustomRedirectList,
 		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
@@ -653,6 +654,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
+
+		redirect.NewCustomRedirectList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,

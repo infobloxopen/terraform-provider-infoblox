@@ -27,13 +27,15 @@ var CustomRedirectAttrTypes = map[string]attr.Type{
 }
 
 type UDDICustomRedirectModel struct {
-	Data types.String `tfsdk:"data"`
-	Name types.String `tfsdk:"name"`
+	Data      types.String `tfsdk:"data"`
+	Name      types.String `tfsdk:"name"`
+	PolicyIds types.List   `tfsdk:"policy_ids"`
 }
 
 var UDDICustomRedirectAttrTypes = map[string]attr.Type{
-	"data": types.StringType,
-	"name": types.StringType,
+	"data":       types.StringType,
+	"name":       types.StringType,
+	"policy_ids": types.ListType{ElemType: types.Int32Type},
 }
 
 const (
@@ -67,6 +69,11 @@ var CustomRedirectResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the custom redirect.",
+	},
+	"policy_ids": schema.ListAttribute{
+		ElementType:         types.Int32Type,
+		Computed:            true,
+		MarkdownDescription: "The list of the security policy identifiers with which the named list is associated.",
 	},
 }
 
@@ -123,4 +130,5 @@ func (m *UDDICustomRedirectModel) Flatten(ctx context.Context, from *coremodel.U
 	}
 	m.Data = flex.FlattenStringPointer(from.Data)
 	m.Name = flex.FlattenStringPointer(from.Name)
+	m.PolicyIds = flex.FlattenFrameworkListInt32(ctx, from.PolicyIds, diags)
 }
