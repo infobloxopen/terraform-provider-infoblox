@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccBfdtemplateList(t *testing.T) {
-	resourceType := "infoblox_bfdtemplate"
+	resourceType := "infoblox_bfd_template"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -18,7 +18,7 @@ func TestAccBfdtemplateList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "misc/bfdtemplate/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "misc/bfd_template/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

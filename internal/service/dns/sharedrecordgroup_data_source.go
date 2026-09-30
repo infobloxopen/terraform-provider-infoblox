@@ -36,7 +36,7 @@ type SharedrecordgroupDataSource struct {
 }
 
 func (d *SharedrecordgroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sharedrecordgroup"
+	resp.TypeName = req.ProviderTypeName + "_sharedrecord_group"
 }
 
 // SharedrecordgroupDataSourceModel is the filter model for the datasource

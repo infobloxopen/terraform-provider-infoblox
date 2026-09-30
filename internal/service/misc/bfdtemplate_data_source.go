@@ -36,7 +36,7 @@ type BfdtemplateDataSource struct {
 }
 
 func (d *BfdtemplateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_bfdtemplate"
+	resp.TypeName = req.ProviderTypeName + "_bfd_template"
 }
 
 // BfdtemplateDataSourceModel is the filter model for the datasource

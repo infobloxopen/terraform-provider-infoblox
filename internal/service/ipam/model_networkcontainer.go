@@ -144,7 +144,7 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 	"high_water_mark_reset":                types.Int64Type,
 	"ignore_dhcp_option_list_request":      types.BoolType,
 	"ignore_id":                            types.StringType,
-	"ignore_mac_addresses":                 types.ListType{ElemType: types.StringType},
+	"ignore_mac_addresses":                 types.ListType{ElemType: internaltypes.MACAddressType{}},
 	"ipam_email_addresses":                 types.ListType{ElemType: types.StringType},
 	"ipam_threshold_settings":              types.ObjectType{AttrTypes: NetworkcontainerIpamThresholdSettingsAttrTypes},
 	"ipam_trap_settings":                   types.ObjectType{AttrTypes: NetworkcontainerIpamTrapSettingsAttrTypes},
@@ -488,7 +488,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Indicates whether the appliance will ignore DHCP client IDs or MAC addresses.",
 	},
 	"ignore_mac_addresses": schema.ListAttribute{
-		ElementType: types.StringType,
+		ElementType: internaltypes.MACAddressType{},
 		Optional:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
@@ -611,6 +611,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"pxe_lease_time": schema.Int64Attribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.Int64{
 			int64validator.Any(int64validator.Between(0, 4294967295)),
 		},

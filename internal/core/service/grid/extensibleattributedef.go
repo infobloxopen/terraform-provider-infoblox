@@ -88,6 +88,7 @@ func (s *extensibleattributedefService) readNIOS(ctx context.Context, id string,
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -195,6 +196,7 @@ func (s *extensibleattributedefService) listNIOS(ctx context.Context, opts *core
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

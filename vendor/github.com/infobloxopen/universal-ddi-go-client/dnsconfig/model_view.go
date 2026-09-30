@@ -41,8 +41,12 @@ type View struct {
 	DnssecEnabled *bool `json:"dnssec_enabled,omitempty"`
 	// DNSSEC root keys. The root keys are not configurable.  A default list is provided by cloud management and included here for config generation.
 	DnssecRootKeys []TrustAnchor `json:"dnssec_root_keys,omitempty"`
+	// Optional. DNSSEC signing policy configuration.
+	DnssecSigningPolicy *DNSSECSigningPolicy `json:"dnssec_signing_policy,omitempty"`
 	// Optional. DNSSEC trust anchors.  Error if there are list items with duplicate (_zone_, _sep_, _algorithm_) combinations.  Defaults to empty.
 	DnssecTrustAnchors []TrustAnchor `json:"dnssec_trust_anchors,omitempty"`
+	// Optional. DNSSEC validate exceptions.  Error if there are duplicate exception domains (compared as a DNS name including case-insensitive comparison).  Defaults to empty.
+	DnssecValidateExceptions []DNSSECValidateException `json:"dnssec_validate_exceptions,omitempty"`
 	// Optional. _true_ to reject expired DNSSEC keys. Ignored if either _dnssec_enabled_ or _dnssec_enable_validation_ is _false_.  Defaults to _true_.
 	DnssecValidateExpiry *bool `json:"dnssec_validate_expiry,omitempty"`
 	// Optional. DTC configuration.
@@ -59,6 +63,8 @@ type View struct {
 	EcsZones []ECSZone `json:"ecs_zones,omitempty"`
 	// Optional. _edns_udp_size_ represents the edns UDP size. The size a querying DNS server advertises to the DNS server it’s sending a query to.  Defaults to 1232 bytes.
 	EdnsUdpSize *int64 `json:"edns_udp_size,omitempty"`
+	// External DNS providers metadata.
+	ExternalProvidersMetadata map[string]interface{} `json:"external_providers_metadata,omitempty"`
 	// Optional. Specifies a list of client addresses for which AAAA filtering is to be applied.  Defaults to _empty_.
 	FilterAaaaAcl []ACLItem `json:"filter_aaaa_acl,omitempty"`
 	// _filter_aaaa_on_v4_ allows named to omit some IPv6 addresses when responding to IPv4 clients.  Allowed values: * _yes_, * _no_, * _break_dnssec_.  Defaults to _no_
@@ -93,6 +99,8 @@ type View struct {
 	MinimalResponses *bool `json:"minimal_responses,omitempty"`
 	// Name of view.
 	Name string `json:"name"`
+	// NIOS Metadata holds NIOS grid's data.
+	NiosMetadata map[string]interface{} `json:"nios_metadata,omitempty"`
 	// _notify_ all external secondary DNS servers.  Defaults to _false_.
 	Notify *bool `json:"notify,omitempty"`
 	// Optional. Clients must match this ACL to make authoritative queries. Also used for recursive queries if that ACL is unset.  Defaults to empty.
@@ -101,6 +109,8 @@ type View struct {
 	RecursionAcl []ACLItem `json:"recursion_acl,omitempty"`
 	// Optional. _true_ to allow recursive DNS queries.  Defaults to _true_.
 	RecursionEnabled *bool `json:"recursion_enabled,omitempty"`
+	// Optional. Defines if secondary zone records should be synchronized.  Defaults to _false_.
+	SecondaryZoneRecordsSync *bool `json:"secondary_zone_records_sync,omitempty"`
 	// Optional. Specifies a sorted network list for A/AAAA records in DNS query response.  Defaults to _empty_.
 	SortList []SortListItem `json:"sort_list,omitempty"`
 	// _synthesize_address_records_from_https_ enables/disables creation of A/AAAA records from HTTPS RR Defaults to _false_.
@@ -462,6 +472,38 @@ func (o *View) SetDnssecRootKeys(v []TrustAnchor) {
 	o.DnssecRootKeys = v
 }
 
+// GetDnssecSigningPolicy returns the DnssecSigningPolicy field value if set, zero value otherwise.
+func (o *View) GetDnssecSigningPolicy() DNSSECSigningPolicy {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		var ret DNSSECSigningPolicy
+		return ret
+	}
+	return *o.DnssecSigningPolicy
+}
+
+// GetDnssecSigningPolicyOk returns a tuple with the DnssecSigningPolicy field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *View) GetDnssecSigningPolicyOk() (*DNSSECSigningPolicy, bool) {
+	if o == nil || IsNil(o.DnssecSigningPolicy) {
+		return nil, false
+	}
+	return o.DnssecSigningPolicy, true
+}
+
+// HasDnssecSigningPolicy returns a boolean if a field has been set.
+func (o *View) HasDnssecSigningPolicy() bool {
+	if o != nil && !IsNil(o.DnssecSigningPolicy) {
+		return true
+	}
+
+	return false
+}
+
+// SetDnssecSigningPolicy gets a reference to the given DNSSECSigningPolicy and assigns it to the DnssecSigningPolicy field.
+func (o *View) SetDnssecSigningPolicy(v DNSSECSigningPolicy) {
+	o.DnssecSigningPolicy = &v
+}
+
 // GetDnssecTrustAnchors returns the DnssecTrustAnchors field value if set, zero value otherwise.
 func (o *View) GetDnssecTrustAnchors() []TrustAnchor {
 	if o == nil || IsNil(o.DnssecTrustAnchors) {
@@ -492,6 +534,38 @@ func (o *View) HasDnssecTrustAnchors() bool {
 // SetDnssecTrustAnchors gets a reference to the given []TrustAnchor and assigns it to the DnssecTrustAnchors field.
 func (o *View) SetDnssecTrustAnchors(v []TrustAnchor) {
 	o.DnssecTrustAnchors = v
+}
+
+// GetDnssecValidateExceptions returns the DnssecValidateExceptions field value if set, zero value otherwise.
+func (o *View) GetDnssecValidateExceptions() []DNSSECValidateException {
+	if o == nil || IsNil(o.DnssecValidateExceptions) {
+		var ret []DNSSECValidateException
+		return ret
+	}
+	return o.DnssecValidateExceptions
+}
+
+// GetDnssecValidateExceptionsOk returns a tuple with the DnssecValidateExceptions field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *View) GetDnssecValidateExceptionsOk() ([]DNSSECValidateException, bool) {
+	if o == nil || IsNil(o.DnssecValidateExceptions) {
+		return nil, false
+	}
+	return o.DnssecValidateExceptions, true
+}
+
+// HasDnssecValidateExceptions returns a boolean if a field has been set.
+func (o *View) HasDnssecValidateExceptions() bool {
+	if o != nil && !IsNil(o.DnssecValidateExceptions) {
+		return true
+	}
+
+	return false
+}
+
+// SetDnssecValidateExceptions gets a reference to the given []DNSSECValidateException and assigns it to the DnssecValidateExceptions field.
+func (o *View) SetDnssecValidateExceptions(v []DNSSECValidateException) {
+	o.DnssecValidateExceptions = v
 }
 
 // GetDnssecValidateExpiry returns the DnssecValidateExpiry field value if set, zero value otherwise.
@@ -748,6 +822,38 @@ func (o *View) HasEdnsUdpSize() bool {
 // SetEdnsUdpSize gets a reference to the given int64 and assigns it to the EdnsUdpSize field.
 func (o *View) SetEdnsUdpSize(v int64) {
 	o.EdnsUdpSize = &v
+}
+
+// GetExternalProvidersMetadata returns the ExternalProvidersMetadata field value if set, zero value otherwise.
+func (o *View) GetExternalProvidersMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.ExternalProvidersMetadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.ExternalProvidersMetadata
+}
+
+// GetExternalProvidersMetadataOk returns a tuple with the ExternalProvidersMetadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *View) GetExternalProvidersMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.ExternalProvidersMetadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.ExternalProvidersMetadata, true
+}
+
+// HasExternalProvidersMetadata returns a boolean if a field has been set.
+func (o *View) HasExternalProvidersMetadata() bool {
+	if o != nil && !IsNil(o.ExternalProvidersMetadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetExternalProvidersMetadata gets a reference to the given map[string]interface{} and assigns it to the ExternalProvidersMetadata field.
+func (o *View) SetExternalProvidersMetadata(v map[string]interface{}) {
+	o.ExternalProvidersMetadata = v
 }
 
 // GetFilterAaaaAcl returns the FilterAaaaAcl field value if set, zero value otherwise.
@@ -1286,6 +1392,38 @@ func (o *View) SetName(v string) {
 	o.Name = v
 }
 
+// GetNiosMetadata returns the NiosMetadata field value if set, zero value otherwise.
+func (o *View) GetNiosMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.NiosMetadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.NiosMetadata
+}
+
+// GetNiosMetadataOk returns a tuple with the NiosMetadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *View) GetNiosMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.NiosMetadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.NiosMetadata, true
+}
+
+// HasNiosMetadata returns a boolean if a field has been set.
+func (o *View) HasNiosMetadata() bool {
+	if o != nil && !IsNil(o.NiosMetadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetNiosMetadata gets a reference to the given map[string]interface{} and assigns it to the NiosMetadata field.
+func (o *View) SetNiosMetadata(v map[string]interface{}) {
+	o.NiosMetadata = v
+}
+
 // GetNotify returns the Notify field value if set, zero value otherwise.
 func (o *View) GetNotify() bool {
 	if o == nil || IsNil(o.Notify) {
@@ -1412,6 +1550,38 @@ func (o *View) HasRecursionEnabled() bool {
 // SetRecursionEnabled gets a reference to the given bool and assigns it to the RecursionEnabled field.
 func (o *View) SetRecursionEnabled(v bool) {
 	o.RecursionEnabled = &v
+}
+
+// GetSecondaryZoneRecordsSync returns the SecondaryZoneRecordsSync field value if set, zero value otherwise.
+func (o *View) GetSecondaryZoneRecordsSync() bool {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		var ret bool
+		return ret
+	}
+	return *o.SecondaryZoneRecordsSync
+}
+
+// GetSecondaryZoneRecordsSyncOk returns a tuple with the SecondaryZoneRecordsSync field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *View) GetSecondaryZoneRecordsSyncOk() (*bool, bool) {
+	if o == nil || IsNil(o.SecondaryZoneRecordsSync) {
+		return nil, false
+	}
+	return o.SecondaryZoneRecordsSync, true
+}
+
+// HasSecondaryZoneRecordsSync returns a boolean if a field has been set.
+func (o *View) HasSecondaryZoneRecordsSync() bool {
+	if o != nil && !IsNil(o.SecondaryZoneRecordsSync) {
+		return true
+	}
+
+	return false
+}
+
+// SetSecondaryZoneRecordsSync gets a reference to the given bool and assigns it to the SecondaryZoneRecordsSync field.
+func (o *View) SetSecondaryZoneRecordsSync(v bool) {
+	o.SecondaryZoneRecordsSync = &v
 }
 
 // GetSortList returns the SortList field value if set, zero value otherwise.
@@ -1742,8 +1912,14 @@ func (o View) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.DnssecRootKeys) {
 		toSerialize["dnssec_root_keys"] = o.DnssecRootKeys
 	}
+	if !IsNil(o.DnssecSigningPolicy) {
+		toSerialize["dnssec_signing_policy"] = o.DnssecSigningPolicy
+	}
 	if !IsNil(o.DnssecTrustAnchors) {
 		toSerialize["dnssec_trust_anchors"] = o.DnssecTrustAnchors
+	}
+	if !IsNil(o.DnssecValidateExceptions) {
+		toSerialize["dnssec_validate_exceptions"] = o.DnssecValidateExceptions
 	}
 	if !IsNil(o.DnssecValidateExpiry) {
 		toSerialize["dnssec_validate_expiry"] = o.DnssecValidateExpiry
@@ -1768,6 +1944,9 @@ func (o View) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.EdnsUdpSize) {
 		toSerialize["edns_udp_size"] = o.EdnsUdpSize
+	}
+	if !IsNil(o.ExternalProvidersMetadata) {
+		toSerialize["external_providers_metadata"] = o.ExternalProvidersMetadata
 	}
 	if !IsNil(o.FilterAaaaAcl) {
 		toSerialize["filter_aaaa_acl"] = o.FilterAaaaAcl
@@ -1818,6 +1997,9 @@ func (o View) ToMap() (map[string]interface{}, error) {
 		toSerialize["minimal_responses"] = o.MinimalResponses
 	}
 	toSerialize["name"] = o.Name
+	if !IsNil(o.NiosMetadata) {
+		toSerialize["nios_metadata"] = o.NiosMetadata
+	}
 	if !IsNil(o.Notify) {
 		toSerialize["notify"] = o.Notify
 	}
@@ -1829,6 +2011,9 @@ func (o View) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.RecursionEnabled) {
 		toSerialize["recursion_enabled"] = o.RecursionEnabled
+	}
+	if !IsNil(o.SecondaryZoneRecordsSync) {
+		toSerialize["secondary_zone_records_sync"] = o.SecondaryZoneRecordsSync
 	}
 	if !IsNil(o.SortList) {
 		toSerialize["sort_list"] = o.SortList
@@ -1910,7 +2095,9 @@ func (o *View) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "dnssec_enable_validation")
 		delete(additionalProperties, "dnssec_enabled")
 		delete(additionalProperties, "dnssec_root_keys")
+		delete(additionalProperties, "dnssec_signing_policy")
 		delete(additionalProperties, "dnssec_trust_anchors")
+		delete(additionalProperties, "dnssec_validate_exceptions")
 		delete(additionalProperties, "dnssec_validate_expiry")
 		delete(additionalProperties, "dtc_config")
 		delete(additionalProperties, "ecs_enabled")
@@ -1919,6 +2106,7 @@ func (o *View) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "ecs_prefix_v6")
 		delete(additionalProperties, "ecs_zones")
 		delete(additionalProperties, "edns_udp_size")
+		delete(additionalProperties, "external_providers_metadata")
 		delete(additionalProperties, "filter_aaaa_acl")
 		delete(additionalProperties, "filter_aaaa_on_v4")
 		delete(additionalProperties, "forwarders")
@@ -1936,10 +2124,12 @@ func (o *View) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "max_udp_size")
 		delete(additionalProperties, "minimal_responses")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "nios_metadata")
 		delete(additionalProperties, "notify")
 		delete(additionalProperties, "query_acl")
 		delete(additionalProperties, "recursion_acl")
 		delete(additionalProperties, "recursion_enabled")
+		delete(additionalProperties, "secondary_zone_records_sync")
 		delete(additionalProperties, "sort_list")
 		delete(additionalProperties, "synthesize_address_records_from_https")
 		delete(additionalProperties, "tags")

@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccSharedrecordgroupResource(t *testing.T) {
-	resourceType := "infoblox_sharedrecordgroup"
+	resourceType := "infoblox_sharedrecord_group"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -26,7 +26,7 @@ func TestAccSharedrecordgroupResource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "dns/sharedrecordgroup/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "dns/sharedrecord_group/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
