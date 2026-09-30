@@ -66,9 +66,20 @@ Read-Only:
 - `contact` (String) Contact information for person/team managing or using VLAN.
 - `department` (String) Department where VLAN is used.
 - `description` (String) Description for the VLAN object, may be potentially used for longer VLAN names.
+- `dynamic_allocation` (Attributes) Dynamically allocate the vlan id using the NIOS next_available_vlan_id function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 - `id` (Number) VLAN ID value.
 - `name` (String) Name of the VLAN.
 - `parent` (String) The VLAN View or VLAN Range to which this VLAN belongs.
 - `reserved` (Boolean) When set VLAN can only be assigned to IPAM object manually.
+
+<a id="nestedatt--results--nios--dynamic_allocation"></a>
+### Nested Schema for `results.nios.dynamic_allocation`
+
+Read-Only:
+
+- `filter_object` (String) Whether "filter_params" searches VLAN Views or VLAN Ranges. Valid values are "vlanview" and "vlanrange". Defaults to "vlanview".
+- `filter_params` (Map of String) Extensible Attribute filters used to select the VLAN View or VLAN Range to allocate from (e.g. {"*Site" = "location-1"}). The object type searched is set by "filter_object".
+- `vlan_range` (String) The name of the VLAN Range to allocate the next available VLAN ID from.
+- `vlan_view` (String) The name of the VLAN View to allocate the next available VLAN ID from.
