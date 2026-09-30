@@ -1,8 +1,6 @@
 package dhcp
 
 import (
-	"time"
-
 	uddiipam "github.com/infobloxopen/universal-ddi-go-client/ipam"
 )
 
@@ -16,7 +14,6 @@ type HardwareFilter struct {
 type UDDIHardwareFilterExt struct {
 	Addresses                       []string
 	Comment                         *string
-	CreatedAt                       *time.Time
 	DhcpOptions                     []uddiipam.OptionItem
 	HeaderOptionFilename            *string
 	HeaderOptionServerAddress       *string
@@ -25,6 +22,5 @@ type UDDIHardwareFilterExt struct {
 	Name                            string
 	Role                            *string
 	Tags                            map[string]any
-	UpdatedAt                       *time.Time
 	VendorSpecificOptionOptionSpace *string
 }

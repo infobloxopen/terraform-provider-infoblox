@@ -3,7 +3,6 @@ package dhcp
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -22,36 +21,35 @@ import (
 )
 
 type HardwareFilterModel struct {
-	Id   types.String `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.String `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var HardwareFilterAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"uddi": types.ObjectType{AttrTypes: UDDIHardwareFilterAttrTypes},
+	"id":             types.StringType,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDIHardwareFilterAttrTypes},
 }
 
 type UDDIHardwareFilterModel struct {
-	Addresses                       types.List        `tfsdk:"addresses"`
-	Comment                         types.String      `tfsdk:"comment"`
-	CreatedAt                       timetypes.RFC3339 `tfsdk:"created_at"`
-	DhcpOptions                     types.List        `tfsdk:"dhcp_options"`
-	HeaderOptionFilename            types.String      `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress       types.String      `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName          types.String      `tfsdk:"header_option_server_name"`
-	LeaseTime                       types.Int64       `tfsdk:"lease_time"`
-	Name                            types.String      `tfsdk:"name"`
-	Role                            types.String      `tfsdk:"role"`
-	Tags                            types.Map         `tfsdk:"tags"`
-	TagsAll                         types.Map         `tfsdk:"tags_all"`
-	UpdatedAt                       timetypes.RFC3339 `tfsdk:"updated_at"`
-	VendorSpecificOptionOptionSpace types.String      `tfsdk:"vendor_specific_option_option_space"`
+	Addresses                       types.List   `tfsdk:"addresses"`
+	Comment                         types.String `tfsdk:"comment"`
+	DhcpOptions                     types.List   `tfsdk:"dhcp_options"`
+	HeaderOptionFilename            types.String `tfsdk:"header_option_filename"`
+	HeaderOptionServerAddress       types.String `tfsdk:"header_option_server_address"`
+	HeaderOptionServerName          types.String `tfsdk:"header_option_server_name"`
+	LeaseTime                       types.Int64  `tfsdk:"lease_time"`
+	Name                            types.String `tfsdk:"name"`
+	Role                            types.String `tfsdk:"role"`
+	Tags                            types.Map    `tfsdk:"tags"`
+	TagsAll                         types.Map    `tfsdk:"tags_all"`
+	VendorSpecificOptionOptionSpace types.String `tfsdk:"vendor_specific_option_option_space"`
 }
 
 var UDDIHardwareFilterAttrTypes = map[string]attr.Type{
 	"addresses":                           types.ListType{ElemType: types.StringType},
 	"comment":                             types.StringType,
-	"created_at":                          timetypes.RFC3339Type{},
 	"dhcp_options":                        types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"header_option_filename":              types.StringType,
 	"header_option_server_address":        types.StringType,
@@ -61,7 +59,6 @@ var UDDIHardwareFilterAttrTypes = map[string]attr.Type{
 	"role":                                types.StringType,
 	"tags":                                types.MapType{ElemType: types.StringType},
 	"tags_all":                            types.MapType{ElemType: types.StringType},
-	"updated_at":                          timetypes.RFC3339Type{},
 	"vendor_specific_option_option_space": types.StringType,
 }
 
@@ -73,6 +70,10 @@ var HardwareFilterResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
@@ -97,11 +98,6 @@ var HardwareFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 			stringvalidator.LengthBetween(0, 1024),
 		},
 		MarkdownDescription: "The description for the hardware filter. May contain 0 to 1024 characters. Can include UTF-8.",
-	},
-	"created_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Time when the object has been created.",
 	},
 	"dhcp_options": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
@@ -144,6 +140,7 @@ var HardwareFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the hardware filter. Must contain 1 to 256 characters. Can include UTF-8.",
 	},
 	"role": schema.StringAttribute{
+		Default: stringdefault.StaticString("values"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("values", "selection"),
 		},
@@ -168,11 +165,6 @@ var HardwareFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
-	},
-	"updated_at": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "Time when the object has been updated. Equals to _created_at_ if not updated after creation.",
 	},
 	"vendor_specific_option_option_space": schema.StringAttribute{
 		Optional:            true,
@@ -243,7 +235,6 @@ func (m *UDDIHardwareFilterModel) Flatten(ctx context.Context, from *coremodel.U
 	}
 	m.Addresses = flex.FlattenFrameworkListString(ctx, from.Addresses, diags)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
-	m.CreatedAt = flex.FlattenRFC3339(from.CreatedAt)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.HeaderOptionFilename = flex.FlattenStringPointer(from.HeaderOptionFilename)
 	m.HeaderOptionServerAddress = flex.FlattenStringPointer(from.HeaderOptionServerAddress)
@@ -256,6 +247,5 @@ func (m *UDDIHardwareFilterModel) Flatten(ctx context.Context, from *coremodel.U
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
-	m.UpdatedAt = flex.FlattenRFC3339(from.UpdatedAt)
 	m.VendorSpecificOptionOptionSpace = flex.FlattenStringPointer(from.VendorSpecificOptionOptionSpace)
 }

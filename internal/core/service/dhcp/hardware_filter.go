@@ -201,7 +201,6 @@ func mapUDDIHardwareFilterToResponse(r *uddiipam.HardwareFilter) *dhcp.HardwareF
 	resp.UDDI = &dhcp.UDDIHardwareFilterExt{
 		Addresses:                       r.Addresses,
 		Comment:                         r.Comment,
-		CreatedAt:                       r.CreatedAt,
 		DhcpOptions:                     r.DhcpOptions,
 		HeaderOptionFilename:            r.HeaderOptionFilename,
 		HeaderOptionServerAddress:       r.HeaderOptionServerAddress,
@@ -209,7 +208,6 @@ func mapUDDIHardwareFilterToResponse(r *uddiipam.HardwareFilter) *dhcp.HardwareF
 		LeaseTime:                       r.LeaseTime,
 		Name:                            r.Name,
 		Role:                            r.Role,
-		UpdatedAt:                       r.UpdatedAt,
 		VendorSpecificOptionOptionSpace: r.VendorSpecificOptionOptionSpace,
 	}
 	if r.Tags != nil {

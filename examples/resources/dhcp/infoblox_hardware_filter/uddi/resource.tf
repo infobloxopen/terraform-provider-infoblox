@@ -34,7 +34,7 @@ resource "infoblox_hardware_filter" "example_with_options" {
     role       = "values"
 
     tags = {
-      environment = "production"
+      Site = "location-1"
     }
   }
 }

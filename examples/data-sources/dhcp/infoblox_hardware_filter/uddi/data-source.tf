@@ -8,7 +8,7 @@ data "infoblox_hardware_filter" "get_by_name" {
 // Retrieve specific Hardware Filters using tag filters
 data "infoblox_hardware_filter" "get_by_tag" {
   tag_filters = {
-    environment = "production"
+    Site = "location-1"
   }
 }
 

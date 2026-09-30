@@ -1,7 +1,9 @@
 # HardwareFilter — uddi resource cases
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - dhcp/option_code : dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f
-#   - dhcp/option_space : dhcp/option_space/ae933dff-f5ff-415e-8e94-066e9c235295  (example_option_space_2 (custom option space))
+# The following prerequisites must exist before running these tests.
+# Set env vars to the corresponding resource IDs:
+#   INFOBLOX_ACC_DHCP_OPTION_CODE  — a dhcp/option_code resource ID
+#   INFOBLOX_ACC_DHCP_OPTION_SPACE — a custom dhcp/option_space resource ID
+#   INFOBLOX_ACC_DHCP_OPTION_GROUP — a dhcp/option_group resource ID
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -49,10 +51,10 @@ case "comment" {
   step {
     uddi {
       name    = "{{random}}"
-      comment = "Hardware filter was created with Terraform"
+      comment = "Hardware filter was updated with Terraform"
     }
     check = {
-      "uddi.comment" = "Hardware filter was created with Terraform"
+      "uddi.comment" = "Hardware filter was updated with Terraform"
     }
   }
 
@@ -107,6 +109,18 @@ case "addresses" {
     }
   }
 
+  step {
+    uddi {
+      name      = "{{random}}"
+      addresses = ["ab:cd:ef:12:34:56", "12:34:56:78:9a:bc"]
+    }
+    check = {
+      "uddi.addresses.#" = "2"
+      "uddi.addresses.0" = "ab:cd:ef:12:34:56"
+      "uddi.addresses.1" = "12:34:56:78:9a:bc"
+    }
+  }
+
 }
 
 case "dhcp_options" {
@@ -118,7 +132,7 @@ case "dhcp_options" {
       name = "{{random}}"
       dhcp_options = [{
         type         = "option"
-        option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+        option_code  = "{{dhcp_option_code}}"
         option_value = "value1"
       }]
     }
@@ -133,13 +147,27 @@ case "dhcp_options" {
       name = "{{random}}"
       dhcp_options = [{
         type         = "option"
-        option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+        option_code  = "{{dhcp_option_code}}"
         option_value = "value2"
       }]
     }
     check = {
       "uddi.dhcp_options.0.type"         = "option"
       "uddi.dhcp_options.0.option_value" = "value2"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+      dhcp_options = [{
+        type  = "group"
+        group = "{{dhcp_option_group}}"
+      }]
+    }
+    check = {
+      "uddi.dhcp_options.0.type"  = "group"
+      "uddi.dhcp_options.0.group" = "{{dhcp_option_group}}"
     }
   }
 
@@ -263,6 +291,16 @@ case "role" {
     }
   }
 
+  step {
+    uddi {
+      name = "{{random}}"
+      role = "selection"
+    }
+    check = {
+      "uddi.role" = "selection"
+    }
+  }
+
 }
 
 case "tags" {
@@ -300,10 +338,10 @@ case "vendor_specific_option_option_space" {
   step {
     uddi {
       name                                = "{{random}}"
-      vendor_specific_option_option_space = "dhcp/option_space/ae933dff-f5ff-415e-8e94-066e9c235295"
+      vendor_specific_option_option_space = "{{dhcp_option_space}}"
     }
     check = {
-      "uddi.vendor_specific_option_option_space" = "dhcp/option_space/ae933dff-f5ff-415e-8e94-066e9c235295"
+      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
     }
   }
 
