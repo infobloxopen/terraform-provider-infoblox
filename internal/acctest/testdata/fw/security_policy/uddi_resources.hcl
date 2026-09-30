@@ -162,21 +162,17 @@ case "default_action" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_td_custom_redirect not yet implemented
 case "default_redirect_name" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_td_custom_redirect not yet implemented"
-  parallel    = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_td_custom_redirect_unknown" "test_a" {
+  resource "infoblox_custom_redirect" "test_a" {
     uddi = {
       name = "{{random2}}"
       data = "156.2.3.10"
     }
   }
-  resource "infoblox_td_custom_redirect_unknown" "test_b" {
+  resource "infoblox_custom_redirect" "test_b" {
     uddi = {
       name = "{{random3}}"
       data = "192.2.3.10"
@@ -186,15 +182,23 @@ case "default_redirect_name" {
 
   step {
     uddi {
-      name           = "{{random}}"
-      default_action = "action_redirect"
+      name                  = "{{random}}"
+      default_action        = "action_redirect"
+      default_redirect_name = infoblox_custom_redirect.test_a.uddi.name
+    }
+    check = {
+      "uddi.default_redirect_name" = "{{random2}}"
     }
   }
 
   step {
     uddi {
-      name           = "{{random}}"
-      default_action = "action_redirect"
+      name                  = "{{random}}"
+      default_action        = "action_redirect"
+      default_redirect_name = infoblox_custom_redirect.test_b.uddi.name
+    }
+    check = {
+      "uddi.default_redirect_name" = "{{random3}}"
     }
   }
 
@@ -226,8 +230,6 @@ case "ecs" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: requires_resource: infoblox_td_network_list not yet implemented
 case "network_lists" {
   backend     = "uddi"
   skip        = true
@@ -358,9 +360,12 @@ case "rules" {
 
 }
 
+# TODO: add prerequisite to dynamically create a DFP resource once DFP service support is added.
 case "dfps" {
-  backend  = "uddi"
-  parallel = true
+  backend     = "uddi"
+  skip        = true
+  skip_reason = "hardcoded DFP ID — requires prerequisite once DFP service support is added"
+  parallel    = true
 
   step {
     uddi {
