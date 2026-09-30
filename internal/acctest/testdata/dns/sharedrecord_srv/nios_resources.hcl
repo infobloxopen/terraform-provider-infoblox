@@ -3,7 +3,7 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -15,7 +15,7 @@ case "basic" {
       name                = "{{random}}.example.com"
       port                = 10
       priority            = 80
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -38,7 +38,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -50,7 +50,7 @@ case "disappears" {
       name                = "{{random}}.example.com"
       port                = 10
       priority            = 80
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -62,7 +62,7 @@ case "comment" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -74,7 +74,7 @@ case "comment" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       comment             = "This is a comment"
@@ -89,7 +89,7 @@ case "comment" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       comment             = "This is an updated comment"
@@ -105,7 +105,7 @@ case "disable" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -117,7 +117,7 @@ case "disable" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       disable             = true
@@ -132,7 +132,7 @@ case "disable" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       disable             = false
@@ -148,7 +148,7 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -160,7 +160,7 @@ case "ext_attrs" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       ext_attrs           = { Site = "{{random4}}" }
@@ -175,7 +175,7 @@ case "ext_attrs" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       ext_attrs           = { Site = "{{random5}}" }
@@ -191,7 +191,7 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -203,7 +203,7 @@ case "name" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random3}}.target.com"
       weight              = 10
     }
@@ -217,7 +217,7 @@ case "name" {
       name                = "{{random2}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random3}}.target.com"
       weight              = 10
     }
@@ -232,7 +232,7 @@ case "port" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -244,7 +244,7 @@ case "port" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -258,7 +258,7 @@ case "port" {
       name                = "{{random}}.example.com"
       port                = 443
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -273,7 +273,7 @@ case "priority" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -285,7 +285,7 @@ case "priority" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -299,7 +299,7 @@ case "priority" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 20
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -314,7 +314,7 @@ case "shared_record_group" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -326,7 +326,7 @@ case "shared_record_group" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -341,7 +341,7 @@ case "target" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -353,7 +353,7 @@ case "target" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target1.com"
       weight              = 10
     }
@@ -367,7 +367,7 @@ case "target" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random3}}.target2.com"
       weight              = 10
     }
@@ -382,7 +382,7 @@ case "ttl" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -394,7 +394,7 @@ case "ttl" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       ttl                 = 3600
@@ -409,7 +409,7 @@ case "ttl" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       ttl                 = 7200
@@ -425,7 +425,7 @@ case "weight" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -437,7 +437,7 @@ case "weight" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
     }
@@ -451,7 +451,7 @@ case "weight" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 20
     }
