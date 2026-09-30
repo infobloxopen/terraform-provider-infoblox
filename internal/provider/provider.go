@@ -208,7 +208,9 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
-		core.SetProxySearch(data.ProxySearch.ValueString())
+		if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
+			core.SetProxySearch(data.ProxySearch.ValueString())
+		}
 	}
 
 	// UDDI configurations
@@ -244,9 +246,19 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 				return
 			}
 
-			core.SetProxySearch(data.ProxySearch.ValueString())
+			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
+				core.SetProxySearch(data.ProxySearch.ValueString())
+			}
 			infobloxClient.NIOS = client
 		} else {
+			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Configuration",
+					"'proxy_search' is not applicable for UDDI objects — it only applies when 'nios' or 'uddi.enable_nios_passthru' is used. Remove 'proxy_search' from the provider configuration.",
+				)
+				return
+			}
+
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
