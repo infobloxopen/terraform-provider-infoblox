@@ -37,7 +37,7 @@ type BfdtemplateResource struct {
 }
 
 func (r *BfdtemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_bfdtemplate"
+	resp.TypeName = req.ProviderTypeName + "_bfd_template"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
