@@ -209,9 +209,8 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
-		if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
-			core.SetProxySearch(data.ProxySearch.ValueString())
-		}
+		// Set ProxySearch configuration
+		core.SetProxySearch(data.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
@@ -246,10 +245,9 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if client == nil {
 				return
 			}
+			// Set ProxySearch configuration
+			core.SetProxySearch(data.ProxySearch.ValueString())
 
-			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
-				core.SetProxySearch(data.ProxySearch.ValueString())
-			}
 			infobloxClient.NIOS = client
 		} else {
 			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {

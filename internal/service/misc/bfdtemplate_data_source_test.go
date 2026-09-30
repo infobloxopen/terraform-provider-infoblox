@@ -7,8 +7,8 @@ import (
 )
 
 func TestAccBfdtemplateDataSource(t *testing.T) {
-	dsType := "infoblox_bfdtemplate"
-	resourceType := "infoblox_bfdtemplate"
+	dsType := "infoblox_bfd_template"
+	resourceType := "infoblox_bfd_template"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -19,7 +19,7 @@ func TestAccBfdtemplateDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "misc/bfdtemplate/"+backend+"_datasources.hcl", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "misc/bfd_template/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }

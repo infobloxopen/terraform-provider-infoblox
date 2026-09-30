@@ -36,7 +36,7 @@ type NatgroupDataSource struct {
 }
 
 func (d *NatgroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_natgroup"
+	resp.TypeName = req.ProviderTypeName + "_nat_group"
 }
 
 // NatgroupDataSourceModel is the filter model for the datasource
