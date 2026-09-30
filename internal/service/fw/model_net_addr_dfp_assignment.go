@@ -65,11 +65,11 @@ var NetAddrDfpAssignmentResourceSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
-		MarkdownDescription: "",
+		MarkdownDescription: "The list of service IDs of DFPs that have association with this scope.",
 	},
 	"end": schema.StringAttribute{
 		Optional:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "End of the address range used for range scope type.",
 	},
 	"external_scope_id": schema.StringAttribute{
 		Optional:            true,
