@@ -337,10 +337,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		anycast.NewAnycastConfigResource,
 
-		infra.NewInfraHostResource,
-
-		notification.NewNotificationRestEndpointResource,
-
 		acl.NewNamedaclResource,
 
 		cloud.NewAwsuserResource,
@@ -419,6 +415,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
 
+		infra.NewInfraHostResource,
+		infra.NewInfraServiceResource,
+
 		ipam.NewAddressResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
@@ -438,6 +437,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
+		notification.NewNotificationRestEndpointResource,
+
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
 		rpz.NewRecordRpzAaaaIpaddressResource,
@@ -456,10 +457,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		anycast.NewAnycastConfigDataSource,
-
-		infra.NewInfraHostDataSource,
-
-		notification.NewNotificationRestEndpointDataSource,
 
 		acl.NewNamedaclDataSource,
 
@@ -538,6 +535,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
 
+		infra.NewInfraHostDataSource,
+		infra.NewInfraServiceDataSource,
+
 		ipam.NewAddressDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
@@ -560,6 +560,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
+		notification.NewNotificationRestEndpointDataSource,
+
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
 		rpz.NewRecordRpzAaaaIpaddressDataSource,
@@ -578,10 +580,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		anycast.NewAnycastConfigList,
-
-		infra.NewInfraHostList,
-
-		notification.NewNotificationRestEndpointList,
 
 		acl.NewNamedaclList,
 
@@ -660,6 +658,9 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
 
+		infra.NewInfraHostList,
+		infra.NewInfraServiceList,
+
 		ipam.NewAddressList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
@@ -678,6 +679,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
+
+		notification.NewNotificationRestEndpointList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
