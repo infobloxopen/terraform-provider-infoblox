@@ -406,7 +406,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
-		fw.NewSecurityPolicyResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -423,6 +422,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewBulkhostnametemplateResource,
 		ipam.NewVlanviewResource,
 		ipam.NewVlanResource,
+		ipam.NewVlanrangeResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -441,6 +441,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzPtrResource,
 		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAIpaddressResource,
+		rpz.NewRecordRpzCnameClientipaddressResource,
 	}
 }
 
@@ -517,7 +519,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
-		fw.NewSecurityPolicyDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -537,6 +538,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewBulkhostnametemplateDataSource,
 		ipam.NewVlanviewDataSource,
 		ipam.NewVlanDataSource,
+		ipam.NewVlanrangeDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -555,6 +557,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzPtrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAIpaddressDataSource,
+		rpz.NewRecordRpzCnameClientipaddressDataSource,
 	}
 }
 
@@ -631,7 +635,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
-		fw.NewSecurityPolicyList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
@@ -648,6 +651,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewBulkhostnametemplateList,
 		ipam.NewVlanviewList,
 		ipam.NewVlanList,
+		ipam.NewVlanrangeList,
 
 		ipamfederation.NewFederatedRealmList,
 
@@ -666,6 +670,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzPtrList,
 		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAIpaddressList,
+		rpz.NewRecordRpzCnameClientipaddressList,
 	}
 }
 
