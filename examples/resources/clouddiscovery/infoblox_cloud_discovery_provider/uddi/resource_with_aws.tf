@@ -1,5 +1,5 @@
 // Manage a DNS View ( Required as Parent )
-resource "bloxone_dns_view" "example" {
+resource "infoblox_view" "example" {
   name = "example_dns_view"
 }
 
@@ -32,7 +32,7 @@ resource "infoblox_cloud_discovery_provider" "example_aws" {
     {
       config = {
         dns = {
-          view_id = bloxone_dns_view.example.id
+          view_id = infoblox_view.example.id
           # Optional: filter which DNS zones are synced
           zone_filters = [
             {

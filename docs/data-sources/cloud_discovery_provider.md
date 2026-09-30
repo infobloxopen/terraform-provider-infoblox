@@ -70,11 +70,10 @@ Read-Only:
 - `destination_types_enabled` (List of String) Destinations types enabled: Ex.: DNS, IPAM and ACCOUNT.
 - `destinations` (Attributes List) Destinations. (see [below for nested schema](#nestedatt--results--uddi--destinations))
 - `is_disabled` (Boolean) is_disabled. Enables/Disables provider. Newer version of desired_state.
-- `labs_provider` (Boolean) labs_provider. Indicates if a provider is enabled through Infoblox Labs.
 - `name` (String) Name of the discovery config.
 - `provider_type` (String) Provider type. Ex.: Amazon Web Services, Google Cloud Platform, Microsoft Azure.
 - `source_configs` (Attributes List) Source configs. (see [below for nested schema](#nestedatt--results--uddi--source_configs))
-- `sync_interval` (String)
+- `sync_interval` (String) Sync interval. Default is "Auto".
 - `tags` (Map of String) Tagging specifics.
 - `tags_all` (Map of String) All tags including inherited values.
 
@@ -111,7 +110,7 @@ Read-Only:
 Read-Only:
 
 - `excluded` (Boolean) If set true , the category is excluded from discovery.
-- `id` (String)
+- `id` (String) Category ID. Must be one of "security", "networking-basics", "lbs", "compute", "azure-storage", "networking-advanced", "storage"
 
 
 <a id="nestedatt--results--uddi--additional_config--object_type--objects--resource_set"></a>
@@ -141,7 +140,6 @@ Read-Only:
 Read-Only:
 
 - `config` (Attributes) Destination configuration. Ex.: '{  "dns": {    "view_name": "view 1",    "view_id": "dns/view/v1",    "consolidated_zone_data_enabled": false,    "sync_type": "read_only/read_write"    "split_view_enabled": false  },  "ipam": {    "ip_space": "",  },  "account": {},  }'. (see [below for nested schema](#nestedatt--results--uddi--destinations--config))
-- `deleted_at` (String) Timestamp when the object has been deleted.
 - `destination_type` (String) Destination type: DNS / IPAM / ACCOUNT.
 - `id` (String) Auto-generated unique destination ID. Format BloxID.
 
@@ -193,7 +191,6 @@ Read-Only:
 
 Read-Only:
 
-- `account_schedule_id` (String) Account Schedule ID.
 - `accounts` (Attributes List) List of accounts to be discovered. (see [below for nested schema](#nestedatt--results--uddi--source_configs--accounts))
 - `cloud_credential_id` (String) Cloud Credential ID.
 - `credential_config` (Attributes) Credential configuration. Ex.: '{    "access_identifier": "arn:aws:iam::1234:role/access_for_discovery",    "region": "us-east-1",    "enclave": "commercial/gov"  }'. (see [below for nested schema](#nestedatt--results--uddi--source_configs--credential_config))
@@ -206,24 +203,16 @@ Read-Only:
 
 Read-Only:
 
-- `composite_status` (String)
-- `composite_status_message` (String) Status message of the sync operation.
-- `created_at` (String) Timestamp when the object has been created.
-- `deleted_at` (String) Timestamp when the object has been deleted.
-- `dhcp_server_id` (String)
+- `dhcp_server_id` (String) DHCP Server ID. MSAD case.
 - `dns_server_id` (String) DNS Server ID.
 - `id` (String) Auto-generated unique source account ID. Format BloxID.
 - `last_successful_sync` (String) Last successful sync timestamp.
 - `last_sync` (String) Last sync timestamp.
 - `name` (String) Name of the source account.
 - `parent_id` (String) Parent ID.
-- `percent_complete` (Number) Sync progress as a percentage.
-- `provider_account_id` (String)
+- `provider_account_id` (String) Provider Account ID
 - `schedule_id` (String) Schedule ID.
 - `state` (String)
-- `status` (String) Status of the sync operation.
-- `status_message` (String) Status message of the sync operation.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 
 <a id="nestedatt--results--uddi--source_configs--credential_config"></a>

@@ -13,11 +13,12 @@ Manages a Cloud Discovery Provider in the UDDI backend.
 ## Example Usage in Amazon Web Services
 
 ```terraform
-resource "bloxone_dns_view" "example" {
+// Manage a DNS View ( Required as Parent )
+resource "infoblox_view" "example" {
   name = "example_dns_view"
 }
 
-
+// Manage an AWS Cloud Discovery Provider
 resource "infoblox_cloud_discovery_provider" "example_aws" {
   name               = "example_provider_aws"
   provider_type      = "Amazon Web Services"
@@ -46,7 +47,7 @@ resource "infoblox_cloud_discovery_provider" "example_aws" {
     {
       config = {
         dns = {
-          view_id = bloxone_dns_view.example.id
+          view_id = infoblox_view.example.id
           # Optional: filter which DNS zones are synced
           zone_filters = [
             {
@@ -70,10 +71,12 @@ resource "infoblox_cloud_discovery_provider" "example_aws" {
 ## Example Usage in Microsoft Azure
 
 ```terraform
-resource "bloxone_dns_view" "example_azure" {
+// Manage a DNS View ( Required as Parent )
+resource "infoblox_view" "example_azure" {
   name = "example_dns_view_azure"
 }
 
+// Manage an Azure Cloud Discovery Provider
 resource "infoblox_cloud_discovery_provider" "example_azure" {
   name               = "example_provider_azure"
   provider_type      = "Microsoft Azure"
@@ -107,7 +110,7 @@ resource "infoblox_cloud_discovery_provider" "example_azure" {
     {
       config = {
         dns = {
-          view_id = bloxone_dns_view.example_azure.id
+          view_id = infoblox_view.example_azure.id
           # Optional: filter which DNS zones are synced
           zone_filters = [
             {
@@ -132,10 +135,12 @@ resource "infoblox_cloud_discovery_provider" "example_azure" {
 ## Example Usage in Google Cloud Platform
 
 ```terraform
-resource "bloxone_dns_view" "example_gcp" {
+// Manage a DNS View ( Required as Parent )
+resource "infoblox_view" "example_gcp" {
   name = "example_dns_view_gcp"
 }
 
+// Manage a GCP Cloud Discovery Provider
 resource "infoblox_cloud_discovery_provider" "example_gcp" {
   name               = "example_provider_gcp"
   provider_type      = "Google Cloud Platform"
@@ -163,7 +168,7 @@ resource "infoblox_cloud_discovery_provider" "example_gcp" {
     {
       config = {
         dns = {
-          view_id = bloxone_dns_view.example_gcp.id
+          view_id = infoblox_view.example_gcp.id
           # Optional: filter which DNS zones are synced
           zone_filters = [
             {
@@ -216,9 +221,8 @@ Optional:
 - `destination_types_enabled` (List of String) Destinations types enabled: Ex.: DNS, IPAM and ACCOUNT.
 - `destinations` (Attributes List) Destinations. (see [below for nested schema](#nestedatt--uddi--destinations))
 - `is_disabled` (Boolean) is_disabled. Enables/Disables provider. Newer version of desired_state.
-- `labs_provider` (Boolean) labs_provider. Indicates if a provider is enabled through Infoblox Labs.
 - `source_configs` (Attributes List) Source configs. (see [below for nested schema](#nestedatt--uddi--source_configs))
-- `sync_interval` (String)
+- `sync_interval` (String) Sync interval. Default is "Auto".
 - `tags` (Map of String) Tagging specifics.
 
 Read-Only:
@@ -242,6 +246,9 @@ Optional:
 
 - `discover_new` (Boolean) Discover new objects.
 - `objects` (Attributes List) List of objects to discover. (see [below for nested schema](#nestedatt--uddi--additional_config--object_type--objects))
+
+Read-Only:
+
 - `version` (Number) Version of the object type.
 
 <a id="nestedatt--uddi--additional_config--object_type--objects"></a>
@@ -258,7 +265,7 @@ Optional:
 Optional:
 
 - `excluded` (Boolean) If set true , the category is excluded from discovery.
-- `id` (String)
+- `id` (String) Category ID. Must be one of "security", "networking-basics", "lbs", "compute", "azure-storage", "networking-advanced", "storage"
 
 
 <a id="nestedatt--uddi--additional_config--object_type--objects--resource_set"></a>
@@ -291,7 +298,6 @@ Optional:
 Optional:
 
 - `config` (Attributes) Destination configuration. Ex.: '{  "dns": {    "view_name": "view 1",    "view_id": "dns/view/v1",    "consolidated_zone_data_enabled": false,    "sync_type": "read_only/read_write"    "split_view_enabled": false  },  "ipam": {    "ip_space": "",  },  "account": {},  }'. (see [below for nested schema](#nestedatt--uddi--destinations--config))
-- `deleted_at` (String) Timestamp when the object has been deleted.
 - `destination_type` (String) Destination type: DNS / IPAM / ACCOUNT.
 
 Read-Only:
@@ -346,7 +352,6 @@ Optional:
 
 Optional:
 
-- `account_schedule_id` (String) Account Schedule ID.
 - `cloud_credential_id` (String) Cloud Credential ID.
 - `credential_config` (Attributes) Credential configuration. Ex.: '{    "access_identifier": "arn:aws:iam::1234:role/access_for_discovery",    "region": "us-east-1",    "enclave": "commercial/gov"  }'. (see [below for nested schema](#nestedatt--uddi--source_configs--credential_config))
 - `deleted_at` (String) Timestamp when the object has been deleted.
@@ -372,24 +377,16 @@ Optional:
 
 Optional:
 
-- `composite_status` (String)
-- `composite_status_message` (String) Status message of the sync operation.
-- `created_at` (String) Timestamp when the object has been created.
-- `deleted_at` (String) Timestamp when the object has been deleted.
-- `dhcp_server_id` (String)
-- `dns_server_id` (String) DNS Server ID.
-- `last_successful_sync` (String) Last successful sync timestamp.
-- `last_sync` (String) Last sync timestamp.
 - `name` (String) Name of the source account.
-- `parent_id` (String) Parent ID.
-- `percent_complete` (Number) Sync progress as a percentage.
-- `provider_account_id` (String)
-- `schedule_id` (String) Schedule ID.
-- `state` (String)
-- `status` (String) Status of the sync operation.
-- `status_message` (String) Status message of the sync operation.
-- `updated_at` (String) Timestamp when the object has been updated.
 
 Read-Only:
 
+- `dhcp_server_id` (String) DHCP Server ID. MSAD case.
+- `dns_server_id` (String) DNS Server ID.
 - `id` (String) Auto-generated unique source account ID. Format BloxID.
+- `last_successful_sync` (String) Last successful sync timestamp.
+- `last_sync` (String) Last sync timestamp.
+- `parent_id` (String) Parent ID.
+- `provider_account_id` (String) Provider Account ID
+- `schedule_id` (String) Schedule ID.
+- `state` (String)
