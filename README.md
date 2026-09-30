@@ -108,7 +108,7 @@ The provider also accepts these optional settings:
 | `manage_internal_id_ea` | NIOS | Whether the provider maintains the `Terraform Internal ID` extensible attribute. Default `true`. |
 | `uddi.default_tags` | UDDI | Tags applied to every object the provider creates or updates. |
 
-For detailed installation instructions, please refer to the [Quickstart Guide](guides/quickstart.md).
+For detailed installation instructions, please refer to the [Quickstart Guide](docs/guides/quickstart.md).
 
 ### Prerequisites
 
