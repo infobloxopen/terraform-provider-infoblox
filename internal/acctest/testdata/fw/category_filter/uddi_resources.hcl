@@ -1,8 +1,3 @@
-# Hand-written resource acceptance-test cases for CategoryFilter.
-# Legacy mining skipped this object: terraform-provider-bloxone names its test
-# functions TestAccCategoryFiltersResource_* (plural "Filters"), which does not
-# match the miner's TestAcc<Object>Resource_* regex for singular "CategoryFilter".
-
 case "basic" {
   backend  = "uddi"
   parallel = true

@@ -200,11 +200,8 @@ func mapUDDICategoryFilterToResponse(r *uddifw.CategoryFilter) *fw.CategoryFilte
 	}
 	resp.UDDI = &fw.UDDICategoryFilterExt{
 		Categories:  r.Categories,
-		CreatedTime: r.CreatedTime,
 		Description: r.Description,
 		Name:        r.Name,
-		Policies:    r.Policies,
-		UpdatedTime: r.UpdatedTime,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))

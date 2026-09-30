@@ -1,6 +1,3 @@
-# Hand-written list acceptance-test cases for CategoryFilter.
-# Legacy terraform-provider-bloxone has no list-query test for this object.
-
 case "filters" {
   backend        = "uddi"
   min_tf_version = "1.14.0"

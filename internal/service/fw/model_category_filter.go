@@ -3,7 +3,6 @@ package fw
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -33,25 +32,19 @@ var CategoryFilterAttrTypes = map[string]attr.Type{
 }
 
 type UDDICategoryFilterModel struct {
-	Categories  types.List        `tfsdk:"categories"`
-	CreatedTime timetypes.RFC3339 `tfsdk:"created_time"`
-	Description types.String      `tfsdk:"description"`
-	Name        types.String      `tfsdk:"name"`
-	Policies    types.List        `tfsdk:"policies"`
-	Tags        types.Map         `tfsdk:"tags"`
-	TagsAll     types.Map         `tfsdk:"tags_all"`
-	UpdatedTime timetypes.RFC3339 `tfsdk:"updated_time"`
+	Categories  types.List   `tfsdk:"categories"`
+	Description types.String `tfsdk:"description"`
+	Name        types.String `tfsdk:"name"`
+	Tags        types.Map    `tfsdk:"tags"`
+	TagsAll     types.Map    `tfsdk:"tags_all"`
 }
 
 var UDDICategoryFilterAttrTypes = map[string]attr.Type{
-	"categories":   types.ListType{ElemType: types.StringType},
-	"created_time": timetypes.RFC3339Type{},
-	"description":  types.StringType,
-	"name":         types.StringType,
-	"policies":     types.ListType{ElemType: types.StringType},
-	"tags":         types.MapType{ElemType: types.StringType},
-	"tags_all":     types.MapType{ElemType: types.StringType},
-	"updated_time": timetypes.RFC3339Type{},
+	"categories":  types.ListType{ElemType: types.StringType},
+	"description": types.StringType,
+	"name":        types.StringType,
+	"tags":        types.MapType{ElemType: types.StringType},
+	"tags_all":    types.MapType{ElemType: types.StringType},
 }
 
 const (
@@ -86,11 +79,6 @@ var CategoryFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "The list of content category names that falls into this category filter.",
 	},
-	"created_time": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "The time when this Category Filter object was created.",
-	},
 	"description": schema.StringAttribute{
 		Default:             stringdefault.StaticString(""),
 		Optional:            true,
@@ -100,11 +88,6 @@ var CategoryFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the category filter.",
-	},
-	"policies": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Computed:            true,
-		MarkdownDescription: "The list of security policy names with which the category filter is associated.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -120,11 +103,6 @@ var CategoryFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		ElementType:         types.StringType,
 		MarkdownDescription: "All tags including inherited values.",
-	},
-	"updated_time": schema.StringAttribute{
-		Computed:            true,
-		CustomType:          timetypes.RFC3339Type{},
-		MarkdownDescription: "The time when this Category Filter object was last updated.",
 	},
 }
 
@@ -182,14 +160,11 @@ func (m *UDDICategoryFilterModel) Flatten(ctx context.Context, from *coremodel.U
 		return
 	}
 	m.Categories = flex.FlattenFrameworkListString(ctx, from.Categories, diags)
-	m.CreatedTime = flex.FlattenRFC3339(from.CreatedTime)
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.Name = flex.FlattenStringPointer(from.Name)
-	m.Policies = flex.FlattenFrameworkListString(ctx, from.Policies, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
 	}
 	m.TagsAll = tagsAll
-	m.UpdatedTime = flex.FlattenRFC3339(from.UpdatedTime)
 }
