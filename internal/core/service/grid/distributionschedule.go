@@ -61,6 +61,7 @@ func (s *distributionscheduleService) readNIOS(ctx context.Context, id string, o
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -159,6 +160,7 @@ func (s *distributionscheduleService) listNIOS(ctx context.Context, opts *core.L
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err
