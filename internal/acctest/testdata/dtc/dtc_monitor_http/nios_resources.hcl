@@ -71,9 +71,10 @@ case "ciphers" {
 }
 
 case "client_cert" {
-  # TODO: grid prereqs — dtc:certificate refs 0504e596...abad058a and 4b0bcb4d...55ad5c must exist on the test appliance
-  backend  = "nios"
-  parallel = true
+  backend     = "nios"
+  parallel    = true
+  skip        = true
+  skip_reason = "dtc:certificate objects cannot be created via WAPI (schema restrictions forbid create) and none currently exist on the test grid; requires manual pre-provisioning"
 
   step {
     nios {

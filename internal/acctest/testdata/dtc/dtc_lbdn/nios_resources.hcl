@@ -221,6 +221,27 @@ case "ext_attrs" {
 case "lb_method" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_pool" "dest_pool" {
+    nios = {
+      name                = "{{random3}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = infoblox_dtc_server.one.id, ratio = 1 }]
+    }
+  }
+  resource "infoblox_dtc_topology" "single_rule" {
+    nios = {
+      name  = "{{random4}}"
+      rules = [{ dest_type = "POOL", destination_link = infoblox_dtc_pool.dest_pool.id }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -266,11 +287,10 @@ case "lb_method" {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
-      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
+      topology  = infoblox_dtc_topology.single_rule.id
     }
     check = {
       "nios.lb_method" = "TOPOLOGY"
-      "nios.topology"  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
     }
   }
 
@@ -445,15 +465,42 @@ case "priority" {
 case "topology" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_pool" "one_pool" {
+    nios = {
+      name                = "{{random3}}"
+      lb_preferred_method = "ROUND_ROBIN"
+      servers             = [{ server = infoblox_dtc_server.one.id, ratio = 1 }]
+    }
+  }
+  resource "infoblox_dtc_topology" "single_rule" {
+    nios = {
+      name  = "{{random4}}"
+      rules = [{ dest_type = "POOL", destination_link = infoblox_dtc_pool.one_pool.id }]
+    }
+  }
+  resource "infoblox_dtc_topology" "dest_pool" {
+    nios = {
+      name  = "{{random5}}"
+      rules = [{ dest_type = "POOL", destination_link = infoblox_dtc_pool.one_pool.id }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
-      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
+      topology  = infoblox_dtc_topology.single_rule.id
     }
     check = {
-      "nios.topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMV9zaW5nbGVfcnVsZQ:tc01_single_rule"
+      "nios.lb_method" = "TOPOLOGY"
     }
   }
 
@@ -461,10 +508,10 @@ case "topology" {
     nios {
       name      = "dtc-lbdn-{{random}}"
       lb_method = "TOPOLOGY"
-      topology  = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMl9kZXN0X3Bvb2w:tc02_dest_pool"
+      topology  = infoblox_dtc_topology.dest_pool.id
     }
     check = {
-      "nios.topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGMwMl9kZXN0X3Bvb2w:tc02_dest_pool"
+      "nios.lb_method" = "TOPOLOGY"
     }
   }
 
