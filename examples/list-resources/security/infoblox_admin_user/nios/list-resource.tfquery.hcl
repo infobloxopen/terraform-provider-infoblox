@@ -1,5 +1,5 @@
 // List Admin Users using name filter
-list "infoblox_adminuser" "list_by_name" {
+list "infoblox_admin_user" "list_by_name" {
   provider = infoblox
   config {
     filters = {
@@ -10,7 +10,7 @@ list "infoblox_adminuser" "list_by_name" {
 }
 
 // List Admin Users using Extensible Attributes
-list "infoblox_adminuser" "list_by_ext_attrs" {
+list "infoblox_admin_user" "list_by_ext_attrs" {
   provider = infoblox
   config {
     ext_attr_filters = {
@@ -20,7 +20,7 @@ list "infoblox_adminuser" "list_by_ext_attrs" {
 }
 
 // List all Admin Users with resource details
-list "infoblox_adminuser" "list_all" {
+list "infoblox_admin_user" "list_all" {
   provider         = infoblox
   include_resource = true
 }

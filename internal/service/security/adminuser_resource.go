@@ -38,7 +38,7 @@ type AdminuserResource struct {
 }
 
 func (r *AdminuserResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_adminuser"
+	resp.TypeName = req.ProviderTypeName + "_admin_user"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

@@ -36,7 +36,7 @@ type AdminuserDataSource struct {
 }
 
 func (d *AdminuserDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_adminuser"
+	resp.TypeName = req.ProviderTypeName + "_admin_user"
 }
 
 // AdminuserDataSourceModel is the filter model for the datasource

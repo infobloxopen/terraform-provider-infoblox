@@ -40,7 +40,7 @@ type AdminuserListModel struct {
 }
 
 func (l *AdminuserList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_adminuser"
+	resp.TypeName = req.ProviderTypeName + "_admin_user"
 }
 
 func (l *AdminuserList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -105,7 +105,7 @@ func (l *AdminuserList) List(ctx context.Context, req list.ListRequest, stream *
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_adminuser list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_admin_user list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

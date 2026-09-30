@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccAdminuserList(t *testing.T) {
-	resourceType := "infoblox_adminuser"
+	resourceType := "infoblox_admin_user"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -18,7 +18,7 @@ func TestAccAdminuserList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "security/adminuser/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "security/admin_user/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

@@ -1,5 +1,5 @@
 // Create an Admin User with required fields only
-resource "infoblox_adminuser" "basic" {
+resource "infoblox_admin_user" "basic" {
   nios = {
     name         = "tf-admin-example"
     password     = "SecurePassword123!"
@@ -8,7 +8,7 @@ resource "infoblox_adminuser" "basic" {
 }
 
 // Create an Admin User with additional configuration
-resource "infoblox_adminuser" "full" {
+resource "infoblox_admin_user" "full" {
   nios = {
     name         = "tf-admin-full"
     password     = "SecurePassword123!"
@@ -26,7 +26,7 @@ resource "infoblox_adminuser" "full" {
 }
 
 // Create an Admin User with SSH key authentication
-resource "infoblox_adminuser" "with_ssh_keys" {
+resource "infoblox_admin_user" "with_ssh_keys" {
   nios = {
     name         = "tf-admin-ssh"
     password     = "SecurePassword123!"
@@ -44,7 +44,7 @@ resource "infoblox_adminuser" "with_ssh_keys" {
 
 // Create an Admin User with certificate-based authentication
 // Prerequisites: the CA certificate must exist in NIOS and its WAPI reference must be known.
-resource "infoblox_adminuser" "with_cert_auth" {
+resource "infoblox_admin_user" "with_cert_auth" {
   nios = {
     name                              = "tf-admin-cert"
     password                          = "SecurePassword123!"
