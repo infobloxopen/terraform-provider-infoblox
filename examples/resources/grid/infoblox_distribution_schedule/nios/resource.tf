@@ -3,7 +3,7 @@
 // distribution_time must be after start_time.
 
 // Update Distribution Schedule with Basic Fields
-resource "infoblox_distributionschedule" "basic_schedule" {
+resource "infoblox_distribution_schedule" "basic_schedule" {
   nios = {
     active     = true
     start_time = "2027-01-15T20:30:00"
@@ -11,7 +11,7 @@ resource "infoblox_distributionschedule" "basic_schedule" {
 }
 
 // Update Distribution Schedule with Additional Fields
-resource "infoblox_distributionschedule" "schedule_with_upgrade_groups" {
+resource "infoblox_distribution_schedule" "schedule_with_upgrade_groups" {
   nios = {
     active     = true
     start_time = "2027-01-15T20:00:00"

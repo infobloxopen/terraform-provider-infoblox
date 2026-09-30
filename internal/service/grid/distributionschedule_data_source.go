@@ -36,7 +36,7 @@ type DistributionscheduleDataSource struct {
 }
 
 func (d *DistributionscheduleDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_distributionschedule"
+	resp.TypeName = req.ProviderTypeName + "_distribution_schedule"
 }
 
 // DistributionscheduleDataSourceModel is the filter model for the datasource

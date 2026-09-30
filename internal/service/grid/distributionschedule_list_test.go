@@ -7,18 +7,17 @@ import (
 )
 
 func TestAccDistributionscheduleList(t *testing.T) {
-	resourceType := "infoblox_distributionschedule"
+	resourceType := "infoblox_distribution_schedule"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
-			Exists:  testAccCheckDistributionscheduleExistsNIOS,
-			Destroy: testAccCheckDistributionscheduleDestroyNIOS,
+			Exists: testAccCheckDistributionscheduleExistsNIOS,
 		},
 	}
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "grid/distributionschedule/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "grid/distribution_schedule/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

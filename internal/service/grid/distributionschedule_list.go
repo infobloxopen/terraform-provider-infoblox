@@ -39,7 +39,7 @@ type DistributionscheduleListModel struct {
 }
 
 func (l *DistributionscheduleList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_distributionschedule"
+	resp.TypeName = req.ProviderTypeName + "_distribution_schedule"
 }
 
 func (l *DistributionscheduleList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -99,7 +99,7 @@ func (l *DistributionscheduleList) List(ctx context.Context, req list.ListReques
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_distributionschedule list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_distribution_schedule list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

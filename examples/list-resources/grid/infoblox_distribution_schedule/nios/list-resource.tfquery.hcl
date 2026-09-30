@@ -1,10 +1,10 @@
 // List the singleton Distribution Schedule
-list "infoblox_distributionschedule" "list_distributionschedule" {
+list "infoblox_distribution_schedule" "list_distribution_schedule" {
   provider = infoblox
 }
 
 // List the Distribution Schedule with resource details included
-list "infoblox_distributionschedule" "list_distributionschedule_with_resource" {
+list "infoblox_distribution_schedule" "list_distribution_schedule_with_resource" {
   provider         = infoblox
   include_resource = true
 }

@@ -12,19 +12,17 @@ import (
 )
 
 func TestAccDistributionscheduleResource(t *testing.T) {
-	resourceType := "infoblox_distributionschedule"
+	resourceType := "infoblox_distribution_schedule"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
-			Exists:  testAccCheckDistributionscheduleExistsNIOS,
-			Destroy: testAccCheckDistributionscheduleDestroyNIOS,
-			// Disappears: testAccCheckDistributionscheduleDisappearsNIOS, // TODO: codegen bug, re-enable after fix
+			Exists: testAccCheckDistributionscheduleExistsNIOS,
 		},
 	}
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "grid/distributionschedule/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "grid/distribution_schedule/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }
@@ -49,26 +47,3 @@ func testAccCheckDistributionscheduleExistsNIOS(resourceName string) resource.Te
 		return nil
 	}
 }
-
-func testAccCheckDistributionscheduleDestroyNIOS(resourceType string) resource.TestCheckFunc {
-	// Distributionschedule is a grid singleton (noDelete): destroy only drops it from state,
-	// so the object always still exists afterwards and there is nothing to verify.
-	return func(s *terraform.State) error {
-		return nil
-	}
-}
-
-// func testAccCheckDistributionscheduleDisappearsNIOS(resourceName string) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		rs, ok := s.RootModule().Resources[resourceName]
-// 		if !ok {
-// 			return fmt.Errorf("not found: %s", resourceName)
-// 		}
-// 		conn := acctest.NIOSClient
-// 		_, err := conn.GridAPI.DistributionscheduleAPI.Delete(context.Background(), acctest.ExtractNIOSRef(rs.Primary.ID)).Execute()
-// 		if err != nil {
-// 			return fmt.Errorf("failed to delete Distributionschedule: %w", err)
-// 		}
-// 		return nil
-// 	}
-// }
