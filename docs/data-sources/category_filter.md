@@ -63,10 +63,7 @@ Read-Only:
 Read-Only:
 
 - `categories` (List of String) The list of content category names that falls into this category filter.
-- `created_time` (String) The time when this Category Filter object was created.
 - `description` (String) The brief description for the category filter.
 - `name` (String) The name of the category filter.
-- `policies` (List of String) The list of security policy names with which the category filter is associated.
 - `tags` (Map of String) Enables tag support for resource where tags attribute contains user-defined key value pairs
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_time` (String) The time when this Category Filter object was last updated.
