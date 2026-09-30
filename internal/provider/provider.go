@@ -98,7 +98,7 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 			},
 			"proxy_search": schema.StringAttribute{
 				Optional:    true,
-				Description: "Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.",
+				MarkdownDescription: "Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("LOCAL", "GM"),
 				},
