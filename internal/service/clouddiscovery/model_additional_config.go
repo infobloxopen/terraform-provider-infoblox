@@ -49,6 +49,7 @@ var AdditionalConfigResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"internal_ranges_enabled": schema.BoolAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Enable/Disable internal ranges discovery.",
 	},
 	"object_type": schema.SingleNestedAttribute{

@@ -41,7 +41,6 @@ type UDDICloudDiscoveryProviderModel struct {
 	DestinationTypesEnabled types.List   `tfsdk:"destination_types_enabled"`
 	Destinations            types.List   `tfsdk:"destinations"`
 	IsDisabled              types.Bool   `tfsdk:"is_disabled"`
-	LabsProvider            types.Bool   `tfsdk:"labs_provider"`
 	Name                    types.String `tfsdk:"name"`
 	ProviderType            types.String `tfsdk:"provider_type"`
 	SourceConfigs           types.List   `tfsdk:"source_configs"`
@@ -59,7 +58,6 @@ var UDDICloudDiscoveryProviderAttrTypes = map[string]attr.Type{
 	"destination_types_enabled": types.ListType{ElemType: types.StringType},
 	"destinations":              types.ListType{ElemType: types.ObjectType{AttrTypes: DestinationAttrTypes}},
 	"is_disabled":               types.BoolType,
-	"labs_provider":             types.BoolType,
 	"name":                      types.StringType,
 	"provider_type":             types.StringType,
 	"source_configs":            types.ListType{ElemType: types.ObjectType{AttrTypes: SourceConfigAttrTypes}},
@@ -90,12 +88,12 @@ var CloudDiscoveryProviderResourceSchemaAttributes = map[string]schema.Attribute
 
 var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"account_preference": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("single", "multiple", "auto_discover_multiple"),
+		},
 		Required: true,
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
-		},
-		Validators: []validator.String{
-			stringvalidator.OneOf("single", "multiple", "auto_discover_multiple"),
 		},
 		MarkdownDescription: "Account preference. For ex.: single, multiple, auto-discover-multiple.",
 	},
@@ -146,10 +144,6 @@ var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attri
 		Computed:            true,
 		MarkdownDescription: "is_disabled. Enables/Disables provider. Newer version of desired_state.",
 	},
-	"labs_provider": schema.BoolAttribute{
-		Optional:            true,
-		MarkdownDescription: "labs_provider. Indicates if a provider is enabled through Infoblox Labs.",
-	},
 	"name": schema.StringAttribute{
 		Required: true,
 		PlanModifiers: []planmodifier.String{
@@ -182,7 +176,7 @@ var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attri
 		Default:             stringdefault.StaticString("Auto"),
 		Optional:            true,
 		Computed:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "Sync interval. Default is \"Auto\".",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -229,7 +223,6 @@ func (m *UDDICloudDiscoveryProviderModel) Expand(ctx context.Context, diags *dia
 		DestinationTypesEnabled: flex.ExpandFrameworkListString(ctx, m.DestinationTypesEnabled, diags),
 		Destinations:            flex.ExpandFrameworkListNestedBlock(ctx, m.Destinations, diags, ExpandDestination),
 		IsDisabled:              flex.ExpandBoolPointer(m.IsDisabled),
-		LabsProvider:            flex.ExpandBoolPointer(m.LabsProvider),
 		Name:                    flex.ExpandString(m.Name),
 		ProviderType:            flex.ExpandString(m.ProviderType),
 		SourceConfigs:           flex.ExpandFrameworkListNestedBlock(ctx, m.SourceConfigs, diags, ExpandSourceConfig),
@@ -272,7 +265,6 @@ func (m *UDDICloudDiscoveryProviderModel) Flatten(ctx context.Context, from *cor
 	m.DestinationTypesEnabled = flex.FlattenFrameworkListString(ctx, from.DestinationTypesEnabled, diags)
 	m.Destinations = flex.FlattenFrameworkListNestedBlock(ctx, from.Destinations, DestinationAttrTypes, diags, FlattenDestination)
 	m.IsDisabled = flex.FlattenBoolPointer(from.IsDisabled)
-	m.LabsProvider = flex.FlattenBoolPointer(from.LabsProvider)
 	m.Name = flex.FlattenString(from.Name)
 	m.ProviderType = flex.FlattenString(from.ProviderType)
 	m.SourceConfigs = flex.FlattenFrameworkListNestedBlock(ctx, from.SourceConfigs, SourceConfigAttrTypes, diags, FlattenSourceConfig)

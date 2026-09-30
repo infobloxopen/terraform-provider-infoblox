@@ -48,7 +48,6 @@ var ObjectTypeResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "List of objects to discover.",
 	},
 	"version": schema.Float64Attribute{
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Version of the object type.",
 	},

@@ -21,7 +21,6 @@ import (
 
 // SourceConfigModel is the Terraform model for SourceConfig
 type SourceConfigModel struct {
-	AccountScheduleId    types.String      `tfsdk:"account_schedule_id"`
 	Accounts             types.List        `tfsdk:"accounts"`
 	CloudCredentialId    types.String      `tfsdk:"cloud_credential_id"`
 	CredentialConfig     types.Object      `tfsdk:"credential_config"`
@@ -32,7 +31,6 @@ type SourceConfigModel struct {
 
 // SourceConfigAttrTypes contains the attribute types for SourceConfigModel
 var SourceConfigAttrTypes = map[string]attr.Type{
-	"account_schedule_id":    types.StringType,
 	"accounts":               types.ListType{ElemType: types.ObjectType{AttrTypes: AccountAttrTypes}},
 	"cloud_credential_id":    types.StringType,
 	"credential_config":      types.ObjectType{AttrTypes: CredentialConfigAttrTypes},
@@ -43,11 +41,6 @@ var SourceConfigAttrTypes = map[string]attr.Type{
 
 // SourceConfigResourceSchemaAttributes contains the schema attributes for SourceConfigModel
 var SourceConfigResourceSchemaAttributes = map[string]schema.Attribute{
-	"account_schedule_id": schema.StringAttribute{
-		Optional:            true,
-		Computed:            true,
-		MarkdownDescription: "Account Schedule ID.",
-	},
 	"accounts": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: AccountResourceSchemaAttributes,
@@ -143,7 +136,6 @@ func (m *SourceConfigModel) Flatten(ctx context.Context, from *uddiclouddiscover
 	if from == nil || m == nil {
 		return
 	}
-	m.AccountScheduleId = flex.FlattenStringPointer(from.AccountScheduleId)
 	m.Accounts = flex.FlattenFrameworkListNestedBlock(ctx, from.Accounts, AccountAttrTypes, diags, FlattenAccount)
 	m.CloudCredentialId = flex.FlattenStringPointer(from.CloudCredentialId)
 	m.CredentialConfig = FlattenCredentialConfig(ctx, from.CredentialConfig, diags)

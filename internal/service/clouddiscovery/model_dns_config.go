@@ -3,6 +3,7 @@ package clouddiscovery
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -62,6 +63,9 @@ var DNSConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "split_view_enabled consolidates private zones into a single view, which is separate from the public zone view.",
 	},
 	"sync_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("read_only", "read_write"),
+		},
 		Optional:            true,
 		MarkdownDescription: "Type of sync. Sync_type values: \"read_only\", \"read_write\".",
 	},
