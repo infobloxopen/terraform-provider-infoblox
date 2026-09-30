@@ -381,6 +381,14 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_SYSLOG_ENDPOINT_REF")
 	case name == "subscriber_block_size_editable":
 		return os.Getenv("SUBSCRIBER_BLOCK_SIZE_EDITABLE")
+	case name == "uddi_infra_host_display_name_1":
+		return os.Getenv("UDDI_INFRA_HOST_DISPLAY_NAME_1")
+	case name == "uddi_infra_host_legacy_id_1":
+		return os.Getenv("UDDI_INFRA_HOST_LEGACY_ID_1")
+	case name == "uddi_infra_host_tag_key_1":
+		return os.Getenv("UDDI_INFRA_HOST_TAG_KEY_1")
+	case name == "uddi_infra_host_tag_value_1":
+		return os.Getenv("UDDI_INFRA_HOST_TAG_VALUE_1")
 	case name == "uddi_dns_host_id_1":
 		return os.Getenv("UDDI_DNS_HOST_ID_1")
 	case name == "uddi_dns_host_id_2":
