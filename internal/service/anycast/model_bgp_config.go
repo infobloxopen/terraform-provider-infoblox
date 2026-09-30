@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 	uddianycast "github.com/infobloxopen/universal-ddi-go-client/anycast"
@@ -56,7 +57,10 @@ var BgpConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Represents a set of symbolic field paths.",
 	},
 	"holddown_secs": schema.Int64Attribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			int64validator.Between(0, 255),
+		},
 		MarkdownDescription: "BGP route hold-down timer.",
 	},
 	"keep_alive_secs": schema.Int64Attribute{

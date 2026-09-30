@@ -3,9 +3,11 @@ package anycast
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -52,6 +54,9 @@ var OspfConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "OSPF area identifier; usually in the format of an IPv4 address (although not an address itself)",
 	},
 	"area_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("STANDARD", "STUB", "NSSA"),
+		},
 		Optional:            true,
 		MarkdownDescription: "OSPF area type; one of: \"STANDARD\", \"STUB\", \"NSSA\".",
 	},
@@ -64,6 +69,9 @@ var OspfConfigResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Numeric OSPF authentication key identifier.",
 	},
 	"authentication_type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("Clear", "MD5"),
+		},
 		Optional:            true,
 		MarkdownDescription: "OSPF authentication type; one of \"Clear\", \"MD5\".",
 	},
