@@ -55,7 +55,7 @@ const (
 var AnycastHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
 		Required:            true,
-		MarkdownDescription: "",
+		MarkdownDescription: "The resource identifier for the Anycast Host.",
 	},
 	"update_trigger": schema.StringAttribute{
 		Optional:            true,
