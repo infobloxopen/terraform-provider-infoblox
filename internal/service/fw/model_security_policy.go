@@ -22,13 +22,15 @@ import (
 )
 
 type SecurityPolicyModel struct {
-	Id   types.Int32  `tfsdk:"id"`
-	UDDI types.Object `tfsdk:"uddi"`
+	Id            types.Int32  `tfsdk:"id"`
+	UpdateTrigger types.String `tfsdk:"update_trigger"`
+	UDDI          types.Object `tfsdk:"uddi"`
 }
 
 var SecurityPolicyAttrTypes = map[string]attr.Type{
-	"id":   types.Int32Type,
-	"uddi": types.ObjectType{AttrTypes: UDDISecurityPolicyAttrTypes},
+	"id":             types.Int32Type,
+	"update_trigger": types.StringType,
+	"uddi":           types.ObjectType{AttrTypes: UDDISecurityPolicyAttrTypes},
 }
 
 type UDDISecurityPolicyModel struct {
@@ -84,6 +86,10 @@ var SecurityPolicyResourceSchemaAttributes = map[string]schema.Attribute{
 			int32planmodifier.UseStateForUnknown(),
 		},
 		MarkdownDescription: "The Security Policy object identifier.",
+	},
+	"update_trigger": schema.StringAttribute{
+		Optional:            true,
+		MarkdownDescription: "An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.",
 	},
 	"uddi": schema.SingleNestedAttribute{
 		Optional:            true,
