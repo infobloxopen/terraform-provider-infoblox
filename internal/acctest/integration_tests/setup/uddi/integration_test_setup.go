@@ -160,7 +160,7 @@ func CreateOptionGroups(ctx context.Context, client *uddiclient.APIClient) error
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
 				// Fetch the existing group's ID
-				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Execute()
+				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Filter("name==\"" + og.name + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create option groups: list existing groups to find %q: %w", og.name, listErr)
 				}
@@ -235,7 +235,7 @@ func CreateOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
 	resp, _, err := client.IPAddressManagementAPI.OptionCodeAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Filter("name==\"" + optionCodeName + "\"").Execute()
 			if listErr != nil {
 				return fmt.Errorf("create option code: list existing option codes to find %q: %w", optionCodeName, listErr)
 			}
@@ -285,7 +285,7 @@ func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, 
 	resp, _, err := client.IPAddressManagementAPI.OptionSpaceAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Filter("name==\"" + name + "\"").Execute()
 			if listErr != nil {
 				return "", fmt.Errorf("create or find option space: list existing spaces to find %q: %w", name, listErr)
 			}
@@ -359,7 +359,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
 				// Fetch the existing zone's ID
-				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Execute()
+				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Filter("fqdn==\"" + az.fqdn + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create auth zone: list existing zones to find %q: %w", az.fqdn, listErr)
 				}
@@ -367,7 +367,8 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 				var existingID string
 				if listResp != nil {
 					for _, existing := range listResp.Results {
-						if existing.Fqdn != nil && *existing.Fqdn == az.fqdn && existing.Id != nil {
+						// UDDI stores fqdn with a trailing dot (e.g. "example_zone_250."), so compare with it trimmed.
+						if existing.Fqdn != nil && strings.TrimSuffix(*existing.Fqdn, ".") == az.fqdn && existing.Id != nil {
 							existingID = *existing.Id
 							break
 						}
@@ -449,6 +450,24 @@ func CreateIPSpaceAndRanges(ctx context.Context, client *uddiclient.APIClient) e
 	} else {
 		if abResp != nil && abResp.Result != nil && abResp.Result.Id != nil {
 			fmt.Printf("Address block 10.0.0.0/8 created (ID: %q)\n", *abResp.Result.Id)
+		}
+	}
+
+	// Create the subnet 10.0.0.0/24 that the ranges live in. Ranges cannot be
+	// created directly under an address block — UDDI requires a subnet parent.
+	subnetResp, _, err := client.IPAddressManagementAPI.SubnetAPI.Create(ctx).Body(ipam.Subnet{
+		Address: ipam.PtrString("10.0.0.0"),
+		Cidr:    ipam.PtrInt64(24),
+		Space:   ipam.PtrString(spaceID),
+	}).Execute()
+	if err != nil {
+		if !strings.Contains(err.Error(), "is already an existing") && !strings.Contains(err.Error(), "conflict") && !strings.Contains(err.Error(), "already exists") && !strings.Contains(err.Error(), "would be contained into") {
+			return fmt.Errorf("create subnet 10.0.0.0/24: %w", err)
+		}
+		fmt.Println("Subnet 10.0.0.0/24 already exists, continuing")
+	} else {
+		if subnetResp != nil && subnetResp.Result != nil && subnetResp.Result.Id != nil {
+			fmt.Printf("Subnet 10.0.0.0/24 created (ID: %q)\n", *subnetResp.Result.Id)
 		}
 	}
 
