@@ -12,6 +12,9 @@
 //
 // Objects created by this setup program (IDs stored as env vars):
 //
+// Anycast Service (on first online host):
+//   - tf_anycast_service_1 (UDDI_ANYCAST_SERVICE_ID_1)
+//
 // DHCP Option Groups:
 //   - tf_option_group_1 (UDDI_OPTION_GROUP_1_ID)
 //   - tf_option_group_2 (UDDI_OPTION_GROUP_2_ID)
@@ -37,6 +40,7 @@ import (
 
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	"github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
+	"github.com/infobloxopen/universal-ddi-go-client/inframgmt"
 	"github.com/infobloxopen/universal-ddi-go-client/ipam"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -56,21 +60,23 @@ func writePipelineEnvVar(key, value string) error {
 // StoreInfraHostDetails fetches up to two online Infra Hosts via the Detail API
 // and stores each host's display_name and legacy_id into pipeline_uddi.env as
 // UDDI_INFRA_HOST_DISPLAY_NAME_1/2 and UDDI_INFRA_HOST_LEGACY_ID_1/2.
-func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) error {
+// It returns the fetched hosts so callers can use them without a second API call.
+func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([]inframgmt.DetailHost, error) {
 	resp, _, err := client.InfraManagementAPI.DetailAPI.HostsList(ctx).
 		Filter("composite_status=='online'").
 		Limit(2).
 		Execute()
 	if err != nil {
-		return fmt.Errorf("store infra host details: list detail hosts: %w", err)
+		return nil, fmt.Errorf("store infra host details: list detail hosts: %w", err)
 	}
 
 	if resp == nil || len(resp.GetResults()) == 0 {
 		fmt.Println("No online infra hosts found, skipping infra host detail storage")
-		return nil
+		return nil, nil
 	}
 
-	for i, host := range resp.GetResults() {
+	hosts := resp.GetResults()
+	for i, host := range hosts {
 		if i >= 2 {
 			break
 		}
@@ -82,14 +88,14 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) er
 
 		if v := host.GetDisplayName(); v != "" {
 			if err := writePipelineEnvVar(displayNameVar, v); err != nil {
-				return fmt.Errorf("store infra host details: write %s: %w", displayNameVar, err)
+				return nil, fmt.Errorf("store infra host details: write %s: %w", displayNameVar, err)
 			}
 			fmt.Printf("Stored infra host display_name %q as %s\n", v, displayNameVar)
 		}
 
 		if v := host.GetLegacyId(); v != "" {
 			if err := writePipelineEnvVar(legacyIDVar, v); err != nil {
-				return fmt.Errorf("store infra host details: write %s: %w", legacyIDVar, err)
+				return nil, fmt.Errorf("store infra host details: write %s: %w", legacyIDVar, err)
 			}
 			fmt.Printf("Stored infra host legacy_id %q as %s\n", v, legacyIDVar)
 		}
@@ -104,17 +110,66 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) er
 			firstValue := fmt.Sprintf("%v", tags[firstKey])
 
 			if err := writePipelineEnvVar(tagKeyVar, firstKey); err != nil {
-				return fmt.Errorf("store infra host details: write %s: %w", tagKeyVar, err)
+				return nil, fmt.Errorf("store infra host details: write %s: %w", tagKeyVar, err)
 			}
 			fmt.Printf("Stored infra host tag key %q as %s\n", firstKey, tagKeyVar)
 
 			if err := writePipelineEnvVar(tagValueVar, firstValue); err != nil {
-				return fmt.Errorf("store infra host details: write %s: %w", tagValueVar, err)
+				return nil, fmt.Errorf("store infra host details: write %s: %w", tagValueVar, err)
 			}
 			fmt.Printf("Stored infra host tag value %q as %s\n", firstValue, tagValueVar)
 		}
 	}
 
+	return hosts, nil
+}
+
+// CreateAnyCastService creates an anycast Service on the given host and stores its ID
+// into pipeline_uddi.env as UDDI_ANYCAST_SERVICE_ID_1. If an anycast service already
+// exists on the host the call is skipped gracefully.
+func CreateAnyCastService(ctx context.Context, client *uddiclient.APIClient, host inframgmt.DetailHost) error {
+	const serviceName = "tf_anycast_service_1"
+
+	// Skip if anycast is already deployed on this host.
+	for _, svc := range host.GetServices() {
+		if svc.GetServiceType() == "anycast" {
+			fmt.Printf("Anycast service already exists on host %q, skipping creation\n", host.GetDisplayName())
+			return nil
+		}
+	}
+
+	pool := host.GetPool()
+	poolId := pool.GetPoolId()
+	if poolId == "" {
+		return fmt.Errorf("create anycast service: host %q has no pool_id", host.GetDisplayName())
+	}
+
+	body := inframgmt.Service{
+		Name:         serviceName,
+		ServiceType:  "anycast",
+		DesiredState: inframgmt.PtrString("start"),
+		PoolId:       poolId,
+	}
+
+	resp, _, err := client.InfraManagementAPI.ServicesAPI.Create(ctx).Body(body).Execute()
+	if err != nil {
+		if strings.Contains(err.Error(), "Cannot have duplicate service") {
+			fmt.Printf("Anycast service %q already exists (duplicate error), skipping\n", serviceName)
+			return nil
+		}
+		return fmt.Errorf("create anycast service: %w", err)
+	}
+
+	if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+		return fmt.Errorf("create anycast service: create response missing ID")
+	}
+
+	createdID := *resp.Result.Id
+	if err := writePipelineEnvVar("UDDI_ANYCAST_SERVICE_ID_1", createdID); err != nil {
+		return fmt.Errorf("create anycast service: write UDDI_ANYCAST_SERVICE_ID_1: %w", err)
+	}
+
+	fmt.Printf("Anycast service %q created successfully (ID: %q, env: UDDI_ANYCAST_SERVICE_ID_1)\n", serviceName, createdID)
 	return nil
 }
 
@@ -502,11 +557,20 @@ func main() {
 
 	ctx := context.Background()
 
-	if err := StoreInfraHostDetails(ctx, client); err != nil {
+	infraHosts, err := StoreInfraHostDetails(ctx, client)
+	if err != nil {
 		fmt.Printf("Error storing infra host details: %v\n", err)
 		return
 	}
 	fmt.Println("Infra host details stored successfully")
+
+	if len(infraHosts) > 0 {
+		if err := CreateAnyCastService(ctx, client, infraHosts[0]); err != nil {
+			fmt.Printf("Error creating anycast service: %v\n", err)
+			return
+		}
+		fmt.Println("Anycast service created successfully")
+	}
 
 	if err := StoreDNSHostIDs(ctx, client); err != nil {
 		fmt.Printf("Error storing DNS host IDs: %v\n", err)

@@ -358,6 +358,13 @@ func FlattenStringPointerEmptyAsNull(s *string) types.String {
 	return types.StringValue(*s)
 }
 
+func FlattenStringPointerNilAsEmpty(s *string) types.String {
+	if s == nil {
+		return types.StringValue("")
+	}
+	return FlattenString(*s)
+}
+
 func FlattenBool(b bool) types.Bool {
 	return types.BoolValue(b)
 }

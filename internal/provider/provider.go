@@ -335,10 +335,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		anycast.NewAnycastConfigResource,
 		anycast.NewAnycastHostResource,
-
-		infra.NewInfraHostResource,
-		notification.NewNotificationRestEndpointResource,
 
 		acl.NewNamedaclResource,
 
@@ -354,10 +352,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
 		dhcp.NewIpv6rangetemplateResource,
+		dhcp.NewOptionGroupResource,
 		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
+		dhcp.NewRangeResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -409,11 +409,15 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
+		fw.NewNetworkListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
+
+		infra.NewInfraHostResource,
+		infra.NewInfraServiceResource,
 
 		ipam.NewAddressResource,
 		ipam.NewIpv6networkResource,
@@ -425,6 +429,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewBulkhostnametemplateResource,
 		ipam.NewVlanviewResource,
 		ipam.NewVlanResource,
+		ipam.NewVlanrangeResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -432,6 +437,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
+
+		notification.NewNotificationRestEndpointResource,
 
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
@@ -443,14 +450,15 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzPtrResource,
 		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAIpaddressResource,
+		rpz.NewRecordRpzCnameClientipaddressResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 
-		infra.NewInfraHostDataSource,
-		notification.NewNotificationRestEndpointDataSource,
+		anycast.NewAnycastConfigDataSource,
 
 		acl.NewNamedaclDataSource,
 
@@ -466,10 +474,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
 		dhcp.NewIpv6rangetemplateDataSource,
+		dhcp.NewOptionGroupDataSource,
 		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
+		dhcp.NewRangeDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -520,11 +530,15 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
+		fw.NewNetworkListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
+
+		infra.NewInfraHostDataSource,
+		infra.NewInfraServiceDataSource,
 
 		ipam.NewAddressDataSource,
 		ipam.NewIpv6networkDataSource,
@@ -539,6 +553,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewBulkhostnametemplateDataSource,
 		ipam.NewVlanviewDataSource,
 		ipam.NewVlanDataSource,
+		ipam.NewVlanrangeDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -546,6 +561,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
+
+		notification.NewNotificationRestEndpointDataSource,
 
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
@@ -557,14 +574,15 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzPtrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAIpaddressDataSource,
+		rpz.NewRecordRpzCnameClientipaddressDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 
-		infra.NewInfraHostList,
-		notification.NewNotificationRestEndpointList,
+		anycast.NewAnycastConfigList,
 
 		acl.NewNamedaclList,
 
@@ -580,10 +598,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
 		dhcp.NewIpv6rangetemplateList,
+		dhcp.NewOptionGroupList,
 		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
+		dhcp.NewRangeList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -634,11 +654,15 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
+		fw.NewNetworkListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
+
+		infra.NewInfraHostList,
+		infra.NewInfraServiceList,
 
 		ipam.NewAddressList,
 		ipam.NewIpv6networkList,
@@ -650,6 +674,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewBulkhostnametemplateList,
 		ipam.NewVlanviewList,
 		ipam.NewVlanList,
+		ipam.NewVlanrangeList,
 
 		ipamfederation.NewFederatedRealmList,
 
@@ -657,6 +682,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
+
+		notification.NewNotificationRestEndpointList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
@@ -668,6 +695,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzPtrList,
 		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAIpaddressList,
+		rpz.NewRecordRpzCnameClientipaddressList,
 	}
 }
 
