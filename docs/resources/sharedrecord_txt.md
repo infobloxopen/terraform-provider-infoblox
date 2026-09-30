@@ -16,7 +16,7 @@ Manages an Infoblox SharedrecordTxt in the NIOS backend.
 
 ```terraform
 // Create a Shared Record Group (Required as Parent)
-resource "infoblox_sharedrecordgroup" "example" {
+resource "infoblox_sharedrecord_group" "example" {
   nios = {
     name = "example-shared-record-group"
   }
@@ -27,7 +27,7 @@ resource "infoblox_sharedrecord_txt" "shared_record_txt_with_basic_fields" {
   nios = {
     name                = "example-shared-record-txt"
     text                = "Example TXT Shared Record"
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
   }
 }
 
@@ -36,7 +36,7 @@ resource "infoblox_sharedrecord_txt" "shared_record_txt_with_additional_fields" 
   nios = {
     name                = "example-shared-record-txt2"
     text                = "Example TXT Shared Record"
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
 
     // Additional Fields
     ext_attrs = {

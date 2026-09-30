@@ -37,7 +37,7 @@ type ExtensibleattributedefResource struct {
 }
 
 func (r *ExtensibleattributedefResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_extensibleattributedef"
+	resp.TypeName = req.ProviderTypeName + "_extensible_attribute_def"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}
