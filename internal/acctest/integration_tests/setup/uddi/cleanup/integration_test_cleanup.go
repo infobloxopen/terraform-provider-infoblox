@@ -3,8 +3,8 @@
 // integration_tests/setup/uddi/integration_test_setup.go, plus any dangling
 // objects left behind in those prerequisites by failed test runs (e.g. an
 // auth zone stranded inside the test DNS view). Only objects with hardcoded,
-// well-known names are targeted; randomly-named test resources are not
-// touched.
+// well-known names (or IDs read from env vars written by setup) are
+// targeted; randomly-named test resources are not touched.
 //
 // Objects cleared by this utility:
 //
@@ -19,6 +19,9 @@
 //	  - DHCP Option Code "tf_option_code_1" (deleted before its option space)
 //	  - DHCP Option Space "tf_option_space_1"
 //	  - DHCP Option Groups "tf_option_group_1", "tf_option_group_2"
+//
+//	Infra Management
+//	  - Anycast Service whose ID is stored in UDDI_ANYCAST_SERVICE_ID_1
 package main
 
 import (
@@ -266,6 +269,22 @@ func cleanupOptionGroups(ctx context.Context, client *uddiclient.APIClient, name
 	}
 }
 
+func cleanupAnyCastService(ctx context.Context, client *uddiclient.APIClient) {
+	serviceID := strings.TrimSpace(os.Getenv("UDDI_ANYCAST_SERVICE_ID_1"))
+	if serviceID == "" {
+		fmt.Println("cleanup: UDDI_ANYCAST_SERVICE_ID_1 is not set, skipping anycast service deletion")
+		return
+	}
+
+	_, err := client.InfraManagementAPI.ServicesAPI.Delete(ctx, serviceID).Execute()
+	if err != nil {
+		fmt.Printf("cleanup: failed to delete anycast service (ID=%q): %v\n", serviceID, err)
+		return
+	}
+
+	fmt.Printf("cleanup: deleted anycast service (ID=%q)\n", serviceID)
+}
+
 func Cleanup(client *uddiclient.APIClient) {
 	ctx := context.Background()
 
@@ -289,6 +308,9 @@ func Cleanup(client *uddiclient.APIClient) {
 
 	fmt.Println("--- Cleaning up Option Groups (tf_option_group_1, tf_option_group_2) ---")
 	cleanupOptionGroups(ctx, client, []string{"tf_option_group_1", "tf_option_group_2"})
+
+	fmt.Println("--- Cleaning up Anycast Service (UDDI_ANYCAST_SERVICE_ID_1) ---")
+	cleanupAnyCastService(ctx, client)
 }
 
 func main() {

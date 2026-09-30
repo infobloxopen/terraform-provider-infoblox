@@ -3,7 +3,7 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -13,7 +13,7 @@ case "basic" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
     }
     check = {
@@ -32,7 +32,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -42,7 +42,7 @@ case "disappears" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
     }
   }
@@ -53,7 +53,7 @@ case "canonical" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -63,7 +63,7 @@ case "canonical" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
     }
     check = {
@@ -74,7 +74,7 @@ case "canonical" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random3}}.com"
     }
     check = {
@@ -88,7 +88,7 @@ case "comment" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -98,7 +98,7 @@ case "comment" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       comment             = "Example Shared CNAME Record Comment"
     }
@@ -110,7 +110,7 @@ case "comment" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       comment             = "Example Shared CNAME Record Comment Updated"
     }
@@ -125,7 +125,7 @@ case "disable" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -135,7 +135,7 @@ case "disable" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       disable             = true
     }
@@ -147,7 +147,7 @@ case "disable" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       disable             = false
     }
@@ -162,7 +162,7 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -172,7 +172,7 @@ case "ext_attrs" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       ext_attrs           = { Site = "{{random4}}" }
     }
@@ -184,7 +184,7 @@ case "ext_attrs" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       ext_attrs           = { Site = "{{random5}}" }
     }
@@ -199,7 +199,7 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -209,7 +209,7 @@ case "name" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random3}}.com"
     }
     check = {
@@ -220,7 +220,7 @@ case "name" {
   step {
     nios {
       name                = "{{random2}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random3}}.com"
     }
     check = {
@@ -234,7 +234,7 @@ case "ttl" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -244,7 +244,7 @@ case "ttl" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       ttl                 = 10
     }
@@ -256,7 +256,7 @@ case "ttl" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       canonical           = "{{random2}}.com"
       ttl                 = 20
     }

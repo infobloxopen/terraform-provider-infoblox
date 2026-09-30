@@ -88,6 +88,7 @@ func (s *upgradegroupService) readNIOS(ctx context.Context, id string, opts *cor
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -195,6 +196,7 @@ func (s *upgradegroupService) listNIOS(ctx context.Context, opts *core.ListOptio
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err
