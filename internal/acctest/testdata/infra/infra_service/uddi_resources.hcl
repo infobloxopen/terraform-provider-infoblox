@@ -120,6 +120,18 @@ case "desired_state" {
     }
   }
 
+  step {
+    uddi {
+      name          = "{{random}}"
+      pool_id       = infoblox_infra_host.test.uddi.pool_id
+      service_type  = "dns"
+      desired_state = "start"
+    }
+    check = {
+      "uddi.desired_state" = "start"
+    }
+  }
+
 }
 
 case "desired_version" {

@@ -63,7 +63,10 @@ const (
 
 var InfraServiceResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Computed:            true,
+		Computed: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"update_trigger": schema.StringAttribute{

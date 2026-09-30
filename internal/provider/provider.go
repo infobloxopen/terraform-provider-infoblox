@@ -21,6 +21,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
@@ -334,6 +335,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		anycast.NewAnycastConfigResource,
+
 		acl.NewNamedaclResource,
 
 		cloud.NewAwsuserResource,
@@ -348,10 +351,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
 		dhcp.NewIpv6rangetemplateResource,
+		dhcp.NewOptionGroupResource,
 		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
+		dhcp.NewRangeResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -403,6 +408,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
+		fw.NewNetworkListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -450,6 +456,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		anycast.NewAnycastConfigDataSource,
+
 		acl.NewNamedaclDataSource,
 
 		cloud.NewAwsuserDataSource,
@@ -464,10 +472,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
 		dhcp.NewIpv6rangetemplateDataSource,
+		dhcp.NewOptionGroupDataSource,
 		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
+		dhcp.NewRangeDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -518,6 +528,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
+		fw.NewNetworkListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -568,6 +579,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		anycast.NewAnycastConfigList,
+
 		acl.NewNamedaclList,
 
 		cloud.NewAwsuserList,
@@ -582,10 +595,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
 		dhcp.NewIpv6rangetemplateList,
+		dhcp.NewOptionGroupList,
 		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
+		dhcp.NewRangeList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -636,6 +651,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
+		fw.NewNetworkListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
