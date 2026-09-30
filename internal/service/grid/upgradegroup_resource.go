@@ -37,7 +37,7 @@ type UpgradegroupResource struct {
 }
 
 func (r *UpgradegroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_upgradegroup"
+	resp.TypeName = req.ProviderTypeName + "_upgrade_group"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

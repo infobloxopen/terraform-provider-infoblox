@@ -116,6 +116,7 @@ func (s *dhcpOptionspaceService) readNIOS(ctx context.Context, id string, opts *
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -270,6 +271,7 @@ func (s *dhcpOptionspaceService) listNIOS(ctx context.Context, opts *core.ListOp
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

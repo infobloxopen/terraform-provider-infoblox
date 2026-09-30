@@ -171,6 +171,20 @@ func RandomIP() string {
 	return fmt.Sprintf("10.%d.%d.%d", rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
 }
 
+// RandomPublicIP generates a random IPv4 address outside the private (10/8, 172.16/12,
+// 192.168/16), loopback (127/8), and link-local (169.254/16) ranges, for APIs (e.g. firewall
+// network lists) that reject private CIDRs as external-network addresses.
+func RandomPublicIP() string {
+	var a int
+	for {
+		a = 1 + rand.Intn(223)
+		if a != 10 && a != 127 && a != 169 && a != 172 && a != 192 {
+			break
+		}
+	}
+	return fmt.Sprintf("%d.%d.%d.%d", a, rand.Intn(256), rand.Intn(256), 1+rand.Intn(254))
+}
+
 // RandomIPv6 generates a random IPv6 address under 2001:db8::/32.
 func RandomIPv6() string {
 	third := 1 + rand.Intn(65535)
@@ -338,6 +352,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomDUID()
 	case strings.HasPrefix(name, "random_hex32"):
 		return Random32Hexadecimal()
+	case strings.HasPrefix(name, "random_public_ip"):
+		return RandomPublicIP()
 	case strings.HasPrefix(name, "random_ip"):
 		return RandomIP()
 	case strings.HasPrefix(name, "future_time"):
@@ -371,6 +387,14 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_SYSLOG_ENDPOINT_REF")
 	case name == "subscriber_block_size_editable":
 		return os.Getenv("SUBSCRIBER_BLOCK_SIZE_EDITABLE")
+	case name == "uddi_infra_host_display_name_1":
+		return os.Getenv("UDDI_INFRA_HOST_DISPLAY_NAME_1")
+	case name == "uddi_infra_host_legacy_id_1":
+		return os.Getenv("UDDI_INFRA_HOST_LEGACY_ID_1")
+	case name == "uddi_infra_host_tag_key_1":
+		return os.Getenv("UDDI_INFRA_HOST_TAG_KEY_1")
+	case name == "uddi_infra_host_tag_value_1":
+		return os.Getenv("UDDI_INFRA_HOST_TAG_VALUE_1")
 	case name == "uddi_dns_host_id_1":
 		return os.Getenv("UDDI_DNS_HOST_ID_1")
 	case name == "uddi_dns_host_id_2":

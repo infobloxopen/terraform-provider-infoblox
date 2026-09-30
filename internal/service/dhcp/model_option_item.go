@@ -3,6 +3,7 @@ package dhcp
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -10,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	uddidhcp "github.com/infobloxopen/universal-ddi-go-client/ipam"
@@ -56,13 +56,15 @@ var OptionItemResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"option_value": schema.StringAttribute{
 		Optional: true,
-		Computed: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("option_code")),
 		},
 		MarkdownDescription: "The option value.",
 	},
 	"type": schema.StringAttribute{
+		Validators: []validator.String{
+			stringvalidator.OneOf("group", "option"),
+		},
 		Optional:            true,
 		MarkdownDescription: "The type of item.  Valid values are: * _group_ * _option_",
 	},
@@ -89,7 +91,7 @@ func (m *OptionItemModel) Expand(ctx context.Context, diags *diag.Diagnostics) *
 	to := &uddidhcp.OptionItem{
 		Group:       flex.ExpandStringPointer(m.Group),
 		OptionCode:  flex.ExpandStringPointer(m.OptionCode),
-		OptionValue: flex.ExpandStringPointer(m.OptionValue),
+		OptionValue: flex.ExpandStringPointerNullAsEmpty(m.OptionValue),
 		Type:        flex.ExpandStringPointer(m.Type),
 	}
 	return to
@@ -114,6 +116,6 @@ func (m *OptionItemModel) Flatten(ctx context.Context, from *uddidhcp.OptionItem
 	}
 	m.Group = flex.FlattenStringPointer(from.Group)
 	m.OptionCode = flex.FlattenStringPointer(from.OptionCode)
-	m.OptionValue = flex.FlattenStringPointer(from.OptionValue)
+	m.OptionValue = flex.FlattenStringPointerNilAsEmpty(from.OptionValue)
 	m.Type = flex.FlattenStringPointer(from.Type)
 }
