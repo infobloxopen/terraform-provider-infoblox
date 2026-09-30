@@ -3,7 +3,7 @@ case "basic" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -15,7 +15,7 @@ case "basic" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.mail_exchanger"      = "{{random2}}.example.com"
@@ -34,7 +34,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -46,7 +46,7 @@ case "disappears" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
   }
 
@@ -56,7 +56,7 @@ case "comment" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -68,7 +68,7 @@ case "comment" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       comment             = "This is a comment"
     }
     check = {
@@ -81,7 +81,7 @@ case "comment" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       comment             = "This is an updated comment"
     }
     check = {
@@ -95,7 +95,7 @@ case "disable" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -107,7 +107,7 @@ case "disable" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       disable             = true
     }
     check = {
@@ -120,7 +120,7 @@ case "disable" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       disable             = false
     }
     check = {
@@ -134,7 +134,7 @@ case "ext_attrs" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random5}}"
     }
@@ -146,7 +146,7 @@ case "ext_attrs" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       ext_attrs           = { Site = "{{random3}}" }
     }
     check = {
@@ -159,7 +159,7 @@ case "ext_attrs" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       ext_attrs           = { Site = "{{random4}}" }
     }
     check = {
@@ -173,7 +173,7 @@ case "mail_exchanger" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -185,7 +185,7 @@ case "mail_exchanger" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.mail_exchanger" = "{{random2}}.example.com"
@@ -197,7 +197,7 @@ case "mail_exchanger" {
       mail_exchanger      = "{{random3}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.mail_exchanger" = "{{random3}}.example.com"
@@ -210,7 +210,7 @@ case "name" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -222,7 +222,7 @@ case "name" {
       mail_exchanger      = "{{random3}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.name" = "{{random}}.example.com"
@@ -234,7 +234,7 @@ case "name" {
       mail_exchanger      = "{{random3}}.example.com"
       name                = "{{random2}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.name" = "{{random2}}.example.com"
@@ -247,7 +247,7 @@ case "preference" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -259,7 +259,7 @@ case "preference" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.preference" = "10"
@@ -271,7 +271,7 @@ case "preference" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 20
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.preference" = "20"
@@ -284,7 +284,7 @@ case "shared_record_group" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -296,7 +296,7 @@ case "shared_record_group" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
     check = {
       "nios.shared_record_group" = "{{random3}}"
@@ -309,7 +309,7 @@ case "ttl" {
   backend  = "nios"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -321,7 +321,7 @@ case "ttl" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       ttl                 = 3600
     }
     check = {
@@ -334,7 +334,7 @@ case "ttl" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       ttl                 = 4200
     }
     check = {

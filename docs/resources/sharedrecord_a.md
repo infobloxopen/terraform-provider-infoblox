@@ -16,7 +16,7 @@ Manages an Infoblox SharedrecordA in the NIOS backend.
 
 ```terraform
 // Create a Shared Record Group (Required as Parent)
-resource "infoblox_sharedrecordgroup" "example" {
+resource "infoblox_sharedrecord_group" "example" {
   nios = {
     name = "example-shared-record-group"
   }
@@ -27,7 +27,7 @@ resource "infoblox_sharedrecord_a" "shared_record_a_with_basic_fields" {
   nios = {
     name                = "sharedrecord_a_basic"
     ipv4addr            = "10.0.0.10"
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
   }
 }
 
@@ -36,7 +36,7 @@ resource "infoblox_sharedrecord_a" "shared_record_a_with_additional_fields" {
   nios = {
     name                = "sharedrecord_a_additional_fields"
     ipv4addr            = "20.0.0.0"
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
 
     // Additional Fields
     ext_attrs = {

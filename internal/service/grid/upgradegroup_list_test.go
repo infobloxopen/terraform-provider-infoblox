@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccUpgradegroupList(t *testing.T) {
-	resourceType := "infoblox_upgradegroup"
+	resourceType := "infoblox_upgrade_group"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -18,7 +18,7 @@ func TestAccUpgradegroupList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "grid/upgradegroup/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "grid/upgrade_group/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

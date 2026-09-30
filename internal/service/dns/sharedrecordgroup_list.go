@@ -40,7 +40,7 @@ type SharedrecordgroupListModel struct {
 }
 
 func (l *SharedrecordgroupList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sharedrecordgroup"
+	resp.TypeName = req.ProviderTypeName + "_sharedrecord_group"
 }
 
 func (l *SharedrecordgroupList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -105,7 +105,7 @@ func (l *SharedrecordgroupList) List(ctx context.Context, req list.ListRequest, 
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_sharedrecordgroup list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_sharedrecord_group list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
