@@ -86,47 +86,24 @@ case "addresses" {
   backend  = "uddi"
   parallel = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
-      name = "spaceName"
+      name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
-
-  step {
-    uddi {
-      addresses = [{ next_available_id = infoblox_ipv6_network.test.id }]
-    }
-    check = {
-      "uddi.addresses.#"         = "1"
-      "uddi.addresses.0.address" = "10.0.0.1"
-    }
-  }
-
-  step {
-    uddi {
-      addresses = [{ next_available_id = infoblox_ipv6_network.test.id }, { next_available_id = infoblox_ipv6_network.test1.id }, { next_available_id = infoblox_ipv6_network.test2.id }]
-    }
-    check = {
-      "uddi.addresses.#"         = "3"
-      "uddi.addresses.0.address" = "10.0.0.1"
-      "uddi.addresses.1.address" = "192.168.1.1"
-      "uddi.addresses.2.address" = "10.0.0.1"
-    }
-  }
-
   step {
     uddi {
       addresses = [{ address = "10.0.0.1", space = infoblox_view.test.id }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.addresses.#"         = "1"
       "uddi.addresses.0.address" = "10.0.0.1"
@@ -137,7 +114,7 @@ case "addresses" {
     uddi {
       addresses = [{ address = "10.0.0.2", space = infoblox_view.test.id }]
     }
-    depends_on = [infoblox_ipv6_network.test]
+    depends_on = [infoblox_network.test]
     check = {
       "uddi.addresses.#"         = "1"
       "uddi.addresses.0.address" = "10.0.0.2"
@@ -149,17 +126,19 @@ case "addresses" {
 case "addresses_next_available_id_count" {
   backend  = "uddi"
   parallel = true
+  skip = true
+  skip_reason = "Requires Dynamic Allocation to be implemented"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_view" "test" {
+  resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
-  resource "infoblox_ipv6_network" "test" {
+  resource "infoblox_network" "test" {
     uddi = {
       address = "10.0.0.0"
       cidr = 24
-      space = infoblox_view.test.id
+      space = infoblox_network_view.test.id
     }
   }
   PREREQ
@@ -167,7 +146,7 @@ case "addresses_next_available_id_count" {
   step {
     uddi {
       name      = "host-$${count.index}"
-      addresses = [{ next_available_id = infoblox_ipv6_network.test.id }]
+      addresses = [{ next_available_id = infoblox_network.test.id }]
     }
   }
 

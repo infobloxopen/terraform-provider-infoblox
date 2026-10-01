@@ -32,4 +32,5 @@ resource "infoblox_ipam_host" "ipam_host_with_additional_fields" {
       Site = "location-1"
     }
   }
+  depends_on = [infoblox_network.parent_network]
 }
