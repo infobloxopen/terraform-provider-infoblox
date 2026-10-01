@@ -31,6 +31,7 @@ case "disappears" {
   skip_if_env_empty = ["UDDI_INFRA_HOST_LEGACY_ID_1"]
   skip_reason       = "UDDI_INFRA_HOST_LEGACY_ID_1 environment variable must be set for this test to run"
   disappears        = true
+  expect_non_empty_plan = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_anycast_config" "test_onprem_hosts" {
     uddi = {

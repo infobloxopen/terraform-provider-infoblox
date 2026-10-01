@@ -15,13 +15,13 @@ resource "infoblox_anycast_config" "example" {
 }
 
 # Manage an Anycast Host
-resource "infoblox_anycast_config" "example_advanced" {
-  id = one(data.infoblox_infra_host.parent.results).legacy_id
+resource "infoblox_anycast_host" "example_advanced" {
+  id = one(data.infoblox_infra_host.parent.results).uddi.legacy_id
   uddi = {
     # Adding the anycast config profile and enabling BGP,OSPF routing protocol
     anycast_config_refs = [
       {
-        anycast_config_name = infoblox_anycast_config.example.name
+        anycast_config_name = infoblox_anycast_config.example.uddi.name
         routing_protocols   = ["BGP", "OSPF"]
       }
     ]
