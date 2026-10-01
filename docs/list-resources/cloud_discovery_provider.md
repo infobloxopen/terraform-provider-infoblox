@@ -20,7 +20,7 @@ list "infoblox_cloud_discovery_provider" "list_cloud_discovery_provider_using_fi
   provider = infoblox
   config {
     filters = {
-      name  = "example_provider_aws"
+      name = "example_provider_aws"
     }
   }
   limit = 10
