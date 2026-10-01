@@ -1,6 +1,3 @@
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - admin-group : admingroup with name "admin-group"
-
 case "basic" {
   backend  = "nios"
   parallel = true

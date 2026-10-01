@@ -1116,6 +1116,29 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Fingerprint filter %q created successfully\n", fpFilterName)
 	}
 
+	// Create admin groups used by admin_user acceptance tests
+	adminGroups := []string{"admin-group", "opa-group"}
+
+	for _, groupName := range adminGroups {
+		adminGroup := security.Admingroup{
+			Name: security.PtrString(groupName),
+		}
+
+		_, _, err := clients.SECURITY.AdmingroupAPI.Create(context.Background()).
+			Admingroup(adminGroup).
+			Execute()
+
+		if err != nil {
+			if strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Admin group %q already exists, skipping creation\n", groupName)
+				continue
+			}
+			return fmt.Errorf("failed to create admin group %q: %w", groupName, err)
+		}
+
+		fmt.Printf("Admin group %q created successfully\n", groupName)
+	}
+
 	// Create admin users
 	adminUsers := []string{"aws1", "aws2"}
 

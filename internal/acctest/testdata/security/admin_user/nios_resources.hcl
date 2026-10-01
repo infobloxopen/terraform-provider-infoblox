@@ -1,7 +1,3 @@
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - cacertificate : cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYmQzMTM3NzEwZDQ4ZDRhZWI3ZWI2YTE0M2RiOGEyZThkZDQ2MTVkZmFkOTBiZWQ1MDdiYmY3ZWM4MGUyMDRhMTM5NjYzYzlkODdhOGQyNjY5OTY4ODhmMDc3NjViNmVkNDllNmNmYjg3NTJiOWVhYWQ5ZjkyZTRmZjkzMzMwMWI:O%3D%22Infoblox%22%2CL%3D%22BLR%22%2CST%3D%22KA%22%2CC%3D%22IN%22  (serial: 6a33bfc215504327724f35e08c0a5b23b3646992)
-#   - cacertificate : cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYzU0ODUyZmRkNjk3ODVhMTI3OWEwZGUxYmE0OTA5ZDFhMGY1ODFkMGYxZTVmMzhhYjk5OGJkZWYxNWVmM2Y0NGUyN2UzYTJmMWM3OTg5NjIyZjY2NzVmZTI2ZWNkMWM4ZmJlNDJkNzhmYzY1YTU2MWRmYWUyN2Q3MzJmNzdmZmI:CN%3D%22dummy.example.com%22%2CO%3D%22TestOrg%22%2CC%3D%22US%22  (serial: 616ea80bfbca479a3194ea9dbfc4efe1daa1051d)
-
 case "basic" {
   backend  = "nios"
   parallel = true
@@ -162,11 +158,11 @@ case "ca_certificate_issuer" {
       password                          = "Example-Admin123!"
       admin_groups                      = ["admin-group"]
       enable_certificate_authentication = true
-      ca_certificate_issuer             = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYmQzMTM3NzEwZDQ4ZDRhZWI3ZWI2YTE0M2RiOGEyZThkZDQ2MTVkZmFkOTBiZWQ1MDdiYmY3ZWM4MGUyMDRhMTM5NjYzYzlkODdhOGQyNjY5OTY4ODhmMDc3NjViNmVkNDllNmNmYjg3NTJiOWVhYWQ5ZjkyZTRmZjkzMzMwMWI:O%3D%22Infoblox%22%2CL%3D%22BLR%22%2CST%3D%22KA%22%2CC%3D%22IN%22"
-      client_certificate_serial_number  = "6a33bfc215504327724f35e08c0a5b23b3646992"
+      ca_certificate_issuer             = "{{nios_ca_cert1_ref}}"
+      client_certificate_serial_number  = "{{nios_ca_cert1_serial}}"
     }
     check = {
-      "nios.ca_certificate_issuer"            = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYmQzMTM3NzEwZDQ4ZDRhZWI3ZWI2YTE0M2RiOGEyZThkZDQ2MTVkZmFkOTBiZWQ1MDdiYmY3ZWM4MGUyMDRhMTM5NjYzYzlkODdhOGQyNjY5OTY4ODhmMDc3NjViNmVkNDllNmNmYjg3NTJiOWVhYWQ5ZjkyZTRmZjkzMzMwMWI:O%3D%22Infoblox%22%2CL%3D%22BLR%22%2CST%3D%22KA%22%2CC%3D%22IN%22"
+      "nios.ca_certificate_issuer"            = "{{nios_ca_cert1_ref}}"
       "nios.enable_certificate_authentication" = "true"
     }
   }
@@ -177,17 +173,16 @@ case "ca_certificate_issuer" {
       password                          = "Example-Admin123!"
       admin_groups                      = ["admin-group"]
       enable_certificate_authentication = true
-      ca_certificate_issuer             = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYzU0ODUyZmRkNjk3ODVhMTI3OWEwZGUxYmE0OTA5ZDFhMGY1ODFkMGYxZTVmMzhhYjk5OGJkZWYxNWVmM2Y0NGUyN2UzYTJmMWM3OTg5NjIyZjY2NzVmZTI2ZWNkMWM4ZmJlNDJkNzhmYzY1YTU2MWRmYWUyN2Q3MzJmNzdmZmI:CN%3D%22dummy.example.com%22%2CO%3D%22TestOrg%22%2CC%3D%22US%22"
-      client_certificate_serial_number  = "616ea80bfbca479a3194ea9dbfc4efe1daa1051d"
+      ca_certificate_issuer             = "{{nios_ca_cert2_ref}}"
+      client_certificate_serial_number  = "{{nios_ca_cert2_serial}}"
     }
     check = {
-      "nios.ca_certificate_issuer" = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYzU0ODUyZmRkNjk3ODVhMTI3OWEwZGUxYmE0OTA5ZDFhMGY1ODFkMGYxZTVmMzhhYjk5OGJkZWYxNWVmM2Y0NGUyN2UzYTJmMWM3OTg5NjIyZjY2NzVmZTI2ZWNkMWM4ZmJlNDJkNzhmYzY1YTU2MWRmYWUyN2Q3MzJmNzdmZmI:CN%3D%22dummy.example.com%22%2CO%3D%22TestOrg%22%2CC%3D%22US%22"
+      "nios.ca_certificate_issuer" = "{{nios_ca_cert2_ref}}"
     }
   }
 
 }
 
-# Prerequisite: two CA certificates must exist on the grid (see top-of-file TODO).
 case "client_certificate_serial_number" {
   backend  = "nios"
   parallel = true
@@ -198,11 +193,11 @@ case "client_certificate_serial_number" {
       password                          = "Example-Admin123!"
       admin_groups                      = ["admin-group"]
       enable_certificate_authentication = true
-      ca_certificate_issuer             = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYmQzMTM3NzEwZDQ4ZDRhZWI3ZWI2YTE0M2RiOGEyZThkZDQ2MTVkZmFkOTBiZWQ1MDdiYmY3ZWM4MGUyMDRhMTM5NjYzYzlkODdhOGQyNjY5OTY4ODhmMDc3NjViNmVkNDllNmNmYjg3NTJiOWVhYWQ5ZjkyZTRmZjkzMzMwMWI:O%3D%22Infoblox%22%2CL%3D%22BLR%22%2CST%3D%22KA%22%2CC%3D%22IN%22"
-      client_certificate_serial_number  = "6a33bfc215504327724f35e08c0a5b23b3646992"
+      ca_certificate_issuer             = "{{nios_ca_cert1_ref}}"
+      client_certificate_serial_number  = "{{nios_ca_cert1_serial}}"
     }
     check = {
-      "nios.client_certificate_serial_number" = "6a33bfc215504327724f35e08c0a5b23b3646992"
+      "nios.client_certificate_serial_number" = "{{nios_ca_cert1_serial}}"
     }
   }
 
@@ -212,11 +207,11 @@ case "client_certificate_serial_number" {
       password                          = "Example-Admin123!"
       admin_groups                      = ["admin-group"]
       enable_certificate_authentication = true
-      ca_certificate_issuer             = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYzU0ODUyZmRkNjk3ODVhMTI3OWEwZGUxYmE0OTA5ZDFhMGY1ODFkMGYxZTVmMzhhYjk5OGJkZWYxNWVmM2Y0NGUyN2UzYTJmMWM3OTg5NjIyZjY2NzVmZTI2ZWNkMWM4ZmJlNDJkNzhmYzY1YTU2MWRmYWUyN2Q3MzJmNzdmZmI:CN%3D%22dummy.example.com%22%2CO%3D%22TestOrg%22%2CC%3D%22US%22"
-      client_certificate_serial_number  = "616ea80bfbca479a3194ea9dbfc4efe1daa1051d"
+      ca_certificate_issuer             = "{{nios_ca_cert2_ref}}"
+      client_certificate_serial_number  = "{{nios_ca_cert2_serial}}"
     }
     check = {
-      "nios.client_certificate_serial_number" = "616ea80bfbca479a3194ea9dbfc4efe1daa1051d"
+      "nios.client_certificate_serial_number" = "{{nios_ca_cert2_serial}}"
     }
   }
 
@@ -321,8 +316,8 @@ case "enable_certificate_authentication" {
       password                          = "Example-Admin123!"
       admin_groups                      = ["admin-group"]
       enable_certificate_authentication = true
-      ca_certificate_issuer             = "cacertificate/b25lLmVhcF9jYV9jZXJ0JDAuYmQzMTM3NzEwZDQ4ZDRhZWI3ZWI2YTE0M2RiOGEyZThkZDQ2MTVkZmFkOTBiZWQ1MDdiYmY3ZWM4MGUyMDRhMTM5NjYzYzlkODdhOGQyNjY5OTY4ODhmMDc3NjViNmVkNDllNmNmYjg3NTJiOWVhYWQ5ZjkyZTRmZjkzMzMwMWI:O%3D%22Infoblox%22%2CL%3D%22BLR%22%2CST%3D%22KA%22%2CC%3D%22IN%22"
-      client_certificate_serial_number  = "6a33bfc215504327724f35e08c0a5b23b3646992"
+      ca_certificate_issuer             = "{{nios_ca_cert1_ref}}"
+      client_certificate_serial_number  = "{{nios_ca_cert1_serial}}"
     }
     check = {
       "nios.enable_certificate_authentication" = "true"

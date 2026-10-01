@@ -59,8 +59,8 @@ resource "infoblox_admin_user" "with_ssh_keys" {
   }
 }
 
-// Create an Admin User with certificate-based authentication
-// Prerequisites: the CA certificate must exist in NIOS and its WAPI reference must be known.
+// Create an Admin User with certificate-based authentication.
+// ca_certificate_issuer must be the WAPI ref of an existing cacertificate object on the grid.
 resource "infoblox_admin_user" "with_cert_auth" {
   nios = {
     name                              = "tf-admin-cert"
