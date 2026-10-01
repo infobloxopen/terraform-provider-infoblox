@@ -49,6 +49,7 @@ resource "infoblox_ipam_host" "ipam_host_with_additional_fields" {
       Site = "location-1"
     }
   }
+  depends_on = [infoblox_network.parent_network]
 }
 ```
 
@@ -90,8 +91,11 @@ Read-Only:
 Optional:
 
 - `address` (String) Field usage depends on the operation:  * For read operation, _address_ of the _Address_ corresponding to the _ref_ resource.  * For write operation, _address_ to be created if the _Address_ does not exist. Required if _ref_ is not set on write:     * If the _Address_ already exists and is already pointing to the right _Host_, the operation proceeds.     * If the _Address_ already exists and is pointing to a different _Host, the operation must abort.     * If the _Address_ already exists and is not pointing to any _Host_, it is linked to the _Host_.
-- `ref` (String) The resource identifier.
 - `space` (String) The resource identifier.
+
+Read-Only:
+
+- `ref` (String) The resource identifier.
 
 
 <a id="nestedatt--uddi--host_names"></a>

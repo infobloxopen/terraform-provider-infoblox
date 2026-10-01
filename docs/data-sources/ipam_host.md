@@ -18,7 +18,7 @@ Retrieves information about existing Infoblox IpamHost from the UDDI backend.
 // Retrieve IPAM Hosts filtered by an attribute
 data "infoblox_ipam_host" "example_by_attribute" {
   filters = {
-    address = "10.1.0.5"
+    name = "example_ipam_host"
   }
 }
 
