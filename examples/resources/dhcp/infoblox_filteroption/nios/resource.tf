@@ -1,3 +1,10 @@
+// Create a Custom Option Space ( required as parent )
+resource "infoblox_dhcp_optionspace" "option_space" {
+  nios = {
+    name = "example_option_space"
+  }
+}
+
 // Create a DHCP Option Filter with Basic Fields
 resource "infoblox_filteroption" "filteroption_basic_fields" {
   nios = {
@@ -25,13 +32,6 @@ resource "infoblox_filteroption" "filteroption_additional_fields" {
     ext_attrs = {
       Site = "location-1"
     }
-  }
-}
-
-// Create a Custom Option Space (used as option_space in filteroption)
-resource "infoblox_dhcp_optionspace" "option_space" {
-  nios = {
-    name = "example_option_space"
   }
 }
 

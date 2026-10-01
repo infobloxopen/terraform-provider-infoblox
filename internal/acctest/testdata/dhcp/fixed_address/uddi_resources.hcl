@@ -225,7 +225,6 @@ case "disable_dhcp" {
 case "dhcp_options" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_OPTION_GROUP_1_ID"]
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -254,12 +253,12 @@ case "dhcp_options" {
     }
   }
 
-//   resource "infoblox_dhcp_option_group" "test" {
-//     uddi = {
-//       name = "og-{{random}}"
-//       protocol = "ip4"
-//     }
-//   }
+  resource "infoblox_option_group" "test" {
+    uddi = {
+      name     = "og-{{random}}"
+      protocol = "ip4"
+    }
+  }
   PREREQ
 
   step {
@@ -286,13 +285,12 @@ case "dhcp_options" {
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       name         = "{{random2}}"
-      dhcp_options = [{ type = "group", group = "{{uddi_option_group_1_id}}" }]
+      dhcp_options = [{ type = "group", group = infoblox_option_group.test.id }]
     }
     depends_on = [infoblox_network.test]
     check = {
-      "uddi.dhcp_options.#"       = "1"
-      "uddi.dhcp_options.0.type"  = "group"
-      "uddi.dhcp_options.0.group" = "{{uddi_option_group_1_id}}"
+      "uddi.dhcp_options.#"      = "1"
+      "uddi.dhcp_options.0.type" = "group"
     }
   }
 

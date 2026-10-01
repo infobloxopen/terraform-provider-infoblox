@@ -693,6 +693,9 @@ case "vendor_specific_option_option_space" {
         }]
       }
     }
+    check_pair = {
+      "uddi.vendor_specific_option_option_space" = infoblox_dhcp_optionspace.test.id
+    }
   }
 
 }

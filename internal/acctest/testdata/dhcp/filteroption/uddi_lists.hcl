@@ -1,7 +1,3 @@
-# Filteroption — uddi list cases
-# No legacy list test was found for this object.
-# Add list cases here manually.
-
 case "basic" {
   backend           = "uddi"
   min_tf_version    = "1.14.0"
