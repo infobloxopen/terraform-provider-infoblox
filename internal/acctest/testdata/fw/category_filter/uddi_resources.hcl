@@ -47,6 +47,18 @@ case "categories" {
   step {
     uddi {
       name       = "{{random}}"
+      categories = ["College", "Tutoring"]
+    }
+    check = {
+      "uddi.categories.#" = "2"
+      "uddi.categories.0" = "College"
+      "uddi.categories.1" = "Tutoring"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "{{random}}"
       categories = ["Tutoring"]
     }
     check = {

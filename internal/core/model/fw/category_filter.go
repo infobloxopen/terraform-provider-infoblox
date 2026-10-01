@@ -11,5 +11,6 @@ type UDDICategoryFilterExt struct {
 	Categories  []string
 	Description *string
 	Name        *string
+	Policies    []string
 	Tags        map[string]any
 }

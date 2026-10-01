@@ -7,6 +7,7 @@ var CategoryFilterUDDIFieldMap = map[string]string{
 	"UDDI.Categories":  "Categories",
 	"UDDI.Description": "Description",
 	"UDDI.Name":        "Name",
+	"UDDI.Policies":    "Policies",
 	"UDDI.Tags":        "Tags",
 }
 
@@ -17,6 +18,7 @@ var CategoryFilterFilterFieldMap = map[core.BackendType]map[string]string{
 		"uddi.categories":  "categories",
 		"uddi.description": "description",
 		"uddi.name":        "name",
+		"uddi.policies":    "policies",
 		"uddi.tags":        "tags",
 	},
 }

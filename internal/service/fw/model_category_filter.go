@@ -35,6 +35,7 @@ type UDDICategoryFilterModel struct {
 	Categories  types.List   `tfsdk:"categories"`
 	Description types.String `tfsdk:"description"`
 	Name        types.String `tfsdk:"name"`
+	Policies    types.List   `tfsdk:"policies"`
 	Tags        types.Map    `tfsdk:"tags"`
 	TagsAll     types.Map    `tfsdk:"tags_all"`
 }
@@ -43,6 +44,7 @@ var UDDICategoryFilterAttrTypes = map[string]attr.Type{
 	"categories":  types.ListType{ElemType: types.StringType},
 	"description": types.StringType,
 	"name":        types.StringType,
+	"policies":    types.ListType{ElemType: types.StringType},
 	"tags":        types.MapType{ElemType: types.StringType},
 	"tags_all":    types.MapType{ElemType: types.StringType},
 }
@@ -88,6 +90,11 @@ var CategoryFilterResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"name": schema.StringAttribute{
 		Required:            true,
 		MarkdownDescription: "The name of the category filter.",
+	},
+	"policies": schema.ListAttribute{
+		ElementType:         types.StringType,
+		Computed:            true,
+		MarkdownDescription: "The list of security policy names with which the category filter is associated.",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -162,6 +169,7 @@ func (m *UDDICategoryFilterModel) Flatten(ctx context.Context, from *coremodel.U
 	m.Categories = flex.FlattenFrameworkListString(ctx, from.Categories, diags)
 	m.Description = flex.FlattenStringPointer(from.Description)
 	m.Name = flex.FlattenStringPointer(from.Name)
+	m.Policies = flex.FlattenFrameworkListString(ctx, from.Policies, diags)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll

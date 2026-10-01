@@ -202,6 +202,7 @@ func mapUDDICategoryFilterToResponse(r *uddifw.CategoryFilter) *fw.CategoryFilte
 		Categories:  r.Categories,
 		Description: r.Description,
 		Name:        r.Name,
+		Policies:    r.Policies,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))
