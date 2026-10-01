@@ -65,4 +65,5 @@ Optional:
 
 Read-Only:
 
+- `policies` (List of String) The list of security policy names with which the category filter is associated.
 - `tags_all` (Map of String) All tags including inherited values.
