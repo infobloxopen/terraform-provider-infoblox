@@ -15,10 +15,6 @@ Configures an existing Infoblox Distributionschedule in the NIOS backend.
 ### NIOS Backend
 
 ```terraform
-// The Distribution Schedule is a grid singleton: each resource below manages the same
-// object, so use one of them. All times must be in the future, and every upgrade group's
-// distribution_time must be after start_time.
-
 // Update Distribution Schedule with Basic Fields
 resource "infoblox_distribution_schedule" "basic_schedule" {
   nios = {
