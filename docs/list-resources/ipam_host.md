@@ -20,7 +20,7 @@ list "infoblox_ipam_host" "list_ipam_host_using_filters" {
   provider = infoblox
   config {
     filters = {
-       name = "example_ipam_host"
+      name = "example_ipam_host"
     }
   }
   limit = 10
