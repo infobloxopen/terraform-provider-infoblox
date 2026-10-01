@@ -49,3 +49,4 @@ Read-Only:
 
 - `data` (String) The list of csv custom IPv4/IPv6 or a single domain redirect address.
 - `name` (String) The name of the custom redirect.
+- `policy_ids` (List of Number) The list of the security policy identifiers with which the named list is associated.
