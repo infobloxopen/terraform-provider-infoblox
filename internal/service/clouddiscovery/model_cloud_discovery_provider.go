@@ -17,6 +17,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/clouddiscovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -104,9 +105,12 @@ var CloudDiscoveryProviderResourceUddiSchemaAttributes = map[string]schema.Attri
 		MarkdownDescription: "Additional configuration. Ex.: '{    \"excluded_object_types\": [],    \"exclusion_account_list\": [],    \"zone_forwarding\": \"true\" or \"false\" }'.",
 	},
 	"credential_preference": schema.SingleNestedAttribute{
-		Attributes:          CredentialPreferenceResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
+		Attributes: CredentialPreferenceResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			immutable.ImmutableObject(),
+		},
 		MarkdownDescription: "Credential preference. Ex.: '{    \"type\": \"static\" or \"delegated\",    \"access_identifier_type\": \"role_arn\" or \"tenant_id\" or \"project_id\"  }'.",
 	},
 	"description": schema.StringAttribute{
