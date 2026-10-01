@@ -24,6 +24,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/clouddiscovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
@@ -368,6 +369,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		cloud.NewAwsuserResource,
 
+		clouddiscovery.NewCloudDiscoveryProviderResource,
+
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewFixedaddressResource,
 		dhcp.NewDhcpOptionspaceResource,
@@ -489,6 +492,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		acl.NewNamedaclDataSource,
 
 		cloud.NewAwsuserDataSource,
+
+		clouddiscovery.NewCloudDiscoveryProviderDataSource,
 
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewFixedaddressDataSource,
@@ -613,6 +618,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		acl.NewNamedaclList,
 
 		cloud.NewAwsuserList,
+
+		clouddiscovery.NewCloudDiscoveryProviderList,
 
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewFixedaddressList,
