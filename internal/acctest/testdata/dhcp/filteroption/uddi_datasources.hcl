@@ -1,8 +1,22 @@
 # Filteroption — uddi datasource cases
-// An option code has to be created before running the test cases.
-
 case "filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   filter {
     type = "filters"
@@ -20,8 +34,8 @@ case "filters" {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }
@@ -30,7 +44,23 @@ case "filters" {
 }
 
 case "tag_filters" {
-  backend = "uddi"
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "prereq_code"
+      option_space = infoblox_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   filter {
     type = "tag_filters"
@@ -44,13 +74,13 @@ case "tag_filters" {
   step {
     uddi {
       name = "{{random}}"
-      tags = { tag1 = "{{random2}}" }
+      tags = { tag1 = "{{random3}}" }
       rules = {
         match = "any"
         rules = [{
           compare      = "equals"
-          option_code  = "{{uddi_option_code_1_id}}"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.test.id
+          option_value = "true"
         }]
       }
     }

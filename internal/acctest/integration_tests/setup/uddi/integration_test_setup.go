@@ -466,7 +466,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		primaryType string
 		idVar       string
 	}{
-		{fqdn: "example_zone_250", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
+		{fqdn: "example_zone_250.", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
 	}
 
 	for _, az := range authZones {
