@@ -47,7 +47,7 @@ resource "infoblox_cloud_discovery_provider" "example_aws" {
   ]
 
   tags = {
-    site = "Site A"
+    Site = "location-1"
   }
 
 }

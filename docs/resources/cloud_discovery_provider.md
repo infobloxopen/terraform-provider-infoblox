@@ -62,7 +62,7 @@ resource "infoblox_cloud_discovery_provider" "example_aws" {
   ]
 
   tags = {
-    site = "Site A"
+    Site = "location-1"
   }
 
 }
@@ -185,7 +185,7 @@ resource "infoblox_cloud_discovery_provider" "example_gcp" {
   # Other Optional fields
 
   tags = {
-    site = "Site A"
+    site = "Site B"
   }
 }
 ```

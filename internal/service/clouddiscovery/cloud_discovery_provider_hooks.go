@@ -31,13 +31,15 @@ func (r *CloudDiscoveryProviderResource) preDeleteCloudDiscoveryProvider(ctx con
 	if obj.UDDI == nil {
 		obj.UDDI = &coremodel.UDDICloudDiscoveryProviderExt{}
 	}
-	disabled := "disabled"
-	obj.UDDI.DesiredState = &disabled
+	if obj.UDDI.DesiredState == nil || *obj.UDDI.DesiredState != "disabled" {
+		disabled := "disabled"
+		obj.UDDI.DesiredState = &disabled
 
-	_, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
-		ReturnFields: CloudDiscoveryProviderReturnFields,
-	})
-	if err != nil {
-		diags.AddError("Client Error", fmt.Sprintf("Unable to disable Providers before deletion: %s", err))
+		_, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+			ReturnFields: CloudDiscoveryProviderReturnFields,
+		})
+		if err != nil {
+			diags.AddError("Client Error", fmt.Sprintf("Unable to disable Providers before deletion: %s", err))
+		}
 	}
 }

@@ -3,7 +3,7 @@ list "infoblox_cloud_discovery_provider" "list_cloud_discovery_provider_using_fi
   provider = infoblox
   config {
     filters = {
-      comment = "Created by Terraform"
+      name  = "example_provider_aws"
     }
   }
   limit = 10
