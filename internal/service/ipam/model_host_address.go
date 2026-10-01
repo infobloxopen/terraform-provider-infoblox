@@ -77,7 +77,6 @@ func (m *HostAddressModel) Expand(ctx context.Context, diags *diag.Diagnostics) 
 	}
 	to := &uddiipam.HostAddress{
 		Address: flex.ExpandStringPointer(m.Address),
-		Ref:     flex.ExpandStringPointer(m.Ref),
 		Space:   flex.ExpandStringPointer(m.Space),
 	}
 	return to
