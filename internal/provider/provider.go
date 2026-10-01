@@ -26,6 +26,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/clouddiscovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/discovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
@@ -388,6 +389,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
 
+		discovery.NewDiscoveryCredentialgroupResource,
+
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
@@ -511,6 +514,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
+
+		discovery.NewDiscoveryCredentialgroupDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -637,6 +642,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
+
+		discovery.NewDiscoveryCredentialgroupList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
