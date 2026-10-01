@@ -1,6 +1,5 @@
 case "basic" {
   backend  = "uddi"
-  parallel = true
 
   step {
     uddi {
@@ -55,7 +54,6 @@ case "name" {
 
 case "data" {
   backend  = "uddi"
-  parallel = true
 
   step {
     uddi {
