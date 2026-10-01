@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccNatgroupList(t *testing.T) {
-	resourceType := "infoblox_natgroup"
+	resourceType := "infoblox_nat_group"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -18,7 +18,7 @@ func TestAccNatgroupList(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunListCases(t, resourceType, "grid/natgroup/"+backend+"_lists.hcl", checksByBackend)
+			acctest.RunListCases(t, resourceType, "grid/nat_group/"+backend+"_lists.hcl", checksByBackend)
 		})
 	}
 }

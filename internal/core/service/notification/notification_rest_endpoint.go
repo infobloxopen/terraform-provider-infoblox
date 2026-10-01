@@ -93,6 +93,7 @@ func (s *notificationRestEndpointService) readNIOS(ctx context.Context, id strin
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +206,7 @@ func (s *notificationRestEndpointService) listNIOS(ctx context.Context, opts *co
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err
