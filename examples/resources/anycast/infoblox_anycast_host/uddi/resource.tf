@@ -21,7 +21,7 @@ resource "infoblox_anycast_config" "example_advanced" {
     # Adding the anycast config profile and enabling BGP,OSPF routing protocol
     anycast_config_refs = [
       {
-        anycast_config_name = bloxone_anycast_config.example.name
+        anycast_config_name = infoblox_anycast_config.example.name
         routing_protocols   = ["BGP", "OSPF"]
       }
     ]
