@@ -223,8 +223,9 @@ case "disable_dhcp" {
 }
 
 case "dhcp_options" {
-  backend     = "uddi"
-  parallel    = true
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_OPTION_GROUP_1_ID"]
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
