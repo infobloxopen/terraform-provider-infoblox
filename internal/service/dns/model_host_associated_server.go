@@ -15,14 +15,12 @@ import (
 
 // HostAssociatedServerModel is the Terraform model for HostAssociatedServer
 type HostAssociatedServerModel struct {
-	Id   types.String `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
+	Id types.String `tfsdk:"id"`
 }
 
 // HostAssociatedServerAttrTypes contains the attribute types for HostAssociatedServerModel
 var HostAssociatedServerAttrTypes = map[string]attr.Type{
-	"id":   types.StringType,
-	"name": types.StringType,
+	"id": types.StringType,
 }
 
 // HostAssociatedServerResourceSchemaAttributes contains the schema attributes for HostAssociatedServerModel
@@ -30,10 +28,6 @@ var HostAssociatedServerResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
-	},
-	"name": schema.StringAttribute{
-		Computed:            true,
-		MarkdownDescription: "DNS server name.",
 	},
 }
 
@@ -79,5 +73,4 @@ func (m *HostAssociatedServerModel) Flatten(ctx context.Context, from *uddidns.H
 		return
 	}
 	m.Id = flex.FlattenStringPointer(from.Id)
-	m.Name = flex.FlattenStringPointer(from.Name)
 }

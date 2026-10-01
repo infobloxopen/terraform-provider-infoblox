@@ -103,7 +103,6 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	},
 	"associated_server": schema.SingleNestedAttribute{
 		Attributes:          HostAssociatedServerResourceSchemaAttributes,
-		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "Host associated server configuration.",
 	},
@@ -123,7 +122,6 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: KerberosKeyResourceSchemaAttributes,
 		},
-		Optional: true,
 		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
