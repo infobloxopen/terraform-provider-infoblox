@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -23,7 +24,9 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/clouddiscovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/discovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
@@ -34,6 +37,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rir"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/security"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -52,16 +56,18 @@ type (
 	}
 
 	InfobloxProviderConfig struct {
-		NIOS               *NIOSConfig `tfsdk:"nios"`
-		UDDI               *UDDIConfig `tfsdk:"uddi"`
-		OperationTimeout   types.Int64 `tfsdk:"operation_timeout"`
-		ManageInternalIdEA types.Bool  `tfsdk:"manage_internal_id_ea"`
+		NIOS               *NIOSConfig  `tfsdk:"nios"`
+		UDDI               *UDDIConfig  `tfsdk:"uddi"`
+		OperationTimeout   types.Int64  `tfsdk:"operation_timeout"`
+		ManageInternalIdEA types.Bool   `tfsdk:"manage_internal_id_ea"`
+		ProxySearch        types.String `tfsdk:"proxy_search"`
 	}
 
 	NIOSConfig struct {
 		HostUrl  types.String `tfsdk:"host_url"`
 		Username types.String `tfsdk:"username"`
 		Password types.String `tfsdk:"password"`
+		ProxyURL types.String `tfsdk:"proxy_url"`
 	}
 
 	UDDIConfig struct {
@@ -95,6 +101,13 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Optional:            true,
 				MarkdownDescription: "Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true",
 			},
+			"proxy_search": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("LOCAL", "GM"),
+				},
+			},
 		},
 	}
 }
@@ -116,6 +129,10 @@ func buildNIOSAttribute() schema.Attribute {
 				MarkdownDescription: "Password for the NIOS host",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "HTTP proxy URL to route NIOS WAPI calls through.",
 			},
 		},
 	}
@@ -193,8 +210,11 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
+			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
+		// Set ProxySearch configuration
+		core.SetProxySearch(data.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
@@ -229,9 +249,19 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if client == nil {
 				return
 			}
+			// Set ProxySearch configuration
+			core.SetProxySearch(data.ProxySearch.ValueString())
 
 			infobloxClient.NIOS = client
 		} else {
+			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Configuration",
+					"'proxy_search' is not applicable for UDDI objects — it only applies when 'nios' or 'uddi.enable_nios_passthru' is used. Remove 'proxy_search' from the provider configuration.",
+				)
+				return
+			}
+
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
@@ -338,8 +368,11 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		acl.NewNamedaclResource,
 		anycast.NewAnycastConfigResource,
+		anycast.NewAnycastHostResource,
 
 		cloud.NewAwsuserResource,
+
+		clouddiscovery.NewCloudDiscoveryProviderResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewFixedaddressResource,
@@ -357,6 +390,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
+
+		discovery.NewDiscoveryCredentialgroupResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -409,16 +444,19 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
 		fw.NewNetworkListResource,
+		fw.NewApplicationFilterResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
+		grid.NewDistributionscheduleResource,
 
 		infra.NewInfraHostResource,
 		infra.NewInfraServiceResource,
 
 		ipam.NewAddressResource,
+		ipam.NewIpamHostResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
 		ipam.NewNetworkResource,
@@ -438,6 +476,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewRulesetResource,
 
 		notification.NewNotificationRestEndpointResource,
+
+		rir.NewRirOrganizationResource,
 
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
@@ -463,6 +503,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		cloud.NewAwsuserDataSource,
 
+		clouddiscovery.NewCloudDiscoveryProviderDataSource,
+
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
@@ -479,6 +521,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
+
+		discovery.NewDiscoveryCredentialgroupDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -530,16 +574,19 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
 		fw.NewNetworkListDataSource,
+		fw.NewApplicationFilterDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
+		grid.NewDistributionscheduleDataSource,
 
 		infra.NewInfraHostDataSource,
 		infra.NewInfraServiceDataSource,
 
 		ipam.NewAddressDataSource,
+		ipam.NewIpamHostDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
 		ipam.NewNetworkDataSource,
@@ -562,6 +609,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewRulesetDataSource,
 
 		notification.NewNotificationRestEndpointDataSource,
+
+		rir.NewRirOrganizationDataSource,
 
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
@@ -587,6 +636,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		cloud.NewAwsuserList,
 
+		clouddiscovery.NewCloudDiscoveryProviderList,
+
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
@@ -603,6 +654,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
+
+		discovery.NewDiscoveryCredentialgroupList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -654,16 +707,19 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
 		fw.NewNetworkListList,
+		fw.NewApplicationFilterList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
+		grid.NewDistributionscheduleList,
 
 		infra.NewInfraHostList,
 		infra.NewInfraServiceList,
 
 		ipam.NewAddressList,
+		ipam.NewIpamHostList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
 		ipam.NewNetworkList,
@@ -683,6 +739,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewRulesetList,
 
 		notification.NewNotificationRestEndpointList,
+
+		rir.NewRirOrganizationList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
