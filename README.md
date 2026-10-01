@@ -183,7 +183,7 @@ For a detailed list of available resources and data sources, refer to the [Resou
 
 Both resources are available on the NIOS backend only.
 
-Detailed documentation for these resources can be found in [Host Record Documentation](guides/host-record-management.md) page.
+Detailed documentation for these resources can be found in [Host Record Documentation](docs/guides/host-record-management.md) page.
 
 ## Listing Existing Objects
 
