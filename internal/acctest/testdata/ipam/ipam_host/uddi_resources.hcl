@@ -83,8 +83,8 @@ case "tags" {
 }
 
 case "addresses" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -101,7 +101,8 @@ case "addresses" {
   PREREQ
   step {
     uddi {
-      addresses = [{ address = "10.0.0.1", space = infoblox_view.test.id }]
+      name      = "{{random}}"
+      addresses = [{ address = "10.0.0.1", space = infoblox_network_view.test.id }]
     }
     depends_on = [infoblox_network.test]
     check = {
@@ -112,7 +113,8 @@ case "addresses" {
 
   step {
     uddi {
-      addresses = [{ address = "10.0.0.2", space = infoblox_view.test.id }]
+      name      = "{{random}}"
+      addresses = [{ address = "10.0.0.2", space = infoblox_network_view.test.id }]
     }
     depends_on = [infoblox_network.test]
     check = {
@@ -124,10 +126,10 @@ case "addresses" {
 }
 
 case "addresses_next_available_id_count" {
-  backend  = "uddi"
-  parallel = true
-  skip = true
-  skip_reason = "Requires Dynamic Allocation to be implemented"
+  backend           = "uddi"
+  parallel          = true
+  skip              = true
+  skip_reason       = "Requires Dynamic Allocation to be implemented"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -145,7 +147,7 @@ case "addresses_next_available_id_count" {
 
   step {
     uddi {
-      name      = "host-$${count.index}"
+      name      = "{{random}}"
       addresses = [{ next_available_id = infoblox_network.test.id }]
     }
   }
