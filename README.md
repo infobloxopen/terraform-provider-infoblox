@@ -129,7 +129,7 @@ For detailed installation instructions, please refer to the [Quickstart Guide](g
   curl -k -u <SUPERUSER>:<PASSWORD> -H "Content-Type: application/json" -X POST https://<NIOS_GRID_IP>/wapi/<WAPI_VERSION>/extensibleattributedef -d '{"name": "Terraform Internal ID", "flags": "CR", "type": "STRING", "comment": "Internal ID for Terraform Resource"}'
   ``` 
 
-  For more details refer to the prerequisites in [Terraform Internal ID](guides/tf_internal_id_management.md) page.
+  For more details refer to the prerequisites in [Terraform Internal ID](docs/guides/tf-internal-id-management.md) page.
 
 ## Managing a NIOS Grid Through the Infoblox Portal
 
@@ -195,7 +195,7 @@ For detailed information, refer to the [Listing Existing Objects](guides/list-re
 
 Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
 
-For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
+For detailed information, refer to the [Importing Existing Resources](docs/guides/importing-resources.md) page.
 
 ## Documentation
 
@@ -203,7 +203,7 @@ For detailed documentation, refer to the [Documentation](guides/documentation-de
 
 ## Logging and Debugging
 
-For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](guides/logging-debugging.md)
+For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](docs/guides/logging-debugging.md)
 
 ## Support
 
