@@ -201,10 +201,10 @@ case "dtc_policy" {
     uddi {
       name       = "dtc-lbdn-{{random}}."
       view       = "$${infoblox_view.test_view.id}"
-      dtc_policy = { policy_id = "dtc/policy/dafaf7a5-307b-4e5c-895e-fd0d922c46fd" }
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_1}}" }
     }
     check = {
-      "uddi.dtc_policy.policy_id" = "dtc/policy/dafaf7a5-307b-4e5c-895e-fd0d922c46fd"
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_1}}"
     }
   }
 
@@ -212,10 +212,10 @@ case "dtc_policy" {
     uddi {
       name       = "dtc-lbdn-{{random}}."
       view       = "$${infoblox_view.test_view.id}"
-      dtc_policy = { policy_id = "dtc/policy/f088b848-67cb-4b3f-a8fd-86283d8e228d" }
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_2}}" }
     }
     check = {
-      "uddi.dtc_policy.policy_id" = "dtc/policy/f088b848-67cb-4b3f-a8fd-86283d8e228d"
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_2}}"
     }
   }
 

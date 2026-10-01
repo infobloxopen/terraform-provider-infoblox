@@ -27,6 +27,14 @@
 //
 // DNS Auth Zone:
 //   - example_zone_250 (UDDI_AUTH_ZONE_1_ID)
+//
+// DTC Policies:
+//   - tf_dtc_policy_1 (UDDI_DTC_POLICY_ID_1)
+//   - tf_dtc_policy_2 (UDDI_DTC_POLICY_ID_2)
+//
+// DTC SNMP User Security Models:
+//   - tf_snmp_usm_1 (UDDI_SNMP_USER_SECURITY_MODEL_ID_1)
+//   - tf_snmp_usm_2 (UDDI_SNMP_USER_SECURITY_MODEL_ID_2)
 
 package main
 
@@ -40,6 +48,7 @@ import (
 
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	"github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
+	"github.com/infobloxopen/universal-ddi-go-client/dtc"
 	"github.com/infobloxopen/universal-ddi-go-client/inframgmt"
 	"github.com/infobloxopen/universal-ddi-go-client/ipam"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
@@ -466,7 +475,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		primaryType string
 		idVar       string
 	}{
-		{fqdn: "example_zone_250", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
+		{fqdn: "example_zone_250.", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
 	}
 
 	for _, az := range authZones {
@@ -519,6 +528,138 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		}
 
 		fmt.Printf("Auth zone %q created successfully (ID: %q, env: %s)\n", az.fqdn, createdID, az.idVar)
+	}
+
+	return nil
+}
+
+// CreateDtcPolicies creates two DTC policies and stores their IDs into
+// pipeline_uddi.env as UDDI_DTC_POLICY_ID_1 and UDDI_DTC_POLICY_ID_2.
+// If a policy already exists, its existing ID is stored instead.
+func CreateDtcPolicies(ctx context.Context, client *uddiclient.APIClient) error {
+	policies := []struct {
+		name  string
+		idVar string
+	}{
+		{name: "tf_dtc_policy_1", idVar: "UDDI_DTC_POLICY_ID_1"},
+		{name: "tf_dtc_policy_2", idVar: "UDDI_DTC_POLICY_ID_2"},
+	}
+
+	for _, p := range policies {
+		body := dtc.Policy{
+			Name:   p.name,
+			Method: "round_robin",
+		}
+
+		resp, _, err := client.DNSTrafficControlAPI.PolicyAPI.Create(ctx).Body(body).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+				listResp, _, listErr := client.DNSTrafficControlAPI.PolicyAPI.List(ctx).Execute()
+				if listErr != nil {
+					return fmt.Errorf("create dtc policies: list existing policies to find %q: %w", p.name, listErr)
+				}
+
+				var existingID string
+				if listResp != nil {
+					for _, existing := range listResp.Results {
+						if existing.Name == p.name && existing.Id != nil {
+							existingID = *existing.Id
+							break
+						}
+					}
+				}
+
+				if existingID == "" {
+					return fmt.Errorf("create dtc policies: policy %q already exists but ID could not be resolved", p.name)
+				}
+
+				if err := writePipelineEnvVar(p.idVar, existingID); err != nil {
+					return fmt.Errorf("create dtc policies: write %s for existing policy: %w", p.idVar, err)
+				}
+
+				fmt.Printf("DTC policy %q already exists, using existing ID %q (env: %s)\n", p.name, existingID, p.idVar)
+				continue
+			}
+			return fmt.Errorf("create dtc policies: create %q: %w", p.name, err)
+		}
+
+		if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+			return fmt.Errorf("create dtc policies: create response for %q missing ID", p.name)
+		}
+
+		createdID := *resp.Result.Id
+		if err := writePipelineEnvVar(p.idVar, createdID); err != nil {
+			return fmt.Errorf("create dtc policies: write %s: %w", p.idVar, err)
+		}
+
+		fmt.Printf("DTC policy %q created successfully (ID: %q, env: %s)\n", p.name, createdID, p.idVar)
+	}
+
+	return nil
+}
+
+// CreateSnmpUserSecurityModels creates two DTC SNMP User Security Model objects and
+// stores their IDs into pipeline_uddi.env as UDDI_SNMP_USER_SECURITY_MODEL_ID_1 and
+// UDDI_SNMP_USER_SECURITY_MODEL_ID_2. If a model already exists, its existing ID is
+// stored instead.
+func CreateSnmpUserSecurityModels(ctx context.Context, client *uddiclient.APIClient) error {
+	models := []struct {
+		username string
+		idVar    string
+	}{
+		{username: "tf_snmp_usm_1", idVar: "UDDI_SNMP_USER_SECURITY_MODEL_ID_1"},
+		{username: "tf_snmp_usm_2", idVar: "UDDI_SNMP_USER_SECURITY_MODEL_ID_2"},
+	}
+
+	for _, m := range models {
+		body := dtc.SNMPUserSecurityModel{
+			Username:        dtc.PtrString(m.username),
+			AuthProtocol:    dtc.PtrString("NoAuth"),
+			PrivacyProtocol: dtc.PtrString("NoPrivacy"),
+		}
+
+		resp, _, err := client.DNSTrafficControlAPI.SnmpUserSecurityAPI.Create(ctx).Body(body).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+				listResp, _, listErr := client.DNSTrafficControlAPI.SnmpUserSecurityAPI.List(ctx).Execute()
+				if listErr != nil {
+					return fmt.Errorf("create snmp user security models: list existing models to find %q: %w", m.username, listErr)
+				}
+
+				var existingID string
+				if listResp != nil {
+					for _, existing := range listResp.Results {
+						if existing.Username != nil && *existing.Username == m.username && existing.Id != nil {
+							existingID = *existing.Id
+							break
+						}
+					}
+				}
+
+				if existingID == "" {
+					return fmt.Errorf("create snmp user security models: model %q already exists but ID could not be resolved", m.username)
+				}
+
+				if err := writePipelineEnvVar(m.idVar, existingID); err != nil {
+					return fmt.Errorf("create snmp user security models: write %s for existing model: %w", m.idVar, err)
+				}
+
+				fmt.Printf("SNMP user security model %q already exists, using existing ID %q (env: %s)\n", m.username, existingID, m.idVar)
+				continue
+			}
+			return fmt.Errorf("create snmp user security models: create %q: %w", m.username, err)
+		}
+
+		if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+			return fmt.Errorf("create snmp user security models: create response for %q missing ID", m.username)
+		}
+
+		createdID := *resp.Result.Id
+		if err := writePipelineEnvVar(m.idVar, createdID); err != nil {
+			return fmt.Errorf("create snmp user security models: write %s: %w", m.idVar, err)
+		}
+
+		fmt.Printf("SNMP user security model %q created successfully (ID: %q, env: %s)\n", m.username, createdID, m.idVar)
 	}
 
 	return nil
@@ -598,6 +739,18 @@ func main() {
 		return
 	}
 	fmt.Println("Option code created successfully")
+
+	if err := CreateDtcPolicies(ctx, client); err != nil {
+		fmt.Printf("Error creating dtc policies: %v\n", err)
+		return
+	}
+	fmt.Println("DTC policies created successfully")
+
+	if err := CreateSnmpUserSecurityModels(ctx, client); err != nil {
+		fmt.Printf("Error creating snmp user security models: %v\n", err)
+		return
+	}
+	fmt.Println("SNMP user security models created successfully")
 
 	if err := CreateAuthZone(ctx, client); err != nil {
 		fmt.Printf("Error creating auth zone: %v\n", err)

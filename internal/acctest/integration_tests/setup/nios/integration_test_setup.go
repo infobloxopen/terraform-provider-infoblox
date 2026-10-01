@@ -1141,6 +1141,33 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Admin user %q created successfully\n", adminUserName)
 	}
 
+	// Create SNMPv3 users (used by dtc:monitor:snmp's "user" field)
+	snmpUsers := []string{"snmpuser", "snmpv3user"}
+
+	for _, snmpUserName := range snmpUsers {
+		snmpUserBody := security.Snmpuser{
+			Name:                   security.PtrString(snmpUserName),
+			AuthenticationProtocol: security.PtrString("MD5"),
+			AuthenticationPassword: security.PtrString("Password1!"),
+			PrivacyProtocol:        security.PtrString("DES"),
+			PrivacyPassword:        security.PtrString("Password1!"),
+		}
+
+		_, _, err := clients.SECURITY.SnmpuserAPI.Create(context.Background()).
+			Snmpuser(snmpUserBody).
+			Execute()
+
+		if err != nil {
+			if strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("SNMP user %q already exists, skipping creation\n", snmpUserName)
+				continue
+			}
+			return fmt.Errorf("failed to create SNMP user %q: %w", snmpUserName, err)
+		}
+
+		fmt.Printf("SNMP user %q created successfully\n", snmpUserName)
+	}
+
 	// Create DNS views
 	dnsViews := []string{"custom_dns_view"}
 
