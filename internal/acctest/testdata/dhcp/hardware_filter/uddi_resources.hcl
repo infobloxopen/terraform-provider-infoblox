@@ -345,4 +345,13 @@ case "vendor_specific_option_option_space" {
     }
   }
 
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
+    }
+  }
+
 }
