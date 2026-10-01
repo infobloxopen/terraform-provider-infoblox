@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -21,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
@@ -51,16 +53,18 @@ type (
 	}
 
 	InfobloxProviderConfig struct {
-		NIOS               *NIOSConfig `tfsdk:"nios"`
-		UDDI               *UDDIConfig `tfsdk:"uddi"`
-		OperationTimeout   types.Int64 `tfsdk:"operation_timeout"`
-		ManageInternalIdEA types.Bool  `tfsdk:"manage_internal_id_ea"`
+		NIOS               *NIOSConfig  `tfsdk:"nios"`
+		UDDI               *UDDIConfig  `tfsdk:"uddi"`
+		OperationTimeout   types.Int64  `tfsdk:"operation_timeout"`
+		ManageInternalIdEA types.Bool   `tfsdk:"manage_internal_id_ea"`
+		ProxySearch        types.String `tfsdk:"proxy_search"`
 	}
 
 	NIOSConfig struct {
 		HostUrl  types.String `tfsdk:"host_url"`
 		Username types.String `tfsdk:"username"`
 		Password types.String `tfsdk:"password"`
+		ProxyURL types.String `tfsdk:"proxy_url"`
 	}
 
 	UDDIConfig struct {
@@ -94,6 +98,13 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Optional:            true,
 				MarkdownDescription: "Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true",
 			},
+			"proxy_search": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("LOCAL", "GM"),
+				},
+			},
 		},
 	}
 }
@@ -115,6 +126,10 @@ func buildNIOSAttribute() schema.Attribute {
 				MarkdownDescription: "Password for the NIOS host",
 				Optional:            true,
 				Sensitive:           true,
+			},
+			"proxy_url": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "HTTP proxy URL to route NIOS WAPI calls through.",
 			},
 		},
 	}
@@ -192,8 +207,11 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
+			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
 		)
+		// Set ProxySearch configuration
+		core.SetProxySearch(data.ProxySearch.ValueString())
 	}
 
 	// UDDI configurations
@@ -228,9 +246,19 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 			if client == nil {
 				return
 			}
+			// Set ProxySearch configuration
+			core.SetProxySearch(data.ProxySearch.ValueString())
 
 			infobloxClient.NIOS = client
 		} else {
+			if !data.ProxySearch.IsUnknown() && !data.ProxySearch.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Configuration",
+					"'proxy_search' is not applicable for UDDI objects — it only applies when 'nios' or 'uddi.enable_nios_passthru' is used. Remove 'proxy_search' from the provider configuration.",
+				)
+				return
+			}
+
 			if data.UDDI.NIOSLicenseUID.ValueString() != "" {
 				resp.Diagnostics.AddError(
 					"Invalid Configuration",
@@ -335,8 +363,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		infra.NewInfraHostResource,
-		notification.NewNotificationRestEndpointResource,
+		anycast.NewAnycastConfigResource,
 
 		acl.NewNamedaclResource,
 
@@ -352,10 +379,12 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6fixedaddressResource,
 		dhcp.NewIpv6fixedaddresstemplateResource,
 		dhcp.NewIpv6rangetemplateResource,
+		dhcp.NewOptionGroupResource,
 		dhcp.NewRangetemplateResource,
 		dhcp.NewSharednetworkResource,
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
+		dhcp.NewRangeResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -403,14 +432,19 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcServerResource,
 		dtc.NewDtcMonitorTcpResource,
 		dtc.NewDtcMonitorIcmpResource,
+		dtc.NewDtcTopologyResource,
 
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
+		fw.NewNetworkListResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
+
+		infra.NewInfraHostResource,
+		infra.NewInfraServiceResource,
 
 		ipam.NewAddressResource,
 		ipam.NewIpv6networkResource,
@@ -422,6 +456,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		ipam.NewBulkhostnametemplateResource,
 		ipam.NewVlanviewResource,
 		ipam.NewVlanResource,
+		ipam.NewVlanrangeResource,
 
 		ipamfederation.NewFederatedRealmResource,
 
@@ -429,6 +464,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
+
+		notification.NewNotificationRestEndpointResource,
 
 		redirect.NewCustomRedirectResource,
 
@@ -442,13 +479,14 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzNaptrResource,
 		rpz.NewRecordRpzPtrResource,
 		rpz.NewRecordRpzTxtResource,
+		rpz.NewRecordRpzAIpaddressResource,
+		rpz.NewRecordRpzCnameClientipaddressResource,
 	}
 }
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		infra.NewInfraHostDataSource,
-		notification.NewNotificationRestEndpointDataSource,
+		anycast.NewAnycastConfigDataSource,
 
 		acl.NewNamedaclDataSource,
 
@@ -464,10 +502,12 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6fixedaddressDataSource,
 		dhcp.NewIpv6fixedaddresstemplateDataSource,
 		dhcp.NewIpv6rangetemplateDataSource,
+		dhcp.NewOptionGroupDataSource,
 		dhcp.NewRangetemplateDataSource,
 		dhcp.NewSharednetworkDataSource,
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
+		dhcp.NewRangeDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -514,14 +554,19 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcServerDataSource,
 		dtc.NewDtcMonitorTcpDataSource,
 		dtc.NewDtcMonitorIcmpDataSource,
+		dtc.NewDtcTopologyDataSource,
 
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
+		fw.NewNetworkListDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
+
+		infra.NewInfraHostDataSource,
+		infra.NewInfraServiceDataSource,
 
 		ipam.NewAddressDataSource,
 		ipam.NewIpv6networkDataSource,
@@ -536,6 +581,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewBulkhostnametemplateDataSource,
 		ipam.NewVlanviewDataSource,
 		ipam.NewVlanDataSource,
+		ipam.NewVlanrangeDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
 
@@ -543,6 +589,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
+
+		notification.NewNotificationRestEndpointDataSource,
 
 		redirect.NewCustomRedirectDataSource,
 
@@ -556,13 +604,14 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzNaptrDataSource,
 		rpz.NewRecordRpzPtrDataSource,
 		rpz.NewRecordRpzTxtDataSource,
+		rpz.NewRecordRpzAIpaddressDataSource,
+		rpz.NewRecordRpzCnameClientipaddressDataSource,
 	}
 }
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		infra.NewInfraHostList,
-		notification.NewNotificationRestEndpointList,
+		anycast.NewAnycastConfigList,
 
 		acl.NewNamedaclList,
 
@@ -578,10 +627,12 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6fixedaddressList,
 		dhcp.NewIpv6fixedaddresstemplateList,
 		dhcp.NewIpv6rangetemplateList,
+		dhcp.NewOptionGroupList,
 		dhcp.NewRangetemplateList,
 		dhcp.NewSharednetworkList,
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
+		dhcp.NewRangeList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -628,14 +679,19 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcServerList,
 		dtc.NewDtcMonitorTcpList,
 		dtc.NewDtcMonitorIcmpList,
+		dtc.NewDtcTopologyList,
 
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
+		fw.NewNetworkListList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
+
+		infra.NewInfraHostList,
+		infra.NewInfraServiceList,
 
 		ipam.NewAddressList,
 		ipam.NewIpv6networkList,
@@ -647,6 +703,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		ipam.NewBulkhostnametemplateList,
 		ipam.NewVlanviewList,
 		ipam.NewVlanList,
+		ipam.NewVlanrangeList,
 
 		ipamfederation.NewFederatedRealmList,
 
@@ -654,6 +711,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
+
+		notification.NewNotificationRestEndpointList,
 
 		redirect.NewCustomRedirectList,
 
@@ -667,6 +726,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzNaptrList,
 		rpz.NewRecordRpzPtrList,
 		rpz.NewRecordRpzTxtList,
+		rpz.NewRecordRpzAIpaddressList,
+		rpz.NewRecordRpzCnameClientipaddressList,
 	}
 }
 

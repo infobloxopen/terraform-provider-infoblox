@@ -39,7 +39,7 @@ type BfdtemplateListModel struct {
 }
 
 func (l *BfdtemplateList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_bfdtemplate"
+	resp.TypeName = req.ProviderTypeName + "_bfd_template"
 }
 
 func (l *BfdtemplateList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -99,7 +99,7 @@ func (l *BfdtemplateList) List(ctx context.Context, req list.ListRequest, stream
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_bfdtemplate list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_bfd_template list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
