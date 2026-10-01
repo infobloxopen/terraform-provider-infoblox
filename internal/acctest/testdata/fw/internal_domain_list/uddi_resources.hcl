@@ -115,6 +115,36 @@ case "internal_domains_multiple" {
 
 }
 
+case "internal_domains_ip_addresses" {
+  backend  = "uddi"
+  parallel = true
+
+  step {
+    uddi {
+      name             = "{{random}}"
+      internal_domains = ["187.13.5.64/32", "203.0.113.5/32", "198.51.100.10/32"]
+    }
+    check = {
+      "uddi.internal_domains.0" = "187.13.5.64/32"
+      "uddi.internal_domains.1" = "203.0.113.5/32"
+      "uddi.internal_domains.2" = "198.51.100.10/32"
+    }
+  }
+
+  step {
+    uddi {
+      name             = "{{random}}"
+      internal_domains = ["198.51.100.10/32", "187.13.5.64/32", "203.0.113.5/32"]
+    }
+    check = {
+      "uddi.internal_domains.0" = "198.51.100.10/32"
+      "uddi.internal_domains.1" = "187.13.5.64/32"
+      "uddi.internal_domains.2" = "203.0.113.5/32"
+    }
+  }
+
+}
+
 case "name" {
   backend  = "uddi"
   parallel = true

@@ -36,7 +36,7 @@ case "tag_filters" {
     uddi {
       name             = "{{random}}"
       internal_domains = ["example.somedomain.com"]
-      tags             = { tag1 = "example.somedomain.com" }
+      tags             = { tag1 = "{{random2}}" }
     }
   }
 
