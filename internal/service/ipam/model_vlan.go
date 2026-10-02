@@ -3,10 +3,12 @@ package ipam
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
@@ -15,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
@@ -33,29 +36,31 @@ var VlanAttrTypes = map[string]attr.Type{
 }
 
 type NIOSVlanModel struct {
-	Comment     types.String `tfsdk:"comment"`
-	Contact     types.String `tfsdk:"contact"`
-	Department  types.String `tfsdk:"department"`
-	Description types.String `tfsdk:"description"`
-	ExtAttrs    types.Map    `tfsdk:"ext_attrs"`
-	ExtAttrsAll types.Map    `tfsdk:"ext_attrs_all"`
-	Id          types.Int64  `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Parent      types.String `tfsdk:"parent"`
-	Reserved    types.Bool   `tfsdk:"reserved"`
+	Comment           types.String `tfsdk:"comment"`
+	Contact           types.String `tfsdk:"contact"`
+	Department        types.String `tfsdk:"department"`
+	Description       types.String `tfsdk:"description"`
+	ExtAttrs          types.Map    `tfsdk:"ext_attrs"`
+	ExtAttrsAll       types.Map    `tfsdk:"ext_attrs_all"`
+	Id                types.Int64  `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	Parent            types.String `tfsdk:"parent"`
+	Reserved          types.Bool   `tfsdk:"reserved"`
+	DynamicAllocation types.Object `tfsdk:"dynamic_allocation"`
 }
 
 var NIOSVlanAttrTypes = map[string]attr.Type{
-	"comment":       types.StringType,
-	"contact":       types.StringType,
-	"department":    types.StringType,
-	"description":   types.StringType,
-	"ext_attrs":     types.MapType{ElemType: types.StringType},
-	"ext_attrs_all": types.MapType{ElemType: types.StringType},
-	"id":            types.Int64Type,
-	"name":          types.StringType,
-	"parent":        types.StringType,
-	"reserved":      types.BoolType,
+	"comment":            types.StringType,
+	"contact":            types.StringType,
+	"department":         types.StringType,
+	"description":        types.StringType,
+	"ext_attrs":          types.MapType{ElemType: types.StringType},
+	"ext_attrs_all":      types.MapType{ElemType: types.StringType},
+	"id":                 types.Int64Type,
+	"name":               types.StringType,
+	"parent":             types.StringType,
+	"reserved":           types.BoolType,
+	"dynamic_allocation": types.ObjectType{AttrTypes: dynamicallocation.NextAvailableVlanIdAttrTypes},
 }
 
 const (
@@ -131,7 +136,13 @@ var VlanResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		},
 	},
 	"id": schema.Int64Attribute{
-		Required:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("dynamic_allocation"),
+			),
+		},
 		MarkdownDescription: "VLAN ID value.",
 	},
 	"name": schema.StringAttribute{
@@ -155,6 +166,11 @@ var VlanResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "When set VLAN can only be assigned to IPAM object manually.",
 	},
+	"dynamic_allocation": schema.SingleNestedAttribute{
+		Attributes:          dynamicallocation.NextAvailableVlanIdResourceSchemaAttributes,
+		Optional:            true,
+		MarkdownDescription: "Dynamically allocate the vlan id using the NIOS next_available_vlan_id function call. Mutually exclusive with the static value field.",
+	},
 }
 
 // Expand converts the TF model to the infoblox core model
@@ -168,15 +184,15 @@ func (m *VlanModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreat
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSVlanModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags)
+		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
 	}
 
 	return obj
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSVlanModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSVlanExt {
-	return &coremodel.NIOSVlanExt{
+func (m *NIOSVlanModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSVlanExt {
+	ext := &coremodel.NIOSVlanExt{
 		Comment:     flex.ExpandStringPointerNullAsEmpty(m.Comment),
 		Contact:     flex.ExpandStringPointerNullAsEmpty(m.Contact),
 		Department:  flex.ExpandStringPointerNullAsEmpty(m.Department),
@@ -187,6 +203,10 @@ func (m *NIOSVlanModel) Expand(ctx context.Context, diags *diag.Diagnostics) *co
 		Parent:      ExpandVlanParent(m.Parent),
 		Reserved:    flex.ExpandBoolPointer(m.Reserved),
 	}
+	if isCreate {
+		ext.FuncCall = BuildVlanFuncCall(ctx, m.DynamicAllocation, diags)
+	}
+	return ext
 }
 
 // Flatten populates the TF model from a core response.
@@ -229,4 +249,7 @@ func (m *NIOSVlanModel) Flatten(ctx context.Context, from *coremodel.NIOSVlanExt
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
 	m.Parent = FlattenVlanParent(from.Parent)
 	m.Reserved = flex.FlattenBoolPointer(from.Reserved)
+	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableVlanIdAttrTypes)
+	}
 }

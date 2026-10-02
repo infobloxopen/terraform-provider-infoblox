@@ -98,6 +98,7 @@ var UpgradegroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"distribution_time": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTimeFormat(),
@@ -140,6 +141,7 @@ var UpgradegroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"upgrade_time": schema.StringAttribute{
 		Optional: true,
+		Computed: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTimeFormat(),

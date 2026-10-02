@@ -39,7 +39,7 @@ type NatgroupListModel struct {
 }
 
 func (l *NatgroupList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_natgroup"
+	resp.TypeName = req.ProviderTypeName + "_nat_group"
 }
 
 func (l *NatgroupList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -99,7 +99,7 @@ func (l *NatgroupList) List(ctx context.Context, req list.ListRequest, stream *l
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_natgroup list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_nat_group list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
