@@ -365,6 +365,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		infra.NewInfraHostResource,
+		notification.NewNotificationRestEndpointResource,
 		anycast.NewAnycastConfigResource,
 		anycast.NewAnycastHostResource,
 
@@ -445,6 +447,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewNamedListResource,
 		fw.NewNetworkListResource,
 		fw.NewApplicationFilterResource,
+		fw.NewCategoryFilterResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -452,7 +455,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		grid.NewUpgradegroupResource,
 		grid.NewDistributionscheduleResource,
 
-		infra.NewInfraHostResource,
 		infra.NewInfraServiceResource,
 
 		ipam.NewAddressResource,
@@ -475,8 +477,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewBfdtemplateResource,
 		misc.NewRulesetResource,
 
-		notification.NewNotificationRestEndpointResource,
-
 		rir.NewRirOrganizationResource,
 
 		rpz.NewRecordRpzAResource,
@@ -496,7 +496,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-
+		infra.NewInfraHostDataSource,
+		notification.NewNotificationRestEndpointDataSource,
 		anycast.NewAnycastConfigDataSource,
 
 		acl.NewNamedaclDataSource,
@@ -575,6 +576,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		fw.NewNamedListDataSource,
 		fw.NewNetworkListDataSource,
 		fw.NewApplicationFilterDataSource,
+		fw.NewCategoryFilterDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -582,7 +584,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewUpgradegroupDataSource,
 		grid.NewDistributionscheduleDataSource,
 
-		infra.NewInfraHostDataSource,
 		infra.NewInfraServiceDataSource,
 
 		ipam.NewAddressDataSource,
@@ -608,8 +609,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewBfdtemplateDataSource,
 		misc.NewRulesetDataSource,
 
-		notification.NewNotificationRestEndpointDataSource,
-
 		rir.NewRirOrganizationDataSource,
 
 		rpz.NewRecordRpzADataSource,
@@ -629,7 +628,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-
+		fw.NewCategoryFilterList,
+		infra.NewInfraHostList,
+		notification.NewNotificationRestEndpointList,
 		anycast.NewAnycastConfigList,
 
 		acl.NewNamedaclList,
@@ -715,7 +716,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		grid.NewUpgradegroupList,
 		grid.NewDistributionscheduleList,
 
-		infra.NewInfraHostList,
 		infra.NewInfraServiceList,
 
 		ipam.NewAddressList,
@@ -737,8 +737,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		misc.NewBfdtemplateList,
 		misc.NewRulesetList,
-
-		notification.NewNotificationRestEndpointList,
 
 		rir.NewRirOrganizationList,
 
