@@ -93,6 +93,7 @@ func (s *sharedrecordCnameService) readNIOS(ctx context.Context, id string, opts
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +206,7 @@ func (s *sharedrecordCnameService) listNIOS(ctx context.Context, opts *core.List
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

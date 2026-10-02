@@ -3,7 +3,7 @@ case "basic" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -13,7 +13,7 @@ case "basic" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
     }
     check = {
@@ -30,7 +30,7 @@ case "disappears" {
   expect_non_empty_plan = true
   parallel              = true
   prerequisites_hcl     = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -40,7 +40,7 @@ case "disappears" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "example txt for sharedrecord:txt"
     }
   }
@@ -51,7 +51,7 @@ case "comment" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -61,7 +61,7 @@ case "comment" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       comment             = "Shared TXT Record Comment"
     }
@@ -73,7 +73,7 @@ case "comment" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       comment             = "Shared TXT Record Comment Updated"
     }
@@ -88,7 +88,7 @@ case "disable" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -98,7 +98,7 @@ case "disable" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       disable             = true
     }
@@ -110,7 +110,7 @@ case "disable" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       disable             = false
     }
@@ -125,7 +125,7 @@ case "ext_attrs" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -135,7 +135,7 @@ case "ext_attrs" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       ext_attrs           = { Site = "{{random3}}" }
     }
@@ -147,7 +147,7 @@ case "ext_attrs" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       ext_attrs           = { Site = "{{random4}}" }
     }
@@ -162,7 +162,7 @@ case "name" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -172,7 +172,7 @@ case "name" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
     }
     check = {
@@ -183,7 +183,7 @@ case "name" {
   step {
     nios {
       name                = "{{random2}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
     }
     check = {
@@ -197,7 +197,7 @@ case "text" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -207,7 +207,7 @@ case "text" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "{{random2}}"
     }
     check = {
@@ -218,7 +218,7 @@ case "text" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "{{random3}}"
     }
     check = {
@@ -232,7 +232,7 @@ case "ttl" {
   backend           = "nios"
   parallel          = true
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -242,7 +242,7 @@ case "ttl" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       ttl                 = 10
     }
@@ -254,7 +254,7 @@ case "ttl" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       ttl                 = 20
     }

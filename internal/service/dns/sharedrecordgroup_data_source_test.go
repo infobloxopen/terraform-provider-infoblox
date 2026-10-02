@@ -7,8 +7,8 @@ import (
 )
 
 func TestAccSharedrecordgroupDataSource(t *testing.T) {
-	dsType := "infoblox_sharedrecordgroup"
-	resourceType := "infoblox_sharedrecordgroup"
+	dsType := "infoblox_sharedrecord_group"
+	resourceType := "infoblox_sharedrecord_group"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -19,7 +19,7 @@ func TestAccSharedrecordgroupDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "dns/sharedrecordgroup/"+backend+"_datasources.hcl", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "dns/sharedrecord_group/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }

@@ -121,6 +121,7 @@ func (s *dtcMonitorSnmpService) readNIOS(ctx context.Context, id string, opts *c
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -280,6 +281,7 @@ func (s *dtcMonitorSnmpService) listNIOS(ctx context.Context, opts *core.ListOpt
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err
