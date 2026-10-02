@@ -1,8 +1,9 @@
-# TODO: The following prerequisites MUST exist on the grid before running these tests:
-#   - syslog:endpoint : syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123 (name: syslogendpoint123)
-#     (used by DNS_RPZ/event-deduplication cases; infoblox_syslog_endpoint is not yet implemented)
-#   - pxgrid:endpoint : pxgrid:endpoint/b25lLmVuZHBvaW50JDI:Example_pxgrid_ISE_endpoint (name: Example_pxgrid_ISE_endpoint)
-#     (used by the publish_settings case; infoblox_pxgrid_endpoint is not yet implemented)
+# DNS_RPZ/event-deduplication cases need a syslog:endpoint (NIOS_SYSLOG_ENDPOINT_REF); the
+# publish_settings case needs a pxgrid:endpoint (NIOS_PXGRID_ENDPOINT_REF). Neither
+# infoblox_syslog_endpoint nor infoblox_pxgrid_endpoint is implemented yet, so these cases
+# reference the grid's pre-provisioned objects via env var (populated by the shared
+# integration-test setup in CI; see internal/acctest/integration_tests/setup/nios) and
+# skip cleanly via skip_if_env_empty when run locally without those env vars set.
 
 case "basic" {
   backend  = "nios"
@@ -167,8 +168,10 @@ case "disable" {
 }
 
 case "enable_event_deduplication" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
 
   step {
     nios {
@@ -176,7 +179,7 @@ case "enable_event_deduplication" {
       expression_list            = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                       = "{{random}}"
       notification_action        = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target        = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target        = "{{nios_syslog_endpoint_ref}}"
       template_instance          = { template = "Version5_Syslog_Action_Template" }
       enable_event_deduplication = false
       event_deduplication_fields = ["SOURCE_IP", "QUERY_NAME"]
@@ -192,7 +195,7 @@ case "enable_event_deduplication" {
       expression_list            = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                       = "{{random}}"
       notification_action        = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target        = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target        = "{{nios_syslog_endpoint_ref}}"
       template_instance          = { template = "Version5_Syslog_Action_Template" }
       enable_event_deduplication = true
       event_deduplication_fields = ["SOURCE_IP", "QUERY_NAME"]
@@ -205,8 +208,10 @@ case "enable_event_deduplication" {
 }
 
 case "enable_event_deduplication_log" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
 
   step {
     nios {
@@ -214,7 +219,7 @@ case "enable_event_deduplication_log" {
       expression_list                = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                           = "{{random}}"
       notification_action            = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target            = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target            = "{{nios_syslog_endpoint_ref}}"
       template_instance              = { template = "Version5_Syslog_Action_Template" }
       enable_event_deduplication_log = false
       event_deduplication_fields     = ["SOURCE_IP", "QUERY_NAME"]
@@ -230,7 +235,7 @@ case "enable_event_deduplication_log" {
       expression_list                = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                           = "{{random}}"
       notification_action            = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target            = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target            = "{{nios_syslog_endpoint_ref}}"
       template_instance              = { template = "Version5_Syslog_Action_Template" }
       enable_event_deduplication_log = true
       event_deduplication_fields     = ["SOURCE_IP", "QUERY_NAME"]
@@ -243,8 +248,10 @@ case "enable_event_deduplication_log" {
 }
 
 case "event_deduplication_fields" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
 
   step {
     nios {
@@ -252,7 +259,7 @@ case "event_deduplication_fields" {
       expression_list            = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                       = "{{random}}"
       notification_action        = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target        = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target        = "{{nios_syslog_endpoint_ref}}"
       template_instance          = { template = "Version5_Syslog_Action_Template" }
       event_deduplication_fields = ["SOURCE_IP"]
     }
@@ -268,7 +275,7 @@ case "event_deduplication_fields" {
       expression_list            = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                       = "{{random}}"
       notification_action        = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target        = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target        = "{{nios_syslog_endpoint_ref}}"
       template_instance          = { template = "Version5_Syslog_Action_Template" }
       event_deduplication_fields = ["SOURCE_IP", "QUERY_NAME"]
     }
@@ -282,8 +289,10 @@ case "event_deduplication_fields" {
 }
 
 case "event_deduplication_lookback_period" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
 
   step {
     nios {
@@ -291,7 +300,7 @@ case "event_deduplication_lookback_period" {
       expression_list                     = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                                = "{{random}}"
       notification_action                 = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target                 = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target                 = "{{nios_syslog_endpoint_ref}}"
       template_instance                   = { template = "Version5_Syslog_Action_Template" }
       event_deduplication_lookback_period = 500
       event_deduplication_fields          = ["SOURCE_IP", "QUERY_NAME"]
@@ -307,7 +316,7 @@ case "event_deduplication_lookback_period" {
       expression_list                     = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                                = "{{random}}"
       notification_action                 = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target                 = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target                 = "{{nios_syslog_endpoint_ref}}"
       template_instance                   = { template = "Version5_Syslog_Action_Template" }
       event_deduplication_lookback_period = 600
       event_deduplication_fields          = ["SOURCE_IP", "QUERY_NAME"]
@@ -331,7 +340,7 @@ case "event_priority" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "DHCP_Lease" }
       event_priority       = "NORMAL"
     }
@@ -346,7 +355,7 @@ case "event_priority" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "DHCP_Lease" }
       event_priority       = "HIGH"
     }
@@ -358,8 +367,10 @@ case "event_priority" {
 }
 
 case "event_type" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_notification_rest_endpoint" "test_endpoint" {
     nios = {
@@ -390,7 +401,7 @@ case "event_type" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "Version5_Syslog_Action_Template" }
     }
     check = {
@@ -401,8 +412,10 @@ case "event_type" {
 }
 
 case "expression_list" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_notification_rest_endpoint" "test_endpoint" {
     nios = {
@@ -441,7 +454,7 @@ case "expression_list" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "Version5_Syslog_Action_Template" }
     }
     check = {
@@ -491,7 +504,7 @@ case "name" {
 case "notification_action" {
   backend     = "nios"
   skip        = true
-  skip_reason = "The only exercisable notification_action value without additional infra is RESTAPI_TEMPLATE_INSTANCE; CISCOISE_QUARANTINE/CISCOISE_PUBLISH require a real Cisco ISE integration not available on this grid"
+  skip_reason = "The only exercisable notification_action value without additional infra is RESTAPI_TEMPLATE_INSTANCE. Confirmed live against the grid's pxgrid:endpoint (with both publish_settings and subscribe_settings already configured): every event_type/pxgrid:endpoint combination for CISCOISE_PUBLISH/CISCOISE_QUARANTINE is rejected with \"The notification action specified for the endpoint type TYPE_PXGRID is incorrect\", distinct from the endpoint error that DOES work for the publish_settings field case. This points to a required real Cisco ISE session-directory integration not reproducible here"
   parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_notification_rest_endpoint" "test_endpoint" {
@@ -520,8 +533,10 @@ case "notification_action" {
 }
 
 case "notification_target" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_notification_rest_endpoint" "test_endpoint" {
     nios = {
@@ -552,19 +567,21 @@ case "notification_target" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "Version5_Syslog_Action_Template" }
     }
     check = {
-      "nios.notification_target" = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      "nios.notification_target" = "{{nios_syslog_endpoint_ref}}"
     }
   }
 
 }
 
 case "publish_settings" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_PXGRID_ENDPOINT_REF"]
+  skip_reason       = "NIOS_PXGRID_ENDPOINT_REF environment variable must be set for this test to run"
 
   step {
     nios {
@@ -572,7 +589,7 @@ case "publish_settings" {
       expression_list     = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                = "{{random}}"
       notification_action = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target = "pxgrid:endpoint/b25lLmVuZHBvaW50JDI:Example_pxgrid_ISE_endpoint"
+      notification_target = "{{pxgrid_endpoint_ref}}"
       template_instance    = { template = "IPAM_PxgridEvent" }
       publish_settings    = { enabled_attributes = ["CLIENT_ID", "IPADDRESS"] }
     }
@@ -589,7 +606,7 @@ case "publish_settings" {
       expression_list     = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                = "{{random}}"
       notification_action = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target = "pxgrid:endpoint/b25lLmVuZHBvaW50JDI:Example_pxgrid_ISE_endpoint"
+      notification_target = "{{pxgrid_endpoint_ref}}"
       template_instance    = { template = "IPAM_PxgridEvent" }
       publish_settings    = { enabled_attributes = ["CLIENT_ID", "IPADDRESS", "LEASE_STATE"] }
     }
@@ -615,7 +632,7 @@ case "scheduled_event" {
       expression_list   = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name              = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance = { template = "DHCP_Lease" }
       scheduled_event   = { weekdays = ["TUESDAY", "WEDNESDAY", "MONDAY"], frequency = "WEEKLY", every = 15, minutes_past_hour = 6, disable = false, repeat = "RECUR", hour_of_day = 20 }
     }
@@ -630,7 +647,7 @@ case "scheduled_event" {
       expression_list   = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DHCP_LEASE_STATE", op1_type = "FIELD", op2 = "DHCP_LEASE_STATE_ACTIVE", op2_type = "STRING" }, { op = "ENDLIST" }]
       name              = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance = { template = "DHCP_Lease" }
       scheduled_event   = { minutes_past_hour = 6, repeat = "ONCE", day_of_month = 30, month = 1, year = 2026, hour_of_day = 20 }
     }
@@ -642,8 +659,10 @@ case "scheduled_event" {
 }
 
 case "template_instance" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_SYSLOG_ENDPOINT_REF"]
+  skip_reason       = "NIOS_SYSLOG_ENDPOINT_REF environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_notification_rest_endpoint" "test_endpoint" {
     nios = {
@@ -674,7 +693,7 @@ case "template_instance" {
       expression_list      = [{ op = "AND", op1_type = "LIST" }, { op = "EQ", op1 = "DNS_RPZ_TYPE", op1_type = "FIELD", op2 = "DNS_RPZ_TYPE_IP", op2_type = "STRING" }, { op = "ENDLIST" }]
       name                 = "{{random}}"
       notification_action  = "RESTAPI_TEMPLATE_INSTANCE"
-      notification_target  = "syslog:endpoint/b25lLmVuZHBvaW50JDE:syslogendpoint123"
+      notification_target  = "{{nios_syslog_endpoint_ref}}"
       template_instance    = { template = "Version5_Syslog_Action_Template" }
     }
     check = {
