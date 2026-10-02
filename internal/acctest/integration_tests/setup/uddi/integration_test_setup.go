@@ -76,6 +76,7 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 	}
 
 	hosts := resp.GetResults()
+	tagN := 1
 	for i, host := range hosts {
 		if i >= 2 {
 			break
@@ -83,8 +84,6 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 		n := i + 1
 		displayNameVar := fmt.Sprintf("UDDI_INFRA_HOST_DISPLAY_NAME_%d", n)
 		legacyIDVar := fmt.Sprintf("UDDI_INFRA_HOST_LEGACY_ID_%d", n)
-		tagKeyVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_KEY_%d", n)
-		tagValueVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_VALUE_%d", n)
 
 		if v := host.GetDisplayName(); v != "" {
 			if err := writePipelineEnvVar(displayNameVar, v); err != nil {
@@ -101,6 +100,9 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 		}
 
 		if tags := host.GetTags(); len(tags) > 0 {
+			tagKeyVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_KEY_%d", tagN)
+			tagValueVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_VALUE_%d", tagN)
+
 			keys := make([]string, 0, len(tags))
 			for k := range tags {
 				keys = append(keys, k)
@@ -118,6 +120,7 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 				return nil, fmt.Errorf("store infra host details: write %s: %w", tagValueVar, err)
 			}
 			fmt.Printf("Stored infra host tag value %q as %s\n", firstValue, tagValueVar)
+			tagN++
 		}
 	}
 
