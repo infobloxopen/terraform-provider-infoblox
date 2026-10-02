@@ -51,7 +51,7 @@ resource "infoblox_hardware_filter" "example_with_options" {
     role       = "values"
 
     tags = {
-      environment = "production"
+      Site = "location-1"
     }
   }
 }
@@ -64,6 +64,7 @@ resource "infoblox_hardware_filter" "example_with_options" {
 ### Optional
 
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 ### Read-Only
 
@@ -91,9 +92,7 @@ Optional:
 
 Read-Only:
 
-- `created_at` (String) Time when the object has been created.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 
 <a id="nestedatt--uddi--dhcp_options"></a>
 ### Nested Schema for `uddi.dhcp_options`

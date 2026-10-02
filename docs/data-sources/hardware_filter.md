@@ -25,7 +25,7 @@ data "infoblox_hardware_filter" "get_by_name" {
 // Retrieve specific Hardware Filters using tag filters
 data "infoblox_hardware_filter" "get_by_tag" {
   tag_filters = {
-    environment = "production"
+    Site = "location-1"
   }
 }
 
@@ -55,6 +55,7 @@ Read-Only:
 
 - `id` (String) The resource identifier.
 - `uddi` (Attributes) UDDI backend-specific fields. (see [below for nested schema](#nestedatt--results--uddi))
+- `update_trigger` (String) An arbitrary value used to trigger an update. Not sent to the API. Change it when Terraform reports no infrastructure changes.
 
 <a id="nestedatt--results--uddi"></a>
 ### Nested Schema for `results.uddi`
@@ -63,7 +64,6 @@ Read-Only:
 
 - `addresses` (List of String) The list of addresses to match for the hardware filter.
 - `comment` (String) The description for the hardware filter. May contain 0 to 1024 characters. Can include UTF-8.
-- `created_at` (String) Time when the object has been created.
 - `dhcp_options` (Attributes List) The list of DHCP options for the hardware filter. May be either a specific option or a group of options. (see [below for nested schema](#nestedatt--results--uddi--dhcp_options))
 - `header_option_filename` (String) The configuration for header option filename field.
 - `header_option_server_address` (String) The configuration for header option server address field.
@@ -73,7 +73,6 @@ Read-Only:
 - `role` (String) The role of DHCP filter (_values_ or _selection_).  Defaults to _values_.
 - `tags` (Map of String) The tags for the hardware filter in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.
-- `updated_at` (String) Time when the object has been updated. Equals to _created_at_ if not updated after creation.
 - `vendor_specific_option_option_space` (String) The resource identifier.
 
 <a id="nestedatt--results--uddi--dhcp_options"></a>

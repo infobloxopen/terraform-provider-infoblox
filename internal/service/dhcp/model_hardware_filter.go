@@ -185,6 +185,7 @@ func (m *HardwareFilterModel) Expand(ctx context.Context, diags *diag.Diagnostic
 	uddiModel := flex.ExpandNestedObject[UDDIHardwareFilterModel](ctx, m.UDDI, diags)
 	if uddiModel != nil {
 		obj.UDDI = uddiModel.Expand(ctx, diags)
+		obj.UDDI = PostExpandHardwareFilterUDDI(ctx, obj.UDDI, diags)
 	}
 
 	return obj
@@ -220,8 +221,10 @@ func (m *HardwareFilterModel) Flatten(ctx context.Context, resp *coremodel.Hardw
 	if uddiModel == nil {
 		uddiModel = &UDDIHardwareFilterModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDIHardwareFilterModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenHardwareFilterUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIHardwareFilterAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIHardwareFilterAttrTypes)
