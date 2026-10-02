@@ -390,6 +390,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
+		dhcp.NewHardwareFilterResource,
 
 		discovery.NewDiscoveryCredentialgroupResource,
 
@@ -496,7 +497,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-
 		anycast.NewAnycastConfigDataSource,
 
 		acl.NewNamedaclDataSource,
@@ -521,6 +521,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
+		dhcp.NewHardwareFilterDataSource,
 
 		discovery.NewDiscoveryCredentialgroupDataSource,
 
@@ -629,7 +630,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-
 		anycast.NewAnycastConfigList,
 
 		acl.NewNamedaclList,
@@ -654,6 +654,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
+		dhcp.NewHardwareFilterList,
 
 		discovery.NewDiscoveryCredentialgroupList,
 
