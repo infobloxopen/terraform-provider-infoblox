@@ -16,7 +16,7 @@ Manages an Infoblox SharedrecordSrv in the NIOS backend.
 
 ```terraform
 // Create a Shared Record Group (Required as Parent)
-resource "infoblox_sharedrecordgroup" "parent_sharedrecordgroup" {
+resource "infoblox_sharedrecord_group" "parent_sharedrecordgroup" {
   nios = {
     name = "example-sharedrecordgroup"
   }
@@ -28,7 +28,7 @@ resource "infoblox_sharedrecord_srv" "sharedrecord_srv_basic_fields" {
     name                = "sharedrecord_srv.example.com"
     port                = 443
     priority            = 10
-    shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecordgroup.nios.name
+    shared_record_group = infoblox_sharedrecord_group.parent_sharedrecordgroup.nios.name
     target              = "server.example.com"
     weight              = 5
   }
@@ -40,7 +40,7 @@ resource "infoblox_sharedrecord_srv" "sharedrecord_srv_additional_fields" {
     name                = "_http._tcp.example.com"
     port                = 80
     priority            = 20
-    shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecordgroup.nios.name
+    shared_record_group = infoblox_sharedrecord_group.parent_sharedrecordgroup.nios.name
     target              = "webserver.example.com"
     weight              = 10
     comment             = "Example Shared SRV Record"

@@ -36,7 +36,7 @@ type UpgradegroupDataSource struct {
 }
 
 func (d *UpgradegroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_upgradegroup"
+	resp.TypeName = req.ProviderTypeName + "_upgrade_group"
 }
 
 // UpgradegroupDataSourceModel is the filter model for the datasource
