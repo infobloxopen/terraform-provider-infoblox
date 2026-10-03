@@ -642,10 +642,9 @@ case "discovery_blackout_setting" {
 }
 
 case "discovery_member" {
-  skip        = true
-  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
-  backend  = "nios"
-  parallel = true
+  backend             = "nios"
+  parallel            = true
+  skip_if_env_empty   = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1127,10 +1126,9 @@ case "ext_attrs" {
 }
 
 case "enable_discovery" {
-  skip        = true
-  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1220,9 +1218,9 @@ case "enable_immediate_discovery" {
 
 case "failover_association" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Requires non-grid master candidate to be in discovery polling mode"
   parallel    = true
+  skip        = true
+  skip_reason = "t.Skip: Requires DHCP failover primary member to be assigned to the network"
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1267,10 +1265,8 @@ case "failover_association" {
 }
 
 case "fingerprint_filter_rules" {
-  backend     = "nios"
-  parallel    = true
-  skip        = true
-  skip_reason = "Requires filter_fingerprint1 and filter_fingerprint2 FINGERPRINT filter objects on the grid"
+  backend  = "nios"
+  parallel = true
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1291,10 +1287,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "filter_fingerprint2", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint2"
+      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1304,10 +1300,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "filter_fingerprint1", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint1", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint1"
+      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint1"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1805,8 +1801,6 @@ case "mac_filter_rules" {
 case "member" {
   backend           = "nios"
   parallel          = true
-  skip              = true
-  skip_reason       = "Grid member is exclusively assigned to a network view from a prior test run; requires manual cleanup before this test can run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network" "test_network" {
     nios = {
@@ -1901,14 +1895,12 @@ case "ms_options" {
 case "ms_server" {
   backend           = "nios"
   parallel          = true
-  skip              = true
-  skip_reason       = "Requires a Microsoft DHCP server (msdhcpserver) registered on the grid"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network" "test_network" {
     nios = {
       network      = "101.0.0.0/24"
       network_view = "default"
-      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.0.10" }]
+      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.10.10" }]
     }
   }
   PREREQ
@@ -1923,7 +1915,7 @@ case "ms_server" {
     }
     depends_on = [infoblox_network.test_network]
     check = {
-      "nios.ms_server.ipv4addr" = "10.10.0.10"
+      "nios.ms_server.ipv4addr" = "10.10.10.10"
     }
   }
 
@@ -2143,10 +2135,8 @@ case "nextserver" {
 }
 
 case "option_filter_rules" {
-  backend     = "nios"
-  parallel    = true
-  skip        = true
-  skip_reason = "Requires example_option_filter_1 and example_option_filter_2 Option filter objects on the grid"
+  backend  = "nios"
+  parallel = true
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -2167,10 +2157,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example_option_filter_1", permission = "Allow" }]
+      option_filter_rules = [{ filter = "example-option-filter-1", permission = "Allow" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example_option_filter_1"
+      "nios.option_filter_rules.0.filter"     = "example-option-filter-1"
       "nios.option_filter_rules.0.permission" = "Allow"
     }
   }
@@ -2180,10 +2170,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example_option_filter_2", permission = "Deny" }]
+      option_filter_rules = [{ filter = "example-option-filter-2", permission = "Deny" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example_option_filter_2"
+      "nios.option_filter_rules.0.filter"     = "example-option-filter-2"
       "nios.option_filter_rules.0.permission" = "Deny"
     }
   }
@@ -2573,13 +2563,11 @@ case "start_addr" {
 case "subscribe_settings" {
   backend           = "nios"
   parallel          = true
-  skip              = true
-  skip_reason       = "Requires a Cisco ISE server configured on the grid for subscribe_settings to be accepted"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network" "test_network" {
     nios = {
       network            = "110.0.0.0/24"
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
   }
@@ -2590,7 +2578,7 @@ case "subscribe_settings" {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
       network            = infoblox_network.test_network.nios.network
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
     check = {
@@ -2603,7 +2591,7 @@ case "subscribe_settings" {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
       network            = infoblox_network.test_network.nios.network
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["ENDPOINT_PROFILE"] }
     }
     check = {
