@@ -8,8 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -114,15 +114,11 @@ func BuildNetworkFuncCall(ctx context.Context, data types.Object, diags *diag.Di
 }
 
 func PostFlattenNetworkNIOS(ctx context.Context, planned, flattened *NIOSNetworkModel, diags *diag.Diagnostics) {
-	if planned != nil && !planned.Options.IsUnknown() {
-		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
-		diags.Append(*d...)
-		if d.HasError() {
-			return
-		}
-		if reorderedList, ok := reordered.(basetypes.ListValue); ok {
-			flattened.Options = reorderedList
-		}
+	// Use planned options in state to prevent "Provider produced inconsistent result" errors.
+	// NIOS normalizes use_option for certain options regardless of what is sent, so the state
+	// must reflect user configuration rather than NIOS values.
+	if planned != nil && !planned.Options.IsNull() && !planned.Options.IsUnknown() {
+		flattened.Options = planned.Options
 	}
 }
 
