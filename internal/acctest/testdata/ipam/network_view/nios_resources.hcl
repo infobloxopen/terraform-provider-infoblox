@@ -213,22 +213,8 @@ case "federated_realms" {
 }
 
 case "internal_forward_zones" {
-  backend           = "nios"
-  parallel          = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "test_zone1" {
-    nios = {
-      fqdn = "{{random}}1"
-      view = "default"
-    }
-  }
-  resource "infoblox_zone_auth" "test_zone2" {
-    nios = {
-      fqdn = "{{random}}2"
-      view = "default"
-    }
-  }
-  PREREQ
+  backend  = "nios"
+  parallel = true
 
   step {
     nios {
@@ -240,6 +226,22 @@ case "internal_forward_zones" {
   }
 
   step {
+    prerequisites_hcl = <<-PREREQ
+    resource "infoblox_zone_auth" "test_zone1" {
+      nios = {
+        fqdn = "example-fqdn-internal-forward-zone-1"
+        view = "default.{{random}}"
+        grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      }
+    }
+    resource "infoblox_zone_auth" "test_zone2" {
+      nios = {
+        fqdn = "example-fqdn-internal-forward-zone-2"
+        view = "default.{{random}}"
+        grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      }
+    }
+    PREREQ
     nios {
       name                   = "{{random}}"
       internal_forward_zones = ["${infoblox_zone_auth.test_zone1.id}"]
@@ -247,6 +249,22 @@ case "internal_forward_zones" {
   }
 
   step {
+    prerequisites_hcl = <<-PREREQ
+    resource "infoblox_zone_auth" "test_zone1" {
+      nios = {
+        fqdn = "example-fqdn-internal-forward-zone-1"
+        view = "default.{{random}}"
+        grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      }
+    }
+    resource "infoblox_zone_auth" "test_zone2" {
+      nios = {
+        fqdn = "example-fqdn-internal-forward-zone-2"
+        view = "default.{{random}}"
+        grid_primary = [{ name = "{{grid_master_hostname}}" }]
+      }
+    }
+    PREREQ
     nios {
       name                   = "{{random}}"
       internal_forward_zones = ["${infoblox_zone_auth.test_zone1.id}", "${infoblox_zone_auth.test_zone2.id}"]

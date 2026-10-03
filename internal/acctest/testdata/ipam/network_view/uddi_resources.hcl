@@ -335,34 +335,33 @@ case "dhcp_options" {
 }
 
 case "dhcp_options_v6" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_dhcp_option_code_unknown" "test" {
-  #   uddi = {
-  #     code = 234
-  #     name = "test_dhcp_option_code"
-  #     option_space = infoblox_dhcp_option_space_unknown.test.id
-  #     type = "boolean"
-  #   }
-  # }
-  # resource "infoblox_dhcp_option_group_unknown" "test" {
-  #   uddi = {
-  #     name = "\"og-\"+name"
-  #     protocol = "ip6"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_dhcp_optionspace" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_ipv6_dhcp_optiondefinition" "test" {
+    uddi = {
+      code         = 234
+      name         = "{{random3}}"
+      option_space = infoblox_ipv6_dhcp_optionspace.test.id
+      type         = "boolean"
+    }
+  }
+  PREREQ
 
   step {
     uddi {
       name            = "{{random}}"
-      dhcp_options_v6 = [{ type = "option", option_code = "dhcp/option_code/46bf2e4a-25c8-4ac3-b9f7-4244c8265f2e", option_value = "255" }]
+      dhcp_options_v6 = [{ type = "option", option_code = infoblox_ipv6_dhcp_optiondefinition.test.id, option_value = "true" }]
     }
     check = {
       "uddi.dhcp_options_v6.#"              = "1"
       "uddi.dhcp_options_v6.0.type"         = "option"
-      "uddi.dhcp_options_v6.0.option_value" = "255"
+      "uddi.dhcp_options_v6.0.option_value" = "true"
     }
   }
 

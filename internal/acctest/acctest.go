@@ -401,12 +401,24 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_DHCP_HOST_ID_2")
 	case name == "uddi_option_group_1_id":
 		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
+	case name == "uddi_option_group_2_id":
+		return os.Getenv("UDDI_OPTION_GROUP_2_ID")
 	case name == "uddi_option_code_1_id":
 		return os.Getenv("UDDI_OPTION_CODE_1_ID")
 	case name == "uddi_compartment_id_1":
 		return os.Getenv("UDDI_COMPARTMENT_ID_1")
 	case name == "uddi_auth_zone_id_1":
 		return os.Getenv("UDDI_AUTH_ZONE_ID_1")
+	case name == "uddi_range_1_id":
+		return os.Getenv("UDDI_RANGE_1_ID")
+	case name == "uddi_range_2_id":
+		return os.Getenv("UDDI_RANGE_2_ID")
+	case name == "uddi_ip_space_for_range_id":
+		return os.Getenv("UDDI_IP_SPACE_FOR_RANGE_ID")
+	case name == "nios_vlan_1_for_ipv6network_ref":
+		return os.Getenv("NIOS_VLAN_1_FOR_IPV6NETWORK_REF")
+	case name == "nios_vlan_2_for_ipv6network_ref":
+		return os.Getenv("NIOS_VLAN_2_FOR_IPV6NETWORK_REF")
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}
