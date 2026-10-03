@@ -164,10 +164,10 @@ case "external_ns_group" {
     nios {
       fqdn              = "{{random}}.com"
       stub_from         = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      external_ns_group = "nsgroup_forwardstubserver_1"
+      external_ns_group = "ensg1"
     }
     check = {
-      "nios.external_ns_group" = "nsgroup_forwardstubserver_1"
+      "nios.external_ns_group" = "ensg1"
     }
   }
 
@@ -175,10 +175,10 @@ case "external_ns_group" {
     nios {
       fqdn              = "{{random}}.com"
       stub_from         = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      external_ns_group = "nsgroup_forwardstubserver_2"
+      external_ns_group = "ensg2"
     }
     check = {
-      "nios.external_ns_group" = "nsgroup_forwardstubserver_2"
+      "nios.external_ns_group" = "ensg2"
     }
   }
 
@@ -276,10 +276,10 @@ case "ns_group" {
     nios {
       fqdn      = "{{random}}.com"
       stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      ns_group  = "ns_group_stub_member_1"
+      ns_group  = "stub_ns_group1"
     }
     check = {
-      "nios.ns_group" = "ns_group_stub_member_1"
+      "nios.ns_group" = "stub_ns_group1"
     }
   }
 
@@ -287,10 +287,10 @@ case "ns_group" {
     nios {
       fqdn      = "{{random}}.com"
       stub_from = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      ns_group  = "ns_group_stub_member_2"
+      ns_group  = "stub_ns_group2"
     }
     check = {
-      "nios.ns_group" = "ns_group_stub_member_2"
+      "nios.ns_group" = "stub_ns_group2"
     }
   }
 
@@ -402,10 +402,10 @@ case "stub_msservers" {
     nios {
       fqdn           = "{{random}}.com"
       stub_from      = [{ address = "1.1.1.1", name = "{{random2}}" }]
-      stub_msservers = [{ address = "10.0.0.0", is_master = false, ns_ip = "2.1.1.1", ns_name = "ns_server2" }]
+      stub_msservers = [{ address = "10.10.10.11", is_master = false, ns_ip = "2.1.1.1", ns_name = "ns_server2" }]
     }
     check = {
-      "nios.stub_msservers.0.address"   = "10.0.0.0"
+      "nios.stub_msservers.0.address"   = "10.10.10.11"
       "nios.stub_msservers.0.is_master" = "false"
       "nios.stub_msservers.0.ns_ip"     = "2.1.1.1"
       "nios.stub_msservers.0.ns_name"   = "ns_server2"

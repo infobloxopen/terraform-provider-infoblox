@@ -211,7 +211,7 @@ case "rdata_svc_params" {
       "uddi.rdata.svc_params.3.key"   = "dohpath"
       "uddi.rdata.svc_params.3.value" = "/dns-query{?dns}"
       "uddi.rdata.svc_params.4.key"   = "mandatory"
-      "uddi.rdata.svc_params.4.value" = "dohpath,key13"
+      "uddi.rdata.svc_params.4.value" = "dohpath,key15"
     }
   }
 

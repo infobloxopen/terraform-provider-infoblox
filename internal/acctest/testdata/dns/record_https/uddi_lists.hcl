@@ -20,9 +20,16 @@ case "basic" {
   }
 
   step {
-    query    = true
-    provider = infoblox
-    limit    = 5
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    limit            = 5
+    filter {
+      type = "filters"
+      values = {
+        zone = "uddi.zone"
+      }
+    }
   }
 
 }
