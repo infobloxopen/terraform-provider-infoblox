@@ -394,6 +394,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		discovery.NewDiscoveryCredentialgroupResource,
 
 		dns.NewAuthNsgResource,
+		dns.NewDnsHostResource,
 		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
 		dns.NewNsgroupResource,
@@ -526,6 +527,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
+		dns.NewDnsHostDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewNsgroupDataSource,
 		dns.NewNsgroupDelegationDataSource,
@@ -658,6 +660,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		discovery.NewDiscoveryCredentialgroupList,
 
 		dns.NewAuthNsgList,
+		dns.NewDnsHostList,
 		dns.NewDnsServerList,
 		dns.NewForwardNsgList,
 		dns.NewNsgroupList,
