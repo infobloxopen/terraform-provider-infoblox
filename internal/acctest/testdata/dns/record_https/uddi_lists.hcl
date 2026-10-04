@@ -12,15 +12,27 @@ case "basic" {
 
   step {
     uddi {
-      rdata = { target_name = "{{random}}.com" }
-      zone  = infoblox_zone_auth.test.id
+      rdata        = { target_name = "{{random}}.com" }
+      zone         = infoblox_zone_auth.test.id
+      name_in_zone = "{{random2}}"
     }
   }
 
+  # HTTPS records require a zone+name filter here: the UDDI API validates
+  # target_name server-side on every list response, so an unfiltered query
+  # 400s if any orphaned HTTPS record on the shared grid has an empty
+  # target_name. No other record type triggers this behaviour.
   step {
-    query    = true
-    provider = infoblox
-    limit    = 5
+    query            = true
+    provider         = infoblox
+    include_resource = true
+    filter {
+      type = "filters"
+      values = {
+        name_in_zone = "uddi.name_in_zone"
+        zone         = "uddi.zone"
+      }
+    }
   }
 
 }
