@@ -188,7 +188,8 @@ case "tags" {
 case "dtc_policy" {
   backend           = "uddi"
   parallel          = true
-  skip              = false
+  skip_if_env_empty = ["UDDI_DTC_POLICY_ID_1", "UDDI_DTC_POLICY_ID_2"]
+  skip_reason       = "UDDI_DTC_POLICY_ID_1 and UDDI_DTC_POLICY_ID_2 must be set: run integration test setup to provision DTC policies"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_view" {
     uddi = {
