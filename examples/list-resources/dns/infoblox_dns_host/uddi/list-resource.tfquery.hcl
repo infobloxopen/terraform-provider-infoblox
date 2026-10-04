@@ -1,4 +1,4 @@
-// List specific Dns Hosts using filters
+// List specific DNS Hosts using filters
 list "infoblox_dns_host" "list_dns_host_using_filters" {
   provider = infoblox
   config {
@@ -9,7 +9,7 @@ list "infoblox_dns_host" "list_dns_host_using_filters" {
   limit = 10
 }
 
-// List specific Dns Hosts using Tags
+// List specific DNS Hosts using Tags
 list "infoblox_dns_host" "list_dns_host_using_tags" {
   provider = infoblox
   config {
@@ -19,7 +19,7 @@ list "infoblox_dns_host" "list_dns_host_using_tags" {
   }
 }
 
-// List Dns Hosts with resource details included
+// List DNS Hosts with resource details included
 list "infoblox_dns_host" "list_dns_host_with_resource" {
   provider         = infoblox
   include_resource = true
