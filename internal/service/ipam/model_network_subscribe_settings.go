@@ -32,6 +32,7 @@ var NetworkSubscribeSettingsResourceSchemaAttributes = map[string]schema.Attribu
 	"enabled_attributes": schema.ListAttribute{
 		ElementType: types.StringType,
 		Optional:    true,
+		Computed:    true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 			customvalidator.StringsInSlice([]string{"DOMAINNAME", "ENDPOINT_PROFILE", "SECURITY_GROUP", "SESSION_STATE", "SSID", "USERNAME", "VLAN"}),
@@ -43,6 +44,7 @@ var NetworkSubscribeSettingsResourceSchemaAttributes = map[string]schema.Attribu
 			Attributes: NetworksubscribesettingsMappedEaAttributesResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},

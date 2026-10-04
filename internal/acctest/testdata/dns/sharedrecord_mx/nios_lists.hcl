@@ -3,7 +3,7 @@ case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -15,7 +15,7 @@ case "basic" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
   }
 
@@ -31,7 +31,7 @@ case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -43,7 +43,7 @@ case "filters" {
       mail_exchanger      = "{{random2}}.example.com"
       name                = "{{random}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
     }
   }
 
@@ -65,7 +65,7 @@ case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random4}}"
     }
@@ -77,7 +77,7 @@ case "ext_attr_filters" {
       mail_exchanger      = "{{random3}}.example.com"
       name                = "{{random2}}.example.com"
       preference          = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       ext_attrs           = { Site = "{{random}}" }
     }
   }

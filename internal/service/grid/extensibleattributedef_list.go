@@ -39,7 +39,7 @@ type ExtensibleattributedefListModel struct {
 }
 
 func (l *ExtensibleattributedefList) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_extensibleattributedef"
+	resp.TypeName = req.ProviderTypeName + "_extensible_attribute_def"
 }
 
 func (l *ExtensibleattributedefList) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -99,7 +99,7 @@ func (l *ExtensibleattributedefList) List(ctx context.Context, req list.ListRequ
 	}
 
 	requestLimit := int32(req.Limit)
-	tflog.Info(ctx, fmt.Sprintf("infoblox_extensibleattributedef list: req.Limit=%d backend=%s includeResource=%t",
+	tflog.Info(ctx, fmt.Sprintf("infoblox_extensible_attribute_def list: req.Limit=%d backend=%s includeResource=%t",
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{

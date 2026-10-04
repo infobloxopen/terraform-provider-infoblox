@@ -925,6 +925,7 @@ type OnPremAnycastManagerAPIGetAnycastConfigListRequest struct {
 	isConfigured *bool
 	tfilter      *string
 	torderBy     *string
+	filter       *string
 }
 
 func (r OnPremAnycastManagerAPIGetAnycastConfigListRequest) AccountId(accountId int64) OnPremAnycastManagerAPIGetAnycastConfigListRequest {
@@ -959,6 +960,12 @@ func (r OnPremAnycastManagerAPIGetAnycastConfigListRequest) Tfilter(tfilter stri
 
 func (r OnPremAnycastManagerAPIGetAnycastConfigListRequest) TorderBy(torderBy string) OnPremAnycastManagerAPIGetAnycastConfigListRequest {
 	r.torderBy = &torderBy
+	return r
+}
+
+// A collection of response resources can be filtered by a logical expression string that includes JSON tag references to values in each resource, literal values, and logical operators. If a resource does not have the specified tag, its value is assumed to be null.  Literal values include numbers (integer and floating-point), and quoted (both single- or double-quoted) literal strings, and &#39;null&#39;. The following operators are commonly used in filter expressions:  |  Op   |  Description               |  |  --   |  -----------               |  |  &#x3D;&#x3D;   |  Equal                     |  |  !&#x3D;   |  Not Equal                 |  |  &gt;    |  Greater Than              |  |   &gt;&#x3D;  |  Greater Than or Equal To  |  |  &lt;    |  Less Than                 |  |  &lt;&#x3D;   |  Less Than or Equal To     |  |  and  |  Logical AND               |  |  ~    |  Matches Regex             |  |  !~   |  Does Not Match Regex      |  |  or   |  Logical OR                |  |  not  |  Logical NOT               |  |  ()   |  Grouping Operators       |
+func (r OnPremAnycastManagerAPIGetAnycastConfigListRequest) Filter(filter string) OnPremAnycastManagerAPIGetAnycastConfigListRequest {
+	r.filter = &filter
 	return r
 }
 
@@ -1024,6 +1031,9 @@ func (a *OnPremAnycastManagerAPIService) GetAnycastConfigListExecute(r OnPremAny
 	}
 	if r.torderBy != nil {
 		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_torder_by", r.torderBy, "")
+	}
+	if r.filter != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_filter", r.filter, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

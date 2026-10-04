@@ -7,8 +7,8 @@ import (
 )
 
 func TestAccExtensibleattributedefDataSource(t *testing.T) {
-	dsType := "infoblox_extensibleattributedef"
-	resourceType := "infoblox_extensibleattributedef"
+	dsType := "infoblox_extensible_attribute_def"
+	resourceType := "infoblox_extensible_attribute_def"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -19,7 +19,7 @@ func TestAccExtensibleattributedefDataSource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/extensibleattributedef/"+backend+"_datasources.hcl", checksByBackend)
+			acctest.RunDataSourceCases(t, dsType, resourceType, "grid/extensible_attribute_def/"+backend+"_datasources.hcl", checksByBackend)
 		})
 	}
 }

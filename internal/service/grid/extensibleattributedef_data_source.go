@@ -36,7 +36,7 @@ type ExtensibleattributedefDataSource struct {
 }
 
 func (d *ExtensibleattributedefDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_extensibleattributedef"
+	resp.TypeName = req.ProviderTypeName + "_extensible_attribute_def"
 }
 
 // ExtensibleattributedefDataSourceModel is the filter model for the datasource
