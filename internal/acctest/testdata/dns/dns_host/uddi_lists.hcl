@@ -43,6 +43,7 @@ case "filters" {
     id = "{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
+      absolute_name = "{{random}}."
     }
   }
 
