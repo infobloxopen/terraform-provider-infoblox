@@ -1823,15 +1823,13 @@ case "soa_serial_number" {
 case "srgs" {
   backend           = "nios"
   parallel          = true
-  skip              = true
-  skip_reason       = "known issue: NIOS sets sharedrecordgroup.zone_associations as a side-effect of zone_auth.srgs, but the unified provider schema does not mark zone_associations as Computed, causing a post-apply refresh drift. Fix intentionally deferred."
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "test_srg" {
+  resource "infoblox_sharedrecord_group" "test_srg" {
     nios = {
       name = "example_shared_record_group"
     }
   }
-  resource "infoblox_sharedrecordgroup" "test_srg_updated" {
+  resource "infoblox_sharedrecord_group" "test_srg_updated" {
     nios = {
       name = "updated_example_shared_record_group"
     }
@@ -1844,7 +1842,7 @@ case "srgs" {
       view = "default"
       srgs = ["example_shared_record_group"]
     }
-    depends_on = [infoblox_sharedrecordgroup.test_srg, infoblox_sharedrecordgroup.test_srg_updated]
+    depends_on = [infoblox_sharedrecord_group.test_srg, infoblox_sharedrecord_group.test_srg_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "example_shared_record_group"
@@ -1857,7 +1855,7 @@ case "srgs" {
       view = "default"
       srgs = ["updated_example_shared_record_group"]
     }
-    depends_on = [infoblox_sharedrecordgroup.test_srg, infoblox_sharedrecordgroup.test_srg_updated]
+    depends_on = [infoblox_sharedrecord_group.test_srg, infoblox_sharedrecord_group.test_srg_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "updated_example_shared_record_group"

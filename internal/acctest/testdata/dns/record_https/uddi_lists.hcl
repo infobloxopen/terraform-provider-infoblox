@@ -1,8 +1,6 @@
 case "basic" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_AUTH_ZONE_ID_1"]
-  skip_reason       = "UDDI_AUTH_ZONE_ID_1 environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test" {
     uddi = {
@@ -15,21 +13,14 @@ case "basic" {
   step {
     uddi {
       rdata = { target_name = "{{random}}.com" }
-      zone  = "{{uddi_auth_zone_id_1}}"
+      zone  = infoblox_zone_auth.test.id
     }
   }
 
   step {
-    query            = true
-    provider         = infoblox
-    include_resource = true
-    limit            = 5
-    filter {
-      type = "filters"
-      values = {
-        zone = "uddi.zone"
-      }
-    }
+    query    = true
+    provider = infoblox
+    limit    = 5
   }
 
 }
