@@ -136,6 +136,7 @@ var RecordAliasResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Required: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.IsValidNIOSDomainName(),
 			customvalidator.NotEqualsField(path.MatchRoot("nios").AtName("name")),
 		},
 		MarkdownDescription: "Target name in FQDN format. This value can be in unicode format.",
@@ -149,6 +150,7 @@ var RecordAliasResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
