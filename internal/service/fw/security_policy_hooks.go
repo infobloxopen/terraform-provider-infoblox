@@ -46,8 +46,6 @@ func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDI
 	}
 	if flattened.NetworkLists.IsNull() {
 		flattened.NetworkLists = types.ListValueMust(types.Int64Type, []attr.Value{})
-	} else if planned != nil && !planned.NetworkLists.IsNull() && !planned.NetworkLists.IsUnknown() {
-		flattened.NetworkLists = reorderInt64ListToMatch(flattened.NetworkLists, planned.NetworkLists)
 	}
 	if flattened.RoamingDeviceGroups.IsNull() {
 		flattened.RoamingDeviceGroups = types.ListValueMust(types.Int32Type, []attr.Value{})
@@ -62,38 +60,6 @@ func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDI
 			flattened.AccessCodes = reorderStringListToMatch(flattened.AccessCodes, planned.AccessCodes)
 		}
 	}
-}
-
-// reorderInt64ListToMatch reorders src elements to follow the order in ref.
-// Elements present in ref appear first in ref order; extra elements in src
-// (not in ref) are appended in their original order at the end.
-func reorderInt64ListToMatch(src, ref types.List) types.List {
-	if src.IsNull() || src.IsUnknown() || ref.IsNull() || ref.IsUnknown() {
-		return src
-	}
-	refElems := ref.Elements()
-	refOrder := make(map[int64]int, len(refElems))
-	for i, e := range refElems {
-		refOrder[e.(types.Int64).ValueInt64()] = i
-	}
-	srcElems := src.Elements()
-	sort.SliceStable(srcElems, func(i, j int) bool {
-		vi := srcElems[i].(types.Int64).ValueInt64()
-		vj := srcElems[j].(types.Int64).ValueInt64()
-		idxI, okI := refOrder[vi]
-		idxJ, okJ := refOrder[vj]
-		if okI && okJ {
-			return idxI < idxJ
-		}
-		if okI {
-			return true
-		}
-		if okJ {
-			return false
-		}
-		return vi < vj
-	})
-	return types.ListValueMust(types.Int64Type, srcElems)
 }
 
 // reorderStringListToMatch reorders src elements to follow the order in ref.

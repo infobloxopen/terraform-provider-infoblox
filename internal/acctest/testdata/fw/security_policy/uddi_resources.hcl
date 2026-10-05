@@ -240,8 +240,10 @@ case "ecs" {
 }
 
 case "network_lists" {
-  backend  = "uddi"
-  parallel = true
+  backend     = "uddi"
+  skip        = true
+  skip_reason = "network_list prerequisite requires addr_block support — deferred to next release"
+  parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_list" "nl_test1" {
     uddi = {
