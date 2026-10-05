@@ -1,3 +1,20 @@
+// Create a Custom Option Space (required parent for the option definition)
+resource "infoblox_dhcp_optionspace" "option_space" {
+  uddi = {
+    name = "example_option_space"
+  }
+}
+
+// Create a Custom Option Definition (used as option_code in filteroption rules)
+resource "infoblox_dhcp_optiondefinition" "option_definition" {
+  uddi = {
+    code         = 234
+    name         = "example_option_code"
+    type         = "boolean"
+    option_space = infoblox_dhcp_optionspace.option_space.id
+  }
+}
+
 // Create a DHCP Option Filter with the required fields
 resource "infoblox_filteroption" "filteroption_basic_fields" {
   uddi = {
@@ -7,8 +24,8 @@ resource "infoblox_filteroption" "filteroption_basic_fields" {
       rules = [
         {
           compare      = "equals"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.option_definition.id
+          option_value = "true"
         }
       ]
     }
@@ -25,8 +42,8 @@ resource "infoblox_filteroption" "filteroption_additional_fields" {
       rules = [
         {
           compare      = "text_substring"
-          option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
-          option_value = "value1"
+          option_code  = infoblox_dhcp_optiondefinition.option_definition.id
+          option_value = "true"
           # Offset applies only to the substring compare modes
           substring_offset = 2
         }
@@ -37,8 +54,8 @@ resource "infoblox_filteroption" "filteroption_additional_fields" {
     dhcp_options = [
       {
         type         = "option"
-        option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
-        option_value = "value1"
+        option_code  = infoblox_dhcp_optiondefinition.option_definition.id
+        option_value = "true"
       }
     ]
 

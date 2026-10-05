@@ -642,10 +642,10 @@ case "discovery_blackout_setting" {
 }
 
 case "discovery_member" {
-  skip        = true
-  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
-  backend  = "nios"
-  parallel = true
+  backend             = "nios"
+  parallel            = true
+  skip_if_env_empty   = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason         = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1127,10 +1127,10 @@ case "ext_attrs" {
 }
 
 case "enable_discovery" {
-  skip        = true
-  skip_reason = "t.Skip: Requires grid member to be in discovery polling mode"
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
+  skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1220,9 +1220,9 @@ case "enable_immediate_discovery" {
 
 case "failover_association" {
   backend     = "nios"
-  skip        = true
-  skip_reason = "t.Skip: Requires non-grid master candidate to be in discovery polling mode"
   parallel    = true
+  skip        = true
+  skip_reason = "t.Skip: Requires DHCP failover primary member to be assigned to the network"
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test_view" {
@@ -1289,10 +1289,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "filter_fingerprint2", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint2"
+      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1302,10 +1302,10 @@ case "fingerprint_filter_rules" {
       start_addr               = "10.0.0.69"
       end_addr                 = "10.0.0.70"
       network_view             = infoblox_network.test_network.nios.network_view
-      fingerprint_filter_rules = [{ filter = "filter_fingerprint1", permission = "Allow" }]
+      fingerprint_filter_rules = [{ filter = "test_filter_fingerprint1", permission = "Allow" }]
     }
     check = {
-      "nios.fingerprint_filter_rules.0.filter"     = "filter_fingerprint1"
+      "nios.fingerprint_filter_rules.0.filter"     = "test_filter_fingerprint1"
       "nios.fingerprint_filter_rules.0.permission" = "Allow"
     }
   }
@@ -1656,11 +1656,11 @@ case "logic_filter_rules" {
       start_addr         = "10.0.0.85"
       end_addr           = "10.0.0.86"
       network_view       = infoblox_network.test_network.nios.network_view
-      logic_filter_rules = [{ filter = "example_option_filter_1", type = "Option" }]
+      logic_filter_rules = [{ filter = "mac_filter2", type = "MAC" }]
     }
     check = {
-      "nios.logic_filter_rules.0.filter" = "example_option_filter_1"
-      "nios.logic_filter_rules.0.type"   = "Option"
+      "nios.logic_filter_rules.0.filter" = "mac_filter2"
+      "nios.logic_filter_rules.0.type"   = "MAC"
     }
   }
 
@@ -1902,7 +1902,7 @@ case "ms_server" {
     nios = {
       network      = "101.0.0.0/24"
       network_view = "default"
-      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.0.10" }]
+      members      = [{ struct = "msdhcpserver", ipv4addr = "10.10.10.10" }]
     }
   }
   PREREQ
@@ -1917,7 +1917,7 @@ case "ms_server" {
     }
     depends_on = [infoblox_network.test_network]
     check = {
-      "nios.ms_server.ipv4addr" = "10.10.0.10"
+      "nios.ms_server.ipv4addr" = "10.10.10.10"
     }
   }
 
@@ -2159,10 +2159,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example_option_filter_1", permission = "Allow" }]
+      option_filter_rules = [{ filter = "example-option-filter-1", permission = "Allow" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example_option_filter_1"
+      "nios.option_filter_rules.0.filter"     = "example-option-filter-1"
       "nios.option_filter_rules.0.permission" = "Allow"
     }
   }
@@ -2172,10 +2172,10 @@ case "option_filter_rules" {
       start_addr          = "10.0.0.107"
       end_addr            = "10.0.0.108"
       network_view        = infoblox_network.test_network.nios.network_view
-      option_filter_rules = [{ filter = "example_option_filter_2", permission = "Deny" }]
+      option_filter_rules = [{ filter = "example-option-filter-2", permission = "Deny" }]
     }
     check = {
-      "nios.option_filter_rules.0.filter"     = "example_option_filter_2"
+      "nios.option_filter_rules.0.filter"     = "example-option-filter-2"
       "nios.option_filter_rules.0.permission" = "Deny"
     }
   }
@@ -2569,7 +2569,7 @@ case "subscribe_settings" {
   resource "infoblox_network" "test_network" {
     nios = {
       network            = "110.0.0.0/24"
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
   }
@@ -2580,7 +2580,7 @@ case "subscribe_settings" {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
       network            = infoblox_network.test_network.nios.network
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["DOMAINNAME"] }
     }
     check = {
@@ -2593,7 +2593,7 @@ case "subscribe_settings" {
       start_addr         = "110.0.0.127"
       end_addr           = "110.0.0.128"
       network            = infoblox_network.test_network.nios.network
-      network_view       = "default"
+      network_view       = "test_network_view"
       subscribe_settings = { enabled_attributes = ["ENDPOINT_PROFILE"] }
     }
     check = {
