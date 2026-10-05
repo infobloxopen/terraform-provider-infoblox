@@ -3,6 +3,7 @@ package fw
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -18,6 +19,7 @@ import (
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/fw"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -34,27 +36,27 @@ var SecurityPolicyAttrTypes = map[string]attr.Type{
 }
 
 type UDDISecurityPolicyModel struct {
-	AccessCodes         types.List   `tfsdk:"access_codes"`
-	DefaultAction       types.String `tfsdk:"default_action"`
-	DefaultRedirectName types.String `tfsdk:"default_redirect_name"`
-	Description         types.String `tfsdk:"description"`
-	Dfps                types.List   `tfsdk:"dfps"`
-	Ecs                 types.Bool   `tfsdk:"ecs"`
-	Name                types.String `tfsdk:"name"`
-	NetAddressDfps      types.List   `tfsdk:"net_address_dfps"`
-	NetworkLists        types.List   `tfsdk:"network_lists"`
-	OnpremResolve       types.Bool   `tfsdk:"onprem_resolve"`
-	Precedence          types.Int32  `tfsdk:"precedence"`
-	RoamingDeviceGroups types.List   `tfsdk:"roaming_device_groups"`
-	Rules               types.List   `tfsdk:"rules"`
-	SafeSearch          types.Bool   `tfsdk:"safe_search"`
-	Tags                types.Map    `tfsdk:"tags"`
-	TagsAll             types.Map    `tfsdk:"tags_all"`
-	UserGroups          types.List   `tfsdk:"user_groups"`
+	AccessCodes         internaltypes.UnorderedListValue `tfsdk:"access_codes"`
+	DefaultAction       types.String                     `tfsdk:"default_action"`
+	DefaultRedirectName types.String                     `tfsdk:"default_redirect_name"`
+	Description         types.String                     `tfsdk:"description"`
+	Dfps                types.List                       `tfsdk:"dfps"`
+	Ecs                 types.Bool                       `tfsdk:"ecs"`
+	Name                types.String                     `tfsdk:"name"`
+	NetAddressDfps      types.List                       `tfsdk:"net_address_dfps"`
+	NetworkLists        types.List                       `tfsdk:"network_lists"`
+	OnpremResolve       types.Bool                       `tfsdk:"onprem_resolve"`
+	Precedence          types.Int32                      `tfsdk:"precedence"`
+	RoamingDeviceGroups types.List                       `tfsdk:"roaming_device_groups"`
+	Rules               types.List                       `tfsdk:"rules"`
+	SafeSearch          types.Bool                       `tfsdk:"safe_search"`
+	Tags                types.Map                        `tfsdk:"tags"`
+	TagsAll             types.Map                        `tfsdk:"tags_all"`
+	UserGroups          types.List                       `tfsdk:"user_groups"`
 }
 
 var UDDISecurityPolicyAttrTypes = map[string]attr.Type{
-	"access_codes":          types.ListType{ElemType: types.StringType},
+	"access_codes":          internaltypes.UnorderedListOfStringType,
 	"default_action":        types.StringType,
 	"default_redirect_name": types.StringType,
 	"description":           types.StringType,
@@ -101,6 +103,7 @@ var SecurityPolicyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		ElementType:         types.StringType,
 		Optional:            true,
 		Computed:            true,
+		CustomType:          internaltypes.UnorderedListOfStringType,
 		MarkdownDescription: "Access codes assigned to Security Policy",
 	},
 	"default_action": schema.StringAttribute{
@@ -162,8 +165,11 @@ var SecurityPolicyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Use DNS resolve on onprem side",
 	},
 	"precedence": schema.Int32Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int32{
+			int32validator.AtLeast(1),
+		},
 		MarkdownDescription: "Security precedence enable selection of the highest priority policy, in cases where a query matches multiple policies.",
 	},
 	"roaming_device_groups": schema.ListAttribute{
@@ -262,11 +268,11 @@ func (m *SecurityPolicyModel) Flatten(ctx context.Context, resp *coremodel.Secur
 	m.Id = flex.FlattenInt32Pointer(resp.Id)
 
 	// Extract existing UDDI model, flatten API response onto it, convert back
+	plannedUDDI := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	uddiModel := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	if uddiModel == nil {
 		uddiModel = &UDDISecurityPolicyModel{}
 	}
-	plannedUDDI := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
 		PostFlattenSecurityPolicyUDDI(ctx, plannedUDDI, uddiModel, diags)
@@ -281,7 +287,7 @@ func (m *UDDISecurityPolicyModel) Flatten(ctx context.Context, from *coremodel.U
 	if from == nil || m == nil {
 		return
 	}
-	m.AccessCodes = flex.FlattenFrameworkListString(ctx, from.AccessCodes, diags)
+	m.AccessCodes = flex.FlattenFrameworkUnorderedListString(ctx, from.AccessCodes, diags)
 	m.DefaultAction = flex.FlattenStringPointer(from.DefaultAction)
 	m.DefaultRedirectName = flex.FlattenStringPointer(from.DefaultRedirectName)
 	m.Description = flex.FlattenStringPointer(from.Description)

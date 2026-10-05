@@ -2,7 +2,6 @@ package fw
 
 import (
 	"context"
-	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -31,12 +30,9 @@ func validateSecurityPolicyUDDIConfig(ctx context.Context, m *UDDISecurityPolicy
 	}
 }
 
-// PostFlattenSecurityPolicyUDDI converts null int list fields to empty lists and
-// preserves access_codes from the plan when the API omits them on read.
-// The API always returns [] for unset dfps/network_lists/roaming_device_groups; the
-// regular flatten returns null for empty slices, which conflicts with the Default=[].
-// access_codes order in the API response may differ from the plan/state order; we
-// reorder the returned list to match the plan/state reference to keep state stable.
+// PostFlattenSecurityPolicyUDDI converts null list fields to their correct values after flatten.
+// - dfps/network_lists/roaming_device_groups: API omits empty slices; null conflicts with Default=[].
+// - access_codes: API never echoes access_codes back in create/update/read responses; preserve planned value.
 func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDISecurityPolicyModel, diags *diag.Diagnostics) {
 	if flattened == nil {
 		return
@@ -54,42 +50,6 @@ func PostFlattenSecurityPolicyUDDI(ctx context.Context, planned, flattened *UDDI
 		if flattened.AccessCodes.IsNull() {
 			// API omitted access_codes; preserve the plan/state values.
 			flattened.AccessCodes = planned.AccessCodes
-		} else {
-			// API returned access_codes but may be in a different order; reorder to
-			// match the plan/state so the state is stable and plan-consistent.
-			flattened.AccessCodes = reorderStringListToMatch(flattened.AccessCodes, planned.AccessCodes)
 		}
 	}
-}
-
-// reorderStringListToMatch reorders src elements to follow the order in ref.
-// Elements present in ref appear first in ref order; extra elements in src
-// (not in ref) are appended in their original order at the end.
-func reorderStringListToMatch(src, ref types.List) types.List {
-	if src.IsNull() || src.IsUnknown() || ref.IsNull() || ref.IsUnknown() {
-		return src
-	}
-	refElems := ref.Elements()
-	refOrder := make(map[string]int, len(refElems))
-	for i, e := range refElems {
-		refOrder[e.(types.String).ValueString()] = i
-	}
-	srcElems := src.Elements()
-	sort.SliceStable(srcElems, func(i, j int) bool {
-		vi := srcElems[i].(types.String).ValueString()
-		vj := srcElems[j].(types.String).ValueString()
-		idxI, okI := refOrder[vi]
-		idxJ, okJ := refOrder[vj]
-		if okI && okJ {
-			return idxI < idxJ
-		}
-		if okI {
-			return true
-		}
-		if okJ {
-			return false
-		}
-		return vi < vj
-	})
-	return types.ListValueMust(types.StringType, srcElems)
 }
