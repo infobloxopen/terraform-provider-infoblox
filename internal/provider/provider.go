@@ -447,7 +447,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewNetworkListResource,
 		fw.NewInternalDomainListResource,
 		fw.NewApplicationFilterResource,
-    fw.NewSecurityPolicyResource,
+		fw.NewSecurityPolicyResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
@@ -579,7 +579,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		fw.NewNetworkListDataSource,
 		fw.NewInternalDomainListDataSource,
 		fw.NewApplicationFilterDataSource,
-    fw.NewSecurityPolicyDataSource,
+		fw.NewSecurityPolicyDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
@@ -714,7 +714,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		fw.NewNetworkListList,
 		fw.NewInternalDomainListList,
 		fw.NewApplicationFilterList,
-    fw.NewSecurityPolicyList,
+		fw.NewSecurityPolicyList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
