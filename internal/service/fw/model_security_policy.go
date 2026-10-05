@@ -268,11 +268,11 @@ func (m *SecurityPolicyModel) Flatten(ctx context.Context, resp *coremodel.Secur
 	m.Id = flex.FlattenInt32Pointer(resp.Id)
 
 	// Extract existing UDDI model, flatten API response onto it, convert back
-	plannedUDDI := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	uddiModel := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	if uddiModel == nil {
 		uddiModel = &UDDISecurityPolicyModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDISecurityPolicyModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
 		PostFlattenSecurityPolicyUDDI(ctx, plannedUDDI, uddiModel, diags)
