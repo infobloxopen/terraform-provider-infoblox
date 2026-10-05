@@ -100,6 +100,33 @@ resource "infoblox_notification_rule" "notification_rule_for_dns_rpz" {
     ]
   }
 }
+
+// Create a Notification Rule for IPAM events, published to a pxGrid endpoint
+resource "infoblox_notification_rule" "notification_rule_for_ipam" {
+  nios = {
+    name                = "example_notification_rule_ipam"
+    event_type          = "IPAM"
+    notification_action = "RESTAPI_TEMPLATE_INSTANCE"
+    notification_target = "pxgrid:endpoint/<ref-of-example_pxgrid_endpoint>"
+    template_instance = {
+      template = "IPAM_PxgridEvent"
+    }
+    publish_settings = {
+      enabled_attributes = ["CLIENT_ID", "IPADDRESS"]
+    }
+    expression_list = [
+      { op = "AND", op1_type = "LIST" },
+      {
+        op       = "EQ"
+        op1      = "DHCP_LEASE_STATE"
+        op1_type = "FIELD"
+        op2      = "DHCP_LEASE_STATE_ACTIVE"
+        op2_type = "STRING"
+      },
+      { op = "ENDLIST" },
+    ]
+  }
+}
 ```
 
 
