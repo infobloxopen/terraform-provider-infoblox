@@ -66,7 +66,6 @@ Read-Only:
 - `default_action` (String) The policy-level action gets applied when none of the policy rules apply/match. The default value for default_action is "action_allow".
 - `default_redirect_name` (String) Name of the custom redirect, if the default_action is "action_redirect".
 - `description` (String) The brief description for the security policy.
-- `dfp_services` (List of String) The list of DNS Forwarding Proxy Services object identifiers. For Internal Use only.
 - `dfps` (List of Number) The list of DNS Forwarding Proxy object identifiers.
 - `ecs` (Boolean) Use ECS for handling policy
 - `name` (String) The name of the security policy.
