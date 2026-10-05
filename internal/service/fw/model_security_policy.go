@@ -100,12 +100,9 @@ var SecurityPolicyResourceSchemaAttributes = map[string]schema.Attribute{
 
 var SecurityPolicyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"access_codes": schema.ListAttribute{
-		ElementType: types.StringType,
-		Optional:    true,
-		Computed:    true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
+		ElementType:         types.StringType,
+		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "Access codes assigned to Security Policy",
 	},
 	"default_action": schema.StringAttribute{

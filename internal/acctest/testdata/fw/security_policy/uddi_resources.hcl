@@ -122,6 +122,9 @@ case "access_codes" {
     check = {
       "uddi.access_codes.#" = "1"
     }
+    check_pair = {
+      "uddi.access_codes.0" = infoblox_access_code.ac_test1.uddi.access_key
+    }
   }
 
   step {
@@ -131,6 +134,10 @@ case "access_codes" {
     }
     check = {
       "uddi.access_codes.#" = "2"
+    }
+    check_pair = {
+      "uddi.access_codes.0" = infoblox_access_code.ac_test1.uddi.access_key
+      "uddi.access_codes.1" = infoblox_access_code.ac_test2.uddi.access_key
     }
   }
 
@@ -361,6 +368,15 @@ case "rules" {
     check = {
       "uddi.rules.0.action" = "action_block"
       "uddi.rules.0.type"   = "custom_list"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.rules.#" = "0"
     }
   }
 

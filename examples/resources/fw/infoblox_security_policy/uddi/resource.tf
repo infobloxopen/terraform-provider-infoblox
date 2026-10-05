@@ -1,10 +1,3 @@
-// Create a Security Policy with basic fields
-resource "infoblox_security_policy" "example_basic" {
-  uddi = {
-    name = "example-security-policy"
-  }
-}
-
 // Create a Named List and Application Filter to reference in the policy rules
 resource "infoblox_named_list" "example" {
   uddi = {
@@ -18,6 +11,13 @@ resource "infoblox_application_filter" "example" {
   uddi = {
     name     = "example-app-filter"
     criteria = [{ name = "Microsoft 365" }]
+  }
+}
+
+// Create a Security Policy with basic fields
+resource "infoblox_security_policy" "example_basic" {
+  uddi = {
+    name = "example-security-policy"
   }
 }
 
