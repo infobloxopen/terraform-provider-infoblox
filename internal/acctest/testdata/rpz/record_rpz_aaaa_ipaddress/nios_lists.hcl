@@ -1,15 +1,20 @@
 # Hand-authored list acceptance-test cases for RecordRpzAaaaIpaddress.
-# rp_zone is hardcoded to "rpz-test.infoblox.com" (persistent zone on the test NIOS grid)
-# because infoblox_zone_rp is not yet registered in the unified provider.
 case "basic" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "2001:db8::10"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -24,12 +29,19 @@ case "basic" {
 case "filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "2001:db8::10"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -51,12 +63,19 @@ case "ext_attr_filters" {
   backend        = "nios"
   min_tf_version = "1.14.0"
   parallel       = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name      = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr  = "2001:db8::10"
-      rp_zone   = "rpz-test.infoblox.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "{{random3}}" }
     }
   }
