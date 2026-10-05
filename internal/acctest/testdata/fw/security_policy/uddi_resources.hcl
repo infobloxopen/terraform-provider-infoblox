@@ -244,13 +244,13 @@ case "network_lists" {
   resource "infoblox_network_list" "nl_test1" {
     uddi = {
       name       = "{{random2}}"
-      addr_block = [{ address = "{{random4}}/32" }]
+      addr_block = [{ address = "{{random_cidr_network4}}" }]
     }
   }
   resource "infoblox_network_list" "nl_test2" {
     uddi = {
       name       = "{{random3}}"
-      addr_block = [{ address = "{{random5}}/32" }]
+      addr_block = [{ address = "{{random_cidr_network5}}" }]
     }
   }
   PREREQ
@@ -258,20 +258,27 @@ case "network_lists" {
   step {
     uddi {
       name          = "{{random}}"
-      network_lists = [infoblox_network_list.nl_test1.uddi.id]
+      network_lists = [infoblox_network_list.nl_test1.id]
     }
     check = {
       "uddi.network_lists.#" = "1"
+    }
+    check_pair = {
+      "uddi.network_lists.0" = infoblox_network_list.nl_test1.id
     }
   }
 
   step {
     uddi {
       name          = "{{random}}"
-      network_lists = [infoblox_network_list.nl_test1.uddi.id, infoblox_network_list.nl_test2.uddi.id]
+      network_lists = [infoblox_network_list.nl_test1.id, infoblox_network_list.nl_test2.id]
     }
     check = {
       "uddi.network_lists.#" = "2"
+    }
+    check_pair = {
+      "uddi.network_lists.0" = infoblox_network_list.nl_test1.id
+      "uddi.network_lists.1" = infoblox_network_list.nl_test2.id
     }
   }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -19,6 +20,15 @@ func ValidateSecurityPolicy(ctx context.Context, data SecurityPolicyModel, resp 
 }
 
 func validateSecurityPolicyUDDIConfig(ctx context.Context, m *UDDISecurityPolicyModel, resp *resource.ValidateConfigResponse) {
+	if !m.DefaultRedirectName.IsNull() && !m.DefaultRedirectName.IsUnknown() && m.DefaultRedirectName.ValueString() != "" {
+		if !m.DefaultAction.IsNull() && !m.DefaultAction.IsUnknown() && m.DefaultAction.ValueString() != "action_redirect" {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("uddi").AtName("default_redirect_name"),
+				"Invalid Configuration",
+				`default_redirect_name can only be set when default_action is "action_redirect".`,
+			)
+		}
+	}
 }
 
 // PostFlattenSecurityPolicyUDDI converts null int list fields to empty lists and

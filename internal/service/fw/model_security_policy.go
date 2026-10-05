@@ -38,7 +38,6 @@ type UDDISecurityPolicyModel struct {
 	DefaultAction       types.String `tfsdk:"default_action"`
 	DefaultRedirectName types.String `tfsdk:"default_redirect_name"`
 	Description         types.String `tfsdk:"description"`
-	DfpServices         types.List   `tfsdk:"dfp_services"`
 	Dfps                types.List   `tfsdk:"dfps"`
 	Ecs                 types.Bool   `tfsdk:"ecs"`
 	Name                types.String `tfsdk:"name"`
@@ -59,7 +58,6 @@ var UDDISecurityPolicyAttrTypes = map[string]attr.Type{
 	"default_action":        types.StringType,
 	"default_redirect_name": types.StringType,
 	"description":           types.StringType,
-	"dfp_services":          types.ListType{ElemType: types.StringType},
 	"dfps":                  types.ListType{ElemType: types.Int32Type},
 	"ecs":                   types.BoolType,
 	"name":                  types.StringType,
@@ -122,11 +120,6 @@ var SecurityPolicyResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The brief description for the security policy.",
-	},
-	"dfp_services": schema.ListAttribute{
-		ElementType:         types.StringType,
-		Computed:            true,
-		MarkdownDescription: "The list of DNS Forwarding Proxy Services object identifiers. For Internal Use only.",
 	},
 	"dfps": schema.ListAttribute{
 		ElementType:         types.Int32Type,
@@ -292,7 +285,6 @@ func (m *UDDISecurityPolicyModel) Flatten(ctx context.Context, from *coremodel.U
 	m.DefaultAction = flex.FlattenStringPointer(from.DefaultAction)
 	m.DefaultRedirectName = flex.FlattenStringPointer(from.DefaultRedirectName)
 	m.Description = flex.FlattenStringPointer(from.Description)
-	m.DfpServices = flex.FlattenFrameworkListString(ctx, from.DfpServices, diags)
 	m.Dfps = flex.FlattenFrameworkListInt32(ctx, from.Dfps, diags)
 	m.Ecs = flex.FlattenBoolPointer(from.Ecs)
 	m.Name = flex.FlattenStringPointer(from.Name)
