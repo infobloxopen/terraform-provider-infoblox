@@ -393,10 +393,10 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_INFRA_HOST_DISPLAY_NAME_1")
 	case name == "uddi_infra_host_legacy_id_1":
 		return os.Getenv("UDDI_INFRA_HOST_LEGACY_ID_1")
-	case name == "uddi_infra_host_tag_key_1":
-		return os.Getenv("UDDI_INFRA_HOST_TAG_KEY_1")
-	case name == "uddi_infra_host_tag_value_1":
-		return os.Getenv("UDDI_INFRA_HOST_TAG_VALUE_1")
+	case name == "uddi_dns_service_tag_key_1":
+		return os.Getenv("UDDI_DNS_SERVICE_TAG_KEY_1")
+	case name == "uddi_dns_service_tag_value_1":
+		return os.Getenv("UDDI_DNS_SERVICE_TAG_VALUE_1")
 	case name == "uddi_dns_host_id_1":
 		return os.Getenv("UDDI_DNS_HOST_ID_1")
 	case name == "uddi_dns_host_id_2":
@@ -407,6 +407,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_DHCP_HOST_ID_2")
 	case name == "uddi_option_group_1_id":
 		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
+	case name == "uddi_option_group_2_id":
+		return os.Getenv("UDDI_OPTION_GROUP_2_ID")
 	case name == "uddi_option_code_1_id":
 		return os.Getenv("UDDI_OPTION_CODE_1_ID")
 	case name == "uddi_compartment_id_1":

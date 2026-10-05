@@ -19,9 +19,14 @@ const (
 
 // Policy is the retry behaviour of a single API call. A nil Retryable attempts
 // the call exactly once, a 0 Timeout falls back to OperationTimeout.
+// IgnoreError, when set, suppresses a final-attempt error: if the predicate
+// returns true, Do returns nil (success). Use for delete operations where the
+// API returns a non-404 status to signal "already deleted" (e.g. the redirect
+// API returns 400 "Non-existent" instead of 404).
 type Policy struct {
-	Retryable RetryableFunc
-	Timeout   time.Duration
+	Retryable   RetryableFunc
+	Timeout     time.Duration
+	IgnoreError func(error) bool
 }
 
 // Transient is the default policy for every call without an override.
@@ -75,6 +80,9 @@ var overrides = map[override]Policy{
 	{"Networkview", core.BackendUDDI, OpDelete}: {Retryable: IsNetworkViewReferenced, Timeout: 2 * time.Minute},
 
 	{"TsigKey", core.BackendUDDI, OpDelete}: {Retryable: IsTsigReferenced, Timeout: 2 * time.Minute},
+
+	// Redirect API returns 400 "Non-existent: <id>" instead of 404 for already-deleted resources; treat it as success.
+	{"CustomRedirect", core.BackendUDDI, OpDelete}: {IgnoreError: IsNonExistent},
 }
 
 // For resolves the policy for op on backend. T is the core model of the object,
@@ -105,4 +113,8 @@ func IsNetworkViewReferenced(err error) bool {
 
 func IsTsigReferenced(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "object is referenced by a 'TSIG Key' object")
+}
+
+func IsNonExistent(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "Non-existent")
 }

@@ -344,6 +344,18 @@ case "ttl" {
     }
   }
 
+  step {
+    nios {
+      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
+      target_name = "server.example.com"
+      target_type = "A"
+      view        = infoblox_zone_auth.test.nios.view
+    }
+    check = {
+      "nios.ttl" = "0"
+    }
+  }
+
 }
 
 case "view" {
