@@ -58,6 +58,7 @@ var OptionItemResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("option_code")),
+			stringvalidator.LengthBetween(1, 1024),
 		},
 		MarkdownDescription: "The option value.",
 	},
