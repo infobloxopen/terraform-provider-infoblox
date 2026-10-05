@@ -64,10 +64,10 @@ var SecurityPolicyRuleResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The name of the redirect address for redirect actions that can be either IPv4 address or a domain name.",
 	},
 	"type": schema.StringAttribute{
-		Optional: true,
 		Validators: []validator.String{
 			stringvalidator.OneOf("named_feed", "custom_list", "category_filter", "application_filter"),
 		},
+		Optional:            true,
 		MarkdownDescription: "The policy rule type that can be either \"named_feed\" or \"custom_list\" or \"category_filter\" or \"application_filter\".",
 	},
 }
