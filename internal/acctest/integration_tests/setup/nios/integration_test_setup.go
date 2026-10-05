@@ -79,12 +79,6 @@
 // IPAM Network Template:
 //   - test-networktemplate-for-network (netmask: 24)
 //
-// VLAN View:
-//   - test-vlanview-for-ipv6network (VLAN range 50-100)
-//     VLANs:
-//       - test-vlan-for-ipv6network (ID 50)  → NIOS_VLAN_1_FOR_IPV6NETWORK_REF
-//       - test-vlan-2-for-ipv6network (ID 51) → NIOS_VLAN_2_FOR_IPV6NETWORK_REF
-//
 // pxGrid Endpoint:
 //   - Example_pxgrid_ISE_endpoint
 //
@@ -2049,125 +2043,6 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		}
 		if err := writePipelineEnvVar("NIOS_NETWORK_TEMPLATE_CREATED", "true"); err != nil {
 			return fmt.Errorf("failed to write NIOS_NETWORK_TEMPLATE_CREATED: %w", err)
-		}
-	}
-
-	// Create VLAN view and VLANs for ipv6_network tests
-	{
-		const vlanViewName = "test-vlanview-for-ipv6network"
-		vlanViewBody := ipam.Vlanview{
-			Name:        ipam.PtrString(vlanViewName),
-			StartVlanId: ipam.PtrInt64(50),
-			EndVlanId:   ipam.PtrInt64(100),
-		}
-		vlanViewResp, _, err := clients.IPAM.VlanviewAPI.Create(context.Background()).
-			Vlanview(vlanViewBody).
-			Execute()
-
-		var vlanViewRef string
-		if err != nil {
-			if !strings.Contains(err.Error(), "already exists") {
-				return fmt.Errorf("failed to create VLAN view %q: %w", vlanViewName, err)
-			}
-			existingVVResp, _, listErr := clients.IPAM.VlanviewAPI.List(context.Background()).
-				ReturnAsObject(1).
-				Filters(map[string]interface{}{"name": vlanViewName}).
-				Execute()
-			if listErr != nil {
-				return fmt.Errorf("failed to list VLAN views to find %q: %w", vlanViewName, listErr)
-			}
-			if existingVVResp.ListVlanviewResponseObject == nil || len(existingVVResp.ListVlanviewResponseObject.Result) == 0 {
-				return fmt.Errorf("VLAN view %q already exists but could not be found in list", vlanViewName)
-			}
-			vlanViewRef = existingVVResp.ListVlanviewResponseObject.Result[0].GetRef()
-			fmt.Printf("VLAN view %q already exists (ref: %s)\n", vlanViewName, vlanViewRef)
-		} else {
-			if vlanViewResp.String != nil {
-				vlanViewRef = *vlanViewResp.String
-			} else if vlanViewResp.CreateVlanviewResponseAsObject != nil && vlanViewResp.CreateVlanviewResponseAsObject.Result != nil {
-				vlanViewRef = vlanViewResp.CreateVlanviewResponseAsObject.Result.GetRef()
-			}
-			fmt.Printf("VLAN view %q created successfully (ref: %s)\n", vlanViewName, vlanViewRef)
-		}
-
-		// Create VLAN 1
-		vlan1ID := ipam.Int64AsVlanId(ipam.PtrInt64(50))
-		vlan1Parent := ipam.StringAsVlanParent(ipam.PtrString(vlanViewRef))
-		vlan1Body := ipam.Vlan{
-			Id:     &vlan1ID,
-			Name:   ipam.PtrString("test-vlan-for-ipv6network"),
-			Parent: &vlan1Parent,
-		}
-		vlan1Resp, _, err := clients.IPAM.VlanAPI.Create(context.Background()).
-			Vlan(vlan1Body).
-			Execute()
-		var vlan1Ref string
-		if err != nil {
-			if !strings.Contains(err.Error(), "already exists") {
-				return fmt.Errorf("failed to create VLAN 1 for ipv6network tests: %w", err)
-			}
-			existingV1Resp, _, listErr := clients.IPAM.VlanAPI.List(context.Background()).
-				ReturnAsObject(1).
-				Filters(map[string]interface{}{"name": "test-vlan-for-ipv6network"}).
-				Execute()
-			if listErr != nil {
-				return fmt.Errorf("failed to list VLANs to find test-vlan-for-ipv6network: %w", listErr)
-			}
-			if existingV1Resp.ListVlanResponseObject == nil || len(existingV1Resp.ListVlanResponseObject.Result) == 0 {
-				return fmt.Errorf("VLAN test-vlan-for-ipv6network already exists but could not be found")
-			}
-			vlan1Ref = existingV1Resp.ListVlanResponseObject.Result[0].GetRef()
-			fmt.Printf("VLAN %q already exists (ref: %s)\n", "test-vlan-for-ipv6network", vlan1Ref)
-		} else {
-			if vlan1Resp.String != nil {
-				vlan1Ref = *vlan1Resp.String
-			} else if vlan1Resp.CreateVlanResponseAsObject != nil && vlan1Resp.CreateVlanResponseAsObject.Result != nil {
-				vlan1Ref = vlan1Resp.CreateVlanResponseAsObject.Result.GetRef()
-			}
-			fmt.Printf("VLAN %q created successfully (ref: %s)\n", "test-vlan-for-ipv6network", vlan1Ref)
-		}
-		if err := writePipelineEnvVar("NIOS_VLAN_1_FOR_IPV6NETWORK_REF", vlan1Ref); err != nil {
-			return fmt.Errorf("failed to write NIOS_VLAN_1_FOR_IPV6NETWORK_REF: %w", err)
-		}
-
-		// Create VLAN 2
-		vlan2ID := ipam.Int64AsVlanId(ipam.PtrInt64(51))
-		vlan2Parent := ipam.StringAsVlanParent(ipam.PtrString(vlanViewRef))
-		vlan2Body := ipam.Vlan{
-			Id:     &vlan2ID,
-			Name:   ipam.PtrString("test-vlan-2-for-ipv6network"),
-			Parent: &vlan2Parent,
-		}
-		vlan2Resp, _, err := clients.IPAM.VlanAPI.Create(context.Background()).
-			Vlan(vlan2Body).
-			Execute()
-		var vlan2Ref string
-		if err != nil {
-			if !strings.Contains(err.Error(), "already exists") {
-				return fmt.Errorf("failed to create VLAN 2 for ipv6network tests: %w", err)
-			}
-			existingV2Resp, _, listErr := clients.IPAM.VlanAPI.List(context.Background()).
-				ReturnAsObject(1).
-				Filters(map[string]interface{}{"name": "test-vlan-2-for-ipv6network"}).
-				Execute()
-			if listErr != nil {
-				return fmt.Errorf("failed to list VLANs to find test-vlan-2-for-ipv6network: %w", listErr)
-			}
-			if existingV2Resp.ListVlanResponseObject == nil || len(existingV2Resp.ListVlanResponseObject.Result) == 0 {
-				return fmt.Errorf("VLAN test-vlan-2-for-ipv6network already exists but could not be found")
-			}
-			vlan2Ref = existingV2Resp.ListVlanResponseObject.Result[0].GetRef()
-			fmt.Printf("VLAN %q already exists (ref: %s)\n", "test-vlan-2-for-ipv6network", vlan2Ref)
-		} else {
-			if vlan2Resp.String != nil {
-				vlan2Ref = *vlan2Resp.String
-			} else if vlan2Resp.CreateVlanResponseAsObject != nil && vlan2Resp.CreateVlanResponseAsObject.Result != nil {
-				vlan2Ref = vlan2Resp.CreateVlanResponseAsObject.Result.GetRef()
-			}
-			fmt.Printf("VLAN %q created successfully (ref: %s)\n", "test-vlan-2-for-ipv6network", vlan2Ref)
-		}
-		if err := writePipelineEnvVar("NIOS_VLAN_2_FOR_IPV6NETWORK_REF", vlan2Ref); err != nil {
-			return fmt.Errorf("failed to write NIOS_VLAN_2_FOR_IPV6NETWORK_REF: %w", err)
 		}
 	}
 

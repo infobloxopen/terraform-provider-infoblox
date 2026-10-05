@@ -96,7 +96,6 @@ case "delete_associated_objects" {
 
 }
 
-# NOTE: When prerequisites object gets implemented, we can remove the hardcoded values
 case "dhcp_associated_objects" {
   backend           = "nios"
   parallel          = true

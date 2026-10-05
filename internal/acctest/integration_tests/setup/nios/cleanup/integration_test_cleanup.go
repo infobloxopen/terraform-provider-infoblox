@@ -409,64 +409,6 @@ func cleanupParentalControlAVPs(ctx context.Context, apiClient *client.APIClient
 	}
 }
 
-func cleanupVlans(ctx context.Context, apiClient *client.APIClient) {
-	names := []string{"test-vlan-for-ipv6network", "test-vlan-2-for-ipv6network"}
-	for _, name := range names {
-		resp, _, err := apiClient.IPAMAPI.VlanAPI.List(ctx).
-			ReturnAsObject(1).
-			Filters(map[string]interface{}{"name": name}).
-			Execute()
-		if err != nil {
-			fmt.Printf("cleanup: failed to list VLAN %q: %v\n", name, err)
-			continue
-		}
-		if resp == nil || resp.ListVlanResponseObject == nil || len(resp.ListVlanResponseObject.Result) == 0 {
-			fmt.Printf("cleanup: VLAN %q not found, skipping\n", name)
-			continue
-		}
-		for _, v := range resp.ListVlanResponseObject.Result {
-			ref := core.ExtractNIOSRef(v.GetRef())
-			if ref == "" {
-				continue
-			}
-			_, err := apiClient.IPAMAPI.VlanAPI.Delete(ctx, ref).Execute()
-			if err != nil {
-				fmt.Printf("cleanup: failed to delete VLAN %q (ref=%q): %v\n", name, ref, err)
-			} else {
-				fmt.Printf("cleanup: deleted VLAN %q (ref=%q)\n", name, ref)
-			}
-		}
-	}
-}
-
-func cleanupVlanView(ctx context.Context, apiClient *client.APIClient) {
-	const name = "test-vlanview-for-ipv6network"
-	resp, _, err := apiClient.IPAMAPI.VlanviewAPI.List(ctx).
-		ReturnAsObject(1).
-		Filters(map[string]interface{}{"name": name}).
-		Execute()
-	if err != nil {
-		fmt.Printf("cleanup: failed to list VLAN view %q: %v\n", name, err)
-		return
-	}
-	if resp == nil || resp.ListVlanviewResponseObject == nil || len(resp.ListVlanviewResponseObject.Result) == 0 {
-		fmt.Printf("cleanup: VLAN view %q not found, skipping\n", name)
-		return
-	}
-	for _, vv := range resp.ListVlanviewResponseObject.Result {
-		ref := core.ExtractNIOSRef(vv.GetRef())
-		if ref == "" {
-			continue
-		}
-		_, err := apiClient.IPAMAPI.VlanviewAPI.Delete(ctx, ref).Execute()
-		if err != nil {
-			fmt.Printf("cleanup: failed to delete VLAN view %q (ref=%q): %v\n", name, ref, err)
-		} else {
-			fmt.Printf("cleanup: deleted VLAN view %q (ref=%q)\n", name, ref)
-		}
-	}
-}
-
 func cleanupNetworkTemplate(ctx context.Context, apiClient *client.APIClient) {
 	const name = "test-networktemplate-for-network"
 	resp, _, err := apiClient.IPAMAPI.NetworktemplateAPI.List(ctx).
@@ -558,12 +500,6 @@ func Cleanup(apiClient *client.APIClient) {
 
 	fmt.Println("--- Cleaning up Microsoft Servers (address prefix: 10.10) ---")
 	cleanupMicrosoftServers(ctx, apiClient)
-
-	fmt.Println("--- Cleaning up VLANs (test-vlan-for-ipv6network, test-vlan-2-for-ipv6network) ---")
-	cleanupVlans(ctx, apiClient)
-
-	fmt.Println("--- Cleaning up VLAN View (test-vlanview-for-ipv6network) ---")
-	cleanupVlanView(ctx, apiClient)
 
 	fmt.Println("--- Cleaning up Network Template (test-networktemplate-for-network) ---")
 	cleanupNetworkTemplate(ctx, apiClient)

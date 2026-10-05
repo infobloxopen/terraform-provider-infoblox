@@ -546,14 +546,43 @@ case "next_available_address_block" {
 case "next_available_range" {
   backend           = "uddi"
   parallel          = true
-  skip_if_env_empty = ["UDDI_RANGE_1_ID", "UDDI_RANGE_2_ID"]
-  skip_reason       = "UDDI_RANGE_1_ID and UDDI_RANGE_2_ID environment variables must be set for this test to run"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_network" "test" {
+    uddi = {
+      address = "10.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  resource "infoblox_range" "range1" {
+    uddi = {
+      start = "10.0.0.10"
+      end   = "10.0.0.20"
+      space = infoblox_network_view.test.id
+    }
+    depends_on = [infoblox_network.test]
+  }
+  resource "infoblox_range" "range2" {
+    uddi = {
+      start = "10.0.0.30"
+      end   = "10.0.0.40"
+      space = infoblox_network_view.test.id
+    }
+    depends_on = [infoblox_network.test]
+  }
+  PREREQ
 
   step {
     uddi {
-      space              = "{{uddi_ip_space_for_range_id}}"
-      dynamic_allocation = { next_available_id = "{{uddi_range_1_id}}" }
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_range.range1.id }
     }
+    depends_on = [infoblox_range.range1]
     check = {
       "uddi.address" = "10.0.0.10"
     }
@@ -561,8 +590,8 @@ case "next_available_range" {
 
   step {
     uddi {
-      space              = "{{uddi_ip_space_for_range_id}}"
-      dynamic_allocation = { next_available_id = "{{uddi_range_2_id}}" }
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_range.range2.id }
     }
     check = {
       "uddi.address" = "10.0.0.30"

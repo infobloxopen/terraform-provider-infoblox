@@ -618,13 +618,6 @@ case "dhcp_options" {
       type = "boolean"
     }
   }
-
-//   resource "infoblox_dhcp_option_group_unknown" "test" {
-//       uddi = {
-//         name = "\"og-\"+optionSpace"
-//         protocol = "ip4"
-//       }
-//   }
   PREREQ
 
   step {

@@ -1263,26 +1263,47 @@ case "members" {
 case "vlans" {
   backend           = "nios"
   parallel          = true
-  skip_if_env_empty = ["NIOS_VLAN_1_FOR_IPV6NETWORK_REF", "NIOS_VLAN_2_FOR_IPV6NETWORK_REF"]
-  skip_reason       = "NIOS VLAN prerequisites (NIOS_VLAN_1_FOR_IPV6NETWORK_REF, NIOS_VLAN_2_FOR_IPV6NETWORK_REF) must be set for this test to run"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_vlan_view" "test" {
+    nios = {
+      name          = "{{random2}}"
+      start_vlan_id = 50
+      end_vlan_id   = 100
+    }
+  }
+  resource "infoblox_vlan" "vlan1" {
+    nios = {
+      id     = 50
+      name   = "{{random3}}"
+      parent = infoblox_vlan_view.test.id
+    }
+  }
+  resource "infoblox_vlan" "vlan2" {
+    nios = {
+      id     = 51
+      name   = "{{random4}}"
+      parent = infoblox_vlan_view.test.id
+    }
+  }
+  PREREQ
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans   = [{ vlan = "{{nios_vlan_1_for_ipv6network_ref}}" }]
+      vlans   = [{ vlan = "${infoblox_vlan.vlan1.id}" }]
     }
-    check = {
-      "nios.vlans.0.vlan" = "{{nios_vlan_1_for_ipv6network_ref}}"
+    check_pair = {
+      "nios.vlans.0.vlan" = infoblox_vlan.vlan1.id
     }
   }
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans   = [{ vlan = "{{nios_vlan_2_for_ipv6network_ref}}" }]
+      vlans   = [{ vlan = "${infoblox_vlan.vlan2.id}" }]
     }
-    check = {
-      "nios.vlans.0.vlan" = "{{nios_vlan_2_for_ipv6network_ref}}"
+    check_pair = {
+      "nios.vlans.0.vlan" = infoblox_vlan.vlan2.id
     }
   }
 

@@ -369,6 +369,9 @@ case "dhcp_options_v6" {
     uddi {
       name = "{{random}}"
     }
+    check = {
+      "uddi.dhcp_options_v6.#" = "0"
+    }
   }
 
 }
