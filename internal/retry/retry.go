@@ -69,6 +69,9 @@ func Do(parentCtx context.Context, p Policy, fn RetryFunc) error {
 
 		// Stop retrying if error is not retryable
 		if p.Retryable == nil || !p.Retryable(err) {
+			if p.IgnoreError != nil && p.IgnoreError(err) {
+				return nil
+			}
 			return err
 		}
 

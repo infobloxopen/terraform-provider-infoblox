@@ -125,6 +125,45 @@ func WithDebug(debug bool) ClientOption {
 	}
 }
 
+// WithSslVerify returns a ClientOption that enables TLS certificate verification for direct-to-Grid connections.
+// Can also be configured using the `NIOS_SSL_VERIFY` environment variable.
+// Optional. Defaults to false.
+func WithSslVerify(sslVerify bool) ClientOption {
+	return func(configuration *internal.Configuration) {
+		configuration.SslVerify = sslVerify
+	}
+}
+
+// WithCACert returns a ClientOption that sets a PEM-encoded CA bundle used to verify the Grid's certificate.
+// Optional. If not provided, the system trust store is used.
+func WithCACert(caCertPEM []byte) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if len(caCertPEM) > 0 {
+			configuration.CACert = caCertPEM
+		}
+	}
+}
+
+// WithCACertPath returns a ClientOption that sets the path to a PEM-encoded CA bundle used to verify the Grid's certificate.
+// Can also be configured using the `CA_CERT_PATH` environment variable.
+// Optional. If not provided, the system trust store is used.
+func WithCACertPath(caCertPath string) ClientOption {
+	return func(configuration *internal.Configuration) {
+		if caCertPath = strings.TrimSpace(caCertPath); caCertPath != "" {
+			configuration.CACertPath = caCertPath
+		}
+	}
+}
+
+// ValidateCACert reports whether the CA certificate bundle set by the options can be read and parsed.
+func ValidateCACert(options ...ClientOption) error {
+	configuration := internal.NewConfiguration()
+	for _, opt := range options {
+		opt(configuration)
+	}
+	return configuration.CheckCACert()
+}
+
 // WithProxyURL returns a ClientOption that sets the URL for Proxy Server
 func WithProxyURL(proxyURL string) ClientOption {
 	return func(configuration *internal.Configuration) {

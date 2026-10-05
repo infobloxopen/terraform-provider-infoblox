@@ -326,6 +326,12 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_DISCOVERY_MEMBER_HOSTNAME")
 	case name == "pxgrid_endpoint_ref":
 		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
+	case name == "dhcp_option_code":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_CODE")
+	case name == "dhcp_option_space":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_SPACE")
+	case name == "dhcp_option_group":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_GROUP")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
 	case strings.HasPrefix(name, "random_ipv6_network_address"):
@@ -350,8 +356,12 @@ func ResolvePlaceholder(placeholder string) string {
 		return RandomPublicIP()
 	case strings.HasPrefix(name, "random_ip"):
 		return RandomIP()
+	case strings.HasPrefix(name, "future_rfc3339"):
+		return FutureRFC3339(name)
 	case strings.HasPrefix(name, "future_time"):
 		return FutureTime(name)
+	case strings.HasPrefix(name, "random_arn"):
+		return fmt.Sprintf("%d", 1+rand.Intn(999999999999))
 		// Placeholders for Integration Test Params
 	case name == "nios_ca_cert1_ref":
 		return os.Getenv("NIOS_CA_CERT1_REF")
@@ -385,10 +395,10 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_INFRA_HOST_DISPLAY_NAME_1")
 	case name == "uddi_infra_host_legacy_id_1":
 		return os.Getenv("UDDI_INFRA_HOST_LEGACY_ID_1")
-	case name == "uddi_infra_host_tag_key_1":
-		return os.Getenv("UDDI_INFRA_HOST_TAG_KEY_1")
-	case name == "uddi_infra_host_tag_value_1":
-		return os.Getenv("UDDI_INFRA_HOST_TAG_VALUE_1")
+	case name == "uddi_dns_service_tag_key_1":
+		return os.Getenv("UDDI_DNS_SERVICE_TAG_KEY_1")
+	case name == "uddi_dns_service_tag_value_1":
+		return os.Getenv("UDDI_DNS_SERVICE_TAG_VALUE_1")
 	case name == "uddi_dns_host_id_1":
 		return os.Getenv("UDDI_DNS_HOST_ID_1")
 	case name == "uddi_dns_host_id_2":
@@ -399,6 +409,8 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("UDDI_DHCP_HOST_ID_2")
 	case name == "uddi_option_group_1_id":
 		return os.Getenv("UDDI_OPTION_GROUP_1_ID")
+	case name == "uddi_option_group_2_id":
+		return os.Getenv("UDDI_OPTION_GROUP_2_ID")
 	case name == "uddi_option_code_1_id":
 		return os.Getenv("UDDI_OPTION_CODE_1_ID")
 	case name == "uddi_compartment_id_1":
@@ -416,6 +428,20 @@ func ResolvePlaceholder(placeholder string) string {
 	default:
 		return RandomNameWithPrefix("tf-acc-test")
 	}
+}
+
+// FutureRFC3339 resolves a "future_rfc3339_<N>h" token to a timestamp N hours
+// from now in RFC3339. UDDI timestamps are RFC3339, which carries a timezone;
+// FutureTime's NIOS layout does not, so the two are not interchangeable.
+// Falls back to a 24-hour offset if N is missing or unparseable.
+func FutureRFC3339(name string) string {
+	hours := 24
+	if suffix, ok := strings.CutSuffix(strings.TrimPrefix(name, "future_rfc3339_"), "h"); ok {
+		if n, err := strconv.Atoi(suffix); err == nil {
+			hours = n
+		}
+	}
+	return time.Now().Add(time.Duration(hours) * time.Hour).UTC().Format(time.RFC3339)
 }
 
 // FutureTime resolves a "future_time_<N>h" token to a timestamp N hours from now,
