@@ -170,8 +170,10 @@ case "default_action" {
 }
 
 case "default_redirect_name" {
-  backend  = "uddi"
-  parallel = true
+  backend     = "uddi"
+  skip        = true
+  skip_reason = "infoblox_custom_redirect resource not yet implemented in this provider"
+  parallel    = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_custom_redirect" "test_a" {
     uddi = {
@@ -391,6 +393,8 @@ case "rules" {
 
 case "rules_all_attributes" {
   backend           = "uddi"
+  skip              = true
+  skip_reason       = "infoblox_custom_redirect resource not yet implemented in this provider"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_named_list" "nl_test" {
     uddi = {
