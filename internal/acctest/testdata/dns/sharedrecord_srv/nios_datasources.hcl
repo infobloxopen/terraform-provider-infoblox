@@ -2,7 +2,7 @@
 case "filters" {
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -23,7 +23,7 @@ case "filters" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random3}}.target.com"
       weight              = 10
     }
@@ -34,7 +34,7 @@ case "filters" {
 case "ext_attr_filters" {
   backend = "nios"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -55,7 +55,7 @@ case "ext_attr_filters" {
       name                = "{{random}}.example.com"
       port                = 80
       priority            = 10
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       target              = "{{random2}}.target.com"
       weight              = 10
       ext_attrs           = { Site = "{{random4}}" }

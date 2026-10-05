@@ -13,6 +13,7 @@ var VlanNIOSFieldMap = map[string]string{
 	"NIOS.Name":        "Name",
 	"NIOS.Parent":      "Parent",
 	"NIOS.Reserved":    "Reserved",
+	"NIOS.FuncCall":    "FuncCall",
 }
 
 // TODO: only searchable fields should be included here

@@ -93,6 +93,7 @@ func (s *vlanviewService) readNIOS(ctx context.Context, id string, opts *core.Op
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +206,7 @@ func (s *vlanviewService) listNIOS(ctx context.Context, opts *core.ListOptions) 
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err
