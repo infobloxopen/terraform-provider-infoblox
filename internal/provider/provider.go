@@ -24,9 +24,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/acl"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/anycast"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/cloud"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/clouddiscovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dhcp"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/discovery"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/fw"
@@ -37,7 +35,6 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rir"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/security"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -368,11 +365,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		acl.NewNamedaclResource,
 		anycast.NewAnycastConfigResource,
-		anycast.NewAnycastHostResource,
 
 		cloud.NewAwsuserResource,
-
-		clouddiscovery.NewCloudDiscoveryProviderResource,
 
 		dhcp.NewDhcpOptiondefinitionResource,
 		dhcp.NewFixedaddressResource,
@@ -390,8 +384,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
-
-		discovery.NewDiscoveryCredentialgroupResource,
 
 		dns.NewAuthNsgResource,
 		dns.NewDnsServerResource,
@@ -444,19 +436,16 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewAccessCodeResource,
 		fw.NewNamedListResource,
 		fw.NewNetworkListResource,
-		fw.NewApplicationFilterResource,
 
 		grid.NewExtensibleattributedefResource,
 		grid.NewNatgroupResource,
 		grid.NewServicerestartGroupResource,
 		grid.NewUpgradegroupResource,
-		grid.NewDistributionscheduleResource,
 
 		infra.NewInfraHostResource,
 		infra.NewInfraServiceResource,
 
 		ipam.NewAddressResource,
-		ipam.NewIpamHostResource,
 		ipam.NewIpv6networkResource,
 		ipam.NewIpv6networkcontainerResource,
 		ipam.NewNetworkResource,
@@ -476,8 +465,6 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewRulesetResource,
 
 		notification.NewNotificationRestEndpointResource,
-
-		rir.NewRirOrganizationResource,
 
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
@@ -503,8 +490,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		cloud.NewAwsuserDataSource,
 
-		clouddiscovery.NewCloudDiscoveryProviderDataSource,
-
 		dhcp.NewDhcpOptiondefinitionDataSource,
 		dhcp.NewFixedaddressDataSource,
 		dhcp.NewDhcpOptionspaceDataSource,
@@ -521,8 +506,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
-
-		discovery.NewDiscoveryCredentialgroupDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
@@ -574,19 +557,16 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		fw.NewAccessCodeDataSource,
 		fw.NewNamedListDataSource,
 		fw.NewNetworkListDataSource,
-		fw.NewApplicationFilterDataSource,
 
 		grid.NewExtensibleattributedefDataSource,
 		grid.NewNatgroupDataSource,
 		grid.NewServicerestartGroupDataSource,
 		grid.NewUpgradegroupDataSource,
-		grid.NewDistributionscheduleDataSource,
 
 		infra.NewInfraHostDataSource,
 		infra.NewInfraServiceDataSource,
 
 		ipam.NewAddressDataSource,
-		ipam.NewIpamHostDataSource,
 		ipam.NewIpv6networkDataSource,
 		ipam.NewIpv6networkcontainerDataSource,
 		ipam.NewNetworkDataSource,
@@ -609,8 +589,6 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewRulesetDataSource,
 
 		notification.NewNotificationRestEndpointDataSource,
-
-		rir.NewRirOrganizationDataSource,
 
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
@@ -636,8 +614,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 
 		cloud.NewAwsuserList,
 
-		clouddiscovery.NewCloudDiscoveryProviderList,
-
 		dhcp.NewDhcpOptiondefinitionList,
 		dhcp.NewFixedaddressList,
 		dhcp.NewDhcpOptionspaceList,
@@ -654,8 +630,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
-
-		discovery.NewDiscoveryCredentialgroupList,
 
 		dns.NewAuthNsgList,
 		dns.NewDnsServerList,
@@ -707,19 +681,16 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		fw.NewAccessCodeList,
 		fw.NewNamedListList,
 		fw.NewNetworkListList,
-		fw.NewApplicationFilterList,
 
 		grid.NewExtensibleattributedefList,
 		grid.NewNatgroupList,
 		grid.NewServicerestartGroupList,
 		grid.NewUpgradegroupList,
-		grid.NewDistributionscheduleList,
 
 		infra.NewInfraHostList,
 		infra.NewInfraServiceList,
 
 		ipam.NewAddressList,
-		ipam.NewIpamHostList,
 		ipam.NewIpv6networkList,
 		ipam.NewIpv6networkcontainerList,
 		ipam.NewNetworkList,
@@ -739,8 +710,6 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewRulesetList,
 
 		notification.NewNotificationRestEndpointList,
-
-		rir.NewRirOrganizationList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,

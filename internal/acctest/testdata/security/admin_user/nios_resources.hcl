@@ -150,7 +150,9 @@ case "auth_type" {
 }
 
 case "ca_certificate_issuer" {
-  backend = "nios"
+  backend            = "nios"
+  skip_if_env_empty  = ["NIOS_CA_CERT1_REF"]
+  skip_reason        = "NIOS_CA_CERT1_REF environment variable must be set (run integration test setup to upload CA certs)"
 
   step {
     nios {
@@ -184,8 +186,10 @@ case "ca_certificate_issuer" {
 }
 
 case "client_certificate_serial_number" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_CA_CERT1_REF"]
+  skip_reason       = "NIOS_CA_CERT1_REF environment variable must be set (run integration test setup to upload CA certs)"
 
   step {
     nios {
@@ -308,7 +312,9 @@ case "email" {
 }
 
 case "enable_certificate_authentication" {
-  backend = "nios"
+  backend           = "nios"
+  skip_if_env_empty = ["NIOS_CA_CERT1_REF"]
+  skip_reason       = "NIOS_CA_CERT1_REF environment variable must be set (run integration test setup to upload CA certs)"
 
   step {
     nios {

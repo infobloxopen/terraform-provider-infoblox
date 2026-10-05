@@ -120,4 +120,4 @@ Optional:
 
 - `key_name` (String) Unique identifier for the key
 - `key_type` (String) ssh_key_types
-- `key_value` (String) ssh key text
+- `key_value` (String, Sensitive) ssh key text

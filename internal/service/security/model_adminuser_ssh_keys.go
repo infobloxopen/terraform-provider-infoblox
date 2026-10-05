@@ -47,7 +47,8 @@ var AdminuserSshKeysResourceSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "ssh_key_types",
 	},
 	"key_value": schema.StringAttribute{
-		Optional: true,
+		Sensitive: true,
+		Optional:  true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 		},
