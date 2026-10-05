@@ -32,9 +32,9 @@ case "filters" {
 
 case "tag_filters" {
   backend           = "uddi"
-  skip = true
-  skip_if_env_empty = ["UDDI_DNS_SERVICE_TAG_KEY_1", "UDDI_DNS_SERVICE_TAG_VALUE_1"]
-  skip_reason       = "UDDI_DNS_SERVICE_TAG_KEY_1 and UDDI_DNS_SERVICE_TAG_VALUE_1 environment variables must be set for this test to run"
+  skip              = true
+  skip_if_env_empty = ["UDDI_INFRA_HOST_DISPLAY_NAME_1", "UDDI_DNS_SERVICE_TAG_KEY_1", "UDDI_DNS_SERVICE_TAG_VALUE_1"]
+  skip_reason       = "UDDI_INFRA_HOST_DISPLAY_NAME_1, UDDI_DNS_SERVICE_TAG_KEY_1 and UDDI_DNS_SERVICE_TAG_VALUE_1 environment variables must be set for this test to run"
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_dns_server" "test" {
