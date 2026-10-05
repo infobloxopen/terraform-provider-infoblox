@@ -41,6 +41,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/redirect"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rir"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/security"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
 )
@@ -541,6 +542,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		rpz.NewRecordRpzTxtResource,
 		rpz.NewRecordRpzAIpaddressResource,
 		rpz.NewRecordRpzCnameClientipaddressResource,
+
+		security.NewAdminuserResource,
 	}
 }
 
@@ -680,6 +683,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		rpz.NewRecordRpzTxtDataSource,
 		rpz.NewRecordRpzAIpaddressDataSource,
 		rpz.NewRecordRpzCnameClientipaddressDataSource,
+
+		security.NewAdminuserDataSource,
 	}
 }
 
@@ -816,6 +821,8 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		rpz.NewRecordRpzTxtList,
 		rpz.NewRecordRpzAIpaddressList,
 		rpz.NewRecordRpzCnameClientipaddressList,
+
+		security.NewAdminuserList,
 	}
 }
 
