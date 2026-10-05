@@ -150,6 +150,7 @@ case "consolidated_monitors" {
       consolidated_monitors = [{ monitor = infoblox_dtc_monitor_http.test_http.id, availability = "ANY", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
+      "nios.monitors.#"                                        = "2"
       "nios.consolidated_monitors.0.availability"              = "ANY"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
       "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
@@ -165,6 +166,7 @@ case "consolidated_monitors" {
       consolidated_monitors = [{ monitor = infoblox_dtc_monitor_snmp.test_snmp.id, availability = "ALL", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
+      "nios.monitors.#"                                        = "2"
       "nios.consolidated_monitors.0.availability"              = "ALL"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
       "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
@@ -326,6 +328,9 @@ case "lb_alternate_topology" {
       "nios.lb_preferred_method" = "TOPOLOGY"
       "nios.lb_alternate_method" = "TOPOLOGY"
     }
+    check_pair = {
+      "nios.lb_alternate_topology" = infoblox_dtc_topology.test2.id
+    }
   }
 
   step {
@@ -341,12 +346,13 @@ case "lb_alternate_topology" {
       "nios.lb_preferred_method" = "TOPOLOGY"
       "nios.lb_alternate_method" = "TOPOLOGY"
     }
+    check_pair = {
+      "nios.lb_alternate_topology" = infoblox_dtc_topology.test.id
+    }
   }
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolLbDynamicRatioAlternate' could not be parsed (no resource block found)
 case "lb_dynamic_ratio_alternate" {
   backend           = "nios"
   parallel          = true
@@ -372,6 +378,7 @@ case "lb_dynamic_ratio_alternate" {
       lb_dynamic_ratio_alternate = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_http.test_http.id, monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_alternate.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".0"
@@ -389,6 +396,7 @@ case "lb_dynamic_ratio_alternate" {
       lb_dynamic_ratio_alternate = { method = "MONITOR", monitor = infoblox_dtc_monitor_snmp.test_snmp.id, monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_alternate.method"                = "MONITOR"
       "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".2"
@@ -424,6 +432,7 @@ case "lb_dynamic_ratio_preferred" {
       lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_http.test_http.id, monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".0"
@@ -440,6 +449,7 @@ case "lb_dynamic_ratio_preferred" {
       lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_snmp.test.id, monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = true }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".2"
@@ -568,6 +578,9 @@ case "lb_preferred_topology" {
     check = {
       "nios.lb_preferred_method" = "TOPOLOGY"
     }
+    check_pair = {
+      "nios.lb_preferred_topology" = infoblox_dtc_topology.test.id
+    }
   }
 
   step {
@@ -579,6 +592,9 @@ case "lb_preferred_topology" {
     }
     check = {
       "nios.lb_preferred_method" = "TOPOLOGY"
+    }
+    check_pair = {
+      "nios.lb_preferred_topology" = infoblox_dtc_topology.test2.id
     }
   }
 
@@ -621,6 +637,9 @@ case "monitors" {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
       monitors            = [infoblox_dtc_monitor_pdp.test_pdp.id]
+    }
+    check = {
+      "nios.monitors.#" = "1"
     }
   }
 
@@ -677,6 +696,7 @@ case "quorum" {
       monitors            = [infoblox_dtc_monitor_http.test_http.id]
     }
     check = {
+      "nios.monitors.#" = "1"
       "nios.availability" = "QUORUM"
       "nios.quorum"       = "1"
     }
@@ -691,6 +711,7 @@ case "quorum" {
       monitors            = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_pdp.test_pdp.id]
     }
     check = {
+      "nios.monitors.#" = "2"
       "nios.availability" = "QUORUM"
       "nios.quorum"       = "2"
     }
@@ -698,8 +719,6 @@ case "quorum" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolServers' could not be parsed (no resource block found)
 case "servers" {
   backend           = "nios"
   parallel          = true
