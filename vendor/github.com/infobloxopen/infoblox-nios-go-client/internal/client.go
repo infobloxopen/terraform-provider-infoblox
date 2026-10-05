@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
@@ -46,6 +47,8 @@ const (
 
 	envClientCertPath = "CLIENT_CERT_PATH"
 	envClientKeyPath  = "CLIENT_KEY_PATH"
+	envCACertPath     = "CA_CERT_PATH"
+	envSslVerify      = "NIOS_SSL_VERIFY"
 
 	version       = "0.1"
 	sdkIdentifier = "golang-sdk"
@@ -133,6 +136,23 @@ func NewAPIClient(basePath string, cfg *Configuration) *APIClient {
 
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: !cfg.VerifyTLS(),
+	}
+
+	if cfg.VerifyTLS() {
+		caCert, err := cfg.LoadCACert()
+		switch {
+		case err != nil:
+			log.Printf("%v; using the system trust store", err)
+		case len(caCert) > 0:
+			pool := x509.NewCertPool()
+			if pool.AppendCertsFromPEM(caCert) {
+				tlsConfig.RootCAs = pool
+			} else {
+				log.Printf("Failed to parse CA certificate PEM; falling back to the system trust store")
+			}
+		case cfg.SslVerify:
+			log.Printf("SslVerify is enabled but no CA certificate was loaded; using the system trust store")
+		}
 	}
 
 	baseTransport := &http.Transport{
