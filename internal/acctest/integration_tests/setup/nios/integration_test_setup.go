@@ -695,6 +695,54 @@ type PreConfigClients struct {
 	DISCOVERY    *discovery.APIClient
 }
 
+// cleanupStaleGridMemberAssignments removes memberHostname from any network that is in a
+// tf-acc-test-* network view. This prevents the "member assigned to another network view"
+// error that blocks the member test case after a failed/interrupted test run.
+func cleanupStaleGridMemberAssignments(ipamClient *ipam.APIClient, memberHostname string) error {
+	netListResp, _, err := ipamClient.NetworkAPI.List(context.Background()).
+		ReturnAsObject(1).
+		ReturnFieldsPlus("members,network_view").
+		Execute()
+	if err != nil {
+		return fmt.Errorf("list networks for member cleanup: %w", err)
+	}
+	if netListResp.ListNetworkResponseObject == nil {
+		return nil
+	}
+	for _, network := range netListResp.ListNetworkResponseObject.Result {
+		view := network.GetNetworkView()
+		if !strings.HasPrefix(view, "tf-acc-test-") {
+			continue
+		}
+		hasMember := false
+		var filteredMembers []ipam.NetworkMembers
+		for _, m := range network.GetMembers() {
+			if m.GetStruct() == "dhcpmember" && m.GetName() == memberHostname {
+				hasMember = true
+			} else {
+				filteredMembers = append(filteredMembers, m)
+			}
+		}
+		if !hasMember {
+			continue
+		}
+		ref := network.GetRef()
+		if ref == "" {
+			continue
+		}
+		updateBody := ipam.Network{}
+		updateBody.SetMembers(filteredMembers)
+		_, _, err := ipamClient.NetworkAPI.Update(context.Background(), core.ExtractNIOSRef(ref)).
+			Network(updateBody).
+			Execute()
+		if err != nil {
+			return fmt.Errorf("remove member %q from network ref %q (view %q): %w", memberHostname, ref, view, err)
+		}
+		fmt.Printf("Removed stale member %q from network ref %q (view %q)\n", memberHostname, ref, view)
+	}
+	return nil
+}
+
 // PreConfig creates the network views required for integration testing.
 // If a network view already exists (error contains "already exists"), it skips creation and continues.
 // For any other error, it returns the error immediately.
@@ -931,6 +979,14 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 	}
 
 	memberHostname := strings.TrimSpace(hostnames.MemberHostname)
+
+	// Remove grid member from any stale tf-acc-test-* network views left by previous test runs.
+	// Without this, the member test fails: "Member X is assigned to another network view".
+	if memberHostname != "" {
+		if err := cleanupStaleGridMemberAssignments(clients.IPAM, memberHostname); err != nil {
+			return fmt.Errorf("failed to clean up stale grid member assignments: %w", err)
+		}
+	}
 
 	// Create networks
 	type networkEntry struct {

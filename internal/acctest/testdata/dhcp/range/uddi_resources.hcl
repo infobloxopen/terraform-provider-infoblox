@@ -157,10 +157,8 @@ case "disable_dhcp" {
 }
 
 case "dhcp_options" {
-  backend     = "uddi"
-  skip        = true
-  skip_reason = "requires_resource: infoblox_dhcp_option_group not yet implemented"
-  parallel    = true
+  backend  = "uddi"
+  parallel = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -182,7 +180,7 @@ case "dhcp_options" {
       type = "boolean"
     }
   }
-  resource "infoblox_dhcp_option_group_unknown" "test" {
+  resource "infoblox_option_group" "test" {
     uddi = {
       name = "og-{{random}}"
       protocol = "ip4"
@@ -191,7 +189,6 @@ case "dhcp_options" {
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random}}"
-      protocol = "ip4"
     }
   }
   PREREQ
@@ -215,11 +212,15 @@ case "dhcp_options" {
       space        = infoblox_network_view.test.id
       start        = "10.0.0.10"
       end          = "10.0.0.20"
-      dhcp_options = [{ type = "group", group = infoblox_dhcp_option_group_unknown.test.id }]
+      dhcp_options = [{ type = "group", group = infoblox_option_group.test.id }]
     }
     depends_on = [infoblox_network.test]
     check = {
-      "uddi.dhcp_options.#" = "1"
+      "uddi.dhcp_options.#"        = "1"
+      "uddi.dhcp_options.0.type"   = "group"
+    }
+    check_pair = {
+      "uddi.dhcp_options.0.group" = infoblox_option_group.test.id
     }
   }
 

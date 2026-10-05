@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/list"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -35,6 +36,8 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/keys"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/misc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/notification"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/redirect"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rir"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/rpz"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/service/security"
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
@@ -61,10 +64,13 @@ type (
 	}
 
 	NIOSConfig struct {
-		HostUrl  types.String `tfsdk:"host_url"`
-		Username types.String `tfsdk:"username"`
-		Password types.String `tfsdk:"password"`
-		ProxyURL types.String `tfsdk:"proxy_url"`
+		HostUrl    types.String `tfsdk:"host_url"`
+		Username   types.String `tfsdk:"username"`
+		Password   types.String `tfsdk:"password"`
+		ProxyURL   types.String `tfsdk:"proxy_url"`
+		SslVerify  types.Bool   `tfsdk:"ssl_verify"`
+		CACertFile types.String `tfsdk:"ca_cert_file"`
+		CACertPEM  types.String `tfsdk:"ca_cert_pem"`
 	}
 
 	UDDIConfig struct {
@@ -130,6 +136,25 @@ func buildNIOSAttribute() schema.Attribute {
 			"proxy_url": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "HTTP proxy URL to route NIOS WAPI calls through.",
+			},
+			"ssl_verify": schema.BoolAttribute{
+				Optional:            true,
+				MarkdownDescription: "Enables TLS certificate verification when connecting to the NIOS host. Defaults to false. Can also be set with the `NIOS_SSL_VERIFY` environment variable.",
+			},
+			"ca_cert_file": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Path to a PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA. Can also be set with the `CA_CERT_PATH` environment variable.",
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ca_cert_pem")),
+				},
+			},
+			"ca_cert_pem": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				MarkdownDescription: "Inline PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA.",
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ca_cert_file")),
+				},
 			},
 		},
 	}
@@ -202,14 +227,33 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 
 	// NIOS configurations
 	if data.NIOS != nil {
-		infobloxClient.NIOS = niosclient.NewAPIClient(
+		options := []niosoption.ClientOption{
 			niosoption.WithClientName(fmt.Sprintf("terraform/%s#%s", p.version, p.commit)),
 			niosoption.WithNIOSUsername(data.NIOS.Username.ValueString()),
 			niosoption.WithNIOSPassword(data.NIOS.Password.ValueString()),
 			niosoption.WithNIOSHostUrl(data.NIOS.HostUrl.ValueString()),
 			niosoption.WithProxyURL(data.NIOS.ProxyURL.ValueString()),
 			niosoption.WithDebug(true),
-		)
+		}
+
+		// Only override when set, so the NIOS_SSL_VERIFY environment variable still applies otherwise.
+		if !data.NIOS.SslVerify.IsNull() {
+			options = append(options, niosoption.WithSslVerify(data.NIOS.SslVerify.ValueBool()))
+		}
+
+		if data.NIOS.CACertPEM.ValueString() != "" {
+			options = append(options, niosoption.WithCACert([]byte(data.NIOS.CACertPEM.ValueString())))
+		} else if data.NIOS.CACertFile.ValueString() != "" {
+			options = append(options, niosoption.WithCACertPath(data.NIOS.CACertFile.ValueString()))
+		}
+
+		// Validate the CA certificate before creating the client so an unreadable or invalid bundle fails early.
+		if err := niosoption.ValidateCACert(options...); err != nil {
+			resp.Diagnostics.AddError("Invalid CA Certificate", err.Error())
+			return
+		}
+
+		infobloxClient.NIOS = niosclient.NewAPIClient(options...)
 		// Set ProxySearch configuration
 		core.SetProxySearch(data.ProxySearch.ValueString())
 	}
@@ -384,8 +428,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dhcp.NewIpv6sharednetworkResource,
 		dhcp.NewIpv6filteroptionResource,
 		dhcp.NewRangeResource,
+		dhcp.NewHardwareFilterResource,
 
 		dns.NewAuthNsgResource,
+		dns.NewDnsHostResource,
 		dns.NewDnsServerResource,
 		dns.NewForwardNsgResource,
 		dns.NewNsgroupResource,
@@ -434,6 +480,9 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		dtc.NewDtcTopologyResource,
 
 		fw.NewAccessCodeResource,
+		fw.NewApplicationFilterResource,
+		fw.NewCategoryFilterResource,
+		fw.NewInternalDomainListResource,
 		fw.NewNamedListResource,
 		fw.NewNetworkListResource,
 
@@ -465,6 +514,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		misc.NewRulesetResource,
 
 		notification.NewNotificationRestEndpointResource,
+
+		redirect.NewCustomRedirectResource,
+
+		rir.NewRirOrganizationResource,
 
 		rpz.NewRecordRpzAResource,
 		rpz.NewRecordRpzAaaaResource,
@@ -506,9 +559,11 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dhcp.NewIpv6sharednetworkDataSource,
 		dhcp.NewIpv6filteroptionDataSource,
 		dhcp.NewRangeDataSource,
+		dhcp.NewHardwareFilterDataSource,
 
 		dns.NewAuthNsgDataSource,
 		dns.NewDnsServerDataSource,
+		dns.NewDnsHostDataSource,
 		dns.NewForwardNsgDataSource,
 		dns.NewNsgroupDataSource,
 		dns.NewNsgroupDelegationDataSource,
@@ -555,6 +610,9 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		dtc.NewDtcTopologyDataSource,
 
 		fw.NewAccessCodeDataSource,
+		fw.NewApplicationFilterDataSource,
+		fw.NewCategoryFilterDataSource,
+		fw.NewInternalDomainListDataSource,
 		fw.NewNamedListDataSource,
 		fw.NewNetworkListDataSource,
 
@@ -589,6 +647,10 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		misc.NewRulesetDataSource,
 
 		notification.NewNotificationRestEndpointDataSource,
+
+		redirect.NewCustomRedirectDataSource,
+
+		rir.NewRirOrganizationDataSource,
 
 		rpz.NewRecordRpzADataSource,
 		rpz.NewRecordRpzAaaaDataSource,
@@ -630,8 +692,10 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dhcp.NewIpv6sharednetworkList,
 		dhcp.NewIpv6filteroptionList,
 		dhcp.NewRangeList,
+		dhcp.NewHardwareFilterList,
 
 		dns.NewAuthNsgList,
+		dns.NewDnsHostList,
 		dns.NewDnsServerList,
 		dns.NewForwardNsgList,
 		dns.NewNsgroupList,
@@ -679,6 +743,9 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		dtc.NewDtcTopologyList,
 
 		fw.NewAccessCodeList,
+		fw.NewApplicationFilterList,
+		fw.NewCategoryFilterList,
+		fw.NewInternalDomainListList,
 		fw.NewNamedListList,
 		fw.NewNetworkListList,
 
@@ -710,6 +777,10 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		misc.NewRulesetList,
 
 		notification.NewNotificationRestEndpointList,
+
+		redirect.NewCustomRedirectList,
+
+		rir.NewRirOrganizationList,
 
 		rpz.NewRecordRpzAList,
 		rpz.NewRecordRpzAaaaList,
