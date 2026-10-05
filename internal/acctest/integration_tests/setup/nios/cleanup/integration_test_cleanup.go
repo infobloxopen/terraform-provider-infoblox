@@ -12,6 +12,7 @@
 //	DHCP
 //	  - All DHCP Failover associations (any failover found in the grid)
 //	  - Shared Networks whose name starts with "shared_network"
+//	  - DHCP Filter Options: example-option-filter-1, example-option-filter-2
 //
 //	IPAM / Networks
 //	  - Networks: 10.0.0.0/24, 15.0.0.0/24, 16.0.0.0/24, 85.85.0.0/16 (exact match)
@@ -158,6 +159,37 @@ func cleanupSharedNetworks(ctx context.Context, apiClient *client.APIClient) {
 			fmt.Printf("cleanup: failed to delete shared network (ref=%q): %v\n", ref, err)
 		} else {
 			fmt.Printf("cleanup: deleted shared network (ref=%q)\n", ref)
+		}
+	}
+}
+
+func cleanupFilterOptions(ctx context.Context, apiClient *client.APIClient) {
+	filterNames := []string{"example-option-filter-1", "example-option-filter-2"}
+	for _, name := range filterNames {
+		filters := map[string]interface{}{"name": name}
+		resp, _, err := apiClient.DHCPAPI.FilteroptionAPI.List(ctx).
+			Filters(filters).
+			ReturnAsObject(1).
+			Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to list filter option %q: %v\n", name, err)
+			continue
+		}
+		if resp == nil || resp.ListFilteroptionResponseObject == nil || len(resp.ListFilteroptionResponseObject.Result) == 0 {
+			fmt.Printf("cleanup: filter option %q not found, skipping\n", name)
+			continue
+		}
+		for _, fo := range resp.ListFilteroptionResponseObject.Result {
+			ref := core.ExtractNIOSRef(fo.GetRef())
+			if ref == "" {
+				continue
+			}
+			_, err := apiClient.DHCPAPI.FilteroptionAPI.Delete(ctx, ref).Execute()
+			if err != nil {
+				fmt.Printf("cleanup: failed to delete filter option %q (ref=%q): %v\n", name, ref, err)
+			} else {
+				fmt.Printf("cleanup: deleted filter option %q (ref=%q)\n", name, ref)
+			}
 		}
 	}
 }
@@ -444,6 +476,9 @@ func Cleanup(apiClient *client.APIClient) {
 
 	fmt.Println("--- Cleaning up Shared Networks (prefix: shared_network) ---")
 	cleanupSharedNetworks(ctx, apiClient)
+
+	fmt.Println("--- Cleaning up DHCP Filter Options (example-option-filter-1, example-option-filter-2) ---")
+	cleanupFilterOptions(ctx, apiClient)
 
 	fmt.Println("--- Cleaning up Networks (10.0.0.0/24, 15.0.0.0/24, 16.0.0.0/24, 85.85.0.0/16, 201.*/24) ---")
 	cleanupNetworks(ctx, apiClient)

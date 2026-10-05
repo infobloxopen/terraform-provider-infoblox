@@ -91,7 +91,7 @@ func (m *OptionItemModel) Expand(ctx context.Context, diags *diag.Diagnostics) *
 	to := &uddidhcp.OptionItem{
 		Group:       flex.ExpandStringPointer(m.Group),
 		OptionCode:  flex.ExpandStringPointer(m.OptionCode),
-		OptionValue: flex.ExpandStringPointerNullAsEmpty(m.OptionValue),
+		OptionValue: flex.ExpandStringPointer(m.OptionValue),
 		Type:        flex.ExpandStringPointer(m.Type),
 	}
 	return to
@@ -116,6 +116,6 @@ func (m *OptionItemModel) Flatten(ctx context.Context, from *uddidhcp.OptionItem
 	}
 	m.Group = flex.FlattenStringPointer(from.Group)
 	m.OptionCode = flex.FlattenStringPointer(from.OptionCode)
-	m.OptionValue = flex.FlattenStringPointerNilAsEmpty(from.OptionValue)
+	m.OptionValue = flex.FlattenStringPointerEmptyAsNull(from.OptionValue)
 	m.Type = flex.FlattenStringPointer(from.Type)
 }
