@@ -2,6 +2,8 @@ package internal
 
 import (
 	"context"
+	"crypto/x509"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -75,6 +77,8 @@ type Configuration struct {
 	DefaultExtAttrs  map[string]struct{ Value string }
 	ClientCert       []byte
 	ClientKey        []byte
+	CACert           []byte
+	CACertPath       string
 	SslVerify        bool
 	ProxyURL         *url.URL
 }
@@ -101,7 +105,8 @@ func NewConfiguration() *Configuration {
 		DefaultExtAttrs:  make(map[string]struct{ Value string }),
 		ClientCert:       readFile(envClientCertPath),
 		ClientKey:        readFile(envClientKeyPath),
-		SslVerify:        false,
+		CACertPath:       lookupEnv(envCACertPath, ""),
+		SslVerify:        lookupEnvBool(envSslVerify, false),
 	}
 	return cfg
 }
@@ -149,6 +154,30 @@ func (c *Configuration) CheckPortalConfig() error {
 	}
 	if len(missing) > 0 {
 		return fmt.Errorf("NIOS through the Infoblox Portal requires %s", strings.Join(missing, ", "))
+	}
+	return nil
+}
+
+// LoadCACert returns the CA certificate bundle, reading it from CACertPath when no inline bundle is set.
+func (c *Configuration) LoadCACert() ([]byte, error) {
+	if len(c.CACert) > 0 || c.CACertPath == "" {
+		return c.CACert, nil
+	}
+	data, err := os.ReadFile(c.CACertPath)
+	if err != nil {
+		return nil, fmt.Errorf("reading CA certificate file %q: %w", c.CACertPath, err)
+	}
+	return data, nil
+}
+
+// CheckCACert reports whether the configured CA certificate bundle can be read and parsed.
+func (c *Configuration) CheckCACert() error {
+	caCert, err := c.LoadCACert()
+	if err != nil {
+		return err
+	}
+	if len(caCert) > 0 && !x509.NewCertPool().AppendCertsFromPEM(caCert) {
+		return errors.New("CA certificate bundle contains no valid PEM-encoded certificates")
 	}
 	return nil
 }
