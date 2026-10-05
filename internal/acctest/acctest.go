@@ -326,6 +326,12 @@ func ResolvePlaceholder(placeholder string) string {
 		return os.Getenv("NIOS_DISCOVERY_MEMBER_HOSTNAME")
 	case name == "pxgrid_endpoint_ref":
 		return os.Getenv("NIOS_PXGRID_ENDPOINT_REF")
+	case name == "dhcp_option_code":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_CODE")
+	case name == "dhcp_option_space":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_SPACE")
+	case name == "dhcp_option_group":
+		return os.Getenv("INFOBLOX_ACC_DHCP_OPTION_GROUP")
 	case strings.HasPrefix(name, "random_int"):
 		return fmt.Sprintf("%d", 1+rand.Intn(9999))
 	case strings.HasPrefix(name, "random_ipv6_network_address"):
