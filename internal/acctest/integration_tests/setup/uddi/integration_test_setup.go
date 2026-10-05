@@ -27,7 +27,6 @@
 //
 // DNS Auth Zone:
 //   - example_zone_250 (UDDI_AUTH_ZONE_1_ID)
-//
 
 package main
 

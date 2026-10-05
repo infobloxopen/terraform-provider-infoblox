@@ -27,10 +27,6 @@
 //	Parental Control
 //	  - Parental Control AVPs whose name starts with "parentalcontrol-avp"
 //
-//	IPAM / VLANs
-//	  - VLANs whose name starts with "test-vlan-for-ipv6network" or "test-vlan-2-for-ipv6network"
-//	  - VLAN View "test-vlanview-for-ipv6network" (exact match)
-//
 //	IPAM / Network Templates
 //	  - Network Template "test-networktemplate-for-network" (exact match)
 //
