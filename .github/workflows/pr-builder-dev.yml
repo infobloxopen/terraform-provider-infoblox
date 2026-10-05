@@ -92,5 +92,3 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           args: --timeout=10m --max-issues-per-linter 0 --max-same-issues 0
-
-      
