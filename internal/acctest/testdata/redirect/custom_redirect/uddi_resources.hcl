@@ -17,7 +17,6 @@ case "disappears" {
   backend               = "uddi"
   disappears            = true
   expect_non_empty_plan = true
-  parallel              = true
 
   step {
     uddi {
@@ -29,7 +28,6 @@ case "disappears" {
 
 case "name" {
   backend  = "uddi"
-  parallel = true
 
   step {
     uddi {
