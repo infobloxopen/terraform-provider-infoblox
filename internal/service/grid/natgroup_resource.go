@@ -37,7 +37,7 @@ type NatgroupResource struct {
 }
 
 func (r *NatgroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_natgroup"
+	resp.TypeName = req.ProviderTypeName + "_nat_group"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

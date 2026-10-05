@@ -121,6 +121,7 @@ func (s *zoneForwardService) readNIOS(ctx context.Context, id string, opts *core
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -280,6 +281,7 @@ func (s *zoneForwardService) listNIOS(ctx context.Context, opts *core.ListOption
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

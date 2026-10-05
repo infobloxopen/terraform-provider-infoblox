@@ -21,4 +21,5 @@ type NIOSVlanExt struct {
 	Name        *string
 	Parent      *niosipam.VlanParent
 	Reserved    *bool
+	FuncCall    *niosipam.FuncCall
 }
