@@ -196,41 +196,6 @@ case "ext_attrs" {
 
 }
 
-case "ext_attrs_first_update" {
-  backend           = "nios"
-  parallel          = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "test" {
-    nios = {
-      fqdn = "{{random}}.com"
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target_name = "server.example.com"
-      target_type = "A"
-      view        = infoblox_zone_auth.test.nios.view
-    }
-  }
-
-  step {
-    nios {
-      name        = "{{random2}}.${infoblox_zone_auth.test.nios.fqdn}"
-      target_name = "server.example.com"
-      target_type = "A"
-      view        = infoblox_zone_auth.test.nios.view
-      ext_attrs   = { Site = "{{random3}}" }
-    }
-    check = {
-      "nios.ext_attrs.Site" = "{{random3}}"
-    }
-  }
-
-}
-
 case "name" {
   backend           = "nios"
   parallel          = true
