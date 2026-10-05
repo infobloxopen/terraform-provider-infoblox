@@ -386,6 +386,9 @@ case "ttl" {
       target_type = "A"
       view        = infoblox_zone_auth.test.nios.view
     }
+    check = {
+      "nios.ttl" = "0"
+    }
   }
 
 }
