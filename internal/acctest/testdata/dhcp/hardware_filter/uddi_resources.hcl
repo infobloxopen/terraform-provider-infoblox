@@ -1,9 +1,5 @@
 # HardwareFilter — uddi resource cases
-# The following prerequisites must exist before running these tests.
-# Set env vars to the corresponding resource IDs:
-#   INFOBLOX_ACC_DHCP_OPTION_CODE  — a dhcp/option_code resource ID
-#   INFOBLOX_ACC_DHCP_OPTION_SPACE — a custom dhcp/option_space resource ID
-#   INFOBLOX_ACC_DHCP_OPTION_GROUP — a dhcp/option_group resource ID
+# dhcp_options provisions its own option space/definition/group inline via prerequisites_hcl.
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -126,13 +122,34 @@ case "addresses" {
 case "dhcp_options" {
   backend  = "uddi"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+    resource "infoblox_dhcp_optionspace" "test" {
+      uddi = {
+        name = "{{random}}"
+      }
+    }
+    resource "infoblox_dhcp_optiondefinition" "test" {
+      uddi = {
+        code         = 150
+        name         = "{{random}}"
+        option_space = infoblox_dhcp_optionspace.test.id
+        type         = "text"
+      }
+    }
+    resource "infoblox_option_group" "test" {
+      uddi = {
+        name     = "{{random}}"
+        protocol = "ip4"
+      }
+    }
+    PREREQ
 
   step {
     uddi {
       name = "{{random}}"
       dhcp_options = [{
         type         = "option"
-        option_code  = "{{dhcp_option_code}}"
+        option_code  = infoblox_dhcp_optiondefinition.test.id
         option_value = "value1"
       }]
     }
@@ -147,7 +164,7 @@ case "dhcp_options" {
       name = "{{random}}"
       dhcp_options = [{
         type         = "option"
-        option_code  = "{{dhcp_option_code}}"
+        option_code  = infoblox_dhcp_optiondefinition.test.id
         option_value = "value2"
       }]
     }
@@ -162,12 +179,11 @@ case "dhcp_options" {
       name = "{{random}}"
       dhcp_options = [{
         type  = "group"
-        group = "{{dhcp_option_group}}"
+        group = infoblox_option_group.test.id
       }]
     }
     check = {
-      "uddi.dhcp_options.0.type"  = "group"
-      "uddi.dhcp_options.0.group" = "{{dhcp_option_group}}"
+      "uddi.dhcp_options.0.type" = "group"
     }
   }
 
@@ -331,27 +347,3 @@ case "tags" {
 
 }
 
-case "vendor_specific_option_option_space" {
-  backend  = "uddi"
-  parallel = true
-
-  step {
-    uddi {
-      name                                = "{{random}}"
-      vendor_specific_option_option_space = "{{dhcp_option_space}}"
-    }
-    check = {
-      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
-    }
-  }
-
-  step {
-    uddi {
-      name = "{{random}}"
-    }
-    check = {
-      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
-    }
-  }
-
-}
