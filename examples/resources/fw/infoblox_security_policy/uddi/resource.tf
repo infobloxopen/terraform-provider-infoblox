@@ -5,7 +5,7 @@ resource "infoblox_security_policy" "example_basic" {
   }
 }
 
-// Create a Named List and Application Filter to reference in the policy rules
+// Create a Named List ( Required As Parent )
 resource "infoblox_named_list" "example" {
   uddi = {
     name            = "example-named-list"
