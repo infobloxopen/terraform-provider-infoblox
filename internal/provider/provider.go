@@ -495,6 +495,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		fw.NewNetworkListResource,
 		fw.NewInternalDomainListResource,
 		fw.NewApplicationFilterResource,
+		fw.NewCategoryFilterResource,
 		fw.NewSecurityPolicyResource,
 
 		grid.NewExtensibleattributedefResource,
