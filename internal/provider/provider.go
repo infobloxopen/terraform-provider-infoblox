@@ -506,6 +506,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 		grid.NewDistributionscheduleResource,
 
 		infra.NewInfraServiceResource,
+		infra.NewJoinTokenResource,
 
 		ipam.NewAddressResource,
 		ipam.NewIpamHostResource,
@@ -645,6 +646,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		grid.NewDistributionscheduleDataSource,
 
 		infra.NewInfraServiceDataSource,
+		infra.NewJoinTokenDataSource,
 
 		ipam.NewAddressDataSource,
 		ipam.NewIpamHostDataSource,
@@ -787,6 +789,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 		grid.NewDistributionscheduleList,
 
 		infra.NewInfraServiceList,
+		infra.NewJoinTokenList,
 
 		ipam.NewAddressList,
 		ipam.NewIpamHostList,
