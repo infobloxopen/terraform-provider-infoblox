@@ -408,8 +408,10 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		notification.NewNotificationRuleResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
+
 		anycast.NewAnycastConfigResource,
 		anycast.NewAnycastHostResource,
 
@@ -544,8 +546,10 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		notification.NewNotificationRuleDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
+
 		anycast.NewAnycastConfigDataSource,
 
 		acl.NewNamedaclDataSource,
@@ -681,9 +685,11 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
-		fw.NewCategoryFilterList,
+		notification.NewNotificationRuleList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,
+		fw.NewCategoryFilterList,
+
 		anycast.NewAnycastConfigList,
 
 		acl.NewNamedaclList,
