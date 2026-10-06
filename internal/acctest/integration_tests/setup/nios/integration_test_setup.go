@@ -83,6 +83,10 @@
 //   - EAP_CA cert from nios_security_certificate_authservice/cert.pem
 //   - EAP_CA cert from nios_notification_rest_endpoint/dummy-bundle.pem
 //
+// DTC Certificates (fetched refs — must already exist on the grid):
+//   - NIOS_DTC_CERT1_REF (first dtc:certificate ref)
+//   - NIOS_DTC_CERT2_REF (second dtc:certificate ref)
+//
 // Ecosystem Templates (uploaded if present in nios_ecosystem_templates/):
 //   - Version5_DXL_Session_Template.json, Version5_Syslog_Session_Template.json
 //   - Version5_Syslog_Action_Template.json, Version5_DXL_action_template.json
@@ -681,6 +685,67 @@ func FetchAndStoreCertificateRef(host, wapiVer, username, password, envVarName, 
 	return nil
 }
 
+// FetchAndStoreDtcCertRefs fetches existing dtc:certificate refs from NIOS WAPI and
+// writes them into pipeline_nios.env as NIOS_DTC_CERT1_REF and NIOS_DTC_CERT2_REF.
+// dtc:certificate objects cannot be created via WAPI; they must already exist on the grid.
+// If fewer than 2 certs are present, a warning is printed and the missing vars are skipped
+// (the client_cert test case uses skip_if_env_empty and will be skipped at runtime).
+func FetchAndStoreDtcCertRefs(host, wapiVer, username, password string) error {
+	endpoint := fmt.Sprintf("%s/wapi/%s/dtc:certificate", host, wapiVer)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(username, password)
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // intentional for lab/CI grids with self-signed certs
+		},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: execute request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("fetchdtccertrefs: unexpected status %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: read response body: %w", err)
+	}
+
+	var certs []struct {
+		Ref string `json:"_ref"`
+	}
+	if err := json.Unmarshal(body, &certs); err != nil {
+		return fmt.Errorf("fetchdtccertrefs: unmarshal response: %w", err)
+	}
+
+	vars := []string{"NIOS_DTC_CERT1_REF", "NIOS_DTC_CERT2_REF"}
+	for i, envVar := range vars {
+		if i >= len(certs) {
+			fmt.Printf("Warning: fewer than %d dtc:certificate objects found on grid; %s will not be set — client_cert test will skip\n", i+1, envVar)
+			continue
+		}
+		if certs[i].Ref == "" {
+			fmt.Printf("Warning: dtc:certificate[%d] has empty ref; %s will not be set\n", i, envVar)
+			continue
+		}
+		if err := writePipelineEnvVar(envVar, certs[i].Ref); err != nil {
+			return fmt.Errorf("fetchdtccertrefs: failed to write env variable %s: %w", envVar, err)
+		}
+	}
+
+	return nil
+}
+
 type PreConfigClients struct {
 	IPAM         *ipam.APIClient
 	DHCP         *dhcp.APIClient
@@ -1218,6 +1283,33 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		}
 
 		fmt.Printf("Admin user %q created successfully\n", adminUserName)
+	}
+
+	// Create SNMPv3 users (used by dtc:monitor:snmp's "user" field)
+	snmpUsers := []string{"snmpuser", "snmpv3user"}
+
+	for _, snmpUserName := range snmpUsers {
+		snmpUserBody := security.Snmpuser{
+			Name:                   security.PtrString(snmpUserName),
+			AuthenticationProtocol: security.PtrString("MD5"),
+			AuthenticationPassword: security.PtrString("Password1!"),
+			PrivacyProtocol:        security.PtrString("DES"),
+			PrivacyPassword:        security.PtrString("Password1!"),
+		}
+
+		_, _, err := clients.SECURITY.SnmpuserAPI.Create(context.Background()).
+			Snmpuser(snmpUserBody).
+			Execute()
+
+		if err != nil {
+			if strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("SNMP user %q already exists, skipping creation\n", snmpUserName)
+				continue
+			}
+			return fmt.Errorf("failed to create SNMP user %q: %w", snmpUserName, err)
+		}
+
+		fmt.Printf("SNMP user %q created successfully\n", snmpUserName)
 	}
 
 	// Create DNS views
@@ -2454,6 +2546,13 @@ func main() {
 	}
 
 	fmt.Println("PXGRID endpoint configured successfully")
+
+	err = FetchAndStoreDtcCertRefs(host, wapiVer, username, password)
+	if err != nil {
+		fmt.Printf("Error fetching dtc:certificate refs: %v\n", err)
+		return
+	}
+	fmt.Println("DTC certificate refs fetched successfully")
 
 	fmt.Printf("Environment setup complete. Variables written to %s\n", pipelineEnvPath)
 
