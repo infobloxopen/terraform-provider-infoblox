@@ -158,22 +158,31 @@ Please refer to these examples for detailed usage patterns and configurations.
 ## Available Resources and DataSources
 
 The object groups available in this provider are categorized as follows:
-  - [DHCP](guides/resources-datasources.md#dhcp)
-  - [DNS](guides/resources-datasources.md#dns)
-  - [DTC](guides/resources-datasources.md#dtc)
-  - [RPZ](guides/resources-datasources.md#rpz)
-  - [IPAM](guides/resources-datasources.md#ipam)
-  - [IPAM FEDERATION](guides/resources-datasources.md#ipam-federation)
-  - [GRID](guides/resources-datasources.md#grid)
-  - [SECURITY](guides/resources-datasources.md#security)
-  - [ACL](guides/resources-datasources.md#acl)
-  - [KEYS](guides/resources-datasources.md#keys)
-  - [NOTIFICATION](guides/resources-datasources.md#notification)
-  - [MISC](guides/resources-datasources.md#miscellaneous)
 
-Not every object is available on both backends. The documentation page for each one shows whether it accepts `nios`, `uddi`, or both.
+  - [ACL](docs/guides/resources-datasources.md#acl)
+  - [ANYCAST](docs/guides/resources-datasources.md#anycast)
+  - [CLOUD](docs/guides/resources-datasources.md#cloud)
+  - [CLOUD DISCOVERY](docs/guides/resources-datasources.md#cloud-discovery)
+  - [DHCP](docs/guides/resources-datasources.md#dhcp)
+  - [DISCOVERY](docs/guides/resources-datasources.md#discovery)
+  - [DNS](docs/guides/resources-datasources.md#dns)
+  - [DTC](docs/guides/resources-datasources.md#dtc)
+  - [FW](docs/guides/resources-datasources.md#fw)
+  - [GRID](docs/guides/resources-datasources.md#grid)
+  - [INFRA](docs/guides/resources-datasources.md#infra)
+  - [IPAM](docs/guides/resources-datasources.md#ipam)
+  - [IPAM FEDERATION](docs/guides/resources-datasources.md#ipam-federation)
+  - [KEYS](docs/guides/resources-datasources.md#keys)
+  - [MISC](docs/guides/resources-datasources.md#miscellaneous)
+  - [NOTIFICATION](docs/guides/resources-datasources.md#notification)
+  - [REDIRECT](docs/guides/resources-datasources.md#redirect)
+  - [RIR](docs/guides/resources-datasources.md#rir)
+  - [RPZ](docs/guides/resources-datasources.md#rpz)
+  - [SECURITY](docs/guides/resources-datasources.md#security)
 
-For a detailed list of available resources and data sources, refer to the [Resources and Data Sources](guides/resources-datasources.md) page.
+Not every object is available on both backends. The guide shows whether each one supports NIOS, UDDI, or both.
+
+For a detailed list of available resources and data sources, refer to the [Resources and Data Sources](docs/guides/resources-datasources.md) page.
 
 ## Host Record Management
 
