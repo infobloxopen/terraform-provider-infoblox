@@ -191,16 +191,12 @@ func (d *Ipv6fixedaddressDataSource) Read(ctx context.Context, req datasource.Re
 			return recs, nextPageID, e
 		})
 	case core.BackendUDDI:
-		// With paging off, return at most `limit` results (1000 if not set). 0 means no limit.
 		var maxItems int32
 		if opts.Paging == 0 {
 			maxItems = cmp.Or(opts.Limit, core.DefaultListLimit)
 		}
 
-		// The API returns both IPv4 and IPv6, so keep only the matching ones here.
-		// Return the full page so the next page is fetched from the right place.
 		_, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Ipv6fixedaddress, error) {
-			// Enough results: return an empty page to stop fetching.
 			if maxItems > 0 && int32(len(allResults)) >= maxItems {
 				return nil, nil
 			}
@@ -208,7 +204,6 @@ func (d *Ipv6fixedaddressDataSource) Read(ctx context.Context, req datasource.Re
 			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
 			for _, r := range recs {
-				// Don't add more than the limit.
 				if maxItems > 0 && int32(len(allResults)) >= maxItems {
 					break
 				}

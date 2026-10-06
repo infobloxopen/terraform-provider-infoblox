@@ -157,24 +157,19 @@ func (l *Ipv6fixedaddressList) List(ctx context.Context, req list.ListRequest, s
 			})
 
 	case core.BackendUDDI:
-		// The API returns both IPv4 and IPv6, so keep only the matching ones here.
-		// Return the full page so the next page is fetched from the right place.
 		_, err = core.ReadAllPagesUDDI(
 			func(offset, limit int32) ([]*coremodel.Ipv6fixedaddress, error) {
-				// Enough results: return an empty page to stop fetching.
 				if int32(len(records)) >= requestLimit {
 					return nil, nil
 				}
 				pageCount++
 				opts.Offset = offset
-				// Always fetch a full page; a smaller page would stop fetching too early.
 				opts.Limit = limit
 				recs, _, _, e := l.service.List(ctx, opts)
 				if e != nil {
 					return nil, e
 				}
 				for _, r := range recs {
-					// Don't add more than the limit.
 					if int32(len(records)) >= requestLimit {
 						break
 					}
