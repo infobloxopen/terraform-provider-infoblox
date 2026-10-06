@@ -3,11 +3,9 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -148,12 +146,8 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
-		Computed:    true,
-		ElementType: types.StringType,
-		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
-		Validators: []validator.Map{
-			mapvalidator.SizeAtLeast(1),
-		},
+		Computed:            true,
+		ElementType:         types.StringType,
 		MarkdownDescription: "Host tagging specifics.",
 	},
 	"tags_all": schema.MapAttribute{
