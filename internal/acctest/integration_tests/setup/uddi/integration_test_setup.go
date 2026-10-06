@@ -562,8 +562,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 				var existingID string
 				if listResp != nil {
 					for _, existing := range listResp.Results {
-						// UDDI stores fqdn with a trailing dot (e.g. "example_zone_250."), so compare with it trimmed.
-						if existing.Fqdn != nil && strings.TrimSuffix(*existing.Fqdn, ".") == az.fqdn && existing.Id != nil {
+						if existing.Fqdn != nil && strings.TrimSuffix(*existing.Fqdn, ".") == strings.TrimSuffix(az.fqdn, ".") && existing.Id != nil {
 							existingID = *existing.Id
 							break
 						}
