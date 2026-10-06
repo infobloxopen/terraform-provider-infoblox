@@ -544,14 +544,45 @@ case "next_available_address_block" {
 }
 
 case "next_available_range" {
-  backend  = "uddi"
-  parallel = true
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_network" "test" {
+    uddi = {
+      address = "10.0.0.0"
+      cidr    = 24
+      space   = infoblox_network_view.test.id
+    }
+  }
+  resource "infoblox_range" "range1" {
+    uddi = {
+      start = "10.0.0.10"
+      end   = "10.0.0.20"
+      space = infoblox_network_view.test.id
+    }
+    depends_on = [infoblox_network.test]
+  }
+  resource "infoblox_range" "range2" {
+    uddi = {
+      start = "10.0.0.30"
+      end   = "10.0.0.40"
+      space = infoblox_network_view.test.id
+    }
+    depends_on = [infoblox_network.test]
+  }
+  PREREQ
 
   step {
     uddi {
-      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
-      dynamic_allocation = { next_available_id = "ipam/range/8e6ec141-a2d7-11f1-829e-02fb57fee572" }
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_range.range1.id }
     }
+    depends_on = [infoblox_range.range1]
     check = {
       "uddi.address" = "10.0.0.10"
     }
@@ -559,8 +590,8 @@ case "next_available_range" {
 
   step {
     uddi {
-      space              = "ipam/ip_space/84c53c33-a2d7-11f1-a4fc-eecab8c1578d"
-      dynamic_allocation = { next_available_id = "ipam/range/8f0bfc0e-a2d7-11f1-a4fc-eecab8c1578d" }
+      space              = infoblox_network_view.test.id
+      dynamic_allocation = { next_available_id = infoblox_range.range2.id }
     }
     check = {
       "uddi.address" = "10.0.0.30"

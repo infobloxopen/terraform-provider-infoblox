@@ -38,11 +38,13 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl     = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
       name = "{{random}}"
     }
   }
+  PREREQ
 
   step {
     uddi {
@@ -492,7 +494,7 @@ case "ddns_update_on_renew" {
     uddi {
       address              = "{{random_ipv4_network}}"
       cidr                 = 16
-      sspace               = infoblox_network_view.test.id
+      space                = infoblox_network_view.test.id
       ddns_update_on_renew = false
     }
     check = {
@@ -504,7 +506,7 @@ case "ddns_update_on_renew" {
     uddi {
       address              = "{{random_ipv4_network}}"
       cidr                 = 16
-      sspace               = infoblox_network_view.test.id
+      space                = infoblox_network_view.test.id
       ddns_update_on_renew = true
     }
     check = {
@@ -598,6 +600,11 @@ case "dhcp_options" {
   skip_if_env_empty = ["UDDI_OPTION_GROUP_1_ID"]
   skip_reason       = "UDDI_OPTION_GROUP_1_ID environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test" {
+    uddi = {
+      name = "{{random}}"
+    }
+  }
   resource "infoblox_dhcp_optionspace" "test" {
     uddi = {
       name = "{{random3}}"
@@ -611,13 +618,6 @@ case "dhcp_options" {
       type = "boolean"
     }
   }
-
-//   resource "infoblox_dhcp_option_group_unknown" "test" {
-//       uddi = {
-//         name = "\"og-\"+optionSpace"
-//         protocol = "ip4"
-//       }
-//   }
   PREREQ
 
   step {
@@ -969,8 +969,8 @@ case "federated_realms" {
 
   step {
     uddi {
-      address          = "{{random_ipv6_network_address}}"
-      cidr             = 64
+      address          = "{{random_ipv4_network}}"
+      cidr             = 16
       space            = infoblox_network_view.test.id
       federated_realms = [infoblox_federated_realm.test.id]
     }
@@ -982,8 +982,8 @@ case "federated_realms" {
 
   step {
     uddi {
-      address          = "{{random_ipv6_network_address}}"
-      cidr             = 64
+      address          = "{{random_ipv4_network}}"
+      cidr             = 16
       space            = infoblox_network_view.test.id
       federated_realms = [infoblox_federated_realm.test2.id]
     }
@@ -1047,7 +1047,7 @@ case "space" {
     uddi {
       address = "{{random_ipv4_network}}"
       cidr    = 16
-      space   = infoblox_network_view.test.id
+      space   = infoblox_network_view.one.id
     }
   }
 

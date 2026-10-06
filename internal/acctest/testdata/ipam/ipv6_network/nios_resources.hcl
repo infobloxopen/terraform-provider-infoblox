@@ -835,16 +835,16 @@ case "rir_registration_action" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network_container" "test_rir_parent" {
     nios = {
-      network = "{{random_ipv6_network}}"
+      network          = "2001:db8:{{random_hextet}}::/48"
       rir_organization = "rir-org-test1"
-      extattrs = { "RIPE Network Name" = "TEST-NET-V6", "RIPE Description" = "Test IPv6 network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE","RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
+      ext_attrs        = { "RIPE Network Name" = "TEST-NET-V6", "RIPE Description" = "Test IPv6 network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE", "RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
     }
   }
   PREREQ
 
   step {
     nios {
-      network                 = "{{random_ipv6_network2}}"
+      network                 = replace(infoblox_ipv6_network_container.test_rir_parent.nios.network, "/48", "/64")
       rir_registration_action = "CREATE"
       rir_organization        = "rir-org-test1"
       ext_attrs               = { "RIPE Network Name" = "TEST-NET-V6-CHILD", "RIPE Description" = "Test IPv6 child network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE", "RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
@@ -857,12 +857,12 @@ case "rir_registration_action" {
 
   step {
     nios {
-      network                 = "{{random_ipv6_network2}}"
+      network                 = replace(infoblox_ipv6_network_container.test_rir_parent.nios.network, "/48", "/64")
       rir_registration_action = "NONE"
       rir_organization        = "rir-org-test1"
       ext_attrs               = { "RIPE Network Name" = "TEST-NET-V6-CHILD", "RIPE Description" = "Test IPv6 child network", "RIPE Country" = "United States (US)", "RIPE Admin Contact" = "TEST-RIPE", "RIPE Technical Contact" = "TEST-RIPE", "RIPE Registry Source" = "RIPE", "RIPE IPv6 Status" = "ASSIGNED" }
     }
-    depends_on = [infoblox_ipv6network_container.test_rir_parent]
+    depends_on = [infoblox_ipv6_network_container.test_rir_parent]
     check = {
       "nios.rir_registration_action" = "NONE"
     }
@@ -1261,43 +1261,49 @@ case "members" {
 }
 
 case "vlans" {
-  backend  = "nios"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_vlan_view" "test_vlan_view" {
-  #   nios = {
-  #     start_vlan_id = 50
-  #     end_vlan_id = 100
-  #     name = "test-vlanview-for-ipv6network"
-  #   }
-  # }
-  # resource "infoblox_vlan" "test_vlan" {
-  #   nios = {
-  #     id = 50
-  #     name = "test-vlan-for-ipv6network"
-  #     parent = infoblox_vlan_view.test_vlan_view.nios.ref
-  #   }
-  # }
-  # PREREQ
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_vlan_view" "test" {
+    nios = {
+      name          = "{{random2}}"
+      start_vlan_id = 50
+      end_vlan_id   = 100
+    }
+  }
+  resource "infoblox_vlan" "vlan1" {
+    nios = {
+      id     = 50
+      name   = "{{random3}}"
+      parent = infoblox_vlan_view.test.id
+    }
+  }
+  resource "infoblox_vlan" "vlan2" {
+    nios = {
+      id     = 51
+      name   = "{{random4}}"
+      parent = infoblox_vlan_view.test.id
+    }
+  }
+  PREREQ
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      # vlans   = [{ vlan = infoblox_vlan.test_vlan.nios.ref }]
-      vlans = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50" }]
+      vlans   = [{ vlan = "${infoblox_vlan.vlan1.id}" }]
     }
-    check = {
-      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUw:test-vlanview-for-network/test-vlan-for-network/50"
+    check_pair = {
+      "nios.vlans.0.vlan" = infoblox_vlan.vlan1.id
     }
   }
 
   step {
     nios {
       network = "{{random_ipv6_network}}"
-      vlans   = [{ vlan = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51" }]
+      vlans   = [{ vlan = "${infoblox_vlan.vlan2.id}" }]
     }
-    check = {
-      "nios.vlans.0.vlan" = "vlan/ZG5zLnZsYW4kLmNvbS5pbmZvYmxveC5kbnMudmxhbl92aWV3JHRlc3QtdmxhbnZpZXctZm9yLW5ldHdvcmsuNTAuMTAwLjUx:test-vlanview-for-network/test-vlan-2-for-network/51"
+    check_pair = {
+      "nios.vlans.0.vlan" = infoblox_vlan.vlan2.id
     }
   }
 

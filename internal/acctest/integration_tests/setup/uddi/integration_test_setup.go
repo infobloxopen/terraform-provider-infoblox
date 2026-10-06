@@ -1,8 +1,13 @@
 // Objects read by this setup program (not created, IDs stored as env vars):
 //
 // Infra Hosts (up to 2 online hosts):
-//   - UDDI_INFRA_HOST_DISPLAY_NAME_1, UDDI_INFRA_HOST_LEGACY_ID_1, UDDI_INFRA_HOST_TAG_KEY_1, UDDI_INFRA_HOST_TAG_VALUE_1
-//   - UDDI_INFRA_HOST_DISPLAY_NAME_2, UDDI_INFRA_HOST_LEGACY_ID_2, UDDI_INFRA_HOST_TAG_KEY_2, UDDI_INFRA_HOST_TAG_VALUE_2
+//   - UDDI_INFRA_HOST_DISPLAY_NAME_1, UDDI_INFRA_HOST_LEGACY_ID_1
+//   - UDDI_INFRA_HOST_DISPLAY_NAME_2, UDDI_INFRA_HOST_LEGACY_ID_2
+//
+// DNS Services (the Service named "DNS <display_name>" for each infra host above,
+// tagged with a random "location" value):
+//   - UDDI_DNS_SERVICE_TAG_KEY_1, UDDI_DNS_SERVICE_TAG_VALUE_1
+//   - UDDI_DNS_SERVICE_TAG_KEY_2, UDDI_DNS_SERVICE_TAG_VALUE_2
 //
 // DNS Hosts (up to 2):
 //   - UDDI_DNS_HOST_ID_1, UDDI_DNS_HOST_ID_2
@@ -38,6 +43,14 @@
 //
 // DNS Views:
 //   - tf_test_view_1 (UDDI_VIEW_ID_1)
+//
+// DTC Policies:
+//   - tf_dtc_policy_1 (UDDI_DTC_POLICY_ID_1)
+//   - tf_dtc_policy_2 (UDDI_DTC_POLICY_ID_2)
+//
+// DTC SNMP User Security Models:
+//   - tf_snmp_usm_1 (UDDI_SNMP_USER_SECURITY_MODEL_ID_1)
+//   - tf_snmp_usm_2 (UDDI_SNMP_USER_SECURITY_MODEL_ID_2)
 
 package main
 
@@ -46,15 +59,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	uddiclient "github.com/infobloxopen/universal-ddi-go-client/client"
 	"github.com/infobloxopen/universal-ddi-go-client/dnsconfig"
+	"github.com/infobloxopen/universal-ddi-go-client/dtc"
 	"github.com/infobloxopen/universal-ddi-go-client/inframgmt"
 	"github.com/infobloxopen/universal-ddi-go-client/ipam"
 	uddioption "github.com/infobloxopen/universal-ddi-go-client/option"
+
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/acctest"
 )
+
+// dnsServiceTagKey is the tag key set on the DNS Service associated with each infra host.
+const dnsServiceTagKey = "location"
 
 var pipelineEnvFile *os.File
 
@@ -71,6 +89,9 @@ func writePipelineEnvVar(key, value string) error {
 // StoreInfraHostDetails fetches up to two online Infra Hosts via the Detail API
 // and stores each host's display_name and legacy_id into pipeline_uddi.env as
 // UDDI_INFRA_HOST_DISPLAY_NAME_1/2 and UDDI_INFRA_HOST_LEGACY_ID_1/2.
+// For each host, it then looks up the DNS Service named "DNS <display_name>" and,
+// if found, tags it with a random "location" value, storing that tag into
+// pipeline_uddi.env as UDDI_DNS_SERVICE_TAG_KEY_1/2 and UDDI_DNS_SERVICE_TAG_VALUE_1/2.
 // It returns the fetched hosts so callers can use them without a second API call.
 func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([]inframgmt.DetailHost, error) {
 	resp, _, err := client.InfraManagementAPI.DetailAPI.HostsList(ctx).
@@ -96,11 +117,12 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 		displayNameVar := fmt.Sprintf("UDDI_INFRA_HOST_DISPLAY_NAME_%d", n)
 		legacyIDVar := fmt.Sprintf("UDDI_INFRA_HOST_LEGACY_ID_%d", n)
 
-		if v := host.GetDisplayName(); v != "" {
-			if err := writePipelineEnvVar(displayNameVar, v); err != nil {
+		displayName := host.GetDisplayName()
+		if displayName != "" {
+			if err := writePipelineEnvVar(displayNameVar, displayName); err != nil {
 				return nil, fmt.Errorf("store infra host details: write %s: %w", displayNameVar, err)
 			}
-			fmt.Printf("Stored infra host display_name %q as %s\n", v, displayNameVar)
+			fmt.Printf("Stored infra host display_name %q as %s\n", displayName, displayNameVar)
 		}
 
 		if v := host.GetLegacyId(); v != "" {
@@ -110,32 +132,73 @@ func StoreInfraHostDetails(ctx context.Context, client *uddiclient.APIClient) ([
 			fmt.Printf("Stored infra host legacy_id %q as %s\n", v, legacyIDVar)
 		}
 
-		if tags := host.GetTags(); len(tags) > 0 {
-			tagKeyVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_KEY_%d", tagN)
-			tagValueVar := fmt.Sprintf("UDDI_INFRA_HOST_TAG_VALUE_%d", tagN)
+		if displayName == "" {
+			continue
+		}
 
-			keys := make([]string, 0, len(tags))
-			for k := range tags {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			firstKey := keys[0]
-			firstValue := fmt.Sprintf("%v", tags[firstKey])
-
-			if err := writePipelineEnvVar(tagKeyVar, firstKey); err != nil {
-				return nil, fmt.Errorf("store infra host details: write %s: %w", tagKeyVar, err)
-			}
-			fmt.Printf("Stored infra host tag key %q as %s\n", firstKey, tagKeyVar)
-
-			if err := writePipelineEnvVar(tagValueVar, firstValue); err != nil {
-				return nil, fmt.Errorf("store infra host details: write %s: %w", tagValueVar, err)
-			}
-			fmt.Printf("Stored infra host tag value %q as %s\n", firstValue, tagValueVar)
+		tagged, err := tagDNSServiceForHost(ctx, client, displayName, tagN)
+		if err != nil {
+			return nil, err
+		}
+		if tagged {
 			tagN++
 		}
 	}
 
 	return hosts, nil
+}
+
+// tagDNSServiceForHost looks up the DNS Service named "DNS <displayName>" (the Service
+// associated with the infra host identified by displayName) and, if one exists, sets a
+// random "location" tag on it via the Services API. The tag key/value are stored into
+// pipeline_uddi.env as UDDI_DNS_SERVICE_TAG_KEY_<n> and UDDI_DNS_SERVICE_TAG_VALUE_<n>.
+// It returns false (with no error) if no matching DNS service is found.
+func tagDNSServiceForHost(ctx context.Context, client *uddiclient.APIClient, displayName string, n int) (bool, error) {
+	serviceName := "DNS_" + displayName
+
+	listResp, _, err := client.InfraManagementAPI.ServicesAPI.List(ctx).
+		Filter(fmt.Sprintf("name=='%s'", serviceName)).
+		Execute()
+	if err != nil {
+		return false, fmt.Errorf("tag DNS service for host %q: list services: %w", displayName, err)
+	}
+
+	if listResp == nil || len(listResp.GetResults()) == 0 {
+		fmt.Printf("No DNS service named %q found, skipping tag update\n", serviceName)
+		return false, nil
+	}
+
+	svc := listResp.GetResults()[0]
+	if svc.Id == nil || *svc.Id == "" {
+		return false, fmt.Errorf("tag DNS service for host %q: service %q has no ID", displayName, serviceName)
+	}
+
+	tagValue := acctest.RandomName()
+	tags := make(map[string]interface{}, len(svc.Tags)+1)
+	for k, v := range svc.Tags {
+		tags[k] = v
+	}
+	tags[dnsServiceTagKey] = tagValue
+	svc.Tags = tags
+
+	if _, _, err := client.InfraManagementAPI.ServicesAPI.Update(ctx, *svc.Id).Body(svc).Execute(); err != nil {
+		return false, fmt.Errorf("tag DNS service for host %q: update service %q: %w", displayName, serviceName, err)
+	}
+
+	tagKeyVar := fmt.Sprintf("UDDI_DNS_SERVICE_TAG_KEY_%d", n)
+	tagValueVar := fmt.Sprintf("UDDI_DNS_SERVICE_TAG_VALUE_%d", n)
+
+	if err := writePipelineEnvVar(tagKeyVar, dnsServiceTagKey); err != nil {
+		return false, fmt.Errorf("tag DNS service for host %q: write %s: %w", displayName, tagKeyVar, err)
+	}
+	fmt.Printf("Stored DNS service tag key %q as %s\n", dnsServiceTagKey, tagKeyVar)
+
+	if err := writePipelineEnvVar(tagValueVar, tagValue); err != nil {
+		return false, fmt.Errorf("tag DNS service for host %q: write %s: %w", displayName, tagValueVar, err)
+	}
+	fmt.Printf("Stored DNS service tag value %q as %s (service %q)\n", tagValue, tagValueVar, serviceName)
+
+	return true, nil
 }
 
 // CreateAnyCastService creates an anycast Service on the given host and stores its ID
@@ -292,7 +355,7 @@ func CreateOptionGroups(ctx context.Context, client *uddiclient.APIClient) error
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
 				// Fetch the existing group's ID
-				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Execute()
+				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Filter("name==\"" + og.name + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create option groups: list existing groups to find %q: %w", og.name, listErr)
 				}
@@ -367,7 +430,7 @@ func CreateOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
 	resp, _, err := client.IPAddressManagementAPI.OptionCodeAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Filter("name==\"" + optionCodeName + "\"").Execute()
 			if listErr != nil {
 				return fmt.Errorf("create option code: list existing option codes to find %q: %w", optionCodeName, listErr)
 			}
@@ -417,7 +480,7 @@ func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, 
 	resp, _, err := client.IPAddressManagementAPI.OptionSpaceAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Filter("name==\"" + name + "\"").Execute()
 			if listErr != nil {
 				return "", fmt.Errorf("create or find option space: list existing spaces to find %q: %w", name, listErr)
 			}
@@ -477,7 +540,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		primaryType string
 		idVar       string
 	}{
-		{fqdn: "example_zone_250", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
+		{fqdn: "example_zone_250.", primaryType: "cloud", idVar: "UDDI_AUTH_ZONE_ID_1"},
 	}
 
 	for _, az := range authZones {
@@ -491,7 +554,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
 				// Fetch the existing zone's ID
-				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Execute()
+				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Filter("fqdn==\"" + az.fqdn + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create auth zone: list existing zones to find %q: %w", az.fqdn, listErr)
 				}
@@ -499,6 +562,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 				var existingID string
 				if listResp != nil {
 					for _, existing := range listResp.Results {
+						// UDDI stores fqdn with a trailing dot (e.g. "example_zone_250."), so compare with it trimmed.
 						if existing.Fqdn != nil && strings.TrimSuffix(*existing.Fqdn, ".") == az.fqdn && existing.Id != nil {
 							existingID = *existing.Id
 							break
@@ -713,6 +777,138 @@ func CreateView(ctx context.Context, client *uddiclient.APIClient) error {
 	return nil
 }
 
+// CreateDtcPolicies creates two DTC policies and stores their IDs into
+// pipeline_uddi.env as UDDI_DTC_POLICY_ID_1 and UDDI_DTC_POLICY_ID_2.
+// If a policy already exists, its existing ID is stored instead.
+func CreateDtcPolicies(ctx context.Context, client *uddiclient.APIClient) error {
+	policies := []struct {
+		name  string
+		idVar string
+	}{
+		{name: "tf_dtc_policy_1", idVar: "UDDI_DTC_POLICY_ID_1"},
+		{name: "tf_dtc_policy_2", idVar: "UDDI_DTC_POLICY_ID_2"},
+	}
+
+	for _, p := range policies {
+		body := dtc.Policy{
+			Name:   p.name,
+			Method: "round_robin",
+		}
+
+		resp, _, err := client.DNSTrafficControlAPI.PolicyAPI.Create(ctx).Body(body).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+				listResp, _, listErr := client.DNSTrafficControlAPI.PolicyAPI.List(ctx).Execute()
+				if listErr != nil {
+					return fmt.Errorf("create dtc policies: list existing policies to find %q: %w", p.name, listErr)
+				}
+
+				var existingID string
+				if listResp != nil {
+					for _, existing := range listResp.Results {
+						if existing.Name == p.name && existing.Id != nil {
+							existingID = *existing.Id
+							break
+						}
+					}
+				}
+
+				if existingID == "" {
+					return fmt.Errorf("create dtc policies: policy %q already exists but ID could not be resolved", p.name)
+				}
+
+				if err := writePipelineEnvVar(p.idVar, existingID); err != nil {
+					return fmt.Errorf("create dtc policies: write %s for existing policy: %w", p.idVar, err)
+				}
+
+				fmt.Printf("DTC policy %q already exists, using existing ID %q (env: %s)\n", p.name, existingID, p.idVar)
+				continue
+			}
+			return fmt.Errorf("create dtc policies: create %q: %w", p.name, err)
+		}
+
+		if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+			return fmt.Errorf("create dtc policies: create response for %q missing ID", p.name)
+		}
+
+		createdID := *resp.Result.Id
+		if err := writePipelineEnvVar(p.idVar, createdID); err != nil {
+			return fmt.Errorf("create dtc policies: write %s: %w", p.idVar, err)
+		}
+
+		fmt.Printf("DTC policy %q created successfully (ID: %q, env: %s)\n", p.name, createdID, p.idVar)
+	}
+
+	return nil
+}
+
+// CreateSnmpUserSecurityModels creates two DTC SNMP User Security Model objects and
+// stores their IDs into pipeline_uddi.env as UDDI_SNMP_USER_SECURITY_MODEL_ID_1 and
+// UDDI_SNMP_USER_SECURITY_MODEL_ID_2. If a model already exists, its existing ID is
+// stored instead.
+func CreateSnmpUserSecurityModels(ctx context.Context, client *uddiclient.APIClient) error {
+	models := []struct {
+		username string
+		idVar    string
+	}{
+		{username: "tf_snmp_usm_1", idVar: "UDDI_SNMP_USER_SECURITY_MODEL_ID_1"},
+		{username: "tf_snmp_usm_2", idVar: "UDDI_SNMP_USER_SECURITY_MODEL_ID_2"},
+	}
+
+	for _, m := range models {
+		body := dtc.SNMPUserSecurityModel{
+			Username:        dtc.PtrString(m.username),
+			AuthProtocol:    dtc.PtrString("NoAuth"),
+			PrivacyProtocol: dtc.PtrString("NoPrivacy"),
+		}
+
+		resp, _, err := client.DNSTrafficControlAPI.SnmpUserSecurityAPI.Create(ctx).Body(body).Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
+				listResp, _, listErr := client.DNSTrafficControlAPI.SnmpUserSecurityAPI.List(ctx).Execute()
+				if listErr != nil {
+					return fmt.Errorf("create snmp user security models: list existing models to find %q: %w", m.username, listErr)
+				}
+
+				var existingID string
+				if listResp != nil {
+					for _, existing := range listResp.Results {
+						if existing.Username != nil && *existing.Username == m.username && existing.Id != nil {
+							existingID = *existing.Id
+							break
+						}
+					}
+				}
+
+				if existingID == "" {
+					return fmt.Errorf("create snmp user security models: model %q already exists but ID could not be resolved", m.username)
+				}
+
+				if err := writePipelineEnvVar(m.idVar, existingID); err != nil {
+					return fmt.Errorf("create snmp user security models: write %s for existing model: %w", m.idVar, err)
+				}
+
+				fmt.Printf("SNMP user security model %q already exists, using existing ID %q (env: %s)\n", m.username, existingID, m.idVar)
+				continue
+			}
+			return fmt.Errorf("create snmp user security models: create %q: %w", m.username, err)
+		}
+
+		if resp == nil || resp.Result == nil || resp.Result.Id == nil {
+			return fmt.Errorf("create snmp user security models: create response for %q missing ID", m.username)
+		}
+
+		createdID := *resp.Result.Id
+		if err := writePipelineEnvVar(m.idVar, createdID); err != nil {
+			return fmt.Errorf("create snmp user security models: write %s: %w", m.idVar, err)
+		}
+
+		fmt.Printf("SNMP user security model %q created successfully (ID: %q, env: %s)\n", m.username, createdID, m.idVar)
+	}
+
+	return nil
+}
+
 func main() {
 	cspURL := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_URL"))
 	apiKey := strings.TrimSpace(os.Getenv("INFOBLOX_PORTAL_KEY"))
@@ -787,6 +983,18 @@ func main() {
 		return
 	}
 	fmt.Println("Option code created successfully")
+
+	if err := CreateDtcPolicies(ctx, client); err != nil {
+		fmt.Printf("Error creating dtc policies: %v\n", err)
+		return
+	}
+	fmt.Println("DTC policies created successfully")
+
+	if err := CreateSnmpUserSecurityModels(ctx, client); err != nil {
+		fmt.Printf("Error creating snmp user security models: %v\n", err)
+		return
+	}
+	fmt.Println("SNMP user security models created successfully")
 
 	if err := CreateAuthZone(ctx, client); err != nil {
 		fmt.Printf("Error creating auth zone: %v\n", err)

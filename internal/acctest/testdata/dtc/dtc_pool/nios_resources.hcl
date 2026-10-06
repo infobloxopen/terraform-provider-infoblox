@@ -126,19 +126,31 @@ case "comment" {
 }
 
 case "consolidated_monitors" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_monitor_http" "test_http" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_snmp" "test_snmp" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "ROUND_ROBIN"
       disable               = true
-      monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      consolidated_monitors = [{ monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", availability = "ANY", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
+      monitors              = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test_snmp.id]
+      consolidated_monitors = [{ monitor = infoblox_dtc_monitor_http.test_http.id, availability = "ANY", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
-      "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"
+      "nios.monitors.#"                                        = "2"
       "nios.consolidated_monitors.0.availability"              = "ANY"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
       "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
@@ -150,11 +162,11 @@ case "consolidated_monitors" {
       name                  = "{{random}}"
       lb_preferred_method   = "ROUND_ROBIN"
       disable               = true
-      monitors              = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      consolidated_monitors = [{ monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", availability = "ALL", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
+      monitors              = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test_snmp.id]
+      consolidated_monitors = [{ monitor = infoblox_dtc_monitor_snmp.test_snmp.id, availability = "ALL", full_health_communication = false, members = ["{{grid_member_hostname}}"] }]
     }
     check = {
-      "nios.consolidated_monitors.0.monitor"                   = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"
+      "nios.monitors.#"                                        = "2"
       "nios.consolidated_monitors.0.availability"              = "ALL"
       "nios.consolidated_monitors.0.full_health_communication" = "false"
       "nios.consolidated_monitors.0.members.0"                 = "{{grid_member_hostname}}"
@@ -219,18 +231,36 @@ case "ext_attrs" {
 
 }
 
-# servers stays hardcoded: a test-created server would also need registering in the
-# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_alternate_method" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_server" "two" {
+    nios = {
+      name = "{{random3}}"
+      host = "{{random_ip2}}"
+    }
+  }
+  resource "infoblox_dtc_topology" "test" {
+    nios = {
+      name  = "{{random4}}"
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.one.id }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_preferred_topology = infoblox_dtc_topology.test.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
       lb_alternate_method   = "ALL_AVAILABLE"
     }
     check = {
@@ -243,8 +273,8 @@ case "lb_alternate_method" {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_preferred_topology = infoblox_dtc_topology.test.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
       lb_alternate_method   = "GLOBAL_AVAILABILITY"
     }
     check = {
@@ -255,26 +285,51 @@ case "lb_alternate_method" {
 
 }
 
-# servers stays hardcoded: a test-created server would also need registering in the
-# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_alternate_topology" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_server" "two" {
+    nios = {
+      name = "{{random3}}"
+      host = "{{random_ip2}}"
+    }
+  }
+  resource "infoblox_dtc_topology" "test" {
+    nios = {
+      name  = "{{random4}}"
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.one.id }]
+    }
+  }
+  resource "infoblox_dtc_topology" "test2" {
+    nios = {
+      name  = "{{random5}}"
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.two.id }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      lb_preferred_topology = infoblox_dtc_topology.test.id
       lb_alternate_method   = "TOPOLOGY"
-      lb_alternate_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_alternate_topology = infoblox_dtc_topology.test2.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
     }
     check = {
-      "nios.lb_preferred_method"   = "TOPOLOGY"
-      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
-      "nios.lb_alternate_method"   = "TOPOLOGY"
-      "nios.lb_alternate_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      "nios.lb_preferred_method" = "TOPOLOGY"
+      "nios.lb_alternate_method" = "TOPOLOGY"
+    }
+    check_pair = {
+      "nios.lb_alternate_topology" = infoblox_dtc_topology.test2.id
     }
   }
 
@@ -282,36 +337,48 @@ case "lb_alternate_topology" {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      lb_preferred_topology = infoblox_dtc_topology.test2.id
       lb_alternate_method   = "TOPOLOGY"
-      lb_alternate_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_alternate_topology = infoblox_dtc_topology.test.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
     }
     check = {
-      "nios.lb_preferred_method"   = "TOPOLOGY"
-      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
-      "nios.lb_alternate_method"   = "TOPOLOGY"
-      "nios.lb_alternate_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      "nios.lb_preferred_method" = "TOPOLOGY"
+      "nios.lb_alternate_method" = "TOPOLOGY"
+    }
+    check_pair = {
+      "nios.lb_alternate_topology" = infoblox_dtc_topology.test.id
     }
   }
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolLbDynamicRatioAlternate' could not be parsed (no resource block found)
 case "lb_dynamic_ratio_alternate" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_monitor_http" "test_http" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_snmp" "test_snmp" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                       = "{{random}}"
       lb_preferred_method        = "ROUND_ROBIN"
       lb_alternate_method        = "DYNAMIC_RATIO"
-      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      lb_dynamic_ratio_alternate = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
+      monitors                   = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test_snmp.id]
+      lb_dynamic_ratio_alternate = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_http.test_http.id, monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_alternate.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".0"
@@ -325,10 +392,11 @@ case "lb_dynamic_ratio_alternate" {
       name                       = "{{random}}"
       lb_preferred_method        = "ROUND_ROBIN"
       lb_alternate_method        = "DYNAMIC_RATIO"
-      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      lb_dynamic_ratio_alternate = { method = "MONITOR", monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = false }
+      monitors                   = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test_snmp.id]
+      lb_dynamic_ratio_alternate = { method = "MONITOR", monitor = infoblox_dtc_monitor_snmp.test_snmp.id, monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_alternate_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_alternate.method"                = "MONITOR"
       "nios.lb_dynamic_ratio_alternate.monitor_metric"        = ".2"
@@ -340,17 +408,31 @@ case "lb_dynamic_ratio_alternate" {
 }
 
 case "lb_dynamic_ratio_preferred" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_monitor_http" "test_http" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_snmp" "test" {
+    nios = {
+      name = "{{random2}}"
+      oids = [{ oid = ".0", condition = "EXACT", first = "10" }, { oid = ".2", condition = "EXACT", first = "20" }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                       = "{{random}}"
       lb_preferred_method        = "DYNAMIC_RATIO"
-      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
+      monitors                   = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test.id]
+      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_http.test_http.id, monitor_metric = ".0", monitor_weighing = "RATIO", invert_monitor_metric = false }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".0"
@@ -363,10 +445,11 @@ case "lb_dynamic_ratio_preferred" {
     nios {
       name                       = "{{random}}"
       lb_preferred_method        = "DYNAMIC_RATIO"
-      monitors                   = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
-      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp", monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = true }
+      monitors                   = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test.id]
+      lb_dynamic_ratio_preferred = { method = "ROUND_TRIP_DELAY", monitor = infoblox_dtc_monitor_snmp.test.id, monitor_metric = ".2", monitor_weighing = "RATIO", invert_monitor_metric = true }
     }
     check = {
+      "nios.monitors.#"                                       = "2"
       "nios.lb_preferred_method"                              = "DYNAMIC_RATIO"
       "nios.lb_dynamic_ratio_preferred.method"                = "ROUND_TRIP_DELAY"
       "nios.lb_dynamic_ratio_preferred.monitor_metric"        = ".2"
@@ -455,22 +538,48 @@ case "lb_preferred_method_ratio" {
 
 }
 
-# servers stays hardcoded: a test-created server would also need registering in the
-# pre-provisioned topology, and infoblox_dtc_topology is not implemented yet.
 case "lb_preferred_topology" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_server" "one" {
+    nios = {
+      name = "{{random2}}"
+      host = "{{random_ip}}"
+    }
+  }
+  resource "infoblox_dtc_server" "two" {
+    nios = {
+      name = "{{random3}}"
+      host = "{{random_ip2}}"
+    }
+  }
+  resource "infoblox_dtc_topology" "test" {
+    nios = {
+      name  = "{{random4}}"
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.one.id }]
+    }
+  }
+  resource "infoblox_dtc_topology" "test2" {
+    nios = {
+      name  = "{{random5}}"
+      rules = [{ dest_type = "SERVER", destination_link = infoblox_dtc_server.two.id }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_preferred_topology = infoblox_dtc_topology.test.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
     }
     check = {
-      "nios.lb_preferred_method"   = "TOPOLOGY"
-      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Q:terraform_topology_test"
+      "nios.lb_preferred_method" = "TOPOLOGY"
+    }
+    check_pair = {
+      "nios.lb_preferred_topology" = infoblox_dtc_topology.test.id
     }
   }
 
@@ -478,26 +587,45 @@ case "lb_preferred_topology" {
     nios {
       name                  = "{{random}}"
       lb_preferred_method   = "TOPOLOGY"
-      lb_preferred_topology = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
-      servers               = [{ server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyLmNvbQ:test_server.com", ratio = 1 }, { server = "dtc:server/ZG5zLmlkbnNfc2VydmVyJHRlc3Rfc2VydmVyMi5jb20:test_server2.com", ratio = 2 }]
+      lb_preferred_topology = infoblox_dtc_topology.test2.id
+      servers               = [{ server = infoblox_dtc_server.one.id, ratio = 1 }, { server = infoblox_dtc_server.two.id, ratio = 2 }]
     }
     check = {
-      "nios.lb_preferred_method"   = "TOPOLOGY"
-      "nios.lb_preferred_topology" = "dtc:topology/ZG5zLmlkbnNfdG9wb2xvZ3kkdGVycmFmb3JtX3RvcG9sb2d5X3Rlc3Qy:terraform_topology_test2"
+      "nios.lb_preferred_method" = "TOPOLOGY"
+    }
+    check_pair = {
+      "nios.lb_preferred_topology" = infoblox_dtc_topology.test2.id
     }
   }
 
 }
 
 case "monitors" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_monitor_http" "test_http" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_snmp" "test_snmp" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_pdp" "test_pdp" {
+    nios = {
+      name = "{{random4}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
-      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      monitors            = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_snmp.test_snmp.id]
     }
     check = {
       "nios.monitors.#" = "2"
@@ -508,7 +636,10 @@ case "monitors" {
     nios {
       name                = "{{random}}"
       lb_preferred_method = "ROUND_ROBIN"
-      monitors            = ["dtc:monitor:pdp/ZG5zLmlkbnNfbW9uaXRvcl9wZHAkcGRw:pdp"]
+      monitors            = [infoblox_dtc_monitor_pdp.test_pdp.id]
+    }
+    check = {
+      "nios.monitors.#" = "1"
     }
   }
 
@@ -541,8 +672,20 @@ case "name" {
 }
 
 case "quorum" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_dtc_monitor_http" "test_http" {
+    nios = {
+      name = "{{random2}}"
+    }
+  }
+  resource "infoblox_dtc_monitor_pdp" "test_pdp" {
+    nios = {
+      name = "{{random3}}"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -550,9 +693,10 @@ case "quorum" {
       lb_preferred_method = "ROUND_ROBIN"
       availability        = "QUORUM"
       quorum              = 1
-      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http"]
+      monitors            = [infoblox_dtc_monitor_http.test_http.id]
     }
     check = {
+      "nios.monitors.#" = "1"
       "nios.availability" = "QUORUM"
       "nios.quorum"       = "1"
     }
@@ -564,9 +708,10 @@ case "quorum" {
       lb_preferred_method = "ROUND_ROBIN"
       availability        = "QUORUM"
       quorum              = 2
-      monitors            = ["dtc:monitor:http/ZG5zLmlkbnNfbW9uaXRvcl9odHRwJGh0dHA:http", "dtc:monitor:snmp/ZG5zLmlkbnNfbW9uaXRvcl9zbm1wJHNubXA:snmp"]
+      monitors            = [infoblox_dtc_monitor_http.test_http.id, infoblox_dtc_monitor_pdp.test_pdp.id]
     }
     check = {
+      "nios.monitors.#" = "2"
       "nios.availability" = "QUORUM"
       "nios.quorum"       = "2"
     }
@@ -574,8 +719,6 @@ case "quorum" {
 
 }
 
-# TODO: auto-extraction incomplete — please verify and fill in manually.
-# Reason: config helper 'testAccDtcPoolServers' could not be parsed (no resource block found)
 case "servers" {
   backend           = "nios"
   parallel          = true

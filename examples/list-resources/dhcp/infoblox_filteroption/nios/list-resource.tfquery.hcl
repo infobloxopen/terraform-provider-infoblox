@@ -6,6 +6,7 @@ list "infoblox_filteroption" "list_filteroptions_using_filters" {
       name = "filteroption_example"
     }
   }
+  limit = 10
 }
 
 // List specific DHCP Option Filters using Extensible Attributes

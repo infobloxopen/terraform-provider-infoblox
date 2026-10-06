@@ -96,51 +96,52 @@ case "delete_associated_objects" {
 
 }
 
-# NOTE: When prerequisites object gets implemented, we can remove the hardcoded values
 case "dhcp_associated_objects" {
-  backend  = "nios"
-  parallel = true
-  #
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network" "parent_network" {
-  #   nios = {
-  #     network = "22.0.0.0/24"
-  #     network_view = "default"
-  #     comment = "Parent network for DHCP fixed addresses"
-  #   }
-  # }
-  # resource "infoblox_fixed_address" "fixed_address" {
-  #   nios = {
-  #     ipv4addr = "22.0.0.20"
-  #     match_client = "CIRCUIT_ID"
-  #     agent_circuit_id = 23
-  #   }
-  # }
-  # resource "infoblox_fixed_address" "fixed_address2" {
-  #   nios = {
-  #     ipv4addr = "22.0.0.21"
-  #     match_client = "CIRCUIT_ID"
-  #     agent_circuit_id = 24
-  #   }
-  # }
-  # PREREQ
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network" "parent_network" {
+    nios = {
+      network      = "22.0.0.0/24"
+      network_view = "default"
+      comment      = "Parent network for DHCP fixed addresses"
+    }
+  }
+  resource "infoblox_fixed_address" "fixed_address" {
+    nios = {
+      ipv4addr          = "22.0.0.20"
+      match_client      = "CIRCUIT_ID"
+      agent_circuit_id  = 23
+    }
+    depends_on = [infoblox_network.parent_network]
+  }
+  resource "infoblox_fixed_address" "fixed_address2" {
+    nios = {
+      ipv4addr          = "22.0.0.21"
+      match_client      = "CIRCUIT_ID"
+      agent_circuit_id  = 24
+    }
+    depends_on = [infoblox_network.parent_network]
+  }
+  PREREQ
+
   step {
     nios {
       name                    = "{{random}}"
-      dhcp_associated_objects = ["fixedaddress/ZG5zLmZpeGVkX2FkZHJlc3MkMjIuMC4wLjIwLjAuLg:22.0.0.20/default"]
+      dhcp_associated_objects = ["${infoblox_fixed_address.fixed_address.id}"]
     }
-    check = {
-      "nios.dhcp_associated_objects.0" = "fixedaddress/ZG5zLmZpeGVkX2FkZHJlc3MkMjIuMC4wLjIwLjAuLg:22.0.0.20/default"
+    check_pair = {
+      "nios.dhcp_associated_objects.0" = infoblox_fixed_address.fixed_address.id
     }
   }
 
   step {
     nios {
       name                    = "{{random}}"
-      dhcp_associated_objects = ["fixedaddress/ZG5zLmZpeGVkX2FkZHJlc3MkMjIuMC4wLjIxLjAuLg:22.0.0.21/default"]
+      dhcp_associated_objects = ["${infoblox_fixed_address.fixed_address2.id}"]
     }
-    check = {
-      "nios.dhcp_associated_objects.0" = "fixedaddress/ZG5zLmZpeGVkX2FkZHJlc3MkMjIuMC4wLjIxLjAuLg:22.0.0.21/default"
+    check_pair = {
+      "nios.dhcp_associated_objects.0" = infoblox_fixed_address.fixed_address2.id
     }
   }
 
@@ -172,60 +173,9 @@ case "disabled" {
 
 }
 
-# NOTE: When prerequisites object gets implemented, we can remove the hardcoded values
 case "dns_associated_objects" {
   backend  = "nios"
   parallel = true
-  # extracted prerequisites_hcl:
-  #  prerequisites_hcl = <<-PREREQ
-  #   resource "infoblox_record_a" "record_a" {
-  #     nios = {
-  #       name = "parent-record_a.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-  #       ipv4addr = "10.0.0.20"
-  #       view = "default"
-  #     }
-  #   }
-  #   resource "infoblox_record_aaaa" "record_aaaa" {
-  #     nios = {
-  #       name = "parent-record_aaaa.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-  #       ipv6addr = "2002:1111::1401"
-  #       view = "default"
-  #     }
-  #   }
-  #   resource "infoblox_record_ptr_unknown" "record_ptr" {
-  #     nios = {
-  #       name = "23.252.168.192.in-addr.arpa"
-  #       ptrdname = "test.example.com"
-  #       view = "default"
-  #     }
-  #   }
-  #   resource "infoblox_zone_auth" "parent_auth_zone" {
-  #     nios = {
-  #       fqdn = "{{random2}}.com"
-  #       view = "default"
-  #     }
-  #   }
-  #   resource "infoblox_zone_auth" "parent_reverse_zone" {
-  #     nios = {
-  #       fqdn = "192.168.252.0/24"
-  #       view = "default"
-  #       zone_format = "IPV4"
-  #     }
-  #   }
-  #   resource "infoblox_ip_allocation_unknown" "allocation" {
-  #     nios = {
-  #       name = "parent-record_host.$${nios_dns_zone_auth.parent_auth_zone.fqdn}"
-  #       view = "default"
-  #     }
-  #   }
-  #   resource "infoblox_ip_association_unknown" "association" {
-  #     nios = {
-  #       ref = infoblox_ip_allocation_unknown.allocation.nios.ref
-  #       mac = "12:00:43:fe:9a:8c"
-  #       configure_for_dhcp = true
-  #     }
-  #   }
-  #   PREREQ
 
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "parent_auth_zone" {
@@ -263,6 +213,13 @@ case "dns_associated_objects" {
     }
     depends_on = [infoblox_zone_auth.parent_reverse_zone]
   }
+  resource "infoblox_record_host" "record_host" {
+    nios = {
+      name = "parent-record-host.$${infoblox_zone_auth.parent_auth_zone.nios.fqdn}"
+      view = "default"
+      ipv4addrs = [{ ipv4addr = "10.0.0.21" }]
+    }
+  }
   PREREQ
 
   step {
@@ -279,13 +236,11 @@ case "dns_associated_objects" {
   step {
     nios {
       name                   = "{{random}}"
-      dns_associated_objects = ["${infoblox_record_ptr.record_ptr.id}", "record:host/ZG5zLmhvc3QkLl9kZWZhdWx0LmNvbS5zdXBlcmhvc3QtYWNjdGVzdC5wYXJlbnQtcmVjb3JkLWhvc3Q:parent-record-host.superhost-acctest.com/default"]
+      dns_associated_objects = ["${infoblox_record_ptr.record_ptr.id}", "${infoblox_record_host.record_host.id}"]
     }
     check_pair = {
       "nios.dns_associated_objects.0" = infoblox_record_ptr.record_ptr.id
-    }
-    check = {
-      "nios.dns_associated_objects.1" = "record:host/ZG5zLmhvc3QkLl9kZWZhdWx0LmNvbS5zdXBlcmhvc3QtYWNjdGVzdC5wYXJlbnQtcmVjb3JkLWhvc3Q:parent-record-host.superhost-acctest.com/default"
+      "nios.dns_associated_objects.1" = infoblox_record_host.record_host.id
     }
   }
 

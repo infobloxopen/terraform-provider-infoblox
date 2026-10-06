@@ -71,27 +71,28 @@ case "ciphers" {
 }
 
 case "client_cert" {
-  # TODO: grid prereqs — dtc:certificate refs 0504e596...abad058a and 4b0bcb4d...55ad5c must exist on the test appliance
-  backend  = "nios"
-  parallel = true
+  backend            = "nios"
+  parallel           = true
+  skip_if_env_empty  = ["NIOS_DTC_CERT1_REF", "NIOS_DTC_CERT2_REF"]
+  skip_reason        = "NIOS_DTC_CERT1_REF and NIOS_DTC_CERT2_REF must be set with existing dtc:certificate refs from the grid (dtc:certificate cannot be created via WAPI)"
 
   step {
     nios {
       name        = "{{random}}"
-      client_cert = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkYjIzMDM0NDhhODlhMjRmMGNlNWE3OTRiMWRiYWI2NjkwM2IyNmYwNGY0MzNhODA4YmExZDNiNjY3NzU2NTY5NTA5MmJjYTAzZTA0MjIxN2ZkOWFlOWI4YzE1N2I0MmQyNWEzYWJjNzA4MGZiYWRiYWRmY2I3NjkwYzgxN2NlODY:0504e596e496491145f9946315092522abad058a"
+      client_cert = "{{nios_dtc_cert1_ref}}"
     }
     check = {
-      "nios.client_cert" = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkYjIzMDM0NDhhODlhMjRmMGNlNWE3OTRiMWRiYWI2NjkwM2IyNmYwNGY0MzNhODA4YmExZDNiNjY3NzU2NTY5NTA5MmJjYTAzZTA0MjIxN2ZkOWFlOWI4YzE1N2I0MmQyNWEzYWJjNzA4MGZiYWRiYWRmY2I3NjkwYzgxN2NlODY:0504e596e496491145f9946315092522abad058a"
+      "nios.client_cert" = "{{nios_dtc_cert1_ref}}"
     }
   }
 
   step {
     nios {
       name        = "{{random}}"
-      client_cert = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkNmQxN2YzODc5MjYxZDhkM2U2NGM3MTEwYmU4ZTU3Nzk2ZjY5Y2EzYTc1ZmYxYzM0MWI3NTZkNGEyZWFkYWFmNWI4NzVhNjdlZmU4ZjU5ZjczZmRjODMyY2U5MTlhMzQzYmI1OGMyNTQxOGFkN2RmMWEyYTY3NzA5YWRlNWIxMGM:4b0bcb4d0f766414393f1d649bab3e6cb255ad5c"
+      client_cert = "{{nios_dtc_cert2_ref}}"
     }
     check = {
-      "nios.client_cert" = "dtc:certificate/ZG5zLmlkbnNfY2VydGlmaWNhdGUkNmQxN2YzODc5MjYxZDhkM2U2NGM3MTEwYmU4ZTU3Nzk2ZjY5Y2EzYTc1ZmYxYzM0MWI3NTZkNGEyZWFkYWFmNWI4NzVhNjdlZmU4ZjU5ZjczZmRjODMyY2U5MTlhMzQzYmI1OGMyNTQxOGFkN2RmMWEyYTY3NzA5YWRlNWIxMGM:4b0bcb4d0f766414393f1d649bab3e6cb255ad5c"
+      "nios.client_cert" = "{{nios_dtc_cert2_ref}}"
     }
   }
 

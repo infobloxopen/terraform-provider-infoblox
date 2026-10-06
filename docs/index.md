@@ -68,9 +68,12 @@ provider "infoblox" {
 
 Optional:
 
+- `ca_cert_file` (String) Path to a PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA. Can also be set with the `CA_CERT_PATH` environment variable.
+- `ca_cert_pem` (String, Sensitive) Inline PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA.
 - `host_url` (String) URL for the NIOS host
 - `password` (String, Sensitive) Password for the NIOS host
 - `proxy_url` (String) HTTP proxy URL to route NIOS WAPI calls through.
+- `ssl_verify` (Boolean) Enables TLS certificate verification when connecting to the NIOS host. Defaults to false. Can also be set with the `NIOS_SSL_VERIFY` environment variable.
 - `username` (String) Username for the NIOS host
 
 

@@ -47,6 +47,7 @@ var KerberosKeyResourceSchemaAttributes = map[string]schema.Attribute{
 	},
 	"key": schema.StringAttribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The resource identifier.",
 	},
 	"principal": schema.StringAttribute{

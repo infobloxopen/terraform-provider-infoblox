@@ -218,14 +218,16 @@ case "internal_forward_zones" {
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_zone_auth" "test_zone1" {
     nios = {
-      fqdn = "{{random}}1"
-      view = "default"
+      fqdn = "{{random2}}.com"
+      view = "default.{{random}}"
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
   resource "infoblox_zone_auth" "test_zone2" {
     nios = {
-      fqdn = "{{random}}2"
-      view = "default"
+      fqdn = "{{random3}}.com"
+      view = "default.{{random}}"
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
     }
   }
   PREREQ

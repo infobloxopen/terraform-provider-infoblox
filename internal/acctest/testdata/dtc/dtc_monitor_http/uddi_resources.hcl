@@ -483,8 +483,8 @@ case "tags" {
 case "check_response_body_negative" {
   backend     = "uddi"
   parallel    = true
-  # skip        = true
-  # skip_reason = "HTTPHealthCheck negative body search is not supported "
+  skip        = true
+  skip_reason = "HTTPHealthCheck negative body search is not supported"
 
   step {
     uddi {
