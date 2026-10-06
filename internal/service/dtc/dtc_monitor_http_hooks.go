@@ -70,7 +70,11 @@ func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDI
 	requestValue := flattened.Request.ValueString()
 	planValue := planned.Request.ValueString()
 
-	if strings.HasSuffix(requestValue, "\r\n\r\n") && !strings.HasSuffix(planValue, "\r\n\r\n") {
+	// The API appends trailing "\r\n" sequences (e.g. "GET / HTTP/1.0" is read
+	// back as "GET / HTTP/1.0\r\n\r\n"). Strip them until the read-back ends with
+	// no more trailing "\r\n" than the plan, so the stored value matches the config.
+	planCRLF := trailingCRLFCount(planValue)
+	for trailingCRLFCount(requestValue) > planCRLF {
 		requestValue = strings.TrimSuffix(requestValue, "\r\n")
 	}
 
@@ -106,4 +110,14 @@ func PostFlattenDtcMonitorHttpNIOS(ctx context.Context, planned, flattened *NIOS
 	}
 
 	flattened.Request = types.StringValue(requestValue)
+}
+
+// trailingCRLFCount returns the number of consecutive "\r\n" sequences at the end of s.
+func trailingCRLFCount(s string) int {
+	n := 0
+	for strings.HasSuffix(s, "\r\n") {
+		s = strings.TrimSuffix(s, "\r\n")
+		n++
+	}
+	return n
 }
