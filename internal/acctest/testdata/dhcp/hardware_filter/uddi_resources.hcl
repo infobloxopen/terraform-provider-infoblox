@@ -1,5 +1,4 @@
 # HardwareFilter — uddi resource cases
-# dhcp_options provisions its own option space/definition/group inline via prerequisites_hcl.
 case "basic" {
   backend  = "uddi"
   parallel = true
@@ -342,6 +341,32 @@ case "tags" {
     check = {
       "uddi.tags.tag2" = "value2changed"
       "uddi.tags.tag3" = "value3"
+    }
+  }
+
+}
+
+case "vendor_specific_option_option_space" {
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = "INFOBLOX_ACC_DHCP_OPTION_SPACE"
+
+  step {
+    uddi {
+      name                                = "{{random}}"
+      vendor_specific_option_option_space = "{{dhcp_option_space}}"
+    }
+    check = {
+      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
+    }
+  }
+
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.vendor_specific_option_option_space" = "{{dhcp_option_space}}"
     }
   }
 
