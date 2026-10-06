@@ -142,7 +142,7 @@ case "space" {
   }
   resource "infoblox_network_view" "two" {
     uddi = {
-      name = "{{random}}"
+      name = "{{random2}}"
     }
   }
   PREREQ
@@ -1032,8 +1032,8 @@ case "multiple_federated_realms" {
 
   step {
     uddi {
-      address          = "{{random_ipv6_network_address}}"
-      cidr             = 64
+      address          = "{{random_ipv4_network}}"
+      cidr             = 24
       space            = infoblox_network_view.test.id
       federated_realms = [infoblox_federated_realm.test.id]
     }
@@ -1045,8 +1045,8 @@ case "multiple_federated_realms" {
 
   step {
     uddi {
-      address          = "{{random_ipv6_network_address}}"
-      cidr             = 64
+      address          = "{{random_ipv4_network}}"
+      cidr             = 24
       space            = infoblox_network_view.test.id
       federated_realms = [infoblox_federated_realm.test2.id]
     }
@@ -1184,26 +1184,27 @@ case "next_available_id" {
       name = "{{random}}"
     }
   }
-  resource "infoblox_address_block" "one" {
+  resource "infoblox_network_container" "one" {
     uddi = {
-      space = infoblox_network_view.test.id
+      space   = infoblox_network_view.test.id
       address = "{{random_ipv4_network}}"
-      cidr = 16
+      cidr    = 16
     }
   }
-  resource "infoblox_address_block" "two" {
+  resource "infoblox_network_container" "two" {
     uddi = {
-      space = infoblox_network_view.test.id
+      space   = infoblox_network_view.test.id
       address = "11.0.0.0"
-      cidr = 16
+      cidr    = 16
     }
   }
   PREREQ
 
   step {
     uddi {
+      space              = infoblox_network_view.test.id
       cidr               = 24
-      dynamic_allocation = { next_available_id = "ipam/address_block/0acbbbed-94a4-11f1-8e35-aee0083f614b" }
+      dynamic_allocation = { next_available_id = infoblox_network_container.one.id }
     }
     check = {
       "uddi.cidr" = "24"
@@ -1212,9 +1213,9 @@ case "next_available_id" {
 
   step {
     uddi {
-      cidr = 24
-      dynamic_allocation = { next_available_id = "ipam/address_block/f8c37fe7-9250-11f1-a6f1-7207525c291d"
-      }
+      space              = infoblox_network_view.test.id
+      cidr               = 24
+      dynamic_allocation = { next_available_id = infoblox_network_container.two.id }
     }
     check = {
       "uddi.cidr" = "24"

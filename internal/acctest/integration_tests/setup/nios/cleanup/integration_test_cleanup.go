@@ -28,6 +28,9 @@
 //	Parental Control
 //	  - Parental Control AVPs whose name starts with "parentalcontrol-avp"
 //
+//	IPAM / Network Templates
+//	  - Network Template "test-networktemplate-for-network" (exact match)
+//
 //	Microsoft
 //	  - Microsoft Servers whose address matches 10\.10.* (regex filter)
 package main
@@ -434,6 +437,34 @@ func cleanupParentalControlAVPs(ctx context.Context, apiClient *client.APIClient
 	}
 }
 
+func cleanupNetworkTemplate(ctx context.Context, apiClient *client.APIClient) {
+	const name = "test-networktemplate-for-network"
+	resp, _, err := apiClient.IPAMAPI.NetworktemplateAPI.List(ctx).
+		ReturnAsObject(1).
+		Filters(map[string]interface{}{"name": name}).
+		Execute()
+	if err != nil {
+		fmt.Printf("cleanup: failed to list network template %q: %v\n", name, err)
+		return
+	}
+	if resp == nil || resp.ListNetworktemplateResponseObject == nil || len(resp.ListNetworktemplateResponseObject.Result) == 0 {
+		fmt.Printf("cleanup: network template %q not found, skipping\n", name)
+		return
+	}
+	for _, tmpl := range resp.ListNetworktemplateResponseObject.Result {
+		ref := core.ExtractNIOSRef(tmpl.GetRef())
+		if ref == "" {
+			continue
+		}
+		_, err := apiClient.IPAMAPI.NetworktemplateAPI.Delete(ctx, ref).Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to delete network template %q (ref=%q): %v\n", name, ref, err)
+		} else {
+			fmt.Printf("cleanup: deleted network template %q (ref=%q)\n", name, ref)
+		}
+	}
+}
+
 func cleanupMicrosoftServers(ctx context.Context, apiClient *client.APIClient) {
 	filters := map[string]interface{}{"address~": `10\.10.*`}
 	resp, _, err := apiClient.MicrosoftAPI.MsserverAPI.List(ctx).
@@ -500,6 +531,9 @@ func Cleanup(apiClient *client.APIClient) {
 
 	fmt.Println("--- Cleaning up Microsoft Servers (address prefix: 10.10) ---")
 	cleanupMicrosoftServers(ctx, apiClient)
+
+	fmt.Println("--- Cleaning up Network Template (test-networktemplate-for-network) ---")
+	cleanupNetworkTemplate(ctx, apiClient)
 }
 
 func main() {

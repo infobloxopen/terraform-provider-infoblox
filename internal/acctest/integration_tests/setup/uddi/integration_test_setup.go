@@ -344,7 +344,7 @@ func CreateOptionGroups(ctx context.Context, client *uddiclient.APIClient) error
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
 				// Fetch the existing group's ID
-				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Execute()
+				listResp, _, listErr := client.IPAddressManagementAPI.OptionGroupAPI.List(ctx).Filter("name==\"" + og.name + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create option groups: list existing groups to find %q: %w", og.name, listErr)
 				}
@@ -419,7 +419,7 @@ func CreateOptionCode(ctx context.Context, client *uddiclient.APIClient) error {
 	resp, _, err := client.IPAddressManagementAPI.OptionCodeAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionCodeAPI.List(ctx).Filter("name==\"" + optionCodeName + "\"").Execute()
 			if listErr != nil {
 				return fmt.Errorf("create option code: list existing option codes to find %q: %w", optionCodeName, listErr)
 			}
@@ -469,7 +469,7 @@ func createOrFindOptionSpace(ctx context.Context, client *uddiclient.APIClient, 
 	resp, _, err := client.IPAddressManagementAPI.OptionSpaceAPI.Create(ctx).Body(body).Execute()
 	if err != nil {
 		if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") {
-			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Execute()
+			listResp, _, listErr := client.IPAddressManagementAPI.OptionSpaceAPI.List(ctx).Filter("name==\"" + name + "\"").Execute()
 			if listErr != nil {
 				return "", fmt.Errorf("create or find option space: list existing spaces to find %q: %w", name, listErr)
 			}
@@ -543,7 +543,7 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 		if err != nil {
 			if strings.Contains(err.Error(), "is already an existing") || strings.Contains(err.Error(), "conflict") || strings.Contains(err.Error(), "already exists") {
 				// Fetch the existing zone's ID
-				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Execute()
+				listResp, _, listErr := client.DNSConfigurationAPI.AuthZoneAPI.List(ctx).Filter("fqdn==\"" + az.fqdn + "\"").Execute()
 				if listErr != nil {
 					return fmt.Errorf("create auth zone: list existing zones to find %q: %w", az.fqdn, listErr)
 				}
@@ -551,7 +551,8 @@ func CreateAuthZone(ctx context.Context, client *uddiclient.APIClient) error {
 				var existingID string
 				if listResp != nil {
 					for _, existing := range listResp.Results {
-						if existing.Fqdn != nil && *existing.Fqdn == az.fqdn && existing.Id != nil {
+						// UDDI stores fqdn with a trailing dot (e.g. "example_zone_250."), so compare with it trimmed.
+						if existing.Fqdn != nil && strings.TrimSuffix(*existing.Fqdn, ".") == az.fqdn && existing.Id != nil {
 							existingID = *existing.Id
 							break
 						}
@@ -811,4 +812,5 @@ func main() {
 		return
 	}
 	fmt.Println("Auth zone created successfully")
+
 }

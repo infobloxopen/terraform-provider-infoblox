@@ -76,6 +76,9 @@
 // Syslog Endpoint:
 //   - syslogendpoint123
 //
+// IPAM Network Template:
+//   - test-networktemplate-for-network (netmask: 24)
+//
 // pxGrid Endpoint:
 //   - Example_pxgrid_ISE_endpoint
 //
@@ -2189,6 +2192,29 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		}
 
 		fmt.Printf("Syslog endpoint %q created successfully (ref: %s)\n", *syslogEndpointBody.Name, syslogEndpointRef)
+	}
+
+	// Create network template for IPAM network tests
+	{
+		const netTemplateName = "test-networktemplate-for-network"
+		netTemplateBody := ipam.Networktemplate{
+			Name:    ipam.PtrString(netTemplateName),
+			Netmask: ipam.PtrInt64(24),
+		}
+		_, _, err := clients.IPAM.NetworktemplateAPI.Create(context.Background()).
+			Networktemplate(netTemplateBody).
+			Execute()
+		if err != nil {
+			if !strings.Contains(err.Error(), "already exists") {
+				return fmt.Errorf("failed to create network template %q: %w", netTemplateName, err)
+			}
+			fmt.Printf("Network template %q already exists, skipping creation\n", netTemplateName)
+		} else {
+			fmt.Printf("Network template %q created successfully\n", netTemplateName)
+		}
+		if err := writePipelineEnvVar("NIOS_NETWORK_TEMPLATE_CREATED", "true"); err != nil {
+			return fmt.Errorf("failed to write NIOS_NETWORK_TEMPLATE_CREATED: %w", err)
+		}
 	}
 
 	// Enable Discovery service on the discovery member if NIOS_DISCOVERY_MEMBER_URL is set.
