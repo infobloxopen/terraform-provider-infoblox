@@ -3,6 +3,7 @@ package dhcp
 import (
 	"context"
 	"fmt"
+	"net/netip"
 
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
@@ -156,26 +157,33 @@ func (l *Ipv6fixedaddressList) List(ctx context.Context, req list.ListRequest, s
 			})
 
 	case core.BackendUDDI:
-		records, err = core.ReadAllPagesUDDI(
-			func(offset, _ int32) ([]*coremodel.Ipv6fixedaddress, error) {
-				// Once the cap is reached, return an empty page
-				remaining := requestLimit - totalFetched
-				if remaining <= 0 {
+		// The API returns both IPv4 and IPv6, so keep only the matching ones here.
+		// Return the full page so the next page is fetched from the right place.
+		_, err = core.ReadAllPagesUDDI(
+			func(offset, limit int32) ([]*coremodel.Ipv6fixedaddress, error) {
+				// Enough results: return an empty page to stop fetching.
+				if int32(len(records)) >= requestLimit {
 					return nil, nil
 				}
-				// Shrink page size so we never over-fetch past the caller's limit.
-				pageSize := min(remaining, core.DefaultListLimit)
-
 				pageCount++
 				opts.Offset = offset
-				opts.Limit = pageSize
+				// Always fetch a full page; a smaller page would stop fetching too early.
+				opts.Limit = limit
 				recs, _, _, e := l.service.List(ctx, opts)
 				if e != nil {
 					return nil, e
 				}
-				totalFetched += int32(len(recs))
+				for _, r := range recs {
+					// Don't add more than the limit.
+					if int32(len(records)) >= requestLimit {
+						break
+					}
+					if ip, perr := netip.ParseAddr(r.UDDI.Address); perr == nil && ip.Is6() {
+						records = append(records, r)
+					}
+				}
 				tflog.Info(ctx, fmt.Sprintf("UDDI list page %d: offset=%d requested=%d got=%d",
-					pageCount, offset, pageSize, len(recs)))
+					pageCount, offset, limit, len(recs)))
 				return recs, nil
 			})
 	}
