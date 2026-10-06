@@ -1,22 +1,25 @@
 # Hand-authored resource acceptance-test cases for RecordRpzAaaaIpaddress.
-//
-// TODO : Objects to be present in the grid before running the test cases
-// Response Policy Zone - rpz-test.infoblox.com
-//
 case "basic" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.ipv6addr" = "{{random_ipv6}}"
-      "nios.name"     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
-      "nios.rp_zone"  = "rpz-test.infoblox.com"
+      "nios.name"     = "{{random_ipv6_network}}.{{random}}.com"
+      "nios.rp_zone"  = "{{random}}.com"
       "nios.view"     = "default"
       "nios.disable"  = "false"
     }
@@ -29,12 +32,19 @@ case "disappears" {
   disappears            = true
   expect_non_empty_plan = true
   parallel              = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -43,12 +53,19 @@ case "disappears" {
 case "comment" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       comment  = "test comment"
     }
     check = {
@@ -58,9 +75,9 @@ case "comment" {
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       comment  = "test comment update"
     }
     check = {
@@ -73,12 +90,19 @@ case "comment" {
 case "disable" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       disable  = false
     }
     check = {
@@ -88,9 +112,9 @@ case "disable" {
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       disable  = true
     }
     check = {
@@ -103,12 +127,19 @@ case "disable" {
 case "ext_attrs" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name      = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr  = "{{random_ipv6}}"
-      rp_zone   = "rpz-test.infoblox.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "value1" }
     }
     check = {
@@ -118,9 +149,9 @@ case "ext_attrs" {
 
   step {
     nios {
-      name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name      = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr  = "{{random_ipv6}}"
-      rp_zone   = "rpz-test.infoblox.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "value2" }
     }
     check = {
@@ -133,12 +164,19 @@ case "ext_attrs" {
 case "ipv6addr" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.ipv6addr" = "{{random_ipv6}}"
@@ -147,9 +185,9 @@ case "ipv6addr" {
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6_2}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
       "nios.ipv6addr" = "{{random_ipv6_2}}"
@@ -161,26 +199,33 @@ case "ipv6addr" {
 case "name" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name" = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      "nios.name" = "{{random_ipv6_network}}.{{random}}.com"
     }
   }
 
   step {
     nios {
-      name     = "{{random_ipv6_network2}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network2}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
     check = {
-      "nios.name" = "{{random_ipv6_network2}}.rpz-test.infoblox.com"
+      "nios.name" = "{{random_ipv6_network2}}.{{random}}.com"
     }
   }
 
@@ -189,12 +234,19 @@ case "name" {
 case "ttl" {
   backend  = "nios"
   parallel = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       ttl      = 600
     }
     check = {
@@ -204,9 +256,9 @@ case "ttl" {
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "{{random_ipv6}}"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
       ttl      = 3600
     }
     check = {
