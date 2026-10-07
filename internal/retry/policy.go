@@ -44,10 +44,10 @@ type override struct {
 // operation on the same object can differ per backend.
 var overrides = map[override]Policy{
 	// UDDI calls can fail with "not found" if the zone of a record is not yet created, hence we retry for little longer.
-	{"RecordA", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordA", core.BackendUDDI, OpCreate}: {Retryable: Or(IsNotFound, IsReverseMappingZoneAbsent), Timeout: 2 * time.Minute},
 	{"RecordA", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
-	{"RecordAaaa", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordAaaa", core.BackendUDDI, OpCreate}: {Retryable: Or(IsNotFound, IsReverseMappingZoneAbsent), Timeout: 2 * time.Minute},
 	{"RecordAaaa", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
 	{"RecordCaa", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
@@ -70,6 +70,12 @@ var overrides = map[override]Policy{
 
 	{"RecordNs", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
 	{"RecordNs", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"RecordMx", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordMx", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
+
+	{"RecordHttps", core.BackendUDDI, OpCreate}: {Retryable: IsNotFound, Timeout: 2 * time.Minute},
+	{"RecordHttps", core.BackendUDDI, OpUpdate}: {Retryable: IsRecordNotFound, Timeout: 2 * time.Minute},
 
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
 	{"ZoneAuth", core.BackendUDDI, OpDelete}: {Retryable: IsZoneReferenced, Timeout: 2 * time.Minute},
@@ -96,6 +102,25 @@ func For[T any](backend core.BackendType, op Operation) Policy {
 
 func IsNotFound(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "not found")
+}
+
+// IsReverseMappingZoneAbsent matches UDDI's transient error when a record is
+// created with create_ptr/check_rmz before its newly-created reverse zone has
+// finished propagating: the zone exists but isn't yet indexed for PTR lookup.
+func IsReverseMappingZoneAbsent(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "reverse mapping zone") && strings.Contains(err.Error(), "absent")
+}
+
+// Or returns a RetryableFunc that retries when any of fns matches the error.
+func Or(fns ...RetryableFunc) RetryableFunc {
+	return func(err error) bool {
+		for _, fn := range fns {
+			if fn(err) {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 func IsRecordNotFound(err error) bool {

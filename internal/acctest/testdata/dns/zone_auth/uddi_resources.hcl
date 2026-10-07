@@ -334,29 +334,19 @@ case "notify" {
 }
 
 case "nsgs" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ns_group_unknown" "one" {
-  #   uddi = {
-  #     name = "one"
-  #   }
-  # }
-  # resource "infoblox_ns_group_unknown" "two" {
-  #   uddi = {
-  #     name = "two"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_AUTH_NSG_ID_1", "UDDI_AUTH_NSG_ID_2"]
+  skip_reason       = "UDDI_AUTH_NSG_ID_1 and UDDI_AUTH_NSG_ID_2 environment variables must be set for this test to run"
 
   step {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      nsgs         = ["dns/auth_nsg/b9ab1a46-ffc4-49cb-93bc-c631904f84b0"]
+      nsgs         = ["{{uddi_auth_nsg_id_1}}"]
     }
     check = {
-      "uddi.nsgs.0" = "dns/auth_nsg/b9ab1a46-ffc4-49cb-93bc-c631904f84b0"
+      "uddi.nsgs.0" = "{{uddi_auth_nsg_id_1}}"
     }
   }
 
@@ -364,10 +354,10 @@ case "nsgs" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      nsgs         = ["dns/auth_nsg/a06fe7d8-7470-4451-b9ef-1032d03509d4"]
+      nsgs         = ["{{uddi_auth_nsg_id_2}}"]
     }
     check = {
-      "uddi.nsgs.0" = "dns/auth_nsg/a06fe7d8-7470-4451-b9ef-1032d03509d4"
+      "uddi.nsgs.0" = "{{uddi_auth_nsg_id_2}}"
     }
   }
 }
@@ -659,29 +649,19 @@ case "use_forwarders_for_subzones" {
 }
 
 case "view" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_view" "one" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # resource "infoblox_view" "two" {
-  #   uddi = {
-  #     name = "{{random}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_VIEW_ID_1"]
+  skip_reason       = "UDDI_VIEW_ID_1 environment variable must be set for this test to run"
 
   step {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      view         = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
+      view         = "{{uddi_view_id_1}}"
     }
     check = {
-      "uddi.view" = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
+      "uddi.view" = "{{uddi_view_id_1}}"
     }
   }
 
@@ -689,10 +669,10 @@ case "view" {
     uddi {
       fqdn         = "{{random}}.com."
       primary_type = "cloud"
-      view         = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
+      view         = "{{uddi_view_id_1}}"
     }
     check = {
-      "uddi.view" = "dns/view/0c019b1a-f440-4c5e-8a09-69138ef21084"
+      "uddi.view" = "{{uddi_view_id_1}}"
     }
   }
 }

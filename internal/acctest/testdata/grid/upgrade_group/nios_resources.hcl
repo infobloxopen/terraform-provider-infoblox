@@ -156,10 +156,10 @@ case "members" {
   step {
     nios {
       name    = "{{random}}"
-      members = [{ member = "{{grid_member_2_hostname}}" }]
+      members = [{ member = "infoblox.member2" }]
     }
     check = {
-      "nios.members.0.member" = "{{grid_member_2_hostname}}"
+      "nios.members.0.member" = "infoblox.member2"
     }
   }
 
