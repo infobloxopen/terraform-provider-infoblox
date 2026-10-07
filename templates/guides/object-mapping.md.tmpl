@@ -156,57 +156,57 @@ All NIOS provider objects map to the NIOS backend.
 
 All BloxOne provider objects map to the UDDI backend. BloxOne data source names are plural, while unified data source names match the resource name. Where the BloxOne provider uses one object for IPv4 and IPv6, the unified provider has a separate object for each.
 
-| BloxOne Resource                     | BloxOne Data Source                          | Unified Provider                                                                        |
-|--------------------------------------|----------------------------------------------|-----------------------------------------------------------------------------------------|
-| `bloxone_anycast_config`             | `bloxone_anycast_configs`                    | `infoblox_anycast_config`                                                               |
-| `bloxone_anycast_host`               |                                              | `infoblox_anycast_host`                                                                 |
-| `bloxone_cloud_discovery_provider`   | `bloxone_cloud_discovery_providers`          | `infoblox_cloud_discovery_provider`                                                     |
-| `bloxone_dhcp_fixed_address`         | `bloxone_dhcp_fixed_addresses`               | `infoblox_fixed_address` (IPv4) or `infoblox_ipv6_fixed_address` (IPv6)                 |
-| `bloxone_dhcp_ha_group`              | `bloxone_dhcp_ha_groups`                     | `infoblox_ha_group`                                                                     |
-| `bloxone_dhcp_option_code`           | `bloxone_dhcp_option_codes`                  | `infoblox_dhcp_optiondefinition` (IPv4) or `infoblox_ipv6_dhcp_optiondefinition` (IPv6) |
-| `bloxone_dhcp_option_group`          | `bloxone_dhcp_option_groups`                 | `infoblox_option_group`                                                                 |
-| `bloxone_dhcp_option_space`          | `bloxone_dhcp_option_spaces`                 | `infoblox_dhcp_optionspace` (IPv4) or `infoblox_ipv6_dhcp_optionspace` (IPv6)           |
-| `bloxone_dns_a_record`               | `bloxone_dns_a_records`                      | `infoblox_record_a`                                                                     |
-| `bloxone_dns_aaaa_record`            | `bloxone_dns_aaaa_records`                   | `infoblox_record_aaaa`                                                                  |
-| `bloxone_dns_caa_record`             | `bloxone_dns_caa_records`                    | `infoblox_record_caa`                                                                   |
-| `bloxone_dns_cname_record`           | `bloxone_dns_cname_records`                  | `infoblox_record_cname`                                                                 |
-| `bloxone_dns_dname_record`           | `bloxone_dns_dname_records`                  | `infoblox_record_dname`                                                                 |
-| `bloxone_dns_https_record`           | `bloxone_dns_https_records`                  | `infoblox_record_https`                                                                 |
-| `bloxone_dns_mx_record`              | `bloxone_dns_mx_records`                     | `infoblox_record_mx`                                                                    |
-| `bloxone_dns_naptr_record`           | `bloxone_dns_naptr_records`                  | `infoblox_record_naptr`                                                                 |
-| `bloxone_dns_ns_record`              | `bloxone_dns_ns_records`                     | `infoblox_record_ns`                                                                    |
-| `bloxone_dns_ptr_record`             | `bloxone_dns_ptr_records`                    | `infoblox_record_ptr`                                                                   |
-| `bloxone_dns_srv_record`             | `bloxone_dns_srv_records`                    | `infoblox_record_srv`                                                                   |
-| `bloxone_dns_svcb_record`            | `bloxone_dns_svcb_records`                   | `infoblox_record_svcb`                                                                  |
-| `bloxone_dns_txt_record`             | `bloxone_dns_txt_records`                    | `infoblox_record_txt`                                                                   |
-| `bloxone_dns_acl`                    | `bloxone_dns_acls`                           | `infoblox_namedacl`                                                                     |
-| `bloxone_dns_auth_nsg`               | `bloxone_dns_auth_nsgs`                      | `infoblox_auth_nsg`                                                                     |
-| `bloxone_dns_auth_zone`              | `bloxone_dns_auth_zones`                     | `infoblox_zone_auth`                                                                    |
-| `bloxone_dns_delegation`             | `bloxone_dns_delegations`                    | `infoblox_zone_delegated`                                                               |
-| `bloxone_dns_forward_nsg`            | `bloxone_dns_forward_nsgs`                   | `infoblox_forward_nsg`                                                                  |
-| `bloxone_dns_forward_zone`           | `bloxone_dns_forward_zones`                  | `infoblox_zone_forward`                                                                 |
-| `bloxone_dns_host`                   | `bloxone_dns_hosts`                          | `infoblox_dns_host`                                                                     |
-| `bloxone_dns_server`                 | `bloxone_dns_servers`                        | `infoblox_dns_server`                                                                   |
-| `bloxone_dns_view`                   | `bloxone_dns_views`                          | `infoblox_view`                                                                         |
-| `bloxone_federation_federated_realm` | `bloxone_federation_federated_realms`        | `infoblox_federated_realm`                                                              |
-| `bloxone_infra_host`                 | `bloxone_infra_hosts`                        | `infoblox_infra_host`                                                                   |
-| `bloxone_infra_join_token`           | `bloxone_infra_join_tokens`                  | `infoblox_join_token`                                                                   |
-| `bloxone_infra_service`              | `bloxone_infra_services`                     | `infoblox_infra_service`                                                                |
-| `bloxone_ipam_address`               | `bloxone_ipam_addresses`                     | `infoblox_address`                                                                      |
-| `bloxone_ipam_address_block`         | `bloxone_ipam_address_blocks`                | `infoblox_network_container` (IPv4) or `infoblox_ipv6_network_container` (IPv6)         |
-| `bloxone_ipam_host`                  | `bloxone_ipam_hosts`                         | `infoblox_ipam_host`                                                                    |
-| `bloxone_ipam_ip_space`              | `bloxone_ipam_ip_spaces`                     | `infoblox_network_view`                                                                 |
-| `bloxone_ipam_range`                 | `bloxone_ipam_ranges`                        | `infoblox_range`     (IPv4)                                                                   |
-| `bloxone_ipam_subnet`                | `bloxone_ipam_subnets`                       | `infoblox_network` (IPv4) or `infoblox_ipv6_network` (IPv6)                             |
-|                                      | `bloxone_ipam_next_available_address_blocks` | `infoblox_next_available_address_blocks`                                                |
-|                                      | `bloxone_ipam_next_available_ips`            | `infoblox_next_available_ips`                                                           |
-|                                      | `bloxone_ipam_next_available_subnets`        | `infoblox_next_available_subnets`                                                       |
-| `bloxone_keys_tsig`                  | `bloxone_keys_tsigs`                         | `infoblox_tsig_key`                                                                     |
-| `bloxone_td_access_code`             | `bloxone_td_access_codes`                    | `infoblox_access_code`                                                                  |
-| `bloxone_td_application_filter`      | `bloxone_td_application_filters`             | `infoblox_application_filter`                                                           |
-| `bloxone_td_category_filter`         | `bloxone_td_category_filters`                | `infoblox_category_filter`                                                              |
-| `bloxone_td_custom_redirect`         | `bloxone_td_custom_redirects`                | `infoblox_custom_redirect`                                                              |
-| `bloxone_td_internal_domain_list`    | `bloxone_td_internal_domain_lists`           | `infoblox_internal_domain_list`                                                         |
-| `bloxone_td_named_list`              | `bloxone_td_named_lists`                     | `infoblox_named_list`                                                                   |
-| `bloxone_td_network_list`            | `bloxone_td_network_lists`                   | `infoblox_network_list`                                                                 |
-| `bloxone_td_security_policy`         | `bloxone_td_security_policies`               | `infoblox_security_policy`                                                              |
+| BloxOne Provider                             | Unified Provider                                                                        |
+|----------------------------------------------|-----------------------------------------------------------------------------------------|
+| `bloxone_anycast_config`                     | `infoblox_anycast_config`                                                               |
+| `bloxone_anycast_host`                       | `infoblox_anycast_host`                                                                 |
+| `bloxone_cloud_discovery_provider`           | `infoblox_cloud_discovery_provider`                                                     |
+| `bloxone_dhcp_fixed_address`                 | `infoblox_fixed_address` (IPv4) or `infoblox_ipv6_fixed_address` (IPv6)                 |
+| `bloxone_dhcp_ha_group`                      | `infoblox_ha_group`                                                                     |
+| `bloxone_dhcp_option_code`                   | `infoblox_dhcp_optiondefinition` (IPv4) or `infoblox_ipv6_dhcp_optiondefinition` (IPv6) |
+| `bloxone_dhcp_option_group`                  | `infoblox_option_group`                                                                 |
+| `bloxone_dhcp_option_space`                  | `infoblox_dhcp_optionspace` (IPv4) or `infoblox_ipv6_dhcp_optionspace` (IPv6)           |
+| `bloxone_dns_a_record`                       | `infoblox_record_a`                                                                     |
+| `bloxone_dns_aaaa_record`                    | `infoblox_record_aaaa`                                                                  |
+| `bloxone_dns_caa_record`                     | `infoblox_record_caa`                                                                   |
+| `bloxone_dns_cname_record`                   | `infoblox_record_cname`                                                                 |
+| `bloxone_dns_dname_record`                   | `infoblox_record_dname`                                                                 |
+| `bloxone_dns_https_record`                   | `infoblox_record_https`                                                                 |
+| `bloxone_dns_mx_record`                      | `infoblox_record_mx`                                                                    |
+| `bloxone_dns_naptr_record`                   | `infoblox_record_naptr`                                                                 |
+| `bloxone_dns_ns_record`                      | `infoblox_record_ns`                                                                    |
+| `bloxone_dns_ptr_record`                     | `infoblox_record_ptr`                                                                   |
+| `bloxone_dns_srv_record`                     | `infoblox_record_srv`                                                                   |
+| `bloxone_dns_svcb_record`                    | `infoblox_record_svcb`                                                                  |
+| `bloxone_dns_txt_record`                     | `infoblox_record_txt`                                                                   |
+| `bloxone_dns_acl`                            | `infoblox_namedacl`                                                                     |
+| `bloxone_dns_auth_nsg`                       | `infoblox_auth_nsg`                                                                     |
+| `bloxone_dns_auth_zone`                      | `infoblox_zone_auth`                                                                    |
+| `bloxone_dns_delegation`                     | `infoblox_zone_delegated`                                                               |
+| `bloxone_dns_forward_nsg`                    | `infoblox_forward_nsg`                                                                  |
+| `bloxone_dns_forward_zone`                   | `infoblox_zone_forward`                                                                 |
+| `bloxone_dns_host`                           | `infoblox_dns_host`                                                                     |
+| `bloxone_dns_server`                         | `infoblox_dns_server`                                                                   |
+| `bloxone_dns_view`                           | `infoblox_view`                                                                         |
+| `bloxone_federation_federated_realm`         | `infoblox_federated_realm`                                                              |
+| `bloxone_infra_host`                         | `infoblox_infra_host`                                                                   |
+| `bloxone_infra_join_token`                   | `infoblox_join_token`                                                                   |
+| `bloxone_infra_service`                      | `infoblox_infra_service`                                                                |
+| `bloxone_ipam_address`                       | `infoblox_address`                                                                      |
+| `bloxone_ipam_address_block`                 | `infoblox_network_container` (IPv4) or `infoblox_ipv6_network_container` (IPv6)         |
+| `bloxone_ipam_host`                          | `infoblox_ipam_host`                                                                    |
+| `bloxone_ipam_ip_space`                      | `infoblox_network_view`                                                                 |
+| `bloxone_ipam_range`                         | `infoblox_range` (IPv4)                                                                 |
+| `bloxone_ipam_subnet`                        | `infoblox_network` (IPv4) or `infoblox_ipv6_network` (IPv6)                             |
+| `bloxone_ipam_next_available_address_blocks` | `infoblox_next_available_address_blocks`                                                |
+| `bloxone_ipam_next_available_ips`            | `infoblox_next_available_ips`                                                           |
+| `bloxone_ipam_next_available_subnets`        | `infoblox_next_available_subnets`                                                       |
+| `bloxone_keys_tsig`                          | `infoblox_tsig_key`                                                                     |
+| `bloxone_td_access_code`                     | `infoblox_access_code`                                                                  |
+| `bloxone_td_application_filter`              | `infoblox_application_filter`                                                           |
+| `bloxone_td_category_filter`                 | `infoblox_category_filter`                                                              |
+| `bloxone_td_custom_redirect`                 | `infoblox_custom_redirect`                                                              |
+| `bloxone_td_internal_domain_list`            | `infoblox_internal_domain_list`                                                         |
+| `bloxone_td_named_list`                      | `infoblox_named_list`                                                                   |
+| `bloxone_td_network_list`                    | `infoblox_network_list`                                                                 |
+| `bloxone_td_security_policy`                 | `infoblox_security_policy`                                                              |

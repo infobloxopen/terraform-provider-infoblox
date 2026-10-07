@@ -187,11 +187,11 @@ For a detailed list of available resources and data sources, refer to the [Resou
 
 ## Migrating from Other Infoblox Providers
 
-This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, and the BloxOne provider. To find the unified name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/migration-object-mapping.md) page:
+This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, and the BloxOne provider. To find the unified name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/object-mapping.md) page:
 
-- [Legacy Infoblox Provider](docs/guides/migration-object-mapping.md#legacy-infoblox-provider-to-unified-provider)
-- [NIOS Provider](docs/guides/migration-object-mapping.md#nios-provider-to-unified-provider)
-- [BloxOne Provider](docs/guides/migration-object-mapping.md#bloxone-provider-to-unified-provider)
+- [Legacy Infoblox Provider](docs/guides/object-mapping.md#legacy-infoblox-provider-to-unified-provider)
+- [NIOS Provider](docs/guides/object-mapping.md#nios-provider-to-unified-provider)
+- [BloxOne Provider](docs/guides/object-mapping.md#bloxone-provider-to-unified-provider)
 
 ## Host Record Management
 
