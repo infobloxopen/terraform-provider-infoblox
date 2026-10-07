@@ -346,8 +346,10 @@ func (m *DtcServerModel) Flatten(ctx context.Context, resp *coremodel.DtcServer,
 	if uddiModel == nil {
 		uddiModel = &UDDIDtcServerModel{}
 	}
+	plannedUDDI := flex.ExpandNestedObject[UDDIDtcServerModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
+		PostFlattenDtcServerUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIDtcServerAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIDtcServerAttrTypes)
