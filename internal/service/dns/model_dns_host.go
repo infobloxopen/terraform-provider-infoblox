@@ -75,7 +75,7 @@ var DnsHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Required: true,
 		Validators: []validator.String{
-			stringvalidator.RegexMatches(regexp.MustCompile(`^dns/host/[0-9].*$`), "Should be a valid resource identifier for a DNS Host with 'dns/host/' as prefix "),
+			stringvalidator.RegexMatches(regexp.MustCompile(`^dns/host/[0-9].*$`), "Should be a valid resource identifier for a DNS Host with 'dns/host/' as prefix"),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
