@@ -3,16 +3,17 @@ package dns
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"regexp"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -72,7 +73,10 @@ const (
 
 var DnsHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			stringvalidator.RegexMatches(regexp.MustCompile(`^dns/host/[0-9].*$`), "Should be a valid resource identifier for a DNS Host with 'dns/host/' as prefix"),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"update_trigger": schema.StringAttribute{
@@ -148,12 +152,8 @@ var DnsHostResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The resource identifier.",
 	},
 	"tags": schema.MapAttribute{
-		Computed:    true,
-		ElementType: types.StringType,
-		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
-		Validators: []validator.Map{
-			mapvalidator.SizeAtLeast(1),
-		},
+		Computed:            true,
+		ElementType:         types.StringType,
 		MarkdownDescription: "Host tagging specifics.",
 	},
 	"tags_all": schema.MapAttribute{
