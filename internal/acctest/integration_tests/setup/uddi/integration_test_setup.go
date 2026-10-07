@@ -263,11 +263,10 @@ func StoreDNSHostIDs(ctx context.Context, client *uddiclient.APIClient) error {
 			fmt.Printf("DNS host at index %d has no ID, skipping\n", i)
 			continue
 		}
-		hostID := "dns/host/" + *host.Id
-		if err := writePipelineEnvVar(envVars[stored], hostID); err != nil {
+		if err := writePipelineEnvVar(envVars[stored], *host.Id); err != nil {
 			return fmt.Errorf("store DNS host IDs: write %s: %w", envVars[stored], err)
 		}
-		fmt.Printf("Stored DNS host ID %q as %s\n", hostID, envVars[stored])
+		fmt.Printf("Stored DNS host ID %q as %s\n", *host.Id, envVars[stored])
 		stored++
 	}
 

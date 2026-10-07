@@ -70,7 +70,10 @@ const (
 
 var DnsHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		MarkdownDescription: "The resource identifier.",
 	},
 	"update_trigger": schema.StringAttribute{
@@ -191,8 +194,6 @@ func (m *DnsHostModel) Flatten(ctx context.Context, resp *coremodel.DnsHost, dia
 	if resp == nil {
 		return
 	}
-
-	m.Id = flex.FlattenStringPointer(resp.Id)
 
 	// Extract existing UDDI model, flatten API response onto it, convert back
 	uddiModel := flex.ExpandNestedObject[UDDIDnsHostModel](ctx, m.UDDI, diags)
