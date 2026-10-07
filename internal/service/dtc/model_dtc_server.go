@@ -19,6 +19,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -61,16 +62,16 @@ var NIOSDtcServerAttrTypes = map[string]attr.Type{
 }
 
 type UDDIDtcServerModel struct {
-	Address                   types.String `tfsdk:"address"`
-	AutoCreateResponseRecords types.Bool   `tfsdk:"auto_create_response_records"`
-	Comment                   types.String `tfsdk:"comment"`
-	Disabled                  types.Bool   `tfsdk:"disabled"`
-	EndpointType              types.String `tfsdk:"endpoint_type"`
-	Fqdn                      types.String `tfsdk:"fqdn"`
-	Name                      types.String `tfsdk:"name"`
-	Records                   types.List   `tfsdk:"records"`
-	Tags                      types.Map    `tfsdk:"tags"`
-	TagsAll                   types.Map    `tfsdk:"tags_all"`
+	Address                   types.String                     `tfsdk:"address"`
+	AutoCreateResponseRecords types.Bool                       `tfsdk:"auto_create_response_records"`
+	Comment                   types.String                     `tfsdk:"comment"`
+	Disabled                  types.Bool                       `tfsdk:"disabled"`
+	EndpointType              types.String                     `tfsdk:"endpoint_type"`
+	Fqdn                      types.String                     `tfsdk:"fqdn"`
+	Name                      types.String                     `tfsdk:"name"`
+	Records                   internaltypes.UnorderedListValue `tfsdk:"records"`
+	Tags                      types.Map                        `tfsdk:"tags"`
+	TagsAll                   types.Map                        `tfsdk:"tags_all"`
 }
 
 var UDDIDtcServerAttrTypes = map[string]attr.Type{
@@ -81,7 +82,7 @@ var UDDIDtcServerAttrTypes = map[string]attr.Type{
 	"endpoint_type":                types.StringType,
 	"fqdn":                         types.StringType,
 	"name":                         types.StringType,
-	"records":                      types.ListType{ElemType: types.ObjectType{AttrTypes: RecordAttrTypes}},
+	"records":                      internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: RecordAttrTypes}}},
 	"tags":                         types.MapType{ElemType: types.StringType},
 	"tags_all":                     types.MapType{ElemType: types.StringType},
 }
@@ -235,8 +236,9 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: RecordResourceSchemaAttributes,
 		},
-		Optional: true,
-		Computed: true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: RecordAttrTypes}}},
+		Optional:   true,
+		Computed:   true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -346,10 +348,8 @@ func (m *DtcServerModel) Flatten(ctx context.Context, resp *coremodel.DtcServer,
 	if uddiModel == nil {
 		uddiModel = &UDDIDtcServerModel{}
 	}
-	plannedUDDI := flex.ExpandNestedObject[UDDIDtcServerModel](ctx, m.UDDI, diags)
 	uddiModel.Flatten(ctx, resp.UDDI, diags)
 	if resp.UDDI != nil {
-		PostFlattenDtcServerUDDI(ctx, plannedUDDI, uddiModel, diags)
 		m.UDDI = flex.FlattenNestedObject(ctx, uddiModel, UDDIDtcServerAttrTypes, diags)
 	} else {
 		m.UDDI = types.ObjectNull(UDDIDtcServerAttrTypes)
@@ -387,7 +387,7 @@ func (m *UDDIDtcServerModel) Flatten(ctx context.Context, from *coremodel.UDDIDt
 	m.EndpointType = flex.FlattenStringPointer(from.EndpointType)
 	m.Fqdn = flex.FlattenStringPointer(from.Fqdn)
 	m.Name = flex.FlattenString(from.Name)
-	m.Records = flex.FlattenFrameworkListNestedBlock(ctx, from.Records, RecordAttrTypes, diags, FlattenRecord)
+	m.Records = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.Records, RecordAttrTypes, diags, FlattenRecord)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll
