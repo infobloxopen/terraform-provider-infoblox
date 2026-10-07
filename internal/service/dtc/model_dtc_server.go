@@ -229,7 +229,10 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Fully Qualified Domain name of the __Server__. Must be set to a valid FQDN if __endpoint_type__ is set to __fqdn__. Alternatively, it can be left blank.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "Display name of __Server__.",
 	},
 	"records": schema.ListNestedAttribute{
