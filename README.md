@@ -20,6 +20,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Getting Started](#getting-started)
   - [Configure the Provider](#configure-the-provider)
   - [Proxy Settings](#proxy-settings)
+  - [Retry Behavior](#retry-behavior)
   - [Prerequisites](#prerequisites)
     - [Setting Up Terraform Internal ID](#setting-up-terraform-internal-id)
 - [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal)
@@ -29,6 +30,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Host Record Management](#host-record-management)
 - [Listing Existing Objects](#listing-existing-objects)
 - [Importing Existing Resources](#importing-existing-resources)
+- [Update Trigger](#update-trigger)
 - [Documentation](#documentation)
 - [Logging and Debugging](#logging-and-debugging)
 - [Contributing](#contributing)
@@ -69,7 +71,7 @@ resource "infoblox_record_a" "example" {
 }
 ```
 
-A configuration targets one backend at a time. The provider accepts either a `nios` block or a `uddi` block, not both. To manage both in the same run, declare two provider instances with aliases.
+A configuration targets one backend at a time. The provider accepts either a `nios` block or a `uddi` block, not both. To manage both in the same run, declare two provider instances with [aliases](https://developer.hashicorp.com/terraform/language/providers/configuration#alias-multiple-provider-configurations).
 
 ## Getting Started
 
@@ -123,6 +125,17 @@ These settings apply to the NIOS backend only:
 - `proxy_search`: Where WAPI requests are processed. `LOCAL` (default) processes them on the member you connect to, and `GM` redirects them to the Grid Master.
 
 For detailed installation instructions, please refer to the [Quickstart Guide](guides/quickstart.md).
+
+### Retry Behavior
+
+The provider retries API calls that fail with a temporary error. All attempts of one operation must finish within `operation_timeout`, which defaults to `60` seconds. To allow more time for retries, increase it:
+
+```hcl
+provider "infoblox" {
+  operation_timeout = 120
+  nios = { ... }
+}
+```
 
 ### Prerequisites
 
@@ -227,6 +240,20 @@ For detailed information, refer to the [Listing Existing Objects](guides/list-re
 Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
 
 For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
+
+## Update Trigger
+
+Most resources have an optional `update_trigger` attribute. The provider never sends it to the API. Change its value when you want Terraform to run an update, even though Terraform reports no changes. The field accepts any string value, such as an incrementing counter, a timestamp, or another unique value:
+
+```hcl
+resource "infoblox_record_a" "example" {
+  update_trigger = "v2"
+  nios = {
+    name     = "web.example.com"
+    ipv4addr = "10.0.0.18"
+  }
+}
+```
 
 ## Documentation
 
