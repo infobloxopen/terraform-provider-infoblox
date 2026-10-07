@@ -36,8 +36,6 @@ case "rdata" {
 case "options" {
   backend  = "uddi"
   parallel = true
-
-  # check_rmz requires the reverse-mapping zone for the record address to exist.
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test" {
     uddi = {
@@ -46,16 +44,16 @@ case "options" {
   }
   resource "infoblox_zone_auth" "test" {
     uddi = {
-      fqdn = "{{random2}}.com."
+      fqdn         = "{{random2}}.com."
       primary_type = "cloud"
-      view = infoblox_view.test.id
+      view         = infoblox_view.test.id
     }
   }
   resource "infoblox_zone_auth" "rmz" {
     uddi = {
-      fqdn = "1.0.0.2.ip6.arpa."
+      fqdn         = "1.0.0.2.ip6.arpa."
       primary_type = "cloud"
-      view = infoblox_view.test.id
+      view         = infoblox_view.test.id
     }
   }
   PREREQ

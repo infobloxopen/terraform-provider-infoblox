@@ -795,35 +795,30 @@ case "inheritance_sources" {
 }
 
 case "ip_spaces" {
-  backend  = "uddi"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_network_view" "test_space" {
-  #   uddi = {
-  #     name = "{{random2}}"
-  #   }
-  # }
-  # PREREQ
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_IP_SPACE_ID_1", "UDDI_IP_SPACE_ID_2"]
+  skip_reason       = "UDDI_IP_SPACE_ID_1 and UDDI_IP_SPACE_ID_2 environment variables must be set for this test to run"
 
   step {
     uddi {
       name      = "{{random}}"
-      ip_spaces = ["ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"]
+      ip_spaces = ["{{uddi_ip_space_id_1}}"]
     }
     check = {
       "uddi.ip_spaces.#" = "1"
-      "uddi.ip_spaces.0" = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+      "uddi.ip_spaces.0" = "{{uddi_ip_space_id_1}}"
     }
   }
 
   step {
     uddi {
       name      = "{{random}}"
-      ip_spaces = ["ipam/ip_space/1fcd4065-8847-11f1-b283-5eecb1762ec1"]
+      ip_spaces = ["{{uddi_ip_space_id_2}}"]
     }
     check = {
       "uddi.ip_spaces.#" = "1"
-      "uddi.ip_spaces.0" = "ipam/ip_space/1fcd4065-8847-11f1-b283-5eecb1762ec1"
+      "uddi.ip_spaces.0" = "{{uddi_ip_space_id_2}}"
     }
   }
 

@@ -34,9 +34,17 @@
 //   - example.com (default view, forward)
 //   - 192.168.10.0/24 (default view, IPV4 reverse)
 //   - 2001::/64 (default view, IPV6 reverse)
+//   - tf-srg-zone-1.com (default view, forward)
+//   - tf-srg-zone-2.com (default view, forward)
 //
 // DNS Zone RP (RPZ):
 //   - test-rpz.com (default view)
+//
+// DNS Rulesets:
+//   - blacklist_ruleset_1 (type: BLACKLIST)
+//   - blacklist_ruleset_2 (type: BLACKLIST)
+//   - nxdomain_ruleset_1 (type: NXDOMAIN)
+//   - nxdomain_ruleset_2 (type: NXDOMAIN)
 //
 // DNS DDNS Principal Cluster Groups:
 //   - dynamic_update_grp_1, dynamic_update_grp_2
@@ -1529,6 +1537,69 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Zone RP %q created successfully\n", "test-rpz.com")
 	}
 
+	// Create shared record group zones
+	srgZones := []string{"tf-srg-zone-1.com", "tf-srg-zone-2.com"}
+	for _, fqdn := range srgZones {
+		srgZoneBody := dns.ZoneAuth{
+			Fqdn: dns.PtrString(fqdn),
+			View: dns.PtrString("default"),
+		}
+		_, _, err = clients.DNS.ZoneAuthAPI.Create(context.Background()).
+			ZoneAuth(srgZoneBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") {
+				fmt.Printf("Zone auth %q already exists, skipping creation\n", fqdn)
+			} else {
+				return fmt.Errorf("failed to create zone auth %q: %w", fqdn, err)
+			}
+		} else {
+			fmt.Printf("Zone auth %q created successfully\n", fqdn)
+		}
+	}
+
+	// Create blacklist rulesets
+	blacklistRulesets := []string{"blacklist_ruleset_1", "blacklist_ruleset_2"}
+	for _, name := range blacklistRulesets {
+		rulesetBody := misc.Ruleset{
+			Name: misc.PtrString(name),
+			Type: misc.PtrString("BLACKLIST"),
+		}
+		_, _, err = clients.MISC.RulesetAPI.Create(context.Background()).
+			Ruleset(rulesetBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") || strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Ruleset %q already exists, skipping creation\n", name)
+			} else {
+				return fmt.Errorf("failed to create blacklist ruleset %q: %w", name, err)
+			}
+		} else {
+			fmt.Printf("Blacklist ruleset %q created successfully\n", name)
+		}
+	}
+
+	// Create nxdomain rulesets
+	nxdomainRulesets := []string{"nxdomain_ruleset_1", "nxdomain_ruleset_2"}
+	for _, name := range nxdomainRulesets {
+		rulesetBody := misc.Ruleset{
+			Name: misc.PtrString(name),
+			Type: misc.PtrString("NXDOMAIN"),
+		}
+		_, _, err = clients.MISC.RulesetAPI.Create(context.Background()).
+			Ruleset(rulesetBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") || strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Ruleset %q already exists, skipping creation\n", name)
+			} else {
+				return fmt.Errorf("failed to create nxdomain ruleset %q: %w", name, err)
+			}
+		} else {
+			fmt.Printf("NXDOMAIN ruleset %q created successfully\n", name)
+		}
+	}
+
 	// Create DHCP failovers
 	failovers := []struct {
 		name      string
@@ -1569,6 +1640,7 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		networkView string
 	}{
 		{address: "10.10.10.10", dnsView: microsoft.PtrString("default"), networkView: "default"},
+		{address: "10.10.10.11", dnsView: microsoft.PtrString("default"), networkView: "default"},
 		{address: "example_server", dnsView: microsoft.PtrString("default"), networkView: "default"},
 		{address: "ms_example_server", dnsView: nil, networkView: "ms_server"},
 		{address: "ms_example_server2", dnsView: nil, networkView: "ms_server2"},

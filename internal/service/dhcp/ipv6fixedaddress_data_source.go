@@ -1,8 +1,10 @@
 package dhcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
+	"net/netip"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -189,12 +191,28 @@ func (d *Ipv6fixedaddressDataSource) Read(ctx context.Context, req datasource.Re
 			return recs, nextPageID, e
 		})
 	case core.BackendUDDI:
-		allResults, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Ipv6fixedaddress, error) {
+		var maxItems int32
+		if opts.Paging == 0 {
+			maxItems = cmp.Or(opts.Limit, core.DefaultListLimit)
+		}
+
+		_, err = core.ReadAllPagesUDDI(func(offset, limit int32) ([]*coremodel.Ipv6fixedaddress, error) {
+			if maxItems > 0 && int32(len(allResults)) >= maxItems {
+				return nil, nil
+			}
 			opts.Offset = offset
 			opts.Limit = limit
 			recs, _, _, e := d.service.List(ctx, opts)
+			for _, r := range recs {
+				if maxItems > 0 && int32(len(allResults)) >= maxItems {
+					break
+				}
+				if ip, perr := netip.ParseAddr(r.UDDI.Address); perr == nil && ip.Is6() {
+					allResults = append(allResults, r)
+				}
+			}
 			return recs, e
-		}, opts.Limit, opts.Paging)
+		}, opts.Limit)
 	}
 
 	if err != nil {

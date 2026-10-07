@@ -154,8 +154,10 @@ case "allow_gss_tsig_for_underscore_zone" {
 }
 
 case "allow_gss_tsig_zone_updates" {
-  backend  = "nios"
-  parallel = true
+  backend           = "nios"
+  parallel          = true
+  skip_if_env_empty = ["NIOS_GSS_TSIG_ENABLED"]
+  skip_reason       = "NIOS_GSS_TSIG_ENABLED must be set; requires GSS-TSIG configured on the grid"
 
   step {
     nios {
@@ -1310,11 +1312,11 @@ case "ms_primaries" {
     nios {
       fqdn         = "{{random}}.com"
       view         = "default"
-      ms_primaries = [{ address = "10.0.0.0", ns_ip = "1.1.1.1", ns_name = "example-server" }]
+      ms_primaries = [{ address = "10.10.10.11", ns_ip = "1.1.1.1", ns_name = "example-server" }]
     }
     check = {
       "nios.ms_primaries.#"         = "1"
-      "nios.ms_primaries.0.address" = "10.0.0.0"
+      "nios.ms_primaries.0.address" = "10.10.10.11"
     }
   }
 
@@ -1411,20 +1413,22 @@ case "notify_delay" {
 }
 
 case "ns_group" {
-  backend  = "nios"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_ns_group_unknown" "test_ns_group" {
-  #   nios = {
-  #     name = "example-ns-group"
-  #   }
-  # }
-  # resource "infoblox_ns_group_unknown" "test_ns_group_updated" {
-  #   nios = {
-  #     name = "updated-example-ns-group"
-  #   }
-  # }
-  # PREREQ
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_nsgroup" "test_ns_group" {
+    nios = {
+      name         = "example-ns-group"
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
+    }
+  }
+  resource "infoblox_nsgroup" "test_ns_group_updated" {
+    nios = {
+      name         = "updated-example-ns-group"
+      grid_primary = [{ name = "{{grid_master_hostname}}" }]
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -1432,7 +1436,7 @@ case "ns_group" {
       view     = "default"
       ns_group = "example-ns-group"
     }
-    depends_on = [infoblox_ns_group_unknown.test_ns_group, infoblox_ns_group_unknown.test_ns_group_updated]
+    depends_on = [infoblox_nsgroup.test_ns_group, infoblox_nsgroup.test_ns_group_updated]
     check = {
       "nios.ns_group" = "example-ns-group"
     }
@@ -1444,7 +1448,7 @@ case "ns_group" {
       view     = "default"
       ns_group = "updated-example-ns-group"
     }
-    depends_on = [infoblox_ns_group_unknown.test_ns_group, infoblox_ns_group_unknown.test_ns_group_updated]
+    depends_on = [infoblox_nsgroup.test_ns_group, infoblox_nsgroup.test_ns_group_updated]
     check = {
       "nios.ns_group" = "updated-example-ns-group"
     }
@@ -1817,20 +1821,20 @@ case "soa_serial_number" {
 }
 
 case "srgs" {
-  backend  = "nios"
-  parallel = true
-  # prerequisites_hcl = <<-PREREQ
-  # resource "infoblox_shared_record_group_unknown" "test_shared_record_group" {
-  #   nios = {
-  #     name = "example_shared_record_group"
-  #   }
-  # }
-  # resource "infoblox_shared_record_group_unknown" "test_shared_record_group_updated" {
-  #   nios = {
-  #     name = "updated_example_shared_record_group"
-  #   }
-  # }
-  # PREREQ
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_sharedrecord_group" "test_srg" {
+    nios = {
+      name = "example_shared_record_group"
+    }
+  }
+  resource "infoblox_sharedrecord_group" "test_srg_updated" {
+    nios = {
+      name = "updated_example_shared_record_group"
+    }
+  }
+  PREREQ
 
   step {
     nios {
@@ -1838,7 +1842,7 @@ case "srgs" {
       view = "default"
       srgs = ["example_shared_record_group"]
     }
-    # depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
+    depends_on = [infoblox_sharedrecord_group.test_srg, infoblox_sharedrecord_group.test_srg_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "example_shared_record_group"
@@ -1851,7 +1855,7 @@ case "srgs" {
       view = "default"
       srgs = ["updated_example_shared_record_group"]
     }
-    # depends_on = [infoblox_shared_record_group_unknown.test_shared_record_group, infoblox_shared_record_group_unknown.test_shared_record_group_updated]
+    depends_on = [infoblox_sharedrecord_group.test_srg, infoblox_sharedrecord_group.test_srg_updated]
     check = {
       "nios.srgs.#" = "1"
       "nios.srgs.0" = "updated_example_shared_record_group"
