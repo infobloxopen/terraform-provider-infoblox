@@ -67,14 +67,19 @@ func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDI
 		return
 	}
 
-	requestValue := flattened.Request.ValueString()
+	responseValue := flattened.Request.ValueString()
 	planValue := planned.Request.ValueString()
 
-	if strings.HasSuffix(requestValue, "\r\n\r\n") && !strings.HasSuffix(planValue, "\r\n\r\n") {
-		requestValue = strings.TrimSuffix(requestValue, "\r\n")
+	planCRLF := trailingCRLFCount(planValue)
+	if planCRLF > 2 && trailingCRLFCount(responseValue) == 2 &&
+		strings.TrimRight(responseValue, "\r\n") == strings.TrimRight(planValue, "\r\n") {
+		responseValue = planValue
+	}
+	for trailingCRLFCount(responseValue) > planCRLF {
+		responseValue = strings.TrimSuffix(responseValue, "\r\n")
 	}
 
-	flattened.Request = types.StringValue(requestValue)
+	flattened.Request = types.StringValue(responseValue)
 }
 
 // PostFlattenDtcMonitorHttpNIOS strips the trailing "\nConnection: close\n\n" that
@@ -106,4 +111,14 @@ func PostFlattenDtcMonitorHttpNIOS(ctx context.Context, planned, flattened *NIOS
 	}
 
 	flattened.Request = types.StringValue(requestValue)
+}
+
+// trailingCRLFCount returns the number of consecutive "\r\n" sequences at the end of s.
+func trailingCRLFCount(s string) int {
+	n := 0
+	for strings.HasSuffix(s, "\r\n") {
+		s = strings.TrimSuffix(s, "\r\n")
+		n++
+	}
+	return n
 }

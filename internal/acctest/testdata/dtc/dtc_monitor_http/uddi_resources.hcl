@@ -258,10 +258,10 @@ case "request" {
     uddi {
       name    = "dtc-monitor-http-{{random}}"
       port    = 80
-      request = "GET /health HTTP/1.1\r\nHost: example.com\r\n\r\n"
+      request = "GET /health HTTP/1.1\r\nHost: example.com\r\n"
     }
     check = {
-      "uddi.request" = "GET /health HTTP/1.1\r\nHost: example.com\r\n\r\n"
+      "uddi.request" = "GET /health HTTP/1.1\r\nHost: example.com\r\n"
     }
   }
 
@@ -276,6 +276,27 @@ case "request" {
     }
   }
 
+  step {
+    uddi {
+      name    = "dtc-monitor-http-{{random}}"
+      port    = 80
+      request = "HEAD /status HTTP/1.1\r\nHost: example.com\r\n\r\n\r\n\r\n"
+    }
+    check = {
+      "uddi.request" = "HEAD /status HTTP/1.1\r\nHost: example.com\r\n\r\n\r\n\r\n"
+    }
+  }
+
+  step {
+    uddi {
+      name    = "dtc-monitor-http-{{random}}"
+      port    = 80
+      request = "GET / HTTP/1.0"
+    }
+    check = {
+      "uddi.request" = "GET / HTTP/1.0"
+    }
+  }
 }
 
 case "codes" {
