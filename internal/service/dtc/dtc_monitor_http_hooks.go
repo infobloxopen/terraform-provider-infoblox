@@ -67,18 +67,19 @@ func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDI
 		return
 	}
 
-	requestValue := flattened.Request.ValueString()
+	responseValue := flattened.Request.ValueString()
 	planValue := planned.Request.ValueString()
 
-	// The API appends trailing "\r\n" sequences (e.g. "GET / HTTP/1.0" is read
-	// back as "GET / HTTP/1.0\r\n\r\n"). Strip them until the read-back ends with
-	// no more trailing "\r\n" than the plan, so the stored value matches the config.
 	planCRLF := trailingCRLFCount(planValue)
-	for trailingCRLFCount(requestValue) > planCRLF {
-		requestValue = strings.TrimSuffix(requestValue, "\r\n")
+	if planCRLF > 2 && trailingCRLFCount(responseValue) == 2 &&
+		strings.TrimRight(responseValue, "\r\n") == strings.TrimRight(planValue, "\r\n") {
+		responseValue = planValue
+	}
+	for trailingCRLFCount(responseValue) > planCRLF {
+		responseValue = strings.TrimSuffix(responseValue, "\r\n")
 	}
 
-	flattened.Request = types.StringValue(requestValue)
+	flattened.Request = types.StringValue(responseValue)
 }
 
 // PostFlattenDtcMonitorHttpNIOS strips the trailing "\nConnection: close\n\n" that
