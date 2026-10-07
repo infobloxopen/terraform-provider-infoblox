@@ -594,7 +594,7 @@ case "ip_space" {
       match_value = "aa:aa:aa:aa:aa:aa"
       ip_space    = infoblox_network_view.two.id
     }
-    depends_on = [infoblox_network.test]
+    depends_on = [infoblox_network.test2]
   }
 
 }
