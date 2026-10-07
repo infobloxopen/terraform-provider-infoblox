@@ -137,28 +137,28 @@ var NIOSFixedaddressAttrTypes = map[string]attr.Type{
 }
 
 type UDDIFixedaddressModel struct {
-	Address                   types.String `tfsdk:"address"`
-	Comment                   types.String `tfsdk:"comment"`
-	DhcpOptions               types.List   `tfsdk:"dhcp_options"`
-	DisableDhcp               types.Bool   `tfsdk:"disable_dhcp"`
-	HeaderOptionFilename      types.String `tfsdk:"header_option_filename"`
-	HeaderOptionServerAddress types.String `tfsdk:"header_option_server_address"`
-	HeaderOptionServerName    types.String `tfsdk:"header_option_server_name"`
-	Hostname                  types.String `tfsdk:"hostname"`
-	InheritanceParent         types.String `tfsdk:"inheritance_parent"`
-	InheritanceSources        types.Object `tfsdk:"inheritance_sources"`
-	IpSpace                   types.String `tfsdk:"ip_space"`
-	MatchType                 types.String `tfsdk:"match_type"`
-	MatchValue                types.String `tfsdk:"match_value"`
-	Name                      types.String `tfsdk:"name"`
-	Parent                    types.String `tfsdk:"parent"`
-	Tags                      types.Map    `tfsdk:"tags"`
-	TagsAll                   types.Map    `tfsdk:"tags_all"`
-	DynamicAllocation         types.Object `tfsdk:"dynamic_allocation"`
+	Address                   iptypes.IPv4Address `tfsdk:"address"`
+	Comment                   types.String        `tfsdk:"comment"`
+	DhcpOptions               types.List          `tfsdk:"dhcp_options"`
+	DisableDhcp               types.Bool          `tfsdk:"disable_dhcp"`
+	HeaderOptionFilename      types.String        `tfsdk:"header_option_filename"`
+	HeaderOptionServerAddress types.String        `tfsdk:"header_option_server_address"`
+	HeaderOptionServerName    types.String        `tfsdk:"header_option_server_name"`
+	Hostname                  types.String        `tfsdk:"hostname"`
+	InheritanceParent         types.String        `tfsdk:"inheritance_parent"`
+	InheritanceSources        types.Object        `tfsdk:"inheritance_sources"`
+	IpSpace                   types.String        `tfsdk:"ip_space"`
+	MatchType                 types.String        `tfsdk:"match_type"`
+	MatchValue                types.String        `tfsdk:"match_value"`
+	Name                      types.String        `tfsdk:"name"`
+	Parent                    types.String        `tfsdk:"parent"`
+	Tags                      types.Map           `tfsdk:"tags"`
+	TagsAll                   types.Map           `tfsdk:"tags_all"`
+	DynamicAllocation         types.Object        `tfsdk:"dynamic_allocation"`
 }
 
 var UDDIFixedaddressAttrTypes = map[string]attr.Type{
-	"address":                      types.StringType,
+	"address":                      iptypes.IPv4AddressType{},
 	"comment":                      types.StringType,
 	"dhcp_options":                 types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
 	"disable_dhcp":                 types.BoolType,
@@ -538,8 +538,9 @@ var FixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 
 var FixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
+		Optional:   true,
+		Computed:   true,
+		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 			stringplanmodifier.UseStateForUnknown(),
@@ -758,7 +759,7 @@ func ApplyFixedaddressNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj
 // Expand converts the UDDI TF model to the core model.
 func (m *UDDIFixedaddressModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.UDDIFixedaddressExt {
 	ext := &coremodel.UDDIFixedaddressExt{
-		Address:                   flex.ExpandString(m.Address),
+		Address:                   flex.ExpandIPv4AddressValue(m.Address),
 		Comment:                   flex.ExpandStringPointer(m.Comment),
 		DhcpOptions:               flex.ExpandFrameworkListNestedBlock(ctx, m.DhcpOptions, diags, ExpandOptionItem),
 		DisableDhcp:               flex.ExpandBoolPointer(m.DisableDhcp),
@@ -876,7 +877,7 @@ func (m *UDDIFixedaddressModel) Flatten(ctx context.Context, from *coremodel.UDD
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenString(from.Address)
+	m.Address = flex.FlattenIPv4AddressValue(from.Address)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
