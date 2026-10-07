@@ -26,6 +26,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Importing Existing Resources](#importing-existing-resources)
 - [Documentation](#documentation)
 - [Logging and Debugging](#logging-and-debugging)
+- [Contributing](#contributing)
 - [Support](#support)
 
 ## Requirements
@@ -222,6 +223,10 @@ For detailed documentation, refer to the [Documentation](guides/documentation-de
 ## Logging and Debugging
 
 For detailed information, refer to the Logging and Debugging page in the docs: [Debugging](guides/logging-debugging.md)
+
+## Contributing
+
+Every change must work on both NIOS and UDDI, so we encourage you to open an issue rather than a pull request for code changes. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
 
 ## Support
 
