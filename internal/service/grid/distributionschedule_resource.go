@@ -119,8 +119,6 @@ func (r *DistributionscheduleResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	// The lookup hook discovers the existing object via r.lookupService and must
-	// set data.Id (the Update target) — it can also populate obj payload fields.
 	r.lookupDistributionschedule(ctx, &data, obj, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return

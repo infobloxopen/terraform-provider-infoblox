@@ -199,8 +199,12 @@ func mapUDDIFederatedRealmToResponse(r *uddiipamfederation.FederatedRealm) *ipam
 		Id: r.Id,
 	}
 	resp.UDDI = &ipamfederation.UDDIFederatedRealmExt{
-		Comment: r.Comment,
-		Name:    r.Name,
+		Comment:     r.Comment,
+		Metadata:    r.Metadata,
+		Name:        r.Name,
+		Provider:    r.Provider,
+		Region:      r.Region,
+		Utilization: r.Utilization,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))
