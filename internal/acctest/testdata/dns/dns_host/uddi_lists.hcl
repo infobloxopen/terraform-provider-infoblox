@@ -12,7 +12,7 @@ case "basic" {
     PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
@@ -40,7 +40,7 @@ case "filters" {
     PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server        = infoblox_dns_server.test.id
       absolute_name = "{{random}}."
@@ -77,7 +77,7 @@ case "tag_filters" {
       PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server        = infoblox_dns_server.test.id
       absolute_name = "{{random}}."

@@ -3,6 +3,7 @@ package dns
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -11,6 +12,8 @@ import (
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"regexp"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -71,8 +74,8 @@ const (
 var DnsHostResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Required: true,
-		PlanModifiers: []planmodifier.String{
-			stringplanmodifier.UseStateForUnknown(),
+		Validators: []validator.String{
+			stringvalidator.RegexMatches(regexp.MustCompile(`^dns/host/[0-9].*$`), "Should be a valid resource identifier for a DNS Host with 'dns/host/' as prefix "),
 		},
 		MarkdownDescription: "The resource identifier.",
 	},
@@ -194,6 +197,8 @@ func (m *DnsHostModel) Flatten(ctx context.Context, resp *coremodel.DnsHost, dia
 	if resp == nil {
 		return
 	}
+
+	m.Id = flex.FlattenStringPointer(resp.Id)
 
 	// Extract existing UDDI model, flatten API response onto it, convert back
 	uddiModel := flex.ExpandNestedObject[UDDIDnsHostModel](ctx, m.UDDI, diags)

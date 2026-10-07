@@ -12,7 +12,7 @@ case "basic" {
     PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
@@ -37,7 +37,7 @@ case "absolute_name" {
     PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server        = infoblox_dns_server.test.id
       absolute_name = "{{random2}}."
@@ -48,7 +48,7 @@ case "absolute_name" {
   }
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server        = infoblox_dns_server.test.id
       absolute_name = "{{random3}}."
@@ -80,7 +80,7 @@ case "server" {
   PREREQ
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
@@ -90,7 +90,7 @@ case "server" {
   }
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test2.id
     }
