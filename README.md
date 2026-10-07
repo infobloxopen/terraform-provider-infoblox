@@ -1,5 +1,9 @@
 # Terraform Provider for Infoblox
 
+> [!WARNING]
+> **Version 2.x.x is deprecated**  
+> As of October 2026, version 2.x.x of this provider is no longer officially supported or maintained. We strongly recommend upgrading to version 3.x.x. For more details, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
+
 The Terraform Provider for Infoblox allows you to manage your Infoblox resources such as DNS records, networks, fixed addresses, and more using Terraform. It is a unified provider: the same provider works with both Infoblox backends, NIOS and UDDI.
 
 | Backend | Description |
@@ -15,6 +19,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [How the Provider Works](#how-the-provider-works)
 - [Getting Started](#getting-started)
   - [Configure the Provider](#configure-the-provider)
+  - [Proxy Settings](#proxy-settings)
   - [Prerequisites](#prerequisites)
     - [Setting Up Terraform Internal ID](#setting-up-terraform-internal-id)
 - [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal)
@@ -32,7 +37,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
-- [Go](https://golang.org/doc/install) >= 1.25.1
+- [Go](https://golang.org/doc/install) >= 1.25.8
 - One of:
   - Infoblox NIOS (version 9.0.6, WAPI v2.13.6)
   - An Infoblox Portal account
@@ -109,6 +114,13 @@ The provider also accepts these optional settings:
 | `operation_timeout` | Both | Time in seconds allowed for one operation, including retries. Default `60`. |
 | `manage_internal_id_ea` | NIOS | Whether the provider maintains the `Terraform Internal ID` extensible attribute. Default `true`. |
 | `uddi.default_tags` | UDDI | Tags applied to every object the provider creates or updates. |
+
+### Proxy Settings
+
+These settings apply to the NIOS backend only:
+
+- `nios.proxy_url`: HTTP proxy URL to route NIOS WAPI calls through, for example `http://proxy.example.com:8080`.
+- `proxy_search`: Where WAPI requests are processed. `LOCAL` (default) processes them on the member you connect to, and `GM` redirects them to the Grid Master.
 
 For detailed installation instructions, please refer to the [Quickstart Guide](guides/quickstart.md).
 
@@ -226,7 +238,7 @@ For detailed information, refer to the Logging and Debugging page in the docs: [
 
 ## Contributing
 
-Every change must work on both NIOS and UDDI, so we encourage you to open an issue rather than a pull request for code changes. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
+We encourage you to open an issue rather than a pull request for code changes, as every change has to be tested on both the NIOS and UDDI backends. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
 
 ## Support
 
