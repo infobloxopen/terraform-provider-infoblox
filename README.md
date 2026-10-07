@@ -30,7 +30,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
-- [Go](https://golang.org/doc/install) >= 1.25.1
+- [Go](https://golang.org/doc/install) >= 1.25.8
 - One of:
   - Infoblox NIOS (version 9.0.6, WAPI v2.13.6)
   - An Infoblox Portal account
