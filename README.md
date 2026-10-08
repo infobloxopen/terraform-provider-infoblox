@@ -23,6 +23,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Host Record Management](#host-record-management)
 - [Listing Existing Objects](#listing-existing-objects)
 - [Importing Existing Resources](#importing-existing-resources)
+- [Roadmap](#roadmap)
 - [Documentation](#documentation)
 - [Logging and Debugging](#logging-and-debugging)
 - [Support](#support)
@@ -196,6 +197,12 @@ For detailed information, refer to the [Listing Existing Objects](guides/list-re
 Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
 
 For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
+
+## Roadmap
+
+Support for additional NIOS and Universal DDI objects, and for infrastructure deployment modules, is planned for later releases.
+
+For the list of what is planned, refer to the [Roadmap](ROADMAP.md) page.
 
 ## Documentation
 
