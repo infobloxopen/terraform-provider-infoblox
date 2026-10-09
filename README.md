@@ -268,7 +268,7 @@ This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, an
 
 Both resources are available on the NIOS backend only.
 
-Detailed documentation for these resources can be found in [Host Record Documentation](guides/host-record-management.md) page.
+Detailed documentation for these resources can be found in [Host Record Documentation](docs/guides/host-record-management.md) page.
 
 ## Listing Existing Objects
 
