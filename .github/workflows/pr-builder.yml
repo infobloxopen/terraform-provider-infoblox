@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - master
+      - dev_3.0
 
 permissions:
   contents: read
