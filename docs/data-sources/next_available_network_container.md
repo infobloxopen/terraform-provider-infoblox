@@ -21,8 +21,6 @@ data "infoblox_network_container" "example_by_attribute" {
   }
 }
 
-// 'address_block_count' allows you to get the number of next available network containers in the network container specified by 'id'
-// If not defined, count would default to 1
 data "infoblox_next_available_network_container" "example_next_available_nc" {
   id                  = data.infoblox_network_container.example_by_attribute.results.0.id
   address_block_count = 5

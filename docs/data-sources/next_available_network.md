@@ -21,9 +21,6 @@ data "infoblox_network_container" "example_by_attribute" {
   }
 }
 
-// List the networks available in the above network container
-// subnet_count = number of networks to be created, if not specified defaults to 1
-// cidr = size of network
 data "infoblox_next_available_network" "example_next_available_network" {
   id           = data.infoblox_network_container.example_by_attribute.results.0.id
   cidr         = 29

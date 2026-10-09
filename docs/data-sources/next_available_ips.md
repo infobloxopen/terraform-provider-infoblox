@@ -33,15 +33,9 @@ data "infoblox_range" "example_by_attribute" {
   }
 }
 
-// 'ip_count' allows you to get the number of next available ips in the resource specified by 'id'
-// If not defined, count would default to 1
 data "infoblox_next_available_ips" "example_next_ip_nc" {
   id       = data.infoblox_network_container.example_by_attribute.results.0.id
   ip_count = 5
-}
-
-data "infoblox_next_available_ips" "example_next_ip_nc_default_count" {
-  id = data.infoblox_network_container.example_by_attribute.results.0.id
 }
 
 data "infoblox_next_available_ips" "example_next_ip_network" {
@@ -54,10 +48,9 @@ data "infoblox_next_available_ips" "example_next_ip_range" {
   ip_count = 5
 }
 
-// next_available_ips by tag
 data "infoblox_next_available_ips" "example_next_ip_nc_by_tag" {
   tag_filters = {
-    name = "example_network_container"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "address_block"
@@ -65,7 +58,7 @@ data "infoblox_next_available_ips" "example_next_ip_nc_by_tag" {
 
 data "infoblox_next_available_ips" "example_next_ip_network_by_tag" {
   tag_filters = {
-    name = "example_network"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "subnet"
@@ -73,7 +66,7 @@ data "infoblox_next_available_ips" "example_next_ip_network_by_tag" {
 
 data "infoblox_next_available_ips" "example_next_ip_range_by_tag" {
   tag_filters = {
-    name = "example_range"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "range"

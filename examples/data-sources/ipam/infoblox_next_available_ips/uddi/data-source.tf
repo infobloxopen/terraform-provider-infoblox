@@ -33,7 +33,7 @@ data "infoblox_next_available_ips" "example_next_ip_range" {
 
 data "infoblox_next_available_ips" "example_next_ip_nc_by_tag" {
   tag_filters = {
-    name = "example_network_container"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "address_block"
@@ -41,7 +41,7 @@ data "infoblox_next_available_ips" "example_next_ip_nc_by_tag" {
 
 data "infoblox_next_available_ips" "example_next_ip_network_by_tag" {
   tag_filters = {
-    name = "example_network"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "subnet"
@@ -49,7 +49,7 @@ data "infoblox_next_available_ips" "example_next_ip_network_by_tag" {
 
 data "infoblox_next_available_ips" "example_next_ip_range_by_tag" {
   tag_filters = {
-    name = "example_range"
+    Site = "location-1"
   }
   ip_count      = 5
   resource_type = "range"
