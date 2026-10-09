@@ -1,3 +1,10 @@
+// Create a Network View
+resource "infoblox_network_view" "example" {
+  uddi = {
+    name = "example_nw_view"
+  }
+}
+
 // Create DNS View with Basic Fields
 resource "infoblox_view" "create_view" {
   uddi = {
@@ -11,7 +18,7 @@ resource "infoblox_view" "create_view_with_additional_fields" {
     name    = "example_custom_view"
     comment = "An example view"
 
-    // ip_spaces = ["ipam/ip_space/<id>"]
+    ip_spaces = [infoblox_network_view.example.id]
 
     tags = {
       site = "Site A"

@@ -15,13 +15,24 @@ Manages an Infoblox ZoneForward in both NIOS and UDDI backends.
 ### NIOS Backend
 
 ```terraform
-// Objects to be present on the grid
-// ensg1 - external_ns_group
+// Create an NS Group Forward Stub Server (Required as External NS Group)
+resource "infoblox_nsgroup_forwardstubserver" "example" {
+  nios = {
+    name = "example_ns_group_forward_stub_server"
+    external_servers = [
+      {
+        name    = "example.com"
+        address = "2.3.4.4"
+      }
+    ]
+  }
+}
+
 // Create a DNS zone forward with Basic Fields
 resource "infoblox_zone_forward" "zone_forward_basic_fields" {
   nios = {
     fqdn              = "example1.example.com"
-    external_ns_group = "ensg1"
+    external_ns_group = infoblox_nsgroup_forwardstubserver.example.nios.name
   }
 }
 

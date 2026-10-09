@@ -65,8 +65,8 @@ resource "infoblox_network_container" "networkcontainer_with_additional_fields" 
 resource "infoblox_network_container" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network = "88.175.0.0/21"
-      cidr    = 24
+      network = infoblox_network_container.networkcontainer_with_basic_fields.nios.network
+      cidr    = 26
     }
   }
 }

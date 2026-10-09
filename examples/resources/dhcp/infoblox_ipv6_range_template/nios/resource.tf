@@ -7,6 +7,19 @@ resource "infoblox_ipv6_range_template" "ipv6_range_template_basic_fields" {
   }
 }
 
+// Create IPv6 DHCP Option Filters (Required for the logic and option filter rules)
+resource "infoblox_ipv6_filteroption" "example_logic" {
+  nios = {
+    name = "ipv6_option_filter"
+  }
+}
+
+resource "infoblox_ipv6_filteroption" "example_option" {
+  nios = {
+    name = "ipv6_option_filter1"
+  }
+}
+
 // Create an IPv6 DHCP Range Template with Additional Fields
 resource "infoblox_ipv6_range_template" "ipv6_range_template_additional_fields" {
   nios = {
@@ -24,13 +37,13 @@ resource "infoblox_ipv6_range_template" "ipv6_range_template_additional_fields" 
     ]
     logic_filter_rules = [
       {
-        filter = "ipv6_option_filter"
+        filter = infoblox_ipv6_filteroption.example_logic.nios.name
         type   = "Option"
       }
     ]
     option_filter_rules = [
       {
-        filter     = "ipv6_option_filter1"
+        filter     = infoblox_ipv6_filteroption.example_option.nios.name
         permission = "Deny"
       }
     ]

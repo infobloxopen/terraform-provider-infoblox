@@ -1,8 +1,15 @@
+// Create an Auth Zone (Required as Parent)
+resource "infoblox_zone_auth" "example" {
+  nios = {
+    fqdn = "example.com"
+  }
+}
+
 // Create Record Alias with Basic Fields
 resource "infoblox_record_alias" "create_alias_record" {
   nios = {
-    name        = "alias-record.example.com"
-    target_name = "server.example.com"
+    name        = "alias-record.${infoblox_zone_auth.example.nios.fqdn}"
+    target_name = "server.${infoblox_zone_auth.example.nios.fqdn}"
     target_type = "A"
     view        = "default"
   }
@@ -11,8 +18,8 @@ resource "infoblox_record_alias" "create_alias_record" {
 // Create Record Alias with Additional Fields
 resource "infoblox_record_alias" "create_alias_record_with_additional_fields" {
   nios = {
-    name        = "alias-record-extra.example.com"
-    target_name = "server.example.com"
+    name        = "alias-record-extra.${infoblox_zone_auth.example.nios.fqdn}"
+    target_name = "server.${infoblox_zone_auth.example.nios.fqdn}"
     target_type = "A"
     view        = "default"
 

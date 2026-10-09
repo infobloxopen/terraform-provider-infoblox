@@ -49,13 +49,10 @@ resource "infoblox_ipv6_network" "example_network_additional" {
 resource "infoblox_ipv6_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network      = "10::/64"
+      network      = infoblox_ipv6_network.example_network_basic.nios.network
       network_view = "default"
       cidr         = 72
     }
     comment = "Network created with function call"
   }
-  depends_on = [
-    infoblox_ipv6_network.example_network_basic
-  ]
 }

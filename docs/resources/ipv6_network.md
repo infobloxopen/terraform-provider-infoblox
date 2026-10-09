@@ -66,27 +66,31 @@ resource "infoblox_ipv6_network" "example_network_additional" {
 resource "infoblox_ipv6_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network      = "10::/64"
+      network      = infoblox_ipv6_network.example_network_basic.nios.network
       network_view = "default"
       cidr         = 72
     }
     comment = "Network created with function call"
   }
-  depends_on = [
-    infoblox_ipv6_network.example_network_basic
-  ]
 }
 ```
 
 ### UDDI Backend
 
 ```terraform
+// Create a Network View (Required as Parent)
+resource "infoblox_network_view" "example" {
+  uddi = {
+    name = "example_nw_view"
+  }
+}
+
 // Create an IPAM IPv6 Network with Basic Fields
 resource "infoblox_ipv6_network" "exampl_network_basic" {
   uddi = {
     address = "2001:db8:1ef8:e4ee::"
     cidr    = 64
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
 
     // Other optional fields
     name    = "example_ipv6_network"
@@ -101,7 +105,7 @@ resource "infoblox_ipv6_network" "example_network_additional" {
   uddi = {
     address = "2002:db8:1ef8:e4ee::"
     cidr    = 64
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
 
     // Other optional fields
     name    = "example_ipv6_network_additional"
