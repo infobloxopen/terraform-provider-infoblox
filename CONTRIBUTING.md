@@ -74,7 +74,7 @@ When you open a pull request:
 
 You need:
 
-- [Go](https://go.dev/doc/install) 1.25.8 or later
+- [Go](https://go.dev/doc/install) 1.26.8 or later
 - [Terraform](https://developer.hashicorp.com/terraform/install) 1.12.1 or later
 
 Build and install the provider:
