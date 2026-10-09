@@ -165,7 +165,7 @@ resource "infoblox_network" "example_network" {
   uddi = {
     address = "15.0.0.0"
     cidr    = 24
-    space   = infoblox_network_view.example_space.id
+    space   = infoblox_network_view.example_network_view.id
     comment = "Created by Terraform"
     tags = {
       Site = "location-1"
@@ -220,7 +220,7 @@ terraform destroy
 Data sources retrieve objects that already exist.
 
 ````terraform
-// Retreive an Auth Zone
+// Retrieve an Auth Zone
 data "infoblox_zone_auth" "example" {
   filters = {
     view = "default"
