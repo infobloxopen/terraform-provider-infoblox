@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-go@v6.0.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version: "1.26.8"
       - uses: hashicorp/setup-terraform@v3.1.2
@@ -70,7 +70,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-go@v6.0.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version: "1.26.8"
           cache: false
@@ -85,7 +85,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5.0.0
-      - uses: actions/setup-go@v6.0.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version: "1.26.8"
           cache: false
