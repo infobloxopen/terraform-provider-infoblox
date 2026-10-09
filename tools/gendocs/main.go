@@ -127,9 +127,9 @@ func processKind(k kind) (int, error) {
 // Manual group overrides for pages that don't match the service layout
 // (e.g. plural doc name vs. singular Go file name).
 var shortGroupOverrides = map[string]string{
-	"next_available_ips":            "ipam",
-	"next_available_subnets":        "ipam",
-	"next_available_address_blocks": "ipam",
+	"next_available_ips":               "ipam",
+	"next_available_network":           "ipam",
+	"next_available_network_container": "ipam",
 }
 
 // lookupGroup returns the internal/service/<group> that owns this object.
