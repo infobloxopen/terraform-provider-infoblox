@@ -33,6 +33,8 @@ data "infoblox_range" "example_by_attribute" {
   }
 }
 
+// Note: "example_network_container" must already contain at least one subnet 
+// a network container with no subnets cannot yield individual next-available IPs.
 data "infoblox_next_available_ips" "example_next_ip_nc" {
   id       = data.infoblox_network_container.example_by_attribute.results.0.id
   ip_count = 5
@@ -48,6 +50,8 @@ data "infoblox_next_available_ips" "example_next_ip_range" {
   ip_count = 5
 }
 
+// Note: matching address blocks must already contain at least one subnet
+// an address block with no subnets cannot yield individual next-available IPs.
 data "infoblox_next_available_ips" "example_next_ip_nc_by_tag" {
   tag_filters = {
     Site = "location-1"
