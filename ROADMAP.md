@@ -10,7 +10,7 @@ The Terraform Provider for Infoblox brings NIOS and Universal DDI under a single
 | Security and authentication | Admin groups and roles, permissions, LDAP, RADIUS, SAML, TACACS+ and certificate authentication services, SNMP and FTP users |
 | DHCP | MAC, NAC, relay agent and fingerprint filters, fingerprints, MAC filter addresses, roaming hosts, failover, IPv6 ranges |
 | Object templates | Network templates, IPv6 network templates, IPv4 fixed address templates |
-| DNS records | TLSA records, Unknown records for record types such as SPF and RP |
+| DNS records | TLSA records, Unknown records |
 | Response Policy Zones | RPZ MX and SRV records |
 | DTC | DTC A, AAAA, CNAME, NAPTR and SRV records, SIP monitors |
 | Microsoft integration | Microsoft servers, Active Directory sites, superscopes |
