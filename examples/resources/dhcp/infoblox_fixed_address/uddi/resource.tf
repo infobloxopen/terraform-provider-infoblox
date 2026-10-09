@@ -14,7 +14,7 @@ resource "infoblox_network" "test" {
   uddi = {
     address = "10.0.0.0"
     cidr    = 24
-    space   = infoblox_network_view.test.id
+    space   = infoblox_network_view.example.id
   }
 }
 
@@ -31,7 +31,7 @@ resource "infoblox_fixed_address" "example_fixed_address" {
       Site = "location-1"
     }
   }
-  depends_on = [infoblox_network.test.id]
+  depends_on = [infoblox_network.test]
 }
 
 // Create Fixed Address using Next available IP

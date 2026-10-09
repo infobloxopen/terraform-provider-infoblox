@@ -6,6 +6,23 @@ resource "infoblox_hardware_filter" "example" {
   }
 }
 
+// Create a DHCP Option Space (Required as Parent of the Option Definition)
+resource "infoblox_dhcp_optionspace" "example" {
+  uddi = {
+    name = "example_option_space"
+  }
+}
+
+// Create a DHCP Option Definition (Required for dhcp_options)
+resource "infoblox_dhcp_optiondefinition" "example" {
+  uddi = {
+    code         = 150
+    name         = "example_option_definition"
+    type         = "address4"
+    option_space = infoblox_dhcp_optionspace.example.id
+  }
+}
+
 // Create a DHCP Hardware Filter with all optional fields
 resource "infoblox_hardware_filter" "example_with_options" {
   uddi = {
@@ -20,7 +37,7 @@ resource "infoblox_hardware_filter" "example_with_options" {
     dhcp_options = [
       {
         type         = "option"
-        option_code  = "dhcp/option_code/de50b0db-01cc-4da8-8213-aefd0880340f"
+        option_code  = infoblox_dhcp_optiondefinition.example.id
         option_value = "192.168.10.1"
       }
     ]

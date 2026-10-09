@@ -3,7 +3,7 @@ list "infoblox_network_container" "list_networkcontainer_using_filters" {
   provider = infoblox
   config {
     filters = {
-      name = "example_address_block"
+      name = "example_network_container"
     }
   }
   limit = 10

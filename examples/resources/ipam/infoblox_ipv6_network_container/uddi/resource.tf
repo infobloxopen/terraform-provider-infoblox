@@ -1,10 +1,17 @@
+// Create a Network View (Required as Parent)
+resource "infoblox_network_view" "example" {
+  uddi = {
+    name = "example_nw_view"
+  }
+}
+
 // Create an IPv6 Network Container with Basic Fields
 resource "infoblox_ipv6_network_container" "example" {
   uddi = {
     address = "2001:db8::"
     cidr    = 64
     name    = "example_ipv6_network_container"
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
   }
 }
 
@@ -14,7 +21,7 @@ resource "infoblox_ipv6_network_container" "example_tags" {
   uddi = {
     address = "2001:db8:1::"
     cidr    = 48
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
 
     // Other optional fields
     name    = "example_ipv6_network_container_additional"

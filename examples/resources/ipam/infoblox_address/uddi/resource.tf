@@ -75,13 +75,22 @@ resource "infoblox_address" "example_na_network_container" {
   depends_on = [infoblox_network.example, infoblox_address.example_na_network]
 }
 
+// Create a Range (Parent for next-available allocation)
+resource "infoblox_range" "example" {
+  uddi = {
+    start = "10.1.0.100"
+    end   = "10.1.0.150"
+    space = infoblox_network_view.example.id
+  }
+  depends_on = [infoblox_network.example]
+}
+
 // Next available address in a range
-// TODO: drop this once infoblox_range is onboarded.
 resource "infoblox_address" "example_na_range" {
   uddi = {
-    space = "ipam/ip_space/<>"
+    space = infoblox_network_view.example.id
     dynamic_allocation = {
-      next_available_id = "ipam/ip_space/<>"
+      next_available_id = infoblox_range.example.id
     }
   }
 }

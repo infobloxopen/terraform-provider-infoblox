@@ -29,7 +29,7 @@ resource "infoblox_record_svcb" "example" {
     rdata = {
       target_name = "record.com"
     }
-    zone = infoblox_zone_auth.example.id
+    zone = infoblox_zone_auth.parent_zone.id
 
     // Other optional fields
     name_in_zone = "record"
