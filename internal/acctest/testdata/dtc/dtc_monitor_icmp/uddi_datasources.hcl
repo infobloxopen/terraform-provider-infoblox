@@ -26,7 +26,7 @@ case "tag_filters" {
   filter {
     type   = "tag_filters"
     values = {
-      Site = "uddi.tags_all.Site"
+      Site = "uddi.tags.Site"
     }
   }
 

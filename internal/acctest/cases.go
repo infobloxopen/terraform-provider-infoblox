@@ -474,7 +474,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 		Checks: make(map[string]string),
 	}
 
-	content, _, diags := body.PartialContent(&hcl.BodySchema{
+	content, remain, diags := body.PartialContent(&hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
 			{Name: "check_pair"},
@@ -540,6 +540,23 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 			st.NIOS = parseCaseBlock(block.Body, src)
 		case "uddi":
 			st.UDDI = parseCaseBlock(block.Body, src)
+		}
+	}
+
+	// Any remaining step-level attributes (not check/check_pair/depends_on/prerequisites_hcl)
+	// are top-level resource fields — e.g. a required `id` that lives outside any backend block.
+	// Route them into st.Common so buildCaseHCL writes them at the resource top level.
+	if remainAttrs, _ := remain.JustAttributes(); len(remainAttrs) > 0 {
+		for name, attr := range remainAttrs {
+			val, attrDiags := attr.Expr.Value(nil)
+			if attrDiags.HasErrors() || !val.IsWhollyKnown() {
+				rng := attr.Expr.Range()
+				if src != nil && rng.Start.Byte >= 0 && rng.End.Byte <= len(src) {
+					st.Common[name] = RawExpr(strings.TrimSpace(string(src[rng.Start.Byte:rng.End.Byte])))
+				}
+				continue
+			}
+			st.Common[name] = ctyToGo(val)
 		}
 	}
 

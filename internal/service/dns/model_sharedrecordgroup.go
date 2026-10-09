@@ -118,6 +118,7 @@ var SharedrecordgroupResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			Attributes: SharedrecordgroupZoneAssociationsResourceSchemaAttributes,
 		},
 		Optional: true,
+		Computed: true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -176,8 +177,10 @@ func (m *SharedrecordgroupModel) Flatten(ctx context.Context, resp *coremodel.Sh
 	if niosModel == nil {
 		niosModel = &NIOSSharedrecordgroupModel{}
 	}
+	plannedNIOS := flex.ExpandNestedObject[NIOSSharedrecordgroupModel](ctx, m.NIOS, diags)
 	niosModel.Flatten(ctx, resp.NIOS, diags)
 	if resp.NIOS != nil {
+		PostFlattenSharedrecordgroupNIOS(ctx, plannedNIOS, niosModel, diags)
 		m.NIOS = flex.FlattenNestedObject(ctx, niosModel, NIOSSharedrecordgroupAttrTypes, diags)
 	} else {
 		m.NIOS = types.ObjectNull(NIOSSharedrecordgroupAttrTypes)

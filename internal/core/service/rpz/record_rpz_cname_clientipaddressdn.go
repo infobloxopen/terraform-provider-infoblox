@@ -93,6 +93,7 @@ func (s *recordRpzCnameClientipaddressdnService) readNIOS(ctx context.Context, i
 		req = req.ReturnFieldsPlus(opts.ReturnFields)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, err
@@ -205,6 +206,7 @@ func (s *recordRpzCnameClientipaddressdnService) listNIOS(ctx context.Context, o
 		req = req.MaxResults(maxResults)
 	}
 
+	req = req.ProxySearch(core.GetProxySearch())
 	resp, httpResp, err := req.Execute()
 	if err != nil {
 		return nil, httpResp, "", err

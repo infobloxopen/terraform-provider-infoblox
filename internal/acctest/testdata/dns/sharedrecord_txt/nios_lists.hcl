@@ -3,7 +3,7 @@ case "basic" {
   backend           = "nios"
   min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -13,7 +13,7 @@ case "basic" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
     }
   }
@@ -30,7 +30,7 @@ case "filters" {
   backend           = "nios"
   min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random2}}"
     }
@@ -40,7 +40,7 @@ case "filters" {
   step {
     nios {
       name                = "{{random}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
     }
   }
@@ -63,7 +63,7 @@ case "ext_attr_filters" {
   backend           = "nios"
   min_tf_version    = "1.14.0"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_sharedrecordgroup" "parent_sharedrecord_group" {
+  resource "infoblox_sharedrecord_group" "parent_sharedrecord_group" {
     nios = {
       name = "{{random3}}"
     }
@@ -73,7 +73,7 @@ case "ext_attr_filters" {
   step {
     nios {
       name                = "{{random2}}"
-      shared_record_group = infoblox_sharedrecordgroup.parent_sharedrecord_group.nios.name
+      shared_record_group = infoblox_sharedrecord_group.parent_sharedrecord_group.nios.name
       text                = "This is a shared record TXT record"
       ext_attrs           = { Site = "{{random}}" }
     }

@@ -188,7 +188,8 @@ case "tags" {
 case "dtc_policy" {
   backend           = "uddi"
   parallel          = true
-  skip              = false
+  skip_if_env_empty = ["UDDI_DTC_POLICY_ID_1", "UDDI_DTC_POLICY_ID_2"]
+  skip_reason       = "UDDI_DTC_POLICY_ID_1 and UDDI_DTC_POLICY_ID_2 must be set: run integration test setup to provision DTC policies"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_view" "test_view" {
     uddi = {
@@ -201,10 +202,10 @@ case "dtc_policy" {
     uddi {
       name       = "dtc-lbdn-{{random}}."
       view       = "$${infoblox_view.test_view.id}"
-      dtc_policy = { policy_id = "dtc/policy/dafaf7a5-307b-4e5c-895e-fd0d922c46fd" }
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_1}}" }
     }
     check = {
-      "uddi.dtc_policy.policy_id" = "dtc/policy/dafaf7a5-307b-4e5c-895e-fd0d922c46fd"
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_1}}"
     }
   }
 
@@ -212,10 +213,10 @@ case "dtc_policy" {
     uddi {
       name       = "dtc-lbdn-{{random}}."
       view       = "$${infoblox_view.test_view.id}"
-      dtc_policy = { policy_id = "dtc/policy/f088b848-67cb-4b3f-a8fd-86283d8e228d" }
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_2}}" }
     }
     check = {
-      "uddi.dtc_policy.policy_id" = "dtc/policy/f088b848-67cb-4b3f-a8fd-86283d8e228d"
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_2}}"
     }
   }
 

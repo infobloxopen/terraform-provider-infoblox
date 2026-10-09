@@ -389,6 +389,18 @@ case "ns_group" {
       fqdn = "{{random}}.com"
     }
   }
+  resource "infoblox_nsgroup_delegation" "dg1" {
+    nios = {
+      name        = "delegation_group"
+      delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
+    }
+  }
+  resource "infoblox_nsgroup_delegation" "dg2" {
+    nios = {
+      name        = "delegation_group_1"
+      delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
+    }
+  }
   PREREQ
 
   step {
@@ -397,6 +409,7 @@ case "ns_group" {
       delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
       ns_group    = "delegation_group"
     }
+    depends_on = [infoblox_nsgroup_delegation.dg1, infoblox_nsgroup_delegation.dg2]
     check = {
       "nios.ns_group" = "delegation_group"
     }
@@ -408,6 +421,7 @@ case "ns_group" {
       delegate_to = [{ name = "{{random3}}.com", address = "10.0.0.1" }]
       ns_group    = "delegation_group_1"
     }
+    depends_on = [infoblox_nsgroup_delegation.dg1, infoblox_nsgroup_delegation.dg2]
     check = {
       "nios.ns_group" = "delegation_group_1"
     }
@@ -478,17 +492,8 @@ PREREQ
 }
 
 case "zone_format_ipv6" {
-  backend           = "nios"
-  parallel          = true
-  prerequisites_hcl = <<-PREREQ
-resource "infoblox_zone_auth" "parent_auth_reverse_zone_ipv6" {
-  nios = {
-    fqdn = "2001::/64"
-    view = "default"
-    zone_format = "IPV6"
-  }
-}
-PREREQ
+  backend  = "nios"
+  parallel = true
 
   step {
     nios {
@@ -496,7 +501,6 @@ PREREQ
       delegate_to = [{ name = "{{random}}.com", address = "10.0.0.1" }]
       zone_format = "IPV6"
     }
-    depends_on = [infoblox_zone_auth.parent_auth_reverse_zone_ipv6]
     check = {
       "nios.zone_format" = "IPV6"
     }

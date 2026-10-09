@@ -14,7 +14,7 @@ import (
 )
 
 func TestAccExtensibleattributedefResource(t *testing.T) {
-	resourceType := "infoblox_extensibleattributedef"
+	resourceType := "infoblox_extensible_attribute_def"
 
 	checksByBackend := map[string]acctest.CheckFuncs{
 		"nios": {
@@ -26,7 +26,7 @@ func TestAccExtensibleattributedefResource(t *testing.T) {
 
 	for _, backend := range []string{"nios"} {
 		t.Run(backend, func(t *testing.T) {
-			acctest.RunResourceCases(t, resourceType, "grid/extensibleattributedef/"+backend+"_resources.hcl", checksByBackend)
+			acctest.RunResourceCases(t, resourceType, "grid/extensible_attribute_def/"+backend+"_resources.hcl", checksByBackend)
 		})
 	}
 }

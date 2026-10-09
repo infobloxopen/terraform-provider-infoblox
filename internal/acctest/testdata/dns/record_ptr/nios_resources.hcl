@@ -507,22 +507,12 @@ case "ttl" {
 }
 
 case "reverse_mapping" {
-  backend           = "nios"
-  parallel          = false
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_zone_auth" "reverse" {
-    nios = {
-      fqdn        = "192.228.10.0/24"
-      zone_format = "IPV4"
-      view        = "default"
-    }
-  }
-  PREREQ
+  backend  = "nios"
+  parallel = false
 
   step {
-    depends_on = [infoblox_zone_auth.reverse]
     nios {
-      ipv4addr = "192.228.10.50"
+      ipv4addr = "192.168.10.50"
       ptrdname = "{{random3}}.com"
       view     = "default"
     }

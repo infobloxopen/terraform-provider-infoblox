@@ -13,7 +13,7 @@ resource "infoblox_infra_host" "example" {
 }
 
 // Manage an Infra Host with Additional Fields
-resource "infoblox_infra_host" "example" {
+resource "infoblox_infra_host" "example_with_additional_fields" {
   uddi = {
     display_name = "example_host2"
 

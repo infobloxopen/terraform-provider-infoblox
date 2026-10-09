@@ -437,7 +437,7 @@ case "dhcp_options" {
   backend           = "uddi"
   parallel          = true
   skip_if_env_empty = ["UDDI_OPTION_GROUP_2_ID"]
-  skip_reason       = "UDDI_OPTION_GROUP_1_ID environment variable must be set for this test to run"
+  skip_reason       = "UDDI_OPTION_GROUP_2_ID environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {

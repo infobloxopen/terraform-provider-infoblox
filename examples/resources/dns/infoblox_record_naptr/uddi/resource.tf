@@ -1,7 +1,7 @@
 // Create an Auth Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
-    fqdn         = "example.com"
+    fqdn         = "example.com."
     primary_type = "cloud"
   }
 }

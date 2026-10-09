@@ -346,11 +346,11 @@ case "version" {
     uddi {
       name                = "{{random}}"
       version             = "v3"
-      user_security_model = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+      user_security_model = "{{uddi_snmp_user_security_model_id_1}}"
     }
     check = {
       "uddi.version"             = "v3"
-      "uddi.user_security_model" = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+      "uddi.user_security_model" = "{{uddi_snmp_user_security_model_id_1}}"
     }
   }
 
@@ -364,11 +364,11 @@ case "user_security_model" {
     uddi {
       name                = "{{random}}"
       version             = "v3"
-      user_security_model = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+      user_security_model = "{{uddi_snmp_user_security_model_id_1}}"
     }
     check = {
       "uddi.version"             = "v3"
-      "uddi.user_security_model" = "dtc/snmp_user_security_model/16bf705e-d74f-4432-870f-4b3d6f9fd3cb"
+      "uddi.user_security_model" = "{{uddi_snmp_user_security_model_id_1}}"
     }
   }
 
@@ -376,10 +376,10 @@ case "user_security_model" {
     uddi {
       name                = "{{random}}"
       version             = "v3"
-      user_security_model = "dtc/snmp_user_security_model/b88af168-7ddd-4c78-ac6e-0972fbfe96b0"
+      user_security_model = "{{uddi_snmp_user_security_model_id_2}}"
     }
     check = {
-      "uddi.user_security_model" = "dtc/snmp_user_security_model/b88af168-7ddd-4c78-ac6e-0972fbfe96b0"
+      "uddi.user_security_model" = "{{uddi_snmp_user_security_model_id_2}}"
     }
   }
 

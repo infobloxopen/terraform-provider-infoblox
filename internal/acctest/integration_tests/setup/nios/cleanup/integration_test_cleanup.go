@@ -12,6 +12,7 @@
 //	DHCP
 //	  - All DHCP Failover associations (any failover found in the grid)
 //	  - Shared Networks whose name starts with "shared_network"
+//	  - DHCP Filter Options: example-option-filter-1, example-option-filter-2
 //
 //	IPAM / Networks
 //	  - Networks: 10.0.0.0/24, 15.0.0.0/24, 16.0.0.0/24, 85.85.0.0/16 (exact match)
@@ -20,12 +21,17 @@
 //
 //	DNS
 //	  - Authoritative Zone "example.com" in the default view
+//	  - Authoritative Zones "tf-srg-zone-1.com", "tf-srg-zone-2.com" in the default view
+//	  - Rulesets: blacklist_ruleset_1, blacklist_ruleset_2, nxdomain_ruleset_1, nxdomain_ruleset_2
 //
 //	Grid Members
 //	  - Members whose vip_setting.address matches 172.28.38.* that are NOT running
 //
 //	Parental Control
 //	  - Parental Control AVPs whose name starts with "parentalcontrol-avp"
+//
+//	IPAM / Network Templates
+//	  - Network Template "test-networktemplate-for-network" (exact match)
 //
 //	Microsoft
 //	  - Microsoft Servers whose address matches 10\.10.* (regex filter)
@@ -158,6 +164,37 @@ func cleanupSharedNetworks(ctx context.Context, apiClient *client.APIClient) {
 			fmt.Printf("cleanup: failed to delete shared network (ref=%q): %v\n", ref, err)
 		} else {
 			fmt.Printf("cleanup: deleted shared network (ref=%q)\n", ref)
+		}
+	}
+}
+
+func cleanupFilterOptions(ctx context.Context, apiClient *client.APIClient) {
+	filterNames := []string{"example-option-filter-1", "example-option-filter-2"}
+	for _, name := range filterNames {
+		filters := map[string]interface{}{"name": name}
+		resp, _, err := apiClient.DHCPAPI.FilteroptionAPI.List(ctx).
+			Filters(filters).
+			ReturnAsObject(1).
+			Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to list filter option %q: %v\n", name, err)
+			continue
+		}
+		if resp == nil || resp.ListFilteroptionResponseObject == nil || len(resp.ListFilteroptionResponseObject.Result) == 0 {
+			fmt.Printf("cleanup: filter option %q not found, skipping\n", name)
+			continue
+		}
+		for _, fo := range resp.ListFilteroptionResponseObject.Result {
+			ref := core.ExtractNIOSRef(fo.GetRef())
+			if ref == "" {
+				continue
+			}
+			_, err := apiClient.DHCPAPI.FilteroptionAPI.Delete(ctx, ref).Execute()
+			if err != nil {
+				fmt.Printf("cleanup: failed to delete filter option %q (ref=%q): %v\n", name, ref, err)
+			} else {
+				fmt.Printf("cleanup: deleted filter option %q (ref=%q)\n", name, ref)
+			}
 		}
 	}
 }
@@ -321,6 +358,71 @@ func cleanupDNSZone(ctx context.Context, apiClient *client.APIClient) {
 	}
 }
 
+func cleanupSRGZones(ctx context.Context, apiClient *client.APIClient) {
+	zones := []string{"tf-srg-zone-1.com", "tf-srg-zone-2.com"}
+	for _, fqdn := range zones {
+		filters := map[string]interface{}{
+			"fqdn": fqdn,
+			"view": "default",
+		}
+		resp, _, err := apiClient.DNSAPI.ZoneAuthAPI.List(ctx).
+			Filters(filters).
+			ReturnAsObject(1).
+			Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to list zone auth for %q: %v\n", fqdn, err)
+			continue
+		}
+		if resp == nil || resp.ListZoneAuthResponseObject == nil || len(resp.ListZoneAuthResponseObject.Result) == 0 {
+			fmt.Printf("cleanup: zone auth %q in default view not found\n", fqdn)
+			continue
+		}
+		for _, zone := range resp.ListZoneAuthResponseObject.Result {
+			ref := core.ExtractNIOSRef(zone.GetRef())
+			if ref == "" {
+				continue
+			}
+			_, err := apiClient.DNSAPI.ZoneAuthAPI.Delete(ctx, ref).Execute()
+			if err != nil {
+				fmt.Printf("cleanup: failed to delete zone %q (ref=%q): %v\n", fqdn, ref, err)
+			} else {
+				fmt.Printf("cleanup: deleted zone auth %q (ref=%q)\n", fqdn, ref)
+			}
+		}
+	}
+}
+
+func cleanupRulesets(ctx context.Context, apiClient *client.APIClient) {
+	names := []string{"blacklist_ruleset_1", "blacklist_ruleset_2", "nxdomain_ruleset_1", "nxdomain_ruleset_2"}
+	for _, name := range names {
+		filters := map[string]interface{}{"name": name}
+		resp, _, err := apiClient.MiscAPI.RulesetAPI.List(ctx).
+			Filters(filters).
+			ReturnAsObject(1).
+			Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to list ruleset %q: %v\n", name, err)
+			continue
+		}
+		if resp == nil || resp.ListRulesetResponseObject == nil || len(resp.ListRulesetResponseObject.Result) == 0 {
+			fmt.Printf("cleanup: ruleset %q not found\n", name)
+			continue
+		}
+		for _, rs := range resp.ListRulesetResponseObject.Result {
+			ref := core.ExtractNIOSRef(rs.GetRef())
+			if ref == "" {
+				continue
+			}
+			_, err := apiClient.MiscAPI.RulesetAPI.Delete(ctx, ref).Execute()
+			if err != nil {
+				fmt.Printf("cleanup: failed to delete ruleset %q (ref=%q): %v\n", name, ref, err)
+			} else {
+				fmt.Printf("cleanup: deleted ruleset %q (ref=%q)\n", name, ref)
+			}
+		}
+	}
+}
+
 func cleanupMembers(ctx context.Context, apiClient *client.APIClient) {
 	resp, _, err := apiClient.GridAPI.MemberAPI.List(ctx).
 		ReturnAsObject(1).
@@ -402,6 +504,34 @@ func cleanupParentalControlAVPs(ctx context.Context, apiClient *client.APIClient
 	}
 }
 
+func cleanupNetworkTemplate(ctx context.Context, apiClient *client.APIClient) {
+	const name = "test-networktemplate-for-network"
+	resp, _, err := apiClient.IPAMAPI.NetworktemplateAPI.List(ctx).
+		ReturnAsObject(1).
+		Filters(map[string]interface{}{"name": name}).
+		Execute()
+	if err != nil {
+		fmt.Printf("cleanup: failed to list network template %q: %v\n", name, err)
+		return
+	}
+	if resp == nil || resp.ListNetworktemplateResponseObject == nil || len(resp.ListNetworktemplateResponseObject.Result) == 0 {
+		fmt.Printf("cleanup: network template %q not found, skipping\n", name)
+		return
+	}
+	for _, tmpl := range resp.ListNetworktemplateResponseObject.Result {
+		ref := core.ExtractNIOSRef(tmpl.GetRef())
+		if ref == "" {
+			continue
+		}
+		_, err := apiClient.IPAMAPI.NetworktemplateAPI.Delete(ctx, ref).Execute()
+		if err != nil {
+			fmt.Printf("cleanup: failed to delete network template %q (ref=%q): %v\n", name, ref, err)
+		} else {
+			fmt.Printf("cleanup: deleted network template %q (ref=%q)\n", name, ref)
+		}
+	}
+}
+
 func cleanupMicrosoftServers(ctx context.Context, apiClient *client.APIClient) {
 	filters := map[string]interface{}{"address~": `10\.10.*`}
 	resp, _, err := apiClient.MicrosoftAPI.MsserverAPI.List(ctx).
@@ -445,6 +575,9 @@ func Cleanup(apiClient *client.APIClient) {
 	fmt.Println("--- Cleaning up Shared Networks (prefix: shared_network) ---")
 	cleanupSharedNetworks(ctx, apiClient)
 
+	fmt.Println("--- Cleaning up DHCP Filter Options (example-option-filter-1, example-option-filter-2) ---")
+	cleanupFilterOptions(ctx, apiClient)
+
 	fmt.Println("--- Cleaning up Networks (10.0.0.0/24, 15.0.0.0/24, 16.0.0.0/24, 85.85.0.0/16, 201.*/24) ---")
 	cleanupNetworks(ctx, apiClient)
 
@@ -457,6 +590,12 @@ func Cleanup(apiClient *client.APIClient) {
 	fmt.Println("--- Cleaning up DNS Zone (example.com / default) ---")
 	cleanupDNSZone(ctx, apiClient)
 
+	fmt.Println("--- Cleaning up SRG Zones (tf-srg-zone-1.com, tf-srg-zone-2.com) ---")
+	cleanupSRGZones(ctx, apiClient)
+
+	fmt.Println("--- Cleaning up Rulesets (blacklist_ruleset_1, blacklist_ruleset_2, nxdomain_ruleset_1, nxdomain_ruleset_2) ---")
+	cleanupRulesets(ctx, apiClient)
+
 	fmt.Println("--- Cleaning up Members (prefix: 172.28.38, non-running only) ---")
 	cleanupMembers(ctx, apiClient)
 
@@ -465,6 +604,9 @@ func Cleanup(apiClient *client.APIClient) {
 
 	fmt.Println("--- Cleaning up Microsoft Servers (address prefix: 10.10) ---")
 	cleanupMicrosoftServers(ctx, apiClient)
+
+	fmt.Println("--- Cleaning up Network Template (test-networktemplate-for-network) ---")
+	cleanupNetworkTemplate(ctx, apiClient)
 }
 
 func main() {

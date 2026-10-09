@@ -60,6 +60,7 @@ provider "infoblox" {
 - `manage_internal_id_ea` (Boolean) Determines whether the provider manages the Terraform Internal ID extensible attribute in NIOS. This attribute is required by the provider to store the Terraform resource ID corresponding to NIOS objects. When true, the provider ensures the attribute exists and manages its lifecycle. When false, the provider does not validate, create, update, or otherwise manage the attribute. Default value: true
 - `nios` (Attributes) Configuration for NIOS backend. (see [below for nested schema](#nestedatt--nios))
 - `operation_timeout` (Number) Total time (in seconds) allowed for an operation, including any retries of it. Default value: 60
+- `proxy_search` (String) Proxy search mode for NIOS requests. Allowed values: LOCAL (default), GM.
 - `uddi` (Attributes) Configuration for UDDI backend. (see [below for nested schema](#nestedatt--uddi))
 
 <a id="nestedatt--nios"></a>
@@ -67,8 +68,12 @@ provider "infoblox" {
 
 Optional:
 
+- `ca_cert_file` (String) Path to a PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA. Can also be set with the `CA_CERT_PATH` environment variable.
+- `ca_cert_pem` (String, Sensitive) Inline PEM-encoded CA certificate bundle used to verify the NIOS host's TLS certificate when `ssl_verify` is true, for Grids using a certificate issued by an internal CA.
 - `host_url` (String) URL for the NIOS host
 - `password` (String, Sensitive) Password for the NIOS host
+- `proxy_url` (String) HTTP proxy URL to route NIOS WAPI calls through.
+- `ssl_verify` (Boolean) Enables TLS certificate verification when connecting to the NIOS host. Defaults to false. Can also be set with the `NIOS_SSL_VERIFY` environment variable.
 - `username` (String) Username for the NIOS host
 
 

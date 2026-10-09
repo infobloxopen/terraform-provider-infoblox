@@ -407,7 +407,7 @@ case "options" {
   }
   resource "infoblox_zone_auth" "rmz" {
     uddi = {
-      fqdn = "12.in-addr.arpa."
+      fqdn = "10.in-addr.arpa."
       primary_type = "cloud"
    }
   }

@@ -223,8 +223,8 @@ case "disable_dhcp" {
 }
 
 case "dhcp_options" {
-  backend     = "uddi"
-  parallel    = true
+  backend           = "uddi"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_network_view" "test" {
     uddi = {
@@ -253,12 +253,12 @@ case "dhcp_options" {
     }
   }
 
-//   resource "infoblox_dhcp_option_group" "test" {
-//     uddi = {
-//       name = "og-{{random}}"
-//       protocol = "ip4"
-//     }
-//   }
+  resource "infoblox_option_group" "test" {
+    uddi = {
+      name     = "og-{{random}}"
+      protocol = "ip4"
+    }
+  }
   PREREQ
 
   step {
@@ -285,13 +285,12 @@ case "dhcp_options" {
       match_type   = "mac"
       match_value  = "aa:aa:aa:aa:aa:aa"
       name         = "{{random2}}"
-      dhcp_options = [{ type = "group", group = "dhcp/option_group/6cd7648b-28b0-4f4b-ae49-4daaaa2ac16e" }]
+      dhcp_options = [{ type = "group", group = infoblox_option_group.test.id }]
     }
     depends_on = [infoblox_network.test]
     check = {
-      "uddi.dhcp_options.#"       = "1"
-      "uddi.dhcp_options.0.type"  = "group"
-      "uddi.dhcp_options.0.group" = "dhcp/option_group/6cd7648b-28b0-4f4b-ae49-4daaaa2ac16e"
+      "uddi.dhcp_options.#"      = "1"
+      "uddi.dhcp_options.0.type" = "group"
     }
   }
 
@@ -595,7 +594,7 @@ case "ip_space" {
       match_value = "aa:aa:aa:aa:aa:aa"
       ip_space    = infoblox_network_view.two.id
     }
-    depends_on = [infoblox_network.test]
+    depends_on = [infoblox_network.test2]
   }
 
 }

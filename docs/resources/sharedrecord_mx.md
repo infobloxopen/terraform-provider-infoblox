@@ -16,7 +16,7 @@ Manages an Infoblox SharedrecordMx in the NIOS backend.
 
 ```terraform
 // Create a Shared Record Group (Required as Parent)
-resource "infoblox_sharedrecordgroup" "example" {
+resource "infoblox_sharedrecord_group" "example" {
   nios = {
     name = "example-shared-record-group"
   }
@@ -28,7 +28,7 @@ resource "infoblox_sharedrecord_mx" "sharedrecord_mx_basic_fields" {
     mail_exchanger      = "mail.example.com"
     name                = "sharedrecord-mx-basic"
     preference          = 10
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
   }
 }
 
@@ -38,7 +38,7 @@ resource "infoblox_sharedrecord_mx" "sharedrecord_mx_additional_fields" {
     mail_exchanger      = "mail.example.com"
     name                = "sharedrecord-mx-additional-fields"
     preference          = 20
-    shared_record_group = infoblox_sharedrecordgroup.example.nios.name
+    shared_record_group = infoblox_sharedrecord_group.example.nios.name
     comment             = "Example MX Shared Record"
     disable             = true
     ext_attrs = {

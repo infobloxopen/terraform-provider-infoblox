@@ -38,7 +38,7 @@ type SharedrecordgroupResource struct {
 }
 
 func (r *SharedrecordgroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sharedrecordgroup"
+	resp.TypeName = req.ProviderTypeName + "_sharedrecord_group"
 	resp.ResourceBehavior = resource.ResourceBehavior{
 		MutableIdentity: true,
 	}

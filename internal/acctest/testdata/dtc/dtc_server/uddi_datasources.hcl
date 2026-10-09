@@ -28,7 +28,7 @@ case "tag_filters" {
   filter {
     type = "tag_filters"
     values = {
-      env = "uddi.tags_all.env"
+      env = "uddi.tags.env"
     }
   }
 

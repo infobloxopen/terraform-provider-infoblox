@@ -51,6 +51,13 @@ resource "infoblox_range_template" "range_template_additional_fields" {
   }
 }
 
+// Create a DHCP Option Filter (Required for the logic and option filter rules)
+resource "infoblox_filteroption" "example" {
+  nios = {
+    name = "example-option-filter-1"
+  }
+}
+
 // Create DHCP Range Template with filters and exclude fields
 resource "infoblox_range_template" "range_template_additional_fields2" {
   nios = {
@@ -72,7 +79,7 @@ resource "infoblox_range_template" "range_template_additional_fields2" {
     ]
     logic_filter_rules = [
       {
-        "filter" = "example-option-filter-1"
+        "filter" = infoblox_filteroption.example.nios.name
         "type"   = "Option"
       }
     ]
@@ -90,7 +97,7 @@ resource "infoblox_range_template" "range_template_additional_fields2" {
     ]
     option_filter_rules = [
       {
-        "filter"     = "example-option-filter-1"
+        "filter"     = infoblox_filteroption.example.nios.name
         "permission" = "Deny"
       }
     ]

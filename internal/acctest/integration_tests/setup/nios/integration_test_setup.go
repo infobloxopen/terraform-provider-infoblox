@@ -34,9 +34,17 @@
 //   - example.com (default view, forward)
 //   - 192.168.10.0/24 (default view, IPV4 reverse)
 //   - 2001::/64 (default view, IPV6 reverse)
+//   - tf-srg-zone-1.com (default view, forward)
+//   - tf-srg-zone-2.com (default view, forward)
 //
 // DNS Zone RP (RPZ):
 //   - test-rpz.com (default view)
+//
+// DNS Rulesets:
+//   - blacklist_ruleset_1 (type: BLACKLIST)
+//   - blacklist_ruleset_2 (type: BLACKLIST)
+//   - nxdomain_ruleset_1 (type: NXDOMAIN)
+//   - nxdomain_ruleset_2 (type: NXDOMAIN)
 //
 // DNS DDNS Principal Cluster Groups:
 //   - dynamic_update_grp_1, dynamic_update_grp_2
@@ -76,12 +84,19 @@
 // Syslog Endpoint:
 //   - syslogendpoint123
 //
+// IPAM Network Template:
+//   - test-networktemplate-for-network (netmask: 24)
+//
 // pxGrid Endpoint:
 //   - Example_pxgrid_ISE_endpoint
 //
 // CA Certificates (uploaded via fileop):
 //   - EAP_CA cert from nios_security_certificate_authservice/cert.pem
 //   - EAP_CA cert from nios_notification_rest_endpoint/dummy-bundle.pem
+//
+// DTC Certificates (fetched refs — must already exist on the grid):
+//   - NIOS_DTC_CERT1_REF (first dtc:certificate ref)
+//   - NIOS_DTC_CERT2_REF (second dtc:certificate ref)
 //
 // Ecosystem Templates (uploaded if present in nios_ecosystem_templates/):
 //   - Version5_DXL_Session_Template.json, Version5_Syslog_Session_Template.json
@@ -681,6 +696,67 @@ func FetchAndStoreCertificateRef(host, wapiVer, username, password, envVarName, 
 	return nil
 }
 
+// FetchAndStoreDtcCertRefs fetches existing dtc:certificate refs from NIOS WAPI and
+// writes them into pipeline_nios.env as NIOS_DTC_CERT1_REF and NIOS_DTC_CERT2_REF.
+// dtc:certificate objects cannot be created via WAPI; they must already exist on the grid.
+// If fewer than 2 certs are present, a warning is printed and the missing vars are skipped
+// (the client_cert test case uses skip_if_env_empty and will be skipped at runtime).
+func FetchAndStoreDtcCertRefs(host, wapiVer, username, password string) error {
+	endpoint := fmt.Sprintf("%s/wapi/%s/dtc:certificate", host, wapiVer)
+
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(username, password)
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // intentional for lab/CI grids with self-signed certs
+		},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: execute request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("fetchdtccertrefs: unexpected status %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("fetchdtccertrefs: read response body: %w", err)
+	}
+
+	var certs []struct {
+		Ref string `json:"_ref"`
+	}
+	if err := json.Unmarshal(body, &certs); err != nil {
+		return fmt.Errorf("fetchdtccertrefs: unmarshal response: %w", err)
+	}
+
+	vars := []string{"NIOS_DTC_CERT1_REF", "NIOS_DTC_CERT2_REF"}
+	for i, envVar := range vars {
+		if i >= len(certs) {
+			fmt.Printf("Warning: fewer than %d dtc:certificate objects found on grid; %s will not be set — client_cert test will skip\n", i+1, envVar)
+			continue
+		}
+		if certs[i].Ref == "" {
+			fmt.Printf("Warning: dtc:certificate[%d] has empty ref; %s will not be set\n", i, envVar)
+			continue
+		}
+		if err := writePipelineEnvVar(envVar, certs[i].Ref); err != nil {
+			return fmt.Errorf("fetchdtccertrefs: failed to write env variable %s: %w", envVar, err)
+		}
+	}
+
+	return nil
+}
+
 type PreConfigClients struct {
 	IPAM         *ipam.APIClient
 	DHCP         *dhcp.APIClient
@@ -693,6 +769,54 @@ type PreConfigClients struct {
 	SECURITY     *security.APIClient
 	RIR          *rir.APIClient
 	DISCOVERY    *discovery.APIClient
+}
+
+// cleanupStaleGridMemberAssignments removes memberHostname from any network that is in a
+// tf-acc-test-* network view. This prevents the "member assigned to another network view"
+// error that blocks the member test case after a failed/interrupted test run.
+func cleanupStaleGridMemberAssignments(ipamClient *ipam.APIClient, memberHostname string) error {
+	netListResp, _, err := ipamClient.NetworkAPI.List(context.Background()).
+		ReturnAsObject(1).
+		ReturnFieldsPlus("members,network_view").
+		Execute()
+	if err != nil {
+		return fmt.Errorf("list networks for member cleanup: %w", err)
+	}
+	if netListResp.ListNetworkResponseObject == nil {
+		return nil
+	}
+	for _, network := range netListResp.ListNetworkResponseObject.Result {
+		view := network.GetNetworkView()
+		if !strings.HasPrefix(view, "tf-acc-test-") {
+			continue
+		}
+		hasMember := false
+		var filteredMembers []ipam.NetworkMembers
+		for _, m := range network.GetMembers() {
+			if m.GetStruct() == "dhcpmember" && m.GetName() == memberHostname {
+				hasMember = true
+			} else {
+				filteredMembers = append(filteredMembers, m)
+			}
+		}
+		if !hasMember {
+			continue
+		}
+		ref := network.GetRef()
+		if ref == "" {
+			continue
+		}
+		updateBody := ipam.Network{}
+		updateBody.SetMembers(filteredMembers)
+		_, _, err := ipamClient.NetworkAPI.Update(context.Background(), core.ExtractNIOSRef(ref)).
+			Network(updateBody).
+			Execute()
+		if err != nil {
+			return fmt.Errorf("remove member %q from network ref %q (view %q): %w", memberHostname, ref, view, err)
+		}
+		fmt.Printf("Removed stale member %q from network ref %q (view %q)\n", memberHostname, ref, view)
+	}
+	return nil
 }
 
 // PreConfig creates the network views required for integration testing.
@@ -932,6 +1056,14 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 
 	memberHostname := strings.TrimSpace(hostnames.MemberHostname)
 
+	// Remove grid member from any stale tf-acc-test-* network views left by previous test runs.
+	// Without this, the member test fails: "Member X is assigned to another network view".
+	if memberHostname != "" {
+		if err := cleanupStaleGridMemberAssignments(clients.IPAM, memberHostname); err != nil {
+			return fmt.Errorf("failed to clean up stale grid member assignments: %w", err)
+		}
+	}
+
 	// Create networks
 	type networkEntry struct {
 		cidr        string
@@ -1116,6 +1248,29 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Fingerprint filter %q created successfully\n", fpFilterName)
 	}
 
+	// Create admin groups used by admin_user acceptance tests
+	adminGroups := []string{"admin-group", "opa-group"}
+
+	for _, groupName := range adminGroups {
+		adminGroup := security.Admingroup{
+			Name: security.PtrString(groupName),
+		}
+
+		_, _, err := clients.SECURITY.AdmingroupAPI.Create(context.Background()).
+			Admingroup(adminGroup).
+			Execute()
+
+		if err != nil {
+			if strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Admin group %q already exists, skipping creation\n", groupName)
+				continue
+			}
+			return fmt.Errorf("failed to create admin group %q: %w", groupName, err)
+		}
+
+		fmt.Printf("Admin group %q created successfully\n", groupName)
+	}
+
 	// Create admin users
 	adminUsers := []string{"aws1", "aws2"}
 
@@ -1139,6 +1294,33 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		}
 
 		fmt.Printf("Admin user %q created successfully\n", adminUserName)
+	}
+
+	// Create SNMPv3 users (used by dtc:monitor:snmp's "user" field)
+	snmpUsers := []string{"snmpuser", "snmpv3user"}
+
+	for _, snmpUserName := range snmpUsers {
+		snmpUserBody := security.Snmpuser{
+			Name:                   security.PtrString(snmpUserName),
+			AuthenticationProtocol: security.PtrString("MD5"),
+			AuthenticationPassword: security.PtrString("Password1!"),
+			PrivacyProtocol:        security.PtrString("DES"),
+			PrivacyPassword:        security.PtrString("Password1!"),
+		}
+
+		_, _, err := clients.SECURITY.SnmpuserAPI.Create(context.Background()).
+			Snmpuser(snmpUserBody).
+			Execute()
+
+		if err != nil {
+			if strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("SNMP user %q already exists, skipping creation\n", snmpUserName)
+				continue
+			}
+			return fmt.Errorf("failed to create SNMP user %q: %w", snmpUserName, err)
+		}
+
+		fmt.Printf("SNMP user %q created successfully\n", snmpUserName)
 	}
 
 	// Create DNS views
@@ -1355,6 +1537,69 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Zone RP %q created successfully\n", "test-rpz.com")
 	}
 
+	// Create shared record group zones
+	srgZones := []string{"tf-srg-zone-1.com", "tf-srg-zone-2.com"}
+	for _, fqdn := range srgZones {
+		srgZoneBody := dns.ZoneAuth{
+			Fqdn: dns.PtrString(fqdn),
+			View: dns.PtrString("default"),
+		}
+		_, _, err = clients.DNS.ZoneAuthAPI.Create(context.Background()).
+			ZoneAuth(srgZoneBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") {
+				fmt.Printf("Zone auth %q already exists, skipping creation\n", fqdn)
+			} else {
+				return fmt.Errorf("failed to create zone auth %q: %w", fqdn, err)
+			}
+		} else {
+			fmt.Printf("Zone auth %q created successfully\n", fqdn)
+		}
+	}
+
+	// Create blacklist rulesets
+	blacklistRulesets := []string{"blacklist_ruleset_1", "blacklist_ruleset_2"}
+	for _, name := range blacklistRulesets {
+		rulesetBody := misc.Ruleset{
+			Name: misc.PtrString(name),
+			Type: misc.PtrString("BLACKLIST"),
+		}
+		_, _, err = clients.MISC.RulesetAPI.Create(context.Background()).
+			Ruleset(rulesetBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") || strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Ruleset %q already exists, skipping creation\n", name)
+			} else {
+				return fmt.Errorf("failed to create blacklist ruleset %q: %w", name, err)
+			}
+		} else {
+			fmt.Printf("Blacklist ruleset %q created successfully\n", name)
+		}
+	}
+
+	// Create nxdomain rulesets
+	nxdomainRulesets := []string{"nxdomain_ruleset_1", "nxdomain_ruleset_2"}
+	for _, name := range nxdomainRulesets {
+		rulesetBody := misc.Ruleset{
+			Name: misc.PtrString(name),
+			Type: misc.PtrString("NXDOMAIN"),
+		}
+		_, _, err = clients.MISC.RulesetAPI.Create(context.Background()).
+			Ruleset(rulesetBody).
+			Execute()
+		if err != nil {
+			if strings.Contains(err.Error(), "exists") || strings.Contains(err.Error(), "already exists") {
+				fmt.Printf("Ruleset %q already exists, skipping creation\n", name)
+			} else {
+				return fmt.Errorf("failed to create nxdomain ruleset %q: %w", name, err)
+			}
+		} else {
+			fmt.Printf("NXDOMAIN ruleset %q created successfully\n", name)
+		}
+	}
+
 	// Create DHCP failovers
 	failovers := []struct {
 		name      string
@@ -1395,6 +1640,7 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		networkView string
 	}{
 		{address: "10.10.10.10", dnsView: microsoft.PtrString("default"), networkView: "default"},
+		{address: "10.10.10.11", dnsView: microsoft.PtrString("default"), networkView: "default"},
 		{address: "example_server", dnsView: microsoft.PtrString("default"), networkView: "default"},
 		{address: "ms_example_server", dnsView: nil, networkView: "ms_server"},
 		{address: "ms_example_server2", dnsView: nil, networkView: "ms_server2"},
@@ -2020,6 +2266,29 @@ func PreConfig(clients PreConfigClients, hostnames GridHostnames) error {
 		fmt.Printf("Syslog endpoint %q created successfully (ref: %s)\n", *syslogEndpointBody.Name, syslogEndpointRef)
 	}
 
+	// Create network template for IPAM network tests
+	{
+		const netTemplateName = "test-networktemplate-for-network"
+		netTemplateBody := ipam.Networktemplate{
+			Name:    ipam.PtrString(netTemplateName),
+			Netmask: ipam.PtrInt64(24),
+		}
+		_, _, err := clients.IPAM.NetworktemplateAPI.Create(context.Background()).
+			Networktemplate(netTemplateBody).
+			Execute()
+		if err != nil {
+			if !strings.Contains(err.Error(), "already exists") {
+				return fmt.Errorf("failed to create network template %q: %w", netTemplateName, err)
+			}
+			fmt.Printf("Network template %q already exists, skipping creation\n", netTemplateName)
+		} else {
+			fmt.Printf("Network template %q created successfully\n", netTemplateName)
+		}
+		if err := writePipelineEnvVar("NIOS_NETWORK_TEMPLATE_CREATED", "true"); err != nil {
+			return fmt.Errorf("failed to write NIOS_NETWORK_TEMPLATE_CREATED: %w", err)
+		}
+	}
+
 	// Enable Discovery service on the discovery member if NIOS_DISCOVERY_MEMBER_URL is set.
 	discoveryMemberAddr := normalizeAddressFromEnv(os.Getenv("NIOS_DISCOVERY_MEMBER_URL"))
 	if discoveryMemberAddr != "" {
@@ -2375,6 +2644,13 @@ func main() {
 	}
 
 	fmt.Println("PXGRID endpoint configured successfully")
+
+	err = FetchAndStoreDtcCertRefs(host, wapiVer, username, password)
+	if err != nil {
+		fmt.Printf("Error fetching dtc:certificate refs: %v\n", err)
+		return
+	}
+	fmt.Println("DTC certificate refs fetched successfully")
 
 	fmt.Printf("Environment setup complete. Variables written to %s\n", pipelineEnvPath)
 

@@ -111,6 +111,21 @@ resource "infoblox_zone_auth" "example_external_primary" {
   }
 }
 
+// Create a Named ACL (Required for the transfer ACL)
+resource "infoblox_namedacl" "example" {
+  uddi = {
+    name = "example_namedacl"
+  }
+}
+
+// Create a TSIG Key (Required for the update ACL)
+resource "infoblox_tsig_key" "example" {
+  uddi = {
+    name   = "tsig-key-example.example.com."
+    secret = "wuQuR0A08ApqKT65yaGiqWHalHxS7Ie8LF2VTUFZFZo="
+  }
+}
+
 // Create an auth zone with ACLs
 resource "infoblox_zone_auth" "example_with_acls" {
   uddi = {
@@ -125,14 +140,14 @@ resource "infoblox_zone_auth" "example_with_acls" {
     ]
     transfer_acl = [
       { element = "acl",
-        acl     = "dns/acl/0d20aafe-8490-4d2c-8367-9bc1b62b601c"
+        acl     = infoblox_namedacl.example.id
       }
     ]
     update_acl = [
       { access  = "deny",
         element = "tsig_key",
         tsig_key = {
-          key = "keys/tsig/24b2fb48-666c-4e95-bc03-da6b5fef26c8"
+          key = infoblox_tsig_key.example.id
         }
       }
     ]

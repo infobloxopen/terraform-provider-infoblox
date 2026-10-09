@@ -1,8 +1,13 @@
 # Hand-authored datasource acceptance-test cases for RecordRpzAaaaIpaddress.
-# rp_zone is hardcoded to "rpz-test.infoblox.com" (persistent zone on the test NIOS grid)
-# because infoblox_zone_rp is not yet registered in the unified provider.
 case "filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type = "filters"
@@ -15,9 +20,9 @@ case "filters" {
 
   step {
     nios {
-      name     = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name     = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr = "2001:db8::10"
-      rp_zone  = "rpz-test.infoblox.com"
+      rp_zone  = infoblox_zone_rp.test.nios.fqdn
     }
   }
 
@@ -25,6 +30,13 @@ case "filters" {
 
 case "ext_attr_filters" {
   backend = "nios"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_zone_rp" "test" {
+    nios = {
+      fqdn = "{{random}}.com"
+    }
+  }
+  PREREQ
 
   filter {
     type = "ext_attr_filters"
@@ -37,9 +49,9 @@ case "ext_attr_filters" {
 
   step {
     nios {
-      name      = "{{random_ipv6_network}}.rpz-test.infoblox.com"
+      name      = "{{random_ipv6_network}}.${infoblox_zone_rp.test.nios.fqdn}"
       ipv6addr  = "2001:db8::10"
-      rp_zone   = "rpz-test.infoblox.com"
+      rp_zone   = infoblox_zone_rp.test.nios.fqdn
       ext_attrs = { Site = "value1" }
     }
   }

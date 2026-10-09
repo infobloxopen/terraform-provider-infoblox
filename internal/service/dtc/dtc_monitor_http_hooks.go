@@ -54,7 +54,11 @@ func validateDtcMonitorHttpUDDIConfig(ctx context.Context, m *UDDIDtcMonitorHttp
 }
 
 // PostFlattenDtcMonitorHttpUDDI strips the trailing "\r\n" that the UDDI API
-// automatically appends to request values on read-back.
+// automatically appends to request values on read-back. planned is nil for
+// datasource/list reads (no plan to compare against); "request" is Required
+// for UDDI so every config supplies an explicit value, and without a plan to
+// compare against there is no way to tell an auto-appended suffix from one
+// the user typed literally, so no normalization is attempted in that case.
 func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDIDtcMonitorHttpModel, diags *diag.Diagnostics) {
 	if planned == nil || flattened == nil {
 		return
@@ -63,21 +67,28 @@ func PostFlattenDtcMonitorHttpUDDI(ctx context.Context, planned, flattened *UDDI
 		return
 	}
 
-	requestValue := flattened.Request.ValueString()
+	responseValue := flattened.Request.ValueString()
 	planValue := planned.Request.ValueString()
 
-	if strings.HasSuffix(requestValue, "\r\n\r\n") && !strings.HasSuffix(planValue, "\r\n\r\n") {
-		requestValue = strings.TrimSuffix(requestValue, "\r\n")
+	planCRLF := trailingCRLFCount(planValue)
+	if planCRLF > 2 && trailingCRLFCount(responseValue) == 2 &&
+		strings.TrimRight(responseValue, "\r\n") == strings.TrimRight(planValue, "\r\n") {
+		responseValue = planValue
+	}
+	for trailingCRLFCount(responseValue) > planCRLF {
+		responseValue = strings.TrimSuffix(responseValue, "\r\n")
 	}
 
-	flattened.Request = types.StringValue(requestValue)
+	flattened.Request = types.StringValue(responseValue)
 }
 
 // PostFlattenDtcMonitorHttpNIOS strips the trailing "\nConnection: close\n\n" that
 // NIOS automatically appends to any request value on read-back, so the stored state
-// matches what the user configured and no spurious diff is produced.
+// matches what the user configured and no spurious diff is produced. planned is nil
+// for datasource/list reads (no plan to compare against); the suffix is stripped
+// unconditionally in that case since there is no user-configured value to preserve.
 func PostFlattenDtcMonitorHttpNIOS(ctx context.Context, planned, flattened *NIOSDtcMonitorHttpModel, diags *diag.Diagnostics) {
-	if planned == nil || flattened == nil {
+	if flattened == nil {
 		return
 	}
 	if flattened.Request.IsNull() || flattened.Request.IsUnknown() {
@@ -85,7 +96,10 @@ func PostFlattenDtcMonitorHttpNIOS(ctx context.Context, planned, flattened *NIOS
 	}
 
 	requestValue := flattened.Request.ValueString()
-	planValue := planned.Request.ValueString()
+	var planValue string
+	if planned != nil {
+		planValue = planned.Request.ValueString()
+	}
 
 	if strings.HasPrefix(requestValue, "POST") || strings.HasPrefix(requestValue, "GET") || strings.HasPrefix(requestValue, "HEAD") {
 		if strings.HasSuffix(requestValue, "\n\n") && !strings.HasSuffix(planValue, "\n\n") {
@@ -97,4 +111,14 @@ func PostFlattenDtcMonitorHttpNIOS(ctx context.Context, planned, flattened *NIOS
 	}
 
 	flattened.Request = types.StringValue(requestValue)
+}
+
+// trailingCRLFCount returns the number of consecutive "\r\n" sequences at the end of s.
+func trailingCRLFCount(s string) int {
+	n := 0
+	for strings.HasSuffix(s, "\r\n") {
+		s = strings.TrimSuffix(s, "\r\n")
+		n++
+	}
+	return n
 }

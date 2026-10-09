@@ -3,6 +3,7 @@ package dhcp
 import (
 	"context"
 	"fmt"
+	"net/netip"
 
 	"github.com/hashicorp/terraform-plugin-framework/list"
 	listschema "github.com/hashicorp/terraform-plugin-framework/list/schema"
@@ -156,26 +157,28 @@ func (l *FixedaddressList) List(ctx context.Context, req list.ListRequest, strea
 			})
 
 	case core.BackendUDDI:
-		records, err = core.ReadAllPagesUDDI(
-			func(offset, _ int32) ([]*coremodel.Fixedaddress, error) {
-				// Once the cap is reached, return an empty page
-				remaining := requestLimit - totalFetched
-				if remaining <= 0 {
+		_, err = core.ReadAllPagesUDDI(
+			func(offset, limit int32) ([]*coremodel.Fixedaddress, error) {
+				if int32(len(records)) >= requestLimit {
 					return nil, nil
 				}
-				// Shrink page size so we never over-fetch past the caller's limit.
-				pageSize := min(remaining, core.DefaultListLimit)
-
 				pageCount++
 				opts.Offset = offset
-				opts.Limit = pageSize
+				opts.Limit = limit
 				recs, _, _, e := l.service.List(ctx, opts)
 				if e != nil {
 					return nil, e
 				}
-				totalFetched += int32(len(recs))
+				for _, r := range recs {
+					if int32(len(records)) >= requestLimit {
+						break
+					}
+					if ip, perr := netip.ParseAddr(r.UDDI.Address); perr == nil && ip.Is4() {
+						records = append(records, r)
+					}
+				}
 				tflog.Info(ctx, fmt.Sprintf("UDDI list page %d: offset=%d requested=%d got=%d",
-					pageCount, offset, pageSize, len(recs)))
+					pageCount, offset, limit, len(recs)))
 				return recs, nil
 			})
 	}
