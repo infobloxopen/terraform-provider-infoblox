@@ -29,7 +29,7 @@ Import blocks let you import resources declaratively as part of the normal plan 
 ```terraform
 import {
   to = infoblox_record_a.example
-  id = "record:aZG5zLmJpbmRfYSQuX2RlZmF1bHQuY29tLmV4YW1wbGUsc2FtcGxlLDE5Mi4xNjguMS4xMA:example.mydomain.com/default"
+  id = "record:a/ZG5zLmJpbmRfYSQuX2RlZmF1bHQuY29tLmV4YW1wbGUsc2FtcGxlLDE5Mi4xNjguMS4xMA:example.mydomain.com/default"
 }
 
 resource "infoblox_record_a" "example" {

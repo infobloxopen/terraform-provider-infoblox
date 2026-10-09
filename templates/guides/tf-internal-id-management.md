@@ -36,7 +36,9 @@ When `manage_internal_id_ea` is `false`, the provider does not validate, create,
 According to the operation that you perform in Terraform, the behavior exhibited by the provider on the NIOS backend is as follows:
 
 **Creating a resource:**
-* If you are creating a resource in Terraform and the provider is able to find the Terraform Internal ID extensible attribute, it attaches it to the resource in NIOS and saves it for that resource in the state file.
+* If the Terraform Internal ID extensible attribute definition exists in NIOS, the provider attaches the attribute to the new resource in NIOS and saves it for that resource in the state file.
+* If the definition does not exist and `manage_internal_id_ea` is `true`, the provider creates it first.
+* If the definition does not exist and `manage_internal_id_ea` is `false`, the create operation fails.
 
 **Modifying an existing resource:**
 * If the provider finds a match for the reference ID and Terraform Internal ID, it completes the update operation.
