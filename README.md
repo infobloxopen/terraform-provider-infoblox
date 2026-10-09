@@ -31,6 +31,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Listing Existing Objects](#listing-existing-objects)
 - [Importing Existing Resources](#importing-existing-resources)
 - [Update Trigger](#update-trigger)
+- [Roadmap](#roadmap)
 - [Documentation](#documentation)
 - [Logging and Debugging](#logging-and-debugging)
 - [Contributing](#contributing)
@@ -299,6 +300,12 @@ resource "infoblox_record_a" "example" {
   }
 }
 ```
+
+## Roadmap
+
+Support for additional NIOS and Universal DDI objects, and for infrastructure deployment modules, is planned for later releases.
+
+For the list of what is planned, refer to the [Roadmap](ROADMAP.md) page.
 
 ## Documentation
 
