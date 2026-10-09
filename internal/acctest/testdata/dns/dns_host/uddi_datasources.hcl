@@ -22,7 +22,7 @@ case "filters" {
 
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
@@ -55,7 +55,7 @@ case "tag_filters" {
 
 
   step {
-    id = "{{uddi_infra_host_legacy_id_1}}"
+    id = "dns/host/{{uddi_infra_host_legacy_id_1}}"
     uddi {
       server = infoblox_dns_server.test.id
     }
