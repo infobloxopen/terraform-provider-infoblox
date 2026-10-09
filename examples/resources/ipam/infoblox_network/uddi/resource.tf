@@ -1,9 +1,25 @@
+// Create a Network View (Required as Parent)
+resource "infoblox_network_view" "example" {
+  uddi = {
+    name = "example_nw_view"
+  }
+}
+
+// Create a Network Container (Parent for next-available allocation)
+resource "infoblox_network_container" "example" {
+  uddi = {
+    address = "10.10.0.0"
+    cidr    = 16
+    space   = infoblox_network_view.example.id
+  }
+}
+
 // Static address
 resource "infoblox_network" "example" {
   uddi = {
     address = "10.0.0.0"
     cidr    = 24
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
 
     // Other optional fields
     name    = "example_subnet"
@@ -18,9 +34,9 @@ resource "infoblox_network" "example" {
 resource "infoblox_network" "example_na_s" {
   uddi = {
     cidr  = 24
-    space = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space = infoblox_network_view.example.id
     dynamic_allocation = {
-      next_available_id = "ipam/address_block/0acbbbed-94a4-11f1-8e35-aee0083f614b"
+      next_available_id = infoblox_network_container.example.id
     }
 
     // Other optional fields

@@ -39,7 +39,7 @@ data "infoblox_network_container" "get_all_network_containers" {}
 // Retrieve a specific network container using filters
 data "infoblox_network_container" "example_by_attribute" {
   filters = {
-    "name" = "example_address_block"
+    "name" = "example_network_container"
   }
 }
 

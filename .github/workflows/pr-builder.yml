@@ -1,9 +1,10 @@
-# This workflow is triggered on pull requests to the dev_3.0 branch.
-name: PR Builder (dev_3.0)
+# This workflow is triggered on pull requests to the master branch.
+name: PR Builder
 
 on:
   pull_request:
     branches:
+      - master
       - dev_3.0
 
 permissions:

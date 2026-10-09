@@ -26,42 +26,42 @@ import (
 // the core service/mapper layer: they are UDDI-only and return a flat list of
 // allocated values, so there is no infoblox core model to map to.
 
-var _ datasource.DataSource = &NextAvailableSubnetDataSource{}
-var _ datasource.DataSourceWithConfigure = &NextAvailableSubnetDataSource{}
+var _ datasource.DataSource = &NextAvailableNetworkContainerDataSource{}
+var _ datasource.DataSourceWithConfigure = &NextAvailableNetworkContainerDataSource{}
 
-func NewNextAvailableSubnetDataSource() datasource.DataSource {
-	return &NextAvailableSubnetDataSource{}
+func NewNextAvailableNetworkContainerDataSource() datasource.DataSource {
+	return &NextAvailableNetworkContainerDataSource{}
 }
 
-type NextAvailableSubnetDataSource struct {
+type NextAvailableNetworkContainerDataSource struct {
 	uddi *uddiclient.APIClient
 }
 
-type NextAvailableSubnetDataSourceModel struct {
+type NextAvailableNetworkContainerDataSourceModel struct {
 	Id         types.String `tfsdk:"id"`
 	Cidr       types.Int64  `tfsdk:"cidr"`
-	Count      types.Int32  `tfsdk:"subnet_count"`
+	Count      types.Int32  `tfsdk:"address_block_count"`
 	TagFilters types.Map    `tfsdk:"tag_filters"`
 	Results    types.List   `tfsdk:"results"`
 }
 
-func (m *NextAvailableSubnetDataSourceModel) FlattenResults(ctx context.Context, from []uddiipam.Subnet, diags *diag.Diagnostics) {
+func (m *NextAvailableNetworkContainerDataSourceModel) FlattenResults(ctx context.Context, from []uddiipam.AddressBlock, diags *diag.Diagnostics) {
 	values := make([]string, 0, len(from))
-	for _, s := range from {
-		if s.Address != nil {
-			values = append(values, *s.Address)
+	for _, ab := range from {
+		if ab.Address != nil {
+			values = append(values, *ab.Address)
 		}
 	}
 	m.Results = flex.FlattenFrameworkListString(ctx, values, diags)
 }
 
-func (d *NextAvailableSubnetDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_next_available_subnets"
+func (d *NextAvailableNetworkContainerDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_next_available_network_container"
 }
 
-func (d *NextAvailableSubnetDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *NextAvailableNetworkContainerDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves the next available subnets in the specified address block. Only applicable for the UDDI backend.",
+		MarkdownDescription: "Retrieves the next available address blocks in the specified address block. Only applicable for the UDDI backend.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Optional:            true,
@@ -74,11 +74,11 @@ func (d *NextAvailableSubnetDataSource) Schema(_ context.Context, _ datasource.S
 			},
 			"cidr": schema.Int64Attribute{
 				Required:            true,
-				MarkdownDescription: "The cidr value of subnets to be created.",
+				MarkdownDescription: "The cidr value of address blocks to be created.",
 			},
-			"subnet_count": schema.Int32Attribute{
+			"address_block_count": schema.Int32Attribute{
 				Optional:            true,
-				MarkdownDescription: "Number of subnets to generate. Default 1 if not set.",
+				MarkdownDescription: "Number of address blocks to generate. Default 1 if not set.",
 				Validators: []validator.Int32{
 					int32validator.AtLeast(1),
 				},
@@ -86,18 +86,18 @@ func (d *NextAvailableSubnetDataSource) Schema(_ context.Context, _ datasource.S
 			"tag_filters": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				MarkdownDescription: "Key-value pairs to filter subnets by tags.",
+				MarkdownDescription: "Key-value pairs to filter address blocks by tags.",
 			},
 			"results": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Computed:            true,
-				MarkdownDescription: "List of next available subnet addresses in the specified resource.",
+				MarkdownDescription: "List of next available address block's addresses in the specified resource.",
 			},
 		},
 	}
 }
 
-func (d *NextAvailableSubnetDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *NextAvailableNetworkContainerDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -114,7 +114,7 @@ func (d *NextAvailableSubnetDataSource) Configure(_ context.Context, req datasou
 	if client.UDDI == nil {
 		resp.Diagnostics.AddError(
 			"Unsupported Backend",
-			"infoblox_next_available_subnets is only supported on the UDDI backend.",
+			"infoblox_next_available_network_container is only supported on the UDDI backend.",
 		)
 		return
 	}
@@ -122,8 +122,8 @@ func (d *NextAvailableSubnetDataSource) Configure(_ context.Context, req datasou
 	d.uddi = client.UDDI
 }
 
-func (d *NextAvailableSubnetDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data NextAvailableSubnetDataSourceModel
+func (d *NextAvailableNetworkContainerDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data NextAvailableNetworkContainerDataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -139,25 +139,25 @@ func (d *NextAvailableSubnetDataSource) Read(ctx context.Context, req datasource
 	if len(data.TagFilters.Elements()) > 0 {
 		results, err := d.findByTags(ctx, data.TagFilters, cidr, count, &resp.Diagnostics)
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read next available subnets by tags, got error: %s", err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read next available address blocks by tags, got error: %s", err))
 			return
 		}
 		if int32(len(results)) < count {
 			resp.Diagnostics.AddError(
-				"Insufficient Available Subnets",
-				fmt.Sprintf("Requested %d subnets with CIDR %d, but only %d were found across the matched address blocks.", count, cidr, len(results)),
+				"Insufficient Available Address Blocks",
+				fmt.Sprintf("Requested %d address blocks with CIDR %d, but only %d were found across the matched address blocks.", count, cidr, len(results)),
 			)
 			return
 		}
 		data.FlattenResults(ctx, results, &resp.Diagnostics)
 	} else if !data.Id.IsNull() {
 		apiRes, _, err := d.uddi.IPAddressManagementAPI.AddressBlockAPI.
-			ListNextAvailableSubnet(ctx, data.Id.ValueString()).
+			ListNextAvailableAB(ctx, data.Id.ValueString()).
 			Cidr(cidr).
 			Count(count).
 			Execute()
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read next available subnets, got error: %s", err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read next available address blocks, got error: %s", err))
 			return
 		}
 		data.FlattenResults(ctx, apiRes.GetResults(), &resp.Diagnostics)
@@ -170,8 +170,8 @@ func (d *NextAvailableSubnetDataSource) Read(ctx context.Context, req datasource
 }
 
 // findByTags enumerates address blocks matching the tag filters and allocates
-// the next available subnets from each in address order until count is reached.
-func (d *NextAvailableSubnetDataSource) findByTags(ctx context.Context, tagFilters types.Map, cidr, count int32, diags *diag.Diagnostics) ([]uddiipam.Subnet, error) {
+// the next available address blocks from each in address order until count is reached.
+func (d *NextAvailableNetworkContainerDataSource) findByTags(ctx context.Context, tagFilters types.Map, cidr, count int32, diags *diag.Diagnostics) ([]uddiipam.AddressBlock, error) {
 	tfilter := core.BuildTagFilter(flex.ExpandMapString(ctx, tagFilters, diags))
 
 	blocks, err := core.ReadAllPagesUDDI(func(offset, limit int32) ([]uddiipam.AddressBlock, error) {
@@ -190,7 +190,7 @@ func (d *NextAvailableSubnetDataSource) findByTags(ctx context.Context, tagFilte
 		return nil, err
 	}
 
-	var results []uddiipam.Subnet
+	var results []uddiipam.AddressBlock
 	for _, ab := range blocks {
 		if ab.Cidr != nil && *ab.Cidr >= int64(cidr) {
 			continue
@@ -199,7 +199,7 @@ func (d *NextAvailableSubnetDataSource) findByTags(ctx context.Context, tagFilte
 			break
 		}
 		remaining := count - int32(len(results))
-		found, err := d.findSubnet(ctx, *ab.Id, cidr, remaining)
+		found, err := d.findAddressBlock(ctx, *ab.Id, cidr, remaining)
 		if err != nil {
 			return nil, err
 		}
@@ -208,13 +208,13 @@ func (d *NextAvailableSubnetDataSource) findByTags(ctx context.Context, tagFilte
 	return results, nil
 }
 
-// findSubnet allocates up to count subnets from a single address block. On a 400
-// response it retries with the count the server reports as available, returning
-// that partial result. A 400 with no recoverable count yields an empty result so
-// the caller can skip the block any other error is returned to the caller.
-func (d *NextAvailableSubnetDataSource) findSubnet(ctx context.Context, id string, cidr, count int32) ([]uddiipam.Subnet, error) {
+// findAddressBlock allocates up to count address blocks from a single parent block.
+// On a 400 response it retries with the count the server reports as available,
+// returning that partial result. A 400 with no recoverable count yields an empty
+// result so the caller can skip the block, any other error is returned to the caller.
+func (d *NextAvailableNetworkContainerDataSource) findAddressBlock(ctx context.Context, id string, cidr, count int32) ([]uddiipam.AddressBlock, error) {
 	apiRes, httpRes, err := d.uddi.IPAddressManagementAPI.AddressBlockAPI.
-		ListNextAvailableSubnet(ctx, id).
+		ListNextAvailableAB(ctx, id).
 		Cidr(cidr).
 		Count(count).
 		Execute()
@@ -224,7 +224,7 @@ func (d *NextAvailableSubnetDataSource) findSubnet(ctx context.Context, id strin
 			_ = httpRes.Body.Close()
 			if available := core.ExtractAvailableCountFromError(body); available > 0 {
 				retryRes, _, retryErr := d.uddi.IPAddressManagementAPI.AddressBlockAPI.
-					ListNextAvailableSubnet(ctx, id).
+					ListNextAvailableAB(ctx, id).
 					Cidr(cidr).
 					Count(available).
 					Execute()
