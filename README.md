@@ -205,7 +205,7 @@ provider "infoblox" {
 
 If your NIOS Grid is connected to the Infoblox Portal, you can manage it through the Portal instead of connecting to the Grid directly, by setting `enable_nios_passthru = true` in the `uddi` block.
 
-For detailed information, refer to the [WAPI Passthrough](guides/wapi_passthrough.md) page.
+For detailed information, refer to the [WAPI Passthrough](docs/guides/nios-wapi-passthrough.md) page.
 
 
 ## Usage Examples
