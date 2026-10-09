@@ -69,7 +69,7 @@ resource "infoblox_record_naptr" "create_record_additional_fields" {
 // Create an Auth Zone (Required as Parent)
 resource "infoblox_zone_auth" "example" {
   uddi = {
-    fqdn         = "example.com"
+    fqdn         = "example.com."
     primary_type = "cloud"
   }
 }

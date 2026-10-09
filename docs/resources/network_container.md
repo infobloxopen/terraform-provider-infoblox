@@ -75,13 +75,20 @@ resource "infoblox_network_container" "example_func_call" {
 ### UDDI Backend
 
 ```terraform
+// Create a Network View (Required as Parent)
+resource "infoblox_network_view" "example" {
+  uddi = {
+    name = "example_nw_view"
+  }
+}
+
 // Create an IPV4 Network Container with Basic Fields
 resource "infoblox_network_container" "networkcontainer_with_basic_fields" {
   uddi = {
     address = "192.168.1.0"
     cidr    = 24
-    name    = "example_address_block"
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    name    = "example_network_container"
+    space   = infoblox_network_view.example.id
   }
 }
 
@@ -90,10 +97,10 @@ resource "infoblox_network_container" "networkcontainer_with_additional_fields" 
   uddi = {
     address = "10.0.0.0"
     cidr    = 8
-    space   = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    space   = infoblox_network_view.example.id
 
     // Other optional fields
-    name    = "example_address_block_with_additional_fields"
+    name    = "example_network_container_with_additional_fields"
     comment = "Created by Terraform"
     tags = {
       Site = "location-1"
@@ -133,12 +140,14 @@ resource "infoblox_network_container" "networkcontainer_with_additional_fields" 
 // Create an IPV4 Network Container with Dynamic Allocation
 resource "infoblox_network_container" "networkcontainer_with_dynamic_allocation" {
   uddi = {
-    next_available_id = infoblox_network_container.networkcontainer_with_basic_fields.id
-    cidr              = 26
-    space             = "ipam/ip_space/1fd490b2-8847-11f1-a8d8-2a72d414108a"
+    dynamic_allocation = {
+      next_available_id = infoblox_network_container.networkcontainer_with_basic_fields.id
+    }
+    cidr  = 26
+    space = infoblox_network_view.example.id
 
     // Other optional fields
-    name    = "example_address_block_with_dynamic_allocation"
+    name    = "example_network_container_with_dynamic_allocation"
     comment = "Created by Terraform"
     tags = {
       Site = "location-1"
