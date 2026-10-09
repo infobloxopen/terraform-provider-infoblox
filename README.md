@@ -4,7 +4,7 @@
 > **Version 2.x.x is deprecated**  
 > As of October 2026, version 2.x.x of this provider is no longer officially supported or maintained. We strongly recommend upgrading to version 3.x.x. For more details, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
 
-The Terraform Provider for Infoblox allows you to manage your Infoblox resources such as DNS records, networks, fixed addresses, and more using Terraform. It is a unified provider: the same provider works with both Infoblox backends, NIOS and UDDI.
+The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. It is a unified provider: the same provider works with both Infoblox backends, NIOS and UDDI.
 
 | Backend | Description |
 |---------|-------------|
@@ -41,15 +41,17 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
 - [Go](https://golang.org/doc/install) >= 1.25.8
 - One of:
-  - Infoblox NIOS (version 9.0.6, WAPI v2.13.6)
+  - Infoblox NIOS (version 9.0.6 or higher, WAPI v2.13.6)
   - An Infoblox Portal account
+
+The objects you manage must be licensed on your backend. For example, RPZ objects need an RPZ license, and Threat Defense objects need a Threat Defense subscription etc.
 
 ## How the Provider Works
 
 Each resource and data source has a nested block named after the backend. You fill in the block for the backend you configured:
 
 ```hcl
-// Against NIOS
+// NIOS Managed Record A
 resource "infoblox_record_a" "example" {
   nios = {
     name     = "web.example.com"
@@ -58,11 +60,12 @@ resource "infoblox_record_a" "example" {
   }
 }
 
-// Against UDDI - same resource type, different block
+// UDDI Managed Record A 
+// Uses same resource type, but different block
 resource "infoblox_record_a" "example" {
   uddi = {
     name_in_zone = "web"
-    zone         = infoblox_zone_auth.example.id
+    zone         = <dns/auth_zone/{id}>
     rdata = {
       address = "10.0.0.18"
     }
@@ -71,7 +74,45 @@ resource "infoblox_record_a" "example" {
 }
 ```
 
-A configuration targets one backend at a time. The provider accepts either a `nios` block or a `uddi` block, not both. To manage both in the same run, declare two provider instances with [aliases](https://developer.hashicorp.com/terraform/language/providers/configuration#alias-multiple-provider-configurations).
+A configuration targets one backend at a time. The provider accepts either a `nios` block or a `uddi` block, not both. To manage both in the same run, declare two provider instances with [aliases](https://developer.hashicorp.com/terraform/language/providers/configuration#alias-multiple-provider-configurations) and set `provider` on each resource:
+
+```hcl
+provider "infoblox" {
+  nios = {
+    host_url = "https://<NIOS_GRID_IP>"
+    username = "<NIOS_USERNAME>"
+    password = "<NIOS_PASSWORD>"
+  }
+}
+
+provider "infoblox" {
+  alias = "uddi"
+  uddi = {
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_API_KEY>"
+  }
+}
+
+// Uses the default (NIOS) provider
+resource "infoblox_record_a" "nios_example" {
+  nios = {
+    name     = "web.example.com"
+    ipv4addr = "10.0.0.18"
+  }
+}
+
+// Uses the aliased UDDI provider
+resource "infoblox_record_a" "uddi_example" {
+  provider = infoblox.uddi
+  uddi = {
+    name_in_zone = "web"
+    zone         = <dns/auth_zone/{id}>
+    rdata = {
+      address = "10.0.0.18"
+    }
+  }
+}
+```
 
 ## Getting Started
 
@@ -149,7 +190,7 @@ provider "infoblox" {
   * `Tenant ID`: String Type 
   * `CMP Type`: String Type 
   * `Cloud API Owned`: List Type (Values: True, False)
-- To use the NIOS Terraform Plugin, you must either define the extensible attribute `Terraform Internal ID`
+- To manage resources on NIOS using the Provider, you must either define the extensible attribute `Terraform Internal ID`
   in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`.
 
   ```shell
@@ -158,7 +199,7 @@ provider "infoblox" {
 
   For more details refer to the prerequisites in [Terraform Internal ID](guides/tf_internal_id_management.md) page.
 
-## Managing a NIOS Grid Through the Infoblox Portal
+## Managing a NIOS Grid Through the Infoblox Portal using WAPI Passthru
 
 If your NIOS Grid is connected to the Infoblox Portal, you can manage it through the Portal instead of connecting to the Grid directly, by setting `enable_nios_passthru = true` in the `uddi` block.
 
@@ -174,7 +215,7 @@ examples/resources/dns/infoblox_record_a/nios/resource.tf
 examples/resources/dns/infoblox_record_a/uddi/resource.tf
 ```
 
-For example:
+Example Directory :
 - Resources examples: [`examples/resources/infoblox_*`](examples/resources/)
 - Data sources examples: [`examples/data-sources/infoblox_*`](examples/data-sources/)
 - List resources examples: [`examples/list-resources/infoblox_*`](examples/list-resources/)
@@ -231,13 +272,16 @@ Detailed documentation for these resources can be found in [Host Record Document
 
 ## Listing Existing Objects
 
-Every resource has a matching list resource, which finds objects that already exist without importing them into state. Run them with `terraform query`.
+Every resource has a corresponding list resource, which defines a structured query block that discovers existing cloud infrastructure so you can map or import those resources into your workspace. Run them with `terraform query`.
+
+> [!NOTE]
+> List resources and `terraform query` require Terraform v1.14.0 or later.
 
 For detailed information, refer to the [Listing Existing Objects](guides/list-resources.md) page.
 
 ## Importing Existing Resources
 
-Resources that already exist in Infoblox can be brought under Terraform management. Every resource in this provider supports import.
+Resources created externally in Infoblox NIOS or UDDI can be brought under Terraform management. Resources can be imported in Terraform in several ways.
 
 For detailed information, refer to the [Importing Existing Resources](guides/importing-resources.md) page.
 
