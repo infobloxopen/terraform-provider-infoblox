@@ -1,0 +1,328 @@
+# Auto-generated resource acceptance-test cases for DtcLbdn (UDDI backend).
+# dtc_policy refs: example-policy-1, example-policy-topology 
+case "basic" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+    }
+    check = {
+      "uddi.name" = "dtc-lbdn-{{random}}."
+    }
+  }
+
+}
+
+case "disappears" {
+  backend               = "uddi"
+  disappears            = true
+  expect_non_empty_plan = true
+  parallel              = true
+  prerequisites_hcl     = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+    }
+  }
+
+}
+
+case "comment" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name    = "dtc-lbdn-{{random}}."
+      view    = "$${infoblox_view.test_view.id}"
+      comment = "resource-comment"
+    }
+    check = {
+      "uddi.comment" = "resource-comment"
+    }
+  }
+
+  step {
+    uddi {
+      name    = "dtc-lbdn-{{random}}."
+      view    = "$${infoblox_view.test_view.id}"
+      comment = "resource-comment-update"
+    }
+    check = {
+      "uddi.comment" = "resource-comment-update"
+    }
+  }
+
+}
+
+case "disabled" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name     = "dtc-lbdn-{{random}}."
+      view     = "$${infoblox_view.test_view.id}"
+      disabled = true
+    }
+    check = {
+      "uddi.disabled" = "true"
+    }
+  }
+
+  step {
+    uddi {
+      name     = "dtc-lbdn-{{random}}."
+      view     = "$${infoblox_view.test_view.id}"
+      disabled = false
+    }
+    check = {
+      "uddi.disabled" = "false"
+    }
+  }
+
+}
+
+case "ttl" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+      ttl  = 300
+    }
+    check = {
+      "uddi.ttl" = "300"
+    }
+  }
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+      ttl  = 600
+    }
+    check = {
+      "uddi.ttl" = "600"
+    }
+  }
+
+}
+
+case "tags" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+      tags = { Site = "{{random2}}" }
+    }
+    check = {
+      "uddi.tags.Site" = "{{random2}}"
+    }
+  }
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+      tags = { Site = "{{random3}}" }
+    }
+    check = {
+      "uddi.tags.Site" = "{{random3}}"
+    }
+  }
+
+}
+
+case "dtc_policy" {
+  backend           = "uddi"
+  parallel          = true
+  skip_if_env_empty = ["UDDI_DTC_POLICY_ID_1", "UDDI_DTC_POLICY_ID_2"]
+  skip_reason       = "UDDI_DTC_POLICY_ID_1 and UDDI_DTC_POLICY_ID_2 must be set: run integration test setup to provision DTC policies"
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name       = "dtc-lbdn-{{random}}."
+      view       = "$${infoblox_view.test_view.id}"
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_1}}" }
+    }
+    check = {
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_1}}"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "dtc-lbdn-{{random}}."
+      view       = "$${infoblox_view.test_view.id}"
+      dtc_policy = { policy_id = "{{uddi_dtc_policy_id_2}}" }
+    }
+    check = {
+      "uddi.dtc_policy.policy_id" = "{{uddi_dtc_policy_id_2}}"
+    }
+  }
+
+}
+
+case "name" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random}}."
+      view = "$${infoblox_view.test_view.id}"
+    }
+    check = {
+      "uddi.name" = "dtc-lbdn-{{random}}."
+    }
+  }
+
+  step {
+    uddi {
+      name = "dtc-lbdn-{{random2}}."
+      view = "$${infoblox_view.test_view.id}"
+    }
+    check = {
+      "uddi.name" = "dtc-lbdn-{{random2}}."
+    }
+  }
+
+}
+
+case "precedence" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name       = "dtc-lbdn-{{random}}."
+      view       = "$${infoblox_view.test_view.id}"
+      precedence = 7
+    }
+    check = {
+      "uddi.precedence" = "7"
+    }
+  }
+
+  step {
+    uddi {
+      name       = "dtc-lbdn-{{random}}."
+      view       = "$${infoblox_view.test_view.id}"
+      precedence = 12
+    }
+    check = {
+      "uddi.precedence" = "12"
+    }
+  }
+
+}
+
+case "inheritance_sources" {
+  backend           = "uddi"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_view" "test_view" {
+    uddi = {
+      name = "view-{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    uddi {
+      name                = "dtc-lbdn-{{random}}."
+      view                = "$${infoblox_view.test_view.id}"
+      ttl                 = 300
+      inheritance_sources = { ttl = { action = "override" } }
+    }
+    check = {
+      "uddi.inheritance_sources.ttl.action" = "override"
+      "uddi.ttl"                            = "300"
+    }
+  }
+
+  step {
+    uddi {
+      name                = "dtc-lbdn-{{random}}."
+      view                = "$${infoblox_view.test_view.id}"
+      inheritance_sources = { ttl = { action = "inherit" } }
+    }
+    check = {
+      "uddi.inheritance_sources.ttl.action" = "inherit"
+    }
+  }
+
+}

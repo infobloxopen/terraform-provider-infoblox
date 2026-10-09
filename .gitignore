@@ -1,2 +1,21 @@
-build-output/
+# Terraform state files
+.terraform/
+terraform.tfplan
+terraform.tfstate
+.terraform.lock.hcl
+*.backup
+
+/terraform-provider-infoblox
+
+.openapi-generator/
+internal/service/*/.openapi-generator-ignore
+
+# Ignore the metadata files
+**/.DS_Store
+.vscode/
 .idea/
+
+# Ignore Pipeline Env Setups
+pipeline_uddi.env
+pipeline_nios.env
+pipeline.env

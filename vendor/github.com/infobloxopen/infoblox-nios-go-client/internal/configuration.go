@@ -1,0 +1,323 @@
+package internal
+
+import (
+	"context"
+	"crypto/x509"
+	"errors"
+	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
+)
+
+// contextKeys are used to identify the type of value in the context.
+// Since these are string, it is possible to get a short description of the
+// context key for logging and debugging using key.String().
+
+type contextKey string
+
+func (c contextKey) String() string {
+	return "auth " + string(c)
+}
+
+var (
+	// The following context keys can be used to modify the server URL used by the client.
+	// However, we only support a single server configuration at the moment.
+	// This needs to be exposed to the user in the future when we support multiple server configurations.
+
+	// ContextServerIndex uses a server configuration from the index.
+	ContextServerIndex = contextKey("serverIndex")
+
+	// ContextOperationServerIndices uses a server configuration from the index mapping.
+	ContextOperationServerIndices = contextKey("serverOperationIndices")
+
+	// ContextServerVariables overrides a server configuration variables.
+	ContextServerVariables = contextKey("serverVariables")
+
+	// ContextOperationServerVariables overrides a server configuration variables using operation specific values.
+	ContextOperationServerVariables = contextKey("serverOperationVariables")
+)
+
+// ServerVariable stores the information about a server variable
+type ServerVariable struct {
+	Description  string
+	DefaultValue string
+	EnumValues   []string
+}
+
+// ServerConfiguration stores the information about a server
+type ServerConfiguration struct {
+	URL         string
+	Description string
+	Variables   map[string]ServerVariable
+}
+
+// ServerConfigurations stores multiple ServerConfiguration items
+type ServerConfigurations []ServerConfiguration
+
+// Configuration stores the configuration of the API client
+type Configuration struct {
+	ClientName       string            `json:"clientName,omitempty"`
+	NIOSHostURL      string            `json:"niosHostURL,omitempty"`
+	NIOSUsername     string            `json:"niosUsername,omitempty"`
+	NIOSPassword     string            `json:"niosPassword,omitempty"`
+	NIOSLicenseUID   string            `json:"niosLicenseUID,omitempty"`
+	NIOSPassthrough  bool              `json:"niosPassthrough,omitempty"`
+	PortalURL        string            `json:"portalURL,omitempty"`
+	PortalAPIKey     string            `json:"portalAPIKey,omitempty"`
+	DefaultHeader    map[string]string `json:"defaultHeader,omitempty"`
+	UserAgent        string            `json:"userAgent,omitempty"`
+	Debug            bool              `json:"debug,omitempty"`
+	Servers          ServerConfigurations
+	OperationServers map[string]ServerConfigurations
+	HTTPClient       *http.Client
+	DefaultExtAttrs  map[string]struct{ Value string }
+	ClientCert       []byte
+	ClientKey        []byte
+	CACert           []byte
+	CACertPath       string
+	SslVerify        bool
+	ProxyURL         *url.URL
+}
+
+// NewConfiguration returns a new Configuration object.
+// The following default values are set:
+// - ClientName: "nios-go-client"
+// - UserAgent: "nios-go-client/version"
+// - Debug: false
+func NewConfiguration() *Configuration {
+	cfg := &Configuration{
+		ClientName:       "nios-go-client",
+		NIOSHostURL:      lookupEnv(envNiosHostURL, ""),
+		NIOSUsername:     lookupEnv(envNiosUsername, ""),
+		NIOSPassword:     lookupEnv(envNiosPassword, ""),
+		NIOSLicenseUID:   lookupEnv(envNiosLicenseUID, ""),
+		PortalURL:        lookupEnv(envPortalURL, ""),
+		PortalAPIKey:     lookupEnv(envPortalKey, ""),
+		DefaultHeader:    make(map[string]string),
+		Debug:            lookupEnvBool(envIBLogLevel, true),
+		UserAgent:        fmt.Sprintf("nios-%s/%s", sdkIdentifier, version),
+		Servers:          ServerConfigurations{},
+		OperationServers: map[string]ServerConfigurations{},
+		DefaultExtAttrs:  make(map[string]struct{ Value string }),
+		ClientCert:       readFile(envClientCertPath),
+		ClientKey:        readFile(envClientKeyPath),
+		CACertPath:       lookupEnv(envCACertPath, ""),
+		SslVerify:        lookupEnvBool(envSslVerify, false),
+	}
+	return cfg
+}
+
+// AddDefaultHeader adds a new HTTP header to the default header in the request
+func (c *Configuration) AddDefaultHeader(key string, value string) {
+	c.DefaultHeader[key] = value
+}
+
+// IsPassthrough reports whether requests reach NIOS through the Infoblox Portal.
+func (c *Configuration) IsPassthrough() bool {
+	return c.NIOSPassthrough
+}
+
+// BaseURL returns the endpoint requests are sent to.
+func (c *Configuration) BaseURL() string {
+	if c.IsPassthrough() {
+		return c.PortalURL
+	}
+	return c.NIOSHostURL
+}
+
+// VerifyTLS reports whether server certificates are verified. A Grid usually serves a
+// self-signed certificate, so SslVerify stays off by default, but the Infoblox Portal is
+// a public endpoint reached with an API key and is always verified.
+func (c *Configuration) VerifyTLS() bool {
+	return c.SslVerify || c.IsPassthrough()
+}
+
+// CheckPortalConfig reports which Infoblox Portal settings passthrough mode is missing.
+func (c *Configuration) CheckPortalConfig() error {
+	if !c.IsPassthrough() {
+		return nil
+	}
+
+	var missing []string
+	if c.PortalURL == "" {
+		missing = append(missing, fmt.Sprintf("'infoblox_portal_url' (or %s)", envPortalURL))
+	}
+	if c.PortalAPIKey == "" {
+		missing = append(missing, fmt.Sprintf("'infoblox_portal_key' (or %s)", envPortalKey))
+	}
+	if c.NIOSLicenseUID == "" {
+		missing = append(missing, fmt.Sprintf("'nios_license_uid' (or %s)", envNiosLicenseUID))
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("NIOS through the Infoblox Portal requires %s", strings.Join(missing, ", "))
+	}
+	return nil
+}
+
+// LoadCACert returns the CA certificate bundle, reading it from CACertPath when no inline bundle is set.
+func (c *Configuration) LoadCACert() ([]byte, error) {
+	if len(c.CACert) > 0 || c.CACertPath == "" {
+		return c.CACert, nil
+	}
+	data, err := os.ReadFile(c.CACertPath)
+	if err != nil {
+		return nil, fmt.Errorf("reading CA certificate file %q: %w", c.CACertPath, err)
+	}
+	return data, nil
+}
+
+// CheckCACert reports whether the configured CA certificate bundle can be read and parsed.
+func (c *Configuration) CheckCACert() error {
+	caCert, err := c.LoadCACert()
+	if err != nil {
+		return err
+	}
+	if len(caCert) > 0 && !x509.NewCertPool().AppendCertsFromPEM(caCert) {
+		return errors.New("CA certificate bundle contains no valid PEM-encoded certificates")
+	}
+	return nil
+}
+
+// URL formats template on a index using given variables
+func (sc ServerConfigurations) URL(index int, variables map[string]string) (string, error) {
+	if index < 0 || len(sc) <= index {
+		return "", fmt.Errorf("index %v out of range %v", index, len(sc)-1)
+	}
+	server := sc[index]
+	url := server.URL
+
+	// go through variables and replace placeholders
+	for name, variable := range server.Variables {
+		if value, ok := variables[name]; ok {
+			found := bool(len(variable.EnumValues) == 0)
+			for _, enumValue := range variable.EnumValues {
+				if value == enumValue {
+					found = true
+				}
+			}
+			if !found {
+				return "", fmt.Errorf("the variable %s in the server URL has invalid value %v. Must be %v", name, value, variable.EnumValues)
+			}
+			url = strings.Replace(url, "{"+name+"}", value, -1)
+		} else {
+			url = strings.Replace(url, "{"+name+"}", variable.DefaultValue, -1)
+		}
+	}
+	return url, nil
+}
+
+// ServerURL returns URL based on server settings
+func (c *Configuration) ServerURL(index int, variables map[string]string) (string, error) {
+	return c.Servers.URL(index, variables)
+}
+
+func getServerIndex(ctx context.Context) (int, error) {
+	si := ctx.Value(ContextServerIndex)
+	if si != nil {
+		if index, ok := si.(int); ok {
+			return index, nil
+		}
+		return 0, ReportError("Invalid type %T should be int", si)
+	}
+	return 0, nil
+}
+
+func getServerOperationIndex(ctx context.Context, endpoint string) (int, error) {
+	osi := ctx.Value(ContextOperationServerIndices)
+	if osi != nil {
+		if operationIndices, ok := osi.(map[string]int); !ok {
+			return 0, ReportError("Invalid type %T should be map[string]int", osi)
+		} else {
+			index, ok := operationIndices[endpoint]
+			if ok {
+				return index, nil
+			}
+		}
+	}
+	return getServerIndex(ctx)
+}
+
+func getServerVariables(ctx context.Context) (map[string]string, error) {
+	sv := ctx.Value(ContextServerVariables)
+	if sv != nil {
+		if variables, ok := sv.(map[string]string); ok {
+			return variables, nil
+		}
+		return nil, ReportError("ctx value of ContextServerVariables has invalid type %T should be map[string]string", sv)
+	}
+	return nil, nil
+}
+
+func getServerOperationVariables(ctx context.Context, endpoint string) (map[string]string, error) {
+	osv := ctx.Value(ContextOperationServerVariables)
+	if osv != nil {
+		if operationVariables, ok := osv.(map[string]map[string]string); !ok {
+			return nil, ReportError("ctx value of ContextOperationServerVariables has invalid type %T should be map[string]map[string]string", osv)
+		} else {
+			variables, ok := operationVariables[endpoint]
+			if ok {
+				return variables, nil
+			}
+		}
+	}
+	return getServerVariables(ctx)
+}
+
+// ServerURLWithContext returns a new server URL given an endpoint
+func (c *Configuration) ServerURLWithContext(ctx context.Context, endpoint string) (string, error) {
+	sc, ok := c.OperationServers[endpoint]
+	if !ok {
+		sc = c.Servers
+	}
+
+	if ctx == nil {
+		return sc.URL(0, nil)
+	}
+
+	index, err := getServerOperationIndex(ctx, endpoint)
+	if err != nil {
+		return "", err
+	}
+
+	variables, err := getServerOperationVariables(ctx, endpoint)
+	if err != nil {
+		return "", err
+	}
+
+	return sc.URL(index, variables)
+}
+
+// lookupEnv is a function that returns the value of the environment variable named by the key
+// or the default value if the environment variable is not set.
+func lookupEnv(key, def string) string {
+	if v, ok := os.LookupEnv(key); ok {
+		return v
+	}
+	return def
+}
+
+func lookupEnvBool(key string, def bool) bool {
+	if logLvlStr, ok := os.LookupEnv(key); ok {
+		if logLvl, err := strconv.ParseBool(logLvlStr); err == nil {
+			return logLvl
+		}
+	}
+	return def
+}
+
+func readFile(filepath string) []byte {
+	filepath = lookupEnv(filepath, "")
+	if filepath == "" {
+		return nil
+	}
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		log.Printf("Error reading client cert file '%s': %v", filepath, err)
+		return nil
+	}
+	return data
+}

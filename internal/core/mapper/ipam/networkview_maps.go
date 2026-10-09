@@ -1,0 +1,95 @@
+package ipam
+
+import "github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+
+// NetworkviewNIOSFieldMap maps infoblox model fields to NIOS struct fields
+var NetworkviewNIOSFieldMap = map[string]string{
+	"Id":                        "Ref",
+	"NIOS.CloudInfo":            "CloudInfo",
+	"NIOS.Comment":              "Comment",
+	"NIOS.DdnsDnsView":          "DdnsDnsView",
+	"NIOS.DdnsZonePrimaries":    "DdnsZonePrimaries",
+	"NIOS.FederatedRealms":      "FederatedRealms",
+	"NIOS.InternalForwardZones": "InternalForwardZones",
+	"NIOS.MgmPrivate":           "MgmPrivate",
+	"NIOS.Name":                 "Name",
+	"NIOS.RemoteForwardZones":   "RemoteForwardZones",
+	"NIOS.RemoteReverseZones":   "RemoteReverseZones",
+}
+
+// NetworkviewUDDIFieldMap maps infoblox model fields to UDDI struct fields
+var NetworkviewUDDIFieldMap = map[string]string{
+	"UDDI.AsmConfig":                       "AsmConfig",
+	"UDDI.Comment":                         "Comment",
+	"UDDI.CompartmentId":                   "CompartmentId",
+	"UDDI.DdnsClientUpdate":                "DdnsClientUpdate",
+	"UDDI.DdnsConflictResolutionMode":      "DdnsConflictResolutionMode",
+	"UDDI.DdnsDomain":                      "DdnsDomain",
+	"UDDI.DdnsGenerateName":                "DdnsGenerateName",
+	"UDDI.DdnsGeneratedPrefix":             "DdnsGeneratedPrefix",
+	"UDDI.DdnsSendUpdates":                 "DdnsSendUpdates",
+	"UDDI.DdnsTtlPercent":                  "DdnsTtlPercent",
+	"UDDI.DdnsUpdateOnRenew":               "DdnsUpdateOnRenew",
+	"UDDI.DdnsUseConflictResolution":       "DdnsUseConflictResolution",
+	"UDDI.DefaultRealms":                   "DefaultRealms",
+	"UDDI.DhcpConfig":                      "DhcpConfig",
+	"UDDI.DhcpOptions":                     "DhcpOptions",
+	"UDDI.DhcpOptionsV6":                   "DhcpOptionsV6",
+	"UDDI.HeaderOptionFilename":            "HeaderOptionFilename",
+	"UDDI.HeaderOptionServerAddress":       "HeaderOptionServerAddress",
+	"UDDI.HeaderOptionServerName":          "HeaderOptionServerName",
+	"UDDI.HostnameRewriteChar":             "HostnameRewriteChar",
+	"UDDI.HostnameRewriteEnabled":          "HostnameRewriteEnabled",
+	"UDDI.HostnameRewriteRegex":            "HostnameRewriteRegex",
+	"UDDI.InheritanceSources":              "InheritanceSources",
+	"UDDI.Name":                            "Name",
+	"UDDI.Tags":                            "Tags",
+	"UDDI.VendorSpecificOptionOptionSpace": "VendorSpecificOptionOptionSpace",
+}
+
+// TODO: only searchable fields should be included here
+// NetworkviewFilterFieldMap maps infoblox filter keys to backend-specific API filter field names
+var NetworkviewFilterFieldMap = map[core.BackendType]map[string]string{
+	core.BackendNIOS: {
+		"id":                          "_ref",
+		"nios.cloud_info":             "cloud_info",
+		"nios.comment":                "comment",
+		"nios.ddns_dns_view":          "ddns_dns_view",
+		"nios.ddns_zone_primaries":    "ddns_zone_primaries",
+		"nios.ext_attrs":              "extattrs",
+		"nios.federated_realms":       "federated_realms",
+		"nios.internal_forward_zones": "internal_forward_zones",
+		"nios.mgm_private":            "mgm_private",
+		"nios.name":                   "name",
+		"nios.remote_forward_zones":   "remote_forward_zones",
+		"nios.remote_reverse_zones":   "remote_reverse_zones",
+	},
+	core.BackendUDDI: {
+		"uddi.asm_config":                          "asm_config",
+		"uddi.comment":                             "comment",
+		"uddi.compartment_id":                      "compartment_id",
+		"uddi.ddns_client_update":                  "ddns_client_update",
+		"uddi.ddns_conflict_resolution_mode":       "ddns_conflict_resolution_mode",
+		"uddi.ddns_domain":                         "ddns_domain",
+		"uddi.ddns_generate_name":                  "ddns_generate_name",
+		"uddi.ddns_generated_prefix":               "ddns_generated_prefix",
+		"uddi.ddns_send_updates":                   "ddns_send_updates",
+		"uddi.ddns_ttl_percent":                    "ddns_ttl_percent",
+		"uddi.ddns_update_on_renew":                "ddns_update_on_renew",
+		"uddi.ddns_use_conflict_resolution":        "ddns_use_conflict_resolution",
+		"uddi.default_realms":                      "default_realms",
+		"uddi.dhcp_config":                         "dhcp_config",
+		"uddi.dhcp_options":                        "dhcp_options",
+		"uddi.dhcp_options_v6":                     "dhcp_options_v6",
+		"uddi.header_option_filename":              "header_option_filename",
+		"uddi.header_option_server_address":        "header_option_server_address",
+		"uddi.header_option_server_name":           "header_option_server_name",
+		"uddi.hostname_rewrite_char":               "hostname_rewrite_char",
+		"uddi.hostname_rewrite_enabled":            "hostname_rewrite_enabled",
+		"uddi.hostname_rewrite_regex":              "hostname_rewrite_regex",
+		"uddi.inheritance_sources":                 "inheritance_sources",
+		"uddi.name":                                "name",
+		"uddi.tags":                                "tags",
+		"uddi.vendor_specific_option_option_space": "vendor_specific_option_option_space",
+	},
+}
