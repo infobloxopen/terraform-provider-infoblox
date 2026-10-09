@@ -2,19 +2,19 @@
 page_title: "Managing NIOS through the Infoblox Portal (WAPI Passthrough)"
 subcategory: "Guides"
 description: |-
-  Configure the Infoblox provider to manage an on-premise NIOS Grid through the Infoblox Portal, without direct network access to the Grid.
+  Configure the Infoblox provider to manage an on-prem NIOS Grid through the Infoblox Portal, without direct network access to the Grid.
 ---
 
 # Managing NIOS through the Infoblox Portal (WAPI Passthrough)
 
-The WAPI Passthrough feature enables secure, remote management of on-premise Infoblox NIOS environments by exposing the existing Web API (WAPI) interface through the Infoblox Portal. Traditionally, administrators and automation tools could access NIOS WAPI endpoints only from within the local network, which limited the flexibility of automation workflows. WAPI Passthrough overcomes this limitation by allowing WAPI operations to be invoked through a cloud-hosted Portal endpoint, which securely proxies each request to the appropriate on-premise NIOS Grid.
+The WAPI Passthrough feature enables secure, remote management of on-prem Infoblox NIOS environments by exposing the existing Web API (WAPI) interface through the Infoblox Portal. Traditionally, administrators and automation tools could access NIOS WAPI endpoints only from within the local network, which limited the flexibility of automation workflows. WAPI Passthrough overcomes this limitation by allowing WAPI operations to be invoked through the Infoblox Portal, which securely proxies each request to the appropriate on-prem NIOS Grid.
 
 By default, the Infoblox provider connects to a Grid's WAPI endpoint directly, which requires the host running Terraform to have network access to the Grid and to authenticate with NIOS administrator credentials. When passthrough is enabled, the provider issues the same requests to the Portal instead. The API itself is unchanged - the same objects, the same fields, and full CRUD support - so only the route and the credentials differ:
 
 | | Direct Grid | Through the Portal |
 |---|---|---|
 | Credentials | NIOS username + password | Portal service API key + Grid license UID |
-| Network reachability | Terraform must reach the Grid | Terraform only needs internet access |
+| Network reachability | Terraform must reach the Grid | Terraform needs access to Infoblox Portal |
 
 ## How the Provider Supports It
 
@@ -29,7 +29,7 @@ To use passthrough, set `enable_nios_passthru = true` in the provider block. The
 
 ## Configuring the Provider
 
-Passthrough settings are supplied in the `uddi` block, because the credentials are Portal credentials. The `nios` block is not used in this mode, and the provider rejects a configuration that sets both blocks.
+Passthrough credentials are supplied in the `uddi` block, because the credentials are Portal credentials. The `nios` block is not used in this mode, and the provider rejects a configuration that sets both blocks.
 
 ````terraform
 provider "infoblox" {
@@ -47,8 +47,7 @@ provider "infoblox" {
 | `enable_nios_passthru` | Yes | Must be `true`, and must be known at plan time. The provider selects the transport during planning, so it cannot depend on a value computed during apply. |
 | `portal_url` | Yes | The Portal **WAPI** endpoint, not the Portal UI or the CSP API endpoint. Specify the host only, the provider appends the WAPI base path and version. |
 | `portal_key` | Yes | Portal service API key. Sensitive. |
-| `nios_license_uid` | Yes | License UID of the target Grid. Sensitive. |
-| `default_tags` | Not allowed | Tags are a Universal DDI concept, NIOS objects use `ext_attrs`. Setting it with passthrough enabled is a configuration error. |
+| `nios_license_uid` | Yes | License UID of the target Grid. Sensitive. It is also shown as a tag on the equivalent NIOS Infra Host in the Infoblox Portal. |
 
 > **Note:** The WAPI endpoint is a different host from the Portal CSP API endpoint used for Universal DDI objects, and in non-production or regional environments its name does not follow from the Portal URL. Copy the exact host from the Infoblox Portal rather than deriving it. TLS certificates are always verified on this route, so an approximate host name fails with a certificate error instead of connecting.
 
@@ -145,4 +144,4 @@ Each resource selects its provider with the `provider` argument, and the block i
 
 ## Reference
 
-To obtain the Portal service API key and the Grid license UID, and to review the permissions and roles that govern passthrough access, refer to [Configuring WAPI Passthrough in the Infoblox Portal](https://docs.infoblox.com/space/BloxOneDDI/1505493401/Configuring+WAPI+Passthrough+in+the+Infoblox+Portal).
+To obtain the Portal API key and the Grid license UID, and to review the permissions and roles that govern passthrough access, refer to [Configuring WAPI Passthrough in the Infoblox Portal](https://docs.infoblox.com/space/BloxOneDDI/1505493401/Configuring+WAPI+Passthrough+in+the+Infoblox+Portal).
