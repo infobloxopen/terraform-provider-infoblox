@@ -23,7 +23,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
   - [Retry Behavior](#retry-behavior)
   - [Prerequisites](#prerequisites)
     - [Setting Up Terraform Internal ID](#setting-up-terraform-internal-id)
-- [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal)
+- [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal-using-wapi-passthru)
 - [Usage Examples](#usage-examples)
 - [Available Resources and DataSources](#available-resources-and-datasources)
 - [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers)
@@ -32,7 +32,6 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 - [Importing Existing Resources](#importing-existing-resources)
 - [Update Trigger](#update-trigger)
 - [Roadmap](#roadmap)
-- [Documentation](#documentation)
 - [Logging and Debugging](#logging-and-debugging)
 - [Contributing](#contributing)
 - [Support](#support)
@@ -40,7 +39,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
-- [Go](https://golang.org/doc/install) >= 1.25.8
+- [Go](https://golang.org/doc/install) >= 1.26.8
 - One of:
   - Infoblox NIOS (version 9.0.6 or higher, WAPI v2.13.6)
   - An Infoblox Portal account
@@ -90,7 +89,7 @@ provider "infoblox" {
   alias = "uddi"
   uddi = {
     portal_url = "<INFOBLOX_PORTAL_URL>"
-    portal_key = "<INFOBLOX_PORTAL_API_KEY>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
 
@@ -145,8 +144,8 @@ For UDDI:
 ```hcl
 provider "infoblox" {
   uddi = {
-    portal_url = "https://csp.infoblox.com"
-    portal_key = "<INFOBLOX_PORTAL_API_KEY>"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
 ```
@@ -167,7 +166,7 @@ These settings apply to the NIOS backend only:
 - `nios.proxy_url`: HTTP proxy URL to route NIOS WAPI calls through, for example `http://proxy.example.com:8080`.
 - `proxy_search`: Where WAPI requests are processed. `LOCAL` (default) processes them on the member you connect to, and `GM` redirects them to the Grid Master.
 
-For detailed installation instructions, please refer to the [Quickstart Guide](guides/quickstart.md).
+For detailed installation instructions, please refer to the [Quickstart Guide](docs/guides/quickstart.md).
 
 ### Retry Behavior
 
@@ -279,7 +278,7 @@ Every resource has a corresponding list resource, which defines a structured que
 > [!NOTE]
 > List resources and `terraform query` require Terraform v1.14.0 or later.
 
-For detailed information, refer to the [Listing Existing Objects](guides/list-resources.md) page.
+For detailed information, on Terraform side, refer [`list` block](https://developer.hashicorp.com/terraform/language/block/tfquery/list) and the [`terraform query`](https://developer.hashicorp.com/terraform/cli/commands/query) command.
 
 ## Importing Existing Resources
 
@@ -306,10 +305,6 @@ resource "infoblox_record_a" "example" {
 Support for additional NIOS and Universal DDI objects, and for infrastructure deployment modules, is planned for later releases.
 
 For the list of what is planned, refer to the [Roadmap](ROADMAP.md) page.
-
-## Documentation
-
-For detailed documentation, refer to the [Documentation](guides/documentation-details.md) page.
 
 ## Logging and Debugging
 

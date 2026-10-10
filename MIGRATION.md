@@ -82,7 +82,7 @@ provider "infoblox" {
 provider "infoblox" {
   alias = "uddi"
   uddi = {
-    portal_url = "https://csp.infoblox.com"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
     portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
@@ -163,7 +163,7 @@ terraform {
 }
 
 provider "bloxone" {
-  csp_url = "https://csp.infoblox.com"
+  csp_url = "<INFOBLOX_PORTAL_URL>"
   api_key = "<API_KEY>"
 
   default_tags = {
@@ -186,8 +186,8 @@ terraform {
 
 provider "infoblox" {
   uddi = {
-    portal_url = "https://csp.infoblox.com"
-    portal_key = "<API_KEY>"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
 
     default_tags = {
       managed_by = "terraform"
