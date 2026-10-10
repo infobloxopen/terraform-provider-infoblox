@@ -89,7 +89,7 @@ provider "infoblox" {
   alias = "uddi"
   uddi = {
     portal_url = "<INFOBLOX_PORTAL_URL>"
-    portal_key = "<INFOBLOX_PORTAL_API_KEY>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
 
@@ -144,8 +144,8 @@ For UDDI:
 ```hcl
 provider "infoblox" {
   uddi = {
-    portal_url = "https://csp.infoblox.com"
-    portal_key = "<INFOBLOX_PORTAL_API_KEY>"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
+    portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }
 ```

@@ -105,8 +105,8 @@ export NIOS_USERNAME="<username>"
 export NIOS_PASSWORD="<password>"
 
 # UDDI
-export INFOBLOX_PORTAL_URL="https://csp.infoblox.com"
-export INFOBLOX_PORTAL_KEY="<api-key>"
+export INFOBLOX_PORTAL_URL= "<INFOBLOX_PORTAL_URL>"
+export INFOBLOX_PORTAL_KEY= "<INFOBLOX_PORTAL_KEY>"
 
 TF_ACC=1 go test ./internal/service/<group>/... -run <TestName> -v
 ```
