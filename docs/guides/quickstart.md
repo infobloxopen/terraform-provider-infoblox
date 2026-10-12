@@ -25,7 +25,7 @@ The provider is unified: the same provider works with both Infoblox backends. A 
 
 ## Configuring the Provider
 
-Before getting started, ensure you have completed the [prerequisites](../../README.md#prerequisites).
+Before getting started, ensure you have completed the [prerequisites](https://github.com/infobloxopen/terraform-provider-infoblox#prerequisites).
 
 Create a directory for the Terraform configuration and add a file named `main.tf`.
 
