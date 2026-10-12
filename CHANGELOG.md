@@ -1,10 +1,10 @@
 # Changelog
 
-## [v3.0.0-beta1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v3.0.0-beta1) (2026-10-13)
+## [v3.0.0-beta](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v3.0.0-beta) (2026-10-13)
 
 ### Breaking Changes
 
-- This is now a Unified Provider. One provider manages both NIOS and Universal DDI (UDDI), and it replaces the legacy Infoblox provider (v2.x), the NIOS provider (`infobloxopen/nios`), and the BloxOne provider (`infobloxopen/bloxone`).
+- Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Infoblox Legacy Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
 - The provider configuration has changed. Credentials now go inside a `nios` or `uddi` block, and one provider block can use only one of them. To manage both, use two provider blocks with an alias.
 - Every resource and data source now has a `nios` or `uddi` block for its attributes, and many objects have new names. For example, `infoblox_a_record` is now `infoblox_record_a`.
 - v3.0.0 is not backward compatible with v2.x. Existing state cannot be upgraded in place, so you need to remove the old resources from state and import them again. Your objects in NIOS and UDDI are not changed. See the [Migration Guide](MIGRATION.md) and the [Object Mapping](docs/guides/object-mapping.md) guide.
