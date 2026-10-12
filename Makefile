@@ -2,7 +2,7 @@ HOSTNAME=registry.terraform.io
 NAMESPACE=infobloxopen
 NAME=infoblox
 BINARY=terraform-provider-$(NAME)
-VERSION?=0.0.1
+VERSION=3.0.0-beta1
 OS_ARCH=$(shell uname -s | tr '[:upper:]' '[:lower:]')_$(shell uname -m)
 GO_FILES=$(shell find . -name '*.go' -not -path "./vendor/*")
 
