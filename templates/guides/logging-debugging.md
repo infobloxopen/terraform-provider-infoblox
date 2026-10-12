@@ -2,7 +2,7 @@
 page_title: "Logging and Debugging"
 subcategory: "Guides"
 description: |-
-  Enable Terraform logs to debug issues with the Infoblox provider on the NIOS and UDDI backends.
+  Enable Terraform logs to debug issues with the Infoblox provider on NIOS and UDDI.
 ---
 
 # Logging and Debugging

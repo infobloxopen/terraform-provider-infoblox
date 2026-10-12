@@ -2,7 +2,7 @@
 page_title: "Quickstart"
 subcategory: "Guides"
 description: |-
-  Configure the Infoblox provider against the NIOS or UDDI backend and create your first DNS and IPAM resources.
+  Configure the Infoblox provider against NIOS or UDDI and create your first DNS and IPAM resources.
 ---
 
 # Managing DDI Services with the Infoblox Terraform Provider
@@ -29,7 +29,7 @@ Before getting started, ensure you have completed the [prerequisites](https://gi
 
 Create a directory for the Terraform configuration and add a file named `main.tf`.
 
-### NIOS Backend
+### NIOS
 
 ````terraform
 terraform {
@@ -54,7 +54,7 @@ provider "infoblox" {
 
 These values may also be supplied through the `NIOS_HOST_URL`, `NIOS_USERNAME`, and `NIOS_PASSWORD` environment variables.
 
-### UDDI Backend
+### UDDI
 
 ````terraform
 terraform {

@@ -1,6 +1,6 @@
 # Terraform Provider for Infoblox
 
-This is the new Infoblox Provider (v3.x.x). If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
+This is the new Infoblox Provider (v3.x.x), currently in beta, with the general availability release planned for January 2027. If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
 
 The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. The same provider works with both Infoblox backends, NIOS and UDDI.
 
@@ -38,9 +38,9 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
 - [Go](https://golang.org/doc/install) >= 1.26.8
-- One of:
-  - Infoblox NIOS (version 9.0.6 or higher, WAPI v2.13.6)
-  - An Infoblox Portal account
+- For NIOS: Infoblox NIOS 9.0.6 or higher (WAPI v2.13.6), reached directly or through the Infoblox Portal with the Grid connected to it.
+- For UDDI: An Infoblox Portal account
+
 
 The objects you manage must be licensed on your backend. For example, RPZ objects need an RPZ license, and Threat Defense objects need a Threat Defense subscription etc.
 

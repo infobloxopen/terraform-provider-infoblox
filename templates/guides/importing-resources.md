@@ -24,7 +24,7 @@ To find the ID of an existing object, use the NIOS Grid Manager or WAPI for NIOS
 
 Import blocks let you import resources declaratively as part of the normal plan and apply workflow. Add an `import` block with the resource ID and a matching `resource` block:
 
-### NIOS Backend
+### NIOS
 
 ```terraform
 import {
@@ -40,7 +40,7 @@ resource "infoblox_record_a" "example" {
 }
 ```
 
-### UDDI Backend
+### UDDI
 
 ```terraform
 import {
@@ -61,7 +61,7 @@ resource "infoblox_record_a" "example" {
 
 Run `terraform plan` to preview the import, then `terraform apply` to add the resource to the state. After the import, update the configuration as needed so that `terraform plan` shows no changes.
 
-> For **NIOS backend** The plan shows 1 to import and 1 to update. The update attaches the `Terraform Internal ID` extensible attribute to the imported object.
+> For **NIOS**, the plan shows 1 to import and 1 to update. The update attaches the `Terraform Internal ID` extensible attribute to the imported object.
 
 ## Generating Configuration
 
@@ -80,16 +80,16 @@ Terraform writes the configuration for each imported resource to `generated.tf`.
 You can also import a single resource with the `terraform import` command. Write the `resource` block first, then run:
 
 ```bash
-# NIOS backend
+# NIOS
 terraform import infoblox_record_a.example record:a/ZG5zLmJpbmRfYSQuX2RlZmF1bHQuY29tLmV4YW1wbGUsc2FtcGxlLDE5Mi4xNjguMS4xMA:example.mydomain.com/default
 
-# UDDI backend
+# UDDI
 terraform import infoblox_record_a.example dns/record/2f3e9a1c-7b4d-4e2a-9c61-5d8f0a1b2c3d
 ```
 
 Unlike import blocks, this command changes the state immediately and does not show a plan first.
 
-> For **NIOS backend** The first `terraform apply` after the import attaches the `Terraform Internal ID` extensible attribute to the imported object. Plans after that show no changes.
+> For **NIOS**, the first `terraform apply` after the import attaches the `Terraform Internal ID` extensible attribute to the imported object. Plans after that show no changes.
 
 ## Finding Objects to Import
 
@@ -108,7 +108,7 @@ list "infoblox_record_a" "existing" {
 
 Running `terraform query -generate-config-out=generated.tf` writes both `import` and `resource` blocks for the objects it finds, which you can then apply. For more information, see [terraform query](https://developer.hashicorp.com/terraform/cli/commands/query) in the Terraform documentation.
 
-## NIOS Backend Notes
+## NIOS Notes
 
 * On import, the provider adds the `Terraform Internal ID` extensible attribute to the NIOS object and saves it in the state. If the object already has this attribute, its value is replaced with a newly generated one. For more information, see [Management of Provider Operations with Terraform Internal ID](tf-internal-id-management.md).
 * An object should be managed by only one Terraform configuration. Importing the same NIOS object into another configuration replaces its Terraform Internal ID, and the first configuration will no longer be able to track it.

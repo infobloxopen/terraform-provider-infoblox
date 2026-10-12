@@ -20,7 +20,7 @@ Every object now has a nested `nios` or `uddi` block, and many attributes have c
 
 ## Legacy Infoblox Provider (v2.x.x) to Infoblox Provider (v3.x.x)
 
-All Legacy Infoblox Provider (v2.x.x) objects map to the NIOS backend.
+All Legacy Infoblox Provider (v2.x.x) objects map to NIOS.
 
 | Legacy Infoblox Provider (v2.x.x) | Infoblox Provider (v3.x.x)        |
 |-----------------------------------|-----------------------------------|
@@ -55,7 +55,7 @@ All Legacy Infoblox Provider (v2.x.x) objects map to the NIOS backend.
 
 ## NIOS Provider to Infoblox Provider
 
-All NIOS Provider objects map to the NIOS backend.
+All NIOS Provider objects map to NIOS.
 
 | NIOS Provider                             | Infoblox Provider                             |
 |-------------------------------------------|-----------------------------------------------|
@@ -154,7 +154,7 @@ All NIOS Provider objects map to the NIOS backend.
 
 ## BloxOne Provider to Infoblox Provider
 
-All BloxOne Provider objects map to the UDDI backend. BloxOne data source names are plural, while Infoblox Provider data source names match the resource name. Where the BloxOne Provider uses one object for IPv4 and IPv6, the Infoblox Provider has a separate object for each.
+All BloxOne Provider objects map to UDDI. BloxOne data source names are plural, while Infoblox Provider data source names match the resource name. Where the BloxOne Provider uses one object for IPv4 and IPv6, the Infoblox Provider has a separate object for each.
 
 | BloxOne Provider                             | Infoblox Provider                                                                       |
 |----------------------------------------------|-----------------------------------------------------------------------------------------|
