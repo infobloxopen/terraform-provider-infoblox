@@ -69,7 +69,7 @@ terraform {
   }
 }
 
-// NIOS backend
+// NIOS
 provider "infoblox" {
   nios = {
     host_url = "https://<NIOS_GRID_IP>"
@@ -78,7 +78,7 @@ provider "infoblox" {
   }
 }
 
-// UDDI backend
+// UDDI
 provider "infoblox" {
   alias = "uddi"
   uddi = {
@@ -126,7 +126,7 @@ terraform apply
 After the apply, run `terraform plan` it should shows no changes.
 
 > [!NOTE]
-> **NIOS backend:** When you import a NIOS object, the provider adds a new `Terraform Internal ID` extensible attribute to it, replacing any value set by the old provider. The plan shows each resource as 1 to import and 1 to update. For more information, see [Management of Provider Operations with Terraform Internal ID](tf-internal-id-management.md).
+> **NIOS:** When you import a NIOS object, the provider adds a new `Terraform Internal ID` extensible attribute to it, replacing any value set by the old provider. The plan shows each resource as 1 to import and 1 to update. For more information, see [Management of Provider Operations with Terraform Internal ID](tf-internal-id-management.md).
 
 You can also import with the CLI instead of an `import` block:
 
@@ -136,7 +136,7 @@ terraform import infoblox_record_a.example "record:a/ZG5zLmEkLl9kZWZhdWx0LmNvbS5
 
 Unlike import blocks, this command changes the state immediately and does not show a plan first.
 
-> For **NIOS backend** The first `terraform apply` after the import attaches the `Terraform Internal ID` extensible attribute to the imported object. Plans after that show no changes.
+> For **NIOS**, the first `terraform apply` after the import attaches the `Terraform Internal ID` extensible attribute to the imported object. Plans after that show no changes.
 
 **Generating configuration:** To avoid writing the resource blocks by hand, add only the `import` blocks and let Terraform generate the resource blocks:
 

@@ -159,7 +159,7 @@ The provider also accepts these optional settings:
 For detailed installation instructions, please refer to the [Quickstart Guide](docs/guides/quickstart.md).
 ### Proxy Settings
 
-These settings apply to the NIOS backend only:
+These settings apply to NIOS only:
 
 - `nios.proxy_url`: HTTP proxy URL to route NIOS WAPI calls through, for example `http://proxy.example.com:8080`.
 - `proxy_search`: Where WAPI requests are processed. `LOCAL` (default) processes them on the member you connect to, and `GM` redirects them to the Grid Master.
@@ -181,7 +181,7 @@ provider "infoblox" {
 
 #### Setting Up Terraform Internal ID
 
-> This applies to the NIOS backend only.
+> This applies to NIOS only.
 
 - A resource can manage its drift state by using the extensible attribute `Terraform Internal ID` when its Reference ID is changed by any manual intervention.
 - To use the Terraform Provider for Infoblox NIOS, you must either define the following extensible attributes in NIOS or 
@@ -265,7 +265,7 @@ Infoblox Provider (v3.x.x) replaces the Legacy Infoblox Provider (v2.x.x), the N
 
 - The `ip_association` resource manages DHCP-related settings of the Host Record created via record_host. It updates the record with VM-specific details such as the MAC address for IPv4 and the DUID for IPv6, enabling full integration with cloud or virtualized environments.
 
-Both resources are available on the NIOS backend only.
+Both resources are available on NIOS only.
 
 Detailed documentation for these resources can be found in [Host Record Documentation](docs/guides/host-record-management.md) page.
 
@@ -310,7 +310,7 @@ For detailed information, refer to the Logging and Debugging page in the docs: [
 
 ## Contributing
 
-We encourage you to open an issue rather than a pull request for code changes, as every change has to be tested on both the NIOS and UDDI backends. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
+We encourage you to open an issue rather than a pull request for code changes, as every change has to be tested on both NIOS and UDDI. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
 
 ## Support
 
