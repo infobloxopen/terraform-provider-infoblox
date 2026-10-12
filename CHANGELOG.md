@@ -4,10 +4,11 @@
 
 ### Breaking Changes
 
-- Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Infoblox Legacy Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
-- The provider configuration has changed. Credentials now go inside a `nios` or `uddi` block, and one provider block can use only one of them. To manage both, use two provider blocks with an alias.
+- Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
+- The provider now uses [infoblox-nios-go-client](https://github.com/infobloxopen/infoblox-nios-go-client) for NIOS API calls, replacing [infoblox-go-client](https://github.com/infobloxopen/infoblox-go-client).
+- The provider configuration has changed. Credentials now go inside a `nios` or `uddi` block, and one provider block can use only one set of credentials at a time. To manage both, use two provider blocks with an alias.
 - Every resource and data source now has a `nios` or `uddi` block for its attributes, and many objects have new names. For example, `infoblox_a_record` is now `infoblox_record_a`.
-- v3.0.0 is not backward compatible with v2.x. Existing state cannot be upgraded in place, so you need to remove the old resources from state and import them again. Your objects in NIOS and UDDI are not changed. See the [Migration Guide](MIGRATION.md) and the [Object Mapping](docs/guides/object-mapping.md) guide.
+- **v3.0.0 is not backward compatible with v2.x.** Existing state cannot be upgraded in place, so you need to remove the old resources from state and import them again. Your objects in NIOS and UDDI are not changed. See the [Migration Guide](MIGRATION.md) and the [Object Mapping](docs/guides/object-mapping.md) guide.
 
 ### Newly Supported Resources and Datasources
 
@@ -105,7 +106,7 @@
 - `infoblox_dtc_server` : Manage DTC Servers and retrieve existing DTC Servers. _(NIOS, UDDI)_ ([#546](https://github.com/infobloxopen/terraform-provider-infoblox/pull/546))
 - `infoblox_dtc_topology` : Manage DTC Topologies and retrieve existing DTC Topologies. _(NIOS, UDDI)_ ([#631](https://github.com/infobloxopen/terraform-provider-infoblox/pull/631))
 
-#### FW
+#### Threat Defense (FW)
 
 - `infoblox_access_code` : Manage Access Codes and retrieve existing Access Codes. _(UDDI)_ ([#616](https://github.com/infobloxopen/terraform-provider-infoblox/pull/616))
 - `infoblox_application_filter` : Manage Application Filters and retrieve existing Application Filters. _(UDDI)_ ([#651](https://github.com/infobloxopen/terraform-provider-infoblox/pull/651))
