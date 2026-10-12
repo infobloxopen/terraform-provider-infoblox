@@ -4,11 +4,11 @@ The Infoblox provider (`infobloxopen/infoblox` v3.0.0 and later) manages both NI
 
 | Provider | Registry source | Backend |
 |----------|-----------------|---------|
-| BloxOne provider | `infobloxopen/bloxone` | UDDI |
-| Legacy Infoblox provider (v2.x) | `infobloxopen/infoblox` | NIOS |
-| NIOS provider | `infobloxopen/nios` | NIOS |
+| BloxOne Provider | `infobloxopen/bloxone` | UDDI |
+| Legacy Infoblox Provider (v2.x.x) | `infobloxopen/infoblox` | NIOS |
+| NIOS Provider | `infobloxopen/nios` | NIOS |
 
- Resource names, attributes, and state format are different, so you need to update your configuration. Your objects in NIOS and UDDI are not affected. The migration only moves them from the old provider's state to the unified provider's state, without deleting or recreating them.
+Resource names, attributes, and state format are different, so you need to update your configuration. Your objects in NIOS and UDDI are not affected. The migration only moves them from the old provider's state to the Infoblox Provider's state, without deleting or recreating them.
 
 This guide describes the common migration steps, followed by the changes specific to each provider:
 
@@ -57,7 +57,7 @@ terraform state rm infoblox_a_record.example
 
 ### Update the Provider Configuration
 
-Replace the old provider in the `terraform` block and the `provider` block with the unified provider, then run `terraform init -upgrade`:
+Replace the old provider in the `terraform` block and the `provider` block with the Infoblox Provider, then run `terraform init -upgrade`:
 
 ```terraform
 terraform {
@@ -95,7 +95,7 @@ A provider block configures either `nios` or `uddi`, not both. To manage both ba
 
 ### Rewrite the Resource Blocks
 
-Rename each resource to its unified provider type and move its attributes into a `nios` or `uddi` block.
+Rename each resource to its type in the Infoblox Provider and move its attributes into a `nios` or `uddi` block.
 
 ### Import New Resource into State
 
@@ -151,7 +151,7 @@ terraform plan -generate-config-out=generated.tf
 
 ### Provider Configuration
 
-**BloxOne provider:**
+**BloxOne Provider:**
 
 ```terraform
 terraform {
@@ -172,7 +172,7 @@ provider "bloxone" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider:**
 
 ```terraform
 terraform {
@@ -196,7 +196,7 @@ provider "infoblox" {
 }
 ```
 
-| BloxOne provider | Unified provider |
+| BloxOne Provider | Infoblox Provider |
 |------------------|------------------|
 | `csp_url` | `uddi.portal_url` |
 | `api_key` | `uddi.portal_key` |
@@ -204,9 +204,9 @@ provider "infoblox" {
 
 ### Attribute Changes
 
-Attribute names are the same as in the BloxOne provider. They move into the `uddi` block.
+Attribute names are the same as in the BloxOne Provider. They move into the `uddi` block.
 
-**BloxOne provider:**
+**BloxOne Provider:**
 
 ```terraform
 resource "bloxone_dns_a_record" "example" {
@@ -221,7 +221,7 @@ resource "bloxone_dns_a_record" "example" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider:**
 
 ```terraform
 resource "infoblox_record_a" "example" {
@@ -239,20 +239,20 @@ resource "infoblox_record_a" "example" {
 ```
 
 * References to other resources change from `bloxone_<type>.<name>.id` to `infoblox_<type>.<name>.id`. The `id` stays at the top level and is not part of the `uddi` block.
-* Some read-only attributes of the BloxOne provider are not available. Check the documentation for each resource before you reference a computed attribute.
+* Some read-only attributes of the BloxOne Provider are not available. Check the documentation for each resource before you reference a computed attribute.
 
 
 
 ## Migrating from the Legacy Infoblox Provider
 
-The legacy provider (v2.x) and the unified provider (v3.0.0 and later) use the same registry source, `infobloxopen/infoblox`. 
+The Legacy Infoblox Provider (v2.x.x) and Infoblox Provider (v3.x.x) use the same registry source, `infobloxopen/infoblox`. 
 
 > [!NOTE]
-> Some resource types, such as `infoblox_zone_auth` and `infoblox_network_view`, have the same name in both versions but a different schema. Remove **all** legacy resources from the state before you change the provider version. Otherwise, Terraform cannot read the existing state after the upgrade.
+> Some resource types, such as `infoblox_zone_auth` and `infoblox_network_view`, have the same name in both versions but a different schema. Remove **all** Legacy Infoblox Provider (v2.x.x) resources from the state before you change the provider version. Otherwise, Terraform cannot read the existing state after the upgrade.
 
 ### Provider Configuration
 
-**Legacy provider:**
+**Legacy Infoblox Provider (v2.x.x):**
 
 ```terraform
 terraform {
@@ -272,7 +272,7 @@ provider "infoblox" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider (v3.x.x):**
 
 ```terraform
 terraform {
@@ -293,7 +293,7 @@ provider "infoblox" {
 }
 ```
 
-| Legacy provider | Unified provider |
+| Legacy Infoblox Provider (v2.x.x) | Infoblox Provider (v3.x.x) |
 |-----------------|------------------|
 | `server` | `nios.host_url`, as a full URL such as `https://<NIOS_GRID_IP>` |
 | `username` | `nios.username` |
@@ -301,9 +301,9 @@ provider "infoblox" {
 
 ### Attribute Changes
 
-The unified provider uses attribute names that match the NIOS WAPI field names, and the attributes move into the `nios` block.
+The Infoblox Provider uses attribute names that match the NIOS WAPI field names, and the attributes move into the `nios` block.
 
-**Legacy provider:**
+**Legacy Infoblox Provider (v2.x.x):**
 
 ```terraform
 resource "infoblox_a_record" "example" {
@@ -318,7 +318,7 @@ resource "infoblox_a_record" "example" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider (v3.x.x):**
 
 ```terraform
 resource "infoblox_record_a" "example" {
@@ -349,7 +349,7 @@ Key changes:
 
 ### Provider Configuration
 
-**NIOS provider:**
+**NIOS Provider:**
 
 ```terraform
 terraform {
@@ -367,7 +367,7 @@ provider "nios" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider:**
 
 ```terraform
 terraform {
@@ -388,7 +388,7 @@ provider "infoblox" {
 }
 ```
 
-| NIOS provider | Unified provider |
+| NIOS Provider | Infoblox Provider |
 |---------------|------------------|
 | `nios_host_url` | `nios.host_url` |
 | `nios_username` | `nios.username` |
@@ -400,7 +400,7 @@ provider "infoblox" {
 
 Attribute names already match the NIOS WAPI field names, so most of them stay the same. They move into the `nios` block.
 
-**NIOS provider:**
+**NIOS Provider:**
 
 ```terraform
 resource "nios_dns_record_a" "example" {
@@ -413,7 +413,7 @@ resource "nios_dns_record_a" "example" {
 }
 ```
 
-**Unified provider:**
+**Infoblox Provider:**
 
 ```terraform
 resource "infoblox_record_a" "example" {
@@ -433,4 +433,4 @@ Key changes:
 * `extattrs` → `ext_attrs`
 * `func_call` → `dynamic_allocation`, which allocates the next available IP address from a network
 * `ref` → `id`. References such as `nios_dns_zone_auth.example.ref` become `infoblox_zone_auth.example.id`.
-* Some read-only attributes of the NIOS provider are not available. Check the documentation for each resource before you reference a computed attribute.
+* Some read-only attributes of the NIOS Provider are not available. Check the documentation for each resource before you reference a computed attribute.

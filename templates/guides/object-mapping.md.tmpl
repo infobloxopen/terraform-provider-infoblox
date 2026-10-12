@@ -1,28 +1,28 @@
 ---
-page_title: "Migrating to the Unified Provider"
+page_title: "Migrating to the Infoblox Provider"
 subcategory: "Guides"
 description: |-
-  Maps resources and data sources from the legacy Infoblox, NIOS, and BloxOne providers to the unified Infoblox provider.
+  Maps resources and data sources from the Legacy Infoblox Provider (v2.x.x), NIOS Provider, and BloxOne Provider to Infoblox Provider (v3.x.x).
 ---
 
-# Migrating to the Unified Provider
+# Migrating to the Infoblox Provider
 
-The Unified Infoblox provider replaces three earlier providers:
+The Infoblox Provider replaces three earlier providers:
 
-- The legacy Infoblox provider (`infobloxopen/infoblox` 2.x)
-- The NIOS provider (`infobloxopen/nios`)
-- The BloxOne provider (`infobloxopen/bloxone`)
+- Legacy Infoblox Provider (v2.x.x) (`infobloxopen/infoblox`)
+- NIOS Provider (`infobloxopen/nios`)
+- BloxOne Provider (`infobloxopen/bloxone`)
 
-The tables below map each resource and data source in those providers to its name in the unified provider. Each name applies to both the resource and the data source, where the object has one.
+The tables below map each resource and data source in those providers to its name in the Infoblox Provider. Each name applies to both the resource and the data source, where the object has one.
 
- Every object now has a nested `nios` or `uddi` block, and many attributes have changed. Objects that keep the same name also have a new schema. Update your configuration and re-import existing objects into state. See the [Resources and Data Sources](resources-datasources.md) guide for the backends each object supports.
+Every object now has a nested `nios` or `uddi` block, and many attributes have changed. Objects that keep the same name also have a new schema. Update your configuration and re-import existing objects into state. See the [Resources and Data Sources](resources-datasources.md) guide for the backends each object supports.
 
 
-## Legacy Infoblox Provider to Unified Provider
+## Legacy Infoblox Provider (v2.x.x) to Infoblox Provider (v3.x.x)
 
-All legacy objects map to the NIOS backend.
+All Legacy Infoblox Provider (v2.x.x) objects map to the NIOS backend.
 
-| Legacy Provider                   | Unified Provider                  |
+| Legacy Infoblox Provider (v2.x.x) | Infoblox Provider (v3.x.x)        |
 |-----------------------------------|-----------------------------------|
 | `infoblox_network_view`           | `infoblox_network_view`           |
 | `infoblox_ipv4_network_container` | `infoblox_network_container`      |
@@ -53,11 +53,11 @@ All legacy objects map to the NIOS backend.
 | `infoblox_dtc_pool`               | `infoblox_dtc_pool`               |
 | `infoblox_dtc_server`             | `infoblox_dtc_server`             |
 
-## NIOS Provider to Unified Provider
+## NIOS Provider to Infoblox Provider
 
-All NIOS provider objects map to the NIOS backend.
+All NIOS Provider objects map to the NIOS backend.
 
-| NIOS Provider                             | Unified Provider                              |
+| NIOS Provider                             | Infoblox Provider                             |
 |-------------------------------------------|-----------------------------------------------|
 | `nios_acl_namedacl`                       | `infoblox_namedacl`                           |
 | `nios_cloud_aws_user`                     | `infoblox_aws_user`                           |
@@ -152,11 +152,11 @@ All NIOS provider objects map to the NIOS backend.
 | `nios_rpz_record_txt`                     | `infoblox_record_rpz_txt`                     |
 | `nios_security_admin_user`                | `infoblox_admin_user`                         |
 
-## BloxOne Provider to Unified Provider
+## BloxOne Provider to Infoblox Provider
 
-All BloxOne provider objects map to the UDDI backend. BloxOne data source names are plural, while unified data source names match the resource name. Where the BloxOne provider uses one object for IPv4 and IPv6, the unified provider has a separate object for each.
+All BloxOne Provider objects map to the UDDI backend. BloxOne data source names are plural, while Infoblox Provider data source names match the resource name. Where the BloxOne Provider uses one object for IPv4 and IPv6, the Infoblox Provider has a separate object for each.
 
-| BloxOne Provider                             | Unified Provider                                                                        |
+| BloxOne Provider                             | Infoblox Provider                                                                       |
 |----------------------------------------------|-----------------------------------------------------------------------------------------|
 | `bloxone_anycast_config`                     | `infoblox_anycast_config`                                                               |
 | `bloxone_anycast_host`                       | `infoblox_anycast_host`                                                                 |

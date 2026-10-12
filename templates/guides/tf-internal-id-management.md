@@ -9,7 +9,7 @@ description: |-
 
 > **Note:** This guide applies to the **NIOS backend only**. Resources managed through the `uddi` backend do not use the Terraform Internal ID extensible attribute and need no extra setup.
 
-The Infoblox provider is a unified provider that works with both NIOS and UDDI. When the provider is configured with a `nios` block, it uses **Terraform Internal ID**, an extensible attribute created in NIOS, to manage operations performed on the resource objects it supports.
+The Infoblox Provider works with both NIOS and UDDI. When the provider is configured with a `nios` block, it uses **Terraform Internal ID**, an extensible attribute created in NIOS, to manage operations performed on the resource objects it supports.
 
 As a prerequisite for the NIOS backend, the extensible attribute definition for Terraform Internal ID must exist in NIOS. The extensible attribute is used to associate a unique ID to each Terraform resource to prevent any sort of drifts which may occur when external updates happen and the WAPI reference gets changed. For methods that you can use to create the extensible attribute, see [Creating the Terraform Internal ID Extensible Attribute](#creating-the-terraform-internal-id-extensible-attribute).
 

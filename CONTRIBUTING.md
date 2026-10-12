@@ -52,7 +52,7 @@ Open an issue that describes:
 - The NIOS WAPI object or UDDI API endpoint it maps to, if you know it.
 - Your use case, and an example of the Terraform configuration you would like to write.
 
-Check the [Resources and Data Sources](docs/guides/resources-datasources.md) guide first. The object may already exist under a different name. If you are moving from another Infoblox provider, the [Object Mapping](docs/guides/object-mapping.md) guide shows the unified name for each object.
+Check the [Resources and Data Sources](docs/guides/resources-datasources.md) guide first. The object may already exist under a different name. If you are moving from another Infoblox provider, the [Object Mapping](docs/guides/object-mapping.md) guide shows the Infoblox Provider name for each object.
 
 ## Pull Requests
 

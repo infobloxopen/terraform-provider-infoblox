@@ -9,7 +9,7 @@ description: |-
 
 This guide provides step-by-step instructions for configuring the Infoblox provider and managing DDI resources with it.
 
-The provider is unified: the same provider works with both Infoblox backends. A configuration targets one backend at a time, and each resource is configured in the nested block named after that backend.
+The Infoblox Provider works with both Infoblox backends, NIOS and UDDI. A configuration targets one backend at a time, and each resource is configured in the nested block named after that backend.
 
 | Backend | Description | Resource block |
 |---|---|---|

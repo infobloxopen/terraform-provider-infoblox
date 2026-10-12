@@ -1,10 +1,8 @@
 # Terraform Provider for Infoblox
 
-> [!WARNING]
-> **Version 2.x.x is deprecated**  
-> As of October 2026, version 2.x.x of this provider is no longer officially supported or maintained. We strongly recommend upgrading to version 3.x.x. For more details, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
+This is the new Infoblox Provider (v3.x.x). If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
 
-The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. It is a unified provider: the same provider works with both Infoblox backends, NIOS and UDDI.
+The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. The same provider works with both Infoblox backends, NIOS and UDDI.
 
 | Backend | Description |
 |---------|-------------|
@@ -256,11 +254,11 @@ For a detailed list of available resources and data sources, refer to the [Resou
 
 ## Migrating from Other Infoblox Providers
 
-This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, and the BloxOne provider. To find the unified name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/object-mapping.md) page:
+Infoblox Provider (v3.x.x) replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, and the BloxOne Provider. To find the new name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/object-mapping.md) page:
 
-- [Legacy Infoblox Provider](docs/guides/object-mapping.md#legacy-infoblox-provider-to-unified-provider)
-- [NIOS Provider](docs/guides/object-mapping.md#nios-provider-to-unified-provider)
-- [BloxOne Provider](docs/guides/object-mapping.md#bloxone-provider-to-unified-provider)
+- [Legacy Infoblox Provider (v2.x.x)](docs/guides/object-mapping.md#legacy-infoblox-provider-v2xx)
+- [NIOS Provider](docs/guides/object-mapping.md#nios-provider)
+- [BloxOne Provider](docs/guides/object-mapping.md#bloxone-provider)
 
 ## Host Record Management
 
