@@ -1,5 +1,205 @@
 # Changelog
 
+## [v3.0.0-beta1](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v3.0.0-beta1) (2026-10-13)
+
+### Breaking Changes
+
+- This is now a Unified Provider. One provider manages both NIOS and Universal DDI (UDDI), and it replaces the legacy Infoblox provider (v2.x), the NIOS provider (`infobloxopen/nios`), and the BloxOne provider (`infobloxopen/bloxone`).
+- The provider configuration has changed. Credentials now go inside a `nios` or `uddi` block, and one provider block can use only one of them. To manage both, use two provider blocks with an alias.
+- Every resource and data source now has a `nios` or `uddi` block for its attributes, and many objects have new names. For example, `infoblox_a_record` is now `infoblox_record_a`.
+- v3.0.0 is not backward compatible with v2.x. Existing state cannot be upgraded in place, so you need to remove the old resources from state and import them again. Your objects in NIOS and UDDI are not changed. See the [Migration Guide](MIGRATION.md) and the [Object Mapping](docs/guides/object-mapping.md) guide.
+
+### Newly Supported Resources and Datasources
+
+#### ACL
+
+- `infoblox_namedacl` : Manage Named Access Control Lists and retrieve existing Named Access Control Lists. _(NIOS, UDDI)_ ([#583](https://github.com/infobloxopen/terraform-provider-infoblox/pull/583))
+
+#### Anycast
+
+- `infoblox_anycast_config` : Manage Anycast Configurations and retrieve existing Anycast Configurations. _(UDDI)_ ([#670](https://github.com/infobloxopen/terraform-provider-infoblox/pull/670))
+- `infoblox_anycast_host` : Manage Anycast Hosts. _(UDDI)_ ([#682](https://github.com/infobloxopen/terraform-provider-infoblox/pull/682))
+
+#### Cloud
+
+- `infoblox_aws_user` : Manage AWS Users and retrieve existing AWS Users. _(NIOS)_ ([#644](https://github.com/infobloxopen/terraform-provider-infoblox/pull/644))
+
+#### Cloud Discovery
+
+- `infoblox_cloud_discovery_provider` : Manage Cloud Discovery Providers and retrieve existing Cloud Discovery Providers. _(UDDI)_ ([#687](https://github.com/infobloxopen/terraform-provider-infoblox/pull/687))
+
+#### DHCP
+
+- `infoblox_dhcp_optiondefinition` : Manage DHCP Option Definitions and retrieve existing DHCP Option Definitions. _(NIOS, UDDI)_ ([#572](https://github.com/infobloxopen/terraform-provider-infoblox/pull/572))
+- `infoblox_dhcp_optionspace` : Manage DHCP Option Spaces and retrieve existing DHCP Option Spaces. _(NIOS, UDDI)_ ([#572](https://github.com/infobloxopen/terraform-provider-infoblox/pull/572))
+- `infoblox_filteroption` : Manage DHCP Filter Options and retrieve existing DHCP Filter Options. _(NIOS, UDDI)_ ([#544](https://github.com/infobloxopen/terraform-provider-infoblox/pull/544))
+- `infoblox_fixed_address` : Manage DHCP Fixed Addresses (IPv4) and retrieve existing DHCP Fixed Addresses (IPv4). _(NIOS, UDDI)_ ([#645](https://github.com/infobloxopen/terraform-provider-infoblox/pull/645))
+- `infoblox_ha_group` : Manage DHCP HA Groups and retrieve existing DHCP HA Groups. _(UDDI)_ ([#563](https://github.com/infobloxopen/terraform-provider-infoblox/pull/563))
+- `infoblox_hardware_filter` : Manage DHCP Hardware Filters and retrieve existing DHCP Hardware Filters. _(UDDI)_ ([#675](https://github.com/infobloxopen/terraform-provider-infoblox/pull/675))
+- `infoblox_ipv6_dhcp_optiondefinition` : Manage DHCP IPv6 Option Definitions and retrieve existing DHCP IPv6 Option Definitions. _(NIOS, UDDI)_ ([#576](https://github.com/infobloxopen/terraform-provider-infoblox/pull/576))
+- `infoblox_ipv6_dhcp_optionspace` : Manage DHCP IPv6 Option Spaces and retrieve existing DHCP IPv6 Option Spaces. _(NIOS, UDDI)_ ([#576](https://github.com/infobloxopen/terraform-provider-infoblox/pull/576))
+- `infoblox_ipv6_filteroption` : Manage DHCP IPv6 Filter Options and retrieve existing DHCP IPv6 Filter Options. _(NIOS, UDDI)_ ([#643](https://github.com/infobloxopen/terraform-provider-infoblox/pull/643))
+- `infoblox_ipv6_fixed_address` : Manage DHCP IPv6 Fixed Addresses and retrieve existing DHCP IPv6 Fixed Addresses. _(NIOS, UDDI)_ ([#602](https://github.com/infobloxopen/terraform-provider-infoblox/pull/602))
+- `infoblox_ipv6_fixed_address_template` : Manage DHCP IPv6 Fixed Address Templates and retrieve existing DHCP IPv6 Fixed Address Templates. _(NIOS)_ ([#609](https://github.com/infobloxopen/terraform-provider-infoblox/pull/609))
+- `infoblox_ipv6_range_template` : Manage DHCP IPv6 Range Templates and retrieve existing DHCP IPv6 Range Templates. _(NIOS)_ ([#611](https://github.com/infobloxopen/terraform-provider-infoblox/pull/611))
+- `infoblox_ipv6_sharednetwork` : Manage DHCP IPv6 Shared Networks and retrieve existing DHCP IPv6 Shared Networks. _(NIOS)_ ([#646](https://github.com/infobloxopen/terraform-provider-infoblox/pull/646))
+- `infoblox_option_group` : Manage DHCP Option Groups and retrieve existing DHCP Option Groups. _(UDDI)_ ([#659](https://github.com/infobloxopen/terraform-provider-infoblox/pull/659))
+- `infoblox_range` : Manage DHCP Ranges (IPv4) and retrieve existing DHCP Ranges (IPv4). _(NIOS, UDDI)_ ([#671](https://github.com/infobloxopen/terraform-provider-infoblox/pull/671))
+- `infoblox_range_template` : Manage DHCP Range Templates (IPv4) and retrieve existing DHCP Range Templates (IPv4). _(NIOS)_ ([#623](https://github.com/infobloxopen/terraform-provider-infoblox/pull/623))
+- `infoblox_sharednetwork` : Manage DHCP Shared Networks (IPv4) and retrieve existing DHCP Shared Networks (IPv4). _(NIOS)_ ([#599](https://github.com/infobloxopen/terraform-provider-infoblox/pull/599))
+
+#### Discovery
+
+- `infoblox_discovery_credential_group` : Manage Discovery Credential Groups and retrieve existing Discovery Credential Groups. _(NIOS)_ ([#663](https://github.com/infobloxopen/terraform-provider-infoblox/pull/663))
+
+#### DNS
+
+- `infoblox_auth_nsg` : Manage Authoritative DNS Server Groups and retrieve existing Authoritative DNS Server Groups. _(UDDI)_ ([#551](https://github.com/infobloxopen/terraform-provider-infoblox/pull/551))
+- `infoblox_dns_host` : Manage Configures existing DNS Hosts and retrieve existing DNS Hosts. _(UDDI)_ ([#690](https://github.com/infobloxopen/terraform-provider-infoblox/pull/690))
+- `infoblox_dns_server` : Manage DNS Servers and retrieve existing DNS Servers. _(UDDI)_ ([#566](https://github.com/infobloxopen/terraform-provider-infoblox/pull/566))
+- `infoblox_forward_nsg` : Manage Forward DNS Server Groups and retrieve existing Forward DNS Server Groups. _(UDDI)_ ([#558](https://github.com/infobloxopen/terraform-provider-infoblox/pull/558))
+- `infoblox_ip_association` : Manage an IP Association for a Host Record. _(NIOS)_ ([#630](https://github.com/infobloxopen/terraform-provider-infoblox/pull/630))
+- `infoblox_nsgroup` : Manage DNS NS Groups and retrieve existing DNS NS Groups. _(NIOS)_ ([#552](https://github.com/infobloxopen/terraform-provider-infoblox/pull/552))
+- `infoblox_nsgroup_delegation` : Manage DNS NS Group Delegations and retrieve existing DNS NS Group Delegations. _(NIOS)_ ([#618](https://github.com/infobloxopen/terraform-provider-infoblox/pull/618))
+- `infoblox_nsgroup_forwardingmember` : Manage DNS NS Group Forwarding Members and retrieve existing DNS NS Group Forwarding Members. _(NIOS)_ ([#613](https://github.com/infobloxopen/terraform-provider-infoblox/pull/613))
+- `infoblox_nsgroup_forwardstubserver` : Manage DNS NS Group Forward Stub Servers and retrieve existing DNS NS Group Forward Stub Servers. _(NIOS)_ ([#615](https://github.com/infobloxopen/terraform-provider-infoblox/pull/615))
+- `infoblox_nsgroup_stubmember` : Manage DNS NS Group Stub Members and retrieve existing DNS NS Group Stub Members. _(NIOS)_ ([#614](https://github.com/infobloxopen/terraform-provider-infoblox/pull/614))
+- `infoblox_record_a` : Manage DNS A Records and retrieve existing DNS A Records. _(NIOS, UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
+- `infoblox_record_aaaa` : Manage DNS AAAA Records and retrieve existing DNS AAAA Records. _(NIOS, UDDI)_ ([#525](https://github.com/infobloxopen/terraform-provider-infoblox/pull/525))
+- `infoblox_record_alias` : Manage DNS ALIAS Records and retrieve existing DNS ALIAS Records. _(NIOS)_ ([#573](https://github.com/infobloxopen/terraform-provider-infoblox/pull/573))
+- `infoblox_record_caa` : Manage DNS CAA Records and retrieve existing DNS CAA Records. _(NIOS, UDDI)_ ([#527](https://github.com/infobloxopen/terraform-provider-infoblox/pull/527))
+- `infoblox_record_cname` : Manage DNS CNAME Records and retrieve existing DNS CNAME Records. _(NIOS, UDDI)_ ([#526](https://github.com/infobloxopen/terraform-provider-infoblox/pull/526))
+- `infoblox_record_dname` : Manage DNS DNAME Records and retrieve existing DNS DNAME Records. _(NIOS, UDDI)_ ([#530](https://github.com/infobloxopen/terraform-provider-infoblox/pull/530))
+- `infoblox_record_host` : Manage DNS Host Records and retrieve existing DNS Host Records. _(NIOS)_ ([#630](https://github.com/infobloxopen/terraform-provider-infoblox/pull/630))
+- `infoblox_record_https` : Manage DNS HTTPS Records and retrieve existing DNS HTTPS Records. _(UDDI)_ ([#580](https://github.com/infobloxopen/terraform-provider-infoblox/pull/580))
+- `infoblox_record_mx` : Manage DNS MX Records and retrieve existing DNS MX Records. _(NIOS, UDDI)_ ([#541](https://github.com/infobloxopen/terraform-provider-infoblox/pull/541))
+- `infoblox_record_naptr` : Manage DNS NAPTR Records and retrieve existing DNS NAPTR Records. _(NIOS, UDDI)_ ([#531](https://github.com/infobloxopen/terraform-provider-infoblox/pull/531))
+- `infoblox_record_ns` : Manage DNS NS Records and retrieve existing DNS NS Records. _(NIOS, UDDI)_ ([#532](https://github.com/infobloxopen/terraform-provider-infoblox/pull/532))
+- `infoblox_record_ptr` : Manage DNS PTR Records and retrieve existing DNS PTR Records. _(NIOS, UDDI)_ ([#540](https://github.com/infobloxopen/terraform-provider-infoblox/pull/540))
+- `infoblox_record_srv` : Manage DNS SRV Records and retrieve existing DNS SRV Records. _(NIOS, UDDI)_ ([#536](https://github.com/infobloxopen/terraform-provider-infoblox/pull/536))
+- `infoblox_record_svcb` : Manage DNS SVCB Records and retrieve existing DNS SVCB Records. _(UDDI)_ ([#595](https://github.com/infobloxopen/terraform-provider-infoblox/pull/595))
+- `infoblox_record_txt` : Manage DNS TXT Records and retrieve existing DNS TXT Records. _(NIOS, UDDI)_ ([#528](https://github.com/infobloxopen/terraform-provider-infoblox/pull/528))
+- `infoblox_sharedrecord_a` : Manage DNS Shared A Records and retrieve existing DNS Shared A Records. _(NIOS)_ ([#568](https://github.com/infobloxopen/terraform-provider-infoblox/pull/568))
+- `infoblox_sharedrecord_aaaa` : Manage DNS Shared AAAA Records and retrieve existing DNS Shared AAAA Records. _(NIOS)_ ([#571](https://github.com/infobloxopen/terraform-provider-infoblox/pull/571))
+- `infoblox_sharedrecord_cname` : Manage DNS Shared CNAME Records and retrieve existing DNS Shared CNAME Records. _(NIOS)_ ([#642](https://github.com/infobloxopen/terraform-provider-infoblox/pull/642))
+- `infoblox_sharedrecord_group` : Manage DNS Shared Record Groups and retrieve existing DNS Shared Record Groups. _(NIOS)_ ([#608](https://github.com/infobloxopen/terraform-provider-infoblox/pull/608))
+- `infoblox_sharedrecord_mx` : Manage DNS Shared MX Records and retrieve existing DNS Shared MX Records. _(NIOS)_ ([#626](https://github.com/infobloxopen/terraform-provider-infoblox/pull/626))
+- `infoblox_sharedrecord_srv` : Manage DNS Shared SRV Records and retrieve existing DNS Shared SRV Records. _(NIOS)_ ([#641](https://github.com/infobloxopen/terraform-provider-infoblox/pull/641))
+- `infoblox_sharedrecord_txt` : Manage DNS Shared TXT Records and retrieve existing DNS Shared TXT Records. _(NIOS)_ ([#603](https://github.com/infobloxopen/terraform-provider-infoblox/pull/603))
+- `infoblox_view` : Manage DNS Views and retrieve existing DNS Views. _(NIOS, UDDI)_ ([#523](https://github.com/infobloxopen/terraform-provider-infoblox/pull/523))
+- `infoblox_zone_auth` : Manage Authoritative DNS Zones and retrieve existing Authoritative DNS Zones. _(NIOS, UDDI)_ ([#524](https://github.com/infobloxopen/terraform-provider-infoblox/pull/524))
+- `infoblox_zone_delegated` : Manage Delegated DNS Zones and retrieve existing Delegated DNS Zones. _(NIOS, UDDI)_ ([#579](https://github.com/infobloxopen/terraform-provider-infoblox/pull/579))
+- `infoblox_zone_forward` : Manage Forwarding DNS Zones and retrieve existing Forwarding DNS Zones. _(NIOS, UDDI)_ ([#575](https://github.com/infobloxopen/terraform-provider-infoblox/pull/575))
+- `infoblox_zone_rp` : Manage DNS Response Policy Zones and retrieve existing DNS Response Policy Zones. _(NIOS)_ ([#591](https://github.com/infobloxopen/terraform-provider-infoblox/pull/591))
+- `infoblox_zone_stub` : Manage DNS Stub Zones and retrieve existing DNS Stub Zones. _(NIOS)_ ([#610](https://github.com/infobloxopen/terraform-provider-infoblox/pull/610))
+
+#### DTC
+
+- `infoblox_dtc_lbdn` : Manage DTC LBDNs and retrieve existing DTC LBDNs. _(NIOS, UDDI)_ ([#569](https://github.com/infobloxopen/terraform-provider-infoblox/pull/569))
+- `infoblox_dtc_monitor_http` : Manage DTC HTTP Monitors and retrieve existing DTC HTTP Monitors. _(NIOS, UDDI)_ ([#634](https://github.com/infobloxopen/terraform-provider-infoblox/pull/634))
+- `infoblox_dtc_monitor_icmp` : Manage DTC ICMP Monitors and retrieve existing DTC ICMP Monitors. _(NIOS, UDDI)_ ([#621](https://github.com/infobloxopen/terraform-provider-infoblox/pull/621))
+- `infoblox_dtc_monitor_pdp` : Manage DTC PDP Monitors and retrieve existing DTC PDP Monitors. _(NIOS, UDDI)_ ([#620](https://github.com/infobloxopen/terraform-provider-infoblox/pull/620))
+- `infoblox_dtc_monitor_snmp` : Manage DTC SNMP Monitors and retrieve existing DTC SNMP Monitors. _(NIOS, UDDI)_ ([#648](https://github.com/infobloxopen/terraform-provider-infoblox/pull/648))
+- `infoblox_dtc_monitor_tcp` : Manage DTC TCP Monitors and retrieve existing DTC TCP Monitors. _(NIOS, UDDI)_ ([#619](https://github.com/infobloxopen/terraform-provider-infoblox/pull/619))
+- `infoblox_dtc_pool` : Manage DTC Pools and retrieve existing DTC Pools. _(NIOS, UDDI)_ ([#559](https://github.com/infobloxopen/terraform-provider-infoblox/pull/559))
+- `infoblox_dtc_server` : Manage DTC Servers and retrieve existing DTC Servers. _(NIOS, UDDI)_ ([#546](https://github.com/infobloxopen/terraform-provider-infoblox/pull/546))
+- `infoblox_dtc_topology` : Manage DTC Topologies and retrieve existing DTC Topologies. _(NIOS, UDDI)_ ([#631](https://github.com/infobloxopen/terraform-provider-infoblox/pull/631))
+
+#### FW
+
+- `infoblox_access_code` : Manage Access Codes and retrieve existing Access Codes. _(UDDI)_ ([#616](https://github.com/infobloxopen/terraform-provider-infoblox/pull/616))
+- `infoblox_application_filter` : Manage Application Filters and retrieve existing Application Filters. _(UDDI)_ ([#651](https://github.com/infobloxopen/terraform-provider-infoblox/pull/651))
+- `infoblox_category_filter` : Manage Category Filters and retrieve existing Category Filters. _(UDDI)_ ([#683](https://github.com/infobloxopen/terraform-provider-infoblox/pull/683))
+- `infoblox_internal_domain_list` : Manage Internal Domain Lists and retrieve existing Internal Domain Lists. _(UDDI)_ ([#685](https://github.com/infobloxopen/terraform-provider-infoblox/pull/685))
+- `infoblox_named_list` : Manage Named Lists (Custom Lists) and retrieve existing Named Lists (Custom Lists). _(UDDI)_ ([#625](https://github.com/infobloxopen/terraform-provider-infoblox/pull/625))
+- `infoblox_network_list` : Manage Network Lists (External Networks) and retrieve existing Network Lists (External Networks). _(UDDI)_ ([#650](https://github.com/infobloxopen/terraform-provider-infoblox/pull/650))
+- `infoblox_security_policy` : Manage Security Policies and retrieve existing Security Policies. _(UDDI)_ ([#655](https://github.com/infobloxopen/terraform-provider-infoblox/pull/655))
+
+#### Grid
+
+- `infoblox_distribution_schedule` : Manage Configures the Grid Distribution Schedule and retrieve existing Retrieves information about the current Grid Distribution Schedule. _(NIOS)_ ([#691](https://github.com/infobloxopen/terraform-provider-infoblox/pull/691))
+- `infoblox_extensible_attribute_def` : Manage Extensible Attribute Definitions and retrieve existing Extensible Attribute Definitions. _(NIOS)_ ([#567](https://github.com/infobloxopen/terraform-provider-infoblox/pull/567))
+- `infoblox_nat_group` : Manage Grid NAT Groups and retrieve existing Grid NAT Groups. _(NIOS)_ ([#570](https://github.com/infobloxopen/terraform-provider-infoblox/pull/570))
+- `infoblox_servicerestart_group` : Manage Grid Service Restart Groups and retrieve existing Grid Service Restart Groups. _(NIOS)_ ([#596](https://github.com/infobloxopen/terraform-provider-infoblox/pull/596))
+- `infoblox_upgrade_group` : Manage Grid Upgrade Groups and retrieve existing Grid Upgrade Groups. _(NIOS)_ ([#585](https://github.com/infobloxopen/terraform-provider-infoblox/pull/585))
+
+#### Infra
+
+- `infoblox_infra_host` : Manage Infrastructure Hosts and retrieve existing Infrastructure Hosts. _(UDDI)_ ([#656](https://github.com/infobloxopen/terraform-provider-infoblox/pull/656))
+- `infoblox_infra_service` : Manage Infrastructure Services and retrieve existing Infrastructure Services. _(UDDI)_ ([#658](https://github.com/infobloxopen/terraform-provider-infoblox/pull/658))
+- `infoblox_join_token` : Manage Join Tokens and retrieve existing Join Tokens. _(UDDI)_ ([#689](https://github.com/infobloxopen/terraform-provider-infoblox/pull/689))
+
+#### IPAM
+
+- `infoblox_address` : Manage IPAM Addresses and retrieve existing IPAM Addresses. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
+- `infoblox_bulk_hostname_template` : Manage IPAM Bulk Hostname Templates and retrieve existing IPAM Bulk Hostname Templates. _(NIOS)_ ([#612](https://github.com/infobloxopen/terraform-provider-infoblox/pull/612))
+- `infoblox_ipam_host` : Manage IPAM Hosts and retrieve existing IPAM Hosts. _(UDDI)_ ([#672](https://github.com/infobloxopen/terraform-provider-infoblox/pull/672))
+- `infoblox_ipv6_network` : Manage IPAM IPv6 Networks and retrieve existing IPAM IPv6 Networks. _(NIOS, UDDI)_ ([#560](https://github.com/infobloxopen/terraform-provider-infoblox/pull/560))
+- `infoblox_ipv6_network_container` : Manage IPAM IPv6 Network Containers and retrieve existing IPAM IPv6 Network Containers. _(NIOS, UDDI)_ ([#561](https://github.com/infobloxopen/terraform-provider-infoblox/pull/561))
+- `infoblox_network` : Manage IPAM Networks and retrieve existing IPAM Networks. _(NIOS, UDDI)_ ([#545](https://github.com/infobloxopen/terraform-provider-infoblox/pull/545))
+- `infoblox_network_container` : Manage IPAM Network Containers and retrieve existing IPAM Network Containers. _(NIOS, UDDI)_ ([#543](https://github.com/infobloxopen/terraform-provider-infoblox/pull/543))
+- `infoblox_network_view` : Manage IPAM Network Views and retrieve existing IPAM Network Views. _(NIOS, UDDI)_ ([#557](https://github.com/infobloxopen/terraform-provider-infoblox/pull/557))
+- `infoblox_next_available_network_container` : Retrieve the next available network containers in an address block. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
+- `infoblox_next_available_ips` : Retrieve the next available IP addresses in an address block, subnet or range. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
+- `infoblox_next_available_network` : Retrieve the next available networks in an address block. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
+- `infoblox_superhost` : Manage IPAM Super Hosts and retrieve existing IPAM Super Hosts. _(NIOS)_ ([#598](https://github.com/infobloxopen/terraform-provider-infoblox/pull/598))
+- `infoblox_vlan` : Manage IPAM VLANs and retrieve existing IPAM VLANs. _(NIOS)_ ([#649](https://github.com/infobloxopen/terraform-provider-infoblox/pull/649))
+- `infoblox_vlan_range` : Manage IPAM VLAN Ranges and retrieve existing IPAM VLAN Ranges. _(NIOS)_ ([#661](https://github.com/infobloxopen/terraform-provider-infoblox/pull/661))
+- `infoblox_vlan_view` : Manage IPAM VLAN Views and retrieve existing IPAM VLAN Views. _(NIOS)_ ([#649](https://github.com/infobloxopen/terraform-provider-infoblox/pull/649))
+
+#### IPAM Federation
+
+- `infoblox_federated_realm` : Manage Federated Realms and retrieve existing Federated Realms. _(UDDI)_ ([#590](https://github.com/infobloxopen/terraform-provider-infoblox/pull/590))
+
+#### Keys
+
+- `infoblox_tsig_key` : Manage TSIG Keys and retrieve existing TSIG Keys. _(UDDI)_ ([#589](https://github.com/infobloxopen/terraform-provider-infoblox/pull/589))
+
+#### Miscellaneous
+
+- `infoblox_bfd_template` : Manage BFD Templates and retrieve existing BFD Templates. _(NIOS)_ ([#564](https://github.com/infobloxopen/terraform-provider-infoblox/pull/564))
+- `infoblox_ruleset` : Manage Rule Sets and retrieve existing Rule Sets. _(NIOS)_ ([#553](https://github.com/infobloxopen/terraform-provider-infoblox/pull/553))
+
+#### Notification
+
+- `infoblox_notification_rest_endpoint` : Manage Notification REST Endpoints and retrieve existing Notification REST Endpoints. _(NIOS)_ ([#629](https://github.com/infobloxopen/terraform-provider-infoblox/pull/629))
+- `infoblox_notification_rule` : Manage Notification Rules and retrieve existing Notification Rules. _(NIOS)_ ([#688](https://github.com/infobloxopen/terraform-provider-infoblox/pull/688))
+
+#### Redirect
+
+- `infoblox_custom_redirect` : Manage Custom Redirects and retrieve existing Custom Redirects. _(UDDI)_ ([#657](https://github.com/infobloxopen/terraform-provider-infoblox/pull/657))
+
+#### RIR
+
+- `infoblox_rir_organization` : Manage RIR Organizations and retrieve existing RIR Organizations. _(NIOS)_ ([#673](https://github.com/infobloxopen/terraform-provider-infoblox/pull/673))
+
+#### RPZ
+
+- `infoblox_record_rpz_a` : Manage RPZ A Records and retrieve existing RPZ A Records. _(NIOS)_ ([#624](https://github.com/infobloxopen/terraform-provider-infoblox/pull/624))
+- `infoblox_record_rpz_a_ipaddress` : Manage RPZ A IP Address Records and retrieve existing RPZ A IP Address Records. _(NIOS)_ ([#636](https://github.com/infobloxopen/terraform-provider-infoblox/pull/636))
+- `infoblox_record_rpz_aaaa` : Manage RPZ AAAA Records and retrieve existing RPZ AAAA Records. _(NIOS)_ ([#632](https://github.com/infobloxopen/terraform-provider-infoblox/pull/632))
+- `infoblox_record_rpz_aaaa_ipaddress` : Manage RPZ AAAA IP Address Records and retrieve existing RPZ AAAA IP Address Records. _(NIOS)_ ([#562](https://github.com/infobloxopen/terraform-provider-infoblox/pull/562))
+- `infoblox_record_rpz_cname` : Manage RPZ CNAME Records and retrieve existing RPZ CNAME Records. _(NIOS)_ ([#617](https://github.com/infobloxopen/terraform-provider-infoblox/pull/617))
+- `infoblox_record_rpz_cname_clientipaddress` : Manage RPZ CNAME Client IP Address Records and retrieve existing RPZ CNAME Client IP Address Records. _(NIOS)_ ([#633](https://github.com/infobloxopen/terraform-provider-infoblox/pull/633))
+- `infoblox_record_rpz_cname_clientipaddressdn` : Manage RPZ CNAME Client IP Address DN Records and retrieve existing RPZ CNAME Client IP Address DN Records. _(NIOS)_ ([#578](https://github.com/infobloxopen/terraform-provider-infoblox/pull/578))
+- `infoblox_record_rpz_cname_ipaddress` : Manage RPZ CNAME IP Address Records and retrieve existing RPZ CNAME IP Address Records. _(NIOS)_ ([#622](https://github.com/infobloxopen/terraform-provider-infoblox/pull/622))
+- `infoblox_record_rpz_cname_ipaddressdn` : Manage RPZ CNAME IP Address DN Records and retrieve existing RPZ CNAME IP Address DN Records. _(NIOS)_ ([#635](https://github.com/infobloxopen/terraform-provider-infoblox/pull/635))
+- `infoblox_record_rpz_naptr` : Manage RPZ NAPTR Records and retrieve existing RPZ NAPTR Records. _(NIOS)_ ([#574](https://github.com/infobloxopen/terraform-provider-infoblox/pull/574))
+- `infoblox_record_rpz_ptr` : Manage RPZ PTR Records and retrieve existing RPZ PTR Records. _(NIOS)_ ([#637](https://github.com/infobloxopen/terraform-provider-infoblox/pull/637))
+- `infoblox_record_rpz_txt` : Manage RPZ TXT Records and retrieve existing RPZ TXT Records. _(NIOS)_ ([#577](https://github.com/infobloxopen/terraform-provider-infoblox/pull/577))
+
+#### Security
+
+- `infoblox_admin_user` : Manage Admin Users and retrieve existing Admin Users. _(NIOS)_ ([#676](https://github.com/infobloxopen/terraform-provider-infoblox/pull/676))
+
+### Features
+
+- Every object has a list resource, so you can find existing objects with `terraform query` (Terraform v1.14.0 or later).
+- Added retries with exponential backoff, limited by the provider-level `operation_timeout` setting. ([#537](https://github.com/infobloxopen/terraform-provider-infoblox/pull/537))
+- Added support for managing a NIOS Grid through the Infoblox Portal with `uddi.enable_nios_passthru`. ([#555](https://github.com/infobloxopen/terraform-provider-infoblox/pull/555))
+- Added the `proxy_search` provider setting and the `nios.proxy_url` setting for NIOS requests. ([#684](https://github.com/infobloxopen/terraform-provider-infoblox/pull/684))
+- Added `ssl_verify`, `ca_cert_file`, and `ca_cert_pem` to configure TLS certificate verification for NIOS. ([#700](https://github.com/infobloxopen/terraform-provider-infoblox/pull/700))
+
 ## [v2.13.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.13.0) (2026-04-02)
 
 - Upgraded Go version to v1.25.8 and refreshed dependencies for better compatibility and security.
