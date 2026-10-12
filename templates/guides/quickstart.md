@@ -25,7 +25,7 @@ The Infoblox Provider works with both Infoblox backends, NIOS and UDDI. A config
 
 ## Configuring the Provider
 
-Before getting started, ensure you have completed the [prerequisites](../../README.md#prerequisites).
+Before getting started, ensure you have completed the [prerequisites](https://github.com/infobloxopen/terraform-provider-infoblox#prerequisites).
 
 Create a directory for the Terraform configuration and add a file named `main.tf`.
 
@@ -36,7 +36,7 @@ terraform {
   required_providers {
     infoblox = {
       source  = "infobloxopen/infoblox"
-      version = ">= 3.0.0"
+      version = "3.0.0-beta1"
     }
   }
 }
@@ -61,14 +61,14 @@ terraform {
   required_providers {
     infoblox = {
       source  = "infobloxopen/infoblox"
-      version = ">= 3.0.0"
+      version = "3.0.0-beta1"
     }
   }
 }
 
 provider "infoblox" {
   uddi = {
-    portal_url = "https://csp.infoblox.com"
+    portal_url = "<INFOBLOX_PORTAL_URL>"
     portal_key = "<INFOBLOX_PORTAL_KEY>"
   }
 }

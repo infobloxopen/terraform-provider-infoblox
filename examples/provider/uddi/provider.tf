@@ -2,7 +2,7 @@ terraform {
   required_providers {
     infoblox = {
       source  = "infobloxopen/infoblox"
-      version = "0.0.1"
+      version = "3.0.0-beta1"
     }
   }
 }
