@@ -1,6 +1,6 @@
 # Roadmap
 
-The Terraform Provider for Infoblox brings NIOS and Universal DDI under a single provider, and continues to expand across both backends. The objects and capabilities below are planned for upcoming releases.
+The Terraform Provider for Infoblox brings NIOS and Universal DDI under a single provider, and continues to expand across both backends. The provider is currently in beta, with the full release planned for January 2027. The objects and capabilities below are planned for upcoming releases.
 
 ## NIOS
 

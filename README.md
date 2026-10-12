@@ -184,11 +184,6 @@ provider "infoblox" {
 > This applies to NIOS only.
 
 - A resource can manage its drift state by using the extensible attribute `Terraform Internal ID` when its Reference ID is changed by any manual intervention.
-- To use the Terraform Provider for Infoblox NIOS, you must either define the following extensible attributes in NIOS or 
-  install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
-  * `Tenant ID`: String Type 
-  * `CMP Type`: String Type 
-  * `Cloud API Owned`: List Type (Values: True, False)
 - To manage resources on NIOS using the Provider, you must either define the extensible attribute `Terraform Internal ID`
   in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`.
 
