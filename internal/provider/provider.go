@@ -91,7 +91,7 @@ func (p *InfobloxProvider) Metadata(_ context.Context, _ provider.MetadataReques
 
 func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "The Infoblox provider is used to interact with Infoblox NIOS and UDDI backends.",
+		Description: "The Infoblox provider is used to interact with Infoblox NIOS and UDDI.",
 		Attributes: map[string]schema.Attribute{
 			"nios": buildNIOSAttribute(),
 			"uddi": buildUDDIAttribute(),
@@ -119,7 +119,7 @@ func (p *InfobloxProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 
 func buildNIOSAttribute() schema.Attribute {
 	return schema.SingleNestedAttribute{
-		Description: "Configuration for NIOS backend.",
+		Description: "Configuration for NIOS.",
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"host_url": schema.StringAttribute{
@@ -164,7 +164,7 @@ func buildNIOSAttribute() schema.Attribute {
 
 func buildUDDIAttribute() schema.Attribute {
 	return schema.SingleNestedAttribute{
-		Description: "Configuration for UDDI backend.",
+		Description: "Configuration for UDDI.",
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"portal_url": schema.StringAttribute{

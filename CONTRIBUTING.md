@@ -15,11 +15,11 @@ Thank you for your interest in improving the Terraform Provider for Infoblox. Th
 
 ## How We Accept Contributions
 
-This provider manages two backends, **NIOS** and **Universal DDI (UDDI)**, from a single set of resources and data sources. Because many objects share a common schema, every change needs to be designed and validated with both backends in mind.
+This provider manages both **NIOS** and **Universal DDI (UDDI)** from a single set of resources and data sources. Because many objects share a common schema, every change needs to be designed and validated for both.
 
-Before we merge a change to provider code, we check it against both backends. We run the full acceptance test suite against live NIOS Grids and Infoblox Portal accounts, across the supported versions. Most of the provider code is also produced and maintained by internal tooling, so a direct edit to these files would be overwritten by the next release.
+Before we merge a change to provider code, we check it against both NIOS and UDDI. We run the full acceptance test suite against live NIOS Grids and Infoblox Portal accounts, across the supported versions. Most of the provider code is also produced and maintained by internal tooling, so a direct edit to these files would be overwritten by the next release.
 
-For these reasons, **the best way to contribute a code change is to open an issue.** A clear issue gives us what we need to make the change properly, test it on both backends, and ship it in a release.
+For these reasons, **the best way to contribute a code change is to open an issue.** A clear issue gives us what we need to make the change properly, test it on both NIOS and UDDI, and ship it in a release.
 
 | You want to… | Do this |
 |---|---|
@@ -48,11 +48,11 @@ A good bug report includes:
 
 Open an issue that describes:
 
-- The object or attribute you need, and which backend or backends it applies to.
+- The object or attribute you need, and whether it applies to NIOS, UDDI, or both.
 - The NIOS WAPI object or UDDI API endpoint it maps to, if you know it.
 - Your use case, and an example of the Terraform configuration you would like to write.
 
-Check the [Resources and Data Sources](docs/guides/resources-datasources.md) guide first. The object may already exist under a different name. If you are moving from another Infoblox provider, the [Object Mapping](docs/guides/object-mapping.md) guide shows the unified name for each object.
+Check the [Resources and Data Sources](docs/guides/resources-datasources.md) guide first. The object may already exist under a different name. If you are moving from another Infoblox provider, the [Object Mapping](docs/guides/object-mapping.md) guide shows the Infoblox Provider name for each object.
 
 ## Pull Requests
 

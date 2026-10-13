@@ -1,10 +1,9 @@
 # Terraform Provider for Infoblox
 
-> [!WARNING]
-> **Version 2.x.x is deprecated**  
-> As of October 2026, version 2.x.x of this provider is no longer officially supported or maintained. We strongly recommend upgrading to version 3.x.x. For more details, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
+> [!IMPORTANT]
+> This is the new Infoblox Provider (v3.x.x), currently in beta, with the general availability release planned for January 2027. If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
 
-The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. It is a unified provider: the same provider works with both Infoblox backends, NIOS and UDDI.
+The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. The same provider works with both NIOS and UDDI.
 
 | Backend | Description |
 |---------|-------------|
@@ -40,9 +39,9 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
 - [Go](https://golang.org/doc/install) >= 1.26.8
-- One of:
-  - Infoblox NIOS (version 9.0.6 or higher, WAPI v2.13.6)
-  - An Infoblox Portal account
+- For NIOS: Infoblox NIOS 9.0.6 or higher (WAPI v2.13.6), reached directly or through the Infoblox Portal with the Grid connected to it.
+- For UDDI: An Infoblox Portal account
+
 
 The objects you manage must be licensed on your backend. For example, RPZ objects need an RPZ license, and Threat Defense objects need a Threat Defense subscription etc.
 
@@ -125,7 +124,7 @@ terraform {
   required_providers {
     infoblox = {
       source  = "infobloxopen/infoblox"
-      version = "3.0.0-beta1"
+      version = "3.0.0-beta"
     }
   }
 }
@@ -161,7 +160,7 @@ The provider also accepts these optional settings:
 For detailed installation instructions, please refer to the [Quickstart Guide](docs/guides/quickstart.md).
 ### Proxy Settings
 
-These settings apply to the NIOS backend only:
+These settings apply to NIOS only:
 
 - `nios.proxy_url`: HTTP proxy URL to route NIOS WAPI calls through, for example `http://proxy.example.com:8080`.
 - `proxy_search`: Where WAPI requests are processed. `LOCAL` (default) processes them on the member you connect to, and `GM` redirects them to the Grid Master.
@@ -183,14 +182,9 @@ provider "infoblox" {
 
 #### Setting Up Terraform Internal ID
 
-> This applies to the NIOS backend only.
+> This applies to NIOS only.
 
 - A resource can manage its drift state by using the extensible attribute `Terraform Internal ID` when its Reference ID is changed by any manual intervention.
-- To use the Terraform Provider for Infoblox NIOS, you must either define the following extensible attributes in NIOS or 
-  install the Cloud Network Automation license in the NIOS Grid, which adds the extensible attributes by default:
-  * `Tenant ID`: String Type 
-  * `CMP Type`: String Type 
-  * `Cloud API Owned`: List Type (Values: True, False)
 - To manage resources on NIOS using the Provider, you must either define the extensible attribute `Terraform Internal ID`
   in NIOS or use `super user` to execute the below cmd. It will create the read only extensible attribute `Terraform Internal ID`.
 
@@ -255,11 +249,11 @@ For a detailed list of available resources and data sources, refer to the [Resou
 
 ## Migrating from Other Infoblox Providers
 
-This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, and the BloxOne provider. To find the unified name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/object-mapping.md) page:
+Infoblox Provider (v3.x.x) replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, and the BloxOne Provider. To find the new name for each resource and data source, refer to the [Migration Object Mapping](docs/guides/object-mapping.md) page:
 
-- [Legacy Infoblox Provider](docs/guides/object-mapping.md#legacy-infoblox-provider-to-unified-provider)
-- [NIOS Provider](docs/guides/object-mapping.md#nios-provider-to-unified-provider)
-- [BloxOne Provider](docs/guides/object-mapping.md#bloxone-provider-to-unified-provider)
+- [Legacy Infoblox Provider (v2.x.x)](docs/guides/object-mapping.md#legacy-infoblox-provider-v2xx)
+- [NIOS Provider](docs/guides/object-mapping.md#nios-provider)
+- [BloxOne Provider](docs/guides/object-mapping.md#bloxone-provider)
 
 ## Host Record Management
 
@@ -267,7 +261,7 @@ This provider replaces the legacy Infoblox provider (2.x), the NIOS provider, an
 
 - The `ip_association` resource manages DHCP-related settings of the Host Record created via record_host. It updates the record with VM-specific details such as the MAC address for IPv4 and the DUID for IPv6, enabling full integration with cloud or virtualized environments.
 
-Both resources are available on the NIOS backend only.
+Both resources are available on NIOS only.
 
 Detailed documentation for these resources can be found in [Host Record Documentation](docs/guides/host-record-management.md) page.
 
@@ -312,7 +306,7 @@ For detailed information, refer to the Logging and Debugging page in the docs: [
 
 ## Contributing
 
-We encourage you to open an issue rather than a pull request for code changes, as every change has to be tested on both the NIOS and UDDI backends. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
+We encourage you to open an issue rather than a pull request for code changes, as every change has to be tested on both NIOS and UDDI. For details, refer to the [Contributing Guide](CONTRIBUTING.md).
 
 ## Support
 
