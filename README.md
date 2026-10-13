@@ -9,6 +9,7 @@ The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure
 |---------|-------------|
 | NIOS | Your on-premises Infoblox Grid, accessed over WAPI |
 | UDDI | Infoblox Universal DDI, accessed through the Infoblox Portal |
+| NIOS through WAPI Passthrough | Your NIOS Grid connected to the Infoblox Portal, managed through the Portal.
 
 This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen/infoblox-nios-go-client) for all API calls to the Infoblox NIOS WAPI, and the [universal-ddi-go-client](https://github.com/infobloxopen/universal-ddi-go-client) for all API calls to UDDI.
 
@@ -22,7 +23,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
   - [Retry Behavior](#retry-behavior)
   - [Prerequisites](#prerequisites)
     - [Setting Up Terraform Internal ID](#setting-up-terraform-internal-id)
-- [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal-using-wapi-passthru)
+- [Managing a NIOS Grid Through the Infoblox Portal](#managing-a-nios-grid-through-the-infoblox-portal-using-wapi-passthrough)
 - [Usage Examples](#usage-examples)
 - [Available Resources and DataSources](#available-resources-and-datasources)
 - [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers)
@@ -194,7 +195,7 @@ provider "infoblox" {
 
   For more details refer to the prerequisites in [Terraform Internal ID](docs/guides/tf-internal-id-management.md) page.
 
-## Managing a NIOS Grid Through the Infoblox Portal using WAPI Passthru
+## Managing a NIOS Grid Through the Infoblox Portal using WAPI Passthrough
 
 If your NIOS Grid is connected to the Infoblox Portal, you can manage it through the Portal instead of connecting to the Grid directly, by setting `enable_nios_passthru = true` in the `uddi` block.
 
