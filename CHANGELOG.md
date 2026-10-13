@@ -203,7 +203,7 @@ All resources and data sources below are available in this release. Objects carr
 
 ### Maintenance
 
-- Upgraded the Go version to 1.26.8. ([#713](https://github.com/infobloxopen/terraform-provider-infoblox/pull/713))
+- Upgraded the Go version to v1.26.8 ([#713](https://github.com/infobloxopen/terraform-provider-infoblox/pull/713))
 
 ## [v2.13.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.13.0) (2026-04-02)
 
