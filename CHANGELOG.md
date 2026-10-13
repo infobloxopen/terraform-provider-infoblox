@@ -5,12 +5,14 @@
 ### Breaking Changes
 
 - Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
+- Objects carried over from the Legacy Infoblox Provider (v2.x.x) have a new schema, and many have been renamed. For example, `infoblox_a_record` is now `infoblox_record_a`. Each resource and data source also has a `nios` or `uddi` block for its attributes. See the [Object Mapping](docs/guides/object-mapping.md) guide for the full list of renames.
 - The provider now uses [infoblox-nios-go-client](https://github.com/infobloxopen/infoblox-nios-go-client) for NIOS API calls, replacing [infoblox-go-client](https://github.com/infobloxopen/infoblox-go-client).
 - The provider configuration has changed. Credentials now go inside a `nios` or `uddi` block, and one provider block can use only one set of credentials at a time. To manage both, use two provider blocks with an alias.
-- Every resource and data source now has a `nios` or `uddi` block for its attributes, and many objects have new names. For example, `infoblox_a_record` is now `infoblox_record_a`.
 - **v3.0.0 is not backward compatible with v2.x.** Existing state cannot be upgraded in place, so you need to remove the old resources from state and import them again. Your objects in NIOS and UDDI are not changed. See the [Migration Guide](MIGRATION.md) and the [Object Mapping](docs/guides/object-mapping.md) guide.
 
-### Newly Supported Resources and Datasources
+### Supported Resources and Datasources
+
+All resources and data sources below are available in this release. Objects carried over from v2.x.x are listed under their new names.
 
 #### ACL
 
@@ -200,6 +202,10 @@
 - Added support for managing a NIOS Grid through the Infoblox Portal with `uddi.enable_nios_passthru`. ([#555](https://github.com/infobloxopen/terraform-provider-infoblox/pull/555))
 - Added the `proxy_search` provider setting and the `nios.proxy_url` setting for NIOS requests. ([#684](https://github.com/infobloxopen/terraform-provider-infoblox/pull/684))
 - Added `ssl_verify`, `ca_cert_file`, and `ca_cert_pem` to configure TLS certificate verification for NIOS. ([#700](https://github.com/infobloxopen/terraform-provider-infoblox/pull/700))
+
+### Maintenance
+
+- Upgraded the Go version to 1.26.8. ([#713](https://github.com/infobloxopen/terraform-provider-infoblox/pull/713))
 
 ## [v2.13.0](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v2.13.0) (2026-04-02)
 
