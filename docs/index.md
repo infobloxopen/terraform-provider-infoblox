@@ -7,9 +7,11 @@ description: |-
 
 # terraform-provider-infoblox Provider
 
-~> **Important:** This is the new Infoblox Provider (v3.x.x), currently in beta, with the general availability release planned for January 2027. If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see the [Migration Guide](https://github.com/infobloxopen/terraform-provider-infoblox/blob/master/MIGRATION.md).
+-> **Important:** This is the new Infoblox Provider (v3.x.x), currently in beta, with the general availability release planned for January 2027. If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see the [Migration Guide](https://github.com/infobloxopen/terraform-provider-infoblox/blob/master/MIGRATION.md).
 
 The Infoblox provider is used to interact with Infoblox NIOS and UDDI.
+
+For requirements, setup, and more details, see the [README](https://github.com/infobloxopen/terraform-provider-infoblox#readme).
 
 ## Example Usage
 
