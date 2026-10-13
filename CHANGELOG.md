@@ -2,7 +2,6 @@
 
 ## [v3.0.0-beta](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v3.0.0-beta) (2026-10-13)
 
-### Breaking Changes
 
 - Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
 - Objects carried over from the Legacy Infoblox Provider (v2.x.x) have a new schema, and many have been renamed. For example, `infoblox_a_record` is now `infoblox_record_a`. Each resource and data source also has a `nios` or `uddi` block for its attributes. See the [Object Mapping](docs/guides/object-mapping.md) guide for the full list of renames.
@@ -142,9 +141,6 @@ All resources and data sources below are available in this release. Objects carr
 - `infoblox_network` : Manage IPAM Networks and retrieve existing IPAM Networks. _(NIOS, UDDI)_ ([#545](https://github.com/infobloxopen/terraform-provider-infoblox/pull/545))
 - `infoblox_network_container` : Manage IPAM Network Containers and retrieve existing IPAM Network Containers. _(NIOS, UDDI)_ ([#543](https://github.com/infobloxopen/terraform-provider-infoblox/pull/543))
 - `infoblox_network_view` : Manage IPAM Network Views and retrieve existing IPAM Network Views. _(NIOS, UDDI)_ ([#557](https://github.com/infobloxopen/terraform-provider-infoblox/pull/557))
-- `infoblox_next_available_network_container` : Retrieve the next available network containers in an address block. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
-- `infoblox_next_available_ips` : Retrieve the next available IP addresses in an address block, subnet or range. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
-- `infoblox_next_available_network` : Retrieve the next available networks in an address block. _(UDDI)_ ([#519](https://github.com/infobloxopen/terraform-provider-infoblox/pull/519))
 - `infoblox_superhost` : Manage IPAM Super Hosts and retrieve existing IPAM Super Hosts. _(NIOS)_ ([#598](https://github.com/infobloxopen/terraform-provider-infoblox/pull/598))
 - `infoblox_vlan` : Manage IPAM VLANs and retrieve existing IPAM VLANs. _(NIOS)_ ([#649](https://github.com/infobloxopen/terraform-provider-infoblox/pull/649))
 - `infoblox_vlan_range` : Manage IPAM VLAN Ranges and retrieve existing IPAM VLAN Ranges. _(NIOS)_ ([#661](https://github.com/infobloxopen/terraform-provider-infoblox/pull/661))
