@@ -2,7 +2,6 @@
 
 ## [v3.0.0-beta](https://github.com/infobloxopen/terraform-provider-infoblox/tree/v3.0.0-beta) (2026-10-13)
 
-
 - Infoblox Provider (v3.x.x) manages both NIOS and Universal DDI (UDDI) from a single provider. It replaces the Legacy Infoblox Provider (v2.x.x), the NIOS Provider (`infobloxopen/nios`), and the BloxOne Provider (`infobloxopen/bloxone`).
 - Objects carried over from the Legacy Infoblox Provider (v2.x.x) have a new schema, and many have been renamed. For example, `infoblox_a_record` is now `infoblox_record_a`. Each resource and data source also has a `nios` or `uddi` block for its attributes. See the [Object Mapping](docs/guides/object-mapping.md) guide for the full list of renames.
 - The provider now uses [infoblox-nios-go-client](https://github.com/infobloxopen/infoblox-nios-go-client) for NIOS API calls, replacing [infoblox-go-client](https://github.com/infobloxopen/infoblox-go-client).
