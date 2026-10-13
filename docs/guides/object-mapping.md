@@ -198,9 +198,9 @@ All BloxOne Provider objects map to UDDI. BloxOne data source names are plural, 
 | `bloxone_ipam_ip_space`                      | `infoblox_network_view`                                                                 |
 | `bloxone_ipam_range`                         | `infoblox_range` (IPv4)                                                                 |
 | `bloxone_ipam_subnet`                        | `infoblox_network` (IPv4) or `infoblox_ipv6_network` (IPv6)                             |
-| `bloxone_ipam_next_available_address_blocks` | `infoblox_next_available_address_blocks`                                                |
+| `bloxone_ipam_next_available_address_blocks` | `infoblox_next_available_network_container`                                                |
 | `bloxone_ipam_next_available_ips`            | `infoblox_next_available_ips`                                                           |
-| `bloxone_ipam_next_available_subnets`        | `infoblox_next_available_subnets`                                                       |
+| `bloxone_ipam_next_available_subnets`        | `infoblox_next_available_network`                                                       |
 | `bloxone_keys_tsig`                          | `infoblox_tsig_key`                                                                     |
 | `bloxone_td_access_code`                     | `infoblox_access_code`                                                                  |
 | `bloxone_td_application_filter`              | `infoblox_application_filter`                                                           |
