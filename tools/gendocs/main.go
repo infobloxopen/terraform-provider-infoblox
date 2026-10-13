@@ -124,21 +124,10 @@ func processKind(k kind) (int, error) {
 	return count, nil
 }
 
-// Manual group overrides for pages that don't match the service layout
-// (e.g. plural doc name vs. singular Go file name).
-var shortGroupOverrides = map[string]string{
-	"next_available_ips":               "ipam",
-	"next_available_network":           "ipam",
-	"next_available_network_container": "ipam",
-}
-
 // lookupGroup returns the internal/service/<group> that owns this object.
 // Objects renamed via 'tfName' keep an unseparated Go file name
 // (network_container -> networkcontainer_*.go), so retry without underscores.
 func lookupGroup(short string) string {
-	if g, ok := shortGroupOverrides[short]; ok {
-		return g
-	}
 	if g := findGroup(short); g != "" {
 		return g
 	}

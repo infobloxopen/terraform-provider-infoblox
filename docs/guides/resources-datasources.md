@@ -167,9 +167,6 @@ Every object that has a data source also has a list resource of the same name, f
 | `infoblox_network`                       | Manages IPAM Networks                | Retrieves information about existing IPAM Networks                             | NIOS, UDDI         |
 | `infoblox_network_container`             | Manages IPAM Network Containers      | Retrieves information about existing IPAM Network Containers                   | NIOS, UDDI         |
 | `infoblox_network_view`                  | Manages IPAM Network Views           | Retrieves information about existing IPAM Network Views                        | NIOS, UDDI         |
-| `infoblox_next_available_address_blocks` |                                      | Retrieves the next available address blocks in an address block                | UDDI               |
-| `infoblox_next_available_ips`            |                                      | Retrieves the next available IP addresses in an address block, subnet or range | UDDI               |
-| `infoblox_next_available_subnets`        |                                      | Retrieves the next available subnets in an address block                       | UDDI               |
 | `infoblox_superhost`                     | Manages IPAM Super Hosts             | Retrieves information about existing IPAM Super Hosts                          | NIOS               |
 | `infoblox_vlan`                          | Manages IPAM VLANs                   | Retrieves information about existing IPAM VLANs                                | NIOS               |
 | `infoblox_vlan_range`                    | Manages IPAM VLAN Ranges             | Retrieves information about existing IPAM VLAN Ranges                          | NIOS               |
