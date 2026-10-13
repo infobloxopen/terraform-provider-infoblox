@@ -2,7 +2,7 @@
 
 This is the new Infoblox Provider (v3.x.x), currently in beta, with the general availability release planned for January 2027. If you are using the Legacy Infoblox Provider (v2.x.x), the NIOS Provider, or the BloxOne Provider, see [Migrating from Other Infoblox Providers](#migrating-from-other-infoblox-providers).
 
-The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. The same provider works with both Infoblox backends, NIOS and UDDI.
+The Terraform Provider for Infoblox allows you to manage your DDI Infrastructure such as DNS records, Networks, Fixed Addresses, and more using Terraform. The same provider works with both NIOS and UDDI.
 
 | Backend | Description |
 |---------|-------------|
