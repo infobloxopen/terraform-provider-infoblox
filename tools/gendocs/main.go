@@ -133,33 +133,33 @@ var shortGroupOverrides = map[string]string{
 }
 
 // lookupGroup returns the internal/service/<group> that owns this object.
-// Objects renamed via 'tfName' keep an unseparated Go file name
-// (network_container -> networkcontainer_*.go), so retry without underscores.
+// Objects renamed via 'tfName' keep the WAPI-style Go file name, with some or
+// all underscores dropped (discovery_credential_group -> discovery_credentialgroup_*.go),
+// so names are compared with underscores ignored.
 func lookupGroup(short string) string {
 	if g, ok := shortGroupOverrides[short]; ok {
 		return g
 	}
-	if g := findGroup(short); g != "" {
-		return g
-	}
-	return findGroup(strings.ReplaceAll(short, "_", ""))
-}
-
-// findGroup returns the group holding a <base><suffix>.go file, or "".
-func findGroup(base string) string {
 	serviceRoot := filepath.Join("internal", "service")
 	groups, err := os.ReadDir(serviceRoot)
 	if err != nil {
 		return ""
 	}
+	want := strings.ReplaceAll(short, "_", "")
 	suffixes := []string{"_resource.go", "_data_source.go", "_list.go"}
 	for _, g := range groups {
 		if !g.IsDir() {
 			continue
 		}
-		for _, sfx := range suffixes {
-			if _, err := os.Stat(filepath.Join(serviceRoot, g.Name(), base+sfx)); err == nil {
-				return g.Name()
+		files, err := os.ReadDir(filepath.Join(serviceRoot, g.Name()))
+		if err != nil {
+			continue
+		}
+		for _, f := range files {
+			for _, sfx := range suffixes {
+				if base, ok := strings.CutSuffix(f.Name(), sfx); ok && strings.ReplaceAll(base, "_", "") == want {
+					return g.Name()
+				}
 			}
 		}
 	}
