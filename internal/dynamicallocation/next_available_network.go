@@ -21,19 +21,23 @@ import (
 )
 
 type NextAvailableNetworkModel struct {
-	Network      basetypes.StringValue `tfsdk:"network"`
-	NetworkView  basetypes.StringValue `tfsdk:"network_view"`
-	Cidr         basetypes.Int64Value  `tfsdk:"cidr"`
-	Exclude      basetypes.ListValue   `tfsdk:"exclude"`
-	FilterParams basetypes.MapValue    `tfsdk:"filter_params"`
+	Network          basetypes.StringValue `tfsdk:"network"`
+	NetworkContainer basetypes.StringValue `tfsdk:"network_container"`
+	NetworkView      basetypes.StringValue `tfsdk:"network_view"`
+	Cidr             basetypes.Int64Value  `tfsdk:"cidr"`
+	Exclude          basetypes.ListValue   `tfsdk:"exclude"`
+	FilterObject     basetypes.StringValue `tfsdk:"filter_object"`
+	FilterParams     basetypes.MapValue    `tfsdk:"filter_params"`
 }
 
 var NextAvailableNetworkAttrTypes = map[string]attr.Type{
-	"network":       basetypes.StringType{},
-	"network_view":  basetypes.StringType{},
-	"cidr":          basetypes.Int64Type{},
-	"exclude":       basetypes.ListType{ElemType: basetypes.StringType{}},
-	"filter_params": basetypes.MapType{ElemType: basetypes.StringType{}},
+	"network":           basetypes.StringType{},
+	"network_container": basetypes.StringType{},
+	"network_view":      basetypes.StringType{},
+	"cidr":              basetypes.Int64Type{},
+	"exclude":           basetypes.ListType{ElemType: basetypes.StringType{}},
+	"filter_object":     basetypes.StringType{},
+	"filter_params":     basetypes.MapType{ElemType: basetypes.StringType{}},
 }
 
 var NextAvailableNetworkResourceSchemaAttributes = map[string]schema.Attribute{
@@ -41,13 +45,21 @@ var NextAvailableNetworkResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
+				path.MatchRelative().AtParent().AtName("network_container"),
 				path.MatchRelative().AtParent().AtName("filter_params"),
 			),
 		},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplace(),
 		},
-		MarkdownDescription: "The network container to allocate the next available network from, in CIDR notation (e.g. \"10.0.0.0/16\"). Mutually exclusive with \"filter_params\".",
+		MarkdownDescription: "The network to allocate the next available network from, in CIDR notation (e.g. \"10.0.0.0/24\"). Mutually exclusive with \"network_container\" and \"filter_params\".",
+	},
+	"network_container": schema.StringAttribute{
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplace(),
+		},
+		MarkdownDescription: "The network container to allocate the next available network from, in CIDR notation (e.g. \"10.0.0.0/16\"). Mutually exclusive with \"network\" and \"filter_params\".",
 	},
 	"network_view": schema.StringAttribute{
 		Computed: true,
@@ -56,7 +68,7 @@ var NextAvailableNetworkResourceSchemaAttributes = map[string]schema.Attribute{
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplace(),
 		},
-		MarkdownDescription: "The network view of the network container. Defaults to the default network view when omitted.",
+		MarkdownDescription: "The network view of the network or network container. Defaults to the default network view when omitted.",
 	},
 	"cidr": schema.Int64Attribute{
 		Required: true,
@@ -73,36 +85,67 @@ var NextAvailableNetworkResourceSchemaAttributes = map[string]schema.Attribute{
 		},
 		MarkdownDescription: "A list of networks or ranges to exclude from allocation.",
 	},
+	"filter_object": schema.StringAttribute{
+		Optional: true,
+		Validators: []validator.String{
+			stringvalidator.OneOf("network", "networkcontainer"),
+			stringvalidator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("filter_params"),
+			),
+		},
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.RequiresReplace(),
+		},
+		MarkdownDescription: "Whether \"filter_params\" searches networks or network containers. Valid values are \"network\" and \"networkcontainer\". Defaults to \"network\".",
+	},
 	"filter_params": schema.MapAttribute{
 		Optional:    true,
 		ElementType: basetypes.StringType{},
 		PlanModifiers: []planmodifier.Map{
 			mapplanmodifier.RequiresReplace(),
 		},
-		MarkdownDescription: "Extensible-attribute filters used to select the network container to allocate from (e.g. {\"*Site\" = \"location-1\"}). Mutually exclusive with \"network\".",
+		MarkdownDescription: "Extensible-attribute filters used to select the network or network container to allocate from (e.g. {\"*Site\" = \"location-1\"}). The object type searched is set by \"filter_object\". Mutually exclusive with \"network\" and \"network_container\".",
 	},
+}
+
+// containerObject is the network container type each network type is carved from.
+var containerObject = map[string]string{
+	"network":     "networkcontainer",
+	"ipv6network": "ipv6networkcontainer",
 }
 
 func (m NextAvailableNetworkModel) FuncCall(ctx context.Context, attributeName string, object string, diags *diag.Diagnostics) *niosipam.FuncCall {
 	fc := &niosipam.FuncCall{}
 	fc.SetAttributeName(attributeName)
-	fc.SetObject(object)
 	fc.SetObjectFunction("next_available_network")
 	fc.SetResultField("networks")
 
+	filtering := !m.FilterParams.IsNull() && !m.FilterParams.IsUnknown()
+
+	allocFrom := object
+	switch {
+	case filtering && m.FilterObject.ValueString() == "networkcontainer":
+		allocFrom = containerObject[object]
+	case !m.NetworkContainer.IsNull() && !m.NetworkContainer.IsUnknown():
+		allocFrom = containerObject[object]
+	}
+
+	fc.SetObject(allocFrom)
+
 	objectParams := map[string]any{}
-	if !m.Network.IsNull() && !m.Network.IsUnknown() {
-		objectParams["network"] = m.Network.ValueString()
-	}
-	if !m.NetworkView.IsNull() && !m.NetworkView.IsUnknown() {
-		objectParams["network_view"] = m.NetworkView.ValueString()
-	}
-	if !m.FilterParams.IsNull() && !m.FilterParams.IsUnknown() {
+	if filtering {
 		var filter map[string]string
 		diags.Append(m.FilterParams.ElementsAs(ctx, &filter, false)...)
 		for k, v := range filter {
 			objectParams[k] = v
 		}
+	} else if !m.NetworkContainer.IsNull() && !m.NetworkContainer.IsUnknown() {
+		objectParams["network"] = m.NetworkContainer.ValueString()
+	} else if !m.Network.IsNull() && !m.Network.IsUnknown() {
+		objectParams["network"] = m.Network.ValueString()
+	}
+	if !m.NetworkView.IsNull() && !m.NetworkView.IsUnknown() {
+		objectParams["network_view"] = m.NetworkView.ValueString()
 	}
 	fc.SetObjectParameters(objectParams)
 
