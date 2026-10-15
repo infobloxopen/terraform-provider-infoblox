@@ -146,7 +146,7 @@ func BuildNetworkcontainerFuncCall(ctx context.Context, data types.Object, diags
 		return nil
 	}
 
-	var m dynamicallocation.NextAvailableNetworkModel
+	var m dynamicallocation.NextAvailableNetworkContainerModel
 	diags.Append(data.As(ctx, &m, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil

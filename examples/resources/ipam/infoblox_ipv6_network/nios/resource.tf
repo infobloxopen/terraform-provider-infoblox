@@ -56,3 +56,55 @@ resource "infoblox_ipv6_network" "example_func_call" {
     comment = "Network created with function call"
   }
 }
+
+// Create an IPAM IPv6 Network with Function Call from an IPv6 Network selected by Extensible Attributes
+resource "infoblox_ipv6_network" "example_func_call_filter_network" {
+  nios = {
+    dynamic_allocation = {
+      filter_params = {
+        "*Site" : "location-1"
+      }
+      cidr = 72
+    }
+    comment = "Network created with function call from a network selected by extensible attributes"
+  }
+  depends_on = [infoblox_ipv6_network.example_network_additional]
+}
+
+// Create an IPAM IPv6 Network Container for allocation of IPv6 Networks
+resource "infoblox_ipv6_network_container" "example_container" {
+  nios = {
+    network      = "12::/48"
+    network_view = "default"
+    ext_attrs = {
+      Site = "location-2"
+    }
+  }
+}
+
+// Create an IPAM IPv6 Network with Function Call from an IPv6 Network Container
+resource "infoblox_ipv6_network" "example_func_call_network_container" {
+  nios = {
+    dynamic_allocation = {
+      network_container = infoblox_ipv6_network_container.example_container.nios.network
+      network_view      = "default"
+      cidr              = 64
+    }
+    comment = "Network created with function call from a network container"
+  }
+}
+
+// Create an IPAM IPv6 Network with Function Call from an IPv6 Network Container selected by Extensible Attributes
+resource "infoblox_ipv6_network" "example_func_call_filter_network_container" {
+  nios = {
+    dynamic_allocation = {
+      filter_object = "networkcontainer"
+      filter_params = {
+        "*Site" : "location-2"
+      }
+      cidr = 64
+    }
+    comment = "Network created with function call from a network container selected by extensible attributes"
+  }
+  depends_on = [infoblox_ipv6_network_container.example_container]
+}

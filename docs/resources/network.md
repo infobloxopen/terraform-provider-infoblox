@@ -60,21 +60,74 @@ resource "infoblox_network" "complete_example" {
 
     // Extensible attributes
     ext_attrs = {
-      Site = "location-1"
+      Site = "location-2"
     }
   }
 }
 
-// Create an IPAM Network with Function Call
+// Create an IPAM Network with Function Call from a Network
 resource "infoblox_network" "example_func_call" {
   nios = {
     dynamic_allocation = {
-      network      = "${infoblox_network.example_network.nios.network}"
+      network      = infoblox_network.example_network.nios.network
       network_view = "default"
       cidr         = 28
     }
     comment = "Network created with function call"
   }
+}
+
+// Create an IPAM Network with Function Call from a Network selected by Extensible Attributes
+resource "infoblox_network" "example_func_call_filter_network" {
+  nios = {
+    dynamic_allocation = {
+      filter_params = {
+        "*Site" : "location-2"
+      }
+      cidr = 28
+    }
+    comment = "Network created with function call from a network selected by extensible attributes"
+  }
+  depends_on = [infoblox_network.complete_example]
+}
+
+
+// Create an IPAM Network Container for allocation of Networks
+resource "infoblox_network_container" "example_container" {
+  nios = {
+    network      = "10.1.0.0/16"
+    network_view = "default"
+    ext_attrs = {
+      Site = "location-3"
+    }
+  }
+}
+
+// Create an IPAM Network with Function Call from a Network Container
+resource "infoblox_network" "example_func_call_network_container" {
+  nios = {
+    dynamic_allocation = {
+      network_container = infoblox_network_container.example_container.nios.network
+      network_view      = "default"
+      cidr              = 28
+    }
+    comment = "Network created with function call from a network container"
+  }
+}
+
+// Create an IPAM Network with Function Call from a Network Container selected by Extensible Attributes
+resource "infoblox_network" "example_func_call_filter_network_container" {
+  nios = {
+    dynamic_allocation = {
+      filter_object = "networkcontainer"
+      filter_params = {
+        "*Site" : "location-3"
+      }
+      cidr = 28
+    }
+    comment = "Network created with function call from a network container selected by extensible attributes"
+  }
+  depends_on = [infoblox_network_container.example_container]
 }
 ```
 
@@ -321,9 +374,11 @@ Required:
 Optional:
 
 - `exclude` (List of String) A list of networks or ranges to exclude from allocation.
-- `filter_params` (Map of String) Extensible-attribute filters used to select the network container to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "network".
-- `network` (String) The network container to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/16"). Mutually exclusive with "filter_params".
-- `network_view` (String) The network view of the network container. Defaults to the default network view when omitted.
+- `filter_object` (String) Whether "filter_params" searches networks or network containers. Valid values are "network" and "networkcontainer". Defaults to "network".
+- `filter_params` (Map of String) Extensible-attribute filters used to select the network or network container to allocate from (e.g. {"*Site" = "location-1"}). The object type searched is set by "filter_object". Mutually exclusive with "network" and "network_container".
+- `network` (String) The network to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/24"). Mutually exclusive with "network_container" and "filter_params".
+- `network_container` (String) The network container to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/16"). Mutually exclusive with "network" and "filter_params".
+- `network_view` (String) The network view of the network or network container. Defaults to the default network view when omitted.
 
 
 <a id="nestedatt--nios--federated_realms"></a>
