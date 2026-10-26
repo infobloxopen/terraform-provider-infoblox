@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -199,8 +200,11 @@ var RecordRpzNaptrResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The services field of the Substitute (NAPTR Record) Rule object; maximum 128 characters. The services field contains protocol and service identifiers, such as \"http+E2U\" or \"SIPS+D2T\".",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			suppressdiff.UseStateToSuppressDiffInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -261,7 +265,11 @@ func ApplyRecordRpzNaptrNIOSUseFlags(ctx context.Context, config tfsdk.Config, o
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
+	// When the use flag is false the backend owns the value, so keep it out of the payload.
 	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
+	if obj.NIOS.UseTtl != nil && !*obj.NIOS.UseTtl {
+		obj.NIOS.Ttl = nil
+	}
 }
 
 // Flatten populates the TF model from a core response.

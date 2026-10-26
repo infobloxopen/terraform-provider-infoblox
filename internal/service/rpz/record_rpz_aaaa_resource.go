@@ -16,6 +16,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/rpz"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/rpz"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -26,6 +27,7 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordRpzAaaaResource{}
 	_ resource.ResourceWithImportState    = &RecordRpzAaaaResource{}
 	_ resource.ResourceWithIdentity       = &RecordRpzAaaaResource{}
+	_ resource.ResourceWithModifyPlan     = &RecordRpzAaaaResource{}
 )
 
 func NewRecordRpzAaaaResource() resource.Resource {
@@ -455,6 +457,18 @@ func (r *RecordRpzAaaaResource) Delete(ctx context.Context, req resource.DeleteR
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordRpzAaaa: %s", err))
 	}
+}
+
+func (r *RecordRpzAaaaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var fields []suppressdiff.InheritedField
+
+	if r.backend == core.BackendNIOS {
+		fields = append(fields,
+			suppressdiff.InheritedField{Path: path.Root("nios").AtName("ttl"), UnknownValue: types.Int64Unknown()},
+		)
+	}
+
+	suppressdiff.MarkInheritedFieldsUnknown(ctx, req, resp, fields)
 }
 
 func (r *RecordRpzAaaaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
