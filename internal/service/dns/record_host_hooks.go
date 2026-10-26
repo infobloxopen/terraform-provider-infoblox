@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -115,6 +116,17 @@ func (r *RecordHostResource) refreshRecordHostId(ctx context.Context, resp *reso
 	liveV6 := flex.FlattenFrameworkListNestedBlock(ctx, current.NIOS.Ipv6addrs, RecordHostIpv6addrAttrTypes, &resp.Diagnostics, FlattenRecordHostIpv6addr)
 	preserveDhcpSettings(ctx, &planNIOS.Ipv4addrs, liveV4, dhcpSettingsOwnedByAssociationV4)
 	preserveDhcpSettings(ctx, &planNIOS.Ipv6addrs, liveV6, dhcpSettingsOwnedByAssociationV6)
+	v4, v6 := current.NIOS.Ipv4addrs, current.NIOS.Ipv6addrs
+	keepAllocatedAddress(ctx, &planNIOS.Ipv4addrs, RecordHostIpv4addrAttrTypes, &resp.Diagnostics, func(a *RecordHostIpv4addrModel) {
+		if a.Ipv4addr.IsUnknown() && len(v4) > 0 {
+			a.Ipv4addr = FlattenRecordHostIpv4addrIpv4addr(v4[0].Ipv4addr)
+		}
+	})
+	keepAllocatedAddress(ctx, &planNIOS.Ipv6addrs, RecordHostIpv6addrAttrTypes, &resp.Diagnostics, func(a *RecordHostIpv6addrModel) {
+		if a.Ipv6addr.IsUnknown() && len(v6) > 0 {
+			a.Ipv6addr = FlattenRecordHostIpv6addrIpv6addr(v6[0].Ipv6addr)
+		}
+	})
 
 	data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSRecordHostAttrTypes, &resp.Diagnostics)
 }
@@ -131,6 +143,22 @@ func preserveDhcpSettings(ctx context.Context, plan *types.List, live types.List
 			*plan = list
 		}
 	}
+}
+
+// keepAllocatedAddress lets fill set the address the plan left unknown, as with dynamic_allocation.
+func keepAllocatedAddress[T any](ctx context.Context, plan *types.List, attrTypes map[string]attr.Type, diags *diag.Diagnostics, fill func(*T)) {
+	if plan.IsNull() || plan.IsUnknown() {
+		return
+	}
+	var addrs []T
+	diags.Append(plan.ElementsAs(ctx, &addrs, false)...)
+	if diags.HasError() || len(addrs) == 0 {
+		return
+	}
+	fill(&addrs[0])
+	list, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: attrTypes}, addrs)
+	diags.Append(d...)
+	*plan = list
 }
 
 // findRecordHostByInternalID locates the record by the Terraform Internal ID extensible attribute.
@@ -176,12 +204,27 @@ func (r *RecordHostResource) deleteRecordHostByInternalID(ctx context.Context, r
 	}
 }
 
-// PostExpandRecordHostNIOS strips name and view from the WAPI payload when configure_for_dns is false
+// PostExpandRecordHostNIOS strips view from the WAPI payload when configure_for_dns is false
 func PostExpandRecordHostNIOS(_ context.Context, obj *coremodel.NIOSRecordHostExt, _ *diag.Diagnostics) *coremodel.NIOSRecordHostExt {
-	if obj == nil || obj.ConfigureForDns == nil || *obj.ConfigureForDns {
+	if obj == nil {
 		return obj
 	}
-	obj.Name = nil
+	// On update the address is already known (refreshRecordHostId fills it from NIOS);
+	// NIOS rejects func_call then, so it is only kept on create.
+
+	for i := range obj.Ipv4addrs {
+		if obj.Ipv4addrs[i].Ipv4addr != nil && obj.Ipv4addrs[i].Ipv4addr.String != nil {
+			obj.Ipv4addrs[i].FuncCall = nil
+		}
+	}
+	for i := range obj.Ipv6addrs {
+		if obj.Ipv6addrs[i].Ipv6addr != nil && obj.Ipv6addrs[i].Ipv6addr.String != nil {
+			obj.Ipv6addrs[i].FuncCall = nil
+		}
+	}
+	if obj.ConfigureForDns == nil || *obj.ConfigureForDns {
+		return obj
+	}
 	obj.View = nil
 	return obj
 }
