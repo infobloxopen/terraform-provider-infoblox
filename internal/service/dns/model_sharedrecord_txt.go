@@ -19,6 +19,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -135,7 +136,11 @@ var SharedrecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Text associated with the shared record. It can contain up to 255 bytes per substring and up a total of 512 bytes. To enter leading, trailing or embedded spaces in the text, add quotes (\" \") around the text to preserve the spaces.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			suppressdiff.UseStateToSuppressDiffInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for this shared record. A 32-bit unsigned integer that represents the duration, in seconds, for which the shared record is valid (cached). Zero indicates that the shared record should not be cached.",
 	},
 }
@@ -177,7 +182,11 @@ func ApplySharedrecordTxtNIOSUseFlags(ctx context.Context, config tfsdk.Config, 
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
+	// When the use flag is false the backend owns the value, so keep it out of the payload.
 	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
+	if obj.NIOS.UseTtl != nil && !*obj.NIOS.UseTtl {
+		obj.NIOS.Ttl = nil
+	}
 }
 
 // Flatten populates the TF model from a core response.
