@@ -23,6 +23,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -225,8 +226,11 @@ var RecordCaaResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The CAA record name in FQDN format. This value can be in unicode format.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			suppressdiff.UseStateToSuppressDiffInt64(),
+		},
 		MarkdownDescription: "The Time to Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -398,7 +402,11 @@ func ApplyRecordCaaNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *c
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
+	// When the use flag is false the backend owns the value, so keep it out of the payload.
 	obj.NIOS.UseTtl = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ttl"))
+	if obj.NIOS.UseTtl != nil && !*obj.NIOS.UseTtl {
+		obj.NIOS.Ttl = nil
+	}
 }
 
 // Expand converts the UDDI TF model to the core model.
