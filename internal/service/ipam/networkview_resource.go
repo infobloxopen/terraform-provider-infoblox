@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &NetworkviewResource{}
 	_ resource.ResourceWithImportState    = &NetworkviewResource{}
 	_ resource.ResourceWithIdentity       = &NetworkviewResource{}
+	_ resource.ResourceWithUpgradeState   = &NetworkviewResource{}
 )
 
 func NewNetworkviewResource() resource.Resource {
@@ -55,6 +57,8 @@ func (r *NetworkviewResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *NetworkviewResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		// Version 1: Legacy Infoblox Provider (v2.x) state (version 0) goes through UpgradeState.
+		Version:             1,
 		MarkdownDescription: "Manages an Infoblox Networkview in both NIOS and UDDI backends.",
 		Attributes:          NetworkviewResourceSchemaAttributes,
 	}
@@ -462,5 +466,13 @@ func (r *NetworkviewResource) ImportState(ctx context.Context, req resource.Impo
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+// UpgradeState handles Legacy Infoblox Provider (v2.x) state: the type kept its name in v3,
+// so Terraform calls UpgradeState (schema version 0 -> 1) and never MoveState.
+func (r *NetworkviewResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: migration.Legacy{Type: "infoblox_network_view"}.Upgrader(),
 	}
 }

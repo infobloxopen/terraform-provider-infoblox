@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &DtcPoolResource{}
 	_ resource.ResourceWithImportState    = &DtcPoolResource{}
 	_ resource.ResourceWithIdentity       = &DtcPoolResource{}
+	_ resource.ResourceWithUpgradeState   = &DtcPoolResource{}
 )
 
 func NewDtcPoolResource() resource.Resource {
@@ -55,6 +57,8 @@ func (r *DtcPoolResource) IdentitySchema(_ context.Context, _ resource.IdentityS
 
 func (r *DtcPoolResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		// Version 1: Legacy Infoblox Provider (v2.x) state (version 0) goes through UpgradeState.
+		Version:             1,
 		MarkdownDescription: "Manages an Infoblox DtcPool in both NIOS and UDDI backends.",
 		Attributes:          DtcPoolResourceSchemaAttributes,
 	}
@@ -476,5 +480,13 @@ func (r *DtcPoolResource) ImportState(ctx context.Context, req resource.ImportSt
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+// UpgradeState handles Legacy Infoblox Provider (v2.x) state: the type kept its name in v3,
+// so Terraform calls UpgradeState (schema version 0 -> 1) and never MoveState.
+func (r *DtcPoolResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: migration.Legacy{Type: "infoblox_dtc_pool"}.Upgrader(),
 	}
 }

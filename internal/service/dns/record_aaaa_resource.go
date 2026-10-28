@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordAaaaResource{}
 	_ resource.ResourceWithImportState    = &RecordAaaaResource{}
 	_ resource.ResourceWithIdentity       = &RecordAaaaResource{}
+	_ resource.ResourceWithMoveState      = &RecordAaaaResource{}
 )
 
 func NewRecordAaaaResource() resource.Resource {
@@ -476,5 +478,12 @@ func (r *RecordAaaaResource) ImportState(ctx context.Context, req resource.Impor
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+func (r *RecordAaaaResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.Legacy{Type: "infoblox_aaaa_record"}.Mover(),
 	}
 }

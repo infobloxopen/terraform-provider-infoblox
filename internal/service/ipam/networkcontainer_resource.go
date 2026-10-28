@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &NetworkcontainerResource{}
 	_ resource.ResourceWithImportState    = &NetworkcontainerResource{}
 	_ resource.ResourceWithIdentity       = &NetworkcontainerResource{}
+	_ resource.ResourceWithMoveState      = &NetworkcontainerResource{}
 )
 
 func NewNetworkcontainerResource() resource.Resource {
@@ -482,5 +484,12 @@ func (r *NetworkcontainerResource) ImportState(ctx context.Context, req resource
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+func (r *NetworkcontainerResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.Legacy{Type: "infoblox_ipv4_network_container", Defaults: map[string]any{"auto_create_reversezone": false, "restart_if_needed": false}}.Mover(),
 	}
 }
