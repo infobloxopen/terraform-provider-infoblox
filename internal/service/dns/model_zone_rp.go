@@ -72,7 +72,6 @@ type NIOSZoneRpModel struct {
 	SoaRetry                         types.Int64                         `tfsdk:"soa_retry"`
 	SoaSerialNumber                  types.Int64                         `tfsdk:"soa_serial_number"`
 	SubstituteName                   types.String                        `tfsdk:"substitute_name"`
-	UseExternalPrimary               types.Bool                          `tfsdk:"use_external_primary"`
 	View                             types.String                        `tfsdk:"view"`
 }
 
@@ -108,7 +107,6 @@ var NIOSZoneRpAttrTypes = map[string]attr.Type{
 	"soa_retry":             types.Int64Type,
 	"soa_serial_number":     types.Int64Type,
 	"substitute_name":       types.StringType,
-	"use_external_primary":  types.BoolType,
 	"view":                  types.StringType,
 }
 
@@ -345,7 +343,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
 				path.MatchRelative().AtParent().AtName("soa_refresh"),
 				path.MatchRelative().AtParent().AtName("soa_retry"),
-				path.MatchRelative().AtParent().AtName("grid_primary"),
 			),
 		},
 		MarkdownDescription: "The Time to Live (TTL) value of the SOA record of this zone. This value is the number of seconds that data is cached.",
@@ -368,7 +365,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
 				path.MatchRelative().AtParent().AtName("soa_refresh"),
 				path.MatchRelative().AtParent().AtName("soa_retry"),
-				path.MatchRelative().AtParent().AtName("grid_primary"),
 			),
 		},
 		MarkdownDescription: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
@@ -382,7 +378,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("soa_expire"),
 				path.MatchRelative().AtParent().AtName("soa_refresh"),
 				path.MatchRelative().AtParent().AtName("soa_retry"),
-				path.MatchRelative().AtParent().AtName("grid_primary"),
 			),
 		},
 		MarkdownDescription: "The negative Time to Live (TTL) value of the SOA of the zone indicates how long a secondary server can cache data for \"Does Not Respond\" responses.",
@@ -396,7 +391,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("soa_expire"),
 				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
 				path.MatchRelative().AtParent().AtName("soa_retry"),
-				path.MatchRelative().AtParent().AtName("grid_primary"),
 			),
 		},
 		MarkdownDescription: "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not.",
@@ -410,7 +404,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 				path.MatchRelative().AtParent().AtName("soa_expire"),
 				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
 				path.MatchRelative().AtParent().AtName("soa_refresh"),
-				path.MatchRelative().AtParent().AtName("grid_primary"),
 			),
 		},
 		MarkdownDescription: "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.",
@@ -430,12 +423,6 @@ var ZoneRpResourceNiosSchemaAttributes = map[string]schema.Attribute{
 			customvalidator.ValidateTrimmedString(),
 		},
 		MarkdownDescription: "The canonical name of redirect target in substitute policy of response policy zone.",
-	},
-	"use_external_primary": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "This flag controls whether the zone is using an external primary.",
 	},
 	"view": schema.StringAttribute{
 		Default:  stringdefault.StaticString("default"),
@@ -500,7 +487,6 @@ func (m *NIOSZoneRpModel) Expand(ctx context.Context, diags *diag.Diagnostics, i
 		SoaRetry:                         flex.ExpandInt64Pointer(m.SoaRetry),
 		SoaSerialNumber:                  flex.ExpandInt64Pointer(m.SoaSerialNumber),
 		SubstituteName:                   flex.ExpandStringPointerNullAsEmpty(m.SubstituteName),
-		UseExternalPrimary:               flex.ExpandBoolPointer(m.UseExternalPrimary),
 	}
 	if isCreate {
 		ext.Fqdn = flex.ExpandStringPointerNullAsEmpty(m.Fqdn)
@@ -517,6 +503,7 @@ func ApplyZoneRpNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *core
 	if obj == nil || obj.NIOS == nil {
 		return
 	}
+	obj.NIOS.UseExternalPrimary = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("external_primaries"))
 	obj.NIOS.UseGridZoneTimer = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("soa_default_ttl"), path.Root("nios").AtName("soa_expire"), path.Root("nios").AtName("soa_negative_ttl"), path.Root("nios").AtName("soa_refresh"), path.Root("nios").AtName("soa_retry"))
 	obj.NIOS.UseLogRpz = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("log_rpz"))
 	obj.NIOS.UseRecordNamePolicy = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("record_name_policy"))
@@ -586,6 +573,5 @@ func (m *NIOSZoneRpModel) Flatten(ctx context.Context, from *coremodel.NIOSZoneR
 	m.SoaRetry = flex.FlattenInt64Pointer(from.SoaRetry)
 	m.SoaSerialNumber = flex.FlattenInt64Pointer(from.SoaSerialNumber)
 	m.SubstituteName = flex.FlattenStringPointerEmptyAsNull(from.SubstituteName)
-	m.UseExternalPrimary = flex.FlattenBoolPointer(from.UseExternalPrimary)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 }

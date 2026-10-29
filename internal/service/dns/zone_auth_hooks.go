@@ -33,20 +33,33 @@ func validateZoneAuthNIOSConfig(ctx context.Context, m *NIOSZoneAuthModel, resp 
 		)
 	}
 
-	// SOA authority fields require a primary name server source.
+	// NIOS discards SOA values for zones with an external primary or without a primary.
 	hasSoaEmail := !m.SoaEmail.IsNull() && !m.SoaEmail.IsUnknown()
 	hasSoaSerialNumber := !m.SoaSerialNumber.IsNull() && !m.SoaSerialNumber.IsUnknown()
 	hasMemberSoaMnames := !m.MemberSoaMnames.IsNull() && !m.MemberSoaMnames.IsUnknown()
+	hasSoaTimers := (!m.SoaDefaultTtl.IsNull() && !m.SoaDefaultTtl.IsUnknown()) ||
+		(!m.SoaExpire.IsNull() && !m.SoaExpire.IsUnknown()) ||
+		(!m.SoaNegativeTtl.IsNull() && !m.SoaNegativeTtl.IsUnknown()) ||
+		(!m.SoaRefresh.IsNull() && !m.SoaRefresh.IsUnknown()) ||
+		(!m.SoaRetry.IsNull() && !m.SoaRetry.IsUnknown())
 
-	if hasSoaEmail || hasSoaSerialNumber || hasMemberSoaMnames {
+	if hasSoaEmail || hasSoaSerialNumber || hasMemberSoaMnames || hasSoaTimers {
 		hasGridPrimary := !m.GridPrimary.IsNull() && !m.GridPrimary.IsUnknown()
 		hasNsGroup := !m.NsGroup.IsNull() && !m.NsGroup.IsUnknown()
-		isPrimaryOrNsGroupUnknown := m.GridPrimary.IsUnknown() || m.NsGroup.IsUnknown()
+		hasMsPrimaries := !m.MsPrimaries.IsNull() && !m.MsPrimaries.IsUnknown()
+		isPrimaryOrNsGroupUnknown := m.GridPrimary.IsUnknown() || m.NsGroup.IsUnknown() || m.MsPrimaries.IsUnknown()
+		usesExternalPrimary := !m.ExternalPrimaries.IsNull() && !m.ExternalPrimaries.IsUnknown()
 
-		if !hasGridPrimary && !hasNsGroup && !isPrimaryOrNsGroupUnknown {
+		switch {
+		case usesExternalPrimary:
 			resp.Diagnostics.AddError(
 				"Invalid Configuration",
-				"When soa_email, soa_serial_number, or member_soa_mnames is specified, either grid_primary or ns_group must be provided.",
+				"soa_email, soa_serial_number, member_soa_mnames, soa_default_ttl, soa_expire, soa_negative_ttl, soa_refresh, and soa_retry cannot be specified when external_primaries is specified.",
+			)
+		case !hasGridPrimary && !hasNsGroup && !hasMsPrimaries && !isPrimaryOrNsGroupUnknown:
+			resp.Diagnostics.AddError(
+				"Invalid Configuration",
+				"When soa_email, soa_serial_number, member_soa_mnames, soa_default_ttl, soa_expire, soa_negative_ttl, soa_refresh, or soa_retry is specified, one of grid_primary, ns_group or ms_primaries must be provided.",
 			)
 		}
 	}
@@ -93,6 +106,17 @@ func validateZoneAuthNIOSConfig(ctx context.Context, m *NIOSZoneAuthModel, resp 
 			path.Root("nios").AtName("ns_group"),
 			"NS Group Not Allowed",
 			"The ns_group attribute cannot be specified when any of primary (grid_primary, external_primaries, or ms_primaries) or secondary server (grid_secondaries, external_secondaries, or ms_secondaries) is specified. Please remove the ns_group attribute or the primary/secondary server attributes.",
+		)
+	}
+
+	// External secondaries don't count, NIOS needs a grid or MS secondary to serve the zone.
+	if !m.ExternalPrimaries.IsNull() && !m.ExternalPrimaries.IsUnknown() &&
+		!m.GridSecondaries.IsUnknown() && !m.MsSecondaries.IsUnknown() &&
+		m.GridSecondaries.IsNull() && m.MsSecondaries.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("nios").AtName("grid_secondaries"),
+			"Invalid Configuration",
+			"At least one of 'grid_secondaries' or 'ms_secondaries' must be specified when 'external_primaries' is specified.",
 		)
 	}
 }
