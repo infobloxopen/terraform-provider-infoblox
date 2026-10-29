@@ -94,7 +94,6 @@ Read-Only:
 - `soa_retry` (Number) This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.
 - `soa_serial_number` (Number) The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at "soa_serial_number" and pass "set_soa_serial_number" as True.
 - `substitute_name` (String) The canonical name of redirect target in substitute policy of response policy zone.
-- `use_external_primary` (Boolean) This flag controls whether the zone is using an external primary.
 - `view` (String) The name of the DNS view in which the zone resides. Example "external".
 
 <a id="nestedatt--results--nios--external_primaries"></a>
