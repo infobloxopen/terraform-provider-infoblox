@@ -146,7 +146,6 @@ func (m *UDDIJoinTokenModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		ExpiresAt: flex.ExpandRFC3339(m.ExpiresAt, diags),
 		JoinToken: flex.ExpandStringPointer(m.JoinToken),
 		Tags:      flex.ExpandMapStringAny(ctx, m.Tags, diags),
-		TokenId:   flex.ExpandStringPointer(m.TokenId),
 	}
 	if isCreate {
 		ext.Description = flex.ExpandStringPointer(m.Description)

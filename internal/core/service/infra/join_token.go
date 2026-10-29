@@ -205,14 +205,10 @@ func mapUDDIJoinTokenToResponse(r *uddiinfraprovision.JoinToken) *infra.JoinToke
 		Id: r.Id,
 	}
 	resp.UDDI = &infra.UDDIJoinTokenExt{
-		DeletedAt:   r.DeletedAt,
 		Description: r.Description,
 		ExpiresAt:   r.ExpiresAt,
-		LastUsedAt:  r.LastUsedAt,
 		Name:        r.Name,
-		Status:      r.Status,
 		TokenId:     r.TokenId,
-		UseCounter:  r.UseCounter,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))

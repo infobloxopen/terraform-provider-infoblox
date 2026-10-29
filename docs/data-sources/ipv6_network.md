@@ -228,9 +228,11 @@ Read-Only:
 
 - `cidr` (Number) The prefix length (CIDR) of the network to allocate (e.g. 24 for a /24).
 - `exclude` (List of String) A list of networks or ranges to exclude from allocation.
-- `filter_params` (Map of String) Extensible-attribute filters used to select the network container to allocate from (e.g. {"*Site" = "location-1"}). Mutually exclusive with "network".
-- `network` (String) The network container to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/16"). Mutually exclusive with "filter_params".
-- `network_view` (String) The network view of the network container. Defaults to the default network view when omitted.
+- `filter_object` (String) Whether "filter_params" searches networks or network containers. Valid values are "network" and "networkcontainer". Defaults to "network".
+- `filter_params` (Map of String) Extensible-attribute filters used to select the network or network container to allocate from (e.g. {"*Site" = "location-1"}). The object type searched is set by "filter_object". Mutually exclusive with "network" and "network_container".
+- `network` (String) The network to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/24"). Mutually exclusive with "network_container" and "filter_params".
+- `network_container` (String) The network container to allocate the next available network from, in CIDR notation (e.g. "10.0.0.0/16"). Mutually exclusive with "network" and "filter_params".
+- `network_view` (String) The network view of the network or network container. Defaults to the default network view when omitted.
 
 
 <a id="nestedatt--results--nios--federated_realms"></a>

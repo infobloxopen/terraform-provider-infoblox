@@ -170,7 +170,7 @@ var NIOSNetworkcontainerAttrTypes = map[string]attr.Type{
 	"unmanaged":                            types.BoolType,
 	"update_dns_on_lease_renewal":          types.BoolType,
 	"zone_associations":                    types.ListType{ElemType: types.ObjectType{AttrTypes: NetworkcontainerZoneAssociationsAttrTypes}},
-	"dynamic_allocation":                   types.ObjectType{AttrTypes: dynamicallocation.NextAvailableNetworkAttrTypes},
+	"dynamic_allocation":                   types.ObjectType{AttrTypes: dynamicallocation.NextAvailableNetworkContainerAttrTypes},
 }
 
 type UDDINetworkcontainerModel struct {
@@ -693,7 +693,7 @@ var NetworkcontainerResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The list of zones associated with this network.",
 	},
 	"dynamic_allocation": schema.SingleNestedAttribute{
-		Attributes:          dynamicallocation.NextAvailableNetworkResourceSchemaAttributes,
+		Attributes:          dynamicallocation.NextAvailableNetworkContainerResourceSchemaAttributes,
 		Optional:            true,
 		MarkdownDescription: "Dynamically allocate the network using the NIOS next_available_network function call. Mutually exclusive with the static value field.",
 	},
@@ -1203,7 +1203,7 @@ func (m *NIOSNetworkcontainerModel) Flatten(ctx context.Context, from *coremodel
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
 	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, NetworkcontainerZoneAssociationsAttrTypes, diags, FlattenNetworkcontainerZoneAssociations)
 	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
-		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkAttrTypes)
+		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkContainerAttrTypes)
 	}
 }
 
