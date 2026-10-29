@@ -57,7 +57,7 @@ func (r *Ipv6networkcontainerResource) IdentitySchema(_ context.Context, _ resou
 
 func (r *Ipv6networkcontainerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		// Version 1: Legacy Infoblox Provider (v2.x) state (version 0) goes through UpgradeState.
+		// Version 1: v2 state (version 0) goes through UpgradeState.
 		Version:             1,
 		MarkdownDescription: "Manages an Infoblox Ipv6networkcontainer in both NIOS and UDDI backends.",
 		Attributes:          Ipv6networkcontainerResourceSchemaAttributes,
@@ -483,10 +483,10 @@ func (r *Ipv6networkcontainerResource) ImportState(ctx context.Context, req reso
 	}
 }
 
-// UpgradeState handles Legacy Infoblox Provider (v2.x) state: the type kept its name in v3,
-// so Terraform calls UpgradeState (schema version 0 -> 1) and never MoveState.
+// UpgradeState handles v2 state: the type kept its name in v3, so Terraform
+// calls UpgradeState (schema version 0 -> 1) and never MoveState.
 func (r *Ipv6networkcontainerResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
-		0: migration.Legacy{Type: "infoblox_ipv6_network_container", Defaults: map[string]any{"auto_create_reversezone": false, "restart_if_needed": false}}.Upgrader(),
+		0: migration.V2Resource{Type: "infoblox_ipv6_network_container", Defaults: map[string]any{"auto_create_reversezone": false, "restart_if_needed": false}, EmptyOptions: true}.Upgrader(),
 	}
 }

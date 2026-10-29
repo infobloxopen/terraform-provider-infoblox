@@ -487,9 +487,9 @@ func (r *FixedaddressResource) ImportState(ctx context.Context, req resource.Imp
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *FixedaddressResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
-		migration.Legacy{Type: "infoblox_ipv4_fixed_address"}.Mover(),
+		migration.V2Resource{Type: "infoblox_ipv4_fixed_address"}.Mover(),
 	}
 }

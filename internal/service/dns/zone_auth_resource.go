@@ -57,7 +57,7 @@ func (r *ZoneAuthResource) IdentitySchema(_ context.Context, _ resource.Identity
 
 func (r *ZoneAuthResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		// Version 1: Legacy Infoblox Provider (v2.x) state (version 0) goes through UpgradeState.
+		// Version 1: v2 state (version 0) goes through UpgradeState.
 		Version:             1,
 		MarkdownDescription: "Manages an Infoblox ZoneAuth in both NIOS and UDDI backends.",
 		Attributes:          ZoneAuthResourceSchemaAttributes,
@@ -483,10 +483,10 @@ func (r *ZoneAuthResource) ImportState(ctx context.Context, req resource.ImportS
 	}
 }
 
-// UpgradeState handles Legacy Infoblox Provider (v2.x) state: the type kept its name in v3,
-// so Terraform calls UpgradeState (schema version 0 -> 1) and never MoveState.
+// UpgradeState handles v2 state: the type kept its name in v3, so Terraform
+// calls UpgradeState (schema version 0 -> 1) and never MoveState.
 func (r *ZoneAuthResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
-		0: migration.Legacy{Type: "infoblox_zone_auth", Defaults: map[string]any{"restart_if_needed": false, "set_soa_serial_number": false}}.Upgrader(),
+		0: migration.V2Resource{Type: "infoblox_zone_auth", Defaults: map[string]any{"restart_if_needed": false, "set_soa_serial_number": false}}.Upgrader(),
 	}
 }

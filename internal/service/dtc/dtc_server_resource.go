@@ -57,7 +57,7 @@ func (r *DtcServerResource) IdentitySchema(_ context.Context, _ resource.Identit
 
 func (r *DtcServerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		// Version 1: Legacy Infoblox Provider (v2.x) state (version 0) goes through UpgradeState.
+		// Version 1: v2 state (version 0) goes through UpgradeState.
 		Version:             1,
 		MarkdownDescription: "Manages an Infoblox DtcServer in both NIOS and UDDI backends.",
 		Attributes:          DtcServerResourceSchemaAttributes,
@@ -480,10 +480,10 @@ func (r *DtcServerResource) ImportState(ctx context.Context, req resource.Import
 	}
 }
 
-// UpgradeState handles Legacy Infoblox Provider (v2.x) state: the type kept its name in v3,
-// so Terraform calls UpgradeState (schema version 0 -> 1) and never MoveState.
+// UpgradeState handles v2 state: the type kept its name in v3, so Terraform
+// calls UpgradeState (schema version 0 -> 1) and never MoveState.
 func (r *DtcServerResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
-		0: migration.Legacy{Type: "infoblox_dtc_server"}.Upgrader(),
+		0: migration.V2Resource{Type: "infoblox_dtc_server"}.Upgrader(),
 	}
 }

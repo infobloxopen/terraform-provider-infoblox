@@ -479,9 +479,9 @@ func (r *SharednetworkResource) ImportState(ctx context.Context, req resource.Im
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *SharednetworkResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
-		migration.Legacy{Type: "infoblox_ipv4_shared_network"}.Mover(),
+		migration.V2Resource{Type: "infoblox_ipv4_shared_network", EmptyOptions: true}.Mover(),
 	}
 }

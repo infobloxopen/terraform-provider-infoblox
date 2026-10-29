@@ -491,10 +491,9 @@ func (r *RecordHostResource) ImportState(ctx context.Context, req resource.Impor
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *RecordHostResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
-		migration.Legacy{Type: "infoblox_host_record"}.Mover(),
-		migration.Legacy{Type: "infoblox_ip_allocation"}.Mover(),
+		migration.V2Resource{Type: "infoblox_ip_allocation", Defaults: map[string]any{"view": "default"}, FromV2: map[string]string{"name": "fqdn", "view": "dns_view"}}.Mover(),
 	}
 }

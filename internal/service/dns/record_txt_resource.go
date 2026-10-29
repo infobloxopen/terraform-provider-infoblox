@@ -481,9 +481,9 @@ func (r *RecordTxtResource) ImportState(ctx context.Context, req resource.Import
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *RecordTxtResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
-		migration.Legacy{Type: "infoblox_txt_record"}.Mover(),
+		migration.V2Resource{Type: "infoblox_txt_record"}.Mover(),
 	}
 }

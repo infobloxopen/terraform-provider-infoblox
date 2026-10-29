@@ -487,9 +487,9 @@ func (r *NetworkcontainerResource) ImportState(ctx context.Context, req resource
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed Legacy Infoblox Provider (v2.x) type.
+// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *NetworkcontainerResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
-		migration.Legacy{Type: "infoblox_ipv4_network_container", Defaults: map[string]any{"auto_create_reversezone": false, "restart_if_needed": false}}.Mover(),
+		migration.V2Resource{Type: "infoblox_ipv4_network_container", Defaults: map[string]any{"auto_create_reversezone": false, "restart_if_needed": false}}.Mover(),
 	}
 }
