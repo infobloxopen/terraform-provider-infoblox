@@ -78,6 +78,7 @@ var FederatedRealmResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"metadata": schema.MapAttribute{
 		ElementType:         types.StringType,
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "The metadata for the federated realm in JSON format.",
 	},
 	"name": schema.StringAttribute{
