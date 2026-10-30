@@ -15,7 +15,6 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
-	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/suppressdiff"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -26,7 +25,6 @@ var (
 	_ resource.ResourceWithConfigure      = &DtcPoolResource{}
 	_ resource.ResourceWithImportState    = &DtcPoolResource{}
 	_ resource.ResourceWithIdentity       = &DtcPoolResource{}
-	_ resource.ResourceWithModifyPlan     = &DtcPoolResource{}
 )
 
 func NewDtcPoolResource() resource.Resource {
@@ -459,18 +457,6 @@ func (r *DtcPoolResource) Delete(ctx context.Context, req resource.DeleteRequest
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete DtcPool: %s", err))
 	}
-}
-
-func (r *DtcPoolResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var fields []suppressdiff.InheritedField
-
-	if r.backend == core.BackendNIOS {
-		fields = append(fields,
-			suppressdiff.InheritedField{Path: path.Root("nios").AtName("ttl"), UnknownValue: types.Int64Unknown()},
-		)
-	}
-
-	suppressdiff.MarkInheritedFieldsUnknown(ctx, req, resp, fields)
 }
 
 func (r *DtcPoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
