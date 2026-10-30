@@ -151,7 +151,6 @@ Read-Only:
 - `srgs` (List of String) The associated shared record groups of a DNS zone. If a shared record group is associated with a zone, then all shared records in a shared record group will be shared in the zone.
 - `update_forwarding` (Attributes List) Use this field to allow or deny dynamic DNS updates that are forwarded from specific IPv4/IPv6 addresses, networks, or a named ACL. You can also provide TSIG keys for clients that are allowed or denied to perform zone updates. This setting overrides the member-level setting. (see [below for nested schema](#nestedatt--results--nios--update_forwarding))
 - `use_check_names_policy` (Boolean) Apply policy to dynamic updates and inbound zone transfers (This value applies only if the host name restriction policy is set to "Strict Hostname Checking".)
-- `use_external_primary` (Boolean) This flag controls whether the zone is using an external primary.
 - `use_import_from` (Boolean) Use flag for: import_from
 - `view` (String) The name of the DNS view in which the zone resides. Example "external".
 - `zone_format` (String) Determines the format of this zone.

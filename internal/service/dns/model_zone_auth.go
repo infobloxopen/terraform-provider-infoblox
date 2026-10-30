@@ -111,7 +111,6 @@ type NIOSZoneAuthModel struct {
 	Srgs                             types.List                          `tfsdk:"srgs"`
 	UpdateForwarding                 types.List                          `tfsdk:"update_forwarding"`
 	UseCheckNamesPolicy              types.Bool                          `tfsdk:"use_check_names_policy"`
-	UseExternalPrimary               types.Bool                          `tfsdk:"use_external_primary"`
 	UseImportFrom                    types.Bool                          `tfsdk:"use_import_from"`
 	View                             types.String                        `tfsdk:"view"`
 	ZoneFormat                       types.String                        `tfsdk:"zone_format"`
@@ -182,7 +181,6 @@ var NIOSZoneAuthAttrTypes = map[string]attr.Type{
 	"srgs":                                 types.ListType{ElemType: types.StringType},
 	"update_forwarding":                    types.ListType{ElemType: types.ObjectType{AttrTypes: ZoneAuthUpdateForwardingAttrTypes}},
 	"use_check_names_policy":               types.BoolType,
-	"use_external_primary":                 types.BoolType,
 	"use_import_from":                      types.BoolType,
 	"view":                                 types.StringType,
 	"zone_format":                          types.StringType,
@@ -693,8 +691,16 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The serial number in the SOA record incrementally changes every time the record is modified. The Infoblox appliance allows you to change the serial number (in the SOA record) for the primary server so it is higher than the secondary server, thereby ensuring zone transfers come from the primary server (as they should). To change the serial number you need to set a new value at \"soa_serial_number\" and pass \"set_soa_serial_number\" as True.",
 	},
 	"soa_default_ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+			),
+		},
 		MarkdownDescription: "The Time to Live (TTL) value of the SOA record of this zone. This value is the number of seconds that data is cached.",
 	},
 	"soa_email": schema.StringAttribute{
@@ -707,23 +713,55 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The SOA email value for this zone. This value can be in unicode format.",
 	},
 	"soa_expire": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+			),
+		},
 		MarkdownDescription: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
 	},
 	"soa_negative_ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+			),
+		},
 		MarkdownDescription: "The negative Time to Live (TTL) value of the SOA of the zone indicates how long a secondary server can cache data for \"Does Not Respond\" responses.",
 	},
 	"soa_refresh": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_retry"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+			),
+		},
 		MarkdownDescription: "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not.",
 	},
 	"soa_retry": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		Validators: []validator.Int64{
+			int64validator.AlsoRequires(
+				path.MatchRelative().AtParent().AtName("soa_default_ttl"),
+				path.MatchRelative().AtParent().AtName("soa_expire"),
+				path.MatchRelative().AtParent().AtName("soa_refresh"),
+				path.MatchRelative().AtParent().AtName("soa_negative_ttl"),
+			),
+		},
 		MarkdownDescription: "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs.",
 	},
 	"soa_serial_number": schema.Int64Attribute{
@@ -758,12 +796,6 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Computed:            true,
 		Default:             booldefault.StaticBool(false),
 		MarkdownDescription: "Apply policy to dynamic updates and inbound zone transfers (This value applies only if the host name restriction policy is set to \"Strict Hostname Checking\".)",
-	},
-	"use_external_primary": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
-		MarkdownDescription: "This flag controls whether the zone is using an external primary.",
 	},
 	"use_import_from": schema.BoolAttribute{
 		Optional:            true,
@@ -1054,7 +1086,6 @@ func (m *NIOSZoneAuthModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		Srgs:                             flex.ExpandFrameworkListString(ctx, m.Srgs, diags),
 		UpdateForwarding:                 flex.ExpandFrameworkListNestedBlock(ctx, m.UpdateForwarding, diags, ExpandZoneAuthUpdateForwarding),
 		UseCheckNamesPolicy:              flex.ExpandBoolPointer(m.UseCheckNamesPolicy),
-		UseExternalPrimary:               flex.ExpandBoolPointer(m.UseExternalPrimary),
 		UseImportFrom:                    flex.ExpandBoolPointer(m.UseImportFrom),
 		View:                             flex.ExpandStringPointerNullAsEmpty(m.View),
 	}
@@ -1084,6 +1115,7 @@ func ApplyZoneAuthNIOSUseFlags(ctx context.Context, config tfsdk.Config, obj *co
 	obj.NIOS.UseDdnsRestrictProtected = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_restrict_protected"))
 	obj.NIOS.UseDdnsRestrictStatic = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("ddns_restrict_static"))
 	obj.NIOS.UseDnssecKeyParams = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("dnssec_key_params"))
+	obj.NIOS.UseExternalPrimary = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("external_primaries"))
 	obj.NIOS.UseGridZoneTimer = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("soa_default_ttl"), path.Root("nios").AtName("soa_expire"), path.Root("nios").AtName("soa_negative_ttl"), path.Root("nios").AtName("soa_refresh"), path.Root("nios").AtName("soa_retry"))
 	obj.NIOS.UseNotifyDelay = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("notify_delay"))
 	obj.NIOS.UseRecordNamePolicy = flex.DeriveUseFlag(ctx, config, diags, path.Root("nios").AtName("record_name_policy"))
@@ -1225,7 +1257,6 @@ func (m *NIOSZoneAuthModel) Flatten(ctx context.Context, from *coremodel.NIOSZon
 	m.Srgs = flex.FlattenFrameworkListString(ctx, from.Srgs, diags)
 	m.UpdateForwarding = flex.FlattenFrameworkListNestedBlock(ctx, from.UpdateForwarding, ZoneAuthUpdateForwardingAttrTypes, diags, FlattenZoneAuthUpdateForwarding)
 	m.UseCheckNamesPolicy = flex.FlattenBoolPointer(from.UseCheckNamesPolicy)
-	m.UseExternalPrimary = flex.FlattenBoolPointer(from.UseExternalPrimary)
 	m.UseImportFrom = flex.FlattenBoolPointer(from.UseImportFrom)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 	m.ZoneFormat = flex.FlattenStringPointerEmptyAsNull(from.ZoneFormat)
