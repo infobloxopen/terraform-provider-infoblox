@@ -105,6 +105,18 @@ case "metadata" {
     }
   }
 
+  # NPA-3330: removing metadata from config must not cause "inconsistent result after apply"
+  step {
+    uddi {
+      name = "{{random}}"
+    }
+    check = {
+      "uddi.metadata.key1" = "value1"
+      "uddi.metadata.key2" = "value2changed"
+      "uddi.metadata.key3" = "value3"
+    }
+  }
+
 }
 
 case "tags" {
