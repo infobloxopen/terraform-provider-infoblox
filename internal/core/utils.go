@@ -42,6 +42,9 @@ func ParseEAValue(valStr string) any {
 	return valStr
 }
 
+// InheritedEA marks a stringified EA value that NIOS reports as inherited from a parent object.
+type InheritedEA string
+
 // StringifyEAValue converts an EA value to string for TF state.
 // Arrays are converted to JSON format (double quotes).
 func StringifyEAValue(val any) string {
