@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 )
 
 // TerraformInternalID is the extensible attribute key used to store TF generated UUID
@@ -67,7 +68,7 @@ func MergeEAs(planExtAttrs, stateExtAttrsAll types.Map) types.Map {
 }
 
 // FlattenEAs splits API response ext_attrs (already stringified) into:
-// - ext_attrs: user-defined values (what user specified in plan)
+// - ext_attrs: EAs set on the object, plus inherited ones the user specified in plan
 // - ext_attrs_all: TF Internal ID + inherited (computed, read-only)
 func FlattenEAs(
 	planExtAttrs types.Map,
@@ -88,7 +89,14 @@ func FlattenEAs(
 	computedEAs := make(map[string]attr.Value)
 
 	for key, val := range respExtAttrs {
-		strVal, _ := val.(string) // val will already be stringified(core is handling it)
+		var strVal string
+		inherited := false
+		switch v := val.(type) {
+		case core.InheritedEA:
+			strVal, inherited = string(v), true
+		case string:
+			strVal = v
+		}
 		attrVal := types.StringValue(strVal)
 
 		// TF Internal ID always goes to ext_attrs_all
@@ -97,9 +105,8 @@ func FlattenEAs(
 			continue
 		}
 
-		// If user specified this EA in plan, it goes to ext_attrs
-		// Otherwise it's inherited(not overridden) and goes to ext_attrs_all
-		if planKeys[key] {
+		// EAs set on the object go to ext_attrs, inherited EAs go there only when the user manages them.
+		if planKeys[key] || !inherited {
 			userEAs[key] = attrVal
 		} else {
 			computedEAs[key] = attrVal
