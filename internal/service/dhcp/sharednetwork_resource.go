@@ -16,6 +16,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -26,6 +27,7 @@ var (
 	_ resource.ResourceWithConfigure      = &SharednetworkResource{}
 	_ resource.ResourceWithImportState    = &SharednetworkResource{}
 	_ resource.ResourceWithIdentity       = &SharednetworkResource{}
+	_ resource.ResourceWithMoveState      = &SharednetworkResource{}
 )
 
 func NewSharednetworkResource() resource.Resource {
@@ -474,5 +476,11 @@ func (r *SharednetworkResource) ImportState(ctx context.Context, req resource.Im
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+func (r *SharednetworkResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.V2Resource{Type: "infoblox_ipv4_shared_network", EmptyOptions: true}.Mover(),
 	}
 }

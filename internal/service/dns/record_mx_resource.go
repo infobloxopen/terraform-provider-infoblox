@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordMxResource{}
 	_ resource.ResourceWithImportState    = &RecordMxResource{}
 	_ resource.ResourceWithIdentity       = &RecordMxResource{}
+	_ resource.ResourceWithMoveState      = &RecordMxResource{}
 )
 
 func NewRecordMxResource() resource.Resource {
@@ -476,5 +478,11 @@ func (r *RecordMxResource) ImportState(ctx context.Context, req resource.ImportS
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+func (r *RecordMxResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.V2Resource{Type: "infoblox_mx_record"}.Mover(),
 	}
 }
