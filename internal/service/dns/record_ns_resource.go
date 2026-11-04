@@ -277,7 +277,6 @@ func (r *RecordNsResource) ImportState(ctx context.Context, req resource.ImportS
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
 
-// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *RecordNsResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
 		migration.V2Resource{Type: "infoblox_ns_record"}.Mover(),

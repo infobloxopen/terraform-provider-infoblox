@@ -481,7 +481,6 @@ func (r *ViewResource) ImportState(ctx context.Context, req resource.ImportState
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *ViewResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
 		migration.V2Resource{Type: "infoblox_dns_view"}.Mover(),

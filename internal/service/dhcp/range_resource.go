@@ -481,7 +481,6 @@ func (r *RangeResource) ImportState(ctx context.Context, req resource.ImportStat
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *RangeResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
 		migration.V2Resource{Type: "infoblox_ipv4_range", EmptyOptions: true}.Mover(),

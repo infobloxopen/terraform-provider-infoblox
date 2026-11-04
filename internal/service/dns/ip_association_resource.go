@@ -332,7 +332,6 @@ func internalIDOf(host *coremodel.RecordHost) (string, bool) {
 	return s, ok && s != ""
 }
 
-// UpgradeState handles v2 state: the type keeps its name in v3, so Terraform never calls MoveState.
 func (r *IPAssociationResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
 		0: migration.V2Resource{Type: "infoblox_ip_association"}.Upgrader(),

@@ -479,7 +479,6 @@ func (r *RangetemplateResource) ImportState(ctx context.Context, req resource.Im
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *RangetemplateResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
 		migration.V2Resource{Type: "infoblox_ipv4_range_template"}.Mover(),

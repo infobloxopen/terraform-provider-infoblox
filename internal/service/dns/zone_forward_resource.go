@@ -466,8 +466,6 @@ func (r *ZoneForwardResource) ImportState(ctx context.Context, req resource.Impo
 	}
 }
 
-// UpgradeState handles v2 state: the type kept its name in v3, so Terraform
-// calls UpgradeState (schema version 0 -> 1) and never MoveState.
 func (r *ZoneForwardResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
 		0: migration.V2Resource{Type: "infoblox_zone_forward"}.Upgrader(),

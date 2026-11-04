@@ -499,7 +499,6 @@ func (r *NetworkResource) ImportState(ctx context.Context, req resource.ImportSt
 	}
 }
 
-// MoveState handles `moved` blocks from the renamed v2 type.
 func (r *NetworkResource) MoveState(_ context.Context) []resource.StateMover {
 	return []resource.StateMover{
 		migration.V2Resource{Type: "infoblox_ipv4_network", Defaults: map[string]any{"restart_if_needed": false}, EmptyOptions: true}.Mover(),
