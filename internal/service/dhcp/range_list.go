@@ -115,11 +115,12 @@ func (l *RangeList) List(ctx context.Context, req list.ListRequest, stream *list
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:       flex.ExpandMapString(ctx, data.Filters, &diags),
-		ExtAttrFilter: flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
-		TagFilter:     flex.ExpandMapString(ctx, data.TagFilters, &diags),
-		ReturnFields:  RangeReturnFields,
-		Paging:        1,
+		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		InternalFilters: map[string]string{"protocol": "ip4"},
+		ExtAttrFilter:   flex.ExpandMapString(ctx, data.ExtAttrFilters, &diags),
+		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
+		ReturnFields:    RangeReturnFields,
+		Paging:          1,
 	}
 	if diags.HasError() {
 		stream.Results = list.ListResultsStreamDiagnostics(diags)
