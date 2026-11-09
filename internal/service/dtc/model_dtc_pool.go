@@ -262,6 +262,7 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"quorum": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "For availability mode QUORUM, at least this many monitors must report the resource as up for it to be available",
 	},
 	"servers": schema.ListNestedAttribute{
