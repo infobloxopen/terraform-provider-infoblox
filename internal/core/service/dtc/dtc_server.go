@@ -371,6 +371,10 @@ func mapNIOSDtcServerToResponse(r *niosdtc.DtcServer) *dtc.DtcServer {
 	if r.ExtAttrs != nil {
 		attrs := make(map[string]any, len(*r.ExtAttrs))
 		for k, v := range *r.ExtAttrs {
+			if _, ok := v.AdditionalProperties["inheritance_source"]; ok {
+				attrs[k] = core.InheritedEA(core.StringifyEAValue(v.Value))
+				continue
+			}
 			attrs[k] = core.StringifyEAValue(v.Value)
 		}
 		resp.NIOS.ExtAttrs = attrs
