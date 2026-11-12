@@ -16,6 +16,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -26,6 +27,7 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordHostResource{}
 	_ resource.ResourceWithImportState    = &RecordHostResource{}
 	_ resource.ResourceWithIdentity       = &RecordHostResource{}
+	_ resource.ResourceWithMoveState      = &RecordHostResource{}
 )
 
 func NewRecordHostResource() resource.Resource {
@@ -486,5 +488,11 @@ func (r *RecordHostResource) ImportState(ctx context.Context, req resource.Impor
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+func (r *RecordHostResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.V2Resource{Type: "infoblox_ip_allocation", Defaults: map[string]any{"view": "default"}, FromV2: map[string]string{"name": "fqdn", "view": "dns_view"}}.Mover(),
 	}
 }

@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &ZoneForwardResource{}
 	_ resource.ResourceWithImportState    = &ZoneForwardResource{}
 	_ resource.ResourceWithIdentity       = &ZoneForwardResource{}
+	_ resource.ResourceWithUpgradeState   = &ZoneForwardResource{}
 )
 
 func NewZoneForwardResource() resource.Resource {
@@ -55,6 +57,8 @@ func (r *ZoneForwardResource) IdentitySchema(_ context.Context, _ resource.Ident
 
 func (r *ZoneForwardResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		// Version 1: v2 state (version 0) goes through UpgradeState.
+		Version:             1,
 		MarkdownDescription: "Manages an Infoblox ZoneForward in both NIOS and UDDI backends.",
 		Attributes:          ZoneForwardResourceSchemaAttributes,
 	}
@@ -459,5 +463,11 @@ func (r *ZoneForwardResource) ImportState(ctx context.Context, req resource.Impo
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+func (r *ZoneForwardResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: migration.V2Resource{Type: "infoblox_zone_forward"}.Upgrader(),
 	}
 }
