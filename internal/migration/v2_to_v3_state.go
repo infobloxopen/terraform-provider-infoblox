@@ -32,7 +32,13 @@ type V2Resource struct {
 	EmptyOptions bool
 }
 
-const ipAssociationType = "infoblox_ip_association"
+const (
+	ipAllocationType  = "infoblox_ip_allocation"
+	ipAssociationType = "infoblox_ip_association"
+
+	// A newer v2 stores both `ref` and `internal_id` on apply.
+	upgradeV2Hint = "Upgrade to v2.6.0 or later, run `terraform apply` to store the missing values, then migrate again."
+)
 
 // Mover handles `moved` blocks from a renamed v2 type, e.g. infoblox_a_record -> infoblox_record_a.
 func (r V2Resource) Mover() resource.StateMover {
@@ -47,7 +53,8 @@ func (r V2Resource) Upgrader() resource.StateUpgrader {
 
 func (r V2Resource) move(ctx context.Context, req resource.MoveStateRequest, resp *resource.MoveStateResponse) {
 	// Returning without a state lets Terraform report the unsupported source.
-	if req.SourceTypeName != r.Type || !strings.HasSuffix(req.SourceProviderAddress, "infobloxopen/infoblox") {
+	// The address is <host>/<namespace>/<type>; any host, so private registry mirrors work too.
+	if req.SourceTypeName != r.Type || !strings.HasSuffix(req.SourceProviderAddress, "/infobloxopen/infoblox") {
 		return
 	}
 	ref := r.convert(ctx, req.SourceRawState.JSON, &resp.TargetState, &resp.Diagnostics)
@@ -88,23 +95,39 @@ func (r V2Resource) convert(ctx context.Context, raw []byte, state *tfsdk.State,
 		return r.convertAssociation(ctx, v2, state, diags)
 	}
 
+	nios := path.Root("nios")
+
+	// v3 Read finds the object through this EA. Checked before the ref, because state from
+	// Legacy Infoblox Provider versions before v2.6.0 has neither. record_ns has no EAs.
+	hasEAs := hasAttr(ctx, state, nios.AtName("ext_attrs_all"))
+	internalID := stringAttr(v2, "internal_id")
+	if hasEAs && internalID == "" {
+		diags.AddError("Missing Internal ID", fmt.Sprintf(
+			"%s state has no internal_id, so it was written by a Legacy Infoblox Provider (v2.x.x) "+
+				"older than v2.6.0 and cannot be migrated. %s", r.Type, upgradeV2Hint))
+		return ""
+	}
+
 	// Every v2 resource keeps the NIOS ref in `ref`. Its `id` is the same ref, except for
-	// ip_allocation, whose `id` is the Terraform Internal ID.
+	// ip_allocation: v2.1.0 stores "<internal ID><separator><ref>", later versions the Internal ID.
 	ref := stringAttr(v2, "ref")
-	if ref == "" {
+	if ref == "" && r.Type != ipAllocationType {
 		ref = stringAttr(v2, "id")
 	}
 	if ref == "" {
-		diags.AddError("Unable to Convert State", r.Type+" state has no object reference.")
+		diags.AddError("Unable to Convert State", fmt.Sprintf(
+			"%s state has no object reference (ref). %s", r.Type, upgradeV2Hint))
 		return ""
 	}
 
 	set := func(p path.Path, v any) { diags.Append(state.SetAttribute(ctx, p, v)...) }
-	nios := path.Root("nios")
 
 	set(path.Root("id"), ref)
+	// Skip attributes the target schema no longer has, like the writes below.
 	for name, v := range r.Defaults {
-		set(nios.AtName(name), v)
+		if hasAttr(ctx, state, nios.AtName(name)) {
+			set(nios.AtName(name), v)
+		}
 	}
 	// Only v2 zone_auth has it; a v2 `true` would otherwise show as a change.
 	if b, ok := boolAttr(v2, "restart_if_needed"); ok && hasAttr(ctx, state, nios.AtName("restart_if_needed")) {
@@ -112,7 +135,7 @@ func (r V2Resource) convert(ctx context.Context, raw []byte, state *tfsdk.State,
 	}
 	for v3Name, v2Name := range r.FromV2 {
 		var v any
-		if json.Unmarshal(v2[v2Name], &v) != nil {
+		if !hasAttr(ctx, state, nios.AtName(v3Name)) || json.Unmarshal(v2[v2Name], &v) != nil {
 			continue
 		}
 		switch v := v.(type) {
@@ -132,18 +155,10 @@ func (r V2Resource) convert(ctx context.Context, raw []byte, state *tfsdk.State,
 		}
 	}
 
-	if !hasAttr(ctx, state, nios.AtName("ext_attrs_all")) {
+	if !hasEAs {
 		return ref
 	}
-
-	// v3 Read finds the object through this EA and fails without ext_attrs_all.
-	eaAll := map[string]string{}
-	if id := stringAttr(v2, "internal_id"); id != "" {
-		eaAll[flex.TerraformInternalID] = id
-	} else {
-		diags.AddWarning("Missing Internal ID", r.Type+" has no internal_id; v3 cannot find it again if its ref changes.")
-	}
-	set(nios.AtName("ext_attrs_all"), eaAll)
+	set(nios.AtName("ext_attrs_all"), map[string]string{flex.TerraformInternalID: internalID})
 
 	// v2 state keeps only the EAs set in config, so they carry over as configured EAs.
 	eas, err := parseEAs(stringAttr(v2, "ext_attrs"))
@@ -163,7 +178,8 @@ func (r V2Resource) convert(ctx context.Context, raw []byte, state *tfsdk.State,
 func (r V2Resource) convertAssociation(ctx context.Context, v2 map[string]json.RawMessage, state *tfsdk.State, diags *diag.Diagnostics) string {
 	ref := stringAttr(v2, "ref")
 	if ref == "" {
-		diags.AddError("Unable to Convert State", r.Type+" state has no host record reference.")
+		diags.AddError("Unable to Convert State", fmt.Sprintf(
+			"%s state has no host record reference (ref). %s", r.Type, upgradeV2Hint))
 		return ""
 	}
 	dhcp, _ := boolAttr(v2, "enable_dhcp")
