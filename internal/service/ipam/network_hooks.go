@@ -2,6 +2,7 @@ package ipam
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -202,4 +203,44 @@ func (r *NetworkResource) isNetworkConvertedToContainer(ctx context.Context, dat
 		},
 	})
 	return err == nil && len(records) > 0
+}
+
+// deleteNetworkByInternalID runs when deleting by the stored ref returned 404. NIOS
+// converts a network into a network container when a subnet is created inside it
+// (for example the /24 destroy and a new /28 create running in parallel), which
+// leaves the ref stale. Find that container by the network's Terraform Internal ID
+// and delete it with remove_subnets=false, so the new subnet is kept.
+func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *resource.DeleteResponse, data *NetworkModel) {
+	if r.backend != core.BackendNIOS || r.containerService == nil {
+		return
+	}
+
+	nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
+		return
+	}
+	internalID, ok := nios.ExtAttrsAll.Elements()[flex.TerraformInternalID]
+	if !ok {
+		return
+	}
+
+	records, _, _, err := r.containerService.List(ctx, &core.ListOptions{
+		Filters: map[string]string{
+			"nios.network":      nios.Network.ValueString(),
+			"nios.network_view": nios.NetworkView.ValueString(),
+		},
+		ExtAttrFilter: map[string]string{flex.TerraformInternalID: internalID.(types.String).ValueString()},
+	})
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search for a network container converted from Network by internal ID: %s", err))
+		return
+	}
+	if len(records) == 0 || records[0].Id == nil {
+		// The network really is gone and the 404 was the truth.
+		return
+	}
+
+	if _, err := r.containerService.DeleteRetainSubnets(ctx, *records[0].Id); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete network container converted from Network: %s", err))
+	}
 }

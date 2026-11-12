@@ -465,6 +465,7 @@ func (r *Ipv6networkResource) Delete(ctx context.Context, req resource.DeleteReq
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			r.deleteIpv6networkByInternalID(ctx, resp, &data)
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Ipv6network: %s", err))
