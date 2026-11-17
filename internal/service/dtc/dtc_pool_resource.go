@@ -342,17 +342,29 @@ func (r *DtcPoolResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	var planExtAttrs types.Map
 
-	// Merge ext_attrs with state ext_attrs_all (inherited + TF ID)
+	// Merge ext_attrs with current ext_attrs_all from NIOS (inherited + TF ID)
 	if r.backend == core.BackendNIOS {
-		var stateNIOSObj types.Object
-		diags = req.State.GetAttribute(ctx, path.Root("nios"), &stateNIOSObj)
-		if diags.HasError() {
-			resp.Diagnostics.Append(diags...)
+		// Inherited EAs in state can be stale, sending them makes NIOS store them as overrides.
+		var currentResp *coremodel.DtcPool
+		err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+			var (
+				httpResp *http.Response
+				apiErr   error
+			)
+			currentResp, httpResp, apiErr = r.service.Read(ctx, data.Id.ValueString(), &core.Options{
+				ReturnFields: "extattrs",
+			})
+			if httpResp != nil {
+				return httpResp.StatusCode, apiErr
+			}
+			return 0, apiErr
+		})
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read DtcPool extensible attributes before update: %s", err))
 			return
 		}
 
 		planNIOS := flex.ExpandNestedObject[NIOSDtcPoolModel](ctx, data.NIOS, &resp.Diagnostics)
-		stateNIOS := flex.ExpandNestedObject[NIOSDtcPoolModel](ctx, stateNIOSObj, &resp.Diagnostics)
 		if planNIOS == nil {
 			planNIOS = &NIOSDtcPoolModel{}
 		}
@@ -368,9 +380,9 @@ func (r *DtcPoolResource) Update(ctx context.Context, req resource.UpdateRequest
 			}
 		}
 
-		// Merge with state ext_attrs_all (inherited EAs)
-		if stateNIOS != nil {
-			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, stateNIOS.ExtAttrsAll)
+		if currentResp != nil && currentResp.NIOS != nil {
+			_, currentExtAttrsAll := flex.FlattenEAs(planExtAttrs, currentResp.NIOS.ExtAttrs)
+			planNIOS.ExtAttrs = flex.MergeEAs(planNIOS.ExtAttrs, currentExtAttrsAll)
 		}
 		data.NIOS = flex.FlattenNestedObject(ctx, planNIOS, NIOSDtcPoolAttrTypes, &resp.Diagnostics)
 	}

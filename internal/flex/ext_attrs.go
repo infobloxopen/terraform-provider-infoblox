@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -78,10 +81,12 @@ func FlattenEAs(
 		return types.MapNull(types.StringType), types.MapNull(types.StringType)
 	}
 
-	planKeys := make(map[string]bool)
+	planVals := make(map[string]string)
 	if !planExtAttrs.IsNull() && !planExtAttrs.IsUnknown() {
-		for k := range planExtAttrs.Elements() {
-			planKeys[k] = true
+		for k, v := range planExtAttrs.Elements() {
+			if s, ok := v.(types.String); ok {
+				planVals[k] = s.ValueString()
+			}
 		}
 	}
 
@@ -97,6 +102,15 @@ func FlattenEAs(
 		case string:
 			strVal = v
 		}
+		planVal, inPlan := planVals[key]
+		// INTEGER EAs come back normalized (e.g. "02" -> "2"); keep the configured form.
+		if inPlan && isSameInteger(planVal, strVal) {
+			strVal = planVal
+		}
+		// Lists come back as compact JSON; keep the configured form (quotes, spaces) when the items match.
+		if inPlan && strings.HasPrefix(strVal, "[") && reflect.DeepEqual(core.ParseEAValue(planVal), core.ParseEAValue(strVal)) {
+			strVal = planVal
+		}
 		attrVal := types.StringValue(strVal)
 
 		// TF Internal ID always goes to ext_attrs_all
@@ -106,7 +120,7 @@ func FlattenEAs(
 		}
 
 		// EAs set on the object go to ext_attrs, inherited EAs go there only when the user manages them.
-		if planKeys[key] || !inherited {
+		if inPlan || !inherited {
 			userEAs[key] = attrVal
 		} else {
 			computedEAs[key] = attrVal
@@ -126,4 +140,14 @@ func FlattenEAs(
 	}
 
 	return extAttrs, extAttrsAll
+}
+
+// isSameInteger reports whether two strings hold the same integer, e.g. "02" and "2".
+func isSameInteger(a, b string) bool {
+	x, err := strconv.ParseInt(a, 10, 64)
+	if err != nil {
+		return false
+	}
+	y, err := strconv.ParseInt(b, 10, 64)
+	return err == nil && x == y
 }

@@ -26,8 +26,7 @@ func ExtractNIOSRef(ref string) string {
 }
 
 // ParseEAValue parses a string value that may represent a JSON array.
-// Returns parsed []any if valid JSON array, otherwise returns original string.
-// TODO: handle single-quoted arrays if needed.
+// Returns parsed []any if valid JSON array (double or single quoted), otherwise returns original string.
 func ParseEAValue(valStr string) any {
 	trimmed := strings.TrimSpace(valStr)
 	if !strings.HasPrefix(trimmed, "[") || !strings.HasSuffix(trimmed, "]") {
@@ -35,7 +34,11 @@ func ParseEAValue(valStr string) any {
 	}
 
 	var parsed []any
-	if err := json.Unmarshal([]byte(trimmed), &parsed); err == nil {
+	err := json.Unmarshal([]byte(trimmed), &parsed)
+	if err != nil && strings.Contains(trimmed, "'") {
+		err = json.Unmarshal([]byte(strings.ReplaceAll(trimmed, "'", "\"")), &parsed)
+	}
+	if err == nil {
 		return parsed
 	}
 
