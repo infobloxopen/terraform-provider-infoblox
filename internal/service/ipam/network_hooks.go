@@ -3,6 +3,7 @@ package ipam
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -240,7 +241,7 @@ func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *r
 		return
 	}
 
-	if _, err := r.containerService.DeleteRetainSubnets(ctx, *records[0].Id); err != nil {
+	if httpResp, err := r.containerService.DeleteRetainSubnets(ctx, *records[0].Id); err != nil && (httpResp == nil || httpResp.StatusCode != http.StatusNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete network container converted from Network: %s", err))
 	}
 }
