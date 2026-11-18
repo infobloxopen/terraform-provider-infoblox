@@ -189,6 +189,7 @@ All BloxOne Provider objects map to UDDI. BloxOne data source names are plural, 
 | `bloxone_dns_server`                         | `infoblox_dns_server`                                                                   |
 | `bloxone_dns_view`                           | `infoblox_view`                                                                         |
 | `bloxone_federation_federated_realm`         | `infoblox_federated_realm`                                                              |
+| `bloxone_federation_forward_looking_delegation` | `infoblox_forward_looking_delegation`                                                |
 | `bloxone_infra_host`                         | `infoblox_infra_host`                                                                   |
 | `bloxone_infra_join_token`                   | `infoblox_join_token`                                                                   |
 | `bloxone_infra_service`                      | `infoblox_infra_service`                                                                |

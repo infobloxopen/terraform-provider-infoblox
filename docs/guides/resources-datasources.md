@@ -180,6 +180,7 @@ Every object that has a data source also has a list resource of the same name, f
 | Name                       | Resource Description     | Data Source Description                               | Supported Backends |
 |----------------------------|--------------------------|-------------------------------------------------------|--------------------|
 | `infoblox_federated_realm` | Manages Federated Realms | Retrieves information about existing Federated Realms | UDDI               |
+| `infoblox_forward_looking_delegation` | Manages Forward Looking Delegations | Retrieves information about existing Forward Looking Delegations | UDDI |
 
 ### KEYS
 
