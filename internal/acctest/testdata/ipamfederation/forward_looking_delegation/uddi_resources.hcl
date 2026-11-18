@@ -20,6 +20,7 @@ case "basic" {
       "uddi.cidr"               = "16"
       "uddi.federated_realms.#" = "1"
       "uddi.comment"            = ""
+      "uddi.protocol"           = "ip4"
     }
     check_pair = {
       "uddi.federated_realms.0" = infoblox_federated_realm.test.id

@@ -16,7 +16,7 @@ case "filters" {
     }
   }
 
-  pair_checks = ["uddi.address", "uddi.cidr", "uddi.comment", "uddi.name", "uddi.federated_pool_id"]
+  pair_checks = ["uddi.address", "uddi.cidr", "uddi.comment", "uddi.name", "uddi.protocol", "uddi.network_compliant"]
 
   step {
     uddi {

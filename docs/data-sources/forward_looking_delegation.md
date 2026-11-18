@@ -68,5 +68,7 @@ Read-Only:
 - `federated_pool_id` (String) The resource identifier.
 - `federated_realms` (List of String) The resource identifier.
 - `name` (String) The name of the delegation. May contain 1 to 256 characters. Can include UTF-8.
+- `network_compliant` (Boolean) The compliance status of the forward looking delegation, as determined by the federation service.
+- `protocol` (String) The type of protocol of delegation (_ip4_ or _ip6_).
 - `tags` (Map of String) The tags for the delegation in JSON format.
 - `tags_all` (Map of String) All tags including inherited values.

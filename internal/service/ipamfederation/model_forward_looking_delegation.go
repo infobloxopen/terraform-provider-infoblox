@@ -35,14 +35,16 @@ var ForwardLookingDelegationAttrTypes = map[string]attr.Type{
 }
 
 type UDDIForwardLookingDelegationModel struct {
-	Address         types.String                     `tfsdk:"address"`
-	Cidr            types.Int64                      `tfsdk:"cidr"`
-	Comment         types.String                     `tfsdk:"comment"`
-	FederatedPoolId types.String                     `tfsdk:"federated_pool_id"`
-	FederatedRealms internaltypes.UnorderedListValue `tfsdk:"federated_realms"`
-	Name            types.String                     `tfsdk:"name"`
-	Tags            types.Map                        `tfsdk:"tags"`
-	TagsAll         types.Map                        `tfsdk:"tags_all"`
+	Address          types.String                     `tfsdk:"address"`
+	Cidr             types.Int64                      `tfsdk:"cidr"`
+	Comment          types.String                     `tfsdk:"comment"`
+	FederatedPoolId  types.String                     `tfsdk:"federated_pool_id"`
+	FederatedRealms  internaltypes.UnorderedListValue `tfsdk:"federated_realms"`
+	Name             types.String                     `tfsdk:"name"`
+	NetworkCompliant types.Bool                       `tfsdk:"network_compliant"`
+	Protocol         types.String                     `tfsdk:"protocol"`
+	Tags             types.Map                        `tfsdk:"tags"`
+	TagsAll          types.Map                        `tfsdk:"tags_all"`
 }
 
 var UDDIForwardLookingDelegationAttrTypes = map[string]attr.Type{
@@ -52,6 +54,8 @@ var UDDIForwardLookingDelegationAttrTypes = map[string]attr.Type{
 	"federated_pool_id": types.StringType,
 	"federated_realms":  internaltypes.UnorderedListOfStringType,
 	"name":              types.StringType,
+	"network_compliant": types.BoolType,
+	"protocol":          types.StringType,
 	"tags":              types.MapType{ElemType: types.StringType},
 	"tags_all":          types.MapType{ElemType: types.StringType},
 }
@@ -121,6 +125,14 @@ var ForwardLookingDelegationResourceUddiSchemaAttributes = map[string]schema.Att
 			stringvalidator.LengthBetween(1, 256),
 		},
 		MarkdownDescription: "The name of the delegation. May contain 1 to 256 characters. Can include UTF-8.",
+	},
+	"network_compliant": schema.BoolAttribute{
+		Computed:            true,
+		MarkdownDescription: "The compliance status of the forward looking delegation, as determined by the federation service.",
+	},
+	"protocol": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "The type of protocol of delegation (_ip4_ or _ip6_).",
 	},
 	"tags": schema.MapAttribute{
 		Optional:    true,
@@ -204,6 +216,8 @@ func (m *UDDIForwardLookingDelegationModel) Flatten(ctx context.Context, from *c
 	m.FederatedPoolId = flex.FlattenStringPointer(from.FederatedPoolId)
 	m.FederatedRealms = flex.FlattenFrameworkUnorderedListString(ctx, from.FederatedRealms, diags)
 	m.Name = flex.FlattenStringPointerEmptyAsNull(from.Name)
+	m.NetworkCompliant = flex.FlattenBoolPointer(from.NetworkCompliant)
+	m.Protocol = flex.FlattenStringPointer(from.Protocol)
 	tagsAll := flex.FlattenMapStringAny(ctx, from.Tags, diags)
 	if m.Tags.IsNull() || m.Tags.IsUnknown() {
 		m.Tags = tagsAll

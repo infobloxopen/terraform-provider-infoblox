@@ -89,4 +89,6 @@ Optional:
 
 Read-Only:
 
+- `network_compliant` (Boolean) The compliance status of the forward looking delegation, as determined by the federation service.
+- `protocol` (String) The type of protocol of delegation (_ip4_ or _ip6_).
 - `tags_all` (Map of String) All tags including inherited values.

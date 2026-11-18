@@ -199,12 +199,14 @@ func mapUDDIForwardLookingDelegationToResponse(r *uddiipamfederation.ForwardLook
 		Id: r.Id,
 	}
 	resp.UDDI = &ipamfederation.UDDIForwardLookingDelegationExt{
-		Address:         r.Address,
-		Cidr:            r.Cidr,
-		Comment:         r.Comment,
-		FederatedPoolId: r.FederatedPoolId,
-		FederatedRealms: r.FederatedRealms,
-		Name:            r.Name,
+		Address:          r.Address,
+		Cidr:             r.Cidr,
+		Comment:          r.Comment,
+		FederatedPoolId:  r.FederatedPoolId,
+		FederatedRealms:  r.FederatedRealms,
+		Name:             r.Name,
+		NetworkCompliant: r.NetworkCompliant,
+		Protocol:         r.Protocol,
 	}
 	if r.Tags != nil {
 		tags := make(map[string]any, len(r.Tags))
