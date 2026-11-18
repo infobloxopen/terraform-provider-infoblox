@@ -101,6 +101,8 @@ func FlattenEAs(
 			strVal, inherited = string(v), true
 		case string:
 			strVal = v
+		default:
+			strVal = core.StringifyEAValue(v)
 		}
 		planVal, inPlan := planVals[key]
 		// INTEGER EAs come back normalized (e.g. "02" -> "2"); keep the configured form.
