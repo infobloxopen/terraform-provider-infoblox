@@ -91,7 +91,7 @@ Read-Only:
 - `ddns_dns_view` (String) DNS views that will receive the updates if you enable the appliance to send updates to Grid members.
 - `ddns_zone_primaries` (Attributes List) An array of Ddns Zone Primary dhcpddns structs that lists the information of primary zone to wich DDNS updates should be sent. (see [below for nested schema](#nestedatt--results--nios--ddns_zone_primaries))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `federated_realms` (Attributes List) This field contains the federated realms associated to this network view (see [below for nested schema](#nestedatt--results--nios--federated_realms))
 - `internal_forward_zones` (List of String) The list of linked authoritative DNS zones.
 - `mgm_private` (Boolean) This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.

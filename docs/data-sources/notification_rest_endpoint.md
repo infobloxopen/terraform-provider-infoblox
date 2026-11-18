@@ -66,7 +66,7 @@ Read-Only:
 - `client_certificate_token` (String) The token returned by the uploadinit function call in object fileop for a notification REST endpoit client certificate.
 - `comment` (String) The comment of a notification REST endpoint.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `log_level` (String) The log level for a notification REST endpoint.
 - `name` (String) The name of a notification REST endpoint.
 - `outbound_member_type` (String) The outbound member which will generate an event.

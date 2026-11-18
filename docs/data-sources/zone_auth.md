@@ -117,7 +117,7 @@ Read-Only:
 - `dnssec_keys` (Attributes List) A list of DNSSEC keys for the zone. (see [below for nested schema](#nestedatt--results--nios--dnssec_keys))
 - `effective_check_names_policy` (String) The value of the check names policy, which indicates the action the appliance takes when it encounters host names that do not comply with the Strict Hostname Checking policy. This value applies only if the host name restriction policy is set to "Strict Hostname Checking".
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `external_primaries` (Attributes List) The list of external primary servers. (see [below for nested schema](#nestedatt--results--nios--external_primaries))
 - `external_secondaries` (Attributes List) The list of external secondary servers. (see [below for nested schema](#nestedatt--results--nios--external_secondaries))
 - `fqdn` (String) The name of this DNS zone. For a reverse zone, this is in "address/cidr" format. For other zones, this is in FQDN format. This value can be in unicode format. Note that for a reverse zone, the corresponding zone_format value should be set.

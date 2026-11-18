@@ -66,7 +66,7 @@ Read-Only:
 - `comment` (String) Comment for the zone; maximum 256 characters.
 - `disable` (Boolean) Determines whether a zone is disabled or not. When this is set to False, the zone is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `external_primaries` (Attributes List) The list of external primary servers. (see [below for nested schema](#nestedatt--results--nios--external_primaries))
 - `external_secondaries` (Attributes List) The list of external secondary servers. (see [below for nested schema](#nestedatt--results--nios--external_secondaries))
 - `fireeye_rule_mapping` (Attributes) (see [below for nested schema](#nestedatt--results--nios--fireeye_rule_mapping))

@@ -92,7 +92,7 @@ Read-Only:
 - `consolidated_monitors` (Attributes List) List of monitors and associated members statuses of which are shared across members and consolidated in server availability determination. (see [below for nested schema](#nestedatt--results--nios--consolidated_monitors))
 - `disable` (Boolean) Determines whether the DTC Pool is disabled or not. When this is set to False, the fixed address is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `lb_alternate_method` (String) The alternate load balancing method. Use this to select a method type from the pool if the preferred method does not return any results.
 - `lb_alternate_topology` (String) The alternate topology for load balancing.
 - `lb_dynamic_ratio_alternate` (Attributes) The DTC Pool settings for dynamic ratio when its selected as alternate method. (see [below for nested schema](#nestedatt--results--nios--lb_dynamic_ratio_alternate))

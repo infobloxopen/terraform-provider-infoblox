@@ -245,7 +245,7 @@ func mapNIOSRirOrganizationToResponse(r *niosrir.RirOrganization) *rir.RirOrgani
 	if r.ExtAttrs != nil {
 		attrs := make(map[string]any, len(*r.ExtAttrs))
 		for k, v := range *r.ExtAttrs {
-			if _, ok := v.AdditionalProperties["inheritance_source"]; ok {
+			if v.AdditionalProperties["inheritance_source"] != nil {
 				attrs[k] = core.InheritedEA(core.StringifyEAValue(v.Value))
 				continue
 			}

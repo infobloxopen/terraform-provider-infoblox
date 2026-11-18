@@ -102,7 +102,7 @@ Read-Only:
 - `dynamic_allocation` (Attributes) Dynamically allocate the ip using the NIOS next_available_ip function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
 - `enable_immediate_discovery` (Boolean) Determines if the discovery for the IPv6 fixed address should be immediately enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `ipv6addr` (String) The IPv6 Address of the DHCP IPv6 fixed address.
 - `ipv6prefix` (String) The IPv6 Address prefix of the DHCP IPv6 fixed address.
 - `ipv6prefix_bits` (Number) Prefix bits of the DHCP IPv6 fixed address.

@@ -66,7 +66,7 @@ Read-Only:
 - `comment` (String) The comment for the delegated NS group.
 - `delegate_to` (Attributes List) The list of delegated servers for the delegated NS group. (see [below for nested schema](#nestedatt--results--nios--delegate_to))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `name` (String) The name of the delegated NS group.
 
 <a id="nestedatt--results--nios--delegate_to"></a>

@@ -121,7 +121,7 @@ Read-Only:
 - `enable_fixed_rrset_order_fqdns` (Boolean) Determines if the fixed RRset order FQDN is enabled or not.
 - `enable_match_recursive_only` (Boolean) Determines if the 'match-recursive-only' option in a DNS view is enabled or not.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `filter_aaaa` (String) The type of AAAA filtering for this DNS view object.
 - `filter_aaaa_list` (Attributes List) Applies AAAA filtering to a named ACL, or to a list of IPv4/IPv6 addresses and networks from which queries are received. This field does not allow TSIG keys. (see [below for nested schema](#nestedatt--results--nios--filter_aaaa_list))
 - `fixed_rrset_order_fqdns` (Attributes List) The fixed RRset order FQDN. If this field does not contain an empty value, the appliance will automatically set the enable_fixed_rrset_order_fqdns field to 'true', unless the same request sets the enable field to 'false'. (see [below for nested schema](#nestedatt--results--nios--fixed_rrset_order_fqdns))

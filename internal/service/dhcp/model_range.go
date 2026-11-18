@@ -414,7 +414,7 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,
 		ElementType:         types.StringType,
-		MarkdownDescription: "All ext_attrs including Terraform Internal ID and inherited attributes.",
+		MarkdownDescription: "Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.",
 		PlanModifiers: []planmodifier.Map{
 			importmod.AssociateInternalId(),
 		},

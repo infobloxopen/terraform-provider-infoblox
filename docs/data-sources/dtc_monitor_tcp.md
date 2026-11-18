@@ -88,7 +88,7 @@ Read-Only:
 
 - `comment` (String) Comment for this DTC monitor; maximum 256 characters.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `interval` (Number) The interval for TCP health check.
 - `name` (String) The display name for this DTC monitor.
 - `port` (Number) The port value for TCP requests.
