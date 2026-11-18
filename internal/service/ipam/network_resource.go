@@ -473,6 +473,7 @@ func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest
 	})
 	if err != nil {
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+			r.deleteNetworkByInternalID(ctx, resp, &data)
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Network: %s", err))
