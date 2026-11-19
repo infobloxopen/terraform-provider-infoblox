@@ -409,6 +409,8 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		ipamfederation.NewReservedBlockResource,
+		ipamfederation.NewFederatedBlockResource,
 		dhcp.NewFixedaddresstemplateResource,
 		notification.NewNotificationRuleResource,
 		infra.NewInfraHostResource,
@@ -552,6 +554,8 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		ipamfederation.NewReservedBlockDataSource,
+		ipamfederation.NewFederatedBlockDataSource,
 		dhcp.NewFixedaddresstemplateDataSource,
 		notification.NewNotificationRuleDataSource,
 		infra.NewInfraHostDataSource,
@@ -667,6 +671,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 		ipam.NewVlanrangeDataSource,
 
 		ipamfederation.NewFederatedRealmDataSource,
+		ipamfederation.NewNextAvailableReservedBlockDataSource,
 
 		keys.NewTsigKeyDataSource,
 
@@ -696,6 +701,8 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		ipamfederation.NewReservedBlockList,
+		ipamfederation.NewFederatedBlockList,
 		dhcp.NewFixedaddresstemplateList,
 		notification.NewNotificationRuleList,
 		infra.NewInfraHostList,
