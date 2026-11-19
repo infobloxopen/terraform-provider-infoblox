@@ -411,6 +411,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 	return []func() resource.Resource{
 		ipamfederation.NewReservedBlockResource,
 		ipamfederation.NewFederatedBlockResource,
+		dhcp.NewFixedaddresstemplateResource,
 		notification.NewNotificationRuleResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
@@ -555,6 +556,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 	return []func() datasource.DataSource{
 		ipamfederation.NewReservedBlockDataSource,
 		ipamfederation.NewFederatedBlockDataSource,
+		dhcp.NewFixedaddresstemplateDataSource,
 		notification.NewNotificationRuleDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
@@ -701,6 +703,7 @@ func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListRe
 	return []func() list.ListResource{
 		ipamfederation.NewReservedBlockList,
 		ipamfederation.NewFederatedBlockList,
+		dhcp.NewFixedaddresstemplateList,
 		notification.NewNotificationRuleList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,

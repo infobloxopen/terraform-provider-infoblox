@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -25,6 +26,7 @@ var (
 	_ resource.ResourceWithConfigure      = &FixedaddressResource{}
 	_ resource.ResourceWithImportState    = &FixedaddressResource{}
 	_ resource.ResourceWithIdentity       = &FixedaddressResource{}
+	_ resource.ResourceWithMoveState      = &FixedaddressResource{}
 )
 
 func NewFixedaddressResource() resource.Resource {
@@ -482,5 +484,11 @@ func (r *FixedaddressResource) ImportState(ctx context.Context, req resource.Imp
 		// This triggers the plan modifier to mark ext_attrs_all as unknown,
 		// and the Update method will add the Terraform Internal ID to ext_attrs
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, flex.AssociateInternalIDKey, []byte("true"))...)
+	}
+}
+
+func (r *FixedaddressResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.V2Resource{Type: "infoblox_ipv4_fixed_address"}.Mover(),
 	}
 }
