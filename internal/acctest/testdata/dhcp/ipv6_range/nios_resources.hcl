@@ -471,6 +471,20 @@ case "discovery_member" {
     }
   }
 
+  # Removing discovery_member alone changes nothing. Changing update_trigger forces an update in
+  # which no discovery field is configured, so use_enable_discovery is sent as false and NIOS
+  # clears the member.
+  step {
+    update_trigger = "1"
+    nios {
+      network      = infoblox_ipv6_network.test.nios.network
+      start_addr   = "14::1"
+      end_addr     = "14::10"
+      network_view = infoblox_network_view.test.nios.name
+    }
+    check_absent = ["nios.discovery_member"]
+  }
+
 }
 
 case "enable_discovery" {
