@@ -457,12 +457,17 @@ case "discovery_member" {
     }
   }
 
+  # discovery_member is optional and computed: removing it from the config does not clear it,
+  # so the member set in step 1 is kept.
   step {
     nios {
       network      = infoblox_ipv6_network.test.nios.network
       start_addr   = "14::1"
       end_addr     = "14::10"
       network_view = infoblox_network_view.test.nios.name
+    }
+    check = {
+      "nios.discovery_member" = "{{discovery_member_hostname}}"
     }
   }
 
@@ -474,12 +479,6 @@ case "enable_discovery" {
   skip_if_env_empty = ["NIOS_DISCOVERY_MEMBER_HOSTNAME"]
   skip_reason       = "NIOS_DISCOVERY_MEMBER_HOSTNAME environment variable must be set for this test to run"
   prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_network" "test1" {
-    nios = {
-      network = "14::/64"
-      network_view = infoblox_network_view.test.nios.name
-    }
-  }
   resource "infoblox_ipv6_network" "test2" {
     nios = {
       network = "15::/64"
@@ -1332,10 +1331,6 @@ case "same_port_control_discovery_blackout" {
 
 }
 
-# WARNING: the extractor could not auto-record the following line(s) from
-# the Go helper. Some fields may not be correctly captured — please verify
-# this case manually against the original test before running:
-#   %s
 case "server_association_type" {
   backend  = "nios"
   parallel = true
@@ -1462,46 +1457,6 @@ case "subscribe_settings" {
     }
     check = {
       "nios.subscribe_settings.enabled_attributes.0" = "SECURITY_GROUP"
-    }
-  }
-
-}
-
-case "template" {
-  backend     = "nios"
-  parallel    = true
-  prerequisites_hcl = <<-PREREQ
-  resource "infoblox_ipv6_network" "test" {
-    nios = {
-      network = "14::/64"
-      network_view = infoblox_network_view.test.nios.name
-    }
-  }
-  resource "infoblox_network_view" "test" {
-    nios = {
-      name = "{{random}}"
-    }
-  }
-  resource "infoblox_ipv6_range_template" "test_template" {
-    nios = {
-      name = "{{random2}}"
-      number_of_addresses = 10
-      offset = 1
-      cloud_api_compatible = true
-    }
-  }
-  PREREQ
-
-  step {
-    nios {
-      network      = infoblox_ipv6_network.test.nios.network
-      start_addr   = "14::131"
-      end_addr     = "14::140"
-      network_view = infoblox_network_view.test.nios.name
-      template     = infoblox_ipv6_range_template.test_template.nios.name
-    }
-    check = {
-      "nios.template" = "{{random2}}"
     }
   }
 

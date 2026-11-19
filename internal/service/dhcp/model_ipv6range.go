@@ -387,14 +387,8 @@ var Ipv6rangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "",
 	},
 	"template": schema.StringAttribute{
-		Optional: true,
-		PlanModifiers: []planmodifier.String{
-			immutable.ImmutableString(),
-		},
-		Validators: []validator.String{
-			customvalidator.StringNotEmpty(),
-		},
-		MarkdownDescription: "If set on creation, the range will be created according to the values specified in the named template.",
+		Computed:            true,
+		MarkdownDescription: "Read-only. Creating a range from a template is not supported yet.",
 	},
 }
 
@@ -519,7 +513,7 @@ func (m *Ipv6rangeModel) Expand(ctx context.Context, diags *diag.Diagnostics, is
 	// Expand NIOS nested attribute (returns nil if not present)
 	niosModel := flex.ExpandNestedObject[NIOSIpv6rangeModel](ctx, m.NIOS, diags)
 	if niosModel != nil {
-		obj.NIOS = niosModel.Expand(ctx, diags, isCreate)
+		obj.NIOS = niosModel.Expand(ctx, diags)
 	}
 
 	// Expand UDDI nested attribute (returns nil if not present)
@@ -532,8 +526,8 @@ func (m *Ipv6rangeModel) Expand(ctx context.Context, diags *diag.Diagnostics, is
 }
 
 // Expand converts the NIOS TF model to the core model.
-func (m *NIOSIpv6rangeModel) Expand(ctx context.Context, diags *diag.Diagnostics, isCreate bool) *coremodel.NIOSIpv6rangeExt {
-	ext := &coremodel.NIOSIpv6rangeExt{
+func (m *NIOSIpv6rangeModel) Expand(ctx context.Context, diags *diag.Diagnostics) *coremodel.NIOSIpv6rangeExt {
+	return &coremodel.NIOSIpv6rangeExt{
 		AddressType:                      flex.ExpandStringPointerNullAsEmpty(m.AddressType),
 		CloudInfo:                        ExpandIpv6rangeCloudInfo(ctx, m.CloudInfo, diags),
 		Comment:                          flex.ExpandStringPointerNullAsEmpty(m.Comment),
@@ -563,10 +557,6 @@ func (m *NIOSIpv6rangeModel) Expand(ctx context.Context, diags *diag.Diagnostics
 		StartAddr:                        flex.ExpandIPv6Address(m.StartAddr),
 		SubscribeSettings:                ExpandIpv6rangeSubscribeSettings(ctx, m.SubscribeSettings, diags),
 	}
-	if isCreate {
-		ext.Template = flex.ExpandStringPointer(m.Template)
-	}
-	return ext
 }
 
 // ApplyIpv6rangeNIOSUseFlags derives NIOS use flags from the raw config
@@ -674,6 +664,7 @@ func (m *NIOSIpv6rangeModel) Flatten(ctx context.Context, from *coremodel.NIOSIp
 	m.ServerAssociationType = flex.FlattenStringPointerEmptyAsNull(from.ServerAssociationType)
 	m.StartAddr = flex.FlattenIPv6Address(from.StartAddr)
 	m.SubscribeSettings = FlattenIpv6rangeSubscribeSettings(ctx, from.SubscribeSettings, diags)
+	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
 }
 
 // Flatten merges API response onto existing UDDI model.

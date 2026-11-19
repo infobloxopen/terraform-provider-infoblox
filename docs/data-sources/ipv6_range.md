@@ -124,7 +124,7 @@ Read-Only:
 - `server_association_type` (String) The type of server that is going to serve the range. Valid values are: * MEMBER * NONE
 - `start_addr` (String) The IPv6 Address starting address of the DHCP IPv6 range.
 - `subscribe_settings` (Attributes) (see [below for nested schema](#nestedatt--results--nios--subscribe_settings))
-- `template` (String) If set on creation, the range will be created according to the values specified in the named template.
+- `template` (String) Read-only. Creating a range from a template is not supported yet.
 
 <a id="nestedatt--results--nios--cloud_info"></a>
 ### Nested Schema for `results.nios.cloud_info`
