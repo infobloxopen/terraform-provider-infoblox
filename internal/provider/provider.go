@@ -409,6 +409,7 @@ func ensureNIOSPreRequisites(
 
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		ipamfederation.NewOverlappingBlockResource,
 		ipamfederation.NewReservedBlockResource,
 		ipamfederation.NewFederatedBlockResource,
 		notification.NewNotificationRuleResource,
@@ -553,6 +554,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		ipamfederation.NewOverlappingBlockDataSource,
 		ipamfederation.NewReservedBlockDataSource,
 		ipamfederation.NewFederatedBlockDataSource,
 		notification.NewNotificationRuleDataSource,
@@ -670,6 +672,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 		ipamfederation.NewFederatedRealmDataSource,
 		ipamfederation.NewNextAvailableReservedBlockDataSource,
+		ipamfederation.NewNextAvailableOverlappingBlockDataSource,
 
 		keys.NewTsigKeyDataSource,
 
@@ -699,6 +702,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
+		ipamfederation.NewOverlappingBlockList,
 		ipamfederation.NewReservedBlockList,
 		ipamfederation.NewFederatedBlockList,
 		notification.NewNotificationRuleList,
