@@ -15,6 +15,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 )
@@ -24,6 +25,7 @@ var (
 	_ resource.ResourceWithValidateConfig = &IPAssociationResource{}
 	_ resource.ResourceWithConfigure      = &IPAssociationResource{}
 	_ resource.ResourceWithImportState    = &IPAssociationResource{}
+	_ resource.ResourceWithUpgradeState   = &IPAssociationResource{}
 )
 
 func NewIPAssociationResource() resource.Resource {
@@ -45,6 +47,8 @@ func (r *IPAssociationResource) Metadata(_ context.Context, req resource.Metadat
 
 func (r *IPAssociationResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		// Version 1: v2 state (version 0) goes through UpgradeState.
+		Version:             1,
 		MarkdownDescription: "Associates DHCP settings with a host record managed by `infoblox_record_host`, in the NIOS backend.",
 		Attributes:          IPAssociationResourceSchemaAttributes,
 	}
@@ -326,4 +330,10 @@ func internalIDOf(host *coremodel.RecordHost) (string, bool) {
 	}
 	s, ok := host.NIOS.ExtAttrs[flex.TerraformInternalID].(string)
 	return s, ok && s != ""
+}
+
+func (r *IPAssociationResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: migration.V2Resource{Type: "infoblox_ip_association"}.Upgrader(),
+	}
 }
