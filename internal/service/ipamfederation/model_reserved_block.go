@@ -3,6 +3,7 @@ package ipamfederation
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
 	"github.com/hashicorp/terraform-plugin-framework-timetypes/timetypes"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -35,7 +36,7 @@ var ReservedBlockAttrTypes = map[string]attr.Type{
 }
 
 type UDDIReservedBlockModel struct {
-	Address           types.String      `tfsdk:"address"`
+	Address           iptypes.IPAddress `tfsdk:"address"`
 	Cidr              types.Int64       `tfsdk:"cidr"`
 	Comment           types.String      `tfsdk:"comment"`
 	CreatedAt         timetypes.RFC3339 `tfsdk:"created_at"`
@@ -54,7 +55,7 @@ type UDDIReservedBlockModel struct {
 }
 
 var UDDIReservedBlockAttrTypes = map[string]attr.Type{
-	"address":            types.StringType,
+	"address":            iptypes.IPAddressType{},
 	"cidr":               types.Int64Type,
 	"comment":            types.StringType,
 	"created_at":         timetypes.RFC3339Type{},
@@ -94,8 +95,9 @@ var ReservedBlockResourceSchemaAttributes = map[string]schema.Attribute{
 
 var ReservedBlockResourceUddiSchemaAttributes = map[string]schema.Attribute{
 	"address": schema.StringAttribute{
-		Optional: true,
-		Computed: true,
+		Optional:   true,
+		Computed:   true,
+		CustomType: iptypes.IPAddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
 		},
@@ -220,7 +222,7 @@ func (m *UDDIReservedBlockModel) Expand(ctx context.Context, diags *diag.Diagnos
 		Tags:            flex.ExpandMapStringAny(ctx, m.Tags, diags),
 	}
 	if isCreate {
-		ext.Address = flex.ExpandStringPointer(m.Address)
+		ext.Address = flex.ExpandIPAddress(m.Address)
 		if alloc := BuildReservedBlockAllocation(ctx, m.DynamicAllocation, diags); alloc != nil {
 			ext.Address = alloc
 		}
@@ -254,7 +256,7 @@ func (m *UDDIReservedBlockModel) Flatten(ctx context.Context, from *coremodel.UD
 	if from == nil || m == nil {
 		return
 	}
-	m.Address = flex.FlattenStringPointer(from.Address)
+	m.Address = flex.FlattenIPAddress(from.Address)
 	m.Cidr = flex.FlattenInt64Pointer(from.Cidr)
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.CreatedAt = flex.FlattenRFC3339(from.CreatedAt)
