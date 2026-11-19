@@ -98,7 +98,7 @@ Optional:
 Read-Only:
 
 - `client_certificate_token` (String) The token returned by the uploadinit function call in object fileop for a notification REST endpoit client certificate.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 
 <a id="nestedatt--nios--template_instance"></a>
 ### Nested Schema for `nios.template_instance`

@@ -88,7 +88,7 @@ Read-Only:
 
 - `comment` (String) The comment for the DTC TOPOLOGY monitor object; maximum 256 characters.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `name` (String) Display name of the DTC Topology.
 - `rules` (Attributes List) Topology rules. (see [below for nested schema](#nestedatt--results--nios--rules))
 

@@ -66,7 +66,7 @@ Read-Only:
 - `comment` (String) Comment for this shared record; maximum 256 characters.
 - `disable` (Boolean) Determines if this shared record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`.
 - `name` (String) Name for this shared record. This value can be in unicode format.
 - `shared_record_group` (String) The name of the shared record group in which the record resides.
 - `ttl` (Number) The Time To Live (TTL) value for this shared record. A 32-bit unsigned integer that represents the duration, in seconds, for which the shared record is valid (cached). Zero indicates that the shared record should not be cached.

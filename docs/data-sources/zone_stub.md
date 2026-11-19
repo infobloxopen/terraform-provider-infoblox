@@ -66,7 +66,7 @@ Read-Only:
 - `disable` (Boolean) Determines whether a zone is disabled or not. When this is set to False, the zone is enabled.
 - `disable_forwarding` (Boolean) Determines if the name servers that host the zone should not forward queries that end with the domain name of the zone to any configured forwarders.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `external_ns_group` (String) A forward stub server name server group.
 - `fqdn` (String) The name of this DNS zone. For a reverse zone, this is in "address/cidr" format. For other zones, this is in FQDN format. This value can be in unicode format. Note that for a reverse zone, the corresponding zone_format value should be set.
 - `locked` (Boolean) If you enable this flag, other administrators cannot make conflicting changes. This is for administration purposes only. The zone will continue to serve DNS data even when it is locked.

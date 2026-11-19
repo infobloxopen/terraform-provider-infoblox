@@ -92,7 +92,7 @@ Read-Only:
 - `comment` (String) The descriptive comment of a DHCP filter option object.
 - `expression` (String) The conditional expression of a DHCP filter option object.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `lease_time` (Number) Determines the lease time of a DHCP filter option object.
 - `name` (String) The name of a DHCP option filter object.
 - `next_server` (String) Determines the next server of a DHCP filter option object. You can specify the name and/or IP address of the next server that the host needs to boot.

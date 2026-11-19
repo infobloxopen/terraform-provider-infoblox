@@ -112,7 +112,7 @@ Read-Only:
 - `enable_discovery` (Boolean) Determines whether a discovery is enabled or not for this network container. When this is set to False, the network container discovery is disabled.
 - `enable_immediate_discovery` (Boolean) Determines if the discovery for the network container should be immediately enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `federated_realms` (Attributes List) This field contains the federated realms associated to this network container. (see [below for nested schema](#nestedatt--results--nios--federated_realms))
 - `logic_filter_rules` (Attributes List) This field contains the logic filters to be applied on the this network container. This list corresponds to the match rules that are written to the dhcpd configuration file. (see [below for nested schema](#nestedatt--results--nios--logic_filter_rules))
 - `mgm_private` (Boolean) This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.

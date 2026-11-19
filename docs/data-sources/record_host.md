@@ -75,7 +75,7 @@ Read-Only:
 - `disable_discovery` (Boolean) Determines if the discovery for the record is disabled or not. False means that the discovery is enabled.
 - `enable_immediate_discovery` (Boolean) Determines if the discovery for the record should be immediately enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `ipv4addrs` (Attributes List) This is a list of IPv4 Addresses for the host. (see [below for nested schema](#nestedatt--results--nios--ipv4addrs))
 - `ipv6addrs` (Attributes List) This is a list of IPv6 Addresses for the host. (see [below for nested schema](#nestedatt--results--nios--ipv6addrs))
 - `name` (String) The host name in FQDN format This value can be in unicode format. Regular expression search is not supported for unicode values.

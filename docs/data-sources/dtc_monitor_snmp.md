@@ -91,7 +91,7 @@ Read-Only:
 - `context` (String) The SNMPv3 context.
 - `engine_id` (String) The SNMPv3 engine identifier.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `interval` (Number) The interval for TCP health check.
 - `name` (String) The display name for this DTC monitor.
 - `oids` (Attributes List) A list of OIDs for SNMP monitoring. (see [below for nested schema](#nestedatt--results--nios--oids))

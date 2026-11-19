@@ -125,7 +125,7 @@ var Ipv6fixedaddresstemplateResourceNiosSchemaAttributes = map[string]schema.Att
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,
 		ElementType:         types.StringType,
-		MarkdownDescription: "All ext_attrs including inherited values.",
+		MarkdownDescription: "Inherited extensible attributes not set in `ext_attrs`.",
 	},
 	"logic_filter_rules": schema.ListNestedAttribute{
 		NestedObject: schema.NestedAttributeObject{

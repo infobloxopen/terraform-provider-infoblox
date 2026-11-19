@@ -65,7 +65,7 @@ Read-Only:
 - `comment` (String) The comment for the record; maximum 256 characters.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `ipv6addr` (String) The IPv6 Address of the substitute rule.
 - `name` (String) The name for a record in FQDN format. This value cannot be in unicode format.
 - `rp_zone` (String) The name of a response policy zone in which the record resides.

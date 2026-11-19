@@ -110,7 +110,7 @@ Read-Only:
 - `enable_immediate_discovery` (Boolean) Determines if the discovery for the fixed address should be immediately enabled.
 - `enable_pxe_lease_time` (Boolean) Set this to True if you want the DHCP server to use a different lease time for PXE clients.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `ignore_dhcp_option_list_request` (Boolean) If this field is set to False, the appliance returns all DHCP options the client is eligible to receive, rather than only the list of options the client has requested.
 - `ipv4addr` (String) The IPv4 Address of the fixed address.
 - `logic_filter_rules` (Attributes List) This field contains the logic filters to be applied on the this fixed address. This list corresponds to the match rules that are written to the dhcpd configuration file. (see [below for nested schema](#nestedatt--results--nios--logic_filter_rules))

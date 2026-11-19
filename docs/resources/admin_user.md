@@ -111,7 +111,7 @@ Optional:
 
 Read-Only:
 
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 
 <a id="nestedatt--nios--ssh_keys"></a>
 ### Nested Schema for `nios.ssh_keys`

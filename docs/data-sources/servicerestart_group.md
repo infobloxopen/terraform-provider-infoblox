@@ -64,7 +64,7 @@ Read-Only:
 
 - `comment` (String) Comment for the Restart Group; maximum 256 characters.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `members` (List of String) The list of members belonging to the group.
 - `mode` (String) The default restart method for this Restart Group.
 - `name` (String) The name of this Restart Group.
