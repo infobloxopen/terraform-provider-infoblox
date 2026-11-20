@@ -523,7 +523,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 	// check_absent = ["nios.discovery_member"].
 	if attr, ok := content.Attributes["check_absent"]; ok {
 		val, valDiags := attr.Expr.Value(nil)
-		if valDiags.HasErrors() || !val.IsWhollyKnown() || !(val.Type().IsListType() || val.Type().IsTupleType()) {
+		if valDiags.HasErrors() || !val.IsWhollyKnown() || (!val.Type().IsListType() && !val.Type().IsTupleType()) {
 			return st, fmt.Errorf("check_absent must be a list of attribute path strings")
 		}
 		for it := val.ElementIterator(); it.Next(); {
