@@ -13,6 +13,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	coresvc "github.com/infobloxopen/terraform-provider-infoblox/internal/core/service/dns"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/migration"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/retry"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -23,6 +24,7 @@ var (
 	_ resource.ResourceWithConfigure      = &RecordNsResource{}
 	_ resource.ResourceWithImportState    = &RecordNsResource{}
 	_ resource.ResourceWithIdentity       = &RecordNsResource{}
+	_ resource.ResourceWithMoveState      = &RecordNsResource{}
 )
 
 func NewRecordNsResource() resource.Resource {
@@ -273,4 +275,10 @@ func (r *RecordNsResource) ImportState(ctx context.Context, req resource.ImportS
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), req.ID)...)
+}
+
+func (r *RecordNsResource) MoveState(_ context.Context) []resource.StateMover {
+	return []resource.StateMover{
+		migration.V2Resource{Type: "infoblox_ns_record"}.Mover(),
+	}
 }

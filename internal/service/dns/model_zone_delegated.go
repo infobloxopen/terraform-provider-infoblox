@@ -147,6 +147,7 @@ var ZoneDelegatedResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"delegated_ttl": schema.Int64Attribute{
 		Optional:            true,
+		Computed:            true,
 		MarkdownDescription: "You can specify the Time to Live (TTL) values of auto-generated NS and glue records for a delegated zone. This value is the number of seconds that data is cached.",
 	},
 	"disable": schema.BoolAttribute{

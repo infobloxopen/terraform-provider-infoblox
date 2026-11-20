@@ -410,6 +410,7 @@ func ensureNIOSPreRequisites(
 func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		dhcp.NewIpv6rangeResource,
+		dhcp.NewFixedaddresstemplateResource,
 		notification.NewNotificationRuleResource,
 		infra.NewInfraHostResource,
 		notification.NewNotificationRestEndpointResource,
@@ -553,6 +554,7 @@ func (p *InfobloxProvider) Resources(_ context.Context) []func() resource.Resour
 func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		dhcp.NewIpv6rangeDataSource,
+		dhcp.NewFixedaddresstemplateDataSource,
 		notification.NewNotificationRuleDataSource,
 		infra.NewInfraHostDataSource,
 		notification.NewNotificationRestEndpointDataSource,
@@ -697,6 +699,7 @@ func (p *InfobloxProvider) DataSources(ctx context.Context) []func() datasource.
 func (p *InfobloxProvider) ListResources(_ context.Context) []func() list.ListResource {
 	return []func() list.ListResource{
 		dhcp.NewIpv6rangeList,
+		dhcp.NewFixedaddresstemplateList,
 		notification.NewNotificationRuleList,
 		infra.NewInfraHostList,
 		notification.NewNotificationRestEndpointList,

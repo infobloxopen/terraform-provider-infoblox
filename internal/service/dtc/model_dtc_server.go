@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -213,6 +214,7 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Optional. Flag which enables/disables __Server__.  Defaults to _false_.",
 	},
 	"endpoint_type": schema.StringAttribute{
+		Default: stringdefault.StaticString("address"),
 		Validators: []validator.String{
 			stringvalidator.OneOf("address", "fqdn"),
 		},
@@ -229,7 +231,10 @@ var DtcServerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Fully Qualified Domain name of the __Server__. Must be set to a valid FQDN if __endpoint_type__ is set to __fqdn__. Alternatively, it can be left blank.",
 	},
 	"name": schema.StringAttribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.String{
+			customvalidator.StringNotEmpty(),
+		},
 		MarkdownDescription: "Display name of __Server__.",
 	},
 	"records": schema.ListNestedAttribute{

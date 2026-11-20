@@ -21,6 +21,7 @@ type Ipv6networkcontainerService interface {
 	Read(ctx context.Context, id string, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error)
 	Update(ctx context.Context, id string, obj *ipam.Ipv6networkcontainer, opts *core.Options) (*ipam.Ipv6networkcontainer, *http.Response, error)
 	Delete(ctx context.Context, id string) (*http.Response, error)
+	DeleteRetainSubnets(ctx context.Context, id string) (*http.Response, error)
 	List(ctx context.Context, opts *core.ListOptions) ([]*ipam.Ipv6networkcontainer, *http.Response, string, error)
 }
 
@@ -240,6 +241,18 @@ func (s *ipv6networkcontainerService) deleteNIOS(ctx context.Context, id string)
 		Delete(ctx, core.ExtractNIOSRef(id)).
 		Execute()
 	return httpResp, err
+}
+
+// DeleteRetainSubnets removes a Ipv6networkcontainer by ID but keeps its child networks,
+// which NIOS moves up to the next parent. NIOS only.
+func (s *ipv6networkcontainerService) DeleteRetainSubnets(ctx context.Context, id string) (*http.Response, error) {
+	if s.backend != core.BackendNIOS {
+		return nil, fmt.Errorf("unsupported backend: %s", s.backend)
+	}
+	return s.niosClient.IPAMAPI.Ipv6networkcontainerAPI.
+		Delete(ctx, core.ExtractNIOSRef(id)).
+		RemoveSubnets(false).
+		Execute()
 }
 
 func (s *ipv6networkcontainerService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
