@@ -25,7 +25,7 @@ case "filters" {
     }
   }
 
-  pair_checks = ["nios.address_type", "nios.comment", "nios.disable", "nios.discovery_member", "nios.enable_discovery", "nios.enable_immediate_discovery", "nios.end_addr", "nios.ipv6_end_prefix", "nios.ipv6_prefix_bits", "nios.ipv6_start_prefix", "nios.name", "nios.network", "nios.network_view", "nios.recycle_leases", "nios.same_port_control_discovery_blackout", "nios.server_association_type", "nios.start_addr", "nios.template"]
+  pair_checks = ["nios.address_type", "nios.comment", "nios.disable", "nios.discovery_member", "nios.enable_discovery", "nios.enable_immediate_discovery", "nios.end_addr", "nios.ipv6_end_prefix", "nios.ipv6_prefix_bits", "nios.ipv6_start_prefix", "nios.name", "nios.network", "nios.network_view", "nios.recycle_leases", "nios.same_port_control_discovery_blackout", "nios.server_association_type", "nios.start_addr"]
 
   step {
     nios {
@@ -61,7 +61,7 @@ case "ext_attr_filters" {
     }
   }
 
-  pair_checks = ["nios.address_type", "nios.comment", "nios.disable", "nios.discovery_member", "nios.enable_discovery", "nios.enable_immediate_discovery", "nios.end_addr", "nios.ipv6_end_prefix", "nios.ipv6_prefix_bits", "nios.ipv6_start_prefix", "nios.name", "nios.network", "nios.network_view", "nios.recycle_leases", "nios.same_port_control_discovery_blackout", "nios.server_association_type", "nios.start_addr", "nios.template"]
+  pair_checks = ["nios.address_type", "nios.comment", "nios.disable", "nios.discovery_member", "nios.enable_discovery", "nios.enable_immediate_discovery", "nios.end_addr", "nios.ipv6_end_prefix", "nios.ipv6_prefix_bits", "nios.ipv6_start_prefix", "nios.name", "nios.network", "nios.network_view", "nios.recycle_leases", "nios.same_port_control_discovery_blackout", "nios.server_association_type", "nios.start_addr"]
 
   step {
     nios {
