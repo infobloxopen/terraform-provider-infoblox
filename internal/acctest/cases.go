@@ -33,6 +33,9 @@ type CaseStep struct {
 	// PrerequisitesHCL overrides ResourceCase.PrerequisitesHCL for steps that need different prereqs.
 	PrerequisitesHCL string
 	PairChecks       map[string]string
+	// AbsentChecks lists attributes that must not be in state after the step, i.e. are null.
+	// A `check` entry cannot express this: it fails with "Attribute not found" for a null value.
+	AbsentChecks []string
 }
 
 // ResourceCase is the per-subtest configuration for a Terraform resource acceptance test.
@@ -139,6 +142,10 @@ func runResourceCase(t *testing.T, resourceType string, rc *ResourceCase, checks
 			}
 			checkFuncs = append(checkFuncs, resource.TestCheckResourceAttrPair(
 				resourceAddr, attr, parts[0]+"."+parts[1], parts[2]))
+		}
+
+		for _, attr := range st.AbsentChecks {
+			checkFuncs = append(checkFuncs, resource.TestCheckNoResourceAttr(resourceAddr, attr))
 		}
 
 		step := resource.TestStep{
@@ -478,6 +485,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 		Attributes: []hcl.AttributeSchema{
 			{Name: "check"},
 			{Name: "check_pair"},
+			{Name: "check_absent"},
 			{Name: "depends_on"},
 			{Name: "prerequisites_hcl"},
 		},
@@ -508,6 +516,22 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 			key, _ := item.KeyExpr.Value(nil)
 			rng := item.ValueExpr.Range()
 			st.PairChecks[key.AsString()] = strings.TrimSpace(string(src[rng.Start.Byte:rng.End.Byte]))
+		}
+	}
+
+	// check_absent is a list of attribute paths that must be null after the step, e.g.
+	// check_absent = ["nios.discovery_member"].
+	if attr, ok := content.Attributes["check_absent"]; ok {
+		val, valDiags := attr.Expr.Value(nil)
+		if valDiags.HasErrors() || !val.IsWhollyKnown() || (!val.Type().IsListType() && !val.Type().IsTupleType()) {
+			return st, fmt.Errorf("check_absent must be a list of attribute path strings")
+		}
+		for it := val.ElementIterator(); it.Next(); {
+			_, elem := it.Element()
+			if elem.IsNull() || !elem.Type().Equals(cty.String) {
+				return st, fmt.Errorf("check_absent must be a list of attribute path strings")
+			}
+			st.AbsentChecks = append(st.AbsentChecks, elem.AsString())
 		}
 	}
 
@@ -543,7 +567,7 @@ func parseCaseStep(body hcl.Body, src []byte) (CaseStep, error) {
 		}
 	}
 
-	// Any remaining step-level attributes (not check/check_pair/depends_on/prerequisites_hcl)
+	// Any remaining step-level attributes (not check/check_pair/check_absent/depends_on/prerequisites_hcl)
 	// are top-level resource fields — e.g. a required `id` that lives outside any backend block.
 	// Route them into st.Common so buildCaseHCL writes them at the resource top level.
 	if remainAttrs, _ := remain.JustAttributes(); len(remainAttrs) > 0 {
