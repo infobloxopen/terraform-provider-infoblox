@@ -20,6 +20,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -155,8 +156,11 @@ var SharedrecordSrvResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The target of the shared SRV record in FQDN format. This value can be in unicode format.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for this shared record. A 32-bit unsigned integer that represents the duration, in seconds, for which the shared record is valid (cached). Zero indicates that the shared record should not be cached.",
 	},
 	"weight": schema.Int64Attribute{
@@ -252,4 +256,7 @@ func (m *NIOSSharedrecordSrvModel) Flatten(ctx context.Context, from *coremodel.
 	m.Target = flex.FlattenStringPointerEmptyAsNull(from.Target)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.Weight = flex.FlattenInt64Pointer(from.Weight)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }

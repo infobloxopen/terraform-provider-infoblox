@@ -23,6 +23,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -206,8 +207,11 @@ var RecordDnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The target domain name of the DNS DNAME record in FQDN format.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "Time To Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, that the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -457,6 +461,9 @@ func (m *NIOSRecordDnameModel) Flatten(ctx context.Context, from *coremodel.NIOS
 	m.Target = flex.FlattenStringPointerEmptyAsNull(from.Target)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

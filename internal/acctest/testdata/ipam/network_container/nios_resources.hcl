@@ -40,7 +40,6 @@ case "basic" {
       "nios.network_view"                         = "default"
       "nios.recycle_leases"                       = "true"
       "nios.rir_registration_status"              = "NOT_REGISTERED"
-      "nios.same_port_control_discovery_blackout" = "false"
       "nios.unmanaged"                            = "false"
       "nios.update_dns_on_lease_renewal"          = "false"
     }

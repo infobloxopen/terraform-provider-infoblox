@@ -22,6 +22,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -234,8 +235,11 @@ var DtcLbdnResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The topology rules for TOPOLOGY method.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for the DTC LBDN. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"types": schema.ListAttribute{
@@ -438,6 +442,9 @@ func (m *NIOSDtcLbdnModel) Flatten(ctx context.Context, from *coremodel.NIOSDtcL
 	m.Topology = flex.FlattenStringPointerEmptyAsNull(from.Topology)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.Types = flex.FlattenFrameworkUnorderedListString(ctx, from.Types, diags)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

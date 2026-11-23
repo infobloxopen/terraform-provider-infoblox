@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -146,8 +147,11 @@ var ZoneDelegatedResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This provides information for the remote name server that maintains data for the delegated zone. The Infoblox appliance redirects queries for data for the delegated zone to this remote name server.",
 	},
 	"delegated_ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "You can specify the Time to Live (TTL) values of auto-generated NS and glue records for a delegated zone. This value is the number of seconds that data is cached.",
 	},
 	"disable": schema.BoolAttribute{
@@ -453,6 +457,9 @@ func (m *NIOSZoneDelegatedModel) Flatten(ctx context.Context, from *coremodel.NI
 	m.Prefix.StringValue = flex.FlattenStringPointer(from.Prefix)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
 	m.ZoneFormat = flex.FlattenStringPointerEmptyAsNull(from.ZoneFormat)
+	if from.UseDelegatedTtl != nil && !*from.UseDelegatedTtl {
+		m.DelegatedTtl = types.Int64Null()
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
