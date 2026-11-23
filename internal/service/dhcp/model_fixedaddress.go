@@ -415,6 +415,7 @@ var FixedaddressResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	},
 	"mac": schema.StringAttribute{
 		Optional:   true,
+		Computed:   true,
 		CustomType: internaltypes.MACAddressType{},
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
