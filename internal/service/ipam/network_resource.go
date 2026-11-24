@@ -325,6 +325,10 @@ func (r *NetworkResource) ReadByExtAttrs(ctx context.Context, data *NetworkModel
 
 	// If not found, remove from state
 	if len(records) == 0 {
+		// NIOS may have converted it into a container; if so, keep it in state.
+		if r.keepNetworkIfConvertedToContainer(ctx, data, resp) {
+			return true
+		}
 		resp.State.RemoveResource(ctx)
 		return true
 	}
@@ -424,6 +428,9 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 		return 0, apiErr
 	})
 	if err != nil {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound && r.rejectNetworkUpdateIfConvertedToContainer(ctx, req, resp) {
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update Network: %s", err))
 		return
 	}
