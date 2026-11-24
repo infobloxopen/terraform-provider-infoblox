@@ -116,6 +116,7 @@ func (r *DtcTopologyResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Add Terraform Internal ID to ext_attrs
+	var tfInternalID string
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSDtcTopologyModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
@@ -125,6 +126,7 @@ func (r *DtcTopologyResource) Create(ctx context.Context, req resource.CreateReq
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		tfInternalID = flex.GetInternalID(nios.ExtAttrs)
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSDtcTopologyAttrTypes, &resp.Diagnostics)
 	}
 
@@ -148,6 +150,19 @@ func (r *DtcTopologyResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		return 0, apiErr
 	})
+	// NIOS may have created the object even though no definitive response
+	// arrived (timeout, dropped connection or 5xx). Look it up by the Terraform
+	// Internal ID sent with the request, so a later run does not fail with
+	// "already exists".
+	if err != nil && tfInternalID != "" && retry.IsOutcomeUnknown(err, httpResp) {
+		if records, findErr := r.listDtcTopologyByInternalID(ctx, tfInternalID); findErr == nil && len(records) == 1 {
+			resp.Diagnostics.AddWarning(
+				"DtcTopology created despite request error",
+				fmt.Sprintf("The create request failed (%s), but NIOS created the object. It was found by its Terraform Internal ID and added to the state.", err),
+			)
+			apiResp, err = records[0], nil
+		}
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create DtcTopology: %s", err))
 		return
@@ -284,24 +299,7 @@ func (r *DtcTopologyResource) ReadByExtAttrs(ctx context.Context, data *DtcTopol
 	}
 
 	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.DtcTopology
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: DtcTopologyReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
+	records, err := r.listDtcTopologyByInternalID(ctx, tfInternalID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search DtcTopology by extattrs: %s", err))
 		return true
@@ -326,6 +324,28 @@ func (r *DtcTopologyResource) ReadByExtAttrs(ctx context.Context, data *DtcTopol
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	return true
+}
+
+// listDtcTopologyByInternalID lists the NIOS objects tagged with the given Terraform Internal ID.
+func (r *DtcTopologyResource) listDtcTopologyByInternalID(ctx context.Context, tfInternalID string) ([]*coremodel.DtcTopology, error) {
+	var records []*coremodel.DtcTopology
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var (
+			apiErr   error
+			httpResp *http.Response
+		)
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: DtcTopologyReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
+	return records, err
 }
 
 func (r *DtcTopologyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -481,6 +501,9 @@ func (r *DtcTopologyResource) Delete(ctx context.Context, req resource.DeleteReq
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete DtcTopology: %s", err))
+		// Keep the identity in state. Terraform does not pass it to Delete during a
+		// replace, and without it the next refresh fails if the object is already gone.
+		resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	}
 }
 

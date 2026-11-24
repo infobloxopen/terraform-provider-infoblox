@@ -114,6 +114,7 @@ func (r *NsgroupStubmemberResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	// Add Terraform Internal ID to ext_attrs
+	var tfInternalID string
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSNsgroupStubmemberModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
@@ -123,6 +124,7 @@ func (r *NsgroupStubmemberResource) Create(ctx context.Context, req resource.Cre
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		tfInternalID = flex.GetInternalID(nios.ExtAttrs)
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSNsgroupStubmemberAttrTypes, &resp.Diagnostics)
 	}
 
@@ -146,6 +148,19 @@ func (r *NsgroupStubmemberResource) Create(ctx context.Context, req resource.Cre
 		}
 		return 0, apiErr
 	})
+	// NIOS may have created the object even though no definitive response
+	// arrived (timeout, dropped connection or 5xx). Look it up by the Terraform
+	// Internal ID sent with the request, so a later run does not fail with
+	// "already exists".
+	if err != nil && tfInternalID != "" && retry.IsOutcomeUnknown(err, httpResp) {
+		if records, findErr := r.listNsgroupStubmemberByInternalID(ctx, tfInternalID); findErr == nil && len(records) == 1 {
+			resp.Diagnostics.AddWarning(
+				"NsgroupStubmember created despite request error",
+				fmt.Sprintf("The create request failed (%s), but NIOS created the object. It was found by its Terraform Internal ID and added to the state.", err),
+			)
+			apiResp, err = records[0], nil
+		}
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create NsgroupStubmember: %s", err))
 		return
@@ -272,24 +287,7 @@ func (r *NsgroupStubmemberResource) ReadByExtAttrs(ctx context.Context, data *Ns
 	}
 
 	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.NsgroupStubmember
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: NsgroupStubmemberReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
+	records, err := r.listNsgroupStubmemberByInternalID(ctx, tfInternalID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search NsgroupStubmember by extattrs: %s", err))
 		return true
@@ -309,6 +307,28 @@ func (r *NsgroupStubmemberResource) ReadByExtAttrs(ctx context.Context, data *Ns
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	return true
+}
+
+// listNsgroupStubmemberByInternalID lists the NIOS objects tagged with the given Terraform Internal ID.
+func (r *NsgroupStubmemberResource) listNsgroupStubmemberByInternalID(ctx context.Context, tfInternalID string) ([]*coremodel.NsgroupStubmember, error) {
+	var records []*coremodel.NsgroupStubmember
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var (
+			apiErr   error
+			httpResp *http.Response
+		)
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: NsgroupStubmemberReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
+	return records, err
 }
 
 func (r *NsgroupStubmemberResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -440,6 +460,9 @@ func (r *NsgroupStubmemberResource) Delete(ctx context.Context, req resource.Del
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete NsgroupStubmember: %s", err))
+		// Keep the identity in state. Terraform does not pass it to Delete during a
+		// replace, and without it the next refresh fails if the object is already gone.
+		resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	}
 }
 

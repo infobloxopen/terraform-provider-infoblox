@@ -114,6 +114,7 @@ func (r *RecordRpzCnameIpaddressResource) Create(ctx context.Context, req resour
 	}
 
 	// Add Terraform Internal ID to ext_attrs
+	var tfInternalID string
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSRecordRpzCnameIpaddressModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
@@ -123,6 +124,7 @@ func (r *RecordRpzCnameIpaddressResource) Create(ctx context.Context, req resour
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		tfInternalID = flex.GetInternalID(nios.ExtAttrs)
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordRpzCnameIpaddressAttrTypes, &resp.Diagnostics)
 	}
 
@@ -153,6 +155,19 @@ func (r *RecordRpzCnameIpaddressResource) Create(ctx context.Context, req resour
 		}
 		return 0, apiErr
 	})
+	// NIOS may have created the object even though no definitive response
+	// arrived (timeout, dropped connection or 5xx). Look it up by the Terraform
+	// Internal ID sent with the request, so a later run does not fail with
+	// "already exists".
+	if err != nil && tfInternalID != "" && retry.IsOutcomeUnknown(err, httpResp) {
+		if records, findErr := r.listRecordRpzCnameIpaddressByInternalID(ctx, tfInternalID); findErr == nil && len(records) == 1 {
+			resp.Diagnostics.AddWarning(
+				"RecordRpzCnameIpaddress created despite request error",
+				fmt.Sprintf("The create request failed (%s), but NIOS created the object. It was found by its Terraform Internal ID and added to the state.", err),
+			)
+			apiResp, err = records[0], nil
+		}
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordRpzCnameIpaddress: %s", err))
 		return
@@ -279,24 +294,7 @@ func (r *RecordRpzCnameIpaddressResource) ReadByExtAttrs(ctx context.Context, da
 	}
 
 	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.RecordRpzCnameIpaddress
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: RecordRpzCnameIpaddressReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
+	records, err := r.listRecordRpzCnameIpaddressByInternalID(ctx, tfInternalID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordRpzCnameIpaddress by extattrs: %s", err))
 		return true
@@ -316,6 +314,28 @@ func (r *RecordRpzCnameIpaddressResource) ReadByExtAttrs(ctx context.Context, da
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	return true
+}
+
+// listRecordRpzCnameIpaddressByInternalID lists the NIOS objects tagged with the given Terraform Internal ID.
+func (r *RecordRpzCnameIpaddressResource) listRecordRpzCnameIpaddressByInternalID(ctx context.Context, tfInternalID string) ([]*coremodel.RecordRpzCnameIpaddress, error) {
+	var records []*coremodel.RecordRpzCnameIpaddress
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var (
+			apiErr   error
+			httpResp *http.Response
+		)
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: RecordRpzCnameIpaddressReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
+	return records, err
 }
 
 func (r *RecordRpzCnameIpaddressResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -454,6 +474,9 @@ func (r *RecordRpzCnameIpaddressResource) Delete(ctx context.Context, req resour
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordRpzCnameIpaddress: %s", err))
+		// Keep the identity in state. Terraform does not pass it to Delete during a
+		// replace, and without it the next refresh fails if the object is already gone.
+		resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	}
 }
 

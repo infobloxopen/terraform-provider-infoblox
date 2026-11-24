@@ -113,6 +113,7 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Add Terraform Internal ID to ext_attrs
+	var tfInternalID string
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSRecordDnameModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
@@ -122,6 +123,7 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		tfInternalID = flex.GetInternalID(nios.ExtAttrs)
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSRecordDnameAttrTypes, &resp.Diagnostics)
 	}
 
@@ -153,6 +155,19 @@ func (r *RecordDnameResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		return 0, apiErr
 	})
+	// NIOS may have created the object even though no definitive response
+	// arrived (timeout, dropped connection or 5xx). Look it up by the Terraform
+	// Internal ID sent with the request, so a later run does not fail with
+	// "already exists".
+	if err != nil && tfInternalID != "" && retry.IsOutcomeUnknown(err, httpResp) {
+		if records, findErr := r.listRecordDnameByInternalID(ctx, tfInternalID); findErr == nil && len(records) == 1 {
+			resp.Diagnostics.AddWarning(
+				"RecordDname created despite request error",
+				fmt.Sprintf("The create request failed (%s), but NIOS created the object. It was found by its Terraform Internal ID and added to the state.", err),
+			)
+			apiResp, err = records[0], nil
+		}
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create RecordDname: %s", err))
 		return
@@ -280,24 +295,7 @@ func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDn
 	}
 
 	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.RecordDname
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: RecordDnameReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
+	records, err := r.listRecordDnameByInternalID(ctx, tfInternalID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search RecordDname by extattrs: %s", err))
 		return true
@@ -317,6 +315,28 @@ func (r *RecordDnameResource) ReadByExtAttrs(ctx context.Context, data *RecordDn
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	return true
+}
+
+// listRecordDnameByInternalID lists the NIOS objects tagged with the given Terraform Internal ID.
+func (r *RecordDnameResource) listRecordDnameByInternalID(ctx context.Context, tfInternalID string) ([]*coremodel.RecordDname, error) {
+	var records []*coremodel.RecordDname
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var (
+			apiErr   error
+			httpResp *http.Response
+		)
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: RecordDnameReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
+	return records, err
 }
 
 func (r *RecordDnameResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -456,6 +476,9 @@ func (r *RecordDnameResource) Delete(ctx context.Context, req resource.DeleteReq
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete RecordDname: %s", err))
+		// Keep the identity in state. Terraform does not pass it to Delete during a
+		// replace, and without it the next refresh fails if the object is already gone.
+		resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	}
 }
 

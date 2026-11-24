@@ -119,6 +119,7 @@ func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Add Terraform Internal ID to ext_attrs
+	var tfInternalID string
 	if r.backend == core.BackendNIOS {
 		nios := flex.ExpandNestedObject[NIOSIpv6networkModel](ctx, data.NIOS, &resp.Diagnostics)
 		if nios == nil {
@@ -128,6 +129,7 @@ func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateReq
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		tfInternalID = flex.GetInternalID(nios.ExtAttrs)
 		data.NIOS = flex.FlattenNestedObject(ctx, nios, NIOSIpv6networkAttrTypes, &resp.Diagnostics)
 	}
 
@@ -159,6 +161,19 @@ func (r *Ipv6networkResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		return 0, apiErr
 	})
+	// NIOS may have created the object even though no definitive response
+	// arrived (timeout, dropped connection or 5xx). Look it up by the Terraform
+	// Internal ID sent with the request, so a later run does not fail with
+	// "already exists".
+	if err != nil && tfInternalID != "" && retry.IsOutcomeUnknown(err, httpResp) {
+		if records, findErr := r.listIpv6networkByInternalID(ctx, tfInternalID); findErr == nil && len(records) == 1 {
+			resp.Diagnostics.AddWarning(
+				"Ipv6network created despite request error",
+				fmt.Sprintf("The create request failed (%s), but NIOS created the object. It was found by its Terraform Internal ID and added to the state.", err),
+			)
+			apiResp, err = records[0], nil
+		}
+	}
 	if err != nil {
 		if r.isIpv6networkContainerConversionError(err) &&
 			r.isIpv6networkConvertedToContainer(ctx, &data) {
@@ -296,24 +311,7 @@ func (r *Ipv6networkResource) ReadByExtAttrs(ctx context.Context, data *Ipv6netw
 	}
 
 	// Search for the record using the Terraform Internal ID
-	var (
-		records  []*coremodel.Ipv6network
-		httpResp *http.Response
-	)
-
-	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
-		var apiErr error
-		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
-			ReturnFields: Ipv6networkReturnFields,
-			ExtAttrFilter: map[string]string{
-				flex.TerraformInternalID: tfInternalID,
-			},
-		})
-		if httpResp != nil {
-			return httpResp.StatusCode, apiErr
-		}
-		return 0, apiErr
-	})
+	records, err := r.listIpv6networkByInternalID(ctx, tfInternalID)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search Ipv6network by extattrs: %s", err))
 		return true
@@ -333,6 +331,28 @@ func (r *Ipv6networkResource) ReadByExtAttrs(ctx context.Context, data *Ipv6netw
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	return true
+}
+
+// listIpv6networkByInternalID lists the NIOS objects tagged with the given Terraform Internal ID.
+func (r *Ipv6networkResource) listIpv6networkByInternalID(ctx context.Context, tfInternalID string) ([]*coremodel.Ipv6network, error) {
+	var records []*coremodel.Ipv6network
+	err := retry.Do(ctx, r.retryPolicy(retry.OpRead), func(ctx context.Context) (int, error) {
+		var (
+			apiErr   error
+			httpResp *http.Response
+		)
+		records, httpResp, _, apiErr = r.service.List(ctx, &core.ListOptions{
+			ReturnFields: Ipv6networkReturnFields,
+			ExtAttrFilter: map[string]string{
+				flex.TerraformInternalID: tfInternalID,
+			},
+		})
+		if httpResp != nil {
+			return httpResp.StatusCode, apiErr
+		}
+		return 0, apiErr
+	})
+	return records, err
 }
 
 func (r *Ipv6networkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -473,6 +493,9 @@ func (r *Ipv6networkResource) Delete(ctx context.Context, req resource.DeleteReq
 			return
 		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Ipv6network: %s", err))
+		// Keep the identity in state. Terraform does not pass it to Delete during a
+		// replace, and without it the next refresh fails if the object is already gone.
+		resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
 	}
 }
 
