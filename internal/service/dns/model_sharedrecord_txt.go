@@ -19,6 +19,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dns"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
 
@@ -135,8 +136,11 @@ var SharedrecordTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Text associated with the shared record. It can contain up to 255 bytes per substring and up a total of 512 bytes. To enter leading, trailing or embedded spaces in the text, add quotes (\" \") around the text to preserve the spaces.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for this shared record. A 32-bit unsigned integer that represents the duration, in seconds, for which the shared record is valid (cached). Zero indicates that the shared record should not be cached.",
 	},
 }
@@ -219,4 +223,7 @@ func (m *NIOSSharedrecordTxtModel) Flatten(ctx context.Context, from *coremodel.
 	m.SharedRecordGroup = flex.FlattenStringPointerEmptyAsNull(from.SharedRecordGroup)
 	m.Text = flex.FlattenStringPointerEmptyAsNull(from.Text)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }

@@ -32,6 +32,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -429,9 +430,12 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The discovery basic poll settings for this network.",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
-		Attributes:          NetworkDiscoveryBlackoutSettingResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
+		Attributes: NetworkDiscoveryBlackoutSettingResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			inherited.NullWhenUnsetObject(path.Root("nios").AtName("port_control_blackout_setting"), path.Root("nios").AtName("same_port_control_discovery_blackout")),
+		},
 		MarkdownDescription: "The discovery blackout setting for this network.",
 	},
 	"discovery_member": schema.StringAttribute{
@@ -697,9 +701,12 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "An array of DHCP option dhcpoption structs that lists the DHCP options associated with the object.",
 	},
 	"port_control_blackout_setting": schema.SingleNestedAttribute{
-		Attributes:          NetworkPortControlBlackoutSettingResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
+		Attributes: NetworkPortControlBlackoutSettingResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			inherited.NullWhenUnsetObject(path.Root("nios").AtName("discovery_blackout_setting"), path.Root("nios").AtName("same_port_control_discovery_blackout")),
+		},
 		MarkdownDescription: "The port control blackout setting for this network.",
 	},
 	"pxe_lease_time": schema.Int64Attribute{
@@ -746,9 +753,11 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The registration status of the network in RIR.",
 	},
 	"same_port_control_discovery_blackout": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Bool{
+			inherited.NullWhenUnsetBool(path.Root("nios").AtName("discovery_blackout_setting"), path.Root("nios").AtName("port_control_blackout_setting")),
+		},
 		MarkdownDescription: "If the field is set to True, the discovery blackout setting will be used for port control blackout setting.",
 	},
 	"send_rir_request": schema.BoolAttribute{
@@ -1345,6 +1354,11 @@ func (m *NIOSNetworkModel) Flatten(ctx context.Context, from *coremodel.NIOSNetw
 	m.ZoneAssociations = flex.FlattenFrameworkListNestedBlock(ctx, from.ZoneAssociations, NetworkZoneAssociationsAttrTypes, diags, FlattenNetworkZoneAssociations)
 	if len(m.DynamicAllocation.AttributeTypes(ctx)) == 0 {
 		m.DynamicAllocation = types.ObjectNull(dynamicallocation.NextAvailableNetworkAttrTypes)
+	}
+	if from.UseBlackoutSetting != nil && !*from.UseBlackoutSetting {
+		m.DiscoveryBlackoutSetting = types.ObjectNull(NetworkDiscoveryBlackoutSettingAttrTypes)
+		m.PortControlBlackoutSetting = types.ObjectNull(NetworkPortControlBlackoutSettingAttrTypes)
+		m.SamePortControlDiscoveryBlackout = types.BoolNull()
 	}
 }
 

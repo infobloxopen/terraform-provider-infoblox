@@ -22,6 +22,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -151,6 +152,9 @@ var RecordRpzTxtResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		Validators: []validator.Int64{
 			int64validator.Between(0, 4294967295),
 		},
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 	"view": schema.StringAttribute{
@@ -248,4 +252,7 @@ func (m *NIOSRecordRpzTxtModel) Flatten(ctx context.Context, from *coremodel.NIO
 	m.Text = flex.FlattenStringPointerEmptyAsNull(from.Text)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
 	m.View = flex.FlattenStringPointerEmptyAsNull(from.View)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }

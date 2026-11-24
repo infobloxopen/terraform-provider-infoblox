@@ -20,6 +20,7 @@ import (
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dtc"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -276,8 +277,11 @@ var DtcPoolResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The servers related to the pool.",
 	},
 	"ttl": schema.Int64Attribute{
-		Optional:            true,
-		Computed:            true,
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Int64{
+			inherited.NullWhenUnsetInt64(),
+		},
 		MarkdownDescription: "The Time To Live (TTL) value for the DTC Pool. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.",
 	},
 }
@@ -512,6 +516,9 @@ func (m *NIOSDtcPoolModel) Flatten(ctx context.Context, from *coremodel.NIOSDtcP
 	m.Quorum = flex.FlattenInt64Pointer(from.Quorum)
 	m.Servers = flex.FlattenFrameworkListNestedBlock(ctx, from.Servers, PoolServersAttrTypes, diags, FlattenPoolServers)
 	m.Ttl = flex.FlattenInt64Pointer(from.Ttl)
+	if from.UseTtl != nil && !*from.UseTtl {
+		m.Ttl = types.Int64Null()
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.

@@ -28,6 +28,7 @@ import (
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	immutable "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/immutable"
 	importmod "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/import"
+	"github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers/inherited"
 	internaltypes "github.com/infobloxopen/terraform-provider-infoblox/internal/types"
 	customvalidator "github.com/infobloxopen/terraform-provider-infoblox/internal/validator"
 )
@@ -316,9 +317,12 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "",
 	},
 	"discovery_blackout_setting": schema.SingleNestedAttribute{
-		Attributes:          RangeDiscoveryBlackoutSettingResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
+		Attributes: RangeDiscoveryBlackoutSettingResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			inherited.NullWhenUnsetObject(path.Root("nios").AtName("port_control_blackout_setting"), path.Root("nios").AtName("same_port_control_discovery_blackout")),
+		},
 		MarkdownDescription: "",
 	},
 	"discovery_member": schema.StringAttribute{
@@ -622,9 +626,12 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "An array of DHCP option dhcpoption structs that lists the DHCP options associated with the object.",
 	},
 	"port_control_blackout_setting": schema.SingleNestedAttribute{
-		Attributes:          RangePortControlBlackoutSettingResourceSchemaAttributes,
-		Optional:            true,
-		Computed:            true,
+		Attributes: RangePortControlBlackoutSettingResourceSchemaAttributes,
+		Optional:   true,
+		Computed:   true,
+		PlanModifiers: []planmodifier.Object{
+			inherited.NullWhenUnsetObject(path.Root("nios").AtName("discovery_blackout_setting"), path.Root("nios").AtName("same_port_control_discovery_blackout")),
+		},
 		MarkdownDescription: "",
 	},
 	"pxe_lease_time": schema.Int64Attribute{
@@ -652,9 +659,11 @@ var RangeResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Restarts the member service.",
 	},
 	"same_port_control_discovery_blackout": schema.BoolAttribute{
-		Optional:            true,
-		Computed:            true,
-		Default:             booldefault.StaticBool(false),
+		Optional: true,
+		Computed: true,
+		PlanModifiers: []planmodifier.Bool{
+			inherited.NullWhenUnsetBool(path.Root("nios").AtName("discovery_blackout_setting"), path.Root("nios").AtName("port_control_blackout_setting")),
+		},
 		MarkdownDescription: "If the field is set to True, the discovery blackout setting will be used for port control blackout setting.",
 	},
 	"server_association_type": schema.StringAttribute{
@@ -1084,6 +1093,11 @@ func (m *NIOSRangeModel) Flatten(ctx context.Context, from *coremodel.NIOSRangeE
 	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
 	m.UnknownClients = flex.FlattenStringPointerEmptyAsNull(from.UnknownClients)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
+	if from.UseBlackoutSetting != nil && !*from.UseBlackoutSetting {
+		m.DiscoveryBlackoutSetting = types.ObjectNull(RangeDiscoveryBlackoutSettingAttrTypes)
+		m.PortControlBlackoutSetting = types.ObjectNull(RangePortControlBlackoutSettingAttrTypes)
+		m.SamePortControlDiscoveryBlackout = types.BoolNull()
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
