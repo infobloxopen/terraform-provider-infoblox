@@ -1543,3 +1543,35 @@ case "template" {
   }
 
 }
+
+case "reserved_without_mac" {
+  backend       = "nios"
+  parallel      = true
+  import        = true
+  import_ignore = ["nios.ext_attrs", "nios.ext_attrs_all"]
+
+  step {
+    nios {
+      ipv4addr     = "15.0.0.70"
+      name         = "reserved-no-mac"
+      match_client = "RESERVED"
+    }
+    check = {
+      "nios.match_client" = "RESERVED"
+      "nios.mac"          = "00:00:00:00:00:00"
+    }
+  }
+
+  step {
+    nios {
+      ipv4addr     = "15.0.0.70"
+      name         = "reserved-no-mac-updated"
+      match_client = "RESERVED"
+    }
+    check = {
+      "nios.name" = "reserved-no-mac-updated"
+      "nios.mac"  = "00:00:00:00:00:00"
+    }
+  }
+
+}
