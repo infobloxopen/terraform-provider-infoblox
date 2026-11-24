@@ -65,7 +65,7 @@ Read-Only:
 - `comment` (String) The comment for the record; maximum 256 characters.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `flags` (String) The flags used to control the interpretation of the fields for a Substitute (NAPTR Record) Rule object. Supported values for the flags field are "U", "S", "P" and "A".
 - `name` (String) The name for a record in FQDN format. This value cannot be in unicode format.
 - `order` (Number) The order parameter of the Substitute (NAPTR Record) Rule records. This parameter specifies the order in which the NAPTR rules are applied when multiple rules are present. Valid values are from 0 to 65535 (inclusive), in 32-bit unsigned integer format.

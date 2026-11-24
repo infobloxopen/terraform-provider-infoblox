@@ -68,7 +68,7 @@ Read-Only:
 - `description` (String) Description for the VLAN object, may be potentially used for longer VLAN names.
 - `dynamic_allocation` (Attributes) Dynamically allocate the vlan id using the NIOS next_available_vlan_id function call. Mutually exclusive with the static value field. (see [below for nested schema](#nestedatt--results--nios--dynamic_allocation))
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `id` (Number) VLAN ID value.
 - `name` (String) Name of the VLAN.
 - `parent` (String) The VLAN View or VLAN Range to which this VLAN belongs.

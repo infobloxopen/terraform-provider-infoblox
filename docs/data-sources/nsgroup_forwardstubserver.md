@@ -65,7 +65,7 @@ Read-Only:
 
 - `comment` (String) Comment for the Forward Stub Server Name Server Group; maximum 256 characters.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `external_servers` (Attributes List) The list of external servers. (see [below for nested schema](#nestedatt--results--nios--external_servers))
 - `name` (String) The name of this Forward Stub Server Name Server Group.
 

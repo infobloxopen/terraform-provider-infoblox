@@ -113,7 +113,7 @@ Read-Only:
 - `enable_pxe_lease_time` (Boolean) Set this to True if you want the DHCP server to use a different lease time for PXE clients.
 - `enable_snmp_warnings` (Boolean) Determines if DHCP threshold warnings are send through SNMP.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `federated_realms` (Attributes List) This field contains the federated realms associated to this network container. (see [below for nested schema](#nestedatt--results--nios--federated_realms))
 - `high_water_mark` (Number) The percentage of DHCP network container usage threshold above which network container usage is not expected and may warrant your attention. When the high watermark is reached, the Infoblox appliance generates a syslog message and sends a warning (if enabled). A number that specifies the percentage of allocated addresses. The range is from 1 to 100.
 - `high_water_mark_reset` (Number) The percentage of DHCP network container usage below which the corresponding SNMP trap is reset. A number that specifies the percentage of allocated addresses. The range is from 1 to 100. The high watermark reset value must be lower than the high watermark value.

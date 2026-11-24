@@ -72,7 +72,7 @@ Read-Only:
 - `email` (String) The e-mail address for the admin user.
 - `enable_certificate_authentication` (Boolean) Determines whether the user is allowed to log in only with the certificate. Regular username/password authentication will be disabled for this user.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `name` (String) The name of the admin user.
 - `password` (String) The password for the administrator to use when logging in.
 - `ssh_keys` (Attributes List) List of ssh keys for a particular user. (see [below for nested schema](#nestedatt--results--nios--ssh_keys))

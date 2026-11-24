@@ -76,7 +76,7 @@ Read-Only:
 - `enable_ddns` (Boolean) The dynamic DNS updates flag of a shared network object. If set to True, the DHCP server sends DDNS updates to DNS servers in the same Grid, and to external DNS servers.
 - `enable_pxe_lease_time` (Boolean) Set this to True if you want the DHCP server to use a different lease time for PXE clients.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `ignore_client_identifier` (Boolean) If set to true, the client identifier will be ignored.
 - `ignore_dhcp_option_list_request` (Boolean) If this field is set to False, the appliance returns all DHCP options the client is eligible to receive, rather than only the list of options the client has requested.
 - `ignore_id` (String) Indicates whether the appliance will ignore DHCP client IDs or MAC addresses. Valid values are "NONE", "CLIENT", or "MACADDR". The default is "NONE".

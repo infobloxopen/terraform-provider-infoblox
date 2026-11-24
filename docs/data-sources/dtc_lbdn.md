@@ -91,7 +91,7 @@ Read-Only:
 - `comment` (String) Comment for the DTC LBDN; maximum 256 characters.
 - `disable` (Boolean) Determines whether the DTC LBDN is disabled or not. When this is set to False, the fixed address is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `lb_method` (String) The load balancing method. Used to select pool.
 - `name` (String) The display name of the DTC LBDN, not DNS related.
 - `patterns` (List of String) LBDN wildcards for pattern match.

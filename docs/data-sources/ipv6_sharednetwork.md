@@ -73,7 +73,7 @@ Read-Only:
 - `domain_name_servers` (List of String) Use this method to set or retrieve the dynamic DNS updates flag of a DHCP IPv6 Shared Network object. The DHCP server can send DDNS updates to DNS servers in the same Grid and to external DNS servers. This setting overrides the member level settings.
 - `enable_ddns` (Boolean) The dynamic DNS updates flag of an IPv6 shared network object. If set to True, the DHCP server sends DDNS updates to DNS servers in the same Grid, and to external DNS servers.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `logic_filter_rules` (Attributes List) This field contains the logic filters to be applied on the this IPv6 shared network. This list corresponds to the match rules that are written to the DHCPv6 configuration file. (see [below for nested schema](#nestedatt--results--nios--logic_filter_rules))
 - `name` (String) The name of the IPv6 Shared Network.
 - `network_view` (String) The name of the network view in which this IPv6 shared network resides.

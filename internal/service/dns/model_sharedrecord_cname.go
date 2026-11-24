@@ -113,7 +113,7 @@ var SharedrecordCnameResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,
 		ElementType:         types.StringType,
-		MarkdownDescription: "All ext_attrs including inherited values.",
+		MarkdownDescription: "Inherited extensible attributes not set in `ext_attrs`.",
 	},
 	"name": schema.StringAttribute{
 		Required: true,

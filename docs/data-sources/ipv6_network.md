@@ -110,7 +110,7 @@ Read-Only:
 - `enable_ifmap_publishing` (Boolean) Determines if IFMAP publishing is enabled for the network.
 - `enable_immediate_discovery` (Boolean) Determines if the discovery for the network should be immediately enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `federated_realms` (Attributes List) This field contains the federated realms associated to this network (see [below for nested schema](#nestedatt--results--nios--federated_realms))
 - `logic_filter_rules` (Attributes List) This field contains the logic filters to be applied on this IPv6 network. This list corresponds to the match rules that are written to the DHCPv6 configuration file. (see [below for nested schema](#nestedatt--results--nios--logic_filter_rules))
 - `members` (Attributes List) A list of members servers that serve DHCP for the network. All members in the array must be of the same type. The struct type must be indicated in each element, by setting the "_struct" member to the struct type. (see [below for nested schema](#nestedatt--results--nios--members))

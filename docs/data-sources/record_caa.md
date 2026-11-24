@@ -95,7 +95,7 @@ Read-Only:
 - `ddns_protected` (Boolean) Determines if the DDNS updates for this record are allowed or not.
 - `disable` (Boolean) Determines if the record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `forbid_reclamation` (Boolean) Determines if the reclamation is allowed for the record or not.
 - `name` (String) The CAA record name in FQDN format. This value can be in unicode format.
 - `ttl` (Number) The Time to Live (TTL) value for the record. A 32-bit unsigned integer that represents the duration, in seconds, for which the record is valid (cached). Zero indicates that the record should not be cached.

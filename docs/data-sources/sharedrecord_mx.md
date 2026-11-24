@@ -65,7 +65,7 @@ Read-Only:
 - `comment` (String) Comment for this shared record; maximum 256 characters.
 - `disable` (Boolean) Determines if this shared record is disabled or not. False means that the record is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`.
 - `mail_exchanger` (String) The name of the mail exchanger in FQDN format. This value can be in unicode format.
 - `name` (String) Name for this shared record. This value can be in unicode format.
 - `preference` (Number) The preference value. Valid values are from 0 to 65535 (inclusive), in 32-bit unsigned integer format.

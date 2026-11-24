@@ -98,7 +98,7 @@ Read-Only:
 - `content_extract_value` (String) A content extraction value to compare with extracted result.
 - `enable_sni` (Boolean) Determines whether the Server Name Indication (SNI) for HTTPS monitor is enabled.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `interval` (Number) The interval for TCP health check.
 - `name` (String) The display name for this DTC monitor.
 - `port` (Number) Port for TCP requests.

@@ -64,7 +64,7 @@ Read-Only:
 
 - `comment` (String) The descriptive comment of this shared record group.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `name` (String) The name of this shared record group.
 - `record_name_policy` (String) The record name policy of this shared record group.
 - `zone_associations` (Attributes List) The list of zones associated with this shared record group. Starting from NIOS-9.0.6, this field has been updated to a structure that includes FQDN and DNS view details. (see [below for nested schema](#nestedatt--results--nios--zone_associations))

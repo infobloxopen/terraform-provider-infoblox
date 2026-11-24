@@ -79,7 +79,7 @@ Optional:
 
 Read-Only:
 
-- `ext_attrs_all` (Map of String) All ext_attrs including inherited values.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`.
 
 <a id="nestedatt--nios--logic_filter_rules"></a>
 ### Nested Schema for `nios.logic_filter_rules`

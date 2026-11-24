@@ -64,7 +64,7 @@ Read-Only:
 
 - `comment` (String) Comment for the Stub Member Name Server Group; maximum 256 characters.
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
-- `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
+- `ext_attrs_all` (Map of String) Inherited extensible attributes not set in `ext_attrs`, and the Terraform Internal ID.
 - `name` (String) The name of the Stub Member Name Server Group.
 - `stub_members` (Attributes List) The Grid member servers of this stub zone. Note that the lead/stealth/grid_replicate/ preferred_primaries/override_preferred_primaries fields of the struct will be ignored when set in this field. (see [below for nested schema](#nestedatt--results--nios--stub_members))
 
