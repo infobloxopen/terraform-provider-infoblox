@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -14,6 +15,24 @@ const (
 	maxBackoff          = 30 * time.Second
 	operationTimeoutMsg = "operation timeout exceeded while waiting for the request to complete, the failure may be due to a transient issue or request cancellation"
 )
+
+// ErrOperationTimeout is returned by Do when the operation timeout expires or
+// the context is cancelled before a call completes. The server may still have
+// applied the request, so its outcome is unknown.
+var ErrOperationTimeout = errors.New(operationTimeoutMsg)
+
+// IsOutcomeUnknown reports whether a failed call may still have been applied by
+// the server: the operation timed out, no response was received, or the server
+// answered with a 5xx status. A 4xx response is a definitive rejection.
+func IsOutcomeUnknown(err error, resp *http.Response) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, ErrOperationTimeout) || resp == nil {
+		return true
+	}
+	return resp.StatusCode >= http.StatusInternalServerError
+}
 
 // OperationTimeout is the default time for an operation, covering its
 // first attempt and every retry. It can be overridden at the provider config
@@ -64,7 +83,7 @@ func Do(parentCtx context.Context, p Policy, fn RetryFunc) error {
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) ||
 			errors.Is(ctx.Err(), context.DeadlineExceeded) || errors.Is(ctx.Err(), context.Canceled) {
 			// Overriding the ctx deadline/cancellation error message for better user understanding
-			return errors.New(operationTimeoutMsg)
+			return ErrOperationTimeout
 		}
 
 		// Stop retrying if error is not retryable
@@ -83,7 +102,7 @@ func Do(parentCtx context.Context, p Policy, fn RetryFunc) error {
 		// Wait before retrying with exponential backoff
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("%s: %w", operationTimeoutMsg, err)
+			return fmt.Errorf("%w: %w", ErrOperationTimeout, err)
 		case <-time.After(backoff):
 		}
 

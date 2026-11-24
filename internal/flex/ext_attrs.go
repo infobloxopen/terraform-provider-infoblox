@@ -39,6 +39,19 @@ func SetInternalID(ctx context.Context, extAttrs types.Map, diags *diag.Diagnost
 	return newMap
 }
 
+// GetInternalID returns the Terraform Internal ID from an ext_attrs map, or ""
+// when the map is null, unknown or has no such entry.
+func GetInternalID(extAttrs types.Map) string {
+	if extAttrs.IsNull() || extAttrs.IsUnknown() {
+		return ""
+	}
+	v, ok := extAttrs.Elements()[TerraformInternalID].(types.String)
+	if !ok || v.IsNull() || v.IsUnknown() {
+		return ""
+	}
+	return v.ValueString()
+}
+
 // MergeEAs merges plan ext_attrs with state ext_attrs_all.
 // Ensures inherited EAs and TF Internal ID are preserved during Update.
 func MergeEAs(planExtAttrs, stateExtAttrsAll types.Map) types.Map {

@@ -3,6 +3,8 @@ package retry
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -205,5 +207,61 @@ func TestTransientErrors(t *testing.T) {
 	}
 	if TransientErrors(errors.New("dial tcp: connection refused")) {
 		t.Error("expected all errors to be non-retryable for now")
+	}
+}
+
+// TestDo_TimeoutIsErrOperationTimeout checks that both timeout paths return an
+// error matching ErrOperationTimeout, with the message unchanged.
+func TestDo_TimeoutIsErrOperationTimeout(t *testing.T) {
+	originalTimeout := OperationTimeout
+	SetOperationTimeout(1)
+	defer func() { OperationTimeout = originalTimeout }()
+
+	// The call itself is cut off by the deadline.
+	err := Do(context.Background(), Policy{}, func(ctx context.Context) (int, error) {
+		<-ctx.Done()
+		return 0, ctx.Err()
+	})
+	if !errors.Is(err, ErrOperationTimeout) || err.Error() != operationTimeoutMsg {
+		t.Errorf("expected ErrOperationTimeout with unchanged message, got: %v", err)
+	}
+
+	// The deadline expires while waiting to retry: the last error is kept.
+	lastErr := errors.New("still failing")
+	err = Do(context.Background(), alwaysRetry, func(ctx context.Context) (int, error) {
+		return 500, lastErr
+	})
+	if !errors.Is(err, ErrOperationTimeout) || !errors.Is(err, lastErr) {
+		t.Errorf("expected ErrOperationTimeout wrapping the last error, got: %v", err)
+	}
+	if err.Error() != operationTimeoutMsg+": "+lastErr.Error() {
+		t.Errorf("unexpected message: %v", err)
+	}
+}
+
+// TestIsOutcomeUnknown covers which failures may still have been applied.
+func TestIsOutcomeUnknown(t *testing.T) {
+	apiErr := errors.New("api error")
+	tests := []struct {
+		name string
+		err  error
+		resp *http.Response
+		want bool
+	}{
+		{"no error", nil, nil, false},
+		{"operation timeout", ErrOperationTimeout, nil, true},
+		{"wrapped operation timeout", fmt.Errorf("%w: %w", ErrOperationTimeout, apiErr), &http.Response{StatusCode: 400}, true},
+		{"no response", apiErr, nil, true},
+		{"server error", apiErr, &http.Response{StatusCode: 500}, true},
+		{"bad gateway", apiErr, &http.Response{StatusCode: 502}, true},
+		{"bad request", apiErr, &http.Response{StatusCode: 400}, false},
+		{"not found", apiErr, &http.Response{StatusCode: 404}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsOutcomeUnknown(tt.err, tt.resp); got != tt.want {
+				t.Errorf("IsOutcomeUnknown() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
