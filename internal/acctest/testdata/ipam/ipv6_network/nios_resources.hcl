@@ -585,9 +585,8 @@ case "ext_attrs" {
 }
 
 case "func_call" {
-  backend               = "nios"
-  expect_non_empty_plan = true
-  parallel              = true
+  backend           = "nios"
+  parallel          = true
   prerequisites_hcl = <<-PREREQ
   resource "infoblox_ipv6_network" "parent" {
     nios = {
@@ -1316,4 +1315,25 @@ case "vlans" {
     }
   }
 
+}
+
+// Creating the test subnet inside the parent makes NIOS convert the parent into an
+// IPv6 network container. The next refresh must keep the parent in state, so the
+// plan stays empty and destroying it removes the container.
+case "parent_converted_to_container" {
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_network" "parent" {
+    nios = {
+      network = "{{random_ipv6_network}}"
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      network = "${cidrsubnet(infoblox_ipv6_network.parent.nios.network, 4, 0)}"
+    }
+  }
 }

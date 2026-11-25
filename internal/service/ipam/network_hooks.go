@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	niosipam "github.com/infobloxopen/infoblox-nios-go-client/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/core"
+	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/utils"
@@ -206,23 +207,22 @@ func (r *NetworkResource) isNetworkConvertedToContainer(ctx context.Context, dat
 	return err == nil && len(records) > 0
 }
 
-// deleteNetworkByInternalID runs when deleting by the stored ref returned 404. NIOS
-// converts a network into a network container when a subnet is created inside it
-// (for example the /24 destroy and a new /28 create running in parallel), which
-// leaves the ref stale. Find that container by the network's Terraform Internal ID
-// and delete it with remove_subnets=false, so the new subnet is kept.
-func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *resource.DeleteResponse, data *NetworkModel) {
+// findConvertedNetworkContainer returns the network container NIOS converted this
+// network into, or nil if there is none. NIOS converts a network into a network
+// container when a subnet is created inside it, which leaves the network's ref
+// stale. The container keeps the network, network view and Terraform Internal ID.
+func (r *NetworkResource) findConvertedNetworkContainer(ctx context.Context, data *NetworkModel, diags *diag.Diagnostics) (*coremodel.Networkcontainer, error) {
 	if r.backend != core.BackendNIOS || r.containerService == nil {
-		return
+		return nil, nil
 	}
 
-	nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &resp.Diagnostics)
+	nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, diags)
 	if nios == nil || nios.ExtAttrsAll.IsNull() || nios.ExtAttrsAll.IsUnknown() {
-		return
+		return nil, nil
 	}
-	internalID, ok := nios.ExtAttrsAll.Elements()[flex.TerraformInternalID]
-	if !ok {
-		return
+	internalID, ok := nios.ExtAttrsAll.Elements()[flex.TerraformInternalID].(types.String)
+	if !ok || internalID.ValueString() == "" {
+		return nil, nil
 	}
 
 	records, _, _, err := r.containerService.List(ctx, &core.ListOptions{
@@ -230,18 +230,80 @@ func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *r
 			"nios.network":      nios.Network.ValueString(),
 			"nios.network_view": nios.NetworkView.ValueString(),
 		},
-		ExtAttrFilter: map[string]string{flex.TerraformInternalID: internalID.(types.String).ValueString()},
+		ExtAttrFilter: map[string]string{flex.TerraformInternalID: internalID.ValueString()},
 	})
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 || records[0].Id == nil {
+		return nil, nil
+	}
+	return records[0], nil
+}
+
+// networkConvertedDetail explains a converted network and how to manage it.
+func networkConvertedDetail(ctx context.Context, data *NetworkModel) string {
+	var diags diag.Diagnostics
+	network := ""
+	if nios := flex.ExpandNestedObject[NIOSNetworkModel](ctx, data.NIOS, &diags); nios != nil {
+		network = nios.Network.ValueString()
+	}
+	return fmt.Sprintf("NIOS converted network %s into a network container, because a subnet was created inside it. "+
+		"Destroying this resource deletes the container and keeps its subnets, but it can no longer be updated as a network. "+
+		"To manage the container, import it as an infoblox_network_container resource and remove this resource from the state.", network)
+}
+
+// keepNetworkIfConvertedToContainer runs in ReadByExtAttrs when no network has the
+// Terraform Internal ID. If NIOS converted the network into a container, keep the
+// network in state with a warning, instead of dropping it and leaving the container
+// on the grid.
+func (r *NetworkResource) keepNetworkIfConvertedToContainer(ctx context.Context, data *NetworkModel, resp *resource.ReadResponse) bool {
+	container, err := r.findConvertedNetworkContainer(ctx, data, &resp.Diagnostics)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search for a network container converted from Network by internal ID: %s", err))
+		return true
+	}
+	if container == nil {
+		return false
+	}
+
+	resp.Diagnostics.AddWarning("Network Converted to Network Container", networkConvertedDetail(ctx, data))
+	resp.Diagnostics.Append(resp.Identity.SetAttribute(ctx, path.Root("id"), &data.Id)...)
+	return true
+}
+
+// rejectNetworkUpdateIfConvertedToContainer runs when Update returns 404. If NIOS
+// converted the network into a container, explain that in place of the 404.
+func (r *NetworkResource) rejectNetworkUpdateIfConvertedToContainer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) bool {
+	var state NetworkModel
+	if diags := req.State.Get(ctx, &state); diags.HasError() {
+		return false
+	}
+	container, err := r.findConvertedNetworkContainer(ctx, &state, &resp.Diagnostics)
+	if err != nil || container == nil {
+		return false
+	}
+
+	resp.Diagnostics.AddError("Unable to Update Network. Network Converted to Network Container", networkConvertedDetail(ctx, &state))
+	return true
+}
+
+// deleteNetworkByInternalID runs when deleting by the stored ref returned 404. If
+// NIOS converted the network into a container (for example the /24 destroy and a
+// new /28 create running in parallel), delete that container with
+// remove_subnets=false, so the new subnet is kept.
+func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *resource.DeleteResponse, data *NetworkModel) {
+	container, err := r.findConvertedNetworkContainer(ctx, data, &resp.Diagnostics)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search for a network container converted from Network by internal ID: %s", err))
 		return
 	}
-	if len(records) == 0 || records[0].Id == nil {
+	if container == nil {
 		// The network really is gone and the 404 was the truth.
 		return
 	}
 
-	if httpResp, err := r.containerService.DeleteRetainSubnets(ctx, *records[0].Id); err != nil && (httpResp == nil || httpResp.StatusCode != http.StatusNotFound) {
+	if httpResp, err := r.containerService.DeleteRetainSubnets(ctx, *container.Id); err != nil && (httpResp == nil || httpResp.StatusCode != http.StatusNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete network container converted from Network: %s", err))
 	}
 }

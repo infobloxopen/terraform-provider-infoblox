@@ -321,6 +321,10 @@ func (r *Ipv6networkResource) ReadByExtAttrs(ctx context.Context, data *Ipv6netw
 
 	// If not found, remove from state
 	if len(records) == 0 {
+		// NIOS may have converted it into a container; if so, keep it in state.
+		if r.keepIpv6networkIfConvertedToContainer(ctx, data, resp) {
+			return true
+		}
 		resp.State.RemoveResource(ctx)
 		return true
 	}
@@ -420,6 +424,9 @@ func (r *Ipv6networkResource) Update(ctx context.Context, req resource.UpdateReq
 		return 0, apiErr
 	})
 	if err != nil {
+		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound && r.rejectIpv6networkUpdateIfConvertedToContainer(ctx, req, resp) {
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update Ipv6network: %s", err))
 		return
 	}
