@@ -19,3 +19,6 @@ internal/service/*/.openapi-generator-ignore
 pipeline_uddi.env
 pipeline_nios.env
 pipeline.env
+
+# Local credentials
+.env
