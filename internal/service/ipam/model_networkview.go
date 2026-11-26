@@ -510,7 +510,7 @@ func (m *NIOSNetworkviewModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		DdnsDnsView:          flex.ExpandStringPointer(m.DdnsDnsView),
 		DdnsZonePrimaries:    flex.ExpandFrameworkListNestedBlock(ctx, m.DdnsZonePrimaries, diags, ExpandNetworkviewDdnsZonePrimaries),
 		ExtAttrs:             flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		FederatedRealms:      flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
+		FederatedRealms:      flex.ExpandFrameworkListNestedBlockOmitEmpty(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
 		InternalForwardZones: flex.ExpandFrameworkListString(ctx, m.InternalForwardZones, diags),
 		MgmPrivate:           flex.ExpandBoolPointer(m.MgmPrivate),
 		Name:                 flex.ExpandStringPointerNullAsEmpty(m.Name),

@@ -338,6 +338,21 @@ func ExpandFrameworkListNestedBlock[T any, U any](ctx context.Context, tfList in
 	return expanded
 }
 
+// ExpandFrameworkListNestedBlockOmitEmpty behaves like ExpandFrameworkListNestedBlock but returns nil
+// instead of an empty slice when the list is null, unknown or has no usable elements, so the
+// generated client omits the field from the request body. Use it for fields that NIOS rejects when
+// sent as an empty array, e.g. federated_realms on networks and containers on NIOS 9.2.0+.
+func ExpandFrameworkListNestedBlockOmitEmpty[T any, U any](ctx context.Context, tfList interface {
+	basetypes.ListValuable
+	ElementsAs(ctx context.Context, target any, allowUnhandled bool) diag.Diagnostics
+}, diags *diag.Diagnostics, f FrameworkElementFlExFunc[T, *U]) []U {
+	expanded := ExpandFrameworkListNestedBlock(ctx, tfList, diags, f)
+	if len(expanded) == 0 {
+		return nil
+	}
+	return expanded
+}
+
 // Flatten Helpers (API -> TF)
 
 func FlattenString(s string) types.String {

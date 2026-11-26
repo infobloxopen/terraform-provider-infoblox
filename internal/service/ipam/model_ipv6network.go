@@ -855,7 +855,7 @@ func (m *NIOSIpv6networkModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		EnableIfmapPublishing:            flex.ExpandBoolPointer(m.EnableIfmapPublishing),
 		EnableImmediateDiscovery:         flex.ExpandBoolPointer(m.EnableImmediateDiscovery),
 		ExtAttrs:                         flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		FederatedRealms:                  flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandIpv6networkFederatedRealms),
+		FederatedRealms:                  flex.ExpandFrameworkListNestedBlockOmitEmpty(ctx, m.FederatedRealms, diags, ExpandIpv6networkFederatedRealms),
 		LogicFilterRules:                 flex.ExpandFrameworkListNestedBlock(ctx, m.LogicFilterRules, diags, ExpandIpv6networkLogicFilterRules),
 		Members:                          flex.ExpandFrameworkListNestedBlock(ctx, m.Members, diags, ExpandIpv6networkMembers),
 		MgmPrivate:                       flex.ExpandBoolPointer(m.MgmPrivate),
