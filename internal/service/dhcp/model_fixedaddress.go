@@ -849,7 +849,10 @@ func (m *NIOSFixedaddressModel) Flatten(ctx context.Context, from *coremodel.NIO
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.DisableDiscovery = flex.FlattenBoolPointer(from.DisableDiscovery)
 	m.EnableDdns = flex.FlattenBoolPointer(from.EnableDdns)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	// NIOS does not return enable_immediate_discovery, so keep the planned value when one is known.
+	if m.EnableImmediateDiscovery.IsUnknown() || m.EnableImmediateDiscovery.IsNull() {
+		m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	}
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.IgnoreDhcpOptionListRequest = flex.FlattenBoolPointer(from.IgnoreDhcpOptionListRequest)

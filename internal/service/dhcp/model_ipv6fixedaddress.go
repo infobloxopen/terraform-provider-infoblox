@@ -703,7 +703,10 @@ func (m *NIOSIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.DomainName.StringValue = flex.FlattenStringPointer(from.DomainName)
 	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
 	m.Duid = flex.FlattenStringPointerEmptyAsNull(from.Duid)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	// NIOS does not return enable_immediate_discovery, so keep the planned value when one is known.
+	if m.EnableImmediateDiscovery.IsUnknown() || m.EnableImmediateDiscovery.IsNull() {
+		m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	}
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Ipv6addr = flex.FlattenIPv6Address(from.Ipv6addr)
 	m.Ipv6prefix = flex.FlattenStringPointerEmptyAsNull(from.Ipv6prefix)

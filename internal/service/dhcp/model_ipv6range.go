@@ -664,7 +664,10 @@ func (m *NIOSIpv6rangeModel) Flatten(ctx context.Context, from *coremodel.NIOSIp
 	m.ServerAssociationType = flex.FlattenStringPointerEmptyAsNull(from.ServerAssociationType)
 	m.StartAddr = flex.FlattenIPv6Address(from.StartAddr)
 	m.SubscribeSettings = FlattenIpv6rangeSubscribeSettings(ctx, from.SubscribeSettings, diags)
-	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
+	// NIOS does not return template, so keep the planned value when one is known.
+	if m.Template.IsUnknown() || m.Template.IsNull() {
+		m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
+	}
 }
 
 // Flatten merges API response onto existing UDDI model.
