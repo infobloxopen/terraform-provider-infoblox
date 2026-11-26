@@ -43,6 +43,7 @@ var MonitorSnmpOidsResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional: true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
+			customvalidator.OIDValidator(),
 		},
 		MarkdownDescription: "The SNMP OID value for DTC SNMP Monitor health checks.",
 	},

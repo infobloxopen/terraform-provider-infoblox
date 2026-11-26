@@ -2,6 +2,7 @@ package dhcp
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -141,7 +142,11 @@ var Ipv6rangetemplateResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The number of addresses for the IPv6 DHCP range.",
 	},
 	"offset": schema.Int64Attribute{
-		Required:            true,
+		Required: true,
+		Validators: []validator.Int64{
+			// NIOS rejects 0 ("Offset is invalid") and values above 4294967295.
+			int64validator.Between(1, 4294967295),
+		},
 		MarkdownDescription: "The start address offset for the IPv6 DHCP range.",
 	},
 	"option_filter_rules": schema.ListNestedAttribute{
