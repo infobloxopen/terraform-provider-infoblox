@@ -72,6 +72,7 @@ resource "infoblox_rir_organization" "with_additional_fields" {
 
 Required:
 
+- `ext_attrs` (Map of String) Extensible attributes associated with the object. NIOS requires them to create an organization; for RIPE, set `RIPE Admin Contact`, `RIPE Country`, `RIPE Technical Contact` and `RIPE Email`. For valid values for extensible attributes, see {extattrs:values}.
 - `id` (String) The RIR organization identifier.
 - `maintainer` (String) The RIR organization maintainer.
 - `name` (String) The RIR organization name.
@@ -79,7 +80,6 @@ Required:
 
 Optional:
 
-- `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `password` (String, Sensitive) The password for the maintainer of RIR organization.
 - `rir` (String) The RIR associated with RIR organization.
 
