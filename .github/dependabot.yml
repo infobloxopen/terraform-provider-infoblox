@@ -7,9 +7,14 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # The Infoblox clients are pre-1.0, so a minor bump is breaking. For the NIOS client it also
+    # changes the WAPI version (v0.1.x = WAPI 2.13.6 / NIOS 9.0.6, v0.2.x = WAPI 2.14 / NIOS 9.1.0).
+    # Minor and major bumps are done by hand; patch releases come through Dependabot.
     ignore:
       - dependency-name: "github.com/infobloxopen/infoblox-nios-go-client"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       - dependency-name: "github.com/infobloxopen/universal-ddi-go-client"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

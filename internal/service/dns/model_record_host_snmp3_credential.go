@@ -58,12 +58,12 @@ var RecordHostSnmp3CredentialResourceSchemaAttributes = map[string]schema.Attrib
 	},
 	"authentication_password": schema.StringAttribute{
 		Sensitive: true,
-		Required:  true,
+		Optional:  true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
-		MarkdownDescription: "Authentication password for the SNMPv3 user.",
+		MarkdownDescription: "Authentication password for the SNMPv3 user. Not needed when `authentication_protocol` is `NONE`.",
 	},
 	"privacy_protocol": schema.StringAttribute{
 		Validators: []validator.String{
@@ -74,12 +74,12 @@ var RecordHostSnmp3CredentialResourceSchemaAttributes = map[string]schema.Attrib
 	},
 	"privacy_password": schema.StringAttribute{
 		Sensitive: true,
-		Required:  true,
+		Optional:  true,
 		Validators: []validator.String{
 			customvalidator.StringNotEmpty(),
 			customvalidator.ValidateTrimmedString(),
 		},
-		MarkdownDescription: "Privacy password for the SNMPv3 user.",
+		MarkdownDescription: "Privacy password for the SNMPv3 user. Not needed when `privacy_protocol` is `NONE`.",
 	},
 	"comment": schema.StringAttribute{
 		Optional: true,

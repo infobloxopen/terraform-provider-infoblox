@@ -417,6 +417,9 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines whether the name servers that host the zone should forward queries (ended with the domain name of the zone) to any configured forwarders.",
 	},
 	"display_domain": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Computed:            true,
 		MarkdownDescription: "The displayed name of the DNS zone.",
 	},
@@ -458,10 +461,9 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: ZoneAuthDnssecKeysResourceSchemaAttributes,
 		},
-		Optional: true,
-		Validators: []validator.List{
-			customvalidator.ListNotEmpty(),
-		},
+		// Read-only: NIOS manages the keys of a signed zone and rejects updates that send them
+		// ("Cannot delete the active key"), so they are never sent.
+		Computed:            true,
 		MarkdownDescription: "A list of DNSSEC keys for the zone.",
 	},
 	"effective_check_names_policy": schema.StringAttribute{
@@ -1051,7 +1053,6 @@ func (m *NIOSZoneAuthModel) Expand(ctx context.Context, diags *diag.Diagnostics,
 		DnsIntegrityMember:               flex.ExpandStringPointer(m.DnsIntegrityMember),
 		DnsIntegrityVerboseLogging:       flex.ExpandBoolPointer(m.DnsIntegrityVerboseLogging),
 		DnssecKeyParams:                  ExpandZoneAuthDnssecKeyParams(ctx, m.DnssecKeyParams, diags),
-		DnssecKeys:                       flex.ExpandFrameworkListNestedBlock(ctx, m.DnssecKeys, diags, ExpandZoneAuthDnssecKeys),
 		EffectiveCheckNamesPolicy:        flex.ExpandStringPointer(m.EffectiveCheckNamesPolicy),
 		ExtAttrs:                         flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
 		ExternalPrimaries:                flex.ExpandFrameworkListNestedBlock(ctx, m.ExternalPrimaries, diags, ExpandZoneAuthExternalPrimaries),

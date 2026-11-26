@@ -64,18 +64,24 @@ func ValidateRirOrganization(ctx context.Context, data RirOrganizationModel, res
 // validateRirOrganizationNIOSConfig validates RIPE-specific ext_attrs values when rir == "RIPE".
 // Mirrors the legacy nios provider's ValidateConfig logic.
 func validateRirOrganizationNIOSConfig(ctx context.Context, m *NIOSRirOrganizationModel, resp *resource.ValidateConfigResponse) {
-	if m.Rir.IsUnknown() || m.Rir.IsNull() || m.Rir.ValueString() != "RIPE" {
+	// rir defaults to (and only accepts) RIPE, so an omitted rir is validated as RIPE. The raw
+	// config does not carry the default, so checking only an explicit "RIPE" skipped the common case.
+	if m.Rir.IsUnknown() || (!m.Rir.IsNull() && m.Rir.ValueString() != "RIPE") {
 		return
 	}
 
-	if m.ExtAttrs.IsUnknown() || m.ExtAttrs.IsNull() {
+	if m.ExtAttrs.IsUnknown() {
 		return
 	}
 
-	var extattrsMap map[string]string
-	resp.Diagnostics.Append(m.ExtAttrs.ElementsAs(ctx, &extattrsMap, false)...)
-	if resp.Diagnostics.HasError() {
-		return
+	// NIOS requires these extensible attributes on a RIPE organization; an omitted ext_attrs is
+	// reported as all four missing rather than failing at apply.
+	extattrsMap := map[string]string{}
+	if !m.ExtAttrs.IsNull() {
+		resp.Diagnostics.Append(m.ExtAttrs.ElementsAs(ctx, &extattrsMap, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	// The four required RIPE extensible attributes for a RIPE-registered RIR

@@ -26,7 +26,8 @@ func validateNotificationRestEndpointNIOSConfig(ctx context.Context, m *NIOSNoti
 	// outbound_members is required when outbound_member_type == "MEMBER", forbidden otherwise.
 	if !m.OutboundMemberType.IsNull() && !m.OutboundMemberType.IsUnknown() {
 		if m.OutboundMemberType.ValueString() == "MEMBER" {
-			if m.OutboundMembers.IsNull() || m.OutboundMembers.IsUnknown() {
+			// Unknown is allowed: the members may come from another resource and are only known at apply.
+			if m.OutboundMembers.IsNull() {
 				resp.Diagnostics.AddAttributeError(
 					path.Root("nios").AtName("outbound_members"),
 					"Invalid Configuration",
@@ -123,7 +124,7 @@ func (r *NotificationRestEndpointResource) ProcessNIOSNotificationRestEndpointFi
 	if nios == nil || nios.ClientCertificateFile.IsNull() || nios.ClientCertificateFile.IsUnknown() {
 		return true
 	}
-	token, err := utils.UploadFileWithToken(ctx, r.niosHostURL, nios.ClientCertificateFile.ValueString(), r.niosUsername, r.niosPassword)
+	token, err := utils.UploadFileWithToken(ctx, r.niosHTTPClient, r.niosBaseURL, r.niosPassthrough, nios.ClientCertificateFile.ValueString())
 	if err != nil {
 		diags.AddError("File Upload Error", fmt.Sprintf("Failed to upload certificate file: %s", err))
 		return false

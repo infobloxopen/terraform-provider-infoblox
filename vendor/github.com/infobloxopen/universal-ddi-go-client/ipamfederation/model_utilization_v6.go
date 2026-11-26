@@ -19,10 +19,8 @@ var _ MappedNullable = &UtilizationV6{}
 
 // UtilizationV6 The __UtilizationV6__ represents IPv6 utilization metrics.
 type UtilizationV6 struct {
-	// Total IPv6 addresses.
-	Total *Integer128 `json:"total,omitempty"`
-	// Used IPv6 addresses.
-	Used                 *Integer128 `json:"used,omitempty"`
+	Total                *string `json:"total,omitempty"`
+	Used                 *string `json:"used,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -46,9 +44,9 @@ func NewUtilizationV6WithDefaults() *UtilizationV6 {
 }
 
 // GetTotal returns the Total field value if set, zero value otherwise.
-func (o *UtilizationV6) GetTotal() Integer128 {
+func (o *UtilizationV6) GetTotal() string {
 	if o == nil || IsNil(o.Total) {
-		var ret Integer128
+		var ret string
 		return ret
 	}
 	return *o.Total
@@ -56,7 +54,7 @@ func (o *UtilizationV6) GetTotal() Integer128 {
 
 // GetTotalOk returns a tuple with the Total field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *UtilizationV6) GetTotalOk() (*Integer128, bool) {
+func (o *UtilizationV6) GetTotalOk() (*string, bool) {
 	if o == nil || IsNil(o.Total) {
 		return nil, false
 	}
@@ -72,15 +70,15 @@ func (o *UtilizationV6) HasTotal() bool {
 	return false
 }
 
-// SetTotal gets a reference to the given Integer128 and assigns it to the Total field.
-func (o *UtilizationV6) SetTotal(v Integer128) {
+// SetTotal gets a reference to the given string and assigns it to the Total field.
+func (o *UtilizationV6) SetTotal(v string) {
 	o.Total = &v
 }
 
 // GetUsed returns the Used field value if set, zero value otherwise.
-func (o *UtilizationV6) GetUsed() Integer128 {
+func (o *UtilizationV6) GetUsed() string {
 	if o == nil || IsNil(o.Used) {
-		var ret Integer128
+		var ret string
 		return ret
 	}
 	return *o.Used
@@ -88,7 +86,7 @@ func (o *UtilizationV6) GetUsed() Integer128 {
 
 // GetUsedOk returns a tuple with the Used field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *UtilizationV6) GetUsedOk() (*Integer128, bool) {
+func (o *UtilizationV6) GetUsedOk() (*string, bool) {
 	if o == nil || IsNil(o.Used) {
 		return nil, false
 	}
@@ -104,8 +102,8 @@ func (o *UtilizationV6) HasUsed() bool {
 	return false
 }
 
-// SetUsed gets a reference to the given Integer128 and assigns it to the Used field.
-func (o *UtilizationV6) SetUsed(v Integer128) {
+// SetUsed gets a reference to the given string and assigns it to the Used field.
+func (o *UtilizationV6) SetUsed(v string) {
 	o.Used = &v
 }
 

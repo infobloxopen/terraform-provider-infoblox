@@ -36,6 +36,19 @@ type GridAPI interface {
 	//  @return CreateGridJoinResponse
 	CreateExecute(r GridAPICreateRequest) (*CreateGridJoinResponse, *http.Response, error)
 	/*
+		CreateFunctionCall Used as a POST call for Function Calls
+
+		Used as a POST call for Function Calls
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param reference Reference of the grid object
+		@return GridAPICreateFunctionCallRequest
+	*/
+	CreateFunctionCall(ctx context.Context, reference string) GridAPICreateFunctionCallRequest
+
+	// CreateFunctionCallExecute executes the request
+	CreateFunctionCallExecute(r GridAPICreateFunctionCallRequest) (*http.Response, error)
+	/*
 		List Retrieve grid objects
 
 		Returns a list of grid objects matching the search criteria
@@ -205,6 +218,128 @@ func (a *GridAPIService) CreateExecute(r GridAPICreateRequest) (*CreateGridJoinR
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type GridAPICreateFunctionCallRequest struct {
+	ctx              context.Context
+	ApiService       GridAPI
+	reference        string
+	function         *string
+	gridFunctionCall *GridFunctionCall
+	returnAsObject   *int32
+}
+
+// Function call to execute.
+func (r GridAPICreateFunctionCallRequest) Function(function string) GridAPICreateFunctionCallRequest {
+	r.function = &function
+	return r
+}
+
+// Object data for the function call
+func (r GridAPICreateFunctionCallRequest) GridFunctionCall(gridFunctionCall GridFunctionCall) GridAPICreateFunctionCallRequest {
+	r.gridFunctionCall = &gridFunctionCall
+	return r
+}
+
+// Select 1 if result is required as an object
+func (r GridAPICreateFunctionCallRequest) ReturnAsObject(returnAsObject int32) GridAPICreateFunctionCallRequest {
+	r.returnAsObject = &returnAsObject
+	return r
+}
+
+func (r GridAPICreateFunctionCallRequest) Execute() (*http.Response, error) {
+	return r.ApiService.CreateFunctionCallExecute(r)
+}
+
+/*
+CreateFunctionCall Used as a POST call for Function Calls
+
+Used as a POST call for Function Calls
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param reference Reference of the grid object
+	@return GridAPICreateFunctionCallRequest
+*/
+func (a *GridAPIService) CreateFunctionCall(ctx context.Context, reference string) GridAPICreateFunctionCallRequest {
+	return GridAPICreateFunctionCallRequest{
+		ApiService: a,
+		ctx:        ctx,
+		reference:  reference,
+	}
+}
+
+// Execute executes the request
+func (a *GridAPIService) CreateFunctionCallExecute(r GridAPICreateFunctionCallRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []internal.FormFile
+	)
+
+	localBasePath, err := a.Client.Cfg.ServerURLWithContext(r.ctx, "GridAPIService.CreateFunctionCall")
+	if err != nil {
+		return nil, internal.NewGenericOpenAPIError(err.Error())
+	}
+
+	localVarPath := localBasePath + "/grid/{reference}"
+	localVarPath = strings.Replace(localVarPath, "{"+"reference"+"}", url.PathEscape(internal.ParameterValueToString(r.reference, "reference")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.function == nil {
+		return nil, internal.ReportError("function is required and must be specified")
+	}
+	if r.gridFunctionCall == nil {
+		return nil, internal.ReportError("gridFunctionCall is required and must be specified")
+	}
+
+	if r.returnAsObject != nil {
+		internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_return_as_object", r.returnAsObject, "form", "")
+	}
+	internal.ParameterAddToHeaderOrQuery(localVarQueryParams, "_function", r.function, "form", "")
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := internal.SelectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := internal.SelectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.gridFunctionCall
+	req, err := a.Client.PrepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.Client.CallAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := internal.NewGenericOpenAPIErrorWithBody(localVarHTTPResponse.Status, localVarBody)
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
 }
 
 type GridAPIListRequest struct {

@@ -13,11 +13,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -449,7 +449,7 @@ var NetworkviewResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The __IPSpaceInheritance__ object specifies how and which fields _IPSpace_ object inherits from the parent.",
 	},
@@ -510,7 +510,7 @@ func (m *NIOSNetworkviewModel) Expand(ctx context.Context, diags *diag.Diagnosti
 		DdnsDnsView:          flex.ExpandStringPointer(m.DdnsDnsView),
 		DdnsZonePrimaries:    flex.ExpandFrameworkListNestedBlock(ctx, m.DdnsZonePrimaries, diags, ExpandNetworkviewDdnsZonePrimaries),
 		ExtAttrs:             flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		FederatedRealms:      flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
+		FederatedRealms:      flex.ExpandFrameworkListNestedBlockOmitEmpty(ctx, m.FederatedRealms, diags, ExpandNetworkviewFederatedRealms),
 		InternalForwardZones: flex.ExpandFrameworkListString(ctx, m.InternalForwardZones, diags),
 		MgmPrivate:           flex.ExpandBoolPointer(m.MgmPrivate),
 		Name:                 flex.ExpandStringPointerNullAsEmpty(m.Name),

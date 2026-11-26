@@ -33,11 +33,13 @@ func NewNotificationRestEndpointResource() resource.Resource {
 }
 
 type NotificationRestEndpointResource struct {
-	backend      core.BackendType
-	service      coresvc.NotificationRestEndpointService
-	niosHostURL  string
-	niosUsername string
-	niosPassword string
+	backend core.BackendType
+	service coresvc.NotificationRestEndpointService
+	// NIOS connection details used for file uploads, taken from the configured go-client so
+	// uploads honour the provider's TLS, CA certificate, proxy and authentication settings.
+	niosHTTPClient  *http.Client
+	niosBaseURL     string
+	niosPassthrough bool
 }
 
 func (r *NotificationRestEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -86,9 +88,10 @@ func (r *NotificationRestEndpointResource) Configure(_ context.Context, req reso
 
 	r.service = coresvc.NewNotificationRestEndpointService(r.backend, client.NIOS, client.UDDI)
 	if client.NIOS != nil {
-		r.niosHostURL = client.NIOS.NotificationAPI.Cfg.NIOSHostURL
-		r.niosUsername = client.NIOS.NotificationAPI.Cfg.NIOSUsername
-		r.niosPassword = client.NIOS.NotificationAPI.Cfg.NIOSPassword
+		cfg := client.NIOS.NotificationAPI.Cfg
+		r.niosHTTPClient = cfg.HTTPClient
+		r.niosBaseURL = cfg.BaseURL()
+		r.niosPassthrough = cfg.IsPassthrough()
 	}
 }
 

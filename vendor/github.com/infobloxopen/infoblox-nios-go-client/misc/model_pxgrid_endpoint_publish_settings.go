@@ -19,7 +19,7 @@ var _ MappedNullable = &PxgridEndpointPublishSettings{}
 
 // PxgridEndpointPublishSettings struct for PxgridEndpointPublishSettings
 type PxgridEndpointPublishSettings struct {
-	// The list of NIOS extensible attributes enalbed for publishsing to Cisco ISE endpoint.
+	// The list of NIOS extensible attributes enalbed for publishing to Cisco ISE endpoint.
 	EnabledAttributes    []string `json:"enabled_attributes,omitempty"`
 	AdditionalProperties map[string]interface{}
 }

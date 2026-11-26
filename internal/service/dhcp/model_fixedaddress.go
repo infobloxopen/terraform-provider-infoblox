@@ -13,13 +13,13 @@ import (
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
@@ -609,7 +609,7 @@ var FixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The __FixedAddressInheritance__ object specifies how and which fields _FixedAddress_ object inherits from the parent.",
 	},
@@ -849,7 +849,10 @@ func (m *NIOSFixedaddressModel) Flatten(ctx context.Context, from *coremodel.NIO
 	m.Disable = flex.FlattenBoolPointer(from.Disable)
 	m.DisableDiscovery = flex.FlattenBoolPointer(from.DisableDiscovery)
 	m.EnableDdns = flex.FlattenBoolPointer(from.EnableDdns)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	// NIOS does not return enable_immediate_discovery, so keep the planned value when one is known.
+	if m.EnableImmediateDiscovery.IsUnknown() || m.EnableImmediateDiscovery.IsNull() {
+		m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	}
 	m.EnablePxeLeaseTime = flex.FlattenBoolPointer(from.EnablePxeLeaseTime)
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.IgnoreDhcpOptionListRequest = flex.FlattenBoolPointer(from.IgnoreDhcpOptionListRequest)

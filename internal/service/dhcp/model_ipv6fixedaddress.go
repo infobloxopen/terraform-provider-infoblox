@@ -15,13 +15,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
@@ -494,7 +494,7 @@ var Ipv6fixedaddressResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The __FixedAddressInheritance__ object specifies how and which fields _FixedAddress_ object inherits from the parent.",
 	},
@@ -703,7 +703,10 @@ func (m *NIOSIpv6fixedaddressModel) Flatten(ctx context.Context, from *coremodel
 	m.DomainName.StringValue = flex.FlattenStringPointer(from.DomainName)
 	m.DomainNameServers = flex.FlattenFrameworkListString(ctx, from.DomainNameServers, diags)
 	m.Duid = flex.FlattenStringPointerEmptyAsNull(from.Duid)
-	m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	// NIOS does not return enable_immediate_discovery, so keep the planned value when one is known.
+	if m.EnableImmediateDiscovery.IsUnknown() || m.EnableImmediateDiscovery.IsNull() {
+		m.EnableImmediateDiscovery = flex.FlattenBoolPointer(from.EnableImmediateDiscovery)
+	}
 	m.ExtAttrs, m.ExtAttrsAll = flex.FlattenEAs(planExtAttrs, from.ExtAttrs)
 	m.Ipv6addr = flex.FlattenIPv6Address(from.Ipv6addr)
 	m.Ipv6prefix = flex.FlattenStringPointerEmptyAsNull(from.Ipv6prefix)

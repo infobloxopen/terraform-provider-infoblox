@@ -99,6 +99,7 @@ Class | Method | HTTP request | Description
 *GmcscheduleAPI* | [**Read**](docs/GmcscheduleAPI.md#read) | **Get** /gmcschedule/{reference} | Get a specific gmcschedule object
 *GmcscheduleAPI* | [**Update**](docs/GmcscheduleAPI.md#update) | **Put** /gmcschedule/{reference} | Update a gmcschedule object
 *GridAPI* | [**Create**](docs/GridAPI.md#create) | **Post** /grid | Invoke a grid function.
+*GridAPI* | [**CreateFunctionCall**](docs/GridAPI.md#createfunctioncall) | **Post** /grid/{reference} | Used as a POST call for Function Calls
 *GridAPI* | [**List**](docs/GridAPI.md#list) | **Get** /grid | Retrieve grid objects
 *GridAPI* | [**Read**](docs/GridAPI.md#read) | **Get** /grid/{reference} | Get a specific grid object
 *GridAPI* | [**Update**](docs/GridAPI.md#update) | **Put** /grid/{reference} | Update a grid object
@@ -389,6 +390,7 @@ Class | Method | HTTP request | Description
  - [GridEmailSetting](docs/GridEmailSetting.md)
  - [GridExternalSyslogBackupServers](docs/GridExternalSyslogBackupServers.md)
  - [GridFiledistribution](docs/GridFiledistribution.md)
+ - [GridFunctionCall](docs/GridFunctionCall.md)
  - [GridHttpProxyServerSetting](docs/GridHttpProxyServerSetting.md)
  - [GridInformationalBannerSetting](docs/GridInformationalBannerSetting.md)
  - [GridJoin](docs/GridJoin.md)
@@ -654,6 +656,7 @@ Class | Method | HTTP request | Description
  - [MemberthreatprotectionnatrulesNatPorts](docs/MemberthreatprotectionnatrulesNatPorts.md)
  - [MembertrafficcapturerecdnssettingKpiMonitoredDomains](docs/MembertrafficcapturerecdnssettingKpiMonitoredDomains.md)
  - [Natgroup](docs/Natgroup.md)
+ - [RestartServiceActionRequest](docs/RestartServiceActionRequest.md)
  - [Restartservicestatus](docs/Restartservicestatus.md)
  - [UpdateCaptiveportalResponse](docs/UpdateCaptiveportalResponse.md)
  - [UpdateCaptiveportalResponseAsObject](docs/UpdateCaptiveportalResponseAsObject.md)

@@ -2,8 +2,10 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -892,6 +894,11 @@ func checkAndCreatePreRequisitesForNIOS(ctx context.Context, client *niosclient.
 			ReturnFieldsPlus(readableAttributesForEADefinition).
 			ReturnAsObject(1).
 			Execute()
+		if isDuplicateObjectError(callErr) {
+			// Another provider instance (a parallel run or test) created it between the check and
+			// the create; the attribute exists, which is all that is needed.
+			return http.StatusOK, nil
+		}
 		if callErr != nil {
 			callErr = fmt.Errorf("error creating Terraform extensible attribute: %w", callErr)
 		}
@@ -902,4 +909,17 @@ func checkAndCreatePreRequisitesForNIOS(ctx context.Context, client *niosclient.
 	})
 
 	return err
+}
+
+// isDuplicateObjectError reports whether err is the WAPI error for creating an object that already exists.
+func isDuplicateObjectError(err error) bool {
+	if err == nil {
+		return false
+	}
+	const msg = "Duplicate object"
+	if strings.Contains(err.Error(), msg) {
+		return true
+	}
+	var withBody interface{ Body() []byte }
+	return errors.As(err, &withBody) && strings.Contains(string(withBody.Body()), msg)
 }

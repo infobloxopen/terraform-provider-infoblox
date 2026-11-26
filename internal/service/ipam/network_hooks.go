@@ -225,13 +225,18 @@ func (r *NetworkResource) deleteNetworkByInternalID(ctx context.Context, resp *r
 		return
 	}
 
-	records, _, _, err := r.containerService.List(ctx, &core.ListOptions{
+	records, listResp, _, err := r.containerService.List(ctx, &core.ListOptions{
 		Filters: map[string]string{
 			"nios.network":      nios.Network.ValueString(),
 			"nios.network_view": nios.NetworkView.ValueString(),
 		},
 		ExtAttrFilter: map[string]string{flex.TerraformInternalID: internalID.(types.String).ValueString()},
 	})
+	if err != nil && listResp != nil && listResp.StatusCode == http.StatusNotFound {
+		// The network view itself is gone (for example deleted before its networks in the same
+		// destroy). NIOS removes a view's networks with it, so the network is already deleted.
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to search for a network container converted from Network by internal ID: %s", err))
 		return

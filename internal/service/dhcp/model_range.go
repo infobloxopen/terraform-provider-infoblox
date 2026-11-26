@@ -16,13 +16,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/dhcp"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/flex"
@@ -179,26 +179,26 @@ var NIOSRangeAttrTypes = map[string]attr.Type{
 }
 
 type UDDIRangeModel struct {
-	Comment            types.String `tfsdk:"comment"`
-	DhcpHost           types.String `tfsdk:"dhcp_host"`
-	DhcpOptions        types.List   `tfsdk:"dhcp_options"`
-	DisableDhcp        types.Bool   `tfsdk:"disable_dhcp"`
-	End                types.String `tfsdk:"end"`
-	ExclusionRanges    types.List   `tfsdk:"exclusion_ranges"`
-	Filters            types.List   `tfsdk:"filters"`
-	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
-	Name               types.String `tfsdk:"name"`
-	Space              types.String `tfsdk:"space"`
-	Start              types.String `tfsdk:"start"`
-	Tags               types.Map    `tfsdk:"tags"`
-	TagsAll            types.Map    `tfsdk:"tags_all"`
-	Threshold          types.Object `tfsdk:"threshold"`
+	Comment            types.String                     `tfsdk:"comment"`
+	DhcpHost           types.String                     `tfsdk:"dhcp_host"`
+	DhcpOptions        internaltypes.UnorderedListValue `tfsdk:"dhcp_options"`
+	DisableDhcp        types.Bool                       `tfsdk:"disable_dhcp"`
+	End                types.String                     `tfsdk:"end"`
+	ExclusionRanges    types.List                       `tfsdk:"exclusion_ranges"`
+	Filters            types.List                       `tfsdk:"filters"`
+	InheritanceSources types.Object                     `tfsdk:"inheritance_sources"`
+	Name               types.String                     `tfsdk:"name"`
+	Space              types.String                     `tfsdk:"space"`
+	Start              types.String                     `tfsdk:"start"`
+	Tags               types.Map                        `tfsdk:"tags"`
+	TagsAll            types.Map                        `tfsdk:"tags_all"`
+	Threshold          types.Object                     `tfsdk:"threshold"`
 }
 
 var UDDIRangeAttrTypes = map[string]attr.Type{
 	"comment":             types.StringType,
 	"dhcp_host":           types.StringType,
-	"dhcp_options":        types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
+	"dhcp_options":        internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
 	"disable_dhcp":        types.BoolType,
 	"end":                 types.StringType,
 	"exclusion_ranges":    types.ListType{ElemType: types.ObjectType{AttrTypes: ExclusionRangeAttrTypes}},
@@ -739,8 +739,9 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional: true,
-		Computed: true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
+		Optional:   true,
+		Computed:   true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -783,7 +784,7 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The inheritance configuration that specifies how the _dhcp_options_ field is inherited from the parent object.",
 	},
@@ -1074,14 +1075,20 @@ func (m *NIOSRangeModel) Flatten(ctx context.Context, from *coremodel.NIOSRangeE
 	m.PxeLeaseTime = flex.FlattenInt64Pointer(from.PxeLeaseTime)
 	m.RecycleLeases = flex.FlattenBoolPointer(from.RecycleLeases)
 	m.RelayAgentFilterRules = flex.FlattenFrameworkListNestedBlock(ctx, from.RelayAgentFilterRules, RangeRelayAgentFilterRulesAttrTypes, diags, FlattenRangeRelayAgentFilterRules)
-	m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
+	// NIOS does not return restart_if_needed, so keep the planned value when one is known.
+	if m.RestartIfNeeded.IsUnknown() || m.RestartIfNeeded.IsNull() {
+		m.RestartIfNeeded = flex.FlattenBoolPointer(from.RestartIfNeeded)
+	}
 	m.SamePortControlDiscoveryBlackout = flex.FlattenBoolPointer(from.SamePortControlDiscoveryBlackout)
 	m.ServerAssociationType = flex.FlattenStringPointerEmptyAsNull(from.ServerAssociationType)
 	m.SplitMember = FlattenRangeSplitMember(ctx, from.SplitMember, diags)
 	m.SplitScopeExclusionPercent = flex.FlattenInt64Pointer(from.SplitScopeExclusionPercent)
 	m.StartAddr = flex.FlattenIPv4Address(from.StartAddr)
 	m.SubscribeSettings = FlattenRangeSubscribeSettings(ctx, from.SubscribeSettings, diags)
-	m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
+	// NIOS does not return template, so keep the planned value when one is known.
+	if m.Template.IsUnknown() || m.Template.IsNull() {
+		m.Template = flex.FlattenStringPointerEmptyAsNull(from.Template)
+	}
 	m.UnknownClients = flex.FlattenStringPointerEmptyAsNull(from.UnknownClients)
 	m.UpdateDnsOnLeaseRenewal = flex.FlattenBoolPointer(from.UpdateDnsOnLeaseRenewal)
 }
@@ -1093,7 +1100,7 @@ func (m *UDDIRangeModel) Flatten(ctx context.Context, from *coremodel.UDDIRangeE
 	}
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.DhcpHost = flex.FlattenStringPointer(from.DhcpHost)
-	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
+	m.DhcpOptions = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
 	m.End = flex.FlattenString(from.End)
 	m.ExclusionRanges = flex.FlattenFrameworkListNestedBlock(ctx, from.ExclusionRanges, ExclusionRangeAttrTypes, diags, FlattenExclusionRange)

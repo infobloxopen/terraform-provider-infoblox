@@ -19,7 +19,7 @@ var _ MappedNullable = &NetworksubscribesettingsMappedEaAttributes{}
 
 // NetworksubscribesettingsMappedEaAttributes struct for NetworksubscribesettingsMappedEaAttributes
 type NetworksubscribesettingsMappedEaAttributes struct {
-	// The Cisco ISE attribute name that is enabled for publishsing from a Cisco ISE endpoint.
+	// The Cisco ISE attribute name that is enabled for publishing from a Cisco ISE endpoint.
 	Name *string `json:"name,omitempty"`
 	// The name of the extensible attribute definition object the Cisco ISE attribute that is enabled for subscription is mapped on.
 	MappedEa             *string `json:"mapped_ea,omitempty"`

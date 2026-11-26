@@ -18,13 +18,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
@@ -706,6 +706,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
+			stringplanmodifier.UseStateForUnknown(),
 		},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
@@ -886,7 +887,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
@@ -986,7 +987,7 @@ func (m *NIOSNetworkcontainerModel) Expand(ctx context.Context, diags *diag.Diag
 		EnablePxeLeaseTime:               flex.ExpandBoolPointer(m.EnablePxeLeaseTime),
 		EnableSnmpWarnings:               flex.ExpandBoolPointer(m.EnableSnmpWarnings),
 		ExtAttrs:                         flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		FederatedRealms:                  flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkcontainerFederatedRealms),
+		FederatedRealms:                  flex.ExpandFrameworkListNestedBlockOmitEmpty(ctx, m.FederatedRealms, diags, ExpandNetworkcontainerFederatedRealms),
 		HighWaterMark:                    flex.ExpandInt64Pointer(m.HighWaterMark),
 		HighWaterMarkReset:               flex.ExpandInt64Pointer(m.HighWaterMarkReset),
 		IgnoreDhcpOptionListRequest:      flex.ExpandBoolPointer(m.IgnoreDhcpOptionListRequest),

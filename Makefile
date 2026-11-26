@@ -18,7 +18,11 @@ install: build
 clean:
 	rm -f $(BINARY)
 
-.PHONY: default build install clean
+# Unit tests only; acceptance tests (TestAcc*) need a live NIOS Grid or Infoblox Portal.
+test:
+	go test -skip '^TestAcc' ./...
+
+.PHONY: default build install clean test
 
 .PHONY: goimports
 goimports: ## Check go imports

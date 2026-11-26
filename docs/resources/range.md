@@ -82,7 +82,7 @@ resource "infoblox_range" "range_additional_fields" {
     high_water_mark        = 90
     low_water_mark         = 5
     enable_email_warnings  = true
-    email_list             = ["admin@infoblox.com"]
+    email_list             = ["admin@example.com"]
 
     // Client filtering
     deny_all_clients = false
@@ -595,6 +595,32 @@ Optional:
 Optional:
 
 - `action` (String) The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.
+
+Read-Only:
+
+- `display_name` (String) The human-readable display name for the object referred to by _source_.
+- `source` (String) The resource identifier.
+- `value` (Attributes) The inherited value for the DHCP option. (see [below for nested schema](#nestedatt--uddi--inheritance_sources--dhcp_options--value--value))
+
+<a id="nestedatt--uddi--inheritance_sources--dhcp_options--value--value"></a>
+### Nested Schema for `uddi.inheritance_sources.dhcp_options.value.value`
+
+Read-Only:
+
+- `option` (Attributes) Option inherited from the ancestor. (see [below for nested schema](#nestedatt--uddi--inheritance_sources--dhcp_options--value--value--option))
+- `overriding_group` (String) The resource identifier.
+
+<a id="nestedatt--uddi--inheritance_sources--dhcp_options--value--value--option"></a>
+### Nested Schema for `uddi.inheritance_sources.dhcp_options.value.value.option`
+
+Read-Only:
+
+- `group` (String) The resource identifier.
+- `option_code` (String) The resource identifier.
+- `option_value` (String) The option value.
+- `type` (String) The type of item.  Valid values are: * _group_ * _option_
+
+
 
 
 

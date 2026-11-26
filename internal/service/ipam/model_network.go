@@ -2,6 +2,7 @@ package ipam
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
@@ -19,13 +20,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
-	objectplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	customplanmodifier "github.com/infobloxopen/terraform-provider-infoblox/internal/planmodifiers"
 
 	coremodel "github.com/infobloxopen/terraform-provider-infoblox/internal/core/model/ipam"
 	"github.com/infobloxopen/terraform-provider-infoblox/internal/dynamicallocation"
@@ -275,6 +276,9 @@ const (
 
 var NetworkResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
 	},
@@ -580,6 +584,9 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The IPAM trap settings for this network.",
 	},
 	"ipv4addr": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Optional:   true,
 		Computed:   true,
 		CustomType: iptypes.IPv4AddressType{},
@@ -644,6 +651,9 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.",
 	},
 	"netmask": schema.Int64Attribute{
+		PlanModifiers: []planmodifier.Int64{
+			int64planmodifier.UseStateForUnknown(),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The netmask of the network in CIDR format.",
@@ -1006,7 +1016,7 @@ var NetworkResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		Optional:   true,
 		Computed:   true,
 		PlanModifiers: []planmodifier.Object{
-			objectplanmodifier.UseStateForUnknown(),
+			customplanmodifier.UseStateForUnknownUnlessDhcpOptionsChange(),
 		},
 		MarkdownDescription: "The __DHCPInheritance__ object specifies how the _dhcp_config_, _dhcp_options_ and _asm_config_ configuration fields are inherited from the parent object.",
 	},
@@ -1111,7 +1121,7 @@ func (m *NIOSNetworkModel) Expand(ctx context.Context, diags *diag.Diagnostics, 
 		EnablePxeLeaseTime:               flex.ExpandBoolPointer(m.EnablePxeLeaseTime),
 		EnableSnmpWarnings:               flex.ExpandBoolPointer(m.EnableSnmpWarnings),
 		ExtAttrs:                         flex.ExpandMapStringAny(ctx, m.ExtAttrs, diags),
-		FederatedRealms:                  flex.ExpandFrameworkListNestedBlock(ctx, m.FederatedRealms, diags, ExpandNetworkFederatedRealms),
+		FederatedRealms:                  flex.ExpandFrameworkListNestedBlockOmitEmpty(ctx, m.FederatedRealms, diags, ExpandNetworkFederatedRealms),
 		HighWaterMark:                    flex.ExpandInt64Pointer(m.HighWaterMark),
 		HighWaterMarkReset:               flex.ExpandInt64Pointer(m.HighWaterMarkReset),
 		IgnoreDhcpOptionListRequest:      flex.ExpandBoolPointer(m.IgnoreDhcpOptionListRequest),

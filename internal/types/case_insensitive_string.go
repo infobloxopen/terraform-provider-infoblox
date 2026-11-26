@@ -99,11 +99,29 @@ func (old CaseInsensitiveString) StringSemanticEquals(ctx context.Context, newVa
 		return false, diags
 	}
 
+	newValue, d := newValuable.ToStringValue(ctx)
+	diags.Append(d...)
+	if diags.HasError() {
+		return false, diags
+	}
+
 	oldStr := old.ValueString()
-	newStr := newValuable.String()
+	// ToStringValue + ValueString gives the raw value; String() would add quotes for a plain StringValue.
+	newStr := newValue.ValueString()
 
 	// Normalize using simple lower-case. Use more advanced normalization if needed.
 	return strings.EqualFold(oldStr, newStr), diags
+}
+
+// Equal reports exact equality with another CaseInsensitiveString. The embedded
+// basetypes.StringValue.Equal only accepts a basetypes.StringValue, so without this override two
+// identical CaseInsensitiveString values compare as different.
+func (v CaseInsensitiveString) Equal(o attr.Value) bool {
+	other, ok := o.(CaseInsensitiveString)
+	if !ok {
+		return false
+	}
+	return v.StringValue.Equal(other.StringValue)
 }
 
 func (v CaseInsensitiveString) Type(ctx context.Context) attr.Type {
