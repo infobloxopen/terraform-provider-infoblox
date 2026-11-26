@@ -123,7 +123,7 @@ func buildNIOSAttribute() schema.Attribute {
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"host_url": schema.StringAttribute{
-				MarkdownDescription: "URL for the NIOS host",
+				MarkdownDescription: "URL for the NIOS Grid Master. Use the Grid Master address (for an HA Grid Master, its VIP), not a Grid member address.",
 				Optional:            true,
 			},
 			"username": schema.StringAttribute{
@@ -397,6 +397,15 @@ func ensureNIOSPreRequisites(
 	}
 
 	if err := checkAndCreatePreRequisitesForNIOS(ctx, client); err != nil {
+		if gridMaster, ok := niosMemberRedirect(err); ok {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("nios").AtName("host_url"),
+				"host_url Is Not the Grid Master",
+				fmt.Sprintf("The NIOS host_url points to a Grid member, which redirects WAPI requests to the Grid Master at %s. "+
+					"Set host_url to the Grid Master address (for an HA Grid Master, use its VIP).", gridMaster),
+			)
+			return false
+		}
 		resp.Diagnostics.AddError(
 			"Failed to ensure Terraform extensible attribute exists",
 			err.Error(),
