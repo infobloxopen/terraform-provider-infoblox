@@ -82,7 +82,7 @@ resource "infoblox_range" "range_additional_fields" {
     high_water_mark        = 90
     low_water_mark         = 5
     enable_email_warnings  = true
-    email_list             = ["admin@infoblox.com"]
+    email_list             = ["admin@example.com"]
 
     // Client filtering
     deny_all_clients = false

@@ -30,7 +30,7 @@ list "infoblox_rir_organization" "list_using_extensible_attributes" {
   provider = infoblox
   config {
     ext_attr_filters = {
-      "RIPE Email" = "support@infoblox.com"
+      "RIPE Email" = "support@example.com"
     }
   }
 }

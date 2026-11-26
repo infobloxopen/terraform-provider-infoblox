@@ -22,12 +22,12 @@ resource "infoblox_rir_organization" "basic" {
     maintainer   = "infoblox"
     name         = "example_rir_organization"
     password     = "example-pass"
-    sender_email = "support@infoblox.com"
+    sender_email = "support@example.com"
     ext_attrs = {
       "RIPE Admin Contact"     = "ib-contact"
       "RIPE Country"           = "United Kingdom (GB)"
       "RIPE Technical Contact" = "EG123-IB"
-      "RIPE Email"             = "support@infoblox.com"
+      "RIPE Email"             = "support@example.com"
     }
   }
 }
@@ -40,15 +40,15 @@ resource "infoblox_rir_organization" "with_additional_fields" {
     name         = "example_rir_organization_additional"
     password     = "examplePass123"
     rir          = "RIPE"
-    sender_email = "support@infoblox.com"
+    sender_email = "support@example.com"
     ext_attrs = {
       "RIPE Admin Contact"     = "ib-contact"
       "RIPE Country"           = "United Kingdom (GB)"
       "RIPE Technical Contact" = "EG567-IB"
-      "RIPE Email"             = "support@infoblox.com"
+      "RIPE Email"             = "support@example.com"
       "RIPE Remarks"           = "Example RIR Organization"
       "RIPE Organization Type" = "IANA"
-      "RIPE Notify"            = "support@infoblox.com"
+      "RIPE Notify"            = "support@example.com"
     }
   }
 }

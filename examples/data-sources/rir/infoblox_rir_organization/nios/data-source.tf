@@ -8,7 +8,7 @@ data "infoblox_rir_organization" "get_rir_organization_using_filters" {
 // Retrieve specific RIR Organizations using Extensible Attributes
 data "infoblox_rir_organization" "by_ext_attr" {
   ext_attr_filters = {
-    "RIPE Email" = "support@infoblox.com"
+    "RIPE Email" = "support@example.com"
   }
 }
 

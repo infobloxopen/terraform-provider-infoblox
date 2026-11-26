@@ -40,7 +40,7 @@ This provider uses the [infoblox-nios-go-client](https://github.com/infobloxopen
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12.1
 - [Go](https://golang.org/doc/install) >= 1.26.8
-- For NIOS: Infoblox NIOS 9.0.6 or higher (WAPI v2.13.6), reached directly or through the Infoblox Portal with the Grid connected to it.
+- For NIOS: Infoblox NIOS 9.0.6 or higher, reached directly or through the Infoblox Portal with the Grid connected to it. The provider uses WAPI v2.13.6, which NIOS 9.1.x and 9.2.x also serve. Objects and fields added in later WAPI versions (for example HTTPS and SVCB records from WAPI v2.14) are not yet available. From NIOS 9.2.0, federated realms can only be set on network views, not on networks or network containers.
 - For UDDI: An Infoblox Portal account
 
 
