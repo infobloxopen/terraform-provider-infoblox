@@ -2426,6 +2426,66 @@ case "relay_agent_filter_rules" {
 
 }
 
+case "restart_if_needed" {
+  backend  = "nios"
+  parallel = true
+
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test_view" {
+    nios = {
+      name = "{{random_view}}"
+    }
+  }
+  resource "infoblox_network" "test_network" {
+    nios = {
+      network      = "10.0.0.0/24"
+      network_view = infoblox_network_view.test_view.nios.name
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      start_addr        = "10.0.0.119"
+      end_addr          = "10.0.0.120"
+      network_view      = infoblox_network.test_network.nios.network_view
+      comment           = "restart on create"
+      restart_if_needed = true
+    }
+    check = {
+      "nios.restart_if_needed" = "true"
+    }
+  }
+
+  step {
+    nios {
+      start_addr        = "10.0.0.119"
+      end_addr          = "10.0.0.120"
+      network_view      = infoblox_network.test_network.nios.network_view
+      comment           = "restart on update"
+      restart_if_needed = true
+    }
+    check = {
+      "nios.comment"           = "restart on update"
+      "nios.restart_if_needed" = "true"
+    }
+  }
+
+  step {
+    nios {
+      start_addr        = "10.0.0.119"
+      end_addr          = "10.0.0.120"
+      network_view      = infoblox_network.test_network.nios.network_view
+      comment           = "restart on update"
+      restart_if_needed = false
+    }
+    check = {
+      "nios.restart_if_needed" = "false"
+    }
+  }
+
+}
+
 case "same_port_control_discovery_blackout" {
   backend  = "nios"
   parallel = true
@@ -2598,6 +2658,59 @@ case "subscribe_settings" {
     }
     check = {
       "nios.subscribe_settings.enabled_attributes.0" = "ENDPOINT_PROFILE"
+    }
+  }
+
+}
+
+case "template" {
+  backend  = "nios"
+  parallel = true
+
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test_view" {
+    nios = {
+      name = "{{random_view}}"
+    }
+  }
+  resource "infoblox_network" "test_network" {
+    nios = {
+      network      = "10.0.0.0/24"
+      network_view = infoblox_network_view.test_view.nios.name
+    }
+  }
+  resource "infoblox_range_template" "test_template" {
+    nios = {
+      name                = "{{random}}"
+      number_of_addresses = 10
+      offset              = 1
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      start_addr   = "10.0.0.121"
+      end_addr     = "10.0.0.130"
+      network_view = infoblox_network.test_network.nios.network_view
+      template     = infoblox_range_template.test_template.nios.name
+    }
+    check = {
+      "nios.template" = "{{random}}"
+    }
+  }
+
+  step {
+    nios {
+      start_addr   = "10.0.0.121"
+      end_addr     = "10.0.0.130"
+      network_view = infoblox_network.test_network.nios.network_view
+      template     = infoblox_range_template.test_template.nios.name
+      comment      = "updated"
+    }
+    check = {
+      "nios.comment"  = "updated"
+      "nios.template" = "{{random}}"
     }
   }
 

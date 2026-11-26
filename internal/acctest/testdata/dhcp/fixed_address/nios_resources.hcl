@@ -783,6 +783,67 @@ case "enable_immediate_discovery" {
 
 }
 
+# enable_immediate_discovery is write-only in WAPI: the value set must stay in
+# state after create and update. Self-contained, unlike the case above.
+case "enable_immediate_discovery_state" {
+  backend  = "nios"
+  parallel = true
+
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_network_view" "test_view" {
+    nios = {
+      name = "{{random_view}}"
+    }
+  }
+  resource "infoblox_network" "test_network" {
+    nios = {
+      network      = "10.0.0.0/24"
+      network_view = infoblox_network_view.test_view.nios.name
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      ipv4addr                   = "10.0.0.23"
+      network_view               = infoblox_network.test_network.nios.network_view
+      mac                        = "00:1d:2e:3f:4a:23"
+      enable_immediate_discovery = true
+    }
+    check = {
+      "nios.enable_immediate_discovery" = "true"
+    }
+  }
+
+  step {
+    nios {
+      ipv4addr                   = "10.0.0.23"
+      network_view               = infoblox_network.test_network.nios.network_view
+      mac                        = "00:1d:2e:3f:4a:23"
+      comment                    = "updated"
+      enable_immediate_discovery = true
+    }
+    check = {
+      "nios.comment"                    = "updated"
+      "nios.enable_immediate_discovery" = "true"
+    }
+  }
+
+  step {
+    nios {
+      ipv4addr                   = "10.0.0.23"
+      network_view               = infoblox_network.test_network.nios.network_view
+      mac                        = "00:1d:2e:3f:4a:23"
+      comment                    = "updated"
+      enable_immediate_discovery = false
+    }
+    check = {
+      "nios.enable_immediate_discovery" = "false"
+    }
+  }
+
+}
+
 case "enable_pxe_lease_time" {
   backend  = "nios"
   parallel = true

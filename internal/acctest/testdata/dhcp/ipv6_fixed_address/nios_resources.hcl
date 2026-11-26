@@ -789,6 +789,51 @@ case "duid" {
 
 }
 
+case "enable_immediate_discovery" {
+  backend           = "nios"
+  parallel          = true
+  prerequisites_hcl = <<-PREREQ
+  resource "infoblox_ipv6_network" "test_ipv6_network" {
+    nios = {
+      network = "2001:db8:{{random_hextet}}:{{random_int}}::/64"
+      network_view = infoblox_network_view.parent_network_view.nios.name
+    }
+  }
+  resource "infoblox_network_view" "parent_network_view" {
+    nios = {
+      name = "{{random}}"
+    }
+  }
+  PREREQ
+
+  step {
+    nios {
+      ipv6addr                   = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid                       = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network                    = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view               = infoblox_network_view.parent_network_view.nios.name
+      enable_immediate_discovery = true
+    }
+    check = {
+      "nios.enable_immediate_discovery" = "true"
+    }
+  }
+
+  step {
+    nios {
+      ipv6addr                   = "2001:db8:{{random_hextet}}:{{random_int}}::1"
+      duid                       = "00:01:00:01:1d:2b:3c:4d:00:0c:29:ab:cd:ef"
+      network                    = infoblox_ipv6_network.test_ipv6_network.nios.network
+      network_view               = infoblox_network_view.parent_network_view.nios.name
+      enable_immediate_discovery = false
+    }
+    check = {
+      "nios.enable_immediate_discovery" = "false"
+    }
+  }
+
+}
+
 case "ext_attrs" {
   backend           = "nios"
   parallel          = true

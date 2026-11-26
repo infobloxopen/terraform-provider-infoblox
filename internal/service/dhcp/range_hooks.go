@@ -103,6 +103,12 @@ func PostFlattenRangeNIOS(ctx context.Context, planned, flattened *NIOSRangeMode
 	if planned == nil {
 		return
 	}
+	// split_member is write-only: NIOS accepts it on create but never returns it,
+	// so keep the planned value. (An object can't use skip_flatten: on import the
+	// unset field would not be a valid typed null.)
+	if flattened.SplitMember.IsNull() && !planned.SplitMember.IsNull() && !planned.SplitMember.IsUnknown() {
+		flattened.SplitMember = planned.SplitMember
+	}
 	if !planned.Options.IsUnknown() {
 		reordered, d := utils.ReorderAndFilterDHCPOptions(ctx, planned.Options, flattened.Options)
 		diags.Append(*d...)
