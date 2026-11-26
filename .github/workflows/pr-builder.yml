@@ -24,10 +24,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: "1.26.8"
-      - uses: hashicorp/setup-terraform@v3.1.2
+      - uses: hashicorp/setup-terraform@v4.0.1
         with:
           terraform_wrapper: false
 
@@ -55,6 +55,19 @@ jobs:
       - name: build
         run: go build -v ./...
 
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.1.0
+        with:
+          go-version: "1.26.8"
+      # Acceptance tests (TestAcc*) need a live Grid / Portal and run separately.
+      - name: go test (unit tests only)
+        run: go test -skip '^TestAcc' ./...
+
   orphans:
     name: Orphan Model Check
     runs-on: ubuntu-latest
@@ -70,7 +83,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: "1.26.8"
           cache: false
@@ -85,7 +98,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-go@v7.0.0
+      - uses: actions/setup-go@v7.1.0
         with:
           go-version: "1.26.8"
           cache: false
