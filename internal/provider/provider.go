@@ -123,7 +123,7 @@ func buildNIOSAttribute() schema.Attribute {
 		Optional:    true,
 		Attributes: map[string]schema.Attribute{
 			"host_url": schema.StringAttribute{
-				MarkdownDescription: "URL for the NIOS host",
+				MarkdownDescription: "URL for the NIOS Grid Master. Use the Grid Master address (for an HA Grid Master, its VIP), not a Grid member address.",
 				Optional:            true,
 			},
 			"username": schema.StringAttribute{
@@ -334,7 +334,12 @@ func (p *InfobloxProvider) Configure(ctx context.Context, req provider.Configure
 	}
 
 	// The Terraform Internal ID EA lives on the Grid, so it applies to NIOS reached either way.
-	if infobloxClient.NIOS != nil && !ensureNIOSPreRequisites(ctx, infobloxClient.NIOS, data.ManageInternalIdEA, resp) {
+	// The Grid member check applies only to a direct connection (nios block), not the Portal passthrough.
+	niosHostURL := ""
+	if data.NIOS != nil {
+		niosHostURL = data.NIOS.HostUrl.ValueString()
+	}
+	if infobloxClient.NIOS != nil && !ensureNIOSPreRequisites(ctx, infobloxClient.NIOS, niosHostURL, data.ManageInternalIdEA, resp) {
 		return
 	}
 
@@ -379,14 +384,23 @@ func (p *InfobloxProvider) newNIOSPassthruClient(
 }
 
 // ensureNIOSPreRequisites creates the Terraform Internal ID extensible attribute unless the user opted out, reporting false once a failure is recorded.
+// hostURL is nios.host_url for a direct Grid connection, or empty for the Infoblox Portal passthrough,
+// where no Grid member can answer and the member check is skipped.
 func ensureNIOSPreRequisites(
 	ctx context.Context,
 	client *niosclient.APIClient,
+	hostURL string,
 	manage types.Bool,
 	resp *provider.ConfigureResponse,
 ) bool {
 	// Defaults to true, so only an explicit false opts out.
 	if !manage.IsNull() && !manage.IsUnknown() && !manage.ValueBool() {
+		if hostURL != "" {
+			if gridMaster, ok := probeNIOSMemberRedirect(ctx, client, hostURL); ok {
+				addNIOSMemberRedirectError(resp, gridMaster)
+				return false
+			}
+		}
 		resp.Diagnostics.AddWarning(
 			"Terraform Internal ID Check Disabled",
 			fmt.Sprintf("The %q extensible attribute check is disabled (manage_internal_id_ea=false). "+
@@ -397,6 +411,10 @@ func ensureNIOSPreRequisites(
 	}
 
 	if err := checkAndCreatePreRequisitesForNIOS(ctx, client); err != nil {
+		if gridMaster, ok := niosMemberRedirect(err, hostURL); ok && hostURL != "" {
+			addNIOSMemberRedirectError(resp, gridMaster)
+			return false
+		}
 		resp.Diagnostics.AddError(
 			"Failed to ensure Terraform extensible attribute exists",
 			err.Error(),
