@@ -145,7 +145,12 @@ var RecordAResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"creator": schema.StringAttribute{
 		Default: stringdefault.StaticString("STATIC"),
 		Validators: []validator.String{
-			stringvalidator.OneOf("STATIC", "DYNAMIC"),
+			// SYSTEM is accepted so imported SYSTEM records (for example NS glue records) validate;
+			// NIOS does not allow changing creator to or from SYSTEM.
+			stringvalidator.OneOf("STATIC", "DYNAMIC", "SYSTEM"),
+		},
+		PlanModifiers: []planmodifier.String{
+			immutable.ImmutableIfValue("SYSTEM"),
 		},
 		Optional:            true,
 		Computed:            true,
