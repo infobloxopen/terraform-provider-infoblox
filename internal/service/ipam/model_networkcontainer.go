@@ -706,6 +706,7 @@ var NetworkcontainerResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		CustomType: iptypes.IPv4AddressType{},
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.RequiresReplaceIfConfigured(),
+			stringplanmodifier.UseStateForUnknown(),
 		},
 		Validators: []validator.String{
 			stringvalidator.ExactlyOneOf(
