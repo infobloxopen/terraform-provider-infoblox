@@ -3,6 +3,7 @@ package clouddiscovery
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -35,10 +36,15 @@ func (r *CloudDiscoveryProviderResource) preDeleteCloudDiscoveryProvider(ctx con
 		disabled := "disabled"
 		obj.UDDI.DesiredState = &disabled
 
-		_, _, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
+		_, httpResp, err := r.service.Update(ctx, data.Id.ValueString(), obj, &core.Options{
 			ReturnFields: CloudDiscoveryProviderReturnFields,
 		})
 		if err != nil {
+			// The provider is already gone; the Delete that follows treats a
+			// 404 as success as well.
+			if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
+				return
+			}
 			diags.AddError("Client Error", fmt.Sprintf("Unable to disable Providers before deletion: %s", err))
 		}
 	}
