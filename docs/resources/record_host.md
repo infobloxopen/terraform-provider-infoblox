@@ -291,16 +291,16 @@ Optional:
 
 Required:
 
-- `authentication_password` (String, Sensitive) Authentication password for the SNMPv3 user.
 - `authentication_protocol` (String) Authentication protocol for the SNMPv3 user.
-- `privacy_password` (String, Sensitive) Privacy password for the SNMPv3 user.
 - `privacy_protocol` (String) Privacy protocol for the SNMPv3 user.
 - `user` (String) The SNMPv3 user name.
 
 Optional:
 
+- `authentication_password` (String, Sensitive) Authentication password for the SNMPv3 user. Not needed when `authentication_protocol` is `NONE`.
 - `comment` (String) Comments for the SNMPv3 user.
 - `credential_group` (String) Group for the SNMPv3 credential.
+- `privacy_password` (String, Sensitive) Privacy password for the SNMPv3 user. Not needed when `privacy_protocol` is `NONE`.
 
 
 <a id="nestedatt--nios--snmp_credential"></a>

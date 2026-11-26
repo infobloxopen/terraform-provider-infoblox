@@ -231,11 +231,11 @@ Read-Only:
 
 Read-Only:
 
-- `authentication_password` (String) Authentication password for the SNMPv3 user.
+- `authentication_password` (String) Authentication password for the SNMPv3 user. Not needed when `authentication_protocol` is `NONE`.
 - `authentication_protocol` (String) Authentication protocol for the SNMPv3 user.
 - `comment` (String) Comments for the SNMPv3 user.
 - `credential_group` (String) Group for the SNMPv3 credential.
-- `privacy_password` (String) Privacy password for the SNMPv3 user.
+- `privacy_password` (String) Privacy password for the SNMPv3 user. Not needed when `privacy_protocol` is `NONE`.
 - `privacy_protocol` (String) Privacy protocol for the SNMPv3 user.
 - `user` (String) The SNMPv3 user name.
 
