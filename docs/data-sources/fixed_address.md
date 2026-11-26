@@ -288,6 +288,29 @@ Read-Only:
 Read-Only:
 
 - `action` (String) The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.
+- `display_name` (String) The human-readable display name for the object referred to by _source_.
+- `source` (String) The resource identifier.
+- `value` (Attributes) The inherited value for the DHCP option. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources--dhcp_options--value--value))
+
+<a id="nestedatt--results--uddi--inheritance_sources--dhcp_options--value--value"></a>
+### Nested Schema for `results.uddi.inheritance_sources.dhcp_options.value.value`
+
+Read-Only:
+
+- `option` (Attributes) Option inherited from the ancestor. (see [below for nested schema](#nestedatt--results--uddi--inheritance_sources--dhcp_options--value--value--option))
+- `overriding_group` (String) The resource identifier.
+
+<a id="nestedatt--results--uddi--inheritance_sources--dhcp_options--value--value--option"></a>
+### Nested Schema for `results.uddi.inheritance_sources.dhcp_options.value.value.option`
+
+Read-Only:
+
+- `group` (String) The resource identifier.
+- `option_code` (String) The resource identifier.
+- `option_value` (String) The option value.
+- `type` (String) The type of item.  Valid values are: * _group_ * _option_
+
+
 
 
 

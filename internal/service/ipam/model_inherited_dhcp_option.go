@@ -15,12 +15,18 @@ import (
 
 // InheritedDHCPOptionModel is the Terraform model for InheritedDHCPOption
 type InheritedDHCPOptionModel struct {
-	Action types.String `tfsdk:"action"`
+	Action      types.String `tfsdk:"action"`
+	DisplayName types.String `tfsdk:"display_name"`
+	Source      types.String `tfsdk:"source"`
+	Value       types.Object `tfsdk:"value"`
 }
 
 // InheritedDHCPOptionAttrTypes contains the attribute types for InheritedDHCPOptionModel
 var InheritedDHCPOptionAttrTypes = map[string]attr.Type{
-	"action": types.StringType,
+	"action":       types.StringType,
+	"display_name": types.StringType,
+	"source":       types.StringType,
+	"value":        types.ObjectType{AttrTypes: InheritedDHCPOptionItemAttrTypes},
 }
 
 // InheritedDHCPOptionResourceSchemaAttributes contains the schema attributes for InheritedDHCPOptionModel
@@ -29,6 +35,19 @@ var InheritedDHCPOptionResourceSchemaAttributes = map[string]schema.Attribute{
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The inheritance setting.  Valid values are: * _inherit_: Use the inherited value. * _block_: Don't use the inherited value.  Defaults to _inherit_.",
+	},
+	"display_name": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "The human-readable display name for the object referred to by _source_.",
+	},
+	"source": schema.StringAttribute{
+		Computed:            true,
+		MarkdownDescription: "The resource identifier.",
+	},
+	"value": schema.SingleNestedAttribute{
+		Attributes:          InheritedDHCPOptionItemResourceSchemaAttributes,
+		Computed:            true,
+		MarkdownDescription: "The inherited value for the DHCP option.",
 	},
 }
 
@@ -45,13 +64,16 @@ func ExpandInheritedDHCPOption(ctx context.Context, o types.Object, diags *diag.
 	return m.Expand(ctx, diags)
 }
 
-// Expand converts the Terraform model to SDK type
+// Expand converts the Terraform model to SDK type.
+// The inherited value must be sent back on update; the API rejects an
+// inherited DHCP option that only carries an action with a 400.
 func (m *InheritedDHCPOptionModel) Expand(ctx context.Context, diags *diag.Diagnostics) *uddiipam.InheritedDHCPOption {
 	if m == nil {
 		return nil
 	}
 	to := &uddiipam.InheritedDHCPOption{
 		Action: flex.ExpandStringPointer(m.Action),
+		Value:  ExpandInheritedDHCPOptionItem(ctx, m.Value, diags),
 	}
 	return to
 }
@@ -74,4 +96,7 @@ func (m *InheritedDHCPOptionModel) Flatten(ctx context.Context, from *uddiipam.I
 		return
 	}
 	m.Action = flex.FlattenStringPointer(from.Action)
+	m.DisplayName = flex.FlattenStringPointer(from.DisplayName)
+	m.Source = flex.FlattenStringPointer(from.Source)
+	m.Value = FlattenInheritedDHCPOptionItem(ctx, from.Value, diags)
 }
