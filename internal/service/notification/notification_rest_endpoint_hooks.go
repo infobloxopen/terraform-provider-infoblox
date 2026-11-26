@@ -123,7 +123,7 @@ func (r *NotificationRestEndpointResource) ProcessNIOSNotificationRestEndpointFi
 	if nios == nil || nios.ClientCertificateFile.IsNull() || nios.ClientCertificateFile.IsUnknown() {
 		return true
 	}
-	token, err := utils.UploadFileWithToken(ctx, r.niosHostURL, nios.ClientCertificateFile.ValueString(), r.niosUsername, r.niosPassword)
+	token, err := utils.UploadFileWithToken(ctx, r.niosHTTPClient, r.niosBaseURL, r.niosPassthrough, nios.ClientCertificateFile.ValueString())
 	if err != nil {
 		diags.AddError("File Upload Error", fmt.Sprintf("Failed to upload certificate file: %s", err))
 		return false
