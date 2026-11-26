@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -76,15 +77,14 @@ var RirOrganizationResourceSchemaAttributes = map[string]schema.Attribute{
 
 var RirOrganizationResourceNiosSchemaAttributes = map[string]schema.Attribute{
 	"ext_attrs": schema.MapAttribute{
-		// NIOS rejects creating an organization without extensible attributes
-		// ("field for create missing: extattrs"); RIPE needs RIPE Admin Contact, RIPE Country,
-		// RIPE Technical Contact and RIPE Email.
-		Required:    true,
+		Optional:    true,
+		Computed:    true,
 		ElementType: types.StringType,
+		Default:     mapdefault.StaticValue(types.MapNull(types.StringType)),
 		Validators: []validator.Map{
 			mapvalidator.SizeAtLeast(1),
 		},
-		MarkdownDescription: "Extensible attributes associated with the object. NIOS requires them to create an organization; for RIPE, set `RIPE Admin Contact`, `RIPE Country`, `RIPE Technical Contact` and `RIPE Email`. For valid values for extensible attributes, see {extattrs:values}.",
+		MarkdownDescription: "Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.",
 	},
 	"ext_attrs_all": schema.MapAttribute{
 		Computed:            true,

@@ -62,7 +62,7 @@ Read-Only:
 
 Read-Only:
 
-- `ext_attrs` (Map of String) Extensible attributes associated with the object. NIOS requires them to create an organization; for RIPE, set `RIPE Admin Contact`, `RIPE Country`, `RIPE Technical Contact` and `RIPE Email`. For valid values for extensible attributes, see {extattrs:values}.
+- `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 - `id` (String) The RIR organization identifier.
 - `maintainer` (String) The RIR organization maintainer.
