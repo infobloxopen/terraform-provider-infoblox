@@ -109,7 +109,7 @@ func (l *RecordNsList) List(ctx context.Context, req list.ListRequest, stream *l
 		req.Limit, l.backend, req.IncludeResource))
 
 	opts := &core.ListOptions{
-		Filters:         flex.ExpandMapString(ctx, data.Filters, &diags),
+		Filters:         defaultStaticCreatorFilter(l.backend, flex.ExpandMapString(ctx, data.Filters, &diags)),
 		InternalFilters: map[string]string{"type": RecordNsType},
 		TagFilter:       flex.ExpandMapString(ctx, data.TagFilters, &diags),
 		ReturnFields:    RecordNsReturnFields,
