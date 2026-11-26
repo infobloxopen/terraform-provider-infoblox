@@ -159,7 +159,6 @@ Class | Method | HTTP request | Description
  - [FederatedPool](docs/FederatedPool.md)
  - [FederatedRealm](docs/FederatedRealm.md)
  - [ForwardLookingDelegation](docs/ForwardLookingDelegation.md)
- - [Integer128](docs/Integer128.md)
  - [ListDelegationResponse](docs/ListDelegationResponse.md)
  - [ListFederatedBlockResponse](docs/ListFederatedBlockResponse.md)
  - [ListFederatedPoolResponse](docs/ListFederatedPoolResponse.md)

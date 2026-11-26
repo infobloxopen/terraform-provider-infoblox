@@ -60,8 +60,9 @@ type _ReservedBlock ReservedBlock
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewReservedBlock(federatedRealm string) *ReservedBlock {
+func NewReservedBlock(address string, federatedRealm string) *ReservedBlock {
 	this := ReservedBlock{}
+	this.Address = &address
 	this.FederatedRealm = federatedRealm
 	return &this
 }
@@ -612,6 +613,7 @@ func (o *ReservedBlock) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"address",
 		"federated_realm",
 	}
 
