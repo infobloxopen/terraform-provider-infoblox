@@ -236,10 +236,27 @@ func (s *networkService) Delete(ctx context.Context, id string) (*http.Response,
 }
 
 func (s *networkService) deleteNIOS(ctx context.Context, id string) (*http.Response, error) {
+	ref := core.ExtractNIOSRef(id)
 	httpResp, err := s.niosClient.IPAMAPI.NetworkAPI.
-		Delete(ctx, core.ExtractNIOSRef(id)).
+		Delete(ctx, ref).
 		Execute()
-	return httpResp, err
+	if !isVlansAssignedError(err) {
+		return httpResp, err
+	}
+
+	// NIOS refuses to delete a network that has VLANs assigned. Unassign them (this also covers
+	// VLANs assigned outside Terraform) and delete again.
+	clear := niosipam.Network{}
+	clear.SetVlans([]niosipam.NetworkVlans{})
+	if _, httpResp, err = s.niosClient.IPAMAPI.NetworkAPI.
+		Update(ctx, ref).
+		Network(clear).
+		Execute(); err != nil {
+		return httpResp, fmt.Errorf("unable to unassign VLANs before deleting the network: %w", err)
+	}
+	return s.niosClient.IPAMAPI.NetworkAPI.
+		Delete(ctx, ref).
+		Execute()
 }
 
 func (s *networkService) deleteUDDI(ctx context.Context, id string) (*http.Response, error) {
