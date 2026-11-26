@@ -204,7 +204,6 @@ Optional:
 - `dns_integrity_member` (String) The Grid member that performs DNS integrity checks for this zone.
 - `dns_integrity_verbose_logging` (Boolean) If this is set to True, more information is logged for DNS integrity checks for this zone.
 - `dnssec_key_params` (Attributes) (see [below for nested schema](#nestedatt--nios--dnssec_key_params))
-- `dnssec_keys` (Attributes List) A list of DNSSEC keys for the zone. (see [below for nested schema](#nestedatt--nios--dnssec_keys))
 - `effective_check_names_policy` (String) The value of the check names policy, which indicates the action the appliance takes when it encounters host names that do not comply with the Strict Hostname Checking policy. This value applies only if the host name restriction policy is set to "Strict Hostname Checking".
 - `ext_attrs` (Map of String) Extensible attributes associated with the object. For valid values for extensible attributes, see {extattrs:values}.
 - `external_primaries` (Attributes List) The list of external primary servers. (see [below for nested schema](#nestedatt--nios--external_primaries))
@@ -246,6 +245,7 @@ Optional:
 Read-Only:
 
 - `display_domain` (String) The displayed name of the DNS zone.
+- `dnssec_keys` (Attributes List) A list of DNSSEC keys for the zone. (see [below for nested schema](#nestedatt--nios--dnssec_keys))
 - `ext_attrs_all` (Map of String) All ext_attrs including Terraform Internal ID and inherited attributes.
 
 <a id="nestedatt--nios--allow_active_dir"></a>
@@ -342,22 +342,6 @@ Optional:
 - `algorithm` (String) The signing key algorithm.
 - `size` (Number) The signing key size, in bits.
 
-
-
-<a id="nestedatt--nios--dnssec_keys"></a>
-### Nested Schema for `nios.dnssec_keys`
-
-Required:
-
-- `tag` (Number) The tag of the key for the zone.
-
-Optional:
-
-- `algorithm` (String) The public-key encryption algorithm. Values 1, 3 and 6 are deprecated from NIOS 9.0.
-- `next_event_date` (Number) The next event date for the key, the rollover date for an active key or the removal date for an already rolled one.
-- `public_key` (String) The Base-64 encoding of the public key.
-- `status` (String) The status of the key for the zone.
-- `type` (String) The key type.
 
 
 <a id="nestedatt--nios--external_primaries"></a>
@@ -602,6 +586,22 @@ Optional:
 - `tsig_key_alg` (String) The TSIG key algorithm.
 - `tsig_key_name` (String) The name of the TSIG key. If 2.x TSIG compatibility is used, this is set to 'tsig_xfer' on retrieval, and ignored on insert or update.
 - `use_tsig_key_name` (Boolean) Use flag for: tsig_key_name
+
+
+<a id="nestedatt--nios--dnssec_keys"></a>
+### Nested Schema for `nios.dnssec_keys`
+
+Required:
+
+- `tag` (Number) The tag of the key for the zone.
+
+Optional:
+
+- `algorithm` (String) The public-key encryption algorithm. Values 1, 3 and 6 are deprecated from NIOS 9.0.
+- `next_event_date` (Number) The next event date for the key, the rollover date for an active key or the removal date for an already rolled one.
+- `public_key` (String) The Base-64 encoding of the public key.
+- `status` (String) The status of the key for the zone.
+- `type` (String) The key type.
 
 
 
