@@ -179,26 +179,26 @@ var NIOSRangeAttrTypes = map[string]attr.Type{
 }
 
 type UDDIRangeModel struct {
-	Comment            types.String `tfsdk:"comment"`
-	DhcpHost           types.String `tfsdk:"dhcp_host"`
-	DhcpOptions        types.List   `tfsdk:"dhcp_options"`
-	DisableDhcp        types.Bool   `tfsdk:"disable_dhcp"`
-	End                types.String `tfsdk:"end"`
-	ExclusionRanges    types.List   `tfsdk:"exclusion_ranges"`
-	Filters            types.List   `tfsdk:"filters"`
-	InheritanceSources types.Object `tfsdk:"inheritance_sources"`
-	Name               types.String `tfsdk:"name"`
-	Space              types.String `tfsdk:"space"`
-	Start              types.String `tfsdk:"start"`
-	Tags               types.Map    `tfsdk:"tags"`
-	TagsAll            types.Map    `tfsdk:"tags_all"`
-	Threshold          types.Object `tfsdk:"threshold"`
+	Comment            types.String                     `tfsdk:"comment"`
+	DhcpHost           types.String                     `tfsdk:"dhcp_host"`
+	DhcpOptions        internaltypes.UnorderedListValue `tfsdk:"dhcp_options"`
+	DisableDhcp        types.Bool                       `tfsdk:"disable_dhcp"`
+	End                types.String                     `tfsdk:"end"`
+	ExclusionRanges    types.List                       `tfsdk:"exclusion_ranges"`
+	Filters            types.List                       `tfsdk:"filters"`
+	InheritanceSources types.Object                     `tfsdk:"inheritance_sources"`
+	Name               types.String                     `tfsdk:"name"`
+	Space              types.String                     `tfsdk:"space"`
+	Start              types.String                     `tfsdk:"start"`
+	Tags               types.Map                        `tfsdk:"tags"`
+	TagsAll            types.Map                        `tfsdk:"tags_all"`
+	Threshold          types.Object                     `tfsdk:"threshold"`
 }
 
 var UDDIRangeAttrTypes = map[string]attr.Type{
 	"comment":             types.StringType,
 	"dhcp_host":           types.StringType,
-	"dhcp_options":        types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}},
+	"dhcp_options":        internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
 	"disable_dhcp":        types.BoolType,
 	"end":                 types.StringType,
 	"exclusion_ranges":    types.ListType{ElemType: types.ObjectType{AttrTypes: ExclusionRangeAttrTypes}},
@@ -739,8 +739,9 @@ var RangeResourceUddiSchemaAttributes = map[string]schema.Attribute{
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: OptionItemResourceSchemaAttributes,
 		},
-		Optional: true,
-		Computed: true,
+		CustomType: internaltypes.UnorderedList{ListType: types.ListType{ElemType: types.ObjectType{AttrTypes: OptionItemAttrTypes}}},
+		Optional:   true,
+		Computed:   true,
 		Validators: []validator.List{
 			customvalidator.ListNotEmpty(),
 		},
@@ -1099,7 +1100,7 @@ func (m *UDDIRangeModel) Flatten(ctx context.Context, from *coremodel.UDDIRangeE
 	}
 	m.Comment = flex.FlattenStringPointer(from.Comment)
 	m.DhcpHost = flex.FlattenStringPointer(from.DhcpHost)
-	m.DhcpOptions = flex.FlattenFrameworkListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
+	m.DhcpOptions = flex.FlattenFrameworkUnorderedListNestedBlock(ctx, from.DhcpOptions, OptionItemAttrTypes, diags, FlattenOptionItem)
 	m.DisableDhcp = flex.FlattenBoolPointer(from.DisableDhcp)
 	m.End = flex.FlattenString(from.End)
 	m.ExclusionRanges = flex.FlattenFrameworkListNestedBlock(ctx, from.ExclusionRanges, ExclusionRangeAttrTypes, diags, FlattenExclusionRange)
