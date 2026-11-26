@@ -417,6 +417,9 @@ var ZoneAuthResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "Determines whether the name servers that host the zone should forward queries (ended with the domain name of the zone) to any configured forwarders.",
 	},
 	"display_domain": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Computed:            true,
 		MarkdownDescription: "The displayed name of the DNS zone.",
 	},

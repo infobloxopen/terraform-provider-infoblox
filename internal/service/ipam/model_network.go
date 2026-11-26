@@ -2,6 +2,7 @@ package ipam
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/cidrtypes"
 	"github.com/hashicorp/terraform-plugin-framework-nettypes/iptypes"
@@ -275,6 +276,9 @@ const (
 
 var NetworkResourceSchemaAttributes = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Computed:            true,
 		MarkdownDescription: "The reference to the object.",
 	},
@@ -580,6 +584,9 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "The IPAM trap settings for this network.",
 	},
 	"ipv4addr": schema.StringAttribute{
+		PlanModifiers: []planmodifier.String{
+			stringplanmodifier.UseStateForUnknown(),
+		},
 		Optional:   true,
 		Computed:   true,
 		CustomType: iptypes.IPv4AddressType{},
@@ -644,6 +651,9 @@ var NetworkResourceNiosSchemaAttributes = map[string]schema.Attribute{
 		MarkdownDescription: "This field controls whether this object is synchronized with the Multi-Grid Master. If this field is set to True, objects are not synchronized.",
 	},
 	"netmask": schema.Int64Attribute{
+		PlanModifiers: []planmodifier.Int64{
+			int64planmodifier.UseStateForUnknown(),
+		},
 		Optional:            true,
 		Computed:            true,
 		MarkdownDescription: "The netmask of the network in CIDR format.",
