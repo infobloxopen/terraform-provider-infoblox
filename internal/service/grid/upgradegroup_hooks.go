@@ -24,7 +24,8 @@ func validateUpgradegroupNIOSConfig(ctx context.Context, m *NIOSUpgradegroupMode
 			return
 		}
 		for i, member := range members {
-			if member.Member.IsNull() || member.Member.IsUnknown() {
+			// Unknown is allowed: the value may come from another resource and is only known at apply.
+			if member.Member.IsNull() {
 				resp.Diagnostics.AddError(
 					"Validation Error",
 					fmt.Sprintf("members.%d.member must be provided", i),

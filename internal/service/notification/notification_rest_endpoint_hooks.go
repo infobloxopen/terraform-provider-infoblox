@@ -26,7 +26,8 @@ func validateNotificationRestEndpointNIOSConfig(ctx context.Context, m *NIOSNoti
 	// outbound_members is required when outbound_member_type == "MEMBER", forbidden otherwise.
 	if !m.OutboundMemberType.IsNull() && !m.OutboundMemberType.IsUnknown() {
 		if m.OutboundMemberType.ValueString() == "MEMBER" {
-			if m.OutboundMembers.IsNull() || m.OutboundMembers.IsUnknown() {
+			// Unknown is allowed: the members may come from another resource and are only known at apply.
+			if m.OutboundMembers.IsNull() {
 				resp.Diagnostics.AddAttributeError(
 					path.Root("nios").AtName("outbound_members"),
 					"Invalid Configuration",
